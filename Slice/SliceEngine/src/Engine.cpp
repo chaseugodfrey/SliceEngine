@@ -5,6 +5,7 @@
 #include "Window.h"
 #include "Core/Core.h"
 
+
 namespace SliceEngine
 {
 
@@ -20,10 +21,10 @@ namespace SliceEngine
 		//inputs = std::make_unique<InputSystem>();
 		//inputs->Init(window);
 		//audio = std::make_unique<AudioManager>();
-		//mResource = std::make_unique<ResourceManager>();
+		mResource = std::make_unique<ResourceManager>();
 
 		//Core::GetInstance()->InitSystem<SoundSystem>();
-		//Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
+		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		//Core::GetInstance()->InitSystem<TransformSystem>();
 
 		////InitSystem<SoundSystem>();
@@ -31,17 +32,12 @@ namespace SliceEngine
 		//audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		////audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
 
-		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		//mResource->LoadModel("Assets/Models/Cube.txt");
-		//mRender = std::make_unique<RenderManager>();
-		////InitSystem<WorldSpaceGraphicsSystem>();
-		////mRender->InitAndLink(Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>(), window);
-		//Core::GetInstance()->InitSystem<CameraSystem>();
+		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		mResource->LoadModel("Assets/Models/Cube.txt");
+		mRender = std::make_unique<RenderManager>();
+		Core::GetInstance()->InitSystem<CameraSystem>();
 
-		//mRender->InitAndLink(window);
-
-		////InitSystem(mPhysicsTest);
-		////InitSystem<TransformSystem>();
+		mRender->InitAndLink(window);
 
 		//framerateManager = std::make_unique<FramerateManager>();
 		//framerateManager->Init();
@@ -89,7 +85,7 @@ namespace SliceEngine
 			//framerateManager->EndFrame();
 			////
 
-			//mRender->Render(window, mResource.get());
+			mRender->Render(window, mResource.get());
 
 
 			glfwSwapBuffers(window);
