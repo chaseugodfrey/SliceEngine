@@ -18,19 +18,18 @@ namespace SliceEngine
 		// Set up Engine Systems
 		isRunning = true;
 
-		//inputs = std::make_unique<InputSystem>();
-		//inputs->Init(window);
-		//audio = std::make_unique<AudioManager>();
+		inputs = std::make_unique<InputSystem>();
+		inputs->Init(window);
+		audio = std::make_unique<AudioManager>();
 		mResource = std::make_unique<ResourceManager>();
 
-		//Core::GetInstance()->InitSystem<SoundSystem>();
+		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
-		//Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<TransformSystem>();
 
-		////InitSystem<SoundSystem>();
-		//audio->Init();
-		//audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
-		////audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
+		audio->Init();
+		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
+		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
 
 		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");
@@ -79,7 +78,7 @@ namespace SliceEngine
 			//framerateManager->StartFrame();
 
 			//framerateManager->StartSystem("Input");
-			//inputs->Update();
+			inputs->Update();
 			//framerateManager->EndSystem("Input");
 
 			//framerateManager->EndFrame();
@@ -98,7 +97,7 @@ namespace SliceEngine
 	void Engine::Exit()
 	{
 		Core::GetInstance()->UnbindSystems();
-		//audio->Exit();
+		audio->Exit();
 
 		Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
