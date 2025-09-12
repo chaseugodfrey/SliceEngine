@@ -92,11 +92,21 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\Core.h" />
+    <ClInclude Include="src\Core\Singleton.h" />
+    <ClInclude Include="src\ECS\BaseSystem.h" />
+    <ClInclude Include="src\ECS\ECSTypes.h" />
+    <ClInclude Include="src\ECS\GameObject.h" />
+    <ClInclude Include="src\ECS\GOFactory.h" />
+    <ClInclude Include="src\ECS\PhysicSystem.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\Logger\Logger.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\Core.cpp" />
+    <ClCompile Include="src\ECS\GameObject.cpp" />
+    <ClCompile Include="src\ECS\GOFactory.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
     <ClCompile Include="src\pch.cpp">
