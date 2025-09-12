@@ -38,8 +38,8 @@ namespace SliceEngine
 
 		mRender->InitAndLink(window);
 
-		//framerateManager = std::make_unique<FramerateManager>();
-		//framerateManager->Init();
+		framerateManager = std::make_unique<FramerateManager>();
+		framerateManager->Init();
 	}
 
 	void Engine::Update()
@@ -75,13 +75,13 @@ namespace SliceEngine
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Main Body
-			//framerateManager->StartFrame();
+			framerateManager->StartFrame();
 
-			//framerateManager->StartSystem("Input");
+			framerateManager->StartSystem("Input");
 			inputs->Update();
-			//framerateManager->EndSystem("Input");
+			framerateManager->EndSystem("Input");
 
-			//framerateManager->EndFrame();
+			framerateManager->EndFrame();
 			////
 
 			mRender->Render(window, mResource.get());

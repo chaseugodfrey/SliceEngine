@@ -9,7 +9,7 @@
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/PhysicSystem.h"
-//#include "FrameManager/FramerateManager.h"
+#include "Systems/FramerateManager.h"
 
 struct GLFWwindow;
 
@@ -27,7 +27,7 @@ namespace SliceEngine
 		std::unique_ptr<AudioManager> audio;
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
-		//std::unique_ptr< FramerateManager> framerateManager;
+		std::unique_ptr< FramerateManager> framerateManager;
 
 		void Init();
 
