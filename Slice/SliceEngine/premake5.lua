@@ -7,7 +7,37 @@ project "SliceEngine"
     targetdir ("")
     -- objdir ("bin-int/%{cfg.buildcfg}")
 
-    files { "src/Engine.cpp", "src/Engine.h" }
+    files { "src/**" }
+
+    includedirs {
+        "src",
+        "thirdparty/entt",
+        "thirdparty/glew",
+        "thirdparty/glfw/include",
+        "thirdparty/glm",
+        "thirdparty/xprop",
+        "thirdparty/rttr/include",
+        "thirdparty/Jolt",
+        "thirdparty/fmod/include"
+    }
+
+    libdirs {
+        "thirdparty/glew",
+        "thirdparty/glfw/lib-vc2022",
+        "thirdparty/rttr/lib",
+        "thirdparty/fmod/lib"
+    }
+
+    links {
+        "glew32",
+        "opengl32",
+        "glfw3",
+        "rttr_core",
+        "fmod_vc"
+    }
+
+    pchheader "pch.h"
+    pchsource "src/pch.cpp"
     
     -- filter "configurations:Release"
     -- postbuildcommands {

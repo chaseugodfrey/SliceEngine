@@ -1,2 +1,7 @@
-﻿  Engine.cpp
-  SliceEngine.vcxproj -> C:\Users\chaseu\Documents\SliceEngine\Slice\SliceEngine\SliceEngine.lib
+﻿  pch.cpp
+  Engine.cpp
+  Logger.cpp
+opengl32.lib(OPENGL32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in glew32.lib(glew32.dll); second definition ignored
+rttr_core.lib(rttr_core.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in glew32.lib(glew32.dll); second definition ignored
+fmod_vc.lib(fmod.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR already defined in glew32.lib(glew32.dll); second definition ignored
+  SliceEngine.vcxproj -> C:\Users\User\Documents\SliceEngine\Slice\SliceEngine\SliceEngine.lib
