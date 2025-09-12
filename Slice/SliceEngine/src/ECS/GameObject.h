@@ -115,8 +115,9 @@ namespace SliceEngine
 
 			}
 
+			T temp{};
 			// NOTE: Throw error when component does not exist
-			return T{};
+			return temp;
 		}
 
 		void SetName(std::string name);

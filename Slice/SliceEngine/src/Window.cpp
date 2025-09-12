@@ -1,0 +1,54 @@
+#include <pch.h>
+#include "Window.h"
+
+namespace SliceEngine
+{
+	GLFWwindow* Window::CreateWindow()
+	{
+		SLICE_LOG("Creating Main Window.");
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		//glClearColor(0.f, 0.f, 0.f, 1.f);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+		glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+		glfwWindowHint(GLFW_DEPTH_BITS, 24);
+		glfwWindowHint(GLFW_RED_BITS, 8);
+		glfwWindowHint(GLFW_GREEN_BITS, 8);
+		glfwWindowHint(GLFW_BLUE_BITS, 8);
+		glfwWindowHint(GLFW_ALPHA_BITS, 8);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+
+		GLFWwindow* window = glfwCreateWindow(900, 600, "Me", nullptr, nullptr);
+
+		glfwMakeContextCurrent(window);
+
+		// Error Checking
+
+		GLenum err = glewInit();
+		if (err != GLEW_OK) {
+			SLICE_LOG("GLEW initialization failed: %s", glewGetErrorString(err));
+			return nullptr;
+		}
+
+		SLICE_LOG("Main Window Created.");
+
+		return window;
+	}
+
+	void Window::ResizeWindow(GLFWwindow* window, int width, int height)
+	{
+		glfwSetWindowSize(window, width, height);
+	}
+
+	void Window::CloseWindow(GLFWwindow* window)
+	{
+	
+		glfwDestroyWindow(window);
+		SLICE_LOG("Main Window Destroyed.");
+	}
+}

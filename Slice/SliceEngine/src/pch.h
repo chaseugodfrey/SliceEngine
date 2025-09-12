@@ -35,8 +35,8 @@
 // external libs
 
 // glfw
-// #include <glew.h>
-// #include <glfw3.h>
+ #include <GL/glew.h>
+ #include <glfw3.h>
 
 // fmod
 // #include <fmod.hpp>
