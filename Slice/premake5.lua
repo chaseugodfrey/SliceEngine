@@ -7,5 +7,20 @@ workspace "Slice"
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
 
+IncludeDir = {}
+IncludeDir["EnginePublic"]   = "%{wks.location}/SliceEngine/src"
+IncludeDir["EnTT"]              = "%{wks.location}/SliceEngine/thirdparty/entt"
+
+ThirdParty = {}
+ThirdParty.GLEW_INC = "%{wks.location}/SliceEngine/thirdparty/glew/GL"
+ThirdParty.GLEW_LIB = "%{wks.location}/SliceEngine/thirdparty/glew"
+ThirdParty.GLFW_INC = "%{wks.location}/SliceEngine/thirdparty/glfw/include"
+ThirdParty.GLFW_LIB = "%{wks.location}/SliceEngine/thirdparty/glfw/lib-vc2022"
+ThirdParty.FMOD_INC = "%{wks.location}/SliceEngine/thirdparty/fmod/include"
+ThirdParty.FMOD_LIB = "%{wks.location}/SliceEngine/thirdparty/fmod/lib"
+ThirdParty.GLEW_DLL =  "%{wks.location}/SliceEngine/thirdparty/glew/glew32.dll"
+ThirdParty.GLFW_DLL = "%{wks.location}/SliceEngine/thirdparty/glfw/lib-vc2022/glfw3.dll"
+ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
+
 include "SliceEngine/premake5.lua"
 include "SliceEditor/premake5.lua"

@@ -2,19 +2,19 @@
 #define ENGINE_H
 //
 //#include "Window.h"
-#include "Input/InputSystem.h"
-#include "AudioManager.h"
-#include "Systems/TransformSystem.h"
-#include "Graphics/ResourceManager.h"
-#include "Graphics/RenderManager.h"
-#include "ECS/BaseSystem.h"
-#include "ECS/PhysicSystem.h"
-#include "Systems/FramerateManager.h"
 
 struct GLFWwindow;
 
+#include <memory>
+
 namespace SliceEngine
 {
+	class InputSystem;
+	class AudioManager;
+	class ResourceManager;;
+	class RenderManager;
+	class FramerateManager;
+
 	class Engine
 	{
 		GLFWwindow* window;
@@ -27,8 +27,12 @@ namespace SliceEngine
 		std::unique_ptr<AudioManager> audio;
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
-		std::unique_ptr< FramerateManager> framerateManager;
+		std::unique_ptr<FramerateManager> framerateManager;
 
+		Engine();
+		~Engine();
+
+		void Test();
 		void Init();
 
 		void Update();

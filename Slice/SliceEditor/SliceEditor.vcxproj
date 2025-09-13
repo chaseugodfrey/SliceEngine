@@ -45,6 +45,7 @@
     <IntDir>$(ProjectDir)..\build\bin-int\EditorDebug\SliceEditor\</IntDir>
     <TargetName>SliceEditor</TargetName>
     <TargetExt>.exe</TargetExt>
+    <ExternalIncludePath>..\SliceEngine\thirdparty\entt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -52,12 +53,13 @@
     <IntDir>$(ProjectDir)..\build\bin-int\EditorRelease\SliceEditor\</IntDir>
     <TargetName>SliceEditor</TargetName>
     <TargetExt>.exe</TargetExt>
+    <ExternalIncludePath>..\SliceEngine\thirdparty\entt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>SliceEditor\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>SliceEditor\src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -66,16 +68,22 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>copy /B /Y $(SolutionDir)\SliceEngine\SliceEngine.lib ..\build\bin\EditorDebug\SliceEditor</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>SliceEditor\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>SliceEditor\src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -84,10 +92,16 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>copy /B /Y $(SolutionDir)\SliceEngine\SliceEngine.lib ..\build\bin\EditorRelease\SliceEditor</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />

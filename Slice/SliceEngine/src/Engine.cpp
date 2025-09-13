@@ -4,10 +4,29 @@
 #include "ECS/PhysicSystem.h"
 #include "Window.h"
 #include "Core/Core.h"
+#include "Input/InputSystem.h"
+#include "AudioManager.h"
+#include "Systems/TransformSystem.h"
+#include "Graphics/ResourceManager.h"
+#include "Graphics/RenderManager.h"
+#include "ECS/BaseSystem.h"
+#include "ECS/PhysicSystem.h"
+#include "Systems/FramerateManager.h"
 
 
 namespace SliceEngine
 {
+	Engine::Engine()
+	{
+	}
+	Engine::~Engine()
+	{
+	}
+
+	void Engine::Test()
+	{
+		std::cout << " Hi from Engine Test Function\n";
+	}
 
 	void Engine::Init()
 	{
@@ -38,8 +57,8 @@ namespace SliceEngine
 
 		mRender->InitAndLink(window);
 
-		framerateManager = std::make_unique<FramerateManager>();
-		framerateManager->Init();
+		//framerateManager = std::make_unique<FramerateManager>();
+		//framerateManager->Init();
 	}
 
 	void Engine::Update()
@@ -47,25 +66,25 @@ namespace SliceEngine
 
 		//physics.Bind(mRegistry);
 
-		auto& entity = Core::GetInstance()->mFactory.CreateGO();
+		//auto& entity = Core::GetInstance()->mFactory.CreateGO();
 		//Core::GetInstance()->mRegistry.emplace<Transform>(entity, glm::vec3(0.f), glm::vec3(50.f,0.f,0.f));
 		//Core::GetInstance()->mRegistry.emplace<RigidBody>(entity, false);
 		//Core::GetInstance()->mRegistry.emplace<Renderer>(entity);
 
 		//entity.AddComponent<Transform>(glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
-		entity.AddComponent<RigidBody>(false);
-		entity.GetComponent<Transform>().position = glm::vec3(0.f);
-		entity.GetComponent<Transform>().rotation = glm::vec3(50.f, 0.f, 0.f);
+		//entity.AddComponent<RigidBody>(false);
+		//entity.GetComponent<Transform>().position = glm::vec3(0.f);
+		//entity.GetComponent<Transform>().rotation = glm::vec3(50.f, 0.f, 0.f);
 
-		entity.AddComponent<Renderer>();
+		//entity.AddComponent<Renderer>();
 
-		Core::GetInstance()->mFactory.TestLoop();
+		//Core::GetInstance()->mFactory.TestLoop();
 
 		//auto& test = Core::GetInstance()->mRegistry.get<Transform>(entity.GetEntity());
 		//mPhysicsTest->Update(2.0f);
 		//physics(2.0f);
 
-		entity.RemoveComponent<RigidBody>();
+		//entity.RemoveComponent<RigidBody>();
 		//Core::GetInstance()->mRegistry.remove<RigidBody>(entity);
 
 		while (isRunning)
@@ -75,13 +94,13 @@ namespace SliceEngine
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			// Main Body
-			framerateManager->StartFrame();
+			//framerateManager->StartFrame();
 
-			framerateManager->StartSystem("Input");
-			inputs->Update();
-			framerateManager->EndSystem("Input");
+			//framerateManager->StartSystem("Input");
+			//inputs->Update();
+			//framerateManager->EndSystem("Input");
 
-			framerateManager->EndFrame();
+			//framerateManager->EndFrame();
 			////
 
 			mRender->Render(window, mResource.get());

@@ -44,3 +44,4 @@ project "SliceEngine"
     --     '{COPY} SliceEngine.lib ../ReleaseLibs/SliceEngine.lib'
     -- }
 
+print("engine")
