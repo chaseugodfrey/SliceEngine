@@ -3,11 +3,9 @@
 
 namespace SliceEngine
 {
-	GameObject::GameObject(Registry& reg)
+	GameObject::GameObject(Registry& reg) : mRegistry(&reg), mEntity(mRegistry->create())
 	{
-		mRegistry = &reg;
 
-		mEntity = mRegistry->create();
 	}
 
 	void GameObject::SetName(std::string name)
@@ -27,7 +25,7 @@ namespace SliceEngine
 		//mRegistry.eac
 	}
 
-	Entity& GameObject::GetEntity()
+	const Entity& GameObject::GetEntity()
 	{
 		return mEntity;
 	}

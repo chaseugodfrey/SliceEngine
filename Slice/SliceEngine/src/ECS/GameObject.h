@@ -126,10 +126,10 @@ namespace SliceEngine
 
 		void Destroy();
 
-		Entity& GetEntity();
+		const Entity& GetEntity();
 
 	private:
-		Entity mEntity{};
+		const Entity mEntity{};
 		std::string mName{};
 		Registry* mRegistry{ nullptr };
 
