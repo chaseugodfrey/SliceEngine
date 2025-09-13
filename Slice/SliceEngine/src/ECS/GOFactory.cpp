@@ -5,6 +5,11 @@
 
 namespace SliceEngine
 {
+	GOFactory::GOFactory()
+	{
+
+	}
+
 	GOFactory::~GOFactory()
 	{
 
@@ -12,7 +17,7 @@ namespace SliceEngine
 
 	GameObject& GOFactory::CreateGO(std::string name)
 	{
-		GameObject go(mRegistry);
+		GameObject go(*mRegistry);
 		go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
@@ -28,7 +33,7 @@ namespace SliceEngine
 
 	GameObject& GOFactory::CreateUIGO(std::string name)
 	{
-		GameObject go(mRegistry);
+		GameObject go(*mRegistry);
 		go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
@@ -44,14 +49,14 @@ namespace SliceEngine
 
 	GameObject GOFactory::CloneGO(GameObject& go)
 	{
-		GameObject newGO(mRegistry);
+		GameObject newGO(*mRegistry);
 		
 		newGO.SetName(CreateName(go.GetName()));
 
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
 		{
-			cloner.second(mRegistry, go.GetEntity(), newGO.GetEntity());
+			cloner.second(*mRegistry, go.GetEntity(), newGO.GetEntity());
 		}
 
 		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
@@ -72,13 +77,13 @@ namespace SliceEngine
 
 	void GOFactory::TestLoop()
 	{
-		auto entityView = mRegistry.view<SliceEntity>();
+		auto entityView = mRegistry->view<SliceEntity>();
 		for (auto entity : entityView)
 		{
 			std::cout << mEntityToGO[entity].GetName() << std::endl;
 			
 			
-			for (auto&& [type_id, storage] : mRegistry.storage())
+			for (auto&& [type_id, storage] : mRegistry->storage())
 			{
 				if (storage.contains(entity))
 				{

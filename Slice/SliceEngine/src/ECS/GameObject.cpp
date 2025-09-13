@@ -27,7 +27,7 @@ namespace SliceEngine
 		//mRegistry.eac
 	}
 
-	Entity GameObject::GetEntity()
+	Entity& GameObject::GetEntity()
 	{
 		return mEntity;
 	}

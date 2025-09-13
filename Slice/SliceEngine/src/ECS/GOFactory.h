@@ -13,12 +13,7 @@ namespace SliceEngine
 	class GOFactory
 	{
 	public:
-		GOFactory(Registry& reg) : mRegistry(reg) 
-		{
-			// idk maybe can create all the component cloners here?
-			//CreateComponentCloner<Transform>();
-		};
-
+		GOFactory();
 		~GOFactory();
 
 		// uses entt's emplace_or_replace to clone components
@@ -55,13 +50,13 @@ namespace SliceEngine
 		void UpdateDestroyed();
 		std::string CreateName(std::string name);
 
+		Registry* mRegistry;
 	private:
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
 
 		std::set<Entity> mDeleteList;
-		Registry& mRegistry;
 
 
 	};

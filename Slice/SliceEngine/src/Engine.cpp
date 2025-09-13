@@ -33,7 +33,7 @@ namespace SliceEngine
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
 		window = Window::CreateWindow();
-
+		Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
 
@@ -66,17 +66,17 @@ namespace SliceEngine
 
 		//physics.Bind(mRegistry);
 
-		//auto& entity = Core::GetInstance()->mFactory.CreateGO();
-		//Core::GetInstance()->mRegistry.emplace<Transform>(entity, glm::vec3(0.f), glm::vec3(50.f,0.f,0.f));
+		auto& entity = Core::GetInstance()->mFactory.CreateGO();
+		//Core::GetInstance()->mRegistry.emplace<Transform>(entity.GetEntity(), glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
 		//Core::GetInstance()->mRegistry.emplace<RigidBody>(entity, false);
-		//Core::GetInstance()->mRegistry.emplace<Renderer>(entity);
+		//Core::GetInstance()->mRegistry.emplace<Renderer>(entity.GetEntity());
 
+		entity.AddComponent<Renderer>();
 		//entity.AddComponent<Transform>(glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
 		//entity.AddComponent<RigidBody>(false);
 		//entity.GetComponent<Transform>().position = glm::vec3(0.f);
 		//entity.GetComponent<Transform>().rotation = glm::vec3(50.f, 0.f, 0.f);
 
-		//entity.AddComponent<Renderer>();
 
 		//Core::GetInstance()->mFactory.TestLoop();
 

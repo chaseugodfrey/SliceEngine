@@ -126,7 +126,7 @@ namespace SliceEngine
 
 		void Destroy();
 
-		Entity GetEntity();
+		Entity& GetEntity();
 
 	private:
 		Entity mEntity{};

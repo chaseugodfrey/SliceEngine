@@ -16,11 +16,12 @@ namespace SliceEngine
 	class Core : public Singleton<Core>
 	{
 	public:
-		Core() : mFactory(mRegistry)
-		{}
-
+		Core();
+		~Core();
 		// TODO: Update retrieving the name to use RTTR's 
 		// need to create window system that stores the window handle
+
+		void InitFactory();
 
 		template<typename T>
 		void InitSystem()

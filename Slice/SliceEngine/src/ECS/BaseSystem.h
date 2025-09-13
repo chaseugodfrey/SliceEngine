@@ -64,11 +64,11 @@ namespace SliceEngine
 			Unbind();
 		}
 
-		virtual void EntityOnEnter(entt::registry& reg, entt::entity entity) {}
+		virtual void EntityOnEnter(entt::registry& reg, entt::entity entity) = 0;
 
-		virtual void EntityOnExit(entt::registry& reg, entt::entity entity) {}
+		virtual void EntityOnExit(entt::registry& reg, entt::entity entity) = 0;
 
-		virtual void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) {}
+		virtual void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) = 0;
 
 		entt::registry* mRegistry{};
 	private:

@@ -3,6 +3,21 @@
 
 namespace SliceEngine
 {
+	Core::Core()
+	{
+
+	}
+
+	Core::~Core()
+	{
+
+	}
+
+	void Core::InitFactory()
+	{
+		mFactory.mRegistry = &mRegistry;
+	}
+
 	void Core::UnbindSystems()
 	{
 		for (auto& system : mSystems)
