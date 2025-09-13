@@ -46,6 +46,12 @@ namespace SliceEngine
 		GLuint textureID{}, depthTex{};
 	};
 
+	struct RigidBody
+	{
+		bool isKinematic{};
+	};
+
+
 	//RTTR_REGISTRATION
 	//{
 	//rttr::registration::class_<Transform>("Transform")

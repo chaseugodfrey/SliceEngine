@@ -29,7 +29,8 @@ namespace SliceEngine
 		// Every entity created will keep this flag for easy pulling
 		//go.AddComponent<SliceEntity>();
 		mRegistry.emplace_or_replace<SliceEntity>(go);
-
+		//mRegistry.emplace_or_replace<RigidBody>(entity, false);
+		//mRegistry.emplace_or_replace<Renderer>(entity);
 		return go;
 	}
 

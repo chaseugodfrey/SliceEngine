@@ -74,9 +74,10 @@ namespace SliceEngine
 		Entity const& entity = Core::GetInstance()->mFactory.CreateGO();
 		bool ret = Core::GetInstance()->GetRegistry().valid(entity);
 		//Core::GetInstance()->mRegistry.emplace<Transform>(entity.GetEntity(), glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
-		Core::GetInstance()->GetRegistry().emplace_or_replace<RigidBody>(entity, false);
-		ret = Core::GetInstance()->GetRegistry().valid(entity);
 		Core::GetInstance()->GetRegistry().emplace_or_replace<Renderer>(entity);
+		ret = Core::GetInstance()->GetRegistry().valid(entity);
+		Core::GetInstance()->GetRegistry().emplace_or_replace<Camera>(entity);
+		ret = Core::GetInstance()->GetRegistry().valid(entity);
 
 		//entity.AddComponent<Renderer>();
 		//entity.AddComponent<Transform>(glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
