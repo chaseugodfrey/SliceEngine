@@ -27,7 +27,7 @@ namespace SliceEngine
 		void InitSystem()
 		{
 			std::unique_ptr<T> system = std::make_unique<T>();
-			system->Bind(mRegistry);
+			system->Bind(mFactory.mRegistry);
 
 			//std::string systemName = rttr::type::get<T>().get_name().to_string();
 			std::string systemName = typeid(T).name();
@@ -54,10 +54,11 @@ namespace SliceEngine
 			// should never reach here
 			assert("System does not exist!");
 		}
+
+		Registry& GetRegistry();
 	
 		void UnbindSystems();
 
-		Registry mRegistry;
 		GOFactory mFactory;
 
 

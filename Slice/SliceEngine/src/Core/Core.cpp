@@ -13,9 +13,14 @@ namespace SliceEngine
 
 	}
 
+	Registry& Core::GetRegistry()
+	{
+		return mFactory.mRegistry;
+	}
+
 	void Core::InitFactory()
 	{
-		mFactory.mRegistry = &mRegistry;
+		//mFactory.mRegistry = &mRegistry;
 	}
 
 	void Core::UnbindSystems()

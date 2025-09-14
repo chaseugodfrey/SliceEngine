@@ -1,6 +1,6 @@
 #ifndef GO_FACTORY_H
 #define GO_FACTORY_H
-
+#include "ECSTypes.h"
 #include "GameObject.h"
 #include <entt.hpp>
 
@@ -8,7 +8,6 @@ namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
 
-	struct SliceEntity {};
 
 	class GOFactory
 	{
@@ -27,30 +26,29 @@ namespace SliceEngine
 			const entt::id_type id = entt::type_id<T>().hash();
 			mComponentCloners.emplace(id, [](Registry& reg, Entity toClone, Entity toCreate)
 				{
-					/*if (auto* component = reg.try_get<T>(toClone))
+					if (auto* component = reg.try_get<T>(toClone))
 					{
 						if constexpr (std::is_empty_v<T>)
 						{
-							reg.emplace_or_replace<T>(d);
+							reg.emplace_or_replace<T>(toCreate);
 						}
 						else
 						{
-							reg.emplace_or_replace<T>(d, *c);
+							reg.emplace_or_replace<T>(toCreate, *component);
 						}
-					}*/
+					}
 				});
 		};
 
-		GameObject& CreateGO(std::string name = "GameObject");
-		GameObject& CreateUIGO(std::string name = "UI_GameObject");
-		GameObject CloneGO(GameObject & go);
-		void Destroy(Entity const& entity);
+		GameObject CreateGO(std::string name = "GameObject");
+		GameObject CreateUIGO(std::string name = "UI_GameObject");
+		GameObject CloneGO(GameObject const& go);
 		void Destroy(GameObject& go);
 		void TestLoop();
 		void UpdateDestroyed();
 		std::string CreateName(std::string name);
 
-		Registry* mRegistry;
+		Registry mRegistry;
 	private:
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;

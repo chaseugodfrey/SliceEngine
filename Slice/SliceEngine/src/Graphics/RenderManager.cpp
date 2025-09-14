@@ -24,9 +24,9 @@ namespace SliceEngine
 		glfwGetWindowSize(window, &width, &height);
 		CreateFramebuffer(width, height);
 
-		mainCam = Core::GetInstance()->mRegistry.create();
-		Core::GetInstance()->mRegistry.emplace<Transform>(mainCam, glm::vec3(-2.f,0.f,0.f), glm::vec3(0.f, 0.f, 0.f));
-		Core::GetInstance()->mRegistry.emplace<Camera>(mainCam);
+		mainCam = Core::GetInstance()->GetRegistry().create();
+		Core::GetInstance()->GetRegistry().emplace<Transform>(mainCam, glm::vec3(-2.f,0.f,0.f), glm::vec3(0.f, 0.f, 0.f));
+		Core::GetInstance()->GetRegistry().emplace<Camera>(mainCam);
 	}
 
 	void RenderManager::Render(GLFWwindow* window, ResourceManager* rcManager)
@@ -45,8 +45,8 @@ namespace SliceEngine
 
 	void RenderManager::UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager)
 	{
-		auto& camera = Core::GetInstance()->mRegistry.get<Camera>(mainCam);
-		auto& camTrans = Core::GetInstance()->mRegistry.get<Transform>(mainCam);
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam);
+		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(mainCam);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, camera.textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
@@ -106,11 +106,11 @@ namespace SliceEngine
 	}
 	GLuint RenderManager::GetTexture()
 	{
-		return Core::GetInstance()->mRegistry.get<Camera>(mainCam).textureID;
+		return Core::GetInstance()->GetRegistry().get<Camera>(mainCam).textureID;
 	}
 	Transform& RenderManager::GetMainCameraTransform()
 	{
-		return Core::GetInstance()->mRegistry.get<Transform>(mainCam);
+		return Core::GetInstance()->GetRegistry().get<Transform>(mainCam);
 	}
 	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
 	{

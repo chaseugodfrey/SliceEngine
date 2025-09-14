@@ -1,13 +1,12 @@
 #include <pch.h>
 #include "GameObject.h"
+#include <utility>
 
 namespace SliceEngine
 {
-	GameObject::GameObject(Registry& reg)
+	GameObject::GameObject(Registry& reg, Entity entity) : mRegistry(&reg), mEntity(entity)
 	{
-		mRegistry = &reg;
-
-		mEntity = mRegistry->create();
+		//mEntity = mRegistry->create();
 	}
 
 	void GameObject::SetName(std::string name)
@@ -27,8 +26,14 @@ namespace SliceEngine
 		//mRegistry.eac
 	}
 
-	Entity& GameObject::GetEntity()
+	 Entity GameObject::GetEntity() const
 	{
 		return mEntity;
 	}
+
+	 bool GameObject::IsValid() const
+	 {
+		 return mRegistry && mRegistry->valid(mEntity);
+	 }
+
 }

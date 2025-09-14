@@ -13,10 +13,6 @@ namespace SliceEngine
 	//	float rot{};
 	//};
 
-	struct RigidBody
-	{
-		bool isKinematic{};
-	};
 
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};

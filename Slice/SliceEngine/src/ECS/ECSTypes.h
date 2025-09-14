@@ -14,6 +14,13 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct SliceEntity 
+	{
+		bool active;
+
+		SliceEntity() : active(true) {}
+	};
+
 	struct testStruct
 	{
 		int val;
@@ -45,6 +52,12 @@ namespace SliceEngine
 		float pov, near, far;
 		GLuint textureID{}, depthTex{};
 	};
+
+	struct RigidBody
+	{
+		bool isKinematic{};
+	};
+
 
 	//RTTR_REGISTRATION
 	//{
