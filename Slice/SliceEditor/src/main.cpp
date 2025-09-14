@@ -1,12 +1,11 @@
-﻿#include "Engine.h"
+﻿#include <pch.h>
+#include "Editor.h"
 
 int main()
 {
-	SliceEngine::Engine engine{};
-	engine.Test();
-	engine.Init();
-	engine.Update();
-	engine.Exit();
-
+	SliceEditor::Editor editor;
+	editor.Init();
+	editor.Run();
+	editor.Exit();
 	return 0;
 }
