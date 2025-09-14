@@ -6,18 +6,19 @@ project "SliceEditor"
     targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
 
-    files { "src/main.cpp" }
+    files { "src/**" }
 
     includedirs {
-        "SliceEditor/src",
+        "src",
         IncludeDir.EnginePublic,
         ThirdParty.GLEW_INC,
         ThirdParty.GLFW_INC,
-        ThirdParty.FMOD_INC
+        ThirdParty.FMOD_INC,
+        "thirdparty/imgui/include"
     }
 
     externalincludedirs {
-        IncludeDir.EnTT
+
     }
 
     libdirs {
@@ -27,6 +28,9 @@ project "SliceEditor"
     }
 
     links { "SliceEngine" }
+
+    pchheader "pch.h"
+    pchsource "src/pch.cpp"
  
     prebuildcommands {
         '{COPYFILE} ' .. engine_lib_path .. ' %{cfg.targetdir}'
@@ -37,5 +41,5 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
     }
-    
+
 print("editor")

@@ -67,11 +67,10 @@ namespace SliceEngine
 		//physics.Bind(mRegistry);
 
 		auto& entity = Core::GetInstance()->mFactory.CreateGO();
-		//Core::GetInstance()->mRegistry.emplace<Transform>(entity.GetEntity(), glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
+		//Core::GetInstance()->mRegistry.emplace<Transform>(entity, glm::vec3(0.f), glm::vec3(50.f,0.f,0.f));
 		//Core::GetInstance()->mRegistry.emplace<RigidBody>(entity, false);
 		//Core::GetInstance()->mRegistry.emplace<Renderer>(entity.GetEntity());
 
-		entity.AddComponent<Renderer>();
 		//entity.AddComponent<Transform>(glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
 		//entity.AddComponent<RigidBody>(false);
 		//entity.GetComponent<Transform>().position = glm::vec3(0.f);
@@ -87,30 +86,27 @@ namespace SliceEngine
 		//entity.RemoveComponent<RigidBody>();
 		//Core::GetInstance()->mRegistry.remove<RigidBody>(entity);
 
-		while (isRunning)
-		{
-			glfwMakeContextCurrent(window);
-			glfwPollEvents();
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glfwMakeContextCurrent(window);
+		glfwPollEvents();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			// Main Body
-			//framerateManager->StartFrame();
+		// Main Body
+		//framerateManager->StartFrame();
 
-			//framerateManager->StartSystem("Input");
-			//inputs->Update();
-			//framerateManager->EndSystem("Input");
+		//framerateManager->StartSystem("Input");
+		//inputs->Update();
+		//framerateManager->EndSystem("Input");
 
-			//framerateManager->EndFrame();
-			////
+		//framerateManager->EndFrame();
+		////
 
-			mRender->Render(window, mResource.get());
+		mRender->Render(window, mResource.get());
 
 
-			glfwSwapBuffers(window);
+		glfwSwapBuffers(window);
 
-			if (glfwWindowShouldClose(window))
-				isRunning = false;
-		}
+		if (glfwWindowShouldClose(window))
+			isRunning = false;
 	}
 
 	void Engine::Exit()

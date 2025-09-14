@@ -17,12 +17,12 @@ namespace SliceEngine
 
 	class Engine
 	{
-		GLFWwindow* window;
 		bool isRunning;
 
 	public:
 
 		// Gonna try to grp these tgt with the other systems in core.h
+		GLFWwindow* window;
 		std::unique_ptr<InputSystem> inputs;
 		std::unique_ptr<AudioManager> audio;
 		std::unique_ptr<ResourceManager> mResource;
