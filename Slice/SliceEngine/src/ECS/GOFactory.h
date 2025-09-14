@@ -1,14 +1,13 @@
 #ifndef GO_FACTORY_H
 #define GO_FACTORY_H
 #include "ECSTypes.h"
-
+#include "GameObject.h"
 #include <entt.hpp>
 
 namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity const& eToClone, Entity const& eToCreate)>;
 
-	struct SliceEntity {};
 
 	class GOFactory
 	{
@@ -41,10 +40,10 @@ namespace SliceEngine
 				});
 		};
 
-		Entity& CreateGO(std::string name = "GameObject");
-		Entity& CreateUIGO(std::string name = "UI_GameObject");
-		Entity& CloneGO(Entity const& go);
-		void Destroy(Entity& go);
+		GameObject CreateGO(std::string name = "GameObject");
+		GameObject CreateUIGO(std::string name = "UI_GameObject");
+		GameObject CloneGO(GameObject const& go);
+		void Destroy(GameObject& go);
 		void TestLoop();
 		void UpdateDestroyed();
 		std::string CreateName(std::string name);
@@ -52,6 +51,7 @@ namespace SliceEngine
 		Registry mRegistry;
 	private:
 		std::unordered_map<std::string, Entity> mNameToEntity;
+		std::unordered_map<Entity, GameObject> mEntityToGO;
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
 
 		std::set<Entity> mDeleteList;

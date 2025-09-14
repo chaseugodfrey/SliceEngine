@@ -14,7 +14,7 @@ namespace SliceEngine
 
 		GameObject() = default;
 
-		GameObject(Registry& reg);
+		GameObject(Registry& reg, Entity entity);
 
 		~GameObject()
 		{
@@ -22,77 +22,19 @@ namespace SliceEngine
 		};
 
 		template<typename T, typename... Args>
-		void AddComponent(Args&&... args)
-		{
-			//rttr::type tType = rttr::type::get<T>();
-			//rttr::type transformType = rttr::type::get<Transform>();
-			//rttr::type uiTransformType = rttr::type::get<UITransform>();
-
-			//// If adding transform or UI Transform
-			//// check to make sure it doesn't already have one
-			//// if it does then dont let it add
-			//// changing between UI and Transform should be done in another function
-			//if (tType == transformType || tType == uiTransformType)
-			//{
-			//	if (mRegistry->any_of<Transform, UITransform>(mEntity))
-			//	{
-			//		if (tType == uiTransformType)
-			//		{
-			//			// log an error saying cant add UI transform to transform
-
-			//			return;
-			//		}
-			//	}
-			//}
-
-			// Get UI transform here once we have it
-			// then check if it already has transform dont add uitransform and vice versa
-			
-			mRegistry->emplace<T>(mEntity, std::forward<Args>(args)...);
-
-			// idk why EnTT can't return a get<T>
-			//return mRegistry->get<T>(mEntity);
-		}
-
-		template<typename T>
-		void ChangeTransform()
-		{
-			//rttr::type tType = rttr::type::get<T>();
-			//rttr::type transformType = rttr::type::get<Transform>();
-			//rttr::type uiTransformType = rttr::type::get<UITransform>();
-
-			//if (tType == transformType)
-			//{
-			//	// if it has a UI transform changing to transform
-			//	if (mRegistry->any_of<UITransform>(mEntity))
-			//	{
-			//		// idk what to do yet when we wanna do this
-			//		// maybe clear all non compatible components?
-			//	}
-			//}
-			//else if (tType == uiTransformType)
-			//{
-			//	// if it has transform changing to UI transform
-			//	if (mRegistry->any_of<Transform>(mEntity))
-			//	{
-			//		// idk what to do yet when we wanna do this
-			//		// maybe clear all non compatible components?
-			//	}
-			//}
+		T& AddComponent(Args&&... args)
+		{			
+			if (!IsValid())
+			{
+				assert("why the fk");
+			}
+			mRegistry->emplace_or_replace<T>(mEntity, std::forward<Args>(args)...);
+			return GetComponent<T>();
 		}
 
 		template<typename T>
 		void RemoveComponent()
 		{
-			//rttr::type tType = rttr::type::get<T>();
-
-			//if (tType == rttr::type::get<Transform>())
-			//{
-			//	// TODO_Gideon: log an error saying can't remove transform or smth
-
-			//	return;
-			//}
-
 			mRegistry->remove<T>(mEntity);
 		}
 
@@ -102,7 +44,10 @@ namespace SliceEngine
 			mRegistry.all_of<T>(mEntity);
 		}
 
-
+		bool IsValid() const
+		{
+			return mRegistry && mRegistry->valid(mEntity);
+		}
 
 		template<typename T>
 		T& GetComponent()
@@ -112,7 +57,6 @@ namespace SliceEngine
 			if (component)
 			{
 				return *component;
-
 			}
 
 			T temp{};
@@ -126,10 +70,10 @@ namespace SliceEngine
 
 		void Destroy();
 
-		const Entity& GetEntity();
+		Entity GetEntity() const;
 
 	private:
-		const Entity mEntity{};
+		Entity mEntity{entt::null};
 		std::string mName{};
 		Registry* mRegistry{ nullptr };
 

@@ -1,4 +1,5 @@
 #include <pch.h>
+
 #include "GOFactory.h"
 
 
@@ -14,65 +15,71 @@ namespace SliceEngine
 
 	}
 
-	Entity& GOFactory::CreateGO(std::string name)
+	GameObject GOFactory::CreateGO(std::string name)
 	{
-		Entity go = mRegistry.create();
+		//Entity go = mRegistry.create();
+		Entity entity = mRegistry.create();
+		GameObject go(mRegistry, entity);
 
-		/*GameObject go(*mRegistry);
-		go.SetName(CreateName(name));*/
-		//mNameToEntity.insert(std::make_pair("Test", go));
-		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+
+
+		go.SetName(CreateName(name));
+		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
 		// Can add default components here like transform
-		mRegistry.emplace_or_replace<Transform>(go);
-
+		//mRegistry.emplace_or_replace<Transform>(go);
+		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
-		//go.AddComponent<SliceEntity>();
-		mRegistry.emplace_or_replace<SliceEntity>(go);
+		go.AddComponent<SliceEntity>();
+		//mRegistry.emplace_or_replace<SliceEntity>(go);
 		//mRegistry.emplace_or_replace<RigidBody>(entity, false);
 		//mRegistry.emplace_or_replace<Renderer>(entity);
 		return go;
 	}
 
-	Entity& GOFactory::CreateUIGO(std::string name)
+	GameObject GOFactory::CreateUIGO(std::string name)
 	{
-		Entity go = mRegistry.create();
+		//Entity go = mRegistry.create();
 
-		/*GameObject go(*mRegistry);
-		go.SetName(CreateName(name));*/
-		//mNameToEntity.insert(std::make_pair("Test", go));
-		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+		Entity entity = mRegistry.create();
+		GameObject go(mRegistry, entity);
+		go.SetName(CreateName(name));
+		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
 		// Can add default components here like UITransform
 
 		// Every entity created will keep this flag for easy pulling
-		mRegistry.emplace<SliceEntity>(go);
+		//mRegistry.emplace<SliceEntity>(go);
+		go.AddComponent<SliceEntity>();
 
 		return go;
 
 	}
 
-	Entity& GOFactory::CloneGO(Entity const& go)
+	GameObject GOFactory::CloneGO(GameObject const& go)
 	{
-		Entity newGO = mRegistry.create();
+		Entity entity = mRegistry.create();
+		GameObject newGO(mRegistry, entity);
 
-		//newGO.SetName(CreateName(go.GetName()));
+		newGO.SetName(CreateName(newGO.GetName()));
 
-		// loop through every component cloner to clone the component onto the new entity
-		for (auto& cloner : mComponentCloners)
-		{
-			cloner.second(mRegistry, go, newGO);
-		}
+		//// loop through every component cloner to clone the component onto the new entity
+		//for (auto& cloner : mComponentCloners)
+		//{
+		//	cloner.second(mRegistry, go, newGO);
+		//}
 
-		//mNameToEntity.insert(std::make_pair("Test", newGO));
-		//mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+		////mNameToEntity.insert(std::make_pair("Test", newGO));
+		////mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
 
 		return newGO;
 	}
 
-	void GOFactory::Destroy(Entity& go)
+	void GOFactory::Destroy(GameObject& go)
 	{
-		mDeleteList.insert(go);
+		mDeleteList.insert(go.GetEntity());
 	}
 
 	void GOFactory::TestLoop()
@@ -105,11 +112,12 @@ namespace SliceEngine
 		{
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
-			//mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
-			mNameToEntity.erase("Test");
-			//mEntityToGO.erase(Entity);
+			mNameToEntity.erase(mEntityToGO[Entity].GetName());
+			mEntityToGO.erase(Entity);
+
+			mEntityToGO[Entity].Destroy();
 
 			//mRegistry.destroy(Entity);
 		}

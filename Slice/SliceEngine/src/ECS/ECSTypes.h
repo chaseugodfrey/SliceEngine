@@ -14,6 +14,13 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct SliceEntity 
+	{
+		bool active;
+
+		SliceEntity() : active(true) {}
+	};
+
 	struct testStruct
 	{
 		int val;
