@@ -34,7 +34,7 @@ project "SliceEditor"
 
     -- Disable PCH for external files
     filter "files:thirdparty/**.cpp"
-    flags { "NoPCH" }
+        flags { "NoPCH" }
 
     filter "files:thirdparty/**.c"
         flags { "NoPCH" }
@@ -44,7 +44,7 @@ project "SliceEditor"
 
  
     prebuildcommands {
-        '{COPYFILE} ' .. engine_lib_path .. ' %{cfg.targetdir}'
+        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"'
     }
 
     postbuildcommands {
