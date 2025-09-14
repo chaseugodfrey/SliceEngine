@@ -4,12 +4,14 @@
 struct GLFWwindow;
 
 #include "Engine.h"
+#include "WindowManager/WindowManager.h"
 
 namespace SliceEditor
 {
 	class Editor
 	{
 		SliceEngine::Engine engine;
+		WindowManager windowManager;
 		//std::unique_ptr<EditorState> editorState;
 		//std::unique_ptr<WindowManager> windowManager;
 

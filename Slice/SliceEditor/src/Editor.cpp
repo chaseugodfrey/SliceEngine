@@ -64,7 +64,7 @@ namespace SliceEditor
 
 	void Editor::InitEditorState()
 	{
-		//SLICE_LOG("EDITOR: Initializing Session.");
+		SLICE_LOG("EDITOR: Initializing Session.");
 		//editorState = std::make_unique<EditorState>();
 		//editorState->Init();
 	}

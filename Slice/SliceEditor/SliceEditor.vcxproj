@@ -106,6 +106,9 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
   <ItemGroup>
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\WindowManager\EditorWindow.h" />
+    <ClInclude Include="src\WindowManager\WindowManager.h" />
+    <ClInclude Include="src\WindowManager\WindowTypes.h" />
     <ClInclude Include="thirdparty\imgui\include\GraphEditor.h" />
     <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
     <ClInclude Include="thirdparty\imgui\include\ImCurveEdit.h" />
@@ -129,6 +132,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\WindowManager\WindowManager.cpp" />
     <ClCompile Include="thirdparty\imgui\include\GraphEditor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

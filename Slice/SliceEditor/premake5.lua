@@ -31,6 +31,17 @@ project "SliceEditor"
 
     pchheader "pch.h"
     pchsource "src/pch.cpp"
+
+    -- Disable PCH for external files
+    filter "files:thirdparty/**.cpp"
+    flags { "NoPCH" }
+
+    filter "files:thirdparty/**.c"
+        flags { "NoPCH" }
+
+    -- Reset filter
+    filter {}
+
  
     prebuildcommands {
         '{COPYFILE} ' .. engine_lib_path .. ' %{cfg.targetdir}'
