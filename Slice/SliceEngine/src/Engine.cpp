@@ -61,14 +61,10 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
-		// Testing go factory again
-		GameObject go = Core::GetInstance()->mFactory.CreateGO();
-		go.AddComponent<RigidBody>(false);
-		go.AddComponent<Renderer>();
-		//go.AddComponent<Camera>();
-
 		glfwMakeContextCurrent(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glfwPollEvents();
 
 		// Main Body
 		//framerateManager->StartFrame();
@@ -85,13 +81,14 @@ namespace SliceEngine
 		////
 
 		mRender->Render(window, mResource.get());
+	}
 
-		glfwPollEvents();
-
-		glfwSwapBuffers(window);
-
+	void Engine::EndFrame()
+	{
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
+
+		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()

@@ -36,6 +36,7 @@ namespace SliceEngine
 		void Init();
 
 		void Update();
+		void EndFrame();
 		void Exit();
 
 	};

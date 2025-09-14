@@ -9,7 +9,7 @@ namespace SliceEditor
 		engine.Init();
 		InitImGUI(engine.window);
 		//InitEditorState();
-		//InitWindowManager(*editorState);
+		InitWindowManager();
 	}
 
 	void Editor::Run()
@@ -18,6 +18,7 @@ namespace SliceEditor
 		{
 			engine.Update();
 			Render();
+			engine.EndFrame();
 		}
 	}
 
@@ -28,7 +29,7 @@ namespace SliceEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
 
-		//windowManager->Render();
+		windowManager.Render();
 		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -69,12 +70,11 @@ namespace SliceEditor
 		//editorState->Init();
 	}
 
-	//void Editor::InitWindowManager(EditorState& editorState)
-	//{
-	//	//SLICE_LOG("EDITOR: Creating Window Manager.");
-	//	windowManager = std::make_unique<WindowManager>();
-	//	windowManager->Init(editorState);
-	//}
+	void Editor::InitWindowManager()
+	{
+		//SLICE_LOG("EDITOR: Creating Window Manager.");
+		windowManager.Init();
+	}
 
 
 

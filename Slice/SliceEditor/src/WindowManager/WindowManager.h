@@ -19,18 +19,19 @@ namespace SliceEditor
 		std::vector<std::unique_ptr<EditorWindow>> list;
 
 		//void Init(EditorState& editorState);
+		void Init();
 		void Render();
 
-		//template <typename T>
-		//void AddWindow(EditorState& editorState);
+		template <typename T>
+		void AddWindow();
 
 	};
 
-	//template <typename T>
-	//void WindowManager::AddWindow(EditorState& editorState)
-	//{
-	//	list.push_back(std::make_unique<T>(editorState));
-	//}
+	template <typename T>
+	void WindowManager::AddWindow()
+	{
+		list.push_back(std::make_unique<T>());
+	}
 
 }
 

@@ -17,7 +17,7 @@ namespace SliceEditor
 
 		void InitImGUI(GLFWwindow* window);
 		void InitEditorState();
-		//void InitWindowManager(EditorState& editorState);
+		void InitWindowManager();
 
 		void Render();
 

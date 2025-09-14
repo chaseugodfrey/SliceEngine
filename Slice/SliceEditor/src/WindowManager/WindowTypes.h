@@ -2,7 +2,7 @@
 #define WINDOW_TYPES_H
 
 //#include "Windows/EW_ContentBrowser.h"
-//#include "Windows/EW_SceneView.h"
+#include "../Scene/SceneViewWindow.h"
 //#include "Windows/EW_GameView.h"
 //#include "Windows/EW_Hierarchy.h"
 //#include "Windows/EW_Inspector.h"

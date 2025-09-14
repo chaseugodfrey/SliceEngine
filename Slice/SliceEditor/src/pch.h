@@ -26,6 +26,7 @@
 
 // Logger
 #include "Logger/Logger.h"
+#include "EditorCommonTypes.h"
 
 // Common Types
 //#include "Vectors/Vector2.h"
