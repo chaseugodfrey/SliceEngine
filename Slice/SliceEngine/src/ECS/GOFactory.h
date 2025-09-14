@@ -6,7 +6,7 @@
 
 namespace SliceEngine
 {
-	using ComponentCloner = std::function<void(Registry& reg, Entity const& eToClone, Entity const& eToCreate)>;
+	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
 
 
 	class GOFactory
@@ -24,7 +24,7 @@ namespace SliceEngine
 		void CreateComponentCloner()
 		{
 			const entt::id_type id = entt::type_id<T>().hash();
-			mComponentCloners.emplace(id, [](Registry& reg, Entity const& toClone, Entity const& toCreate)
+			mComponentCloners.emplace(id, [](Registry& reg, Entity toClone, Entity toCreate)
 				{
 					if (auto* component = reg.try_get<T>(toClone))
 					{

@@ -6,7 +6,7 @@ namespace SliceEngine
 {
 	GameObject::GameObject(Registry& reg, Entity entity) : mRegistry(&reg), mEntity(entity)
 	{
-		//mEntity = &(Entity)mRegistry->create();
+		//mEntity = mRegistry->create();
 	}
 
 	void GameObject::SetName(std::string name)
@@ -30,4 +30,10 @@ namespace SliceEngine
 	{
 		return mEntity;
 	}
+
+	 bool GameObject::IsValid() const
+	 {
+		 return mRegistry && mRegistry->valid(mEntity);
+	 }
+
 }

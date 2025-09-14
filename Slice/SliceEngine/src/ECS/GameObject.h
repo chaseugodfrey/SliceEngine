@@ -35,19 +35,21 @@ namespace SliceEngine
 		template<typename T>
 		void RemoveComponent()
 		{
+			if (!IsValid())
+			{
+				assert("why the fk");
+			}
+
 			mRegistry->remove<T>(mEntity);
 		}
 
 		template<typename T>
 		bool HasComponent()
 		{
-			mRegistry.all_of<T>(mEntity);
+			return mRegistry.all_of<T>(mEntity);
 		}
 
-		bool IsValid() const
-		{
-			return mRegistry && mRegistry->valid(mEntity);
-		}
+		bool IsValid() const;
 
 		template<typename T>
 		T& GetComponent()
@@ -58,10 +60,15 @@ namespace SliceEngine
 			{
 				return *component;
 			}
+			else
+			{
+				//TODO: Change to actual error log and assert
+				// but we can also just assert ourselves i guess
+				assert("why the fk");
+			}
 
-			T temp{};
-			// NOTE: Throw error when component does not exist
-			return temp;
+			// in debug, EnTT will assert if it doesn't exist
+			return mRegistry->get<T>(mEntity);
 		}
 
 		void SetName(std::string name);

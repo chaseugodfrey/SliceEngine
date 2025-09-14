@@ -57,50 +57,28 @@ namespace SliceEngine
 
 		mRender->InitAndLink(window);
 
-		//framerateManager = std::make_unique<FramerateManager>();
-		//framerateManager->Init();
 	}
 
 	void Engine::Update()
 	{
+		// Testing go factory again
 		GameObject go = Core::GetInstance()->mFactory.CreateGO();
 		go.AddComponent<RigidBody>(false);
 		go.AddComponent<Renderer>();
-		go.AddComponent<Camera>();
-
-		//Entity const& entity = Core::GetInstance()->mFactory.CreateGO();
-		//bool ret = Core::GetInstance()->GetRegistry().valid(entity);
-		////Core::GetInstance()->mRegistry.emplace<Transform>(entity.GetEntity(), glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
-		//Core::GetInstance()->GetRegistry().emplace_or_replace<Renderer>(entity);
-		//ret = Core::GetInstance()->GetRegistry().valid(entity);
-		//Core::GetInstance()->GetRegistry().emplace_or_replace<Camera>(entity);
-		//ret = Core::GetInstance()->GetRegistry().valid(entity);
-
-		//entity.AddComponent<Renderer>();
-		//entity.AddComponent<Transform>(glm::vec3(0.f), glm::vec3(50.f, 0.f, 0.f));
-		//entity.AddComponent<RigidBody>(false);
-		//entity.GetComponent<Transform>().position = glm::vec3(0.f);
-		//entity.GetComponent<Transform>().rotation = glm::vec3(50.f, 0.f, 0.f);
-
-
-		//Core::GetInstance()->mFactory.TestLoop();
-
-		//auto& test = Core::GetInstance()->mRegistry.get<Transform>(entity.GetEntity());
-		//mPhysicsTest->Update(2.0f);
-		//physics(2.0f);
-
-		//entity.RemoveComponent<RigidBody>();
-		//Core::GetInstance()->mRegistry.remove<RigidBody>(entity);
+		//go.AddComponent<Camera>();
 
 		glfwMakeContextCurrent(window);
-		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Main Body
 		//framerateManager->StartFrame();
 
 		//framerateManager->StartSystem("Input");
-		//inputs->Update();
+		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
+		{
+			std::cout << " test " << std::endl;
+		}
+		inputs->Update();
 		//framerateManager->EndSystem("Input");
 
 		//framerateManager->EndFrame();
@@ -108,6 +86,7 @@ namespace SliceEngine
 
 		mRender->Render(window, mResource.get());
 
+		glfwPollEvents();
 
 		glfwSwapBuffers(window);
 

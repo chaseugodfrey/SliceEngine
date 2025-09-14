@@ -21,8 +21,6 @@ namespace SliceEngine
 		Entity entity = mRegistry.create();
 		GameObject go(mRegistry, entity);
 
-
-
 		go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
@@ -32,9 +30,7 @@ namespace SliceEngine
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
 		go.AddComponent<SliceEntity>();
-		//mRegistry.emplace_or_replace<SliceEntity>(go);
-		//mRegistry.emplace_or_replace<RigidBody>(entity, false);
-		//mRegistry.emplace_or_replace<Renderer>(entity);
+
 		return go;
 	}
 
@@ -65,11 +61,11 @@ namespace SliceEngine
 
 		newGO.SetName(CreateName(newGO.GetName()));
 
-		//// loop through every component cloner to clone the component onto the new entity
-		//for (auto& cloner : mComponentCloners)
-		//{
-		//	cloner.second(mRegistry, go, newGO);
-		//}
+		// loop through every component cloner to clone the component onto the new entity
+		for (auto& cloner : mComponentCloners)
+		{
+			cloner.second(mRegistry, go.GetEntity(), newGO.GetEntity());
+		}
 
 		////mNameToEntity.insert(std::make_pair("Test", newGO));
 		////mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
@@ -87,7 +83,7 @@ namespace SliceEngine
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
-			//std::cout << mEntityToGO[entity].GetName() << std::endl;
+			std::cout << mEntityToGO[entity].GetName() << std::endl;
 			
 			
 			for (auto&& [type_id, storage] : mRegistry.storage())
