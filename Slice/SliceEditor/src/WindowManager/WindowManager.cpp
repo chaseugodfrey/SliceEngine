@@ -1,12 +1,17 @@
 #include <pch.h>
 #include "WindowManager.h"
+#include "ICreateWindow.h"
 
 namespace SliceEditor
 {
+
 	void WindowManager::Init()
 	{
-		//AddWindow<ContentBrowser>(editorState);
-		AddWindow<SceneViewWindow>();
+		SLICE_LOG("Initializing WindowManager.");
+
+		AddWindow("ContentBrowser");
+		//AddWindow<ContentBrowserWindow>();
+		//AddWindow<SceneViewWindow>();
 		//AddWindow<GameView>(editorState);
 		//AddWindow<Hierarchy>(editorState);
 		//AddWindow<Inspector>(editorState);
@@ -14,6 +19,25 @@ namespace SliceEditor
 		//AddWindow<Animator>();
 		//AddWindow<Profiler>();
 		//AddWindow<Animation>();
+	}
+
+	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
+	{
+		windowFactoryMap[name] = interfaceInstance;
+	}
+
+	void WindowManager::AddWindow(const std::string& name)
+	{
+		auto it = windowFactoryMap.find(name);
+		if (it != windowFactoryMap.end())
+		{
+			auto window = it->second->CreateWindow();
+			list.push_back(std::move(window));
+		}
+		else
+		{
+			SLICE_LOG_VALUES("No registered window with name: ", name.c_str());
+		}
 	}
 
 	void WindowManager::Render()

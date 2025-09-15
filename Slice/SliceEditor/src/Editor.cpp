@@ -9,6 +9,8 @@ namespace SliceEditor
 		engine.Init();
 		InitImGUI(engine.window);
 		//InitEditorState();
+		SLICE_LOG("Initializing Editor Systems.");
+		contentBrowserManager.Init();
 		InitWindowManager();
 	}
 
@@ -72,7 +74,9 @@ namespace SliceEditor
 
 	void Editor::InitWindowManager()
 	{
-		//SLICE_LOG("EDITOR: Creating Window Manager.");
+		SLICE_LOG("Registering Systems to WindowManager.");
+		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
+		windowManager.RegisterInterface("SceneView", &sceneViewManager);
 		windowManager.Init();
 	}
 

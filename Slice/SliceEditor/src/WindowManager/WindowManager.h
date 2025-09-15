@@ -7,8 +7,13 @@
 
 namespace SliceEditor
 {
+	struct ICreateWindow;
+
 	class WindowManager
 	{
+		std::vector<std::unique_ptr<EditorWindow>> list;
+		std::unordered_map<std::string, ICreateWindow*> windowFactoryMap;
+
 		//std::shared_ptr<EditorState> editorState;
 		void DrawMainMenu();
 		void DrawDockspace();
@@ -16,23 +21,15 @@ namespace SliceEditor
 
 	public:
 		
-		std::vector<std::unique_ptr<EditorWindow>> list;
 
 		//void Init(EditorState& editorState);
+		void AddWindow(const std::string& name);
 		void Init();
+		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();
 
-		template <typename T>
-		void AddWindow();
 
 	};
-
-	template <typename T>
-	void WindowManager::AddWindow()
-	{
-		list.push_back(std::make_unique<T>());
-	}
-
 }
 
 

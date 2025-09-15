@@ -70,7 +70,7 @@
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y $(SolutionDir)\SliceEngine\SliceEngine.lib ..\build\bin\EditorDebug\SliceEditor</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorDebug\SliceEditor"
@@ -95,7 +95,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y $(SolutionDir)\SliceEngine\SliceEngine.lib ..\build\bin\EditorRelease\SliceEditor</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorRelease\SliceEditor"
@@ -104,12 +104,18 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ContentBrowser\ContentBrowserManager.h" />
+    <ClInclude Include="src\ContentBrowser\ContentBrowserWindow.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\EditorCommonTypes.h" />
+    <ClInclude Include="src\History\HistoryManager.h" />
+    <ClInclude Include="src\Inspector\InspectorManager.h" />
     <ClInclude Include="src\Logger\Logger.h" />
-    <ClInclude Include="src\Scene\SceneViewManager.h" />
-    <ClInclude Include="src\Scene\SceneViewWindow.h" />
+    <ClInclude Include="src\SceneView\SceneViewManager.h" />
+    <ClInclude Include="src\SceneView\SceneViewWindow.h" />
+    <ClInclude Include="src\SelectionManager\SelectionManager.h" />
     <ClInclude Include="src\WindowManager\EditorWindow.h" />
+    <ClInclude Include="src\WindowManager\ICreateWindow.h" />
     <ClInclude Include="src\WindowManager\WindowManager.h" />
     <ClInclude Include="src\WindowManager\WindowTypes.h" />
     <ClInclude Include="src\pch.h" />
@@ -131,9 +137,14 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     <ClInclude Include="thirdparty\imgui\include\ImZoomSlider.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
+    <ClCompile Include="src\ContentBrowser\ContentBrowserWindow.cpp" />
     <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\History\HistoryManager.cpp" />
+    <ClCompile Include="src\Inspector\InspectorManager.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
-    <ClCompile Include="src\Scene\SceneViewWindow.cpp" />
+    <ClCompile Include="src\SceneView\SceneViewManager.cpp" />
+    <ClCompile Include="src\SceneView\SceneViewWindow.cpp" />
     <ClCompile Include="src\WindowManager\WindowManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">

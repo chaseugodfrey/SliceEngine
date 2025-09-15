@@ -1,8 +1,8 @@
 #ifndef WINDOW_TYPES_H
 #define WINDOW_TYPES_H
 
-//#include "Windows/EW_ContentBrowser.h"
-#include "../Scene/SceneViewWindow.h"
+#include "../ContentBrowser/ContentBrowserWindow.h"
+#include "../SceneView/SceneViewWindow.h"
 //#include "Windows/EW_GameView.h"
 //#include "Windows/EW_Hierarchy.h"
 //#include "Windows/EW_Inspector.h"

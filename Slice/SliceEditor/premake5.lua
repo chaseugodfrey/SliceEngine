@@ -33,11 +33,9 @@ project "SliceEditor"
     pchsource "src/pch.cpp"
 
     -- Disable PCH for external files
-    filter "files:thirdparty/**.cpp"
+    filter "files:thirdparty/**"
         flags { "NoPCH" }
 
-    filter "files:thirdparty/**.c"
-        flags { "NoPCH" }
 
     -- Reset filter
     filter {}
