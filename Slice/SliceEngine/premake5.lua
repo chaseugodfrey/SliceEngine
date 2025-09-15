@@ -18,7 +18,8 @@ project "SliceEngine"
         "thirdparty/xprop",
         "thirdparty/rttr/include",
         "thirdparty/Jolt",
-        "thirdparty/fmod/include"
+        "thirdparty/fmod/include",
+        "thirdparty/nlohmann/include"
     }
 
     libdirs {

@@ -21,6 +21,7 @@ ThirdParty.FMOD_LIB = "%{wks.location}/SliceEngine/thirdparty/fmod/lib"
 ThirdParty.GLEW_DLL =  "%{wks.location}/SliceEngine/thirdparty/glew/glew32.dll"
 ThirdParty.GLFW_DLL = "%{wks.location}/SliceEngine/thirdparty/glfw/lib-vc2022/glfw3.dll"
 ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
+ThirdParty.JSON_INC = "%{wks.location}/SliceEngine/thirdparty/nlohmann/include"
 
 include "SliceEngine/premake5.lua"
 include "SliceEditor/premake5.lua"

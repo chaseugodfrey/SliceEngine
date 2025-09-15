@@ -14,6 +14,7 @@ project "SliceEditor"
         ThirdParty.GLEW_INC,
         ThirdParty.GLFW_INC,
         ThirdParty.FMOD_INC,
+        ThirdParty.JSON_INC,
         "thirdparty/imgui/include"
     }
 

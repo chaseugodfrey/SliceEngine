@@ -58,7 +58,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\nlohmann\include;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -83,7 +83,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\nlohmann\include;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -119,22 +119,6 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     <ClInclude Include="src\WindowManager\WindowManager.h" />
     <ClInclude Include="src\WindowManager\WindowTypes.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="thirdparty\imgui\include\GraphEditor.h" />
-    <ClInclude Include="thirdparty\imgui\include\imconfig.h" />
-    <ClInclude Include="thirdparty\imgui\include\ImCurveEdit.h" />
-    <ClInclude Include="thirdparty\imgui\include\ImGradient.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui.h" />
-    <ClInclude Include="thirdparty\imgui\include\ImGuizmo.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui_impl_glfw.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui_impl_opengl3.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui_internal.h" />
-    <ClInclude Include="thirdparty\imgui\include\imgui_stdlib.h" />
-    <ClInclude Include="thirdparty\imgui\include\ImSequencer.h" />
-    <ClInclude Include="thirdparty\imgui\include\imstb_rectpack.h" />
-    <ClInclude Include="thirdparty\imgui\include\imstb_textedit.h" />
-    <ClInclude Include="thirdparty\imgui\include\imstb_truetype.h" />
-    <ClInclude Include="thirdparty\imgui\include\ImZoomSlider.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
@@ -149,45 +133,6 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\GraphEditor.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\ImCurveEdit.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\ImGradient.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\ImGuizmo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_demo.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_draw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_impl_glfw.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_impl_opengl3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_stdlib.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_tables.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\imgui_widgets.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\imgui\include\ImSequencer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
