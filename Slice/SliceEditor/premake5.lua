@@ -14,6 +14,7 @@ project "SliceEditor"
         ThirdParty.GLEW_INC,
         ThirdParty.GLFW_INC,
         ThirdParty.FMOD_INC,
+        ThirdParty.RTTR_INC,
         "thirdparty/imgui/include"
     }
 
@@ -24,10 +25,17 @@ project "SliceEditor"
     libdirs {
         ThirdParty.GLEW_LIB,
         ThirdParty.GLFW_LIB,
-        ThirdParty.FMOD_LIB
+        ThirdParty.FMOD_LIB,
+        ThirdParty.RTTR_LIB
     }
 
-    links { "SliceEngine" }
+    links { 
+        "SliceEngine",
+        "glew32",
+        "opengl32",
+        "glfw3",
+        "fmod_vc"
+     }
 
     pchheader "pch.h"
     pchsource "src/pch.cpp"
@@ -36,7 +44,17 @@ project "SliceEditor"
     filter "files:thirdparty/**"
         flags { "NoPCH" }
 
+    filter "configurations:EditorDebug"
+        -- Link the debug versions of our libraries
+        links { "rttr_core_d" }
+        defines { "DEBUG_MODE" }
+        symbols "On"
 
+    filter "configurations:EditorRelease"
+        -- Link the release versions of our libraries
+        links { "rttr_core" }
+        defines { "RELEASE_MODE" }
+        optimize "On"
     -- Reset filter
     filter {}
 
@@ -49,6 +67,7 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"'
     }
 
 print("editor")
