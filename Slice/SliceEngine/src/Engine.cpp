@@ -55,7 +55,11 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
-		mRender->InitAndLink(window);
+		mRender->CreateCamera(window);
+
+		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
+		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
+		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
 	}
 

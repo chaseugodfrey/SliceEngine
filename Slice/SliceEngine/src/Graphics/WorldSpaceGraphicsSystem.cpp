@@ -22,11 +22,9 @@ namespace SliceEngine
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		Model& cube = rcManager->GetModel();
-		glBindVertexArray(cube.vao);
-		
+		tempModel = rcManager->GetModel();
+
 		Update(1.0f);
-		glDrawArrays(cube.drawMode, 0, cube.drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -41,6 +39,8 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
+		glBindVertexArray(tempModel.vao);
+
 		auto& transform = reg.get<Transform>(entity);
 
 		glm::mat4x4 M(1.f);
@@ -57,6 +57,8 @@ namespace SliceEngine
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader.s, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+
+		glDrawArrays(tempModel.drawMode, 0, tempModel.drawCnt);
 	}
 
 }

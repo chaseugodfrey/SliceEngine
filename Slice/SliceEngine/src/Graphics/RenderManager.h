@@ -1,3 +1,7 @@
+/*
+*	Functions here assumes CreateCamera is called once, and therefore mainCam has value
+*/
+
 #ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
 
@@ -14,12 +18,12 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 
-		void InitAndLink(GLFWwindow* window);
+		entt::entity CreateCamera(GLFWwindow* window);
 
-		void UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager);
+		void UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager, entt::entity& cam);
 		void Render(GLFWwindow* window, ResourceManager* rcManager);
 		
-		void CreateFramebuffer(int width, int height);
+		void CreateFramebuffer();
 		GLuint GetTexture();
 
 		Transform& GetMainCameraTransform();
@@ -33,7 +37,7 @@ namespace SliceEngine
 
 	private:
 
-		entt::entity mainCam;
+		std::optional<entt::entity> mainCam;
 
 		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
 		//std::shared_ptr<CameraSystem> mCameraSys;

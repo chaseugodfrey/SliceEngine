@@ -49,6 +49,7 @@ namespace SliceEngine
 
 	struct Camera
 	{
+		int width, height;
 		float pov, near, far;
 		GLuint textureID{}, depthTex{};
 	};

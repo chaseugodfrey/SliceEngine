@@ -19,6 +19,7 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
 		Shader mShader;
+		Model tempModel;
 	};
 }
 

@@ -14,9 +14,6 @@ namespace SliceEngine
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-
-		// TODO: Please change this
-		const int GAMESCREENWIDTH{900}, GAMESCREENHEIGHT{600};
 	};
 }
 

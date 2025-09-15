@@ -15,7 +15,7 @@ namespace SliceEngine
 
 		// Create Textures
 		glCreateTextures(GL_TEXTURE_2D, 1, &cam.textureID);
-		glTextureStorage2D(cam.textureID, 1, GL_RGBA16F, GAMESCREENWIDTH, GAMESCREENHEIGHT);
+		glTextureStorage2D(cam.textureID, 1, GL_RGBA16F, cam.width, cam.height);
 		glTextureParameterf(cam.textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameterf(cam.textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -26,7 +26,7 @@ namespace SliceEngine
 		//glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mScene.picker_id, 0);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &cam.depthTex);
-		glTextureStorage2D(cam.depthTex, 1, GL_DEPTH_COMPONENT32F, GAMESCREENWIDTH, GAMESCREENHEIGHT);
+		glTextureStorage2D(cam.depthTex, 1, GL_DEPTH_COMPONENT32F, cam.width, cam.height);
 	}
 	void CameraSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
