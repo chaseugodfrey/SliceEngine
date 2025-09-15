@@ -18,23 +18,33 @@ project "SliceEngine"
         "thirdparty/xprop",
         "thirdparty/rttr/include",
         "thirdparty/Jolt",
-        "thirdparty/fmod/include"
+        "thirdparty/fmod/include",
     }
 
-    libdirs {
-        "thirdparty/glew",
-        "thirdparty/glfw/lib-vc2022",
-        "thirdparty/rttr/lib",
-        "thirdparty/fmod/lib"
-    }
+    -- libdirs {
+    --     "thirdparty/glew",
+    --     "thirdparty/glfw/lib-vc2022",
+    --     "thirdparty/rttr/lib",
+    --     "thirdparty/fmod/lib",
+    --     "thirdparty/rttr/lib"
+    -- }
 
-    links {
-        "glew32",
-        "opengl32",
-        "glfw3",
-        "rttr_core",
-        "fmod_vc"
-    }
+    -- links {
+    --     "glew32",
+    --     "opengl32",
+    --     "glfw3",
+    --     "fmod_vc"
+    -- }
+
+    -- filter "configurations:EditorDebug"
+    --     defines {"DEBUG_MODE" }
+    --     symbols "On"
+    --     links {"rttr_core_d"}
+    
+    -- filter "configurations:EditorRelease"
+    --     defines { "RELEASE_MODE " }
+    --     optimize "On"
+    --     links {"rttr_core"}
 
     pchheader "pch.h"
     pchsource "src/pch.cpp"

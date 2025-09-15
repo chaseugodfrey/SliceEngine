@@ -27,18 +27,12 @@ namespace SliceEngine
 
 	struct Transform
 	{
-		glm::vec3 position;
-		glm::vec3 rotation;
-		glm::vec3 scale;
+		glm::vec3 position{};
+		glm::vec3 rotation{};
+		glm::vec3 scale{};
 
-		//Transform()
-		//{
-		//	// need change to our own vec3
-		//	position = glm::vec3(0, 0, 0);
-		//	rotation = glm::vec3(0, 0, 0);
-		//	scale = glm::vec3(0, 0, 0);
-
-		//}
+		//Transform() = default;
+		//Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scl) : position(pos), rotation(rot), scale(scl) {}
 	};
 
 	struct UITransform
