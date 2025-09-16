@@ -119,6 +119,9 @@ int test()
         Layers::MOVING);
     BodyID boxID = bodyInterface.CreateAndAddBody(boxSettings, EActivation::Activate);
 
+    //std::pair<entityid, BoxID>
+    //std::map<entityid, BoxID>
+
     std::cout << "Simulation start...\n";
 
     // ---- SIMULATE ----

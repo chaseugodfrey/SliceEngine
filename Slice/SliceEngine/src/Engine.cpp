@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
-#include "ECS/PhysicSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "Window.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
@@ -10,7 +10,6 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
-#include "ECS/PhysicSystem.h"
 #include "Systems/FramerateManager.h"
 #include "Physics/PhysicsDebug.h"
 #include "SliceTime.h"
