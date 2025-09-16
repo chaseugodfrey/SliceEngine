@@ -17,15 +17,14 @@ namespace SliceEngine
 
 	void FramerateManager::EndFrame()
 	{
-		frameEndTime = Clock::now();
 
 		float frameTime = std::chrono::duration<float>(frameEndTime - frameStartTime).count();
-		currFPS = 1.0f/frameTime;
+		currFPS = 1.0f / frameTime;
 
 		if (!firstFrameDone)
 		{
 			// can be removed if don't want it to be printed for every startup
-			std::cout << "First frame time: " << frameTime *1000.0f<< " ms\n";
+			std::cout << "First frame time: " << frameTime * 1000.0f << " ms\n";
 			for (auto &[name, duration] : systemDurations)
 				std::cout << name << ": " << duration << " ms\n";
 
@@ -52,17 +51,30 @@ namespace SliceEngine
 		return currFPS;
 	}
 
+	const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
+	{
+		return systemStartEndTimes;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
+	{
+		return systemDurations;
+	}
+
 	void FramerateManager::CapFPS(int targetFPS)
 	{
 		using namespace std::chrono;
-		static auto nextFrameTime = Clock::now();
 
-		auto frameDuration = duration<double>(milliseconds(1000) / targetFPS);
-		nextFrameTime += duration_cast<Clock::duration>(frameDuration);
+		auto targetFrameDuration = duration<double>(1.0 / targetFPS);
 
-		std::this_thread::sleep_until(nextFrameTime);
+		auto currentTime = Clock::now();
+		auto elapsedTime = duration<double>(currentTime - frameStartTime); 
 
-		if (Clock::now() > nextFrameTime)
-			nextFrameTime = Clock::now();
+		if (elapsedTime < targetFrameDuration)
+		{
+			auto sleepDuration = targetFrameDuration - elapsedTime;
+			std::this_thread::sleep_for(sleepDuration); 
+		}
+		frameEndTime = Clock::now();
 	}
 }
