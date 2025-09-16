@@ -41,6 +41,8 @@ namespace SliceEngine
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
 		mResource = std::make_unique<ResourceManager>();
+		framerateManager = std::make_unique<FramerateManager>();
+		framerateManager->Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -71,17 +73,17 @@ namespace SliceEngine
 		glfwPollEvents();
 
 		// Main Body
-		//framerateManager->StartFrame();
+		framerateManager->StartFrame();
 
-		//framerateManager->StartSystem("Input");
+		framerateManager->StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		//framerateManager->EndSystem("Input");
+		framerateManager->EndSystem("Input");
 
-		//framerateManager->EndFrame();
+		framerateManager->EndFrame();
 		////
 
 		mRender->Render(window, mResource.get());
