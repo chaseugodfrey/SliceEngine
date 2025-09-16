@@ -33,12 +33,13 @@ project "SliceEngine"
         "opengl32",
         "glfw3",
         "fmod_vc",
-        "rttr_core"
+        --"rttr_core"
         }
 
     defines
     {
-     --   "RTTR_DLL"
+        "RTTR_DLL",
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
     }
 
     pchheader "pch.h"
@@ -47,10 +48,10 @@ project "SliceEngine"
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
-        --staticruntime "off"
+        staticruntime "off"
         symbols "On"
         
-        -- links {"rttr_core_d"}
+         links {"rttr_core_d"}
 
         -- includedirs
         -- {
@@ -62,7 +63,7 @@ project "SliceEngine"
         staticruntime "off"
         optimize "On"
         
-        -- links {"rttr_core"}
+         links {"rttr_core"}
 
         -- includedirs
         -- {

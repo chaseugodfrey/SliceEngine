@@ -33,12 +33,13 @@ project "SliceEditor"
         "opengl32",
         "glfw3",
         "fmod_vc",
-        "rttr_core"
+        --"rttr_core"
          }
 
     defines
     {
-        --"RTTR_DLL"
+        "RTTR_DLL",
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
     }
 
     pchheader "pch.h"
@@ -53,7 +54,7 @@ project "SliceEditor"
         staticruntime "off"
         symbols "On"
         
-        -- links {"rttr_core_d"}
+         links {"rttr_core_d"}
 
         -- includedirs
         -- {
@@ -66,7 +67,7 @@ project "SliceEditor"
         
         optimize "On"
         
-        -- links {"rttr_core"}
+         links {"rttr_core"}
 
         -- includedirs
         -- {
@@ -84,7 +85,9 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"'
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"'
+
     }
 
 print("editor")
