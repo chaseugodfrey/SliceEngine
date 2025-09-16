@@ -15,7 +15,7 @@ namespace SliceEngine
 		void EndFrame();
 		void StartSystem(const std::string &name);  
 		void EndSystem(const std::string &name);
-		float GetCurrFps();
+		float GetCurrFPS();
 
 	private:
 		TimePoint frameStartTime;
