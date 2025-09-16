@@ -19,6 +19,9 @@
 
 namespace SliceEngine
 {
+	//Time class for physics simulation or any other system that uses fixeddt
+	GameTime& Engine::gameTime = GameTime::getInstance();
+
 	Engine::Engine()
 	{
 	}
@@ -64,8 +67,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		//Time class for physics simulation or any other system that uses fixeddt
-		GameTime& gameTime = GameTime::getInstance();
 
 		SLICE_LOG("Register default allocator for Jolt Function Pointer");
 		//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
