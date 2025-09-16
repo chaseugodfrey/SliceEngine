@@ -100,7 +100,7 @@ namespace SliceEngine
 		//framerateManager->EndSystem("Input");
 
 		//framerateManager->EndFrame();
-		////
+		//
 
 		mRender->Render(window, mResource.get());
 	}
