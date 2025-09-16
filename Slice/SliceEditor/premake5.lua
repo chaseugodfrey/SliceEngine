@@ -49,7 +49,8 @@ project "SliceEditor"
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',       
+        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"'
     }
 
 print("editor")

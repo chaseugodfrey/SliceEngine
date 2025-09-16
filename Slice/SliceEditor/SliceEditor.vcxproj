@@ -75,7 +75,8 @@
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorDebug\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..\build\bin\EditorDebug\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorDebug\SliceEditor"
+xcopy /Q /E /Y /I "$(SolutionDir)\SliceEditor\Assets" "..\build\bin\EditorDebug\SliceEditor\Assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -100,7 +101,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\b
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorRelease\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..\build\bin\EditorRelease\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorRelease\SliceEditor"
+xcopy /Q /E /Y /I "$(SolutionDir)\SliceEditor\Assets" "..\build\bin\EditorRelease\SliceEditor\Assets"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

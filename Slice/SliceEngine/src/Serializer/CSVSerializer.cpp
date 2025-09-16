@@ -5,6 +5,7 @@ namespace SliceEngine
 {
 	namespace CSVSerializer
 	{
+
         void Serialize(csv const& input, std::filesystem::path const& filePath)
         {
             std::ofstream ofs(filePath);
@@ -143,9 +144,9 @@ namespace SliceEngine
 
 		void Test()
 		{			
-            csv test = Deserialize("Assets/Test.csv");
-            Print(test);
-            Serialize(test, "Assets/TestSerialize.csv");
+            csv test = Deserialize("Assets/CSVTest1.csv");
+            csv empty;
+            Serialize(test, "Assets/CSVTest1.csv");
 		}
 	}
 }

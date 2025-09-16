@@ -22,44 +22,50 @@ namespace SliceEngine
 		{
 			json output;
 
-			//auto& registry = Core::GetInstance()->GetRegistry();
-			//entt::entity entity = node.GetEntity();
+			auto& registry = Core::GetInstance()->GetRegistry();
+			entt::entity entity = node.GetEntity();
 
-			//// Go through every registered component
-			//for (auto&& [type_id, storage] : registry.storage())
-			//{
-			//	if (!storage.contains(entity))
-			//	{
-			//		continue; // entity does not have this component
-			//	}
+			// Go through every registered component
+			for (auto&& [type_id, storage] : registry.storage())
+			{
+				if (!storage.contains(entity))
+				{
+					continue; // entity does not have this component
+				}
 
-			//	// Each component for this GameObject is here
-			//	std::cout << storage.type().name() << std::endl;
+				// Each component for this GameObject is here
+				std::cout << storage.type().name() << std::endl;
 
-			//	rttr::type rtype = EnttIdToRttrTypeFunc(type_id);
-			//	
-			//	// Get instance through registered getter				
-			//	rttr::instance inst = InstanceGetterFunc[type_id](registry, entity);
+				//rttr::type rtype = EnttIdToRttrTypeFunc(type_id);
+				//
+				//// Get instance through registered getter				
+				//rttr::instance inst = InstanceGetterFunc[type_id](registry, entity);
 
-			//	if (!inst.is_valid()) continue;
+				//if (!inst.is_valid()) continue;
 
-			//	// Now you can reflect over properties
-			//	for (auto& prop : rtype.get_properties()) 
-			//	{
-			//		rttr::variant value = prop.get_value(inst);
+				//// Now you can reflect over properties
+				//for (auto& prop : rtype.get_properties()) 
+				//{
+				//	rttr::variant value = prop.get_value(inst);
 
-			//		//std::cout << prop.get_name() << " = " << value.to_string() << std::endl;
+				//	//std::cout << prop.get_name() << " = " << value.to_string() << std::endl;
 
-			//		output[std::string(rtype.get_name())][std::string(prop.get_name())] = value.to_string();
-			//	}
+				//	output[std::string(rtype.get_name())][std::string(prop.get_name())] = value.to_string();
+				//}
 
-			//}
+			}
 
 			// If you have children, recurse:
 			//for (auto& child : ) {
 			//	output["children"].push_back(RecursiveSerialize(child));
 			//}
 
+			return output;
+		}
+
+		json SerializeEntt(entt::entity entity)
+		{
+			json output;
 			return output;
 		}
 
@@ -119,16 +125,12 @@ namespace SliceEngine
 				test[root][i]["Transform"]["Scale"] = { 1.0f, 2.0f, 3.0f };
 			}
 
-			Serialize(test, "Testing/Temporary/TestSerialize.scene");
+			Serialize(test, "Assets/Scenes/JSONTest1.scene");
 		}
 
 		static void TestDeserialize()
 		{
-			json test = Deserialize("Testing/Temporary/TestSerialize.scene");
-			if (test != json{})
-			{
-				Logger::LogValue("JSONSerializer::Test", "JSON Serialization and Deserialization succeeded with no errors and result is in Testing/Temporary/TestSerialize.scene.");
-			}
+			json test = Deserialize("Assets/Scenes/JSONTest1.scene");
 		}
 
 		void Test()
@@ -139,19 +141,27 @@ namespace SliceEngine
 
 		void Test2()
 		{
-			/*auto& manufactorum_ajakis = Core::GetInstance()->mFactory;			
+			auto& manufactorum_ajakis = Core::GetInstance()->GetRegistry();
 
-			manufactorum_ajakis.MapEnttToRTTR<Transform>();
-			manufactorum_ajakis.CreateComponentCloner<Transform>();
-			
-			GameObject omnia_victrum = manufactorum_ajakis.CreateGO("Omnia Victrum");			
+			//manufactorum_ajakis.MapEnttToRTTR<Transform>();
+			//manufactorum_ajakis.CreateComponentCloner<Transform>();
 
-			omnia_victrum.AddComponent<Transform>();
-			omnia_victrum.GetComponent<Transform>().position = glm::vec3(1, 2, 3);
-			omnia_victrum.GetComponent<Transform>().rotation = glm::vec3(4, 5, 6);
-			omnia_victrum.GetComponent<Transform>().scale = glm::vec3(7, 8, 9);
+			entt::entity omnia_victrum_entity = Core::GetInstance()->GetRegistry().create();
 
-			Serialize(RecursiveSerialize(omnia_victrum),"tests/Imperial_Titans.json");*/
+			Transform& t = manufactorum_ajakis.emplace<Transform>(omnia_victrum_entity);
+			t.position = glm::vec3(1, 2, 3);
+			t.rotation = glm::vec3(4, 5, 6);
+			t.scale = glm::vec3(7, 8, 9);
+
+
+			GameObject omnia_victrum = GameObject(manufactorum_ajakis, omnia_victrum_entity);
+
+			//omnia_victrum.AddComponent<Transform>();
+			//omnia_victrum.GetComponent<Transform>().position = glm::vec3(1, 2, 3);
+			//omnia_victrum.GetComponent<Transform>().rotation = glm::vec3(4, 5, 6);
+			//omnia_victrum.GetComponent<Transform>().scale = glm::vec3(7, 8, 9);
+
+			Serialize(RecursiveSerialize(omnia_victrum),"tests/Imperial_Titans.json");
 
 		}
 	}
