@@ -35,4 +35,20 @@ namespace SliceEngine
         std::vsnprintf(buffer, sizeof(buffer), fmt, args);
         Logger::Log(function_name, std::string(buffer), level);
     }
+
+#ifdef JPH_ENABLE_ASSERTS
+
+    // Callback for asserts, connect this to your own assert handler if you have one
+    static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine)
+    {
+
+        std::string test{ std::string(inFile) + ":" + std::to_string(inLine) + ": (" + std::string(inExpression) + ") " + (inMessage != nullptr ? std::string(inMessage) : "") };
+
+        SLICE_LOG_CRITICAL(test);
+
+        // Breakpoint
+        return true;
+    };
+
+#endif // JPH_ENABLE_ASSERTS
 }

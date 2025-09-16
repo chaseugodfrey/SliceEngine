@@ -11,7 +11,6 @@
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "Systems/FramerateManager.h"
-#include "Physics/PhysicsDebug.h"
 #include "SliceTime.h"
 #include "test.h"
 
@@ -66,17 +65,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-
-		SLICE_LOG("Register default allocator for Jolt Function Pointer");
-		//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
-		JPH::RegisterDefaultAllocator();
-
-		SLICE_LOG("Hook Jolt Tracer to SliceEngine Logger");
-		//Jolt has a global function pointer "Trace" for debugging and logging messages
-		//Hook Jolt Trace to SliceEngine?s logger.
-		JPH::Trace = JoltTraceImpl;
-
-		test();
+		//test();
 
 	}
 
