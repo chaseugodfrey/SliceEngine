@@ -8,6 +8,8 @@ project "SliceEditor"
 
     files { "src/**" }
 
+    rtti "On"
+
     includedirs {
         "src",
         IncludeDir.EnginePublic,
@@ -16,10 +18,6 @@ project "SliceEditor"
         ThirdParty.FMOD_INC,
         ThirdParty.RTTR_INC,
         "thirdparty/imgui/include"
-    }
-
-    externalincludedirs {
-
     }
 
     libdirs {
@@ -34,8 +32,14 @@ project "SliceEditor"
         "glew32",
         "opengl32",
         "glfw3",
-        "fmod_vc"
-     }
+        "fmod_vc",
+        "rttr_core"
+         }
+
+    defines
+    {
+        --"RTTR_DLL"
+    }
 
     pchheader "pch.h"
     pchsource "src/pch.cpp"
@@ -45,16 +49,29 @@ project "SliceEditor"
         flags { "NoPCH" }
 
     filter "configurations:EditorDebug"
-        -- Link the debug versions of our libraries
-        links { "rttr_core_d" }
-        defines { "DEBUG_MODE" }
+        --defines {"DEBUG_MODE" }
+        staticruntime "off"
         symbols "On"
+        
+        -- links {"rttr_core_d"}
 
+        -- includedirs
+        -- {
+        --     ThirdParty.RTTR_INC
+        -- }
+    
     filter "configurations:EditorRelease"
-        -- Link the release versions of our libraries
-        links { "rttr_core" }
-        defines { "RELEASE_MODE" }
+        --defines { "RELEASE_MODE " }
+        staticruntime "off"
+        
         optimize "On"
+        
+        -- links {"rttr_core"}
+
+        -- includedirs
+        -- {
+        --     ThirdParty.RTTR_INC
+        -- }
     -- Reset filter
     filter {}
 

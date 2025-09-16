@@ -6,8 +6,7 @@
 
 namespace SliceEngine
 {
-	//RTTR_REGISTRATION
-	namespace
+	RTTR_REGISTRATION
 	{
 		// Register the interface for base system
 		//rttr::registration::class_<IBaseSystem>("IBaseSystem")
@@ -28,10 +27,10 @@ namespace SliceEngine
 		//	.method("EntityOnEnter", &SoundSystem::EntityOnEnter)
 		//	.method("EntityOnExit", &SoundSystem::EntityOnExit)
 		//	.method("EntityOnUpdate", &SoundSystem::EntityOnUpdate);
-		//rttr::registration::class_<Transform>("Transform")
-		//	.property("position", &Transform::position)
-		//	.property("rotation", &Transform::rotation)
-		//	.property("scale", &Transform::scale);
+		rttr::registration::class_<Transform>("Transform")
+			.property("position", &Transform::position)
+			.property("rotation", &Transform::rotation)
+			.property("scale", &Transform::scale);
 
 
 	}

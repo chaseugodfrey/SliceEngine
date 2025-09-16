@@ -6,6 +6,7 @@
 #include <mat4x4.hpp>
 #include <gtc/quaternion.hpp>
 #include <glfw3.h>
+//#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
 using Entity = entt::entity;
@@ -31,8 +32,7 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
-		//Transform() = default;
-		//Transform(glm::vec3 pos, glm::vec3 rot, glm::vec3 scl) : position(pos), rotation(rot), scale(scl) {}
+		
 	};
 
 	struct UITransform
