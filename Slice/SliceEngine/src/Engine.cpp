@@ -15,6 +15,18 @@
 #include "Systems/FramerateManager.h"
 
 
+	using namespace rttr;
+
+	struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+
+	RTTR_REGISTRATION
+	{
+		registration::class_<MyStruct>("MyStruct")
+			 .constructor<>()
+			 .property("data", &MyStruct::data)
+			 .method("func", &MyStruct::func);
+	}
+
 namespace SliceEngine
 {
 	Engine::Engine()
@@ -28,6 +40,8 @@ namespace SliceEngine
 	{
 		std::cout << " Hi from Engine Test Function\n";
 	}
+
+	
 
 	void Engine::Init()
 	{

@@ -38,7 +38,7 @@ project "SliceEngine"
 
     defines
     {
-    --    "RTTR_DLL"
+     --   "RTTR_DLL"
     }
 
     pchheader "pch.h"
@@ -47,7 +47,7 @@ project "SliceEngine"
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
-        staticruntime "off"
+        --staticruntime "off"
         symbols "On"
         
         -- links {"rttr_core_d"}
