@@ -18,6 +18,7 @@ namespace SliceEngine
 	{
 		frameEndTime = Clock::now();
 		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
+		currFPS = frameTime;
 
 		if (!firstFrameDone)
 		{
@@ -42,5 +43,9 @@ namespace SliceEngine
 
 		float duration = std::chrono::duration<float, std::milli>(endTime - systemStartEndTimes[name].first).count();
 		systemDurations[name] = duration;
+	}
+	float FramerateManager::GetCurrFPS()
+	{
+		return currFPS;
 	}
 }

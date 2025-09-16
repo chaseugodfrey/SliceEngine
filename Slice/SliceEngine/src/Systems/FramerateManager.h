@@ -14,11 +14,13 @@ namespace SliceEngine
 		void StartFrame();
 		void EndFrame();
 		void StartSystem(const std::string &name);  
-		void EndSystem(const std::string &name);    
+		void EndSystem(const std::string &name);
+		float GetCurrFps();
 
 	private:
 		TimePoint frameStartTime;
 		TimePoint frameEndTime;
+		float currFPS;
 		bool firstFrameDone = false;
 
 		std::unordered_map<std::string, std::pair<TimePoint,TimePoint>> systemStartEndTimes;
