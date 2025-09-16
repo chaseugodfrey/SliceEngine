@@ -48,7 +48,7 @@ project "SliceEngine"
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
-        staticruntime "off"
+       -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
         
          links {"rttr_core_d"}
@@ -57,10 +57,12 @@ project "SliceEngine"
         -- {
         --     ThirdParty.RTTR_INC
         -- }
-    
+        -- Reset filter
+    filter {}
+
     filter "configurations:EditorRelease"
         --defines { "RELEASE_MODE " }
-        staticruntime "off"
+        staticruntime "on"
         optimize "On"
         
          links {"rttr_core"}
