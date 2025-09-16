@@ -12,6 +12,15 @@ namespace SliceEditor
 		TreeNode* next;
 	};
 
+	struct DirectoryNode
+	{
+		std::string fileName;
+		bool isDirectory = false;
+		std::filesystem::path path;
+		DirectoryNode* parent = nullptr;
+		std::map<std::string, DirectoryNode> children;
+	};
+
 	struct Command
 	{
 		virtual void Execute() = 0;

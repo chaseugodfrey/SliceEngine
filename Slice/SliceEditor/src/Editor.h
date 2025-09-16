@@ -1,6 +1,8 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+
+
 struct GLFWwindow;
 
 #include "Engine.h"
