@@ -1,13 +1,9 @@
 #ifndef CSVSERIALIZER_H
 #define CSVSERIALIZER_H
 
-#include "Logger/Logger.h"
-#include <unordered_map>
-#include <string>
 #include <iostream>
-#include <filesystem>
+#include <unordered_map>
 #include <fstream>
-#include <vector>
 
 namespace SliceEngine
 {

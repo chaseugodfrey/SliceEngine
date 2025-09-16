@@ -18,7 +18,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <algorithm>
 #include <type_traits>
 
 #include <thread>
