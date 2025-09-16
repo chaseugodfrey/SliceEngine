@@ -15,6 +15,7 @@ namespace SliceEngine
 		void EndFrame();
 		void StartSystem(const std::string &name);  
 		void EndSystem(const std::string &name);
+		void CapFPS(int maxFPS);
 		float GetCurrFPS();
 
 	private:

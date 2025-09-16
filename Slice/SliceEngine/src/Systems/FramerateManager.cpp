@@ -1,4 +1,5 @@
 #include <pch.h>
+#include <thread>
 #include "FramerateManager.h"
 
 namespace SliceEngine
@@ -17,6 +18,7 @@ namespace SliceEngine
 	void FramerateManager::EndFrame()
 	{
 		frameEndTime = Clock::now();
+
 		float frameTime = std::chrono::duration<float>(frameEndTime - frameStartTime).count();
 		currFPS = 1.0f/frameTime;
 
@@ -44,8 +46,23 @@ namespace SliceEngine
 		float duration = std::chrono::duration<float, std::milli>(endTime - systemStartEndTimes[name].first).count();
 		systemDurations[name] = duration;
 	}
+
 	float FramerateManager::GetCurrFPS()
 	{
 		return currFPS;
+	}
+
+	void FramerateManager::CapFPS(int targetFPS)
+	{
+		using namespace std::chrono;
+		static auto nextFrameTime = Clock::now();
+
+		auto frameDuration = duration<double>(milliseconds(1000) / targetFPS);
+		nextFrameTime += duration_cast<Clock::duration>(frameDuration);
+
+		std::this_thread::sleep_until(nextFrameTime);
+
+		if (Clock::now() > nextFrameTime)
+			nextFrameTime = Clock::now();
 	}
 }
