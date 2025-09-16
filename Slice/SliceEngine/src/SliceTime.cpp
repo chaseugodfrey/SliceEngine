@@ -14,14 +14,17 @@ written consent of DigiPen Institute of Technology is prohibited.
 /******************************************************************************/
 
 #include "pch.h"
-#include "Time.h"
-
-#include <chrono>
-#include <thread>
+#include "SliceTime.h"
 
 
 namespace SliceEngine
 {
+	GameTime::GameTime() : deltaTime(0.0), prevTime(glfwGetTime()),
+		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0)
+	{
+		fixedDeltaTime = 1.0 / targetfps;
+	}
+
 	// Get the singleton instance
 	GameTime& GameTime::getInstance()
 	{

@@ -29,11 +29,7 @@ namespace SliceEngine
 		double accumulatedTime;
 		int currentNumberOfSteps;
 
-		GameTime() : deltaTime(0.0), prevTime(glfwGetTime()), 
-			targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0)	 
-		{
-			fixedDeltaTime = 1.0 / targetfps;
-		}
+		GameTime();
 
 	public:
 		GameTime(const GameTime&) = delete;
