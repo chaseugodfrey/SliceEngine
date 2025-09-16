@@ -14,9 +14,8 @@ namespace SliceEngine
 
 	void LogJolt(const char* function_name, const char* fmt, Logger::LogLevel level, va_list args);
 
-
 	#ifdef JPH_ENABLE_ASSERTS
-	//Assert faile Impl
+	//Assert faile Implementation
 	bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine);
 	#endif // JPH_ENABLE_ASSERTS
 }
