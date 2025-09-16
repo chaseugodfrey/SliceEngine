@@ -24,8 +24,15 @@ namespace SliceEngine
 
         Logger::LogLevel level = MapJoltMessage(inFMT);
 
-        Logger::LogJolt("Jolt", inFMT, level, args);
+        LogJolt("Jolt", inFMT, level, args);
 
         va_end(args);
+    }
+
+    void LogJolt(const char* function_name, const char* fmt, Logger::LogLevel level, va_list args)
+    {
+        char buffer[1024];
+        std::vsnprintf(buffer, sizeof(buffer), fmt, args);
+        Logger::Log(function_name, std::string(buffer), level);
     }
 }

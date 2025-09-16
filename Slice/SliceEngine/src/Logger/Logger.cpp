@@ -43,13 +43,6 @@ namespace Logger
 		Log(function_name, message, LogLevel::CRITICAL);
 	}
 
-	void LogJolt(const char* function_name, const char* fmt, LogLevel level, va_list args)
-	{
-		char buffer[1024];
-		std::vsnprintf(buffer, sizeof(buffer), fmt, args);
-		Log(function_name, std::string(buffer), level);
-	}
-
 	static const char* LogLevelToString(LogLevel level)
 	{
 		switch (level)

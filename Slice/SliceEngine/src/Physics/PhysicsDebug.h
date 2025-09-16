@@ -11,6 +11,8 @@ namespace SliceEngine
 
 	// Trace implementation
 	void JoltTraceImpl(const char* inFMT, ...);
+
+	void LogJolt(const char* function_name, const char* fmt, Logger::LogLevel level, va_list args);
 }
 
 #endif //PHYSICSDEBUG_H

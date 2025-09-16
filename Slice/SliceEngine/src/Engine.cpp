@@ -71,10 +71,10 @@ namespace SliceEngine
 		//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 		JPH::RegisterDefaultAllocator();
 
-		//SLICE_LOG("Hook Jolt Tracer to SliceEngine Logger");
-		////Jolt has a global function pointer "Trace" for debugging and logging messages
-		////Hook Jolt Trace to SliceEngine?s logger.
-		//JPH::Trace = JoltTraceImpl;
+		SLICE_LOG("Hook Jolt Tracer to SliceEngine Logger");
+		//Jolt has a global function pointer "Trace" for debugging and logging messages
+		//Hook Jolt Trace to SliceEngine?s logger.
+		JPH::Trace = JoltTraceImpl;
 
 		test();
 

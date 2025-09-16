@@ -31,7 +31,6 @@ namespace Logger
 	void LogWarning(const char* function_name, const std::string& message);
 	void LogError(const char* function_name, const std::string& message);
 	void LogCritical(const char* function_name, const std::string& message);
-	void LogJolt(const char* function_name, const char* fmt, LogLevel level, va_list args);
 
 	template <typename ... Values>
 	void LogValue(const char* function_name, Values ... values)
