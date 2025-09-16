@@ -12,6 +12,7 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/PhysicSystem.h"
 #include "Systems/FramerateManager.h"
+#include "test.h"
 
 
 namespace SliceEngine
@@ -60,6 +61,8 @@ namespace SliceEngine
 		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+
+		test();
 
 	}
 
