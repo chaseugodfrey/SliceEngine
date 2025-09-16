@@ -1,7 +1,6 @@
 #ifndef PHYSICSDEBUG_H
 #define PHYSICSDEBUG_H
 
-#include "../Logger/Logger.h"
 #include <cstdarg>
 #include <cstring>
 

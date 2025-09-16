@@ -63,20 +63,20 @@ public:
 };
 
 // ---------------- Trace Function ----------------
-static void TraceImpl(const char* inFMT, ...)
-{
-    va_list list;
-    va_start(list, inFMT);
-    vprintf(inFMT, list);
-    va_end(list);
-}
+//static void TraceImpl(const char* inFMT, ...)
+//{
+//    va_list list;
+//    va_start(list, inFMT);
+//    vprintf(inFMT, list);
+//    va_end(list);
+//}
 
 // ---------------- Main ----------------
 int test()
 {
     // ---- REQUIRED GLOBAL INIT ----
     RegisterDefaultAllocator();   // Install memory allocator
-    Trace = TraceImpl;            // Debug trace callback
+    //Trace = TraceImpl;            // Debug trace callback
 
     // ---- ALLOCATOR + JOB SYSTEM ----
     TempAllocatorImpl tempAllocator(10 * 1024 * 1024); // 10 MB

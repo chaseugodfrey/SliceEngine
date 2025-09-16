@@ -113,6 +113,7 @@
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
     <ClInclude Include="src\test.h" />
+    <ClInclude Include="src\Time.h" />
     <ClInclude Include="src\Vectors\Vector2.h" />
     <ClInclude Include="src\Vectors\Vector3.h" />
     <ClInclude Include="src\Window.h" />
@@ -426,6 +427,7 @@
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\test.cpp" />
+    <ClCompile Include="src\Time.cpp" />
     <ClCompile Include="src\Window.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
