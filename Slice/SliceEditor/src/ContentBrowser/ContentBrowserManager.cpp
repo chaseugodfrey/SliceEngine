@@ -42,6 +42,7 @@ namespace SliceEditor
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
 	{
 		node.children.clear();
+		selectedFolder = &node;
 	}
 
 	void ContentBrowserManager::CreateDirectory(DirectoryNode& node)
@@ -54,15 +55,16 @@ namespace SliceEditor
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
 			DirectoryNode child;
+			child.fileName = child.isDirectory ? entry.path().filename().string() : entry.path().stem().string();
+
 			child.path = entry.path();
 			child.parent = &node;
 			child.isDirectory = entry.is_directory();
-			child.fileName = child.isDirectory ? entry.path().filename().string() : entry.path().stem().string();
 
+			node.children.insert({ child.fileName, child });
 
-			CreateDirectory(child);
+			CreateDirectory(node.children[child.fileName]);
 
-			node.children.emplace(child.fileName, std::move(child));
 
 		}
 		return;
@@ -110,7 +112,11 @@ namespace SliceEditor
 
 	void ContentBrowserManager::DeleteFile(DirectoryNode& entry)
 	{
+		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
+		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
 		DirectoryNode& parent = *entry.parent;
+		SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+		SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
 		std::string fileName = entry.fileName;
 		try
 		{
@@ -128,6 +134,10 @@ namespace SliceEditor
 			std::string error = e.what();
 			SLICE_LOG_ERROR("Error: " + error);
 		}
+
+		SLICE_LOG_VALUES("Entry Parent Aft Delete: " + (*entry.parent).fileName);
+		SLICE_LOG_VALUES("Copied Entry Parent Aft Delete: " + parent.fileName);
+
 		parent.children.erase(fileName);
 
 	}

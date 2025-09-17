@@ -130,7 +130,7 @@ namespace SliceEditor
 							manager.openRenameFile = true;
 						}
 
-						if (ImGui::MenuItem("Delete File"))
+						if (ImGui::MenuItem("Delete Folder"))
 						{
 							manager.DeleteFile(entry);
 							selectedEntry = nullptr;
@@ -182,6 +182,9 @@ namespace SliceEditor
 						}
 						if (ImGui::MenuItem("Delete File"))
 						{
+							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
+							//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
+							//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
 							manager.DeleteFile(entry);
 							selectedEntry = nullptr;
 							ImGui::EndPopup();
