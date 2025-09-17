@@ -25,58 +25,98 @@
 *                                                                                   *
 *************************************************************************************/
 
-#ifndef RTTR_VISITOR_ITAERATOR_H_
-#define RTTR_VISITOR_ITAERATOR_H_
+#include "rttr/detail/enumeration/enumeration_wrapper_base.h"
 
-#include "rttr/visitor.h"
+#include "rttr/argument.h"
 
 namespace rttr
 {
 namespace detail
 {
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
- template<typename... T>
-struct RTTR_LOCAL visitor_iterator;
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename T, typename... Args>
-struct RTTR_LOCAL visitor_iterator<T, Args...>
+enumeration_wrapper_base::enumeration_wrapper_base() RTTR_NOEXCEPT
+:   m_declaring_type(get_invalid_type())
 {
-    template<typename Invoker>
-    static void visit(visitor& visitor, const Invoker& invoker)
-    {
-        if (auto obj = rttr_cast<T*>(&visitor))
-        {
-            invoker. template call<T>(*obj);
-        }
-        else
-        {
-            visitor_iterator<Args...>::visit(visitor, invoker);
-        }
-    }
-};
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<template <class...> class List, typename ...Args>
-struct visitor_iterator<List<Args...>> : visitor_iterator<Args...> { };
-
-template<>
-struct RTTR_LOCAL visitor_iterator<>
+enumeration_wrapper_base::~enumeration_wrapper_base() RTTR_NOEXCEPT
 {
-    template<typename Invoker>
-    static void visit(visitor& visitor, const Invoker& invoker)
-    {
-    }
-};
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+void enumeration_wrapper_base::set_declaring_type(type declaring_type) RTTR_NOEXCEPT
+{
+    m_declaring_type = declaring_type;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+type enumeration_wrapper_base::get_declaring_type() const RTTR_NOEXCEPT
+{
+    return m_declaring_type;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+bool enumeration_wrapper_base::is_valid() const RTTR_NOEXCEPT
+{
+    return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+type enumeration_wrapper_base::get_underlying_type() const RTTR_NOEXCEPT
+{
+    return get_invalid_type();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+type enumeration_wrapper_base::get_type() const RTTR_NOEXCEPT
+{
+    return get_invalid_type();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+array_range<string_view> enumeration_wrapper_base::get_names() const RTTR_NOEXCEPT
+{
+    return array_range<string_view>();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+array_range<variant> enumeration_wrapper_base::get_values() const RTTR_NOEXCEPT
+{
+    return array_range<variant>();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+string_view enumeration_wrapper_base::value_to_name(argument& value) const
+{
+    return string_view();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+variant enumeration_wrapper_base::name_to_value(string_view name) const
+{
+    return variant();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+variant enumeration_wrapper_base::get_metadata(const variant& key) const
+{
+    return variant();
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace detail
 } // end namespace rttr
-
-
-#endif // RTTR_VISITOR_ITAERATOR_H_
