@@ -24,11 +24,13 @@ namespace SliceEngine
 		JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
 
+
+
 		isInitialized = true;
 		return true;
 	}
 
-	bool IsInitialized() { return IsInitialized; }
+	bool PhysicsSystem::IsInitialized() { return isInitialized; }
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
