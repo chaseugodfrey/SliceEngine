@@ -50,7 +50,7 @@ project "SliceEngine"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
-        buildoptions { "/MDd" }      -- Set to MDd (dynamic debug linking)
+        --buildoptions { "/MD" }      -- Set to MDd (dynamic debug linking)
          links {"rttr_core_d"}
 
         -- includedirs
@@ -64,7 +64,7 @@ project "SliceEngine"
         --defines { "RELEASE_MODE " }
        -- staticruntime "on"
         optimize "On"
-        buildoptions { "/MD" }      -- Set to MDd (dynamic debug linking)
+        --buildoptions { "/MD" }      -- Set to MDd (dynamic debug linking)
          links {"rttr_core"}
 
         -- includedirs
