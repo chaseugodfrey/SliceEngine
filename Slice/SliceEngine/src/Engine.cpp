@@ -86,7 +86,6 @@ namespace SliceEngine
 		framerateManager->CapFPS(60);
 
 		framerateManager->EndFrame();
-		std::cout << framerateManager->GetCurrFPS() << std::endl;
 		////
 
 		mRender->Render(window, mResource.get());
