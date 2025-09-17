@@ -40,8 +40,6 @@ namespace SliceEngine
 		void EndFrame();
 		void Exit();
 
-		Core& GetCore();
-
 	};
 }
 

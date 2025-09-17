@@ -39,7 +39,8 @@ namespace SliceEngine
 					}
 				});
 		};
-
+		
+		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
 		GameObject CloneGO(GameObject const& go);
@@ -50,10 +51,12 @@ namespace SliceEngine
 
 		Registry mRegistry;
 	private:
+
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;
-		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
 
+		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
+		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;
 
 

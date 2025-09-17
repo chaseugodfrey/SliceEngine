@@ -1,10 +1,13 @@
 #include <pch.h>
 #include "GameObject.h"
 #include <utility>
+#include "Core/Core.h"
 
 namespace SliceEngine
 {
-	GameObject::GameObject(Registry& reg, Entity entity) : mRegistry(&reg), mEntity(entity)
+	GameObject::GameObject() : mRegistry(Core::GetInstance()->mFactory.mRegistry) {}
+
+	GameObject::GameObject(Registry& reg, Entity entity) : mRegistry(reg), mEntity(entity)
 	{
 		//mEntity = mRegistry->create();
 	}
@@ -21,7 +24,7 @@ namespace SliceEngine
 
 	void GameObject::Destroy()
 	{
-		mRegistry->destroy(mEntity);
+		mRegistry.destroy(mEntity);
 
 		//mRegistry.eac
 	}
@@ -33,7 +36,7 @@ namespace SliceEngine
 
 	 bool GameObject::IsValid() const
 	 {
-		 return mRegistry && mRegistry->valid(mEntity);
+		 return mRegistry.valid(mEntity);
 	 }
 
 }

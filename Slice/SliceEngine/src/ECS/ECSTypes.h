@@ -19,6 +19,13 @@ namespace SliceEngine
 		SliceEntity() : active(true) {}
 	};
 
+	struct EngineEntity
+	{
+		bool active;
+		
+		EngineEntity() : active(true) {}
+	};
+
 	struct testStruct
 	{
 		int val;

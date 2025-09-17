@@ -20,16 +20,24 @@ namespace SliceEngine
 		glDeleteFramebuffers(1, &mFBO);
 		//glDeleteBuffers(2, pboIds);
 	}
-	entt::entity RenderManager::CreateCamera()
+	GameObject& RenderManager::CreateCamera()
 	{
 		int width, height;
 		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
+		
+		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
+		
+		//newCam.AddComponent<Transform>();
+		auto& transform = newCam.GetComponent<Transform>();
+		transform.position = glm::vec3(-2.f, 0.f, 0.f);
+		
+		newCam.AddComponent<Camera>();
+		auto& cam = newCam.GetComponent<Camera>();
+		cam.width = width;
+		cam.height = height;
 
-		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
-		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam, glm::vec3(-2.f,0.f,0.f), glm::vec3(0.f, 0.f, 0.f));
-		Core::GetInstance()->GetRegistry().emplace<Camera>(newCam, width, height);
 		if (!mainCam.has_value())
-			mainCam = newCam;
+			mainCam = newCam.GetEntity();
 		return newCam;
 	}
 

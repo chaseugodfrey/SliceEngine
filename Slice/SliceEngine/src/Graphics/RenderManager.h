@@ -9,6 +9,7 @@
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "../ECS/ECSTypes.h"
+#include "../ECS/GameObject.h"
 
 namespace SliceEngine
 {
@@ -18,7 +19,7 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 
-		entt::entity CreateCamera();
+		GameObject& CreateCamera();
 
 		void UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam);
 		void Render(ResourceManager* rcManager);

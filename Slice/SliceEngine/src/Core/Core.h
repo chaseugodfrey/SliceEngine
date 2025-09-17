@@ -70,7 +70,8 @@ namespace SliceEngine
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
-
+		//std::unique_ptr<ResourceManager> mResource;
+		//std::unique_ptr<RenderManager> mRender;
 
 	};
 
