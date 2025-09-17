@@ -14,6 +14,9 @@
 
 namespace SliceEngine
 {
+	class RenderManager;
+	class ResourceManager;
+
 	class Core : public Singleton<Core>
 	{
 	public:
@@ -58,6 +61,10 @@ namespace SliceEngine
 			assert("System does not exist!");
 		}
 
+		ResourceManager* GetResourceManager();
+
+		RenderManager* GetRenderManager();
+
 		GLFWwindow* GetWindow();
 		
 		Registry& GetRegistry();
@@ -70,8 +77,8 @@ namespace SliceEngine
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
-		//std::unique_ptr<ResourceManager> mResource;
-		//std::unique_ptr<RenderManager> mRender;
+		std::unique_ptr<ResourceManager> mResource;
+		std::unique_ptr<RenderManager> mRender;
 
 	};
 
