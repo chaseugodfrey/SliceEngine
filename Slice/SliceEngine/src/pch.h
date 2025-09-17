@@ -18,9 +18,8 @@
 
 #include <algorithm>
 #include <functional>
-#include <algorithm>
 #include <type_traits>
-
+#include <assert.h>
 #include <thread>
 
 #include <math.h>

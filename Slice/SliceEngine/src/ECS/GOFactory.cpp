@@ -15,6 +15,18 @@ namespace SliceEngine
 
 	}
 
+	GameObject GOFactory::CreateEO()
+	{
+		Entity entity = mRegistry.create();
+		GameObject go(mRegistry, entity);
+		// Don't add to map because its not a game object
+		go.AddComponent<Transform>();
+		go.AddComponent<EngineEntity>();
+		mEngineEntities.emplace_back(go);
+
+		return go;
+	}
+
 	GameObject GOFactory::CreateGO(std::string name)
 	{
 		//Entity go = mRegistry.create();

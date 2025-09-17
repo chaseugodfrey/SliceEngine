@@ -1,10 +1,12 @@
 #include <pch.h>
 #include "SceneViewWindow.h"
 
-
 namespace SliceEditor
 {
-	SceneViewWindow::SceneViewWindow() {};
+	SceneViewWindow::SceneViewWindow(SceneViewManager& manager) : mManager(manager)
+	{
+
+	}
 
 	void SceneViewWindow::Draw()
 	{

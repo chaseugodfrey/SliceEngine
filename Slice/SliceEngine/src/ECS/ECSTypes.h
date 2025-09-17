@@ -2,12 +2,10 @@
 #define ECS_TYPES
 
 #include <entt.hpp>
-#include <vec3.hpp>
-#include <mat4x4.hpp>
 #include <gtc/quaternion.hpp>
 #include <glfw3.h>
+//#include "PropConfig.h"
 //#include <xprop/xproperty.h>
-//#include <rttr/registration.h>
 
 using Entity = entt::entity;
 using Registry = entt::registry;
@@ -21,6 +19,13 @@ namespace SliceEngine
 		SliceEntity() : active(true) {}
 	};
 
+	struct EngineEntity
+	{
+		bool active;
+		
+		EngineEntity() : active(true) {}
+	};
+
 	struct testStruct
 	{
 		int val;
@@ -28,9 +33,11 @@ namespace SliceEngine
 
 	struct Transform
 	{
-		glm::vec3 position;
-		glm::vec3 rotation;
-		glm::vec3 scale;
+		glm::vec3 position{};
+		glm::vec3 rotation{};
+		glm::vec3 scale{};
+
+		
 	};
 
 	struct UITransform
@@ -60,16 +67,7 @@ namespace SliceEngine
 	};
 
 
-	//RTTR_REGISTRATION
-	//{
-	//rttr::registration::class_<Transform>("Transform")
-	//	.property("position", &Transform::position)
-	//	.property("rotation", &Transform::rotation)
-	//	.property("scale", &Transform::scale);
-	//rttr::registration::class_<Renderer>("Renderer")
-	//	.property("model", &Renderer::model)
-	//	.property("texture", &Renderer::texture);
-	//}
+
 }
 
 #endif

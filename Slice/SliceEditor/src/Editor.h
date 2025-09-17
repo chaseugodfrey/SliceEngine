@@ -17,7 +17,7 @@ namespace SliceEditor
 	{
 		SliceEngine::Engine engine;
 
-		SceneViewManager sceneViewManager;
+		std::unique_ptr<SceneViewManager> sceneViewManager;
 		ContentBrowserManager contentBrowserManager;
 		HistoryManager history;
 		WindowManager windowManager;

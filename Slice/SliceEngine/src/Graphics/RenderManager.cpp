@@ -20,34 +20,42 @@ namespace SliceEngine
 		glDeleteFramebuffers(1, &mFBO);
 		//glDeleteBuffers(2, pboIds);
 	}
-	entt::entity RenderManager::CreateCamera(GLFWwindow* window)
+	GameObject& RenderManager::CreateCamera()
 	{
 		int width, height;
-		glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
+		
+		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
+		
+		//newCam.AddComponent<Transform>();
+		auto& transform = newCam.GetComponent<Transform>();
+		transform.position = glm::vec3(-2.f, 0.f, 0.f);
+		
+		newCam.AddComponent<Camera>();
+		auto& cam = newCam.GetComponent<Camera>();
+		cam.width = width;
+		cam.height = height;
 
-		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
-		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam, glm::vec3(-2.f,0.f,0.f), glm::vec3(0.f, 0.f, 0.f));
-		Core::GetInstance()->GetRegistry().emplace<Camera>(newCam, width, height);
 		if (!mainCam.has_value())
-			mainCam = newCam;
+			mainCam = newCam.GetEntity();
 		return newCam;
 	}
 
-	void RenderManager::Render(GLFWwindow* window, ResourceManager* rcManager)
+	void RenderManager::Render( ResourceManager* rcManager)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		//IDPick(mousePosX, mousePosY);
 
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
-		UpdateCamGPU(window, rcManager, mainCam.value());
+		UpdateCamGPU(rcManager, mainCam.value());
 		
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(window, rcManager);
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render( rcManager);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
 
-	void RenderManager::UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager, entt::entity& cam)
+	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
@@ -61,7 +69,7 @@ namespace SliceEngine
 		glm::mat4 V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
 
 		int width, height;
-		glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
 		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(width) / static_cast<float>(height), camera.near, camera.far);
 
 		GLint uniformLoc;

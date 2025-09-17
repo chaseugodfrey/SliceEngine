@@ -11,7 +11,7 @@ namespace SliceEngine
 		mShader = rcManager->GetShader();
 		glUseProgram(mShader.s);
 	}
-	void WorldSpaceGraphicsSystem::Render(GLFWwindow* window, ResourceManager* rcManager)
+	void WorldSpaceGraphicsSystem::Render(ResourceManager* rcManager)
 	{
 		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

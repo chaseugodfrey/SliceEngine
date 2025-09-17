@@ -85,11 +85,10 @@ namespace SliceEngine
     // inputsystem methods
     void InputSystem::Init(GLFWwindow* window)
     {
-        windowRef = window;
-        glfwSetKeyCallback(windowRef, KeyCallback);
-        glfwSetMouseButtonCallback(windowRef, MouseButtonCallback);
-        glfwSetCursorPosCallback(windowRef, CursorPosCallback);
-        glfwSetScrollCallback(windowRef, ScrollCallback);
+        glfwSetKeyCallback(window, KeyCallback);
+        glfwSetMouseButtonCallback(window, MouseButtonCallback);
+        glfwSetCursorPosCallback(window, CursorPosCallback);
+        glfwSetScrollCallback(window, ScrollCallback);
     }
 
     void InputSystem::Update()
