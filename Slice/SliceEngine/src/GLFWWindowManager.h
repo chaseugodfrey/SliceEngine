@@ -11,8 +11,8 @@ namespace SliceEngine
 
 	public:
 		GLFWwindow* CreateWindow();
-		void ResizeWindow(GLFWwindow* window, int width, int height);
-		void CloseWindow(GLFWwindow* window);
+		void ResizeWindow(int width, int height);
+		void CloseWindow();
 		GLFWwindow* GetWindow();
 	};
 }

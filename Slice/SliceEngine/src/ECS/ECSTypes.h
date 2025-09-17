@@ -2,8 +2,6 @@
 #define ECS_TYPES
 
 #include <entt.hpp>
-#include <vec3.hpp>
-#include <mat4x4.hpp>
 #include <gtc/quaternion.hpp>
 #include <glfw3.h>
 //#include "PropConfig.h"

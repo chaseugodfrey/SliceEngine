@@ -6,7 +6,7 @@ project "SliceEditor"
     targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
 
-    files { "src/**" }
+    files { "src/**", "thirdparty/imgui/include/**" }
 
     rtti "On"
 
@@ -17,6 +17,8 @@ project "SliceEditor"
         ThirdParty.GLFW_INC,
         ThirdParty.FMOD_INC,
         ThirdParty.RTTR_INC,
+        IncludeDir.EnTT,
+        ThirdParty.GLM_INC,
         "thirdparty/imgui/include"
     }
 

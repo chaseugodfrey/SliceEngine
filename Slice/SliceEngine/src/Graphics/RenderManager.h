@@ -18,10 +18,10 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 
-		entt::entity CreateCamera(GLFWwindow* window);
+		entt::entity CreateCamera();
 
-		void UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager, entt::entity& cam);
-		void Render(GLFWwindow* window, ResourceManager* rcManager);
+		void UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam);
+		void Render(ResourceManager* rcManager);
 		
 		void CreateFramebuffer();
 		GLuint GetTexture();

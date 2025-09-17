@@ -2,7 +2,7 @@
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/PhysicSystem.h"
-#include "Window.h"
+#include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
@@ -47,10 +47,13 @@ namespace SliceEngine
 	{
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
-		window = Window::CreateWindow();
-		Core::GetInstance()->InitFactory();
+		
+		Core::GetInstance()->InitCore();
+		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
+
+		auto window = Core::GetInstance()->GetWindow();
 
 		inputs = std::make_unique<InputSystem>();
 		inputs->Init(window);
@@ -70,7 +73,7 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
-		mRender->CreateCamera(window);
+		mRender->CreateCamera();
 
 		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -80,7 +83,7 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
-		glfwMakeContextCurrent(window);
+		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
@@ -99,11 +102,12 @@ namespace SliceEngine
 		//framerateManager->EndFrame();
 		////
 
-		mRender->Render(window, mResource.get());
+		mRender->Render(mResource.get());
 	}
 
 	void Engine::EndFrame()
 	{
+		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 
@@ -112,10 +116,12 @@ namespace SliceEngine
 
 	void Engine::Exit()
 	{
-		Core::GetInstance()->UnbindSystems();
+		//Core::GetInstance()->UnbindSystems();
+		Core::GetInstance()->ExitCore();
 		audio->Exit();
 
-		Window::CloseWindow(window);
+		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
 	}
+
 }

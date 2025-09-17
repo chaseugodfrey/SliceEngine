@@ -22,7 +22,7 @@ namespace SliceEngine
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		GLFWwindow* window = glfwCreateWindow(900, 600, "Me", nullptr, nullptr);
+		window = glfwCreateWindow(900, 600, "Me", nullptr, nullptr);
 
 		glfwMakeContextCurrent(window);
 
@@ -39,12 +39,12 @@ namespace SliceEngine
 		return window;
 	}
 
-	void GLFWWindowManager::ResizeWindow(GLFWwindow* window, int width, int height)
+	void GLFWWindowManager::ResizeWindow(int width, int height)
 	{
 		glfwSetWindowSize(window, width, height);
 	}
 
-	void GLFWWindowManager::CloseWindow(GLFWwindow* window)
+	void GLFWWindowManager::CloseWindow()
 	{
 	
 		glfwDestroyWindow(window);
@@ -53,6 +53,10 @@ namespace SliceEngine
 
 	GLFWwindow* GLFWWindowManager::GetWindow()
 	{
+		if (window == nullptr)
+		{
+			assert("Window not intialized");
+		}
 		return window;
 	}
 }

@@ -6,6 +6,7 @@
 struct GLFWwindow;
 
 #include <memory>
+#include "Core/Core.h"
 
 namespace SliceEngine
 {
@@ -22,7 +23,7 @@ namespace SliceEngine
 	public:
 
 		// Gonna try to grp these tgt with the other systems in core.h
-		GLFWwindow* window;
+		//GLFWwindow* window;
 		std::unique_ptr<InputSystem> inputs;
 		std::unique_ptr<AudioManager> audio;
 		std::unique_ptr<ResourceManager> mResource;
@@ -38,6 +39,8 @@ namespace SliceEngine
 		void Update();
 		void EndFrame();
 		void Exit();
+
+		Core& GetCore();
 
 	};
 }
