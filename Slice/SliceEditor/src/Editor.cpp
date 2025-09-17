@@ -10,6 +10,7 @@ namespace SliceEditor
 		InitImGUI(engine.window);
 		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
+		sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
 		contentBrowserManager.Init();
 		InitWindowManager();
 	}
