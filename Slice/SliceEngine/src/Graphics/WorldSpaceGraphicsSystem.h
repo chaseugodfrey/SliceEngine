@@ -12,7 +12,7 @@ namespace SliceEngine
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
 		void UseShader(ResourceManager* rcManager);
-		void Render(GLFWwindow* window, ResourceManager* rcManager);
+		void Render(ResourceManager* rcManager);
 
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;

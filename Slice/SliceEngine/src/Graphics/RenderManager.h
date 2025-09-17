@@ -9,6 +9,7 @@
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "../ECS/ECSTypes.h"
+#include "../ECS/GameObject.h"
 
 namespace SliceEngine
 {
@@ -18,10 +19,10 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 
-		entt::entity CreateCamera(GLFWwindow* window);
+		GameObject& CreateCamera();
 
-		void UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager, entt::entity& cam);
-		void Render(GLFWwindow* window, ResourceManager* rcManager);
+		void UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam);
+		void Render(ResourceManager* rcManager);
 		
 		void CreateFramebuffer();
 		GLuint GetTexture();

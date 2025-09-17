@@ -10,6 +10,7 @@
 #include "Physics/PhysicsSystem.h"
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
+#include "../GLFWWindowManager.h"
 
 namespace SliceEngine
 {
@@ -21,7 +22,9 @@ namespace SliceEngine
 		// TODO: Update retrieving the name to use RTTR's 
 		// need to create window system that stores the window handle
 
-		void InitFactory();
+		void InitCore();
+
+		void ExitCore();
 
 		template<typename T>
 		void InitSystem()
@@ -55,6 +58,8 @@ namespace SliceEngine
 			assert("System does not exist!");
 		}
 
+		GLFWwindow* GetWindow();
+		
 		Registry& GetRegistry();
 	
 		void UnbindSystems();
@@ -64,8 +69,9 @@ namespace SliceEngine
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
-
-
+		GLFWWindowManager mWindowManager;
+		//std::unique_ptr<ResourceManager> mResource;
+		//std::unique_ptr<RenderManager> mRender;
 
 	};
 

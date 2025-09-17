@@ -18,9 +18,15 @@ namespace SliceEngine
 		return mFactory.mRegistry;
 	}
 
-	void Core::InitFactory()
+	void Core::InitCore()
 	{
-		//mFactory.mRegistry = &mRegistry;
+		mWindowManager.CreateWindow();
+	}
+
+	void Core::ExitCore()
+	{
+		mWindowManager.CloseWindow();
+		UnbindSystems();
 	}
 
 	void Core::UnbindSystems()
@@ -31,5 +37,11 @@ namespace SliceEngine
 			//system->Unbind();
 		}
 
+	}
+
+	GLFWwindow* Core::GetWindow()
+	{
+		
+		return mWindowManager.GetWindow();
 	}
 }

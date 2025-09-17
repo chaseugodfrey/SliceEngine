@@ -7,16 +7,17 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
-		InitImGUI(engine.window);
+		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
+		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
 		contentBrowserManager.Init();
 		InitWindowManager();
 	}
 
 	void Editor::Run()
 	{
-		while (!glfwWindowShouldClose(engine.window))
+		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			engine.Update();
 			Render();
@@ -26,7 +27,7 @@ namespace SliceEditor
 
 	void Editor::Render()
 	{
-		glfwMakeContextCurrent(engine.window);
+		glfwMakeContextCurrent(SliceEngine::Core::GetInstance()->GetWindow());
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
@@ -76,7 +77,7 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		windowManager.RegisterInterface("SceneView", &sceneViewManager);
+		//windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.Init();
 	}
 
