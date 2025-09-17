@@ -30,6 +30,12 @@ namespace SliceEngine
 			{
 				assert("why the fk");
 			}
+
+			if (HasComponent<T>())
+			{
+				return;
+			}
+
 			mRegistry.emplace_or_replace<T>(mEntity, std::forward<Args>(args)...);
 			//return GetComponent<T>();
 		}
@@ -40,6 +46,11 @@ namespace SliceEngine
 			if (!IsValid())
 			{
 				assert("why the fk");
+			}
+
+			if (!HasComponent<T>())
+			{
+				return;
 			}
 
 			mRegistry.remove<T>(mEntity);
