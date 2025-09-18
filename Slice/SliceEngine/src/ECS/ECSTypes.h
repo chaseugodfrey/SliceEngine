@@ -37,7 +37,7 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
-		
+		glm::mat4 transform{};
 	};
 
 	struct UITransform
@@ -57,7 +57,7 @@ namespace SliceEngine
 	struct Camera
 	{
 		int width, height;
-		float pov, near, far;
+		float pov, near, far;// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 	};
 
