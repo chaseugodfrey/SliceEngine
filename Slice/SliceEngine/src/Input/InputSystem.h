@@ -31,7 +31,7 @@ namespace SliceEngine
     class InputSystem
     {
     private:
-		GLFWwindow* windowRef = nullptr; // reference to the GLFW window
+		//GLFWwindow* windowRef = nullptr; // reference to the GLFW window
 		std::unordered_map<int, KeyStates> keyMap; // keycode, keystate
 		std::unordered_map<int, KeyStates> mouseMap; // buttoncode, buttonstate
 		std::queue<std::tuple<bool, int, KeyStates>> changedQueue; // isKey, code, state

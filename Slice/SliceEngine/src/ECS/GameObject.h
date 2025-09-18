@@ -12,9 +12,11 @@ namespace SliceEngine
 	public:
 		friend class GOFactory;
 
-		GameObject() = default;
+		GameObject();
 
 		GameObject(Registry& reg, Entity entity);
+
+
 
 		~GameObject()
 		{
@@ -22,14 +24,20 @@ namespace SliceEngine
 		};
 
 		template<typename T, typename... Args>
-		T& AddComponent(Args&&... args)
-		{			
+		void AddComponent(Args&&... args)
+		{
 			if (!IsValid())
 			{
 				assert("why the fk");
 			}
-			mRegistry->emplace_or_replace<T>(mEntity, std::forward<Args>(args)...);
-			return GetComponent<T>();
+
+			if (HasComponent<T>())
+			{
+				return;
+			}
+
+			mRegistry.emplace_or_replace<T>(mEntity, std::forward<Args>(args)...);
+			//return GetComponent<T>();
 		}
 
 		template<typename T>
@@ -40,7 +48,12 @@ namespace SliceEngine
 				assert("why the fk");
 			}
 
-			mRegistry->remove<T>(mEntity);
+			if (!HasComponent<T>())
+			{
+				return;
+			}
+
+			mRegistry.remove<T>(mEntity);
 		}
 
 		template<typename T>
@@ -54,7 +67,7 @@ namespace SliceEngine
 		template<typename T>
 		T& GetComponent()
 		{
-			T* component = mRegistry->try_get<T>(mEntity);
+			T* component = mRegistry.try_get<T>(mEntity);
 
 			if (component)
 			{
@@ -68,7 +81,11 @@ namespace SliceEngine
 			}
 
 			// in debug, EnTT will assert if it doesn't exist
-			return mRegistry->get<T>(mEntity);
+			return mRegistry.get<T>(mEntity);
+		}
+
+		bool operator<(const GameObject& other) const {
+			return mEntity < other.mEntity; 
 		}
 
 		void SetName(std::string name);
@@ -82,7 +99,7 @@ namespace SliceEngine
 	private:
 		Entity mEntity{entt::null};
 		std::string mName{};
-		Registry* mRegistry{ nullptr };
+		Registry& mRegistry;
 
 	};
 

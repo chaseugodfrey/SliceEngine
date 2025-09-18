@@ -7,6 +7,7 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Content Browser");
 		ImGui::Text("Content Browser Window");
+
 		ImGui::End();
 	}
 }
