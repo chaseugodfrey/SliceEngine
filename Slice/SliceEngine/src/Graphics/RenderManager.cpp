@@ -44,19 +44,21 @@ namespace SliceEngine
 
 	void RenderManager::Render( ResourceManager* rcManager)
 	{
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		//IDPick(mousePosX, mousePosY);
 
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
 		UpdateCamGPU(rcManager, mainCam.value());
 		
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager);
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, mainCam.value());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
 
-	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam)
+	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
