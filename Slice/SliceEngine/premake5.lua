@@ -18,7 +18,7 @@ project "SliceEngine"
         --"thirdparty/xprop",
         "thirdparty/Jolt",
         "thirdparty/fmod/include",
-        "thirdparty/nlohmann/include"
+        "thirdparty/nlohmann/include",
         ThirdParty.RTTR_INC
     }
 

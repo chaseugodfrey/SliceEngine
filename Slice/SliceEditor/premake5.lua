@@ -87,7 +87,7 @@ project "SliceEditor"
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
-        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"'
+        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"'
