@@ -15,6 +15,8 @@
 #include "Systems/FramerateManager.h"
 #include "SliceTime.h"
 #include "test.h"
+#include "Serializer/JSONSerializer.h"
+#include "Serializer/CSVSerializer.h"
 
 
 	using namespace rttr;
@@ -90,6 +92,8 @@ namespace SliceEngine
 
 		//test();
 
+		
+		JSONSerializer::Test2();
 	}
 
 	void Engine::Update()

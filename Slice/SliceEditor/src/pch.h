@@ -66,4 +66,6 @@
  #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <entt.hpp>
 
+#include <json.hpp>
+
 #endif 

@@ -145,4 +145,14 @@ namespace SliceEngine
 
 		return goName;
 	}
+
+	//rttr::instance GetInstance(entt::id_type id, entt::registry& reg, entt::entity e)
+	//{
+	//	auto it = InstanceGetterFunc.find(id);
+	//	if (it != InstanceGetterFunc.end())
+	//		return it->second(reg, e);
+
+	//	std::cerr << "[RTTR] Getter not found for entt id: " << id << "\n";
+	//	return rttr::instance(); // invalid
+	//}
 }
