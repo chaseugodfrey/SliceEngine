@@ -3,27 +3,60 @@
 #include "HierarchyManager.h"
 
 namespace SliceEditor
+
 {
+	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
+	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
+
 	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
 	{
 
 	}
 
+	void HierarchyWindow::DrawNode(TestNode const& node)
+	{
+		bool hasChildren = node.children.size() > 0;
+		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
+
+		if (ImGui::TreeNodeEx(node.name.c_str(), flags))
+		{
+			for (size_t i = 0; i < node.children.size(); i++)
+			{
+				DrawNode(node.children[i]);
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+	void HierarchyWindow::DrawSceneNode(TestNode const& node)
+	{
+		for (size_t i = 0; i < node.children.size(); i++)
+		{
+			DrawNode(node.children[i]);
+		}
+	}
+
+	void HierarchyWindow::DrawNodeGraph()
+	{
+		auto& rootNodes = mManager.GetNodes();
+
+		for (size_t i = 0; i < rootNodes.size(); i++)
+		{
+			DrawSceneNode(rootNodes[i]);
+		}
+	}
+
+
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");
 
-		auto& nodes = mManager.GetNodes();
 
 		ImGui::BeginGroup();
-		for (size_t i = 0; i < nodes.size(); i++)
-		{
-			if (ImGui::TreeNodeEx(std::to_string(i).c_str(), ImGuiTreeNodeFlags_Leaf))
-			{
-				
-				ImGui::TreePop();
-			}
-		}
+
+		DrawNodeGraph();
+
 		ImGui::EndGroup();
 
 		ImGui::BeginGroup();

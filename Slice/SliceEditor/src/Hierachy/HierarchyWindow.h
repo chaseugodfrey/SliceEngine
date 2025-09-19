@@ -7,10 +7,15 @@
 namespace SliceEditor
 {
 	class HierarchyManager;
+	struct TestNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
 		HierarchyManager& mManager;
+
+		void DrawNode(TestNode const& node);
+		void DrawSceneNode(TestNode const& node);
+		void DrawNodeGraph();
 
 	public:
 
