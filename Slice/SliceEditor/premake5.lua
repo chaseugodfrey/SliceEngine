@@ -19,14 +19,17 @@ project "SliceEditor"
         ThirdParty.RTTR_INC,
         IncludeDir.EnTT,
         ThirdParty.GLM_INC,
+        ThirdParty.JOLT_INC,
         "thirdparty/imgui/include"
+        
     }
 
     libdirs {
         ThirdParty.GLEW_LIB,
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
-        ThirdParty.RTTR_LIB
+        ThirdParty.RTTR_LIB,
+        ThirdParty.JOLT_LIB
     }
 
     links { 
@@ -56,8 +59,10 @@ project "SliceEditor"
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
         
-         links {"rttr_core_d"}
-
+        links {
+            "rttr_core_d",
+            "Jolt_d"
+             }
         -- includedirs
         -- {
         --     ThirdParty.RTTR_INC
@@ -69,7 +74,10 @@ project "SliceEditor"
         
         optimize "On"
         
-         links {"rttr_core"}
+         links {
+            "rttr_core",
+            "Jolt_r"
+            }
 
         -- includedirs
         -- {
