@@ -26,5 +26,8 @@ ThirdParty.GLFW_DLL = "%{wks.location}/SliceEngine/thirdparty/glfw/lib-vc2022/gl
 ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
 ThirdParty.RTTR_DLL = "%{wks.location}/SliceEngine/thirdparty/rttr/bin/rttr_core.dll"
 ThirdParty.RTTR_DLL_DEBUG = "%{wks.location}/SliceEngine/thirdparty/rttr/bin/rttr_core_d.dll"
+ThirdParty.JOLT_INC = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics"
+ThirdParty.JOLT_LIB = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib"
+
 include "SliceEngine/premake5.lua"
 include "SliceEditor/premake5.lua"

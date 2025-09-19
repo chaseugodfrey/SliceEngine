@@ -1,7 +1,8 @@
 #include <pch.h>
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
-#include "ECS/PhysicSystem.h"
+#include "Physics/PhysicsSystem.h"
+//#include "Window.h"
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
@@ -10,9 +11,10 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
-#include "ECS/PhysicSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
+#include "SliceTime.h"
+#include "test.h"
 
 
 	using namespace rttr;
@@ -29,6 +31,9 @@
 
 namespace SliceEngine
 {
+	//Time class for physics simulation or any other system that uses fixeddt
+	GameTime& Engine::gameTime = GameTime::getInstance();
+
 	Engine::Engine()
 	{
 	}
@@ -83,6 +88,8 @@ namespace SliceEngine
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
+		//test();
+
 	}
 
 	void Engine::Update()
@@ -107,7 +114,7 @@ namespace SliceEngine
 		//framerateManager->EndSystem("Input");
 
 		//framerateManager->EndFrame();
-		////
+		//
 
 		mRender->Render(mResource);
 	}

@@ -16,7 +16,7 @@ project "SliceEngine"
         "thirdparty/glfw/include",
         "thirdparty/glm",
         --"thirdparty/xprop",
-        "thirdparty/Jolt",
+        "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",
         ThirdParty.RTTR_INC
     }
@@ -25,7 +25,8 @@ project "SliceEngine"
         "thirdparty/glew",
         "thirdparty/glfw/lib-vc2022",
         "thirdparty/fmod/lib",
-        ThirdParty.RTTR_LIB
+        ThirdParty.RTTR_LIB,
+        ThirdParty.JOLT_LIB
         }
 
     links {
@@ -50,8 +51,11 @@ project "SliceEngine"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
-        --buildoptions { "/MD" }      -- Set to MDd (dynamic debug linking)
-         links {"rttr_core_d"}
+        
+         links {
+            "rttr_core_d",
+            "Jolt_d"
+            }
 
         -- includedirs
         -- {
@@ -64,8 +68,11 @@ project "SliceEngine"
         --defines { "RELEASE_MODE " }
        -- staticruntime "on"
         optimize "On"
-        --buildoptions { "/MD" }      -- Set to MDd (dynamic debug linking)
-         links {"rttr_core"}
+        
+         links {
+            "rttr_core",
+            "Jolt_r"
+            }
 
         -- includedirs
         -- {
