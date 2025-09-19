@@ -99,7 +99,7 @@ namespace SliceEditor
 				{
 					ImGui::TableNextColumn();
 
-					if (ImGui::ButtonEx(entry.path.filename().string().c_str(), ImVec2(0, 0), ImGuiButtonFlags_None))
+					if (ImGui::ImageButton(entry.path.filename().string().c_str(),nullptr, ImVec2(64,64)))
 					{
 						selectedEntry = &entry;
 					}
@@ -141,6 +141,7 @@ namespace SliceEditor
 						ImGui::EndPopup();
 					}
 
+					ImGui::Text("%s", name.c_str());
 				}
 			}
 
@@ -153,7 +154,7 @@ namespace SliceEditor
 					ImGui::TableNextColumn();
 
 
-					if (ImGui::ButtonEx(entry.path.filename().string().c_str(), ImVec2(0, 0), ImGuiButtonFlags_None))
+					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
 					}
@@ -193,7 +194,7 @@ namespace SliceEditor
 						ImGui::EndPopup();
 					}
 
-
+					ImGui::Text("%s", name.c_str());
 				}
 			}
 
