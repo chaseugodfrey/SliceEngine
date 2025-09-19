@@ -2,7 +2,6 @@
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
 #include "Physics/PhysicsSystem.h"
-//#include "Window.h"
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
@@ -68,6 +67,9 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<PhysicsSystem>();
+
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);

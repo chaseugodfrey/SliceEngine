@@ -11,12 +11,12 @@ namespace SliceEngine
 		mObjectToBroadPhase[Layers::MOVING] = BPLayers::MOVING;
 	}
 
-	JPH::uint BPLayerInterfaceImpl::GetNumBroadPhaseLayers()
+	JPH::uint BPLayerInterfaceImpl::GetNumBroadPhaseLayers() const
 	{
 		return BPLayers::NUM_LAYERS;
 	}
 
-	JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer inLayer)
+	JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
 	{
 		return mObjectToBroadPhase[inLayer];
 	}

@@ -22,7 +22,7 @@ namespace SliceEngine
 	}
 
 	//Defines the mapping between layer and broadphase layer
-	class BPLayerInterfaceImpl final : JPH::BroadPhaseLayerInterface
+	class BPLayerInterfaceImpl final : public JPH::BroadPhaseLayerInterface
 	{
 	private:
 		JPH::BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS]; // will switch to switch statement and remove this once i know how many layers I need
@@ -30,9 +30,9 @@ namespace SliceEngine
 	public:
 		BPLayerInterfaceImpl();
 
-		JPH::uint GetNumBroadPhaseLayers();
+		JPH::uint GetNumBroadPhaseLayers() const;
 
-		JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer);
+		JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const;
 
 		#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 
@@ -42,7 +42,7 @@ namespace SliceEngine
 	};
 
 	// Class that determines if object layer collides with a broadphaselayer
-	class ObjectVsBroadPhaseLayerFilterImpl final : JPH::ObjectVsBroadPhaseLayerFilter
+	class ObjectVsBroadPhaseLayerFilterImpl final : public JPH::ObjectVsBroadPhaseLayerFilter
 	{
 	public:
 
@@ -50,7 +50,7 @@ namespace SliceEngine
 	};
 
 	// Class that determines if object layer can collide
-	class ObjectLayerPairFilterImpl final : JPH::ObjectLayerPairFilter
+	class ObjectLayerPairFilterImpl final : public JPH::ObjectLayerPairFilter
 	{
 	public:
 		bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override;
