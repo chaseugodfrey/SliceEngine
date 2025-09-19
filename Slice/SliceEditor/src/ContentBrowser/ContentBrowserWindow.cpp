@@ -98,8 +98,9 @@ namespace SliceEditor
 				if (entry.isDirectory)
 				{
 					ImGui::TableNextColumn();
+					//DisplayButton(selectedEntry, entry, true);
 
-					if (ImGui::ImageButton(entry.path.filename().string().c_str(),nullptr, ImVec2(64,64)))
+					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
 					}
@@ -141,7 +142,7 @@ namespace SliceEditor
 						ImGui::EndPopup();
 					}
 
-					ImGui::Text("%s", name.c_str());
+					ImGui::Text("%s", entry.fileName.c_str());
 				}
 			}
 
@@ -153,6 +154,7 @@ namespace SliceEditor
 				{
 					ImGui::TableNextColumn();
 
+					//DisplayButton(selectedEntry, entry, false);
 
 					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
 					{
@@ -211,6 +213,53 @@ namespace SliceEditor
 
 			ImGui::EndTable();
 		}
+	}
+
+	void ContentBrowserWindow::DisplayButton(DirectoryNode* selectedEntry, DirectoryNode& entry, bool isDirectory)
+	{
+		if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
+		{
+			selectedEntry = &entry;
+		}
+		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		{
+			selectedEntry = &entry;
+		}
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			SelectFile(entry);
+			selectedEntry = nullptr;
+			ImGui::EndTable(); //Setting the Pre-mature Table End
+			return;
+		}
+		if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
+		{
+			if (ImGui::MenuItem("Open Folder"))
+			{
+				SelectFile(entry);
+				selectedEntry = nullptr;
+				ImGui::EndTable(); //Setting the Pre-mature Table End
+				return;
+			}
+
+			if (ImGui::MenuItem("Rename File"))
+			{
+				manager.openRenameFile = true;
+			}
+
+			if (ImGui::MenuItem("Delete Folder"))
+			{
+				manager.DeleteFile(entry);
+				selectedEntry = nullptr;
+				ImGui::EndPopup();
+				ImGui::EndTable();
+				return;
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::Text("%s", entry.fileName.c_str());
 	}
 
 	void ContentBrowserWindow::SelectFile(DirectoryNode& node)

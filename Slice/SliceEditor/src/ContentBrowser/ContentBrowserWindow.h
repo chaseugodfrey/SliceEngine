@@ -19,6 +19,8 @@ namespace SliceEditor
 
 		void DisplayItems(DirectoryNode& node);
 
+		void DisplayButton(DirectoryNode* node, DirectoryNode& entry, bool isDirectory);
+
 		void RenameFilePopup(DirectoryNode& entry);
 
 		void SelectFile(DirectoryNode& node);
