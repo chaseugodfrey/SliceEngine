@@ -37,7 +37,7 @@ namespace SliceEngine
 			//Jolt has a global function pointer "Trace" for debugging and logging messages
 			//Hook Jolt Trace to SliceEngines logger.
 			JPH::Trace = JoltTraceImpl;
-			//JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
+			JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
 
 			JPH::Factory::sInstance = new JPH::Factory;
 			JPH::RegisterTypes();
