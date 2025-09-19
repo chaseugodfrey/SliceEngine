@@ -8,10 +8,9 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
-		//InitEditorState();
+		
 		SLICE_LOG("Initializing Editor Systems.");
-		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
-		contentBrowserManager.Init();
+		InitManagers();
 		InitWindowManager();
 	}
 
@@ -66,6 +65,19 @@ namespace SliceEditor
 		glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
 	}
 
+	void Editor::InitManagers()
+	{
+		SLICE_LOG("EDITOR: Initializing Managers.");
+		contentBrowserManager.Init();
+
+		hierarchyManager = std::make_unique<HierarchyManager>();
+		sceneViewManager = std::make_unique<SceneViewManager>(*engine.mRender);
+
+		hierarchyManager->Init();
+		sceneViewManager->Init();
+
+	}
+
 	void Editor::InitEditorState()
 	{
 		SLICE_LOG("EDITOR: Initializing Session.");
@@ -77,10 +89,8 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		//windowManager.RegisterInterface("SceneView", sceneViewManager.get());
+		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
+		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
 		windowManager.Init();
 	}
-
-
-
 }
