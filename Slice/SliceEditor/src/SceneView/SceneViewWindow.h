@@ -20,6 +20,9 @@ namespace SliceEditor
 
 		SceneViewWindow(SceneViewManager& manager);
 		~SceneViewWindow() = default;
+
+		// TO DO: replace this with proper camera attaching
+		void SetCameraTexture(void* id);
 		void Draw() override final;
 	};
 }
