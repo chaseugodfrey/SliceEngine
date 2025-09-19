@@ -63,6 +63,14 @@
 // #include <Jolt/Physics/Body/BodyCreationSettings.h>
 // #include <Jolt/Physics/Body/BodyActivationListener.h>
 
+// RTTR
+#include <rttr/registration.h>
+#include <rttr/type.h>
+#include <rttr/property.h>
+#include <rttr/method.h>
+#include <rttr/variant.h>
+
+// nlohmann json
 #include <json.hpp>
 
 #endif 

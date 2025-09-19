@@ -81,9 +81,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		
-		JSONSerializer::Test();
-		CSVSerializer::Test();
-
+		JSONSerializer::Test2();
 	}
 
 	void Engine::Update()

@@ -37,8 +37,8 @@ namespace SliceEngine
 				std::cout << storage.type().name() << std::endl;
 
 				//rttr::type rtype = EnttIdToRttrTypeFunc(type_id);
-				//
-				//// Get instance through registered getter				
+				
+				// Get instance through registered getter				
 				//rttr::instance inst = InstanceGetterFunc[type_id](registry, entity);
 
 				//if (!inst.is_valid()) continue;
@@ -131,6 +131,10 @@ namespace SliceEngine
 		static void TestDeserialize()
 		{
 			json test = Deserialize("Assets/Scenes/JSONTest1.scene");
+			if (test != json())
+			{
+				Logger::LogValue("TestDeserialize", "Test Successful");
+			}
 		}
 
 		void Test()
@@ -141,28 +145,23 @@ namespace SliceEngine
 
 		void Test2()
 		{
-			auto& manufactorum_ajakis = Core::GetInstance()->GetRegistry();
+			auto& factory = Core::GetInstance()->mFactory;
 
-			//manufactorum_ajakis.MapEnttToRTTR<Transform>();
-			//manufactorum_ajakis.CreateComponentCloner<Transform>();
+			// Ensure RTTR mapping + cloners exist
+			//factory.MapEnttToRTTR<Transform>();
+			//factory.CreateComponentCloner<Transform>();
 
-			entt::entity omnia_victrum_entity = Core::GetInstance()->GetRegistry().create();
+			// Use factory to create a game object (instead of raw registry)
+			GameObject omnia_victrum = factory.CreateGO("Omnia_Victrum");
 
-			Transform& t = manufactorum_ajakis.emplace<Transform>(omnia_victrum_entity);
+			// Set up transform via the component system
+			auto& t = omnia_victrum.GetComponent<Transform>();
 			t.position = glm::vec3(1, 2, 3);
 			t.rotation = glm::vec3(4, 5, 6);
 			t.scale = glm::vec3(7, 8, 9);
 
-
-			GameObject omnia_victrum = GameObject(manufactorum_ajakis, omnia_victrum_entity);
-
-			//omnia_victrum.AddComponent<Transform>();
-			//omnia_victrum.GetComponent<Transform>().position = glm::vec3(1, 2, 3);
-			//omnia_victrum.GetComponent<Transform>().rotation = glm::vec3(4, 5, 6);
-			//omnia_victrum.GetComponent<Transform>().scale = glm::vec3(7, 8, 9);
-
-			Serialize(RecursiveSerialize(omnia_victrum),"tests/Imperial_Titans.json");
-
+			// Serialize the object
+			Serialize(RecursiveSerialize(omnia_victrum), "Imperial_Titans.json");
 		}
 	}
 }
