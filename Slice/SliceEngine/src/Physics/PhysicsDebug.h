@@ -16,7 +16,7 @@ namespace SliceEngine
 
 	#ifdef JPH_ENABLE_ASSERTS
 	//Assert faile Implementation
-	bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine);
+	bool __cdecl AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, unsigned int inLine);
 	#endif // JPH_ENABLE_ASSERTS
 }
 
