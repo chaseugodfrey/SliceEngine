@@ -3,6 +3,8 @@
 
 namespace SliceEngine
 {
+
+
 	namespace JSONSerializer
 	{
 		//Save json (the data structure) to JSON (the file) Note: This replaces the file in the filepath with data in the given json
@@ -35,6 +37,36 @@ namespace SliceEngine
 
 				// Each component for this GameObject is here
 				std::cout << storage.type().name() << std::endl;
+				std::string componentName(storage.type().name());
+
+				rttr::type componentType = rttr::type::get_by_name(componentName);
+				if (!componentType)
+				{
+					SLICE_LOG_ERROR("Component is not registered");
+					continue;
+				}
+
+				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+				if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
+				{
+					SLICE_LOG_ERROR("Component does not have a getter");
+					// assert?
+
+					continue;
+				}
+
+				rttr::variant componentData = it->second(registry, entity);
+
+				for (const auto& property : componentType.get_properties())
+				{
+					// this should be the component's property data
+					std::string propName = property.get_name().to_string();
+
+					rttr::variant propVal = property.get_value(componentData);
+
+					// idk if this works tho
+					// nvm it works
+				}
 
 				//rttr::type rtype = EnttIdToRttrTypeFunc(type_id);
 				

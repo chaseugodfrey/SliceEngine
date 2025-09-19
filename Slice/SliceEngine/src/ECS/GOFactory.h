@@ -3,10 +3,12 @@
 #include "ECSTypes.h"
 #include "GameObject.h"
 #include <entt.hpp>
+#include <rttr/variant.h>
 
 namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
+	using ComponentGetter = std::function <rttr::variant(Registry& reg, Entity e)>;
 	//using EnttIdToRttrType = std::function<rttr::type(entt::id_type type)>;
 	//using GetterMapper = std::function<rttr::instance(entt::registry&, entt::entity)>;
 	//using InstanceGetter = std::unordered_map<entt::id_type, GetterMapper>;
@@ -45,6 +47,15 @@ namespace SliceEngine
 				});
 		};
 
+		template<typename Component>
+		void RegisterSerializableComponent()
+		{
+			entt::id_type type_id = entt::type_id<Component>().hash();
+			mComponentGetters[type_id] = [](Registry& registry, Entity e) -> rttr::variant {
+					return registry.get<Component>(e);	
+				};
+		}
+
 		//template<class T>
 		//void MapEnttToRTTR()
 		//{
@@ -74,11 +85,17 @@ namespace SliceEngine
 		std::string CreateName(std::string name);
 
 		Registry mRegistry;
+
+		// NOTE: I'm putting this in public for now to test serialization.
+		std::unordered_map<entt::id_type, ComponentGetter> mComponentGetters;
+
 	private:
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
+
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
+
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;
 		//std::unordered_map<entt::id_type, rttr::type> mEnttTypeIdToRttrType;
