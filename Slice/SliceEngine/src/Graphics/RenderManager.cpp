@@ -7,7 +7,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/euler_angles.hpp"
 
-#include "../Core/Core.h"
+#include "Core/Core.h"
+
+// My Comments to (Ctrl + f): TODO: MAYDO:
 
 namespace SliceEngine
 {
@@ -22,20 +24,19 @@ namespace SliceEngine
 	}
 	GameObject& RenderManager::CreateCamera()
 	{
-		int width, height;
-		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
-		
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
-		//newCam.AddComponent<Transform>();
 		auto& transform = newCam.GetComponent<Transform>();
 		transform.position = glm::vec3(-2.f, 0.f, 0.f);
 		
+		int width, height;
+		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
 		newCam.AddComponent<Camera>();
 		auto& cam = newCam.GetComponent<Camera>();
 		cam.width = width;
 		cam.height = height;
 
+		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 		if (!mainCam.has_value())
 			mainCam = newCam.GetEntity();
 		return newCam;
@@ -43,19 +44,21 @@ namespace SliceEngine
 
 	void RenderManager::Render( ResourceManager* rcManager)
 	{
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		//IDPick(mousePosX, mousePosY);
 
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
 		UpdateCamGPU(rcManager, mainCam.value());
 		
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render( rcManager);
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, mainCam.value());
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
 
-	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam)
+	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
@@ -95,11 +98,11 @@ namespace SliceEngine
 		};
 		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
 
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			SLICE_LOG_WARNING("Framebuffer not complete");
-		}
+		// Note: Framebuffer is always going to be incomplete this way due to not attaching a texture to it
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//{
+		//	SLICE_LOG_WARNING("Framebuffer not complete");
+		//}
 
 		//glGenBuffers(2, pboIds);
 		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
