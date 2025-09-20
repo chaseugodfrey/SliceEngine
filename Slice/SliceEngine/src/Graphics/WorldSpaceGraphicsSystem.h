@@ -33,6 +33,8 @@ namespace SliceEngine
 		static constexpr int gridNum = 11; // Has to be odd number lol (cuz account for 0, then +- halfGridNum)
 		std::array<std::vector<Entity>, gridNum* gridNum> spatialData;
 		std::vector<Entity> outerSpatial;
+
+		void ResetVisibleEntities();
 	};
 }
 

@@ -24,6 +24,8 @@ namespace SliceEngine
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
+		ResetVisibleEntities();
+
 		tempModel = rcManager->GetModel();
 
 		FetchFrustrumCull(cam);
@@ -106,13 +108,6 @@ namespace SliceEngine
 		for (auto& i : spatialData)
 			i.clear();
 		outerSpatial.clear();
-
-		auto view = mRegistry->view<visibleEntity>();
-		for (auto entity : view)
-		{
-			if (mRegistry->any_of<visibleEntity>(entity))
-				mRegistry->remove<visibleEntity>(entity);
-		}
 
 		BaseSystem::Update(dt);
 	}
@@ -296,6 +291,16 @@ namespace SliceEngine
 		{
 			for (auto& i : outerSpatial)
 				Core::GetInstance()->mFactory.mRegistry.emplace<visibleEntity>(i);
+		}
+	}
+
+	void WorldSpaceGraphicsSystem::ResetVisibleEntities()
+	{
+		auto view = mRegistry->view<visibleEntity>();
+		for (auto entity : view)
+		{
+			if (mRegistry->any_of<visibleEntity>(entity))
+				mRegistry->remove<visibleEntity>(entity);
 		}
 	}
 
