@@ -4,7 +4,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/euler_angles.hpp"
 
-#include "Core/Core.h"
+#include "../Core/Core.h"
 
 namespace SliceEngine
 {
@@ -26,9 +26,14 @@ namespace SliceEngine
 
 		tempModel = rcManager->GetModel();
 
-		auto& objs = FetchFrustrumCull(cam);
-		for (auto& i : objs)
-			EntityDraw(i);
+		FetchFrustrumCull(cam);
+		auto view = Core::GetInstance()->GetRegistry().view<visibleEntity>();
+		for (auto entity : view)
+		{
+			EntityDraw(entity);
+		}
+		//for (auto& i : objs)
+		//	EntityDraw(i);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
@@ -87,7 +92,7 @@ namespace SliceEngine
 	{
 		glBindVertexArray(tempModel.vao);
 
-		auto& transform = mRegistry->get<Transform>(entity);
+		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader.s, "M");
@@ -101,10 +106,18 @@ namespace SliceEngine
 		for (auto& i : spatialData)
 			i.clear();
 		outerSpatial.clear();
+
+		auto view = mRegistry->view<visibleEntity>();
+		for (auto entity : view)
+		{
+			if (mRegistry->any_of<visibleEntity>(entity))
+				mRegistry->remove<visibleEntity>(entity);
+		}
+
 		BaseSystem::Update(dt);
 	}
 
-	std::unordered_set<Entity>& WorldSpaceGraphicsSystem::FetchFrustrumCull(Entity camObj)
+	void WorldSpaceGraphicsSystem::FetchFrustrumCull(Entity camObj)
 	{
 		std::unordered_set<Entity> ret;
 		// Add the objects that are outside first lo.
@@ -214,7 +227,7 @@ namespace SliceEngine
 			l1 = glm::vec3{ p0.x - p2.x, p0.y - p2.y, 0 };
 			l0 = -l0;
 			if (l2.y * l1.x + l2.x * -l1.y < 0)
-				return ret;
+				return;
 		}
 
 		// Convert the 3 lines to edge equation
@@ -265,7 +278,7 @@ namespace SliceEngine
 			eval2 += l2.y;
 		}
 
-		return ret;
+		//return ret;
 	}
 
 	// Can be negative, Basically, you pass in [-5,5] inclusive
@@ -276,12 +289,13 @@ namespace SliceEngine
 		if (x > -halfGridNum && x < halfGridNum && z > -halfGridNum && z < halfGridNum)
 		{
 			for (auto& i : spatialData[(x + gridNum / 2) * gridNum + (z + gridNum / 2)])
-				in.insert(i);
+				Core::GetInstance()->mFactory.mRegistry.emplace<visibleEntity>(i);
+				//in.insert(i);
 		}
 		else // Add out of bounds objs
 		{
 			for (auto& i : outerSpatial)
-				in.insert(i);
+				Core::GetInstance()->mFactory.mRegistry.emplace<visibleEntity>(i);
 		}
 	}
 

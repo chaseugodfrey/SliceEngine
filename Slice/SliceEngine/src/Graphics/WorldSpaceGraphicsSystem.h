@@ -9,6 +9,7 @@
 namespace SliceEngine
 {
 	struct renderEntity {};
+	struct visibleEntity {};
 
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
@@ -22,7 +23,7 @@ namespace SliceEngine
 
 		void EntityDraw(const Entity& entity);
 
-		std::unordered_set<Entity>& FetchFrustrumCull(Entity camObj);
+		void FetchFrustrumCull(Entity camObj);
 		void AddGridEntities(std::unordered_set<Entity>& in, const int& x, const int& z);
 
 	private:
