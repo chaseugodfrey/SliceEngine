@@ -27,7 +27,9 @@ namespace SliceEngine
 		bool isInitialized = false; 
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider);
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
+
+		void Shutdown();
 
 	public:
 
@@ -39,12 +41,16 @@ namespace SliceEngine
 
 		~PhysicsSystem();
 
-		void Shutdown();
-
 		// may be redundant might remove return bool and change to void
 		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
-		bool IsInitialized();
+		bool IsInitialized() const;
+
+		void CreateBodyFromComponent(entt::entity entity, const Transform& transform, const RigidBody& rigidBody, const ColliderShape& colliderShape) const;
+
+		void SyncECSToPhysics(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const;
+
+		void SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const;
 
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 

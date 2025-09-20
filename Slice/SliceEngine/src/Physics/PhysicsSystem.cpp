@@ -68,7 +68,7 @@ namespace SliceEngine
 		}
 	}
 
-	bool PhysicsSystem::IsInitialized() { return isInitialized; }
+	bool PhysicsSystem::IsInitialized() const { return isInitialized; }
 
 	void PhysicsSystem::Shutdown() 
 	{
@@ -84,7 +84,7 @@ namespace SliceEngine
 		}
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider)
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
 	{
 		switch (collider.type)
 		{
@@ -124,6 +124,31 @@ namespace SliceEngine
 				return nullptr;
 
 		}
+	}
+
+	void PhysicsSystem::CreateBodyFromComponent(entt::entity entity, const Transform& transform, const RigidBody& rigidBody, const ColliderShape& colliderShape) const
+	{
+		// wait for transformcomponent to be finalized
+
+
+
+
+
+
+
+
+	}
+
+	void PhysicsSystem::SyncECSToPhysics(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const
+	{
+		// wait for transformcomponent to be finalized
+
+	}
+
+	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const
+	{
+		// wait for transformcomponent to be finalized
+
 	}
 
 
