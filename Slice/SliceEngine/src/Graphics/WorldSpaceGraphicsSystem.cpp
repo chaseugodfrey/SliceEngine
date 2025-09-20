@@ -284,13 +284,21 @@ namespace SliceEngine
 		if (x > -halfGridNum && x < halfGridNum && z > -halfGridNum && z < halfGridNum)
 		{
 			for (auto& i : spatialData[(x + gridNum / 2) * gridNum + (z + gridNum / 2)])
+			{
+				if (FactoryInstance.mRegistry.any_of<visibleEntity>(i))
+					continue;
 				Core::GetInstance()->mFactory.mRegistry.emplace<visibleEntity>(i);
+			}
 				//in.insert(i);
 		}
 		else // Add out of bounds objs
 		{
 			for (auto& i : outerSpatial)
+			{
+				if (FactoryInstance.mRegistry.any_of<visibleEntity>(i))
+					continue;
 				Core::GetInstance()->mFactory.mRegistry.emplace<visibleEntity>(i);
+			}
 		}
 	}
 
