@@ -43,7 +43,6 @@ namespace rttr
 class type;
 class variant;
 class argument;
-class constructor;
 
 namespace detail
 {
@@ -81,8 +80,6 @@ class RTTR_API constructor_wrapper_base
                                argument& arg5, argument& arg6) const;
 
         virtual variant invoke_variadic(std::vector<argument>& args) const;
-
-        virtual void visit(visitor& visitor, const constructor& ctor) const RTTR_NOEXCEPT;
     protected:
         void init() RTTR_NOEXCEPT;
     private:

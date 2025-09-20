@@ -12,9 +12,9 @@ namespace SliceEditor
 {
 	class SceneViewManager : public ICreateWindow
 	{
-		SliceEngine::RenderManager& mRenderManager;
 
 	public:
+		SliceEngine::RenderManager& mRenderManager;
 
 		SceneViewManager(SliceEngine::RenderManager& renderManager) : mRenderManager(renderManager) {}
 		~SceneViewManager() = default;

@@ -47,7 +47,6 @@
 #include "rttr/policy.h"
 #include "rttr/type.h"
 #include "rttr/detail/registration/registration_manager.h"
-#include "rttr/detail/visitor/visitor_registration.h"
 
 #include <functional>
 #include <string>
@@ -92,8 +91,8 @@ using map_access_level_to_enum = conditional_t< std::is_same<T, detail::public_a
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename acc_level, typename Visitor_List, typename...Ctor_Args>
-class registration::bind<detail::ctor, Class_Type, acc_level, Visitor_List, Ctor_Args...> : public registration::class_<Class_Type>
+template<typename Class_Type, typename acc_level, typename...Ctor_Args>
+class registration::bind<detail::ctor, Class_Type, acc_level, Ctor_Args...> : public registration::class_<Class_Type>
 {
     private:
         // this 'as_std_shared_ptr' policy has been selected, because:
@@ -116,10 +115,9 @@ class registration::bind<detail::ctor, Class_Type, acc_level, Visitor_List, Ctor
                                                            Policy,
                                                            Metadata_Count,
                                                            default_args<TArgs...>,
-                                                           parameter_infos<Param_Args...>, Visitor_List,
-                                                            Ctor_Args...>>(std::move(metadata_list),
-                                                                           std::move(def_args),
-                                                                           std::move(param_infos));
+                                                           parameter_infos<Param_Args...>, Ctor_Args...>>(std::move(metadata_list),
+                                                                                                          std::move(def_args),
+                                                                                                          std::move(param_infos));
         }
 
         template<typename Policy, std::size_t Metadata_Count, typename...Param_Args>
@@ -134,9 +132,8 @@ class registration::bind<detail::ctor, Class_Type, acc_level, Visitor_List, Ctor
                                                            Policy,
                                                            Metadata_Count,
                                                            default_args<>,
-                                                           parameter_infos<Param_Args...>, Visitor_List,
-                                                           Ctor_Args...>>(std::move(metadata_list),
-                                                                          std::move(param_infos));
+                                                           parameter_infos<Param_Args...>, Ctor_Args...>>(std::move(metadata_list),
+                                                                                                          std::move(param_infos));
         }
 
     public:
@@ -155,7 +152,6 @@ class registration::bind<detail::ctor, Class_Type, acc_level, Visitor_List, Ctor
                                                                          0,
                                                                          detail::default_args<>,
                                                                          param_info_t,
-                                                                         Visitor_List,
                                                                          Ctor_Args...>>(std::array<detail::metadata, 0>(),
                                                                                         param_info_t());
 
@@ -211,8 +207,8 @@ class registration::bind<detail::ctor, Class_Type, acc_level, Visitor_List, Ctor
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename F, typename acc_level, typename Visitor_List>
-class registration::bind<detail::ctor_func, Class_Type, F, acc_level, Visitor_List> : public registration::class_<Class_Type>
+template<typename Class_Type, typename F, typename acc_level>
+class registration::bind<detail::ctor_func, Class_Type, F, acc_level> : public registration::class_<Class_Type>
 {
     private:
         template<std::size_t Metadata_Count, typename...TArgs, typename...Param_Args>
@@ -229,7 +225,6 @@ class registration::bind<detail::ctor_func, Class_Type, F, acc_level, Visitor_Li
                                                            Metadata_Count,
                                                            default_args<TArgs...>,
                                                            parameter_infos<Param_Args...>,
-                                                           Visitor_List,
                                                            F>>(func,
                                                                std::move(metadata_list),
                                                                std::move(def_args),
@@ -250,7 +245,6 @@ class registration::bind<detail::ctor_func, Class_Type, F, acc_level, Visitor_Li
                                                            Metadata_Count,
                                                            default_args<>,
                                                            parameter_infos<Param_Args...>,
-                                                           Visitor_List,
                                                            F>>(func,
                                                                std::move(metadata_list),
                                                                std::move(param_infos));
@@ -269,7 +263,7 @@ class registration::bind<detail::ctor_func, Class_Type, F, acc_level, Visitor_Li
                                        default_invoke,
                                        0,
                                        detail::default_args<>,
-                                       param_info_t, Visitor_List, F>>(func, std::array<detail::metadata, 0>(), param_info_t());
+                                       param_info_t, F>>(func, std::array<detail::metadata, 0>(), param_info_t());
         }
 
         template<typename Acc_Func, typename... Args>
@@ -291,10 +285,11 @@ class registration::bind<detail::ctor_func, Class_Type, F, acc_level, Visitor_Li
                            (param_names_count<Args...>::value == function_traits<Acc_Func>::arg_count)),
                           "The provided amount of names in 'parameter_names' does not match argument count of the function signature.");
 
-            return create_constructor_wrapper(func,
-                                              get_metadata(std::forward<Args>(args)...),
-                                              get_default_args<type_list<Acc_Func>, function_type>(std::forward<Args>(args)...),
-                                              create_param_infos<type_list<F>, function_type>(std::forward<Args>(args)...));
+            auto ctor = create_constructor_wrapper(func,
+                                                   std::move(get_metadata(std::forward<Args>(args)...)),
+                                                   std::move(get_default_args<type_list<Acc_Func>, function_type>(std::forward<Args>(args)...)),
+                                                   std::move(create_param_infos<type_list<F>, function_type>(std::forward<Args>(args)...)));
+            return std::move(ctor);
         }
     public:
         bind(const std::shared_ptr<detail::registration_executer>& reg_exec, F func)
@@ -342,8 +337,8 @@ using registration_derived_t = detail::conditional_t< std::is_same<T, void>::val
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename A, typename acc_level, typename Visitor_List>
-class registration::bind<detail::prop, Class_Type, A, acc_level, Visitor_List> : public registration_derived_t<Class_Type>
+template<typename Class_Type, typename A, typename acc_level>
+class registration::bind<detail::prop, Class_Type, A, acc_level> : public registration_derived_t<Class_Type>
 {
     private:
         using default_getter_policy = detail::return_as_copy;
@@ -356,14 +351,11 @@ class registration::bind<detail::prop, Class_Type, A, acc_level, Visitor_List> :
             using namespace detail;
             using acc_type = typename property_type<Acc>::type;
             return detail::make_unique<property_wrapper<acc_type,
-                                                        Class_Type,
                                                         A,
                                                         void,
                                                         detail::map_access_level_to_enum<acc_level>::value,
                                                         default_getter_policy, default_setter_policy,
-                                                        0,
-                                                        Visitor_List>
-                                                        >(name, acc, std::array<detail::metadata, 0>());
+                                                        0>>(name, rttr::type::get<Class_Type>(), acc, std::array<detail::metadata, 0>());
         }
 
         template<typename Acc, std::size_t Metadata_Count, typename... Args>
@@ -388,14 +380,13 @@ class registration::bind<detail::prop, Class_Type, A, acc_level, Visitor_List> :
             using setter_policy     = typename get_setter_policy<first_prop_policy>::type;
             using acc_type          = typename property_type<Acc>::type;
 
-            return detail::make_unique<property_wrapper<acc_type,
-                                                        Class_Type,
-                                                        Acc,
-                                                        void,
-                                                        detail::map_access_level_to_enum<acc_level>::value,
-                                                        getter_policy, setter_policy,
-                                                        Metadata_Count,
-                                                        Visitor_List>>(name, acc, std::move(metadata_list));
+            auto prop = detail::make_unique<property_wrapper<acc_type,
+                                                             Acc,
+                                                             void,
+                                                             detail::map_access_level_to_enum<acc_level>::value,
+                                                             getter_policy, setter_policy,
+                                                             Metadata_Count>>(name, rttr::type::get<Class_Type>(), acc, std::move(metadata_list));
+            return std::move(prop);
         }
 
     public:
@@ -438,8 +429,8 @@ class registration::bind<detail::prop, Class_Type, A, acc_level, Visitor_List> :
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename A1, typename A2, typename acc_level, typename Visitor_List>
-class registration::bind<detail::prop, Class_Type, A1, A2, acc_level, Visitor_List> : public registration_derived_t<Class_Type>
+template<typename Class_Type, typename A1, typename A2, typename acc_level>
+class registration::bind<detail::prop, Class_Type, A1, A2, acc_level> : public registration_derived_t<Class_Type>
 {
     private:
         using default_getter_policy = detail::return_as_copy;
@@ -453,12 +444,10 @@ class registration::bind<detail::prop, Class_Type, A1, A2, acc_level, Visitor_Li
             using namespace detail;
             using acc_type = typename property_type<A1>::type;
             return detail::make_unique<property_wrapper<acc_type,
-                                                        Class_Type,
                                                         Acc1, Acc2,
                                                         detail::map_access_level_to_enum<acc_level>::value,
-                                                        default_getter_policy, default_setter_policy, 0, Visitor_List
-                                                       >
-                                       >(name, getter, setter, std::array<detail::metadata, 0>());
+                                                        default_getter_policy, default_setter_policy, 0>>(name, rttr::type::get<Class_Type>(),
+                                                                                                          getter, setter, std::array<detail::metadata, 0>());
         }
 
         template<typename Acc1, typename Acc2, std::size_t Metadata_Count, typename... Args>
@@ -481,14 +470,13 @@ class registration::bind<detail::prop, Class_Type, A1, A2, acc_level, Visitor_Li
             using getter_policy     = typename get_getter_policy<first_prop_policy>::type;
             using setter_policy     = typename get_setter_policy<first_prop_policy>::type;
             using acc_type          = typename property_type<A1>::type;
-            return detail::make_unique<property_wrapper<acc_type,
-                                                        Class_Type,
-                                                        Acc1, Acc2,
-                                                        detail::map_access_level_to_enum<acc_level>::value,
-                                                        getter_policy, setter_policy,
-                                                        Metadata_Count, Visitor_List
-                                                        >
-                                      >(name, getter, setter, std::move(metadata_list));
+            auto prop = detail::make_unique<property_wrapper<acc_type,
+                                                             Acc1, Acc2,
+                                                             detail::map_access_level_to_enum<acc_level>::value,
+                                                             getter_policy, setter_policy,
+                                                             Metadata_Count>>(name, rttr::type::get<Class_Type>(),
+                                                                              getter, setter, std::move(metadata_list));
+            return std::move(prop);
         }
 
     public:
@@ -533,8 +521,8 @@ class registration::bind<detail::prop, Class_Type, A1, A2, acc_level, Visitor_Li
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename A, typename acc_level, typename Visitor_List>
-class registration::bind<detail::prop_readonly, Class_Type, A, acc_level, Visitor_List> : public registration_derived_t<Class_Type>
+template<typename Class_Type, typename A, typename acc_level>
+class registration::bind<detail::prop_readonly, Class_Type, A, acc_level> : public registration_derived_t<Class_Type>
 {
     private:
         using default_getter_policy = detail::return_as_copy;
@@ -546,11 +534,10 @@ class registration::bind<detail::prop_readonly, Class_Type, A, acc_level, Visito
         {
             using namespace detail;
             using acc_type = typename property_type<Acc>::type;
-            return detail::make_unique<property_wrapper<acc_type, Class_Type, A, void,
+            return detail::make_unique<property_wrapper<acc_type, A, void,
                                                         detail::map_access_level_to_enum<acc_level>::value,
-                                                        default_getter_policy, default_setter_policy, 0, Visitor_List
-                                                       >
-                                      >(name, acc, std::array<detail::metadata, 0>());
+                                                        default_getter_policy, default_setter_policy, 0>>(name, rttr::type::get<Class_Type>(),
+                                                                                                          acc, std::array<detail::metadata, 0>());
         }
 
         template<typename Acc, std::size_t Metadata_Count, typename... Args>
@@ -574,11 +561,12 @@ class registration::bind<detail::prop_readonly, Class_Type, A, acc_level, Visito
             using getter_policy     = typename get_getter_policy<first_prop_policy>::type;
             using acc_type          = typename property_type<Acc>::type;
 
-            return detail::make_unique<property_wrapper<acc_type, Class_Type, Acc, void,
-                                                        detail::map_access_level_to_enum<acc_level>::value,
-                                                        getter_policy, default_setter_policy, Metadata_Count, Visitor_List
-                                                       >
-                                      >(name, acc, std::move(metadata_list));
+            auto prop = detail::make_unique<property_wrapper<acc_type, Acc, void,
+                                                             detail::map_access_level_to_enum<acc_level>::value,
+                                                             getter_policy, default_setter_policy, Metadata_Count>>(name, rttr::type::get<Class_Type>(),
+                                                                                                                    acc, std::move(metadata_list));
+
+            return std::move(prop);
         }
 
     public:
@@ -620,8 +608,8 @@ class registration::bind<detail::prop_readonly, Class_Type, A, acc_level, Visito
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename Class_Type, typename F, typename acc_level, typename Visitor_List>
-class registration::bind<detail::meth, Class_Type, F, acc_level, Visitor_List> : public registration_derived_t<Class_Type>
+template<typename Class_Type, typename F, typename acc_level>
+class registration::bind<detail::meth, Class_Type, F, acc_level> : public registration_derived_t<Class_Type>
 {
     private:
         template<typename Acc_Func>
@@ -630,13 +618,11 @@ class registration::bind<detail::meth, Class_Type, F, acc_level, Visitor_List> :
             using namespace detail;
             using param_info_t =  decltype(create_param_infos<type_list<F>, function_type>());
             return detail::make_unique<method_wrapper<Acc_Func,
-                                                      Class_Type,
                                                       map_access_level_to_enum<acc_level>::value,
                                                       default_invoke,
                                                       default_args<>,
                                                       param_info_t,
-                                                      0,
-                                                      Visitor_List>>(name, func, std::array<detail::metadata, 0>(), param_info_t());
+                                                      0>>(name, rttr::type::get<Class_Type>(), func, std::array<detail::metadata, 0>(), param_info_t());
         }
 
         template<typename Acc_Func, typename... Args>
@@ -668,11 +654,12 @@ class registration::bind<detail::meth, Class_Type, F, acc_level, Visitor_List> :
                                                policy_types_found>;
             using policy = typename std::tuple_element<0, as_std_tuple_t<policy_list>>::type;
             using metadata_count = count_type<::rttr::detail::metadata, type_list<Args...>>;
-            return create_method_wrapper<policy,
-                                         metadata_count::value>(name, func,
-                                                                get_metadata(std::forward<Args>(args)...),
-                                                                get_default_args<type_list<Acc_Func>, function_type>(std::forward<Args>(args)...),
-                                                                create_param_infos<type_list<F>, function_type>(std::forward<Args>(args)...) );
+            auto meth = create_method_wrapper<policy,
+                                              metadata_count::value>(name, func,
+                                                                     std::move(get_metadata(std::forward<Args>(args)...)),
+                                                                     std::move(get_default_args<type_list<Acc_Func>, function_type>(std::forward<Args>(args)...)),
+                                                                     std::move(create_param_infos<type_list<F>, function_type>(std::forward<Args>(args)...)) );
+            return std::move(meth);
         }
 
         template<typename Policy, std::size_t Metadata_Count, typename...TArgs, typename...Param_Args>
@@ -683,13 +670,12 @@ class registration::bind<detail::meth, Class_Type, F, acc_level, Visitor_List> :
                               detail::parameter_infos<Param_Args...> param_infos)
         {
             return detail::make_unique<detail::method_wrapper<F,
-                                                              Class_Type,
                                                               detail::map_access_level_to_enum<acc_level>::value,
                                                               Policy,
                                                               detail::default_args<TArgs...>,
                                                               detail::parameter_infos<Param_Args...>,
-                                                              Metadata_Count,
-                                                              Visitor_List>>(name,
+                                                              Metadata_Count>>(name,
+                                                                  rttr::type::get<Class_Type>(),
                                                                                func,
                                                                                std::move(metadata_list),
                                                                                std::move(def_args),
@@ -704,13 +690,12 @@ class registration::bind<detail::meth, Class_Type, F, acc_level, Visitor_List> :
                               detail::parameter_infos<Param_Args...> param_infos)
         {
             return detail::make_unique<detail::method_wrapper<F,
-                                                              Class_Type,
                                                               detail::map_access_level_to_enum<acc_level>::value,
                                                               Policy,
                                                               detail::default_args<>,
                                                               detail::parameter_infos<Param_Args...>,
-                                                              Metadata_Count,
-                                                              Visitor_List>>(name,
+                                                              Metadata_Count>>(name,
+                                                                  rttr::type::get<Class_Type>(),
                                                                                func,
                                                                                std::move(metadata_list),
                                                                                std::move(param_infos));
@@ -779,21 +764,23 @@ class registration::bind<detail::enum_, Class_Type, Enum_Type> : public registra
 
             using metadata_count = count_type<::rttr::detail::metadata, type_list<Args...>>;
 
-            return detail::make_unique<enumeration_wrapper<E_Type,
-                                                           enum_count,
-                                                           metadata_count::value>>(get_enum_values<E_Type>(std::forward<Args>(args)...),
-                                                                                   get_metadata(std::forward<Args>(args)...));
+            auto enum_wrapper = detail::make_unique<enumeration_wrapper<E_Type,
+                                                                        enum_count,
+                                                                        metadata_count::value>>(get_enum_values<E_Type>(std::forward<Args>(args)...),
+                                                                                                std::move(get_metadata(std::forward<Args>(args)...)));
 
+
+            return std::move(enum_wrapper);
         }
 
     public:
         bind(const std::shared_ptr<detail::registration_executer>& reg_exec, string_view name)
-        :   registration_derived_t<Class_Type>(reg_exec), m_reg_exec(reg_exec), m_declared_type(type::template get<Class_Type>())
+        :   registration_derived_t<Class_Type>(reg_exec), m_reg_exec(reg_exec), m_declared_type(rttr::type::get<Class_Type>())
         {
             using namespace detail;
 
             m_reg_exec->add_registration_func(this);
-            auto t = type::template get<Enum_Type>();
+            auto t = rttr::type::get<Enum_Type>();
             type_register::custom_name(t, name);
         }
 
