@@ -37,7 +37,6 @@ namespace SliceEngine
 		unsigned int mIDHovered;
 
 	private:
-
 		std::optional<Entity> mainCam;
 
 		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;

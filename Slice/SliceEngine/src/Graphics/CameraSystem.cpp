@@ -2,6 +2,8 @@
 #include "ResourceManager.h"
 #include "CameraSystem.h"
 
+#include "../Core/Core.h"
+
 namespace SliceEngine
 {
 	void CameraSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -12,6 +14,7 @@ namespace SliceEngine
 		cam.near = 0.5f;
 		cam.far = 200.f;
 		cam.pov = 60.f;
+		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &cam.width, &cam.height);
 
 		// Create Textures
 		glCreateTextures(GL_TEXTURE_2D, 1, &cam.textureID);
@@ -38,6 +41,6 @@ namespace SliceEngine
 	}
 	void CameraSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
+		
 	}
 }

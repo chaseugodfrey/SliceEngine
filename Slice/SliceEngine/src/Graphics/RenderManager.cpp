@@ -29,12 +29,7 @@ namespace SliceEngine
 		auto& transform = newCam.GetComponent<Transform>();
 		transform.position = glm::vec3(-2.f, 0.f, 0.f);
 		
-		int width, height;
-		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
 		newCam.AddComponent<Camera>();
-		auto& cam = newCam.GetComponent<Camera>();
-		cam.width = width;
-		cam.height = height;
 
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 		if (!mainCam.has_value())
@@ -49,10 +44,14 @@ namespace SliceEngine
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		//IDPick(mousePosX, mousePosY);
 
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
-		UpdateCamGPU(rcManager, mainCam.value());
-		
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, mainCam.value());
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		for (auto cam : cams)
+		{
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
+			UpdateCamGPU(rcManager, cam);
+
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, cam);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
