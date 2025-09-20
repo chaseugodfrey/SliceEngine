@@ -29,7 +29,7 @@ namespace SliceEngine
 		tempModel = rcManager->GetModel();
 
 		FetchFrustrumCull(cam);
-		auto view = Core::GetInstance()->GetRegistry().view<visibleEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<visibleEntity>(); //renderEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);

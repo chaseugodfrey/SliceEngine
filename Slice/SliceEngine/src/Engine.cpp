@@ -88,10 +88,6 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
-		GameObject newGO = Core::GetInstance()->mFactory.CreateGO();
-		newGO.AddComponent<Renderer>();
-		newGO.GetComponent<Transform>().position = glm::vec3(1.f, 0.f, 0.f);
-
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
