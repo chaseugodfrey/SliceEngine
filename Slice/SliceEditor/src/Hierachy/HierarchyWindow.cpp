@@ -1,24 +1,58 @@
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
+#include "../../SliceEngine/src/Core/Core.h"
 
 namespace SliceEditor
-
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
+	std::unordered_set<TestNode*> set;
+
 	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
 	{
-
+		set = std::unordered_set<TestNode*>();
 	}
 
-	void HierarchyWindow::DrawNode(TestNode const& node)
+	void HierarchyWindow::DrawNode(TestNode& node)
 	{
 		bool hasChildren = node.children.size() > 0;
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
+		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
 
-		if (ImGui::TreeNodeEx(node.name.c_str(), flags))
+		if (node.isSelected)
+			flags |= ImGuiTreeNodeFlags_Selected;
+
+		bool isOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+
+		if (ImGui::IsItemClicked())
+		{
+			if (ImGui::GetIO().KeyCtrl)
+			{
+				if (node.isSelected)
+				{
+					node.isSelected = false;
+					set.erase(&node);
+				}
+
+				else
+				{
+					node.isSelected = true;
+					set.insert(&node);
+				}
+			}
+
+			else
+			{
+				std::for_each(set.begin(), set.end(), [](auto* item) {item->isSelected = false; });
+				set.clear();
+				node.isSelected = true;
+				set.insert(&node);
+			}
+		}
+
+		if (isOpen)
 		{
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
@@ -27,9 +61,20 @@ namespace SliceEditor
 
 			ImGui::TreePop();
 		}
+
+		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
+		//{
+		//	for (size_t i = 0; i < node.children.size(); i++)
+		//	{
+		//		DrawNode(node.children[i]);
+		//	}
+
+		//	ImGui::TreePop();
+		//}
+
 	}
 
-	void HierarchyWindow::DrawSceneNode(TestNode const& node)
+	void HierarchyWindow::DrawSceneNode(TestNode& node)
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
 		{
@@ -54,9 +99,7 @@ namespace SliceEditor
 
 
 		ImGui::BeginGroup();
-
 		DrawNodeGraph();
-
 		ImGui::EndGroup();
 
 		ImGui::BeginGroup();
@@ -74,11 +117,13 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Add GameObject"))
 			{
-
+				auto obj = SliceEngine::Core::GetInstance()->mFactory.CreateGO();
+				obj.AddComponent<SliceEngine::Renderer>();
 			}
 
 			ImGui::EndPopup();
 		}
+
 		ImGui::End();
 	}
 }
