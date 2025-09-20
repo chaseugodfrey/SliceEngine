@@ -96,6 +96,8 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 

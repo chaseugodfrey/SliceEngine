@@ -14,7 +14,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
 
-	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, RigidBody>
+	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, RigidBody, ColliderShape>
 	{
 	private:
 
