@@ -26,6 +26,9 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
 
+	private:
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider);
+
 	public:
 
 		PhysicsSystem() = default;

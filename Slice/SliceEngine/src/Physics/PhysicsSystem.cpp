@@ -84,6 +84,47 @@ namespace SliceEngine
 		}
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider)
+	{
+		switch (collider.type)
+		{
+
+		case ColliderShape::ColliderType::Box:
+		{
+			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
+			JPH::BoxShapeSettings shapeSetting(boxData.halfExtend);
+
+			auto result = shapeSetting.Create();
+
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
+				return nullptr;
+			}
+
+			return result.Get();
+		}	
+		case ColliderShape::ColliderType::Sphere:
+		{
+			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
+			JPH::SphereShapeSettings shapeSetting(sphereData.radius);
+
+			auto result = shapeSetting.Create();
+
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
+				return nullptr;
+			}
+
+			return result.Get();
+		}
+		default:
+			SLICE_LOG_ERROR("Unsupported Collider Shape");
+				return nullptr;
+
+		}
+	}
 
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
