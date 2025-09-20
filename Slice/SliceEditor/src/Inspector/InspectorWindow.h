@@ -16,6 +16,9 @@ namespace SliceEditor
 	{
 		InspectorManager& mManager;
 
+		void DisplayTransform();
+		void DisplayMeshRenderer();
+
 	public:
 
 		InspectorWindow(InspectorManager& manager);

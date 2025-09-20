@@ -15,4 +15,14 @@ namespace SliceEditor
 
 		ImGui::End();
 	}
+
+	void InspectorWindow::DisplayTransform()
+	{
+		//ImGui::Begin
+	}
+
+	void InspectorWindow::DisplayMeshRenderer()
+	{
+
+	}
 }

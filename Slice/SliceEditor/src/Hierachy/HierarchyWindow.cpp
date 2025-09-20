@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
-#include "../../SliceEngine/src/Core/Core.h"
+//#include "../../SliceEngine/src/Core/Core.h"
 
 namespace SliceEditor
 {
@@ -91,7 +91,6 @@ namespace SliceEditor
 			DrawSceneNode(rootNodes[i]);
 		}
 	}
-
 
 	void HierarchyWindow::Draw()
 	{
