@@ -13,8 +13,8 @@ namespace SliceEditor
 	{
 		HierarchyManager& mManager;
 
-		void DrawNode(TestNode const& node);
-		void DrawSceneNode(TestNode const& node);
+		void DrawNode(TestNode& node);
+		void DrawSceneNode(TestNode& node);
 		void DrawNodeGraph();
 
 	public:

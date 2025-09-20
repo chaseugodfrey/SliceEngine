@@ -10,6 +10,7 @@ namespace SliceEditor
 		TestNode* parent;
 		std::string name;
 		std::vector<TestNode> children;
+		bool isSelected;
 	};
 
 	class HierarchyManager : public ICreateWindow
