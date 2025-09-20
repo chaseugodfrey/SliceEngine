@@ -4,10 +4,6 @@
 #include <pch.h>
 
 
-//std::unique_ptr<JPH::BPLayerInterfaceImpl> broadphase_layer_interface;
-//std::unique_ptr<JPH::ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
-//std::unique_ptr<JPH::ObjectLayerPairFilterImpl> objectLayerPairFilter;
-
 namespace SliceEngine
 {
 	// ---------------- Layers ----------------
@@ -25,19 +21,39 @@ namespace SliceEngine
 		static constexpr JPH::uint NUM_LAYERS = 2;
 	}
 
-
-	class BPLayerInterfaceImpl final : JPH::BroadPhaseLayerInterface
+	//Defines the mapping between layer and broadphase layer
+	class BPLayerInterfaceImpl final : public JPH::BroadPhaseLayerInterface
 	{
+	private:
+		JPH::BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS]; // will switch to switch statement and remove this once i know how many layers I need
 
+	public:
+		BPLayerInterfaceImpl();
+
+		JPH::uint GetNumBroadPhaseLayers() const;
+
+		JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const;
+
+		#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+
+		const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override;
+
+		#endif
 	};
 
-	class ObjectVsBroadPhaseLayerFilterImpl final : JPH::ObjectVsBroadPhaseLayerFilter
+	// Class that determines if object layer collides with a broadphaselayer
+	class ObjectVsBroadPhaseLayerFilterImpl final : public JPH::ObjectVsBroadPhaseLayerFilter
 	{
+	public:
 
+		bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::BroadPhaseLayer inLayer2) const override;
 	};
 
-	class ObjectLayerPairFilter final : JPH::ObjectLayerPairFilter
+	// Class that determines if object layer can collide
+	class ObjectLayerPairFilterImpl final : public JPH::ObjectLayerPairFilter
 	{
+	public:
+		bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override;
 
 	};
 

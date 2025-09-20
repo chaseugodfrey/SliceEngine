@@ -6,6 +6,7 @@
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
+#include "CollisionLayer.h"
 
 
 namespace SliceEngine
@@ -19,10 +20,11 @@ namespace SliceEngine
 
 		std::unique_ptr<JPH::PhysicsSystem> physicsSystem;
 		std::unique_ptr<JPH::JobSystemThreadPool> jobSystem;
-		//std::unique_ptr<JPH::BPLayerInterfaceImpl> broadphase_layer_interface;
-		//std::unique_ptr<JPH::ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
-		//std::unique_ptr<JPH::ObjectLayerPairFilterImpl> objectLayerPairFilter;
-		bool isInitialized = false;
+		std::unique_ptr<BPLayerInterfaceImpl> broadphaseLayerInterface;
+		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
+		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
+		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
+		bool isInitialized = false; 
 
 	public:
 
@@ -32,9 +34,12 @@ namespace SliceEngine
 
 		PhysicsSystem& operator=(const PhysicsSystem&) = delete;
 
-		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024);
+		~PhysicsSystem();
 
 		void Shutdown();
+
+		// may be redundant might remove return bool and change to void
+		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized();
 

@@ -39,7 +39,7 @@ namespace SliceEngine
 #ifdef JPH_ENABLE_ASSERTS
 
     // Callback for asserts, connect this to your own assert handler if you have one
-    static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, JPH::uint inLine)
+    bool __cdecl AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, unsigned int inLine)
     {
 
         std::string test{ std::string(inFile) + ":" + std::to_string(inLine) + ": (" + std::string(inExpression) + ") " + (inMessage != nullptr ? std::string(inMessage) : "") };
