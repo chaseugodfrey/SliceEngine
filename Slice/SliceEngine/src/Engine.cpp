@@ -74,7 +74,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		audio->Init();
-		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
+		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
