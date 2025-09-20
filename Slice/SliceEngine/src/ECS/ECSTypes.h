@@ -5,7 +5,6 @@
 #include <gtc/quaternion.hpp>
 #include <glfw3.h>
 #include <variant>
-#include <Jolt/Physics/PhysicsSystem.h>
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
@@ -77,8 +76,6 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    
 		float angularDamping = 0.05f;
 
-		// Runtime data
-		bool needsSync = false;							   // Sync transform from physics
 	};
 
 	struct ColliderShape

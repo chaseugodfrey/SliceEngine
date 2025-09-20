@@ -59,6 +59,11 @@ project "SliceEditor"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
+
+        defines
+        {
+         "JPH_ENABLE_ASSERTS"
+        }
         
         links {
             "rttr_core_d",
