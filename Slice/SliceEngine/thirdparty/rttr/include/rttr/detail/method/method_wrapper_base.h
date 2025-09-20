@@ -45,8 +45,6 @@ namespace rttr
 class type;
 class argument;
 class instance;
-class method;
-class visitor;
 
 namespace detail
 {
@@ -88,8 +86,6 @@ class RTTR_API method_wrapper_base
                                argument& arg4, argument& arg5, argument& arg6) const;
 
         virtual variant invoke_variadic(const instance& object, std::vector<argument>& args) const;
-
-        virtual void visit(visitor& visitor, method m) const RTTR_NOEXCEPT;
     protected:
         void init() RTTR_NOEXCEPT;
     private:

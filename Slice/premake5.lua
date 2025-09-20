@@ -6,6 +6,8 @@ workspace "Slice"
     warnings "Extra"
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
+assets_build_path = "%{wks.location}/SliceEditor/Assets"
+assets_dev_path = "%{wks.location}/SliceEditor/DevAssets"
 
 IncludeDir = {}
 IncludeDir["EnginePublic"]   = "%{wks.location}/SliceEngine/src"
@@ -24,7 +26,12 @@ ThirdParty.RTTR_LIB = "%{wks.location}/SliceEngine/thirdparty/rttr/lib"
 ThirdParty.GLEW_DLL =  "%{wks.location}/SliceEngine/thirdparty/glew/glew32.dll"
 ThirdParty.GLFW_DLL = "%{wks.location}/SliceEngine/thirdparty/glfw/lib-vc2022/glfw3.dll"
 ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
+ThirdParty.JSON_INC = "%{wks.location}/SliceEngine/thirdparty/nlohmann/include"
+
 ThirdParty.RTTR_DLL = "%{wks.location}/SliceEngine/thirdparty/rttr/bin/rttr_core.dll"
 ThirdParty.RTTR_DLL_DEBUG = "%{wks.location}/SliceEngine/thirdparty/rttr/bin/rttr_core_d.dll"
+ThirdParty.JOLT_INC = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics"
+ThirdParty.JOLT_LIB = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib"
+
 include "SliceEngine/premake5.lua"
 include "SliceEditor/premake5.lua"

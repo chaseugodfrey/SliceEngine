@@ -8,7 +8,7 @@ project "SliceEditor"
 
     files { "src/**", "thirdparty/imgui/include/**" }
 
-    rtti "On"
+    --rtti "On"
 
     includedirs {
         "src",
@@ -16,17 +16,21 @@ project "SliceEditor"
         ThirdParty.GLEW_INC,
         ThirdParty.GLFW_INC,
         ThirdParty.FMOD_INC,
+        ThirdParty.JSON_INC,
         ThirdParty.RTTR_INC,
         IncludeDir.EnTT,
         ThirdParty.GLM_INC,
+        ThirdParty.JOLT_INC,
         "thirdparty/imgui/include"
+        
     }
 
     libdirs {
         ThirdParty.GLEW_LIB,
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
-        ThirdParty.RTTR_LIB
+        ThirdParty.RTTR_LIB,
+        ThirdParty.JOLT_LIB
     }
 
     links { 
@@ -56,8 +60,10 @@ project "SliceEditor"
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
         
-         links {"rttr_core_d"}
-
+        links {
+            "rttr_core_d",
+            "Jolt_d"
+             }
         -- includedirs
         -- {
         --     ThirdParty.RTTR_INC
@@ -65,11 +71,14 @@ project "SliceEditor"
     
     filter "configurations:EditorRelease"
         --defines { "RELEASE_MODE " }
-        staticruntime "off"
+        --staticruntime "off"
         
         optimize "On"
         
-         links {"rttr_core"}
+         links {
+            "rttr_core",
+            "Jolt_r"
+            }
 
         -- includedirs
         -- {
@@ -85,7 +94,8 @@ project "SliceEditor"
 
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
+        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"'

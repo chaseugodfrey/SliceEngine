@@ -59,11 +59,10 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;..\SliceEngine\thirdparty\JoltPhysics;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -71,8 +70,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;rttr_core_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;rttr_core_d.lib;Jolt_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"</Command>
@@ -91,14 +90,12 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;..\SliceEngine\thirdparty\JoltPhysics;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
@@ -107,8 +104,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;rttr_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;rttr_core.lib;Jolt_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"</Command>
@@ -126,8 +123,6 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
     <ClInclude Include="src\ContentBrowser\ContentBrowserWindow.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\EditorCommonTypes.h" />
-    <ClInclude Include="src\Hierachy\HierarchyManager.h" />
-    <ClInclude Include="src\Hierachy\HierarchyWindow.h" />
     <ClInclude Include="src\History\HistoryManager.h" />
     <ClInclude Include="src\Inspector\InspectorManager.h" />
     <ClInclude Include="src\Inspector\InspectorWindow.h" />
@@ -162,8 +157,6 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
     <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
     <ClCompile Include="src\ContentBrowser\ContentBrowserWindow.cpp" />
     <ClCompile Include="src\Editor.cpp" />
-    <ClCompile Include="src\Hierachy\HierarchyManager.cpp" />
-    <ClCompile Include="src\Hierachy\HierarchyWindow.cpp" />
     <ClCompile Include="src\History\HistoryManager.cpp" />
     <ClCompile Include="src\Inspector\InspectorManager.cpp" />
     <ClCompile Include="src\Inspector\InspectorWindow.cpp" />

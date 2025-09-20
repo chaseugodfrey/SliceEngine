@@ -51,7 +51,6 @@ class enumeration;
 class type;
 class instance;
 class argument;
-class visitor;
 
 template<typename Target_Type, typename Source_Type>
 Target_Type rttr_cast(Source_Type object) RTTR_NOEXCEPT;
@@ -67,7 +66,6 @@ class type_register_private;
 static type get_invalid_type() RTTR_NOEXCEPT;
 struct invalid_type{};
 struct type_data;
-struct class_data;
 class destructor_wrapper_base;
 class property_wrapper_base;
 RTTR_LOCAL RTTR_INLINE type create_type(type_data*) RTTR_NOEXCEPT;
@@ -80,13 +78,8 @@ struct variant_data_base_policy;
 
 struct type_comparator_base;
 
-enum class type_of_visit : bool;
-
 RTTR_API bool compare_types_less_than(const void*, const void*, const type&, int&);
 RTTR_API bool compare_types_equal(const void*, const void*, const type&, bool&);
-
-template<typename T>
-RTTR_LOCAL RTTR_INLINE type get_type_from_instance(const T*) RTTR_NOEXCEPT;
 } // end namespace detail
 
 /*!
@@ -1192,10 +1185,6 @@ class RTTR_API type
          */
         void create_wrapped_value(const argument& arg, variant& var) const;
 
-        /*!
-         * \brief Visits the current type, with the given visitor \p visitor.
-         */
-        void visit(visitor& visitor, detail::type_of_visit visit_type) const RTTR_NOEXCEPT;
 
         /////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////
@@ -1211,8 +1200,6 @@ class RTTR_API type
         friend class instance;
         friend class detail::type_register;
         friend class detail::type_register_private;
-        friend class visitor;
-        friend struct detail::class_data;
 
         friend type detail::create_type(detail::type_data*) RTTR_NOEXCEPT;
 
