@@ -82,6 +82,11 @@ namespace SliceEngine
 
 	};
 
+#define CoreInstance Core::GetInstance()
+#define RegistryInstance Core::GetInstance()->GetRegistry()
+#define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
+#define RenderManagerInstance Core::GetInstance()->GetRenderManager()
+#define FactoryInstance Core::GetInstance()->mFactory
 
 }
 

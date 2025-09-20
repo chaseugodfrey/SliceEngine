@@ -14,19 +14,21 @@
 #include "Systems/FramerateManager.h"
 #include "SliceTime.h"
 #include "test.h"
+#include "Serializer/JSONSerializer.h"
+#include "Serializer/CSVSerializer.h"
 
 
-	using namespace rttr;
+	//using namespace rttr;
 
-	struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+	//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
 
-	RTTR_REGISTRATION
-	{
-		registration::class_<MyStruct>("MyStruct")
-			 .constructor<>()
-			 .property("data", &MyStruct::data)
-			 .method("func", &MyStruct::func);
-	}
+	//RTTR_REGISTRATION
+	//{
+	//	registration::class_<MyStruct>("MyStruct")
+	//		 .constructor<>()
+	//		 .property("data", &MyStruct::data)
+	//		 .method("func", &MyStruct::func);
+	//}
 
 namespace SliceEngine
 {
@@ -86,12 +88,14 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
-		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
-		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
-		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
+		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
+		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
 		//test();
 
+		
+		//JSONSerializer::Test2();
 	}
 
 	void Engine::Update()

@@ -15,11 +15,15 @@ namespace SliceEditor
 	class SceneViewWindow : public EditorWindow
 	{
 		SceneViewManager& mManager;
+		GLuint tex_id;
 
 	public:
 
 		SceneViewWindow(SceneViewManager& manager);
 		~SceneViewWindow() = default;
+
+		// TO DO: replace this with proper camera attaching
+		void SetCameraTexture(GLuint texture_id);
 		void Draw() override final;
 	};
 }

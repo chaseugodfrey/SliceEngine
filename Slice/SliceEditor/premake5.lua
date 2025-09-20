@@ -16,6 +16,7 @@ project "SliceEditor"
         ThirdParty.GLEW_INC,
         ThirdParty.GLFW_INC,
         ThirdParty.FMOD_INC,
+        ThirdParty.JSON_INC,
         ThirdParty.RTTR_INC,
         IncludeDir.EnTT,
         ThirdParty.GLM_INC,
@@ -98,7 +99,8 @@ project "SliceEditor"
 
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
+        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"'
