@@ -9,12 +9,6 @@ namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
 	using ComponentGetter = std::function <rttr::variant(Registry& reg, Entity e)>;
-	//using EnttIdToRttrType = std::function<rttr::type(entt::id_type type)>;
-	//using GetterMapper = std::function<rttr::instance(entt::registry&, entt::entity)>;
-	//using InstanceGetter = std::unordered_map<entt::id_type, GetterMapper>;
-
-	//static EnttIdToRttrType EnttIdToRttrTypeFunc;
-	//static InstanceGetter InstanceGetterFunc;
 
 	class GOFactory
 	{
@@ -55,25 +49,6 @@ namespace SliceEngine
 					return registry.get<Component>(e);	
 				};
 		}
-
-		//template<class T>
-		//void MapEnttToRTTR()
-		//{
-		//	auto id = entt::type_id<T>().hash();
-
-		//	// Store RTTR type mapping
-		//	mEnttTypeIdToRttrType[id] = rttr::type::get<T>();
-
-		//	// Store instance getter
-		//	InstanceGetterFunc[id] = [](entt::registry& reg, entt::entity e) -> rttr::instance
-		//		{
-		//			if (auto* comp = reg.try_get<T>(e))
-		//				return rttr::instance(*comp);
-
-		//			std::cerr << "[RTTR] Component not found for entity\n";
-		//			return rttr::instance(); // invalid
-		//		};
-		//}
 		
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
@@ -98,7 +73,6 @@ namespace SliceEngine
 
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;
-		//std::unordered_map<entt::id_type, rttr::type> mEnttTypeIdToRttrType;
 	};
 }
 

@@ -13,6 +13,14 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct SceneView
+	{
+		uint64_t parentGUID{};		
+		std::vector<uint64_t> childrenGUID{};
+		uint64_t upGUID{};
+		uint64_t downGUID{};
+	};
+
 	struct SliceEntity 
 	{
 		bool active;

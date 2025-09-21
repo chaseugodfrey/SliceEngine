@@ -29,10 +29,24 @@ namespace SliceEngine
 		//	.method("EntityOnEnter", &SoundSystem::EntityOnEnter)
 		//	.method("EntityOnExit", &SoundSystem::EntityOnExit)
 		//	.method("EntityOnUpdate", &SoundSystem::EntityOnUpdate);
-		rttr::registration::class_<Transform>(typeid(Transform).name())
-			.property("position", &Transform::position)
-			.property("rotation", &Transform::rotation)
-			.property("scale", &Transform::scale);
+
+	rttr::registration::class_<std::vector<uint64_t>>("VectorUInt64")
+		.constructor<>()
+		.method("size", &std::vector<uint64_t>::size)
+		.method("at", static_cast<uint64_t & (std::vector<uint64_t>::*)(size_t)>(&std::vector<uint64_t>::at))
+		.method("push_back", static_cast<void (std::vector<uint64_t>::*)(const uint64_t&)>(&std::vector<uint64_t>::push_back))
+		.method("push_back", static_cast<void (std::vector<uint64_t>::*)(uint64_t&&)>(&std::vector<uint64_t>::push_back));
+
+	rttr::registration::class_<Transform>(typeid(Transform).name())
+		.property("position", &Transform::position)
+		.property("rotation", &Transform::rotation)
+		.property("scale", &Transform::scale);
+
+	rttr::registration::class_<SceneView>(typeid(SceneView).name())
+		.property("parent", &SceneView::parentGUID)
+		.property("children", &SceneView::childrenGUID)
+		.property("up", &SceneView::upGUID)
+		.property("down", &SceneView::downGUID);
 	}
 
 }

@@ -28,6 +28,7 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 
 		mFactory.RegisterSerializableComponent<Transform>();
+		mFactory.RegisterSerializableComponent<SceneView>();
 	}
 
 	void Core::ExitCore()
