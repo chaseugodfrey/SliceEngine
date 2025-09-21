@@ -46,7 +46,7 @@ namespace SliceEngine
 		rttr::registration::class_<GUID>("GUID")
 			.constructor<>()
 			.constructor<uint64_t>()
-			.property("Value", &GUID::GetGUID);
+			.property_readonly("Value", &GUID::GetGUID);
 	}
 }
 
