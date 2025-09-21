@@ -42,6 +42,11 @@ namespace SliceEngine
             if (printable && *printable)
             {
                 std::cout << "Pressed: " << printable << std::endl;
+                
+                if (*printable == 'a')
+                {
+                    std::cout << "test: " <<std::endl;
+                }
             }
             else
             {

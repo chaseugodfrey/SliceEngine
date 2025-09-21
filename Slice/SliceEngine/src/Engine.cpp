@@ -13,6 +13,7 @@
 #include "ECS/PhysicSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
+#include "Networking/NetworkSystem.h"
 
 
 	using namespace rttr;
@@ -63,6 +64,8 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<NetworkSystem>();
+		
 
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
@@ -79,6 +82,8 @@ namespace SliceEngine
 		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
+		NetworkingThread::printAddr();
+
 	}
 
 	void Engine::Update()
@@ -92,7 +97,7 @@ namespace SliceEngine
 		//framerateManager->StartFrame();
 
 		//framerateManager->StartSystem("Input");
-		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
+		if (inputs->IsKeyPressed(GLFW_KEY_A))
 		{
 			std::cout << " test " << std::endl;
 		}

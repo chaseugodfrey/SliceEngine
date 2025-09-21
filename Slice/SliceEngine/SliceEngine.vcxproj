@@ -120,6 +120,7 @@
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
     <ClInclude Include="src\Logger\Logger.h" />
+    <ClInclude Include="src\Networking\NetworkSystem.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
@@ -140,6 +141,7 @@
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
+    <ClCompile Include="src\Networking\NetworkSystem.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
