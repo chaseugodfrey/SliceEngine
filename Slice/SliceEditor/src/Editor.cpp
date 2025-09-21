@@ -67,7 +67,9 @@ namespace SliceEditor
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 		ImGui_ImplOpenGL3_Init("#version 450");
+		glfwSetWindowUserPointer(window, this);
 		glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+		glfwSetDropCallback(window, Editor::DropCallback);
 	}
 
 	void Editor::InitEditorState()
@@ -83,6 +85,18 @@ namespace SliceEditor
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
 		//windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.Init();
+	}
+
+	void Editor::DropCallback(GLFWwindow* window, int count, const char** paths)
+	{
+		Editor* editor = static_cast<Editor*>(glfwGetWindowUserPointer(window));
+
+		editor->HandleDrop();
+	}
+
+	void Editor::HandleDrop()
+	{
+		contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
 	}
 
 

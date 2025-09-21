@@ -28,12 +28,14 @@ namespace SliceEditor
 		void InitImGUI(GLFWwindow* window);
 		void InitEditorState();
 		void InitWindowManager();
+		void HandleDrop();
 
 		void Render();
 
 	public:
 
 		void Init();
+		static void DropCallback(GLFWwindow* window, int count, const char** paths);
 		void Run();
 		void Exit();
 	};
