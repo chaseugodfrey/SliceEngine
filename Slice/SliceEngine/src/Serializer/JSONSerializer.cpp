@@ -201,6 +201,7 @@ namespace SliceEngine
 						}
 					}
 
+					//aa
 					// Attach component to GameObject (depends on your ECS)
 					AddComponentFromVariant(node, componentInstance, componentName);
 				}
