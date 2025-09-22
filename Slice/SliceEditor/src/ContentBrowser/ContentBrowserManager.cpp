@@ -55,7 +55,7 @@ namespace SliceEditor
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
 			DirectoryNode child;
-			child.fileName = child.isDirectory ? entry.path().filename().string() : entry.path().stem().string();
+			child.fileName = entry.path().filename().string();
 
 			child.path = entry.path();
 			child.parent = &node;

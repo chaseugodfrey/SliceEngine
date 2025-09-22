@@ -28,7 +28,7 @@ namespace SliceEditor
 		void InitImGUI(GLFWwindow* window);
 		void InitEditorState();
 		void InitWindowManager();
-		void HandleDrop();
+		void HandleDrop(const std::filesystem::path path);
 
 		void Render();
 
