@@ -3,6 +3,7 @@
 
 namespace SliceEditor
 {
+	
 	struct TreeNode
 	{
 		std::string name;

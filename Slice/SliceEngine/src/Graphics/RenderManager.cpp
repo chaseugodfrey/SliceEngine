@@ -7,7 +7,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/euler_angles.hpp"
 
-#include "../Core/Core.h"
+#include "Core/Core.h"
+
+// My Comments to (Ctrl + f): TODO: MAYDO:
 
 namespace SliceEngine
 {
@@ -22,20 +24,14 @@ namespace SliceEngine
 	}
 	GameObject& RenderManager::CreateCamera()
 	{
-		int width, height;
-		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
-		
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
-		//newCam.AddComponent<Transform>();
 		auto& transform = newCam.GetComponent<Transform>();
 		transform.position = glm::vec3(-2.f, 0.f, 0.f);
 		
 		newCam.AddComponent<Camera>();
-		auto& cam = newCam.GetComponent<Camera>();
-		cam.width = width;
-		cam.height = height;
 
+		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 		if (!mainCam.has_value())
 			mainCam = newCam.GetEntity();
 		return newCam;
@@ -43,19 +39,25 @@ namespace SliceEngine
 
 	void RenderManager::Render( ResourceManager* rcManager)
 	{
+		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		//IDPick(mousePosX, mousePosY);
 
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
-		UpdateCamGPU(rcManager, mainCam.value());
-		
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render( rcManager);
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		for (auto cam : cams)
+		{
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
+			UpdateCamGPU(rcManager, cam);
+
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, cam);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
 
-	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam)
+	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
@@ -68,15 +70,15 @@ namespace SliceEngine
 
 		glm::mat4 V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
 
-		int width, height;
-		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
-		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(width) / static_cast<float>(height), camera.near, camera.far);
+		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "V");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
 		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "P");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+
+		glViewport(0, 0, camera.width, camera.height);
 	}
 
 	void RenderManager::CreateFramebuffer()
@@ -95,11 +97,11 @@ namespace SliceEngine
 		};
 		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
 
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			SLICE_LOG_WARNING("Framebuffer not complete");
-		}
+		// Note: Framebuffer is always going to be incomplete this way due to not attaching a texture to it
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//{
+		//	SLICE_LOG_WARNING("Framebuffer not complete");
+		//}
 
 		//glGenBuffers(2, pboIds);
 		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
@@ -122,6 +124,15 @@ namespace SliceEngine
 	Transform& RenderManager::GetMainCameraTransform()
 	{
 		return Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+	}
+	void RenderManager::GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	{
+		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
+		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		forward = rot * f;
+		right = rot * r;
+		up = rot * u;
 	}
 	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
 	{

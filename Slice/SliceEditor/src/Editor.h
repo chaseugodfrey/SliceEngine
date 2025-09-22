@@ -10,6 +10,7 @@ struct GLFWwindow;
 #include "ContentBrowser/ContentBrowserManager.h"
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
+#include "Hierachy/HierarchyManager.h"
 
 namespace SliceEditor
 {
@@ -18,6 +19,7 @@ namespace SliceEditor
 		SliceEngine::Engine engine;
 
 		std::unique_ptr<SceneViewManager> sceneViewManager;
+		std::unique_ptr<HierarchyManager> hierarchyManager;
 		ContentBrowserManager contentBrowserManager;
 		HistoryManager history;
 		WindowManager windowManager;
@@ -26,6 +28,7 @@ namespace SliceEditor
 		//std::unique_ptr<WindowManager> windowManager;
 
 		void InitImGUI(GLFWwindow* window);
+		void InitManagers();
 		void InitEditorState();
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);

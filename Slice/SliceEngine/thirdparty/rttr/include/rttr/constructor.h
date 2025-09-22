@@ -44,7 +44,6 @@ namespace rttr
 class variant;
 class type;
 class argument;
-class visitor;
 
 namespace detail
 {
@@ -285,13 +284,11 @@ class RTTR_API constructor
 
     private:
         constructor(const detail::constructor_wrapper_base* wrapper) RTTR_NOEXCEPT;
-        void visit(visitor& visitor) const RTTR_NOEXCEPT;
 
         template<typename T>
         friend T detail::create_item(const detail::class_item_to_wrapper_t<T>* wrapper);
         template<typename T>
         friend T detail::create_invalid_item();
-        friend class visitor;
 
     private:
         const detail::constructor_wrapper_base* m_wrapper;

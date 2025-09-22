@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Core.h"
-
+#include "Graphics/ResourceManager.h"
+#include "Graphics/RenderManager.h"
 namespace SliceEngine
 {
 	Core::Core()
@@ -20,7 +21,13 @@ namespace SliceEngine
 
 	void Core::InitCore()
 	{
-		mWindowManager.CreateWindow();
+		mWindowManager.CreateWindow(); // This has to be first
+
+
+		mResource = std::make_unique<ResourceManager>();
+		mRender = std::make_unique<RenderManager>();
+
+		mFactory.RegisterSerializableComponent<Transform>();
 	}
 
 	void Core::ExitCore()
@@ -37,6 +44,16 @@ namespace SliceEngine
 			//system->Unbind();
 		}
 
+	}
+
+	ResourceManager* Core::GetResourceManager()
+	{
+		return mResource.get();
+	}
+
+	RenderManager* Core::GetRenderManager()
+	{
+		return mRender.get();
 	}
 
 	GLFWwindow* Core::GetWindow()
