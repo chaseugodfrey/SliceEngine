@@ -12,6 +12,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
 		contentBrowserManager.Init();
+		profilerManager.Init();
 		InitWindowManager();
 	}
 
@@ -83,7 +84,7 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		//windowManager.RegisterInterface("SceneView", sceneViewManager.get());
+		windowManager.RegisterInterface("Profiler", &profilerManager);
 		windowManager.Init();
 	}
 
