@@ -19,10 +19,7 @@ namespace SliceEngine
         return true; \
     }
 
-			ADD_COMPONENT_CASE(Transform)
-			{
-				//things
-			};
+			ADD_COMPONENT_CASE(Transform);
 			ADD_COMPONENT_CASE(SceneView);
 
 #undef ADD_COMPONENT_CASE
@@ -58,8 +55,6 @@ namespace SliceEngine
 					continue; // entity does not have this component
 				}
 
-				// Each component for this GameObject is here
-				std::cout << storage.type().name() << std::endl;
 				std::string componentName(storage.type().name());
 
 				rttr::type componentType = rttr::type::get_by_name(componentName);
@@ -154,8 +149,8 @@ namespace SliceEngine
 
 			for (auto& [name, components] : input.items())
 			{
-				GameObject node;
-				node.SetName(name);
+				auto& factory = Core::GetInstance()->mFactory;
+				GameObject node = factory.CreateGO(name);
 
 				for (auto& [componentName, props] : components.items())
 				{
@@ -267,7 +262,7 @@ namespace SliceEngine
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest1.scene"));
 				}
-				SLICE_LOG("Test 1 Ended...");
+				SLICE_LOG("Test 1 Ended.");
 			}
 
 			void Test2(bool cleanOutput)
@@ -301,7 +296,7 @@ namespace SliceEngine
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
 				}
-				SLICE_LOG("Test 2 Ended...");
+				SLICE_LOG("Test 2 Ended.");
 			}
 
 			void RunTests(bool cleanOutput)

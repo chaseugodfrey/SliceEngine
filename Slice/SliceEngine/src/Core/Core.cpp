@@ -29,6 +29,9 @@ namespace SliceEngine
 
 		mFactory.RegisterSerializableComponent<Transform>();
 		mFactory.RegisterSerializableComponent<SceneView>();
+
+		mFactory.CreateComponentCloner<Transform>();
+		mFactory.CreateComponentCloner<SceneView>();
 	}
 
 	void Core::ExitCore()
