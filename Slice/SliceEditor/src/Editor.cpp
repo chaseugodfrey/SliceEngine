@@ -71,7 +71,9 @@ namespace SliceEditor
 		contentBrowserManager.Init();
 
 		hierarchyManager = std::make_unique<HierarchyManager>();
-		sceneViewManager = std::make_unique<SceneViewManager>(*engine.mRender);
+		// find a way to make tihs look prettier tbh
+		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
+		//sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::Core::GetInstance()->GetRenderManager());
 
 		hierarchyManager->Init();
 		sceneViewManager->Init();

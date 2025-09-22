@@ -21,13 +21,14 @@ namespace SliceEngine
 
 		GameObject& CreateCamera();
 
-		void UpdateCamGPU(ResourceManager* rcManager, entt::entity& cam);
+		void UpdateCamGPU(ResourceManager* rcManager, Entity& cam);
 		void Render(ResourceManager* rcManager);
 		
 		void CreateFramebuffer();
 		GLuint GetTexture();
 
 		Transform& GetMainCameraTransform();
+		void GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void IDPick(const int& mouseX, const int& mouseY);
 
@@ -37,8 +38,7 @@ namespace SliceEngine
 		unsigned int mIDHovered;
 
 	private:
-
-		std::optional<entt::entity> mainCam;
+		std::optional<Entity> mainCam;
 
 		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
 		//std::shared_ptr<CameraSystem> mCameraSys;

@@ -16,7 +16,7 @@ namespace SliceEditor
 		auto id = mRenderManager.GetTexture();
 
 		auto window = std::make_unique<SceneViewWindow>(*this);
-		window->SetCameraTexture((void*)id);
+		window->SetCameraTexture(id);
 
 		return window;
 	}

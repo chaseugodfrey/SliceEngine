@@ -31,8 +31,6 @@
 
 namespace rttr
 {
-template<typename... U> struct type_list;
-
 namespace detail
 {
 
@@ -116,6 +114,8 @@ struct RTTR_LOCAL type_from_base_classes<DerivedClass, BaseClass, U...>
         type_from_base_classes<DerivedClass, U...>::fill(vec);
     }
 };
+
+template<typename... U> struct type_list;
 
 template<typename DerivedClass, class... BaseClassList>
 struct type_from_base_classes<DerivedClass, type_list<BaseClassList...>> : type_from_base_classes<DerivedClass, BaseClassList...> { };

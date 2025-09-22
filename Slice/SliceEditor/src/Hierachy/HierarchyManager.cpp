@@ -2,8 +2,6 @@
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 
-#define NODE_NULL = (int)-1;
-
 namespace SliceEditor
 {
 	HierarchyManager::HierarchyManager()
@@ -11,17 +9,34 @@ namespace SliceEditor
 
 	}
 
+	void HierarchyManager::Test()
+	{
+		TestNode mTestRootNode{};
+		mTestRootNode.parent = nullptr;
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			TestNode mNode{};
+			mNode.parent = &mTestRootNode;
+			mNode.name = std::to_string(i);
+
+			for (size_t j = 0; j < 2; j++)
+			{
+				TestNode mNode2{};
+				mNode2.parent = &mNode;
+				mNode2.name = std::to_string(i) + "-" + std::to_string(j);
+				mNode.children.push_back(mNode2);
+			}
+
+			mTestRootNode.children.push_back(mNode);
+		}
+
+		mRootNodes.push_back(mTestRootNode);
+	}
+
 	void HierarchyManager::Init()
 	{
-		int count = 10;
-		mNodes = std::vector<TestNode>(count);
-
-		for (int i = 0; i < count; ++i) {
-			mNodes[i].parent = -1;   // or set as needed
-			mNodes[i].child = -1;
-			mNodes[i].previous = (i == 0) ? -1 : i - 1;
-			mNodes[i].next = (i == count - 1) ? -1 : i + 1;
-		}
+		Test();
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()

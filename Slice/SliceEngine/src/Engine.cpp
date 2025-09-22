@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
-#include "ECS/PhysicSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
@@ -10,26 +10,32 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
-#include "ECS/PhysicSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
 #include "Networking/NetworkSystem.h"
+#include "SliceTime.h"
+#include "test.h"
+#include "Serializer/JSONSerializer.h"
+#include "Serializer/CSVSerializer.h"
 
 
-	using namespace rttr;
+	//using namespace rttr;
 
-	struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+	//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
 
-	RTTR_REGISTRATION
-	{
-		registration::class_<MyStruct>("MyStruct")
-			 .constructor<>()
-			 .property("data", &MyStruct::data)
-			 .method("func", &MyStruct::func);
-	}
+	//RTTR_REGISTRATION
+	//{
+	//	registration::class_<MyStruct>("MyStruct")
+	//		 .constructor<>()
+	//		 .property("data", &MyStruct::data)
+	//		 .method("func", &MyStruct::func);
+	//}
 
 namespace SliceEngine
 {
+	//Time class for physics simulation or any other system that uses fixeddt
+	GameTime& Engine::gameTime = GameTime::getInstance();
+
 	Engine::Engine()
 	{
 	}
@@ -59,35 +65,49 @@ namespace SliceEngine
 		inputs = std::make_unique<InputSystem>();
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
-		mResource = std::make_unique<ResourceManager>();
+		//mResource = std::make_unique<ResourceManager>();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<NetworkSystem>();
 		
+		Core::GetInstance()->InitSystem<PhysicsSystem>();
+
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
 
+		auto mResource = Core::GetInstance()->GetResourceManager();
+		auto mRender = Core::GetInstance()->GetRenderManager();
+
 		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");
-		mRender = std::make_unique<RenderManager>();
+		
+		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
 		mRender->CreateCamera();
 
-		entt::entity newCam = Core::GetInstance()->GetRegistry().create();
-		Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
-		Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
+		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
+		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
 		NetworkingThread::printAddr();
 
+		//test();
+
+		
+		//JSONSerializer::Test2();
 	}
 
 	void Engine::Update()
 	{
+		auto mResource = Core::GetInstance()->GetResourceManager();
+		auto mRender = Core::GetInstance()->GetRenderManager();
+
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -105,9 +125,9 @@ namespace SliceEngine
 		//framerateManager->EndSystem("Input");
 
 		//framerateManager->EndFrame();
-		////
+		//
 
-		mRender->Render(mResource.get());
+		mRender->Render(mResource);
 	}
 
 	void Engine::EndFrame()
