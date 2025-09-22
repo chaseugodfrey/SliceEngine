@@ -59,7 +59,7 @@ namespace SliceEngine
     {
         std::string clientNumber{};
         std::string portNumber{};
-        std::ifstream ifile("client.txt");
+        std::ifstream ifile("Assets/client.txt");
         if (!ifile)
         {
             std::cerr << "cannot open client file" << std::endl;
@@ -67,7 +67,7 @@ namespace SliceEngine
         std::getline(ifile, clientNumber);
         ifile.close();
 
-        std::ofstream ofile("client.txt");
+        std::ofstream ofile("Assets/client.txt");
         if (!ofile)
         {
             std::cerr << "cannot open client file" << std::endl;
