@@ -27,7 +27,8 @@ namespace SliceEngine
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
 
-		mFactory.RegisterSerializableComponent<Transform>();
+		//mFactory.RegisterSerializableComponent<Transform>();
+		mFactory.RegisterComponent<Transform>();
 	}
 
 	void Core::ExitCore()
