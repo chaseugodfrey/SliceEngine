@@ -11,13 +11,13 @@
 namespace SliceEngine
 {
 
-	struct SoundFile
+	/*struct SoundFile
 	{
 		std::string filePath;
 		float currentVolume;
 		bool isLoop;
 		bool is3D;
-	};
+	};*/
 
 	// for keeping track of entities that belong to sound system
 	struct SoundEntity {};

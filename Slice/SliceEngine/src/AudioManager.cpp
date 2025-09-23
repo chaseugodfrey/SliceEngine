@@ -163,9 +163,9 @@ namespace SliceEngine
 
 		auto track = std::make_unique<SoundTrack>();
 
-		if (is3D)
+		if (is3D == false)
 		{
-			track->channel->setMode(FMOD_3D);
+			track->channel->setMode(FMOD_2D);
 		}
 
 		FMOD::Channel* channel = nullptr;
@@ -239,7 +239,7 @@ namespace SliceEngine
 
 	void AudioManager::StopAllSound(InternalSound InternalCategory)
 	{
-		for (auto it = mSound2D[InternalCategory].begin(); it != mSound2D[InternalCategory].end(); ++it)
+		/*for (auto it = mSound2D[InternalCategory].begin(); it != mSound2D[InternalCategory].end(); ++it)
 		{
 			if (it->get()->channel)
 			{
@@ -257,7 +257,18 @@ namespace SliceEngine
 			}
 		}
 
-		mSound3D[InternalCategory].clear();
+		mSound3D[InternalCategory].clear();*/
+
+		for (auto it = mSound[InternalCategory].begin(); it != mSound[InternalCategory].end(); ++it)
+		{
+			if (it->get()->channel)
+			{
+				it->get()->channel->stop();
+			}
+
+		}
+
+		mSound[InternalCategory].clear();
 	}
 
 

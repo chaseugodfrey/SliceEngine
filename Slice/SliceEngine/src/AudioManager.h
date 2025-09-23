@@ -87,7 +87,7 @@ namespace SliceEngine
 
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack2D>> mLoadedSounds2D;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds3D;
-		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds;
+		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 		const float defaultVolume = 1.0f;
 
@@ -131,6 +131,7 @@ namespace SliceEngine
 	private:
 		std::vector<std::unique_ptr<SoundTrack2D>> mSound2D[SOUND_MAX_SOUNDS];
 		std::vector<std::unique_ptr<SoundTrack3D>> mSound3D[SOUND_MAX_SOUNDS];
+		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
 		//	AudioManager() = default;
 		//	~AudioManager() = default;
 
