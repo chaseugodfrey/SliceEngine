@@ -26,7 +26,7 @@ namespace SliceEngine
 		};
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
-		std::array<uint32_t,Direction::DIRECTIONS> neighbours;
+		std::array<uint32_t, Direction::DIRECTIONS> neighbours{};
 	};
 
 	struct SliceEntity 
@@ -52,9 +52,7 @@ namespace SliceEngine
 	{
 		glm::vec3 position{};
 		glm::vec3 rotation{};
-		glm::vec3 scale{};
-
-		
+		glm::vec3 scale{};	
 	};
 
 	struct UITransform

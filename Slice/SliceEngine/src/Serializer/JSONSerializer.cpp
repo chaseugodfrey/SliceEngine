@@ -101,7 +101,7 @@ namespace SliceEngine
 					}
 					else if (propVal.is_type<uint32_t>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<uint64_t>();
+						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<uint32_t>();
 					}
 					else if (propVal.is_type<std::array<uint32_t, 4>>())
 					{
@@ -162,6 +162,9 @@ namespace SliceEngine
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateGO(name);
 
+				// Temprorary until have createGO without transform
+				node.RemoveComponent<Transform>();
+
 				for (auto& [componentName, props] : components.items())
 				{
 					rttr::type compType = rttr::type::get_by_name(componentName);
@@ -219,8 +222,42 @@ namespace SliceEngine
 							// fallback: try string
 							prop.set_value(componentInstance, value.get<std::string>());
 						}
+
+						
 					}
+
 					AddComponentFromVariant(node, componentInstance, componentName);
+
+					//Most definitely cooked here
+					//for (auto&& [type_id, storage] : Core::GetInstance()->GetRegistry().storage())
+					//{
+					//	if (storage.contains(node.GetEntity()))
+					//	{
+					//		// each component will be here
+					//		std::cout << storage.type().name() << std::endl;
+
+					//	}
+					//	std::string componentName(storage.type().name());
+
+					//	rttr::type componentType = rttr::type::get_by_name(componentName);
+					//	if (!componentType)
+					//	{
+					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+					//		continue;
+					//	}
+
+					//	auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+					//	if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
+					//	{
+					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
+					//		// assert?
+
+					//		continue;
+					//	}
+
+					//	it->second(Core::GetInstance()->GetRegistry(), node.GetEntity()) = componentInstance;
+					//}
+										
 				}
 			}
 		}
