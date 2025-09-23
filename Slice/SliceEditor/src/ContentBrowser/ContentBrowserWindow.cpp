@@ -25,24 +25,30 @@ namespace SliceEditor
 		/*Asset Directory*/
 		ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
 
-		if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
+		if(left_region.x > 0 && left_region.y > 0)
 		{
+			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
+			{
 
-			DisplayFolders(*manager.rootNode);
-			//ImGui::Text("Directory Here!");
+				DisplayFolders(*manager.rootNode);
+				//ImGui::Text("Directory Here!");
 
-			ImGui::EndChild();
+				ImGui::EndChild();
+			}
 		}
 
 		ImGui::SameLine();
 		/*Folder Directory*/
 		ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
 
-		if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
+		if(right_region.x > 0 && right_region.y > 0)
 		{
+			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
+			{
 
-			DisplayItems(*manager.selectedFolder);
-			ImGui::EndChild();
+				DisplayItems(*manager.selectedFolder);
+				ImGui::EndChild();
+			}
 		}
 		ImGui::End();
 	}

@@ -98,8 +98,8 @@ namespace SliceEditor
 	void Editor::InitWindowManager()
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
-		//windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		//windowManager.RegisterInterface("Profiler", &profilerManager);
+		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
+		windowManager.RegisterInterface("Profiler", &profilerManager);
 		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
 		windowManager.RegisterInterface("Inspector", inspectorManager.get());
