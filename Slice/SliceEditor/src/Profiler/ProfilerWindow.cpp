@@ -36,6 +36,15 @@ namespace SliceEditor
 			{
 				ImGui::SetScrollHereY(1.0);
 			}
+
+			if (ImGui::GetScrollY() < ImGui::GetScrollMaxY() - ImGui::GetTextLineHeightWithSpacing())
+			{
+				manager.autoScroll = false;
+			}
+			else
+			{
+				manager.autoScroll = true;
+			}
 			ImGui::EndChild();
 			ImGui::EndTabItem();
 		}
