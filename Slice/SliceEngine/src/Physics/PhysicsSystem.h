@@ -48,9 +48,9 @@ namespace SliceEngine
 
 		void CreateBodyFromComponent(entt::entity entity, const Transform& transform, RigidBody& rigidBody, const ColliderShape& colliderShape) const;
 
-		void SyncECSToPhysics(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const;
+		void SyncECSToPhysics(Transform& transform, RigidBody& rigidBody) const;
 
-		void SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const;
+		void SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody) const;
 
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 

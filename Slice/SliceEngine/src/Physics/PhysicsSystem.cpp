@@ -199,33 +199,26 @@ namespace SliceEngine
 
 	}
 
-	void PhysicsSystem::SyncECSToPhysics(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const
+	void PhysicsSystem::SyncECSToPhysics(Transform& transform, RigidBody& rigidBody) const
 	{
 		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
 		glm::quat rot = Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
-		const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
 
 		physicsSystem->GetBodyInterface().SetPosition(rigidBody.bodyID, pos, JPH::EActivation::DontActivate);
 		physicsSystem->GetBodyInterface().SetRotation(rigidBody.bodyID, rotation, JPH::EActivation::DontActivate);
-
-
-		//if (boxData.halfExtend != )
-		{
-			// Create a new box shape
-			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
-			JPH::BoxShapeSettings boxSettings(boxData.halfExtend); // new half extents
-			JPH::ShapeRefC newShape = boxSettings.Create().Get();
-
-			// Apply the new shape to the body
-			physicsSystem->GetBodyInterface().SetShape(rigidBody.bodyID, newShape, true, JPH::EActivation::DontActivate);
-		}
  
 	}
 
-	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const
+	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody) const
 	{
+		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(rigidBody.bodyID);
+		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(rigidBody.bodyID);
 
+		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()));
+
+		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
+		transform.rotation = rot;
 	}
 
 
@@ -252,9 +245,12 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-		//SyncECSToPhysics()
+		auto& transform = reg.get<Transform>(entity);
+		auto& rigidBody = reg.get<RigidBody>(entity);
+
+		SyncECSToPhysics(transform,rigidBody);
 		physicsSystem->Update(dt, 1, tempAllocator.get(), jobSystem.get());
-		//SyncPhysicsToECS()
+		SyncPhysicsToECS(transform, rigidBody);
 	}
 
 }

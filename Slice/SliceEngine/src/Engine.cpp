@@ -88,6 +88,8 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
+
+
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
