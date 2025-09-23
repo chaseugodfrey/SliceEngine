@@ -10,6 +10,9 @@ namespace SliceEngine
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
 	using ComponentGetter = std::function <rttr::variant(Registry& reg, Entity e)>;
 	using ComponentVisitor = std::function<void(rttr::type, rttr::variant&)>;
+	using ComponentEmplacer = std::function<void(Registry&, Entity, const rttr::variant&)>;
+
+
 	//using EnttIdToRttrType = std::function<rttr::type(entt::id_type type)>;
 	//using GetterMapper = std::function<rttr::instance(entt::registry&, entt::entity)>;
 	//using InstanceGetter = std::unordered_map<entt::id_type, GetterMapper>;
@@ -58,6 +61,56 @@ namespace SliceEngine
 		}
 
 		template<typename Component>
+		void RegisterComponentEmplacer()
+		{
+			rttr::type type = rttr::type::get<Component>();
+			std::string typeName = type.get_name().to_string();
+
+			//mComponentEmplacer[type] = [](Registry& reg, Entity entity, const rttr::variant& var)
+			//	{
+			//		// convert variant to our component type 
+			//		bool converted;
+			//		Component component = var.convert<Component>(&converted);
+
+			//		if (converted)
+			//		{
+			//			reg.emplace<Component>(entity, component);
+			//			SLICE_LOG_DEBUG("Successfully emplaced new component");
+			//		}
+			//		else
+			//		{
+			//			SLICE_LOG_ERROR("Unable to register component emplacer");
+			//		}
+			//	};
+		
+			// this is so fking stupid
+			// cause when getting type of an rttr variant
+			// it returns a shared ptr type
+			// so the above component emplacer's rttr type is different than the other rttr type
+			// why is there different rttr types 
+			rttr::type smartPtrType = rttr::type::get<std::shared_ptr<Component>>();
+			typeName = smartPtrType.get_name().to_string();
+
+			mCESmartPtr[smartPtrType] = [](Registry& reg, Entity entity, const rttr::variant& var)
+			{
+				// convert variant to our component type 
+				bool converted;
+				//Component component = var.convert<Component>(&converted);
+				auto componentPtr = var.convert<std::shared_ptr<Component>>();
+
+				if (componentPtr)
+				{
+					reg.emplace_or_replace<Component>(entity, *componentPtr);
+					SLICE_LOG_DEBUG("Successfully emplaced new component");
+				}
+				else
+				{
+					SLICE_LOG_ERROR("Unable to register component emplacer");
+				}
+			};
+		}
+
+		template<typename Component>
 		void RegisterComponent()
 		{
 			rttr::type componentType = rttr::type::get<Component>();
@@ -68,10 +121,13 @@ namespace SliceEngine
 			}
 
 			RegisterSerializableComponent<Component>();
+			RegisterComponentEmplacer<Component>();
+
 			entt::id_type type_id = entt::type_id<Component>().hash();
 			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();
 		}
 
+		GameObject CreateBlank(std::string name = "GameObject"); // for deserializing
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
@@ -80,6 +136,7 @@ namespace SliceEngine
 		void TestLoop();
 		void UpdateDestroyed();
 		void VisitComponents(Entity entity, ComponentVisitor visitor);
+		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 
 		Registry mRegistry;
@@ -94,9 +151,10 @@ namespace SliceEngine
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
-
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
-
+		// I really dont like how this emplacing is being done imo
+		std::unordered_map<rttr::type, ComponentEmplacer> mCESmartPtr;
+		std::unordered_map<rttr::type, ComponentEmplacer> mComponentEmplacer;
 
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;

@@ -15,6 +15,22 @@ namespace SliceEngine
 
 	}
 
+	
+	GameObject GOFactory::CreateBlank(std::string name)
+	{
+		Entity entity = mRegistry.create();
+		GameObject go(mRegistry, entity);
+
+		// default name 
+		// or i pass in a variable
+		go.SetName(CreateName(name));
+		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+		go.AddComponent<SliceEntity>();
+
+		return go;
+	}
+
 	GameObject GOFactory::CreateEO()
 	{
 		Entity entity = mRegistry.create();
@@ -106,6 +122,12 @@ namespace SliceEngine
 					std::cout << storage.type().name() << std::endl;
 					
 				}
+
+				// current issue is that 
+				// SceneGraph storagei  ssaying that
+				// entity 1 has a scene graph component
+				// but it should not have it
+
 				std::string componentName(storage.type().name());
 
 				rttr::type componentType = rttr::type::get_by_name(componentName);
@@ -242,6 +264,43 @@ namespace SliceEngine
 			visitor(componentType, componentData);
 		}
 
+	}
+
+	void GOFactory::EmplaceComponents(Entity entity, const rttr::variant& componentVariant)
+	{
+		rttr::type componentType = componentVariant.get_type();
+		std::string typeName = componentType.get_name().to_string();
+
+		//if (componentVariant.is_type<std::shared_ptr<void>>())
+		//{
+		//	auto ptr_variant = componentVariant.convert<std::shared_ptr<void>>();
+		//	if (ptr_variant)
+		//	{
+		//		componentType = rttr
+		//	}
+		//}
+
+		auto it = mComponentEmplacer.find(componentType);
+		if (it != mComponentEmplacer.end())
+		{
+			const ComponentEmplacer& emplaceFunction = it->second;
+			emplaceFunction(mRegistry, entity, componentVariant);
+
+			return;
+		}
+
+		auto it2 = mCESmartPtr.find(componentType);
+		if (it2 != mCESmartPtr.end())
+		{
+			//const ComponentEmplacer& emplaceFunction = it->second;
+			it2->second(mRegistry, entity, componentVariant);
+
+			return;
+		}
+
+		
+		
+		SLICE_LOG_ERROR("COMPONENT HAS NO EMPLACER");
 	}
 
 	//rttr::instance GetInstance(entt::id_type id, entt::registry& reg, entt::entity e)

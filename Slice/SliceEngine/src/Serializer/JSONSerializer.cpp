@@ -13,17 +13,8 @@ namespace SliceEngine
 			if (!t)
 				return false;
 
-#define ADD_COMPONENT_CASE(T) \
-    if (t == rttr::type::get<T>()) { \
-        node.AddComponent<T>(componentInstance.get_value<T>()); \
-        return true; \
-    }
-
-			ADD_COMPONENT_CASE(Transform);
-			ADD_COMPONENT_CASE(SceneGraph);
-
-#undef ADD_COMPONENT_CASE
-
+			FactoryInstance.EmplaceComponents(node.GetEntity(), componentInstance);
+		
 			return false; // unknown type
 		}
 
@@ -160,10 +151,10 @@ namespace SliceEngine
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
-				GameObject node = factory.CreateGO(name);
+				GameObject node = factory.CreateBlank(name);
 
 				// Temprorary until have createGO without transform
-				node.RemoveComponent<Transform>();
+				//node.RemoveComponent<Transform>();
 
 				for (auto& [componentName, props] : components.items())
 				{
