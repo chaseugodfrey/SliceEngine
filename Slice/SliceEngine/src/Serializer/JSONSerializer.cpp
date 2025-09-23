@@ -20,7 +20,7 @@ namespace SliceEngine
     }
 
 			ADD_COMPONENT_CASE(Transform);
-			ADD_COMPONENT_CASE(SceneView);
+			ADD_COMPONENT_CASE(SceneGraph);
 
 #undef ADD_COMPONENT_CASE
 
@@ -95,17 +95,29 @@ namespace SliceEngine
 					{
 						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<float>();
 					}
-					else if (propVal.is_type<uint64_t>())
+					else if (propVal.is_type<double>())
+					{
+						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<double>();
+					}
+					else if (propVal.is_type<uint32_t>())
 					{
 						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<uint64_t>();
+					}
+					else if (propVal.is_type<std::array<uint32_t, 4>>())
+					{
+						const auto& vec = propVal.get_value<std::array<uint32_t, 4>>();
+						for (size_t i{}; i < 4; ++i)
+						{
+							output[node.GetName()][storage.type().name()][propName][i] = vec[i];
+						}
 					}
 					else if (propVal.is_type<std::string>())
 					{
 						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<std::string>();
 					}
-					else if (propVal.is_type<std::vector<uint64_t>>())
+					else if (propVal.is_type<std::vector<uint32_t>>())
 					{
-						const auto& vec = propVal.get_value<std::vector<uint64_t>>();
+						const auto& vec = propVal.get_value<std::vector<uint32_t>>();
 						for (const auto& elem : vec)
 						{
 							output[node.GetName()][storage.type().name()][propName].push_back(elem);
@@ -143,10 +155,8 @@ namespace SliceEngine
 			return output;
 		}
 
-		std::vector<GameObject> DeserializeGameObjects(json const& input)
+		void DeserializeGameObjects(json const& input)
 		{
-			std::vector<GameObject> gameObjects;
-
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
@@ -178,15 +188,19 @@ namespace SliceEngine
 							prop.set_value(componentInstance, value.get<int>());
 						else if (prop.get_type() == rttr::type::get<float>())
 							prop.set_value(componentInstance, value.get<float>());
-						else if (prop.get_type() == rttr::type::get<uint64_t>())
-							prop.set_value(componentInstance, value.get<uint64_t>());
+						else if (prop.get_type() == rttr::type::get<double>())
+							prop.set_value(componentInstance, value.get<double>());
+						else if (prop.get_type() == rttr::type::get<uint32_t>())
+							prop.set_value(componentInstance, value.get<uint32_t>());
 						else if (prop.get_type() == rttr::type::get<std::string>())
 							prop.set_value(componentInstance, value.get<std::string>());
-						else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
+						else if (prop.get_type() == rttr::type::get<std::vector<uint32_t>>())
 						{
-							std::vector<uint64_t> vec;
+							std::vector<uint32_t> vec;
 							for (auto& v : value)
-								vec.push_back(v.get<uint64_t>());
+							{
+								vec.push_back(v.get<uint32_t>());
+							}
 							prop.set_value(componentInstance, vec);
 						}
 						else if (prop.get_type() == rttr::type::get<glm::vec3>())
@@ -194,22 +208,21 @@ namespace SliceEngine
 							glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
 							prop.set_value(componentInstance, vec);
 						}
+						else if (prop.get_type() == rttr::type::get<std::array<uint32_t, 4>>())
+						{
+							std::array<uint32_t, 4> arr;
+							arr = value;
+							prop.set_value(componentInstance, arr);
+						}
 						else
 						{
 							// fallback: try string
 							prop.set_value(componentInstance, value.get<std::string>());
 						}
 					}
-
-					//aa
-					// Attach component to GameObject (depends on your ECS)
 					AddComponentFromVariant(node, componentInstance, componentName);
 				}
-
-				gameObjects.push_back(std::move(node));
 			}
-
-			return gameObjects;
 		}
 
 
@@ -279,16 +292,13 @@ namespace SliceEngine
 				transform.rotation = glm::vec3(4, 5, 6);
 				transform.scale = glm::vec3(7, 8, 9);
 
-				omnia_victrum.AddComponent<SceneView>();
+				omnia_victrum.AddComponent<SceneGraph>();
 
-				auto& sceneview = omnia_victrum.GetComponent<SceneView>();
-				sceneview.parentGUID = 1234;
-				for (int i{}; i < 5; ++i)
+				auto& scenegraph = omnia_victrum.GetComponent<SceneGraph>();
+				for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
 				{
-					sceneview.childrenGUID.push_back(i);
+					scenegraph.neighbours[i] = static_cast<uint32_t>(i);
 				}
-				sceneview.upGUID = 56;
-				sceneview.downGUID = 78;
 
 				// Serialize the object
 				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));				

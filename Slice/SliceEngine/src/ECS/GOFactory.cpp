@@ -104,6 +104,60 @@ namespace SliceEngine
 				{
 					// each component will be here
 					std::cout << storage.type().name() << std::endl;
+					
+				}
+				std::string componentName(storage.type().name());
+
+				rttr::type componentType = rttr::type::get_by_name(componentName);
+				if (!componentType)
+				{
+					SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+					continue;
+				}
+
+				auto it = mComponentGetters.find(type_id);
+				if (it == mComponentGetters.end())
+				{
+					SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
+					// assert?
+
+					continue;
+				}
+
+				rttr::variant componentData = it->second(mRegistry, entity);
+
+				for (const auto& property : componentType.get_properties())
+				{
+					rttr::variant value = property.get_value(componentData);
+
+					if (!value.is_valid())
+						continue;
+
+					// Print based on type
+					if (value.is_type<int>())
+						std::cout << property.get_name() << " = " << value.get_value<int>() << std::endl;
+					else if (value.is_type<float>())
+						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
+					else if (value.is_type<double>())
+						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
+					else if (value.is_type<std::array<uint32_t, 4>>())
+					{
+						auto arr = value.get_value<std::array<uint32_t, 4>>();
+						std::cout << property.get_name() << " = [";
+						for (size_t i = 0; i < arr.size(); ++i)
+							std::cout << arr[i] << (i + 1 < arr.size() ? ", " : "");
+						std::cout << "]" << std::endl;
+					}
+					else if (value.is_type<glm::vec3>())
+					{
+						glm::vec3 v = value.get_value<glm::vec3>();
+						std::cout << property.get_name() << " = ("
+							<< v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
+					}
+					else
+					{
+						std::cout << property.get_name() << " = <unsupported type>" << std::endl;
+					}
 				}
 			}
 			//auto type = Registry::visi
