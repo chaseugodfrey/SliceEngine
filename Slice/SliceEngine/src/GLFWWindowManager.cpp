@@ -22,7 +22,9 @@ namespace SliceEngine
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		window = glfwCreateWindow(900, 600, "Me", nullptr, nullptr);
+		auto vidmode = glfwGetVideoMode(monitor);
+
+		window = glfwCreateWindow(vidmode->width, vidmode->height, "Slice Engine", nullptr, nullptr);
 
 		glfwMakeContextCurrent(window);
 

@@ -60,8 +60,9 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransform()
 	{
-		static glm::vec3 position{ 0.0f, 0.0f, 0.0f };
-		DragVec3InputHeader("Translation", "t", position);
+		auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity);
+
+		DragVec3InputHeader("Translation", "t", tr.position);
 		//DragVec2InputHeader(service, "Scale", "s", transform.localScale);
 		//DragDoubleInputHeader(service, "Rotation", "##r", transform.localRotation, "%.3f");
 	}
