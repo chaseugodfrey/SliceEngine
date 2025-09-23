@@ -20,9 +20,16 @@ namespace SliceEditor
 		{
 			DisplayTransform();
 
+			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(selected_entity))
 			{
 				DisplayRigidbody();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(selected_entity))
+			{
+				DisplayCollider3D();
 			}
 
 			ImGui::Separator();
@@ -70,7 +77,19 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Rigidbody"))
 		{
-			ImGui::DragFloat("#friction", &rb.friction);
+			ImGui::DragFloat("Friction", &rb.friction);
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplayCollider3D()
+	{
+		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity);
+
+		if (ImGui::TreeNodeEx("Collider3D"))
+		{
+			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
 
 			ImGui::TreePop();
 		}
@@ -100,6 +119,11 @@ namespace SliceEditor
 			if (ImGui::Selectable("Add Rigidbody"))
 			{
 				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::RigidBody>(selected_entity);
+			}
+
+			if (ImGui::Selectable("Add Collider3D"))
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity);
 			}
 
 			ImGui::EndPopup();
