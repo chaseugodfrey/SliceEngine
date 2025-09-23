@@ -148,6 +148,9 @@ namespace SliceEngine
 
 				rttr::variant componentData = it->second(mRegistry, entity);
 
+				if (!componentData.is_valid())
+					continue;
+
 				for (const auto& property : componentType.get_properties())
 				{
 					rttr::variant value = property.get_value(componentData);

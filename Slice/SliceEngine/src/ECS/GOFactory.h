@@ -56,7 +56,11 @@ namespace SliceEngine
 		{
 			entt::id_type type_id = entt::type_id<Component>().hash();
 			mComponentGetters[type_id] = [](Registry& registry, Entity e) -> rttr::variant {
-					return registry.get<Component>(e);	
+				
+				auto component = registry.try_get<Component>(e);
+				if (component) return *component;
+				
+				return rttr::variant();
 				};
 		}
 
