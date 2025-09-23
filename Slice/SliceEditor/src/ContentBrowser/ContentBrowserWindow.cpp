@@ -9,8 +9,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::Draw()
 	{
 		ImGui::Begin("Content Browser");
-		//ImGuiID contentDock = ImGui::GetID("contentDock");
-		//ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
+		/*ImGuiID contentDock = ImGui::GetID("contentDock");
+		ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
 
 		if (ImGui::Button("Reload"))
 		{
