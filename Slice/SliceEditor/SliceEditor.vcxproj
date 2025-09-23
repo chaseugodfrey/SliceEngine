@@ -123,12 +123,12 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
   <ItemGroup>
     <ClInclude Include="src\ContentBrowser\ContentBrowserManager.h" />
     <ClInclude Include="src\ContentBrowser\ContentBrowserWindow.h" />
-    <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\EditorCommonTypes.h" />
     <ClInclude Include="src\Hierachy\HierarchyManager.h" />
     <ClInclude Include="src\Hierachy\HierarchyWindow.h" />
     <ClInclude Include="src\History\HistoryManager.h" />
+    <ClInclude Include="src\Inspector\ComponentPropertiesGUI.h" />
     <ClInclude Include="src\Inspector\InspectorManager.h" />
     <ClInclude Include="src\Inspector\InspectorWindow.h" />
     <ClInclude Include="src\Logger\Logger.h" />
@@ -161,11 +161,11 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
   <ItemGroup>
     <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
     <ClCompile Include="src\ContentBrowser\ContentBrowserWindow.cpp" />
-    <ClCompile Include="src\Core.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyManager.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyWindow.cpp" />
     <ClCompile Include="src\History\HistoryManager.cpp" />
+    <ClCompile Include="src\Inspector\ComponentPropertiesGUI.cpp" />
     <ClCompile Include="src\Inspector\InspectorManager.cpp" />
     <ClCompile Include="src\Inspector\InspectorWindow.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />

@@ -13,6 +13,7 @@ namespace SliceEditor
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
 		AddWindow("Profiler");
+		AddWindow("Inspector");
 		//AddWindow<ContentBrowserWindow>();
 		//AddWindow<SceneViewWindow>();
 		//AddWindow<GameView>(editorState);

@@ -11,6 +11,7 @@ struct GLFWwindow;
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
 #include "Hierachy/HierarchyManager.h"
+#include "Inspector/InspectorManager.h"
 
 namespace SliceEditor
 {
@@ -20,6 +21,7 @@ namespace SliceEditor
 
 		std::unique_ptr<SceneViewManager> sceneViewManager;
 		std::unique_ptr<HierarchyManager> hierarchyManager;
+		std::unique_ptr<InspectorManager> inspectorManager;
 		ContentBrowserManager contentBrowserManager;
 		ProfilerManager profilerManager;
 		HistoryManager history;

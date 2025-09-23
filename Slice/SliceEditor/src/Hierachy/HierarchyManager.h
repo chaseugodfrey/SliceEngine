@@ -8,15 +8,17 @@ namespace SliceEditor
 	struct TestNode
 	{
 		TestNode* parent;
+		entt::entity entity;
 		std::string name;
-		std::vector<TestNode> children;
 		bool isSelected;
+		std::vector<TestNode> children;
 	};
 
 	class HierarchyManager : public ICreateWindow
 	{
 		// TO DO: replace this with proper scene graph
 		std::vector<TestNode> mRootNodes;
+
 
 	public:
 
@@ -25,6 +27,8 @@ namespace SliceEditor
 
 		void Test();
 		void Init();
+		void BuildHierarchy();
+		void AddGameObject();
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 
