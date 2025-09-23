@@ -141,7 +141,7 @@ namespace SliceEngine
 
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x,transform.position.y,transform.position.z);
-		JPH::Vec3 rotation;
+		JPH::Quat rotation;
 
 		//Create body
 		JPH::BodyCreationSettings bodySettings(shape, position, rotation, rigidBody.motionType, rigidBody.layer);
