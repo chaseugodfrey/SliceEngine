@@ -104,7 +104,13 @@ namespace SliceEngine
 
 	};
 
-
+	struct SoundFile
+	{
+		std::string filePath;
+		float currentVolume;
+		bool isLoop;
+		bool is3D;
+	};
 
 
 

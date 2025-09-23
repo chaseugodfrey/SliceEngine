@@ -21,18 +21,9 @@ namespace SliceEngine
 		}
 	}
 
-	void AudioManager::LoadSound(const std::string& soundName, const std::string& soundFile, bool is3D)
+	void AudioManager::LoadSound(const std::string& soundName, const std::string& soundFile)
 	{
-		FMOD_MODE eMode = FMOD_DEFAULT;
-
-		if (is3D)
-		{
-			eMode |= FMOD_3D;
-		}
-		else
-		{
-			eMode |= FMOD_2D;
-		}
+		
 
 		/*if (loop)
 		{
@@ -44,14 +35,14 @@ namespace SliceEngine
 		}*/
 
 		FMOD::Sound* sound{ nullptr };
-		mSoundSystem->createSound(soundFile.c_str(), eMode, nullptr, &sound);
+		mSoundSystem->createSound(soundFile.c_str(), FMOD_3D, nullptr, &sound);
 
 
 
 		if (sound)
 		{
 
-			if (is3D)
+			/*if (is3D)
 			{
 				auto track = std::make_unique<SoundTrack3D>();
 				track->sound = sound;
@@ -62,7 +53,11 @@ namespace SliceEngine
 				auto track = std::make_unique<SoundTrack2D>();
 				track->sound = sound;
 				mLoadedSounds2D.try_emplace(soundName, std::move(track));
-			}
+			}*/
+
+			auto track = std::make_unique<SoundTrack>();
+			track->sound = sound;
+			mLoadedSounds.try_emplace(soundName, std::move(track));
 
 			SLICE_LOG("Sound Loaded" + soundName);
 			return;
@@ -74,89 +69,127 @@ namespace SliceEngine
 		mSoundSystem->update();
 	}
 
-	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume)
+	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume, Entity id)
 	{
+		
+		//if (is3D)
+		//{
+		//	auto it = mLoadedSounds3D.find(soundName);
+		//	if (it == mLoadedSounds3D.end())
+		//	{
+		//		SLICE_LOG("Sound not loaded");
+		//		return false;
+		//	}
+
+		//	auto track = std::make_unique<SoundTrack3D>();
+		//	//track = std::make_unique<SoundTrack3D>(it->second.get());
+
+		//	//auto activeTrack = std::make_unique<SoundTrack3D>(*track);
+
+		//	FMOD::Channel* channel = nullptr;
+
+		//	FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
+		//	if (result != FMOD_OK)
+		//	{
+		//		SLICE_LOG("Failed to play sound");
+		//		return false;
+		//	}
+
+
+		//	if (channel)
+		//	{
+		//		/*channel->setVolume(volume);
+		//		channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);*/
+
+		//		// Only track the channel, not duplicate the sound
+
+		//		track->channel = channel;
+		//		track->category = category;
+		//		track->isLooping = isLoop;
+		//		track->currentSoundVolume = volume;
+
+		//		track->ApplySettings();
+
+		//		mSound3D[internalCategory].emplace_back(std::move(track));
+		//		return true;
+		//	}
+		//}
+		//else
+		//{
+		//	auto it = mLoadedSounds2D.find(soundName);
+		//	if (it == mLoadedSounds2D.end())
+		//	{
+		//		SLICE_LOG("Sound not loaded");
+		//		return false;
+		//	}
+
+		//	auto track = std::make_unique<SoundTrack2D>();
+
+		//	FMOD::Channel* channel = nullptr;
+
+		//	FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
+		//	if (result != FMOD_OK)
+		//	{
+		//		SLICE_LOG("Failed to play sound");
+		//		return false;
+		//	}
+
+
+		//	if (channel)
+		//	{
+		//		/*channel->setVolume(volume);
+		//		channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);*/
+
+		//		// Only track the channel, not duplicate the sound
+
+		//		track->channel = channel;
+		//		track->category = category;
+		//		track->isLooping = isLoop;
+		//		track->currentSoundVolume = volume;
+
+		//		track->ApplySettings();
+
+		//		mSound2D[internalCategory].emplace_back(std::move(track));
+		//		return true;
+		//	}
+		//}
+
+		auto it = mLoadedSounds.find(soundName);
+		if (it == mLoadedSounds.end())
+		{
+			SLICE_LOG("Sound not loaded");
+			return false;
+		}
+
+		auto track = std::make_unique<SoundTrack>();
 
 		if (is3D)
 		{
-			auto it = mLoadedSounds3D.find(soundName);
-			if (it == mLoadedSounds3D.end())
-			{
-				SLICE_LOG("Sound not loaded");
-				return false;
-			}
-
-			auto track = std::make_unique<SoundTrack3D>();
-			//track = std::make_unique<SoundTrack3D>(it->second.get());
-
-			//auto activeTrack = std::make_unique<SoundTrack3D>(*track);
-
-			FMOD::Channel* channel = nullptr;
-
-			FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
-			if (result != FMOD_OK)
-			{
-				SLICE_LOG("Failed to play sound");
-				return false;
-			}
-
-
-			if (channel)
-			{
-				/*channel->setVolume(volume);
-				channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);*/
-
-				// Only track the channel, not duplicate the sound
-
-				track->channel = channel;
-				track->category = category;
-				track->isLooping = isLoop;
-				track->currentSoundVolume = volume;
-
-				track->ApplySettings();
-
-				mSound3D[internalCategory].emplace_back(std::move(track));
-				return true;
-			}
+			track->channel->setMode(FMOD_3D);
 		}
-		else
+
+		FMOD::Channel* channel = nullptr;
+
+		FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
+
+		if (result != FMOD_OK)
 		{
-			auto it = mLoadedSounds2D.find(soundName);
-			if (it == mLoadedSounds2D.end())
-			{
-				SLICE_LOG("Sound not loaded");
-				return false;
-			}
+			SLICE_LOG("Failed to play sound");
+			return false;
+		}
 
-			auto track = std::make_unique<SoundTrack2D>();
+		if (channel)
+		{
+			track->channel = channel;
+			
+			track->category = category;
+			track->isLooping = isLoop;
+			track->currentSoundVolume = volume;
+			
+			track->ApplySettings();
 
-			FMOD::Channel* channel = nullptr;
-
-			FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
-			if (result != FMOD_OK)
-			{
-				SLICE_LOG("Failed to play sound");
-				return false;
-			}
-
-
-			if (channel)
-			{
-				/*channel->setVolume(volume);
-				channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);*/
-
-				// Only track the channel, not duplicate the sound
-
-				track->channel = channel;
-				track->category = category;
-				track->isLooping = isLoop;
-				track->currentSoundVolume = volume;
-
-				track->ApplySettings();
-
-				mSound2D[internalCategory].emplace_back(std::move(track));
-				return true;
-			}
+			mSound[internalCategory].emplace_back(std::move(track));
+			return true;
 		}
 
 
@@ -182,12 +215,20 @@ namespace SliceEngine
 		FMOD_VECTOR soundPosition = { soundPos.x, soundPos.y, soundPos.z };
 		FMOD_VECTOR velVec = { 0.0f,0.0f,0.0f };
 
-		auto it = mLoadedSounds3D.find(soundName);
+		/*auto it = mLoadedSounds3D.find(soundName);
 		if (it == mLoadedSounds3D.end())
 		{
 			SLICE_LOG("Sound not loaded");
 			return;
+		}*/
+
+		auto it = mLoadedSounds.find(soundName);
+		if (it == mLoadedSounds.end())
+		{
+			SLICE_LOG("Sound Not Loaded");
+			return;
 		}
+
 
 		if (it->second->channel)
 		{
@@ -229,7 +270,7 @@ namespace SliceEngine
 
 		}
 
-		for (auto& pair : mLoadedSounds2D)
+		/*for (auto& pair : mLoadedSounds2D)
 		{
 			if (pair.second->sound)
 			{
@@ -247,7 +288,18 @@ namespace SliceEngine
 				pair.second->sound = nullptr;
 			}
 		}
-		mLoadedSounds3D.clear();
+		mLoadedSounds3D.clear();*/
+		for (auto& pair : mLoadedSounds)
+		{
+			if (pair.second->sound)
+			{
+				pair.second->sound->release();
+				pair.second->sound = nullptr;
+			}
+		}
+
+		mLoadedSounds.clear();
+
 
 		if (mSoundSystem)
 		{

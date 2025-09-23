@@ -18,7 +18,7 @@ namespace SliceEngine
 	};
 
 	//Base SoundTrack struct for sound files
-	struct SoundTrackBase
+	struct SoundTrack
 	{
 		FMOD::Sound* sound = nullptr;
 		FMOD::Channel* channel = nullptr;
@@ -28,9 +28,10 @@ namespace SliceEngine
 		bool isLooping = false;
 		bool isPaused = false;
 		bool muffle = false;
+		Entity entityID;
 
 
-		virtual ~SoundTrackBase() = default;
+		virtual ~SoundTrack() = default;
 
 		virtual void ApplySettings()
 		{
@@ -43,23 +44,23 @@ namespace SliceEngine
 	};
 
 	//struct for 2D sounds
-	struct SoundTrack2D : public SoundTrackBase
+	struct SoundTrack2D : public SoundTrack
 	{
 		void ApplySettings() override
 		{
-			SoundTrackBase::ApplySettings();
+			SoundTrack::ApplySettings();
 		}
 	};
 
 	//struct for 3D sounds
-	struct SoundTrack3D : public SoundTrackBase
+	struct SoundTrack3D : public SoundTrack
 	{
 		/*FMOD_VECTOR position{ 0.0f,0.0f,0.0f };
 		FMOD_VECTOR velocity{ 0.0f,0.0f,0.0f };
 
 		void ApplySettings() override
 		{
-			SoundTrackBase::ApplySettings();
+			SoundTrack::ApplySettings();
 			if (channel)
 			{
 				channel->set3DAttributes(&position, &velocity);
@@ -68,9 +69,11 @@ namespace SliceEngine
 		}*/
 		void ApplySettings() override
 		{
-			SoundTrackBase::ApplySettings();
+			SoundTrack::ApplySettings();
 		}
 	};
+
+	
 
 	class AudioManager
 	{
@@ -84,6 +87,7 @@ namespace SliceEngine
 
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack2D>> mLoadedSounds2D;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds3D;
+		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 		const float defaultVolume = 1.0f;
 
@@ -108,11 +112,19 @@ namespace SliceEngine
 		void Update();
 		void Exit();
 
-		void LoadSound(const std::string& soundName, const std::string& soundFile, bool is3D);
-		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume);
+		void LoadSound(const std::string& soundName, const std::string& soundFile);
+		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume, Entity id);
+
 		void SetListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
 		void SetSound3DPosition(const std::string& soundName, glm::vec3 soundPos);
+
+		void SetMasterVolume(float volume);
+		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
+		void GetCategoryVolume(SoundCategory category);
+
+		void StopSound(InternalSound internalCategory, Entity id);
 		void StopAllSound(InternalSound SoundCategory);
+
 		void CleanUpStoppedSounds();
 		void SwitchSound();
 
