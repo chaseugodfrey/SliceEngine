@@ -100,7 +100,6 @@ namespace SliceEngine
 
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;
-		//std::unordered_map<entt::id_type, rttr::type> mEnttTypeIdToRttrType;
 	};
 }
 

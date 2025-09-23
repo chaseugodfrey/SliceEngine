@@ -31,8 +31,12 @@ namespace SliceEngine
 		//Debug
 		void Print(csv const& input);
 
-		//Uses Assets/Test.csv in deserializing it and 
-		void Test();
+		namespace Tests
+		{
+			//Take note of any errors and logs that can appear on the console during the tests
+			//param cleanOutput = false to keep logs to assist in debugging. By default its true if console error logs are enough
+			void RunTests(bool cleanOutput = true);
+		}
 	}
 }
 
