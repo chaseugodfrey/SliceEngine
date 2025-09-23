@@ -81,6 +81,6 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawPerformanceTab()
 	{
-		
+
 	}
 }

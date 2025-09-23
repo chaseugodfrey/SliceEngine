@@ -3,6 +3,7 @@
 
 #include "../WindowManager/EditorWindow.h"
 #include "ProfilerManager.h"
+#include "../Editor.h"
 
 namespace SliceEditor
 {
