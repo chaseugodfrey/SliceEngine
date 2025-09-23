@@ -15,6 +15,10 @@ namespace SliceEditor
 		ProfilerWindow(ProfilerManager& manager);
 
 		void Draw() override final;
+
+		void DrawLoggerTab();
+
+		void DrawPerformanceTab();
 	};
 }
 
