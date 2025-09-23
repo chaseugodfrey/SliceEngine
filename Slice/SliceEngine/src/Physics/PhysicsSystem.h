@@ -46,7 +46,7 @@ namespace SliceEngine
 
 		bool IsInitialized() const;
 
-		void CreateBodyFromComponent(entt::entity entity, const Transform& transform, const RigidBody& rigidBody, const ColliderShape& colliderShape) const;
+		void CreateBodyFromComponent(entt::entity entity, const Transform& transform, RigidBody& rigidBody, const ColliderShape& colliderShape) const;
 
 		void SyncECSToPhysics(Transform& transform, RigidBody& rigidBody, ColliderShape& colliderShape) const;
 

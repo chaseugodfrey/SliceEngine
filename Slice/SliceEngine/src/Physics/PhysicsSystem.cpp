@@ -22,7 +22,7 @@ namespace SliceEngine
 		{
 			if (threadCount == 0) 
 			{
-				threadCount = std::thread::hardware_concurrency();
+				threadCount = std::thread::hardware_concurrency() - 1;
 				if (threadCount == 0) 
 				{
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
@@ -126,16 +126,59 @@ namespace SliceEngine
 		}
 	}
 
-	void PhysicsSystem::CreateBodyFromComponent(entt::entity entity, const Transform& transform, const RigidBody& rigidBody, const ColliderShape& colliderShape) const
+	void PhysicsSystem::CreateBodyFromComponent(entt::entity entity, const Transform& transform, RigidBody& rigidBody, const ColliderShape& colliderShape) const
 	{
 		// wait for transformcomponent to be finalized
 
 
+		//Create shape based on collider
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape);
+		if (!shape)
+		{
+			SLICE_LOG_ERROR("Failed to create Shape for entity");
+			return;
+		}
+
+		//Convert transform data
+		JPH::Vec3 position(transform.position.x,transform.position.y,transform.position.z);
+		JPH::Vec3 rotation;
+
+		//Create body
+		JPH::BodyCreationSettings bodySettings(shape, position, rotation, rigidBody.motionType, rigidBody.layer);
+
+		//Set physics properties
+		if (rigidBody.motionType == JPH::EMotionType::Dynamic) 
+		{
+			bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
+			bodySettings.mFriction = rigidBody.friction;
+			bodySettings.mRestitution = rigidBody.restitution;
+			bodySettings.mLinearDamping = rigidBody.linearDamping; // Jolt uses single value
+			bodySettings.mAngularDamping = rigidBody.angularDamping;
+		}
+
+		//Set as sensor for triggers
+		if (colliderShape.isTrigger) 
+		{
+			bodySettings.mIsSensor = true;
+		}
 
 
+		//Store entity ID in user data for collision callbacks
+		bodySettings.mUserData = static_cast<uint64_t>(entity);
+		
+		//Create and add the body
+		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
+		if (!body) 
+		{
+			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
+			return;
+		}
 
+		//Add to physics world and store bodyID in rigidbody
+		rigidBody.bodyID = body->GetID();
+		//body_interface->AddBody(bodyID, rigidBody.isActive ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
-
+		SLICE_LOG("Created Jolt body with ID: " + std::to_string(rigidBody.bodyID.GetIndexAndSequenceNumber()));
 
 	}
 
