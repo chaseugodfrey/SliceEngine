@@ -13,6 +13,7 @@ namespace SliceEditor
 		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
 		contentBrowserManager.Init();
 		profilerManager.Init();
+		InitManagers();
 		InitWindowManager();
 	}
 
@@ -81,7 +82,6 @@ namespace SliceEditor
 		hierarchyManager = std::make_unique<HierarchyManager>();
 		// find a way to make tihs look prettier tbh
 		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
-		//sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::Core::GetInstance()->GetRenderManager());
 		inspectorManager = std::make_unique<InspectorManager>();
 		hierarchyManager->Init();
 		sceneViewManager->Init();
@@ -98,8 +98,8 @@ namespace SliceEditor
 	void Editor::InitWindowManager()
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
-		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		windowManager.RegisterInterface("Profiler", &profilerManager);
+		//windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
+		//windowManager.RegisterInterface("Profiler", &profilerManager);
 		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
 		windowManager.RegisterInterface("Inspector", inspectorManager.get());

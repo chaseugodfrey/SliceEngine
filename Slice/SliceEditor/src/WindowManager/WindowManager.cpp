@@ -9,10 +9,10 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Initializing WindowManager.");
 
-		AddWindow("ContentBrowser");
+		//AddWindow("ContentBrowser");
+		//AddWindow("Profiler");
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
-		AddWindow("Profiler");
 		AddWindow("Inspector");
 		//AddWindow<ContentBrowserWindow>();
 		//AddWindow<SceneViewWindow>();
