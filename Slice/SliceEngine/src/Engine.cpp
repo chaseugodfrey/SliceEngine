@@ -98,6 +98,7 @@ namespace SliceEngine
 
 		
 		//JSONSerializer::Test2();
+		JSONSerializer::Tests::RunTests(false);
 	}
 
 	void Engine::Update()
