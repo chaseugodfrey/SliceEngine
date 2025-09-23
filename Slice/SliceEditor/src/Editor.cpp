@@ -11,8 +11,6 @@ namespace SliceEditor
 		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
 		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
-		contentBrowserManager.Init();
-		profilerManager.Init();
 		InitManagers();
 		InitWindowManager();
 	}
@@ -77,12 +75,15 @@ namespace SliceEditor
 	void Editor::InitManagers()
 	{
 		SLICE_LOG("EDITOR: Initializing Managers.");
-		contentBrowserManager.Init();
 
+		contentBrowserManager = std::make_unique<ContentBrowserManager>();
+		profilerManager = std::make_unique<ProfilerManager>(engine);
 		hierarchyManager = std::make_unique<HierarchyManager>();
 		// find a way to make tihs look prettier tbh
 		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
 		inspectorManager = std::make_unique<InspectorManager>();
+		profilerManager->Init();
+		contentBrowserManager->Init();
 		hierarchyManager->Init();
 		sceneViewManager->Init();
 
@@ -98,8 +99,8 @@ namespace SliceEditor
 	void Editor::InitWindowManager()
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
-		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		windowManager.RegisterInterface("Profiler", &profilerManager);
+		windowManager.RegisterInterface("ContentBrowser", contentBrowserManager.get());
+		windowManager.RegisterInterface("Profiler", profilerManager.get());
 		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
 		windowManager.RegisterInterface("Inspector", inspectorManager.get());
@@ -119,11 +120,11 @@ namespace SliceEditor
 
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
-		auto target = contentBrowserManager.selectedFolder->path / path.filename();
+		auto target = contentBrowserManager->selectedFolder->path / path.filename();
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
-		contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+		contentBrowserManager->RebuildDirectory(*contentBrowserManager->rootNode);
 	}
 
 

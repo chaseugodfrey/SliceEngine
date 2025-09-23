@@ -22,8 +22,8 @@ namespace SliceEditor
 		std::unique_ptr<SceneViewManager> sceneViewManager;
 		std::unique_ptr<HierarchyManager> hierarchyManager;
 		std::unique_ptr<InspectorManager> inspectorManager;
-		ContentBrowserManager contentBrowserManager;
-		ProfilerManager profilerManager;
+		std::unique_ptr<ContentBrowserManager> contentBrowserManager;
+		std::unique_ptr<ProfilerManager> profilerManager;
 		HistoryManager history;
 		WindowManager windowManager;
 
