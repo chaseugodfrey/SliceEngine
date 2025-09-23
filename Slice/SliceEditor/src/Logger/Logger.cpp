@@ -13,7 +13,7 @@ namespace Logger
 	// early declaration
 	//static const char* LogLevelToString(LogLevel level);
 	static const char* LogLevelToColor(LogLevel level);
-	std::vector <std::pair<LogLevel, std::string>> savedLogs;
+	std::deque <std::pair<LogLevel, std::string>> savedLogs;
 
 	void Log(const char* function_name, const std::string& message, LogLevel level)
 	{
@@ -38,6 +38,11 @@ namespace Logger
 		
 
 		std::string newMessage = oss.str();
+
+		if (savedLogs.size() == 2000)
+		{
+			savedLogs.pop_front();
+		}
 
 		savedLogs.push_back(std::pair(level, newMessage));
 	}

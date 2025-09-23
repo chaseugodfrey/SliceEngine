@@ -9,13 +9,13 @@ namespace SliceEditor
 
 	void ProfilerWindow::Draw()
 	{
+
 		ImGui::Begin("Profiler");
 
 		ImGui::BeginTabBar("##Profiler");
 
 		if(ImGui::BeginTabItem("Logger"))
 		{
-
 			ImGui::Checkbox("Auto-Scroll", &manager.autoScroll);
 
 			ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
@@ -37,7 +37,7 @@ namespace SliceEditor
 				ImGui::SetScrollHereY(1.0);
 			}
 
-			if (ImGui::GetScrollY() < ImGui::GetScrollMaxY() - ImGui::GetTextLineHeightWithSpacing())
+			if (ImGui::GetScrollY() < ImGui::GetScrollMaxY())
 			{
 				manager.autoScroll = false;
 			}
