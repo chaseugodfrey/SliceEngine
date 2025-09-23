@@ -103,11 +103,6 @@ namespace SliceEngine
 		bool isTrigger = false;									// leaving thjis here in case we need trniggers
 
 	};
-
-
-
-
-
 }
 
 #endif
