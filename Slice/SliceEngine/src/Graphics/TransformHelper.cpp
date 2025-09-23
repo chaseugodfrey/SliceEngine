@@ -1,8 +1,9 @@
+#include <pch.h>
 #include "TransformHelper.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/euler_angles.hpp"
 #define TOANGLEF 57.2957795131f
-#include <pch.h>
+
 
 namespace SliceEngine
 {
