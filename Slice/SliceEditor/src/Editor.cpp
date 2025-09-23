@@ -74,7 +74,7 @@ namespace SliceEditor
 		// find a way to make tihs look prettier tbh
 		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
 		//sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::Core::GetInstance()->GetRenderManager());
-
+		inspectorManager = std::make_unique<InspectorManager>();
 		hierarchyManager->Init();
 		sceneViewManager->Init();
 
@@ -93,6 +93,7 @@ namespace SliceEditor
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
 		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
 		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
+		windowManager.RegisterInterface("Inspector", inspectorManager.get());
 		windowManager.Init();
 	}
 }
