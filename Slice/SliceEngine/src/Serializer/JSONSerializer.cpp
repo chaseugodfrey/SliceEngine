@@ -331,7 +331,7 @@ namespace SliceEngine
 				auto& scenegraph = omnia_victrum.GetComponent<SceneGraph>();
 				for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
 				{
-					scenegraph.neighbours[i] = static_cast<uint32_t>(i);
+					scenegraph.neighbours[i] = static_cast<Entity>(i);
 				}
 
 				// Serialize the object
