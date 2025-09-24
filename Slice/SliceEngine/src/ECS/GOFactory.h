@@ -9,6 +9,7 @@ namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
 	using ComponentGetter = std::function <rttr::variant(Registry& reg, Entity e)>;
+	using ComponentVisitor = std::function<void(rttr::type, rttr::variant&)>;
 	//using EnttIdToRttrType = std::function<rttr::type(entt::id_type type)>;
 	//using GetterMapper = std::function<rttr::instance(entt::registry&, entt::entity)>;
 	//using InstanceGetter = std::unordered_map<entt::id_type, GetterMapper>;
@@ -56,25 +57,21 @@ namespace SliceEngine
 				};
 		}
 
-		//template<class T>
-		//void MapEnttToRTTR()
-		//{
-		//	auto id = entt::type_id<T>().hash();
+		template<typename Component>
+		void RegisterComponent()
+		{
+			rttr::type componentType = rttr::type::get<Component>();
+			if (!componentType.is_valid())
+			{
+				SLICE_LOG_ERROR("Component is not registered with RTTR.");
+				return;
+			}
 
-		//	// Store RTTR type mapping
-		//	mEnttTypeIdToRttrType[id] = rttr::type::get<T>();
+			RegisterSerializableComponent<Component>();
+			entt::id_type type_id = entt::type_id<Component>().hash();
+			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();
+		}
 
-		//	// Store instance getter
-		//	InstanceGetterFunc[id] = [](entt::registry& reg, entt::entity e) -> rttr::instance
-		//		{
-		//			if (auto* comp = reg.try_get<T>(e))
-		//				return rttr::instance(*comp);
-
-		//			std::cerr << "[RTTR] Component not found for entity\n";
-		//			return rttr::instance(); // invalid
-		//		};
-		//}
-		
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
@@ -82,12 +79,16 @@ namespace SliceEngine
 		void Destroy(GameObject& go);
 		void TestLoop();
 		void UpdateDestroyed();
+		void VisitComponents(Entity entity, ComponentVisitor visitor);
 		std::string CreateName(std::string name);
 
 		Registry mRegistry;
 
 		// NOTE: I'm putting this in public for now to test serialization.
 		std::unordered_map<entt::id_type, ComponentGetter> mComponentGetters;
+		// ngl idk if these maps should be public or private
+		// but like editor needs it 
+		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
 
@@ -95,6 +96,7 @@ namespace SliceEngine
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
 
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
+
 
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;

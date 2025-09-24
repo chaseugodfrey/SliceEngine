@@ -146,6 +146,50 @@ namespace SliceEngine
 		return goName;
 	}
 
+	void GOFactory::VisitComponents(Entity entity, ComponentVisitor visitor)
+	{
+		// Go through every registered component
+		for (auto&& [type_id, storage] : mRegistry.storage())
+		{
+			if (!storage.contains(entity))
+			{
+				continue; // entity does not have this component
+			}
+
+			// Each component for this GameObject is here
+			std::cout << storage.type().name() << std::endl;
+			std::string componentName(storage.type().name());
+
+			rttr::type componentType = rttr::type::get_by_name(componentName);
+			if (!componentType)
+			{
+				SLICE_LOG_ERROR("Component is not registered");
+				continue;
+			}
+
+			auto it = mComponentGetters.find(type_id);
+			if (it == mComponentGetters.end())
+			{
+				SLICE_LOG_ERROR("Component does not have a getter");
+				// assert?
+
+				continue;
+			}
+
+			rttr::variant componentData = it->second(mRegistry, entity);
+
+			if (!componentData.is_valid())
+			{
+				SLICE_LOG_ERROR("Unable to retrieve component data");
+				continue;
+			}
+
+			// call the std function
+			visitor(componentType, componentData);
+		}
+
+	}
+
 	//rttr::instance GetInstance(entt::id_type id, entt::registry& reg, entt::entity e)
 	//{
 	//	auto it = InstanceGetterFunc.find(id);

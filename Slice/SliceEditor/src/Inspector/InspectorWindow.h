@@ -23,6 +23,7 @@ namespace SliceEditor
 		void DisplayTransform();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
+		void DisplayCollider3D();
 		void AddComponentButton();
 
 	public:
