@@ -2,6 +2,7 @@
 #define SCENE_VIEW_MANAGER_H
 
 #include "../WindowManager/ICreateWindow.h"
+#include "../SelectionSystem/ISelectionService.h"
 
 namespace SliceEngine
 {
@@ -10,7 +11,7 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
-	class SceneViewManager : public ICreateWindow
+	class SceneViewManager : public ICreateWindow, public ISelectionListener
 	{
 
 	public:
@@ -22,6 +23,10 @@ namespace SliceEditor
 		void Init();
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
+
+
+		// Inherited via ISelectionListener
+		void OnUpdateSelected(std::unordered_set<entt::entity>&) override;
 
 	};
 }

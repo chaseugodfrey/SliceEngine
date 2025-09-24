@@ -82,4 +82,9 @@ namespace SliceEditor
 		auto window = std::make_unique<HierarchyWindow>(*this);
 		return window;
 	}
+
+	void HierarchyManager::OnUpdateSelected(std::unordered_set<entt::entity>&)
+	{
+
+	}
 }

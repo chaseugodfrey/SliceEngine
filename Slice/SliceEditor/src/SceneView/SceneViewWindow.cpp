@@ -4,7 +4,6 @@
 
 namespace SliceEditor
 {
-	
 
 	SceneViewWindow::SceneViewWindow(SceneViewManager& manager) : mManager(manager)
 	{
@@ -50,6 +49,20 @@ namespace SliceEditor
 			ImVec2(0, 1),
 			ImVec2(1, 0)
 		);
+
+		auto* drawlist = ImGui::GetForegroundDrawList();
+
+		ImGuizmo::SetDrawlist(drawlist);
+		ImGuizmo::Enable(true);
+		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
+		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+		ImGuizmo::DecomposeMatrixToComponents(matrix.m16, matrixTranslation, matrixRotation, matrixScale);
+		ImGui::InputFloat3("Tr", matrixTranslation, 3);
+		ImGui::InputFloat3("Rt", matrixRotation, 3);
+		ImGui::InputFloat3("Sc", matrixScale, 3);
+		ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix.m16);
+
 
 		ImGui::End();
 	}

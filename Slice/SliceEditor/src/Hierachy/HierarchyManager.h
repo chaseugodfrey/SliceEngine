@@ -2,6 +2,7 @@
 #define HIERARCHY_MANAGER_H
 
 #include "../WindowManager/ICreateWindow.h"
+#include "../SelectionSystem/ISelectionService.h"
 
 namespace SliceEditor
 {
@@ -14,7 +15,7 @@ namespace SliceEditor
 		std::vector<TestNode> children;
 	};
 
-	class HierarchyManager : public ICreateWindow
+	class HierarchyManager : public ICreateWindow, public ISelectionListener
 	{
 		// TO DO: replace this with proper scene graph
 		std::vector<TestNode> mRootNodes;
@@ -33,6 +34,9 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 
 		std::vector<TestNode>& GetNodes() { return mRootNodes; }
+
+		// Inherited via ISelectionListener
+		void OnUpdateSelected(std::unordered_set<entt::entity>&) override;
 	};
 }
 
