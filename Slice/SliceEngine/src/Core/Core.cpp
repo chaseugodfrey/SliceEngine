@@ -26,10 +26,8 @@ namespace SliceEngine
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
 
-		mFactory.InitRootEntity();
-
-		mFactory.RegisterSerializableComponent<Transform>();
-		mFactory.RegisterSerializableComponent<SceneGraph>();
+		mFactory.RegisterComponent<Transform>();
+		mFactory.RegisterComponent<SceneGraph>();
 	}
 
 	void Core::ExitCore()
