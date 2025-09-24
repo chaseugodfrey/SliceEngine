@@ -5,6 +5,8 @@ namespace SliceEngine
 {
 	namespace JSONSerializer
 	{
+		std::unordered_map<uint32_t, uint32_t> sceneGraphMap;
+
 		constexpr auto testPath("Assets/Tests/");
 
 		bool AddComponentFromVariant(GameObject& node, rttr::variant const& componentInstance, std::string const& componentName)
@@ -94,6 +96,12 @@ namespace SliceEngine
 					{
 						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<uint32_t>();
 					}
+					if (propVal.get_type().is_derived_from(rttr::type::get<EntityID>()) ||
+						propVal.get_type() == rttr::type::get<EntityID>())
+					{
+						EntityID eid = propVal.get_value<EntityID>();
+						output[node.GetName()][storage.type().name()][propName] = eid.value;
+					}
 					else if (propVal.is_type<std::array<uint32_t, 4>>())
 					{
 						const auto& vec = propVal.get_value<std::array<uint32_t, 4>>();
@@ -151,10 +159,7 @@ namespace SliceEngine
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
-				GameObject node = factory.CreateBlank(name);
-
-				// Temprorary until have createGO without transform
-				//node.RemoveComponent<Transform>();
+				GameObject node = factory.CreateBlank(name);				
 
 				for (auto& [componentName, props] : components.items())
 				{
@@ -197,6 +202,11 @@ namespace SliceEngine
 							}
 							prop.set_value(componentInstance, vec);
 						}
+						else if (prop.get_type() == rttr::type::get<EntityID>())
+						{
+							uint32_t rawID = value.get<uint32_t>();
+							prop.set_value(componentInstance, EntityID{ rawID });
+						}
 						else if (prop.get_type() == rttr::type::get<glm::vec3>())
 						{
 							glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
@@ -214,41 +224,16 @@ namespace SliceEngine
 							prop.set_value(componentInstance, value.get<std::string>());
 						}
 
-						
+						if (compType == rttr::type::get<SceneGraph>())
+						{
+							auto& sg = componentInstance.get_value<SceneGraph>();
+
+							sceneGraphMap[sg.entity_id.value] = entt::to_integral(node.GetEntity());
+							SLICE_LOG("Old ID " + std::to_string(sg.entity_id.value) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
+						}
 					}
 
-					AddComponentFromVariant(node, componentInstance, componentName);
-
-					//Most definitely cooked here
-					//for (auto&& [type_id, storage] : Core::GetInstance()->GetRegistry().storage())
-					//{
-					//	if (storage.contains(node.GetEntity()))
-					//	{
-					//		// each component will be here
-					//		std::cout << storage.type().name() << std::endl;
-
-					//	}
-					//	std::string componentName(storage.type().name());
-
-					//	rttr::type componentType = rttr::type::get_by_name(componentName);
-					//	if (!componentType)
-					//	{
-					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
-					//		continue;
-					//	}
-
-					//	auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
-					//	if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
-					//	{
-					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
-					//		// assert?
-
-					//		continue;
-					//	}
-
-					//	it->second(Core::GetInstance()->GetRegistry(), node.GetEntity()) = componentInstance;
-					//}
-										
+					AddComponentFromVariant(node, componentInstance, componentName);										
 				}
 			}
 		}
@@ -310,7 +295,7 @@ namespace SliceEngine
 			void Test2(bool cleanOutput)
 			{
 				SLICE_LOG("Test 2 Beginning...");
-				auto& factory = Core::GetInstance()->mFactory;
+				auto& factory = FactoryInstance;
 
 				GameObject omnia_victrum = factory.CreateGO("Omnia_Victrum");
 
@@ -321,15 +306,18 @@ namespace SliceEngine
 				transform.scale = glm::vec3(7, 8, 9);
 
 				omnia_victrum.AddComponent<SceneGraph>();
-
 				auto& scenegraph = omnia_victrum.GetComponent<SceneGraph>();
+				scenegraph.entity_id = entt::to_integral(omnia_victrum.GetEntity());
 				for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
 				{
 					scenegraph.neighbours[i] = static_cast<uint32_t>(i);
 				}
 
 				// Serialize the object
-				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));				
+				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));
+
+				factory.Destroy(omnia_victrum);
+
 				DeserializeGameObjects(Deserialize(testPath + std::string("JSONTest2.json")));
 				if (cleanOutput)
 				{

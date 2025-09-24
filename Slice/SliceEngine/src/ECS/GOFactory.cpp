@@ -149,7 +149,11 @@ namespace SliceEngine
 				rttr::variant componentData = it->second(mRegistry, entity);
 
 				if (!componentData.is_valid())
+				{
+					SLICE_LOG_ERROR(std::string(componentType.get_name().to_string() + " componentData is invalid "));
 					continue;
+				}
+					
 
 				for (const auto& property : componentType.get_properties())
 				{
@@ -165,6 +169,12 @@ namespace SliceEngine
 						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
 					else if (value.is_type<double>())
 						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
+					else if (value.get_type() == rttr::type::get<EntityID>() ||
+						value.get_type().is_derived_from(rttr::type::get<EntityID>()))
+					{
+						EntityID eid = value.get_value<EntityID>();
+						std::cout << property.get_name() << " = " << eid.value << std::endl;
+					}
 					else if (value.is_type<std::array<uint32_t, 4>>())
 					{
 						auto arr = value.get_value<std::array<uint32_t, 4>>();

@@ -121,6 +121,10 @@
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\GUID.h" />
+    <ClInclude Include="src\Resource\Resource.h" />
+    <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\SliceTime.h" />
@@ -148,6 +152,8 @@
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\SliceTime.cpp" />
