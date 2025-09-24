@@ -88,18 +88,20 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
+
+
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		//test();
-
-		
-		//JSONSerializer::Test2();
+		JSONSerializer::Tests::RunTests(false);
+		Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
+		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 

@@ -13,6 +13,22 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct SceneGraph
+	{
+		uint32_t entity_id;
+
+		enum Direction {
+			UP = 0,
+			DOWN,
+			LEFT,
+			RIGHT,
+			DIRECTIONS
+		};
+		// rttr doesnt like c style arrays lol
+		//uint32_t neighbours[4];
+		std::array<uint32_t, Direction::DIRECTIONS> neighbours{};
+	};
+
 	struct SliceEntity 
 	{
 		bool active;
