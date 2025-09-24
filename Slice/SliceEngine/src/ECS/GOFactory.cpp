@@ -85,9 +85,50 @@ namespace SliceEngine
 		return newGO;
 	}
 
+	Entity GOFactory::GetRootEntity()
+	{
+		return mRootEntity;
+	}
+
 	void GOFactory::Destroy(GameObject& go)
 	{
 		mDeleteList.insert(go.GetEntity());
+	}
+
+	void GOFactory::InitRootEntity()
+	{
+		mRootEntity = mRegistry.create();
+		mRegistry.emplace<SceneGraph>(mRootEntity);
+	}
+
+	void GOFactory::SetParent(Entity baseEntity, Entity parentEntity)
+	{
+		// Parenting to root entity
+		if (parentEntity == entt::null || parentEntity == mRootEntity)
+		{
+			// idk tbh incase they want to unparent and set it back to root node
+			// then parentEntity would be a null
+			Entity parent = mRootEntity;
+			auto& parentSceneGraph = mRegistry.get<SceneGraph>(parent);
+			if (parentSceneGraph.neighbours[SceneGraph::DOWN] == entt::null)
+			{
+
+			}
+			else
+			{
+
+			}
+		}
+		// Parenting to another entity
+		else
+		{
+			if (!mRegistry.valid(parentEntity))
+			{
+				return;
+			}
+
+
+		}
 	}
 
 	void GOFactory::TestLoop()
