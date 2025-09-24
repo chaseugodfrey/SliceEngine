@@ -16,17 +16,17 @@ namespace SliceEngine
 	}
 
 	
-	GameObject GOFactory::CreateBlank(std::string name)
+	GameObject GOFactory::CreateBlank()
 	{
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity, CreateName(name));
+		GameObject go(mRegistry, entity);
 
 		// default name 
 		// or i pass in a variable
 		//go.SetName(CreateName(name));
+		//go.AddComponent<SliceEntity>(CreateName("GameObject"));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
-		go.AddComponent<SliceEntity>();
 
 		return go;
 	}
@@ -34,7 +34,7 @@ namespace SliceEngine
 	GameObject GOFactory::CreateEO()
 	{
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity, "EngineObject");
+		GameObject go(mRegistry, entity);
 		// Don't add to map because its not a game object
 		go.AddComponent<Transform>();
 		go.AddComponent<EngineEntity>();
@@ -47,7 +47,10 @@ namespace SliceEngine
 	{
 		//Entity go = mRegistry.create();
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity, CreateName(name));
+		GameObject go(mRegistry, entity);
+
+		go.AddComponent<SliceEntity>();
+		go.GetComponent<SliceEntity>().mName = CreateName(name);
 
 		//go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
@@ -57,17 +60,17 @@ namespace SliceEngine
 		//mRegistry.emplace_or_replace<Transform>(go);
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
-		go.AddComponent<SliceEntity>();
 
 		return go;
 	}
 
+	// Not tested yet
 	GameObject GOFactory::CreateUIGO(std::string name)
 	{
 		//Entity go = mRegistry.create();
 
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity, CreateName(name));
+		GameObject go(mRegistry, entity);
 		//go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
@@ -82,10 +85,11 @@ namespace SliceEngine
 
 	}
 
+	// Not Tested yet
 	GameObject GOFactory::CloneGO(GameObject const& go)
 	{
 		Entity entity = mRegistry.create();
-		GameObject newGO(mRegistry, entity, CreateName(go.GetName()));
+		GameObject newGO(mRegistry, entity);
 
 		//newGO.SetName(CreateName(newGO.GetName()));
 
@@ -110,6 +114,7 @@ namespace SliceEngine
 		}
 		return GameObject();
 	}
+	
 	GameObject GOFactory::GetGOByEntity(Entity entity)
 	{
 		auto it = mEntityToGO.find(entity);
@@ -255,7 +260,7 @@ namespace SliceEngine
 		if (it != mEntityToGO.end())
 		{
 			std::string oldName = it->second.GetName();
-			it->second.SetName(CreateName(newName));
+			//it->second.SetName(CreateName(newName)); changing name should be done in GO
 			// update the name to entity map
 			mNameToEntity.erase(oldName);
 			mNameToEntity.insert(std::make_pair(newName, entity));

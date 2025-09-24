@@ -151,7 +151,7 @@ namespace SliceEngine
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
-				GameObject node = factory.CreateBlank(name);
+				GameObject node = factory.CreateBlank();
 
 				// Temprorary until have createGO without transform
 				//node.RemoveComponent<Transform>();
@@ -171,6 +171,12 @@ namespace SliceEngine
 						SLICE_LOG_ERROR("Failed to create instance of " + componentName);
 						continue;
 					}
+
+					//Note for hafiz and me: I moved the mName to sliceentity component
+					// technically there should never be an instance of two objects with the same name serialized
+					// since factory checks for that
+					// So i shouldn't have to check for duplicate names when deserializing
+					// but keep a note incase it dies next time
 
 					for (auto& [propName, value] : props.items())
 					{
