@@ -7,7 +7,7 @@ namespace SliceEditor
 {
 	class SelectionSystem
 	{
-
+		// to do:: make it non-static later
 		std::vector<ISelectionListener*> mListeners;
 		std::unordered_set<entt::entity> mSelectedEntities;
 		
@@ -20,6 +20,7 @@ namespace SliceEditor
 		~SelectionSystem() = default;
 
 		void RegisterListener(ISelectionListener* listener);
+		void UpdateSelection(std::unordered_set<entt::entity>& entities);
 	};
 }
 
