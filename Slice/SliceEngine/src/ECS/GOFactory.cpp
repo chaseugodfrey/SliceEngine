@@ -19,11 +19,11 @@ namespace SliceEngine
 	GameObject GOFactory::CreateBlank(std::string name)
 	{
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity);
+		GameObject go(mRegistry, entity, CreateName(name));
 
 		// default name 
 		// or i pass in a variable
-		go.SetName(CreateName(name));
+		//go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 		go.AddComponent<SliceEntity>();
@@ -34,7 +34,7 @@ namespace SliceEngine
 	GameObject GOFactory::CreateEO()
 	{
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity);
+		GameObject go(mRegistry, entity, "EngineObject");
 		// Don't add to map because its not a game object
 		go.AddComponent<Transform>();
 		go.AddComponent<EngineEntity>();
@@ -47,9 +47,9 @@ namespace SliceEngine
 	{
 		//Entity go = mRegistry.create();
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity);
+		GameObject go(mRegistry, entity, CreateName(name));
 
-		go.SetName(CreateName(name));
+		//go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
@@ -67,8 +67,8 @@ namespace SliceEngine
 		//Entity go = mRegistry.create();
 
 		Entity entity = mRegistry.create();
-		GameObject go(mRegistry, entity);
-		go.SetName(CreateName(name));
+		GameObject go(mRegistry, entity, CreateName(name));
+		//go.SetName(CreateName(name));
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
@@ -85,9 +85,9 @@ namespace SliceEngine
 	GameObject GOFactory::CloneGO(GameObject const& go)
 	{
 		Entity entity = mRegistry.create();
-		GameObject newGO(mRegistry, entity);
+		GameObject newGO(mRegistry, entity, CreateName(go.GetName()));
 
-		newGO.SetName(CreateName(newGO.GetName()));
+		//newGO.SetName(CreateName(newGO.GetName()));
 
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
@@ -246,6 +246,19 @@ namespace SliceEngine
 				}
 			}
 			//auto type = Registry::visi
+		}
+	}
+
+	void GOFactory::UpdateName(std::string newName, Entity entity)
+	{
+		auto it = mEntityToGO.find(entity);
+		if (it != mEntityToGO.end())
+		{
+			std::string oldName = it->second.GetName();
+			it->second.SetName(CreateName(newName));
+			// update the name to entity map
+			mNameToEntity.erase(oldName);
+			mNameToEntity.insert(std::make_pair(newName, entity));
 		}
 	}
 

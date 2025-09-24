@@ -14,7 +14,7 @@ namespace SliceEngine
 
 		GameObject();
 
-		GameObject(Registry& reg, Entity entity);
+		GameObject(Registry& reg, Entity entity, std::string name);
 
 
 
@@ -91,6 +91,7 @@ namespace SliceEngine
 		void SetName(std::string name);
 
 		std::string GetName();
+		const std::string GetName() const;
 
 		void Destroy();
 

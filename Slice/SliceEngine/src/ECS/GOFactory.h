@@ -139,6 +139,7 @@ namespace SliceEngine
 		GameObject GetGOByEntity(Entity entity);
 		GameObject GetGOByName(std::string name);
 		Entity GetRootEntity();
+		void UpdateName(std::string newName, Entity entity);
 		void Destroy(GameObject& go);
 		void TestLoop();
 		void UpdateDestroyed();
