@@ -101,6 +101,25 @@ namespace SliceEngine
 		return newGO;
 	}
 
+	GameObject GOFactory::GetGOByName(std::string name)
+	{
+		auto it = mNameToEntity.find(name);
+		if (it != mNameToEntity.end())
+		{
+			return mEntityToGO[it->second];
+		}
+		return GameObject();
+	}
+	GameObject GOFactory::GetGOByEntity(Entity entity)
+	{
+		auto it = mEntityToGO.find(entity);
+		if (it != mEntityToGO.end())
+		{
+			return it->second;
+		}
+		return GameObject();
+	}
+
 	Entity GOFactory::GetRootEntity()
 	{
 		return mRootEntity;
