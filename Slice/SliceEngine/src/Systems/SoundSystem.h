@@ -22,7 +22,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to sound system
 	struct SoundEntity {};
 
-	struct SoundSystem : BaseSystem<SoundEntity, SoundFile>
+	struct SoundSystem : BaseSystem<SoundEntity, Sound>
 	{
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override
 		{

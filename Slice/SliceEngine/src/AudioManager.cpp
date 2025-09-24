@@ -9,14 +9,14 @@ namespace SliceEngine
 		FMOD_RESULT result = FMOD::System_Create(&mSoundSystem);
 		if (result != FMOD_OK)
 		{
-			SLICE_LOG("FMOD System creation failed");
+			SLICE_LOG_ERROR("FMOD System creation failed");
 			return;
 		}
 
 		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, nullptr);
 		if (result != FMOD_OK)
 		{
-			SLICE_LOG("FMOD System initialization failed");
+			SLICE_LOG_ERROR("FMOD System initialization failed");
 			return;
 		}
 	}
@@ -174,7 +174,7 @@ namespace SliceEngine
 
 		if (result != FMOD_OK)
 		{
-			SLICE_LOG("Failed to play sound");
+			SLICE_LOG_ERROR("Failed to play sound");
 			return false;
 		}
 
@@ -185,6 +185,7 @@ namespace SliceEngine
 			track->category = category;
 			track->isLooping = isLoop;
 			track->currentSoundVolume = volume;
+			track->entityID = id;
 			
 			track->ApplySettings();
 
@@ -225,7 +226,7 @@ namespace SliceEngine
 		auto it = mLoadedSounds.find(soundName);
 		if (it == mLoadedSounds.end())
 		{
-			SLICE_LOG("Sound Not Loaded");
+			SLICE_LOG_ERROR("Sound Not Loaded");
 			return;
 		}
 
