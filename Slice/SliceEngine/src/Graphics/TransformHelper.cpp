@@ -14,7 +14,7 @@ namespace SliceEngine
 
 	glm::vec3 QuatToVec3(glm::quat q)
 	{
-        glm::quat q{ q.w, -q.x, -q.y, -q.z };
+        q = glm::quat{ q.w, -q.x, -q.y, -q.z };
 		glm::vec3 result;
 
         // roll (x-axis rotation)
