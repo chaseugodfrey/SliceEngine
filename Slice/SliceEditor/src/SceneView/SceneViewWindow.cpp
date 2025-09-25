@@ -4,15 +4,15 @@
 
 namespace SliceEditor
 {
-	void* scene_tex_id = nullptr;
+	
 
 	SceneViewWindow::SceneViewWindow(SceneViewManager& manager) : mManager(manager)
 	{
 	}
 
-	void SceneViewWindow::SetCameraTexture(void* id)
+	void SceneViewWindow::SetCameraTexture(GLuint texture_id)
 	{
-		scene_tex_id = id;
+		tex_id = texture_id;
 	}
 
 	void SceneViewWindow::Draw()
@@ -44,7 +44,7 @@ namespace SliceEditor
 
 		ImGui::GetWindowDrawList()->AddImage(
 			//(void*)editorState.renderManager->GetTexture(), // Placeholder texture ID
-			scene_tex_id,
+			(void*)tex_id,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 			ImVec2(0, 1),

@@ -3,6 +3,7 @@
 
 namespace SliceEditor
 {
+	
 	struct TreeNode
 	{
 		std::string name;
@@ -10,6 +11,15 @@ namespace SliceEditor
 		TreeNode* child;
 		TreeNode* previous;
 		TreeNode* next;
+	};
+
+	struct DirectoryNode
+	{
+		std::string fileName;
+		bool isDirectory = false;
+		std::filesystem::path path;
+		DirectoryNode* parent = nullptr;
+		std::map<std::string, DirectoryNode> children;
 	};
 
 	struct Command

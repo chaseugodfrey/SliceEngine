@@ -1,6 +1,8 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+
+
 struct GLFWwindow;
 
 #include "Engine.h"
@@ -9,6 +11,7 @@ struct GLFWwindow;
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
 #include "Hierachy/HierarchyManager.h"
+#include "Inspector/InspectorManager.h"
 
 namespace SliceEditor
 {
@@ -18,7 +21,9 @@ namespace SliceEditor
 
 		std::unique_ptr<SceneViewManager> sceneViewManager;
 		std::unique_ptr<HierarchyManager> hierarchyManager;
+		std::unique_ptr<InspectorManager> inspectorManager;
 		ContentBrowserManager contentBrowserManager;
+		ProfilerManager profilerManager;
 		HistoryManager history;
 		WindowManager windowManager;
 
@@ -29,12 +34,14 @@ namespace SliceEditor
 		void InitManagers();
 		void InitEditorState();
 		void InitWindowManager();
+		void HandleDrop(const std::filesystem::path path);
 
 		void Render();
 
 	public:
 
 		void Init();
+		static void DropCallback(GLFWwindow* window, int count, const char** paths);
 		void Run();
 		void Exit();
 	};

@@ -27,10 +27,14 @@ namespace Logger
 		CRITICAL
 	};
 
+	extern std::deque<std::pair<LogLevel, std::string>> savedLogs;
+
 	void Log(const char* function_name, const std::string& message, LogLevel level = LogLevel::INFO);
 	void LogWarning(const char* function_name, const std::string& message);
 	void LogError(const char* function_name, const std::string& message);
 	void LogCritical(const char* function_name, const std::string& message);
+
+	const char* LogLevelToString(LogLevel level);
 
 	template <typename ... Values>
 	void LogValue(const char* function_name, Values ... values)

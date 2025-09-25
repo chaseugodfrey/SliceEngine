@@ -28,6 +28,7 @@ namespace SliceEngine
 		GLuint GetTexture();
 
 		Transform& GetMainCameraTransform();
+		void GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void IDPick(const int& mouseX, const int& mouseY);
 

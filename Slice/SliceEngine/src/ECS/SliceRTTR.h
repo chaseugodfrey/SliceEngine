@@ -72,6 +72,21 @@ namespace SliceEngine
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
 		.property("mName", &SliceEntity::mName);
+        		rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+			.property("Motiontype", &RigidBody::motionType)
+			.property("layer", &RigidBody::layer)
+			.property("isActive", &RigidBody::isActive)
+			.property("mass", &RigidBody::mass)
+			.property("friction", &RigidBody::friction)
+			.property("restituition", &RigidBody::restitution)
+			.property("linearDamping", &RigidBody::linearDamping)
+			.property("angularDamping", &RigidBody::angularDamping);
+
+		rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+			.property("ColliderType", &ColliderShape::type)
+			.property("ShapeData", &ColliderShape::shapeData)
+			.property("offSet", &ColliderShape::offSet)
+			.property("isTrigger", &ColliderShape::isTrigger);
 	}
 
 }

@@ -70,15 +70,15 @@ namespace SliceEngine
 
 		glm::mat4 V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
 
-		int width, height;
-		glfwGetWindowSize(Core::GetInstance()->GetWindow(), &width, &height);
-		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(width) / static_cast<float>(height), camera.near, camera.far);
+		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "V");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
 		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "P");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+
+		glViewport(0, 0, camera.width, camera.height);
 	}
 
 	void RenderManager::CreateFramebuffer()
@@ -124,6 +124,15 @@ namespace SliceEngine
 	Transform& RenderManager::GetMainCameraTransform()
 	{
 		return Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+	}
+	void RenderManager::GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	{
+		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
+		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		forward = rot * f;
+		right = rot * r;
+		up = rot * u;
 	}
 	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
 	{

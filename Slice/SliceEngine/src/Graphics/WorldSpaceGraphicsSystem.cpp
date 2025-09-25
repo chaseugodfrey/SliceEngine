@@ -24,12 +24,12 @@ namespace SliceEngine
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		ResetVisibleEntities();
+		//ResetVisibleEntities();
 
 		tempModel = rcManager->GetModel();
 
-		FetchFrustrumCull(cam);
-		auto view = Core::GetInstance()->GetRegistry().view<visibleEntity>();
+		//FetchFrustrumCull(cam);
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //visibleEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);

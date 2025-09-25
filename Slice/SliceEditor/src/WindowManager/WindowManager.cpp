@@ -10,8 +10,10 @@ namespace SliceEditor
 		SLICE_LOG("Initializing WindowManager.");
 
 		AddWindow("ContentBrowser");
+		AddWindow("Profiler");
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
+		AddWindow("Inspector");
 		//AddWindow<ContentBrowserWindow>();
 		//AddWindow<SceneViewWindow>();
 		//AddWindow<GameView>(editorState);
