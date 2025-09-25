@@ -45,6 +45,14 @@ namespace SliceEngine
 		.method("front", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::front))
 		.method("back", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::back));
 	
+	rttr::registration::class_<std::array<Entity, 4>>("Array4Entity")
+		.constructor<>()
+		.method("size", &std::array<Entity, 4>::size)
+		.method("at", static_cast<Entity& (std::array<Entity, 4>::*)(size_t)>(&std::array<Entity, 4>::at))
+		.method("fill", &std::array<Entity, 4>::fill)
+		.method("front", static_cast<Entity& (std::array<Entity, 4>::*)()>(&std::array<Entity, 4>::front))
+		.method("back", static_cast<Entity& (std::array<Entity, 4>::*)()>(&std::array<Entity, 4>::back));
+
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
 		.constructor<>()

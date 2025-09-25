@@ -110,6 +110,14 @@ namespace SliceEngine
 							output[node.GetName()][storage.type().name()][propName][i] = vec[i];
 						}
 					}
+					else if (propVal.is_type<std::array<Entity, 4>>())
+					{
+						const auto& vec = propVal.get_value<std::array<Entity, 4>>();
+						for (size_t i{}; i < 4; ++i)
+						{
+							output[node.GetName()][storage.type().name()][propName][i] = vec[i];
+						}
+					}
 					else if (propVal.is_type<std::string>())
 					{
 						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<std::string>();
@@ -224,6 +232,12 @@ namespace SliceEngine
 						else if (prop.get_type() == rttr::type::get<std::array<uint32_t, 4>>())
 						{
 							std::array<uint32_t, 4> arr;
+							arr = value;
+							prop.set_value(componentInstance, arr);
+						}
+						else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
+						{
+							std::array<Entity, 4> arr;
 							arr = value;
 							prop.set_value(componentInstance, arr);
 						}
