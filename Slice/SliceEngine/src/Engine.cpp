@@ -65,8 +65,8 @@ namespace SliceEngine
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
-		framerateManager = std::make_unique<FramerateManager>();
-		framerateManager->Init();
+		//framerateManager = std::make_unique<FramerateManager>();
+		//framerateManager->Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
