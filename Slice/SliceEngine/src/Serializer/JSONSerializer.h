@@ -27,14 +27,14 @@ namespace SliceEngine
 		void Serialize(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
 		json Deserialize(std::filesystem::path const& filePath);
-		std::vector<GameObject> DeserializeGameObjects(json const& input);
+		void DeserializeGameObjects(json const& input);
 
 		namespace Tests
 		{
 			//Take note of any errors and logs that can appear on the console during the tests
 			//param cleanOutput = false to keep logs to assist in debugging. By default its true if console error logs are enough
 			void RunTests(bool cleanOutput = true);
-		}
+		}		
 	}	
 }
 

@@ -30,23 +30,45 @@ namespace SliceEngine
 		//	.method("EntityOnExit", &SoundSystem::EntityOnExit)
 		//	.method("EntityOnUpdate", &SoundSystem::EntityOnUpdate);
 
-	rttr::registration::class_<std::vector<uint64_t>>("VectorUInt64")
+	rttr::registration::class_<std::vector<uint32_t>>("VectorUInt32")
 		.constructor<>()
-		.method("size", &std::vector<uint64_t>::size)
-		.method("at", static_cast<uint64_t & (std::vector<uint64_t>::*)(size_t)>(&std::vector<uint64_t>::at))
-		.method("push_back", static_cast<void (std::vector<uint64_t>::*)(const uint64_t&)>(&std::vector<uint64_t>::push_back))
-		.method("push_back", static_cast<void (std::vector<uint64_t>::*)(uint64_t&&)>(&std::vector<uint64_t>::push_back));
+		.method("size", &std::vector<uint32_t>::size)
+		.method("at", static_cast<uint32_t& (std::vector<uint32_t>::*)(size_t)>(&std::vector<uint32_t>::at))
+		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
+		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
+
+	rttr::registration::class_<std::array<uint32_t, 4>>("Array4UInt32")
+		.constructor<>()
+		.method("size", &std::array<uint32_t, 4>::size)
+		.method("at", static_cast<uint32_t& (std::array<uint32_t, 4>::*)(size_t)>(&std::array<uint32_t, 4>::at))
+		.method("fill", &std::array<uint32_t, 4>::fill)
+		.method("front", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::front))
+		.method("back", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::back));
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
+		.constructor<>()
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale);
 
-	rttr::registration::class_<SceneView>(typeid(SceneView).name())
-		.property("parent", &SceneView::parentGUID)
-		.property("children", &SceneView::childrenGUID)
-		.property("up", &SceneView::upGUID)
-		.property("down", &SceneView::downGUID);
+	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
+		.constructor<>()
+		.property("neighbours", &SceneGraph::neighbours);
+        		rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+			.property("Motiontype", &RigidBody::motionType)
+			.property("layer", &RigidBody::layer)
+			.property("isActive", &RigidBody::isActive)
+			.property("mass", &RigidBody::mass)
+			.property("friction", &RigidBody::friction)
+			.property("restituition", &RigidBody::restitution)
+			.property("linearDamping", &RigidBody::linearDamping)
+			.property("angularDamping", &RigidBody::angularDamping);
+
+		rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+			.property("ColliderType", &ColliderShape::type)
+			.property("ShapeData", &ColliderShape::shapeData)
+			.property("offSet", &ColliderShape::offSet)
+			.property("isTrigger", &ColliderShape::isTrigger);
 	}
 
 }
