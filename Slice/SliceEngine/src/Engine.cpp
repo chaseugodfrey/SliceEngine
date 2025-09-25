@@ -64,7 +64,9 @@ namespace SliceEngine
 		inputs = std::make_unique<InputSystem>();
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
-		//mResource = std::make_unique<ResourceManager>();
+		// mResource = std::make_unique<ResourceManager>();
+		framerateManager = std::make_unique<FramerateManager>();
+		framerateManager->Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -94,10 +96,8 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		//test();
-
-		
-		//JSONSerializer::Test2();
+		JSONSerializer::Tests::RunTests(false);
+		Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()

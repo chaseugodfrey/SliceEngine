@@ -24,12 +24,13 @@ namespace SliceEngine
 	{
 		mWindowManager.CreateWindow(); // This has to be first
 
-
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
 		//mFactory.RegisterSerializableComponent<Transform>();
+
 		mFactory.RegisterComponent<Transform>();
+		mFactory.RegisterComponent<SceneGraph>();
 	}
 
 	void Core::ExitCore()
