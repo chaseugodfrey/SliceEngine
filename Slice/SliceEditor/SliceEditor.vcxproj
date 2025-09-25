@@ -132,6 +132,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
     <ClInclude Include="src\Inspector\InspectorManager.h" />
     <ClInclude Include="src\Inspector\InspectorWindow.h" />
     <ClInclude Include="src\Logger\Logger.h" />
+    <ClInclude Include="src\Profiler\ProfilerManager.h" />
+    <ClInclude Include="src\Profiler\ProfilerWindow.h" />
     <ClInclude Include="src\SceneView\SceneViewManager.h" />
     <ClInclude Include="src\SceneView\SceneViewWindow.h" />
     <ClInclude Include="src\SelectionSystem\ISelectionService.h" />
@@ -169,6 +171,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
     <ClCompile Include="src\Inspector\InspectorManager.cpp" />
     <ClCompile Include="src\Inspector\InspectorWindow.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
+    <ClCompile Include="src\Profiler\ProfilerManager.cpp" />
+    <ClCompile Include="src\Profiler\ProfilerWindow.cpp" />
     <ClCompile Include="src\SceneView\SceneViewManager.cpp" />
     <ClCompile Include="src\SceneView\SceneViewWindow.cpp" />
     <ClCompile Include="src\WindowManager\WindowManager.cpp" />
