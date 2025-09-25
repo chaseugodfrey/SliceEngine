@@ -16,4 +16,8 @@ namespace SliceEditor
 		mListeners.push_back(listener);
 	}
 
+	void SelectionSystem::UpdateSelection(std::unordered_set<entt::entity>& entities)
+	{
+		mSelectedEntities = entities;
+	}
 }

@@ -15,7 +15,7 @@ namespace SliceEditor
 		std::vector<TestNode> children;
 	};
 
-	class HierarchyManager : public ICreateWindow, public ISelectionListener
+	class HierarchyManager : public ICreateWindow
 	{
 		// TO DO: replace this with proper scene graph
 		std::vector<TestNode> mRootNodes;
@@ -34,9 +34,6 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 
 		std::vector<TestNode>& GetNodes() { return mRootNodes; }
-
-		// Inherited via ISelectionListener
-		void OnUpdateSelected(std::unordered_set<entt::entity>&) override;
 	};
 }
 

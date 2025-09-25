@@ -24,7 +24,9 @@ namespace SliceEditor
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool isOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+
+		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
 		if (ImGui::IsItemClicked())
 		{
