@@ -67,6 +67,16 @@ namespace SliceEditor
 		//DragDoubleInputHeader(service, "Rotation", "##r", transform.localRotation, "%.3f");
 	}
 
+	void InspectorWindow::DisplayAudioSource()
+	{
+		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity);
+
+		/*if (ImGui::TreeNodeEx("AudioSource"))
+		{
+			ImGui::BeginCombo("Sound Name", )
+		}*/
+	}
+
 	void InspectorWindow::DisplayMeshRenderer()
 	{
 

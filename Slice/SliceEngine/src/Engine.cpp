@@ -104,6 +104,9 @@ namespace SliceEngine
 		//JSONSerializer::Test2();
 		//JSONSerializer::Tests::RunTests(false);
 		JSONSerializer::Tests::RunTests(false);
+		entt::entity object = Core::GetInstance()->GetRegistry().create();
+		Core::GetInstance()->GetRegistry().emplace<AudioSource>(object);
+
 		Core::GetInstance()->mFactory.TestLoop();
 	}
 

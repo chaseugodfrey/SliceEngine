@@ -23,16 +23,6 @@ namespace SliceEngine
 
 	void AudioManager::LoadSound(const std::string& soundFile)
 	{
-		
-
-		/*if (loop)
-		{
-			eMode |= FMOD_LOOP_NORMAL;
-		}
-		else
-		{
-			eMode |= FMOD_LOOP_OFF;
-		}*/
 
 		FMOD::Sound* sound{ nullptr };
 

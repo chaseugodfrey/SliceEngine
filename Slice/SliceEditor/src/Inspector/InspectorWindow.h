@@ -21,6 +21,7 @@ namespace SliceEditor
 
 		void DisplayEntityData();
 		void DisplayTransform();
+		void DisplayAudioSource();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
 		void DisplayCollider3D();
