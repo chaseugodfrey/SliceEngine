@@ -1,10 +1,23 @@
-#include "pch.h"
+#include <pch.h>
 #include "SceneViewManager.h"
+#include "SceneViewWindow.h"
+#include "../../SliceEngine/src/Graphics/RenderManager.h"
 
 namespace SliceEditor
 {
+	void SceneViewManager::Init()
+	{
+
+	}
+
 	std::unique_ptr<EditorWindow> SceneViewManager::CreateWindow()
 	{
-		return std::unique_ptr<EditorWindow>();
+		// TO DO: replace this with camera creation + attaching to window
+		auto id = mRenderManager.GetTexture();
+
+		auto window = std::make_unique<SceneViewWindow>(*this);
+		window->SetCameraTexture(id);
+
+		return window;
 	}
 }

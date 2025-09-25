@@ -7,16 +7,19 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
-		InitImGUI(engine.window);
+		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
+		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
 		contentBrowserManager.Init();
+		profilerManager.Init();
+		InitManagers();
 		InitWindowManager();
 	}
 
 	void Editor::Run()
 	{
-		while (!glfwWindowShouldClose(engine.window))
+		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			engine.Update();
 			Render();
@@ -26,7 +29,7 @@ namespace SliceEditor
 
 	void Editor::Render()
 	{
-		glfwMakeContextCurrent(engine.window);
+		glfwMakeContextCurrent(SliceEngine::Core::GetInstance()->GetWindow());
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
@@ -35,6 +38,8 @@ namespace SliceEditor
 		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
 	}
 
 	void Editor::Exit()
@@ -58,11 +63,29 @@ namespace SliceEditor
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		//io.IniFilename = nullptr; //To disable the config for ImGui
 
 		// Setup Platform/Renderer backends
 		ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 		ImGui_ImplOpenGL3_Init("#version 450");
+		glfwSetWindowUserPointer(window, this);
 		glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+		glfwSetDropCallback(window, Editor::DropCallback);
+	}
+
+	void Editor::InitManagers()
+	{
+		SLICE_LOG("EDITOR: Initializing Managers.");
+		contentBrowserManager.Init();
+
+		hierarchyManager = std::make_unique<HierarchyManager>();
+		// find a way to make tihs look prettier tbh
+		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
+		inspectorManager = std::make_unique<InspectorManager>();
+		hierarchyManager->Init();
+		sceneViewManager->Init();
+
 	}
 
 	void Editor::InitEditorState()
@@ -76,8 +99,31 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
 		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		windowManager.RegisterInterface("SceneView", &sceneViewManager);
+		windowManager.RegisterInterface("Profiler", &profilerManager);
+		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
+		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
+		windowManager.RegisterInterface("Inspector", inspectorManager.get());
 		windowManager.Init();
+	}
+
+	void Editor::DropCallback(GLFWwindow* window, int count, const char** paths)
+	{
+		Editor* editor = static_cast<Editor*>(glfwGetWindowUserPointer(window));
+
+		for (int i = 0; i < count; i++)
+		{
+			std::filesystem::path path = paths[i];
+			editor->HandleDrop(path);
+		}
+	}
+
+	void Editor::HandleDrop(const std::filesystem::path path)
+	{
+		auto target = contentBrowserManager.selectedFolder->path / path.filename();
+
+		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
+		SLICE_LOG("Dropped this file: " + path.filename().string());
+		contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
 	}
 
 

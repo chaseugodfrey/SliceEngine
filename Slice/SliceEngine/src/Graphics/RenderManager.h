@@ -9,6 +9,7 @@
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "../ECS/ECSTypes.h"
+#include "../ECS/GameObject.h"
 
 namespace SliceEngine
 {
@@ -18,15 +19,16 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 
-		entt::entity CreateCamera(GLFWwindow* window);
+		GameObject& CreateCamera();
 
-		void UpdateCamGPU(GLFWwindow* window, ResourceManager* rcManager, entt::entity& cam);
-		void Render(GLFWwindow* window, ResourceManager* rcManager);
+		void UpdateCamGPU(ResourceManager* rcManager, Entity& cam);
+		void Render(ResourceManager* rcManager);
 		
 		void CreateFramebuffer();
 		GLuint GetTexture();
 
 		Transform& GetMainCameraTransform();
+		void GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void IDPick(const int& mouseX, const int& mouseY);
 
@@ -36,8 +38,7 @@ namespace SliceEngine
 		unsigned int mIDHovered;
 
 	private:
-
-		std::optional<entt::entity> mainCam;
+		std::optional<Entity> mainCam;
 
 		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
 		//std::shared_ptr<CameraSystem> mCameraSys;
