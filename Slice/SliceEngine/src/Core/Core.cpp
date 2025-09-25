@@ -28,6 +28,7 @@ namespace SliceEngine
 
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+		mFactory.RegisterComponent<SliceEntity>();
 	}
 
 	void Core::ExitCore()

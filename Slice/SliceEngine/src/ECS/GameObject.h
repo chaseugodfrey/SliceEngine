@@ -57,7 +57,7 @@ namespace SliceEngine
 		}
 
 		template<typename T>
-		bool HasComponent()
+		bool HasComponent() const
 		{
 			return mRegistry.all_of<T>(mEntity);
 		}
@@ -84,6 +84,26 @@ namespace SliceEngine
 			return mRegistry.get<T>(mEntity);
 		}
 
+		template<typename T>
+		const T& GetComponent() const
+		{
+			T* component = mRegistry.try_get<T>(mEntity);
+
+			if (component)
+			{
+				return *component;
+			}
+			else
+			{
+				//TODO: Change to actual error log and assert
+				// but we can also just assert ourselves i guess
+				assert("why the fk");
+			}
+
+			// in debug, EnTT will assert if it doesn't exist
+			return mRegistry.get<T>(mEntity);
+		}
+
 		bool operator<(const GameObject& other) const {
 			return mEntity < other.mEntity; 
 		}
@@ -91,6 +111,7 @@ namespace SliceEngine
 		void SetName(std::string name);
 
 		std::string GetName();
+		const std::string GetName() const;
 
 		void Destroy();
 
@@ -98,7 +119,7 @@ namespace SliceEngine
 
 	private:
 		Entity mEntity{entt::null};
-		std::string mName{};
+		//std::string mName{};
 		Registry& mRegistry;
 
 	};

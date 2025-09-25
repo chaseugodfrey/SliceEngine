@@ -131,17 +131,23 @@ namespace SliceEngine
 			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();
 		}
 
-		GameObject CreateBlank(std::string name = "GameObject"); // for deserializing
+		GameObject CreateBlank(); // for deserializing
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
 		GameObject CloneGO(GameObject const& go);
+		GameObject GetGOByEntity(Entity entity);
+		GameObject GetGOByName(std::string name);
+		Entity GetRootEntity();
+		void UpdateName(std::string newName, Entity entity);
 		void Destroy(GameObject& go);
 		void TestLoop();
 		void UpdateDestroyed();
 		void VisitComponents(Entity entity, ComponentVisitor visitor);
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
+		void InitRootEntity();
+		void SetParent(Entity baseEntity, Entity parentEntity = entt::null);
 
 		Registry mRegistry;
 
@@ -162,6 +168,7 @@ namespace SliceEngine
 
 		std::vector<GameObject> mEngineEntities;
 		std::set<Entity> mDeleteList;
+		Entity mRootEntity;
 	};
 }
 

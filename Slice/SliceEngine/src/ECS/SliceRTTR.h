@@ -44,6 +44,20 @@ namespace SliceEngine
 		.method("fill", &std::array<uint32_t, 4>::fill)
 		.method("front", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::front))
 		.method("back", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::back));
+	
+	rttr::registration::class_<std::string>("std::string")
+		// Constructors
+		.constructor<>()
+		.constructor<const char*>()
+		.constructor<const std::string&>()
+
+		// Methods
+		.method("size", &std::string::size)
+		.method("length", &std::string::length)
+		.method("clear", &std::string::clear)
+		.method("empty", &std::string::empty)
+		.method("c_str", &std::string::c_str);
+
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()
@@ -59,6 +73,10 @@ namespace SliceEngine
 		.constructor<>()(rttr::policy::ctor::as_object)   // default constructor
 		.constructor<uint32_t>()                          // construct from uint32_t
 		.property("value", &EntityID::value);
+		
+	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
+		.constructor<>()
+		.property("mName", &SliceEntity::mName);
 	}
 
 }
