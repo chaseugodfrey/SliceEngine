@@ -63,8 +63,8 @@ namespace SliceEditor
 			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
 		}
 
-		SLICE_LOG("Scroll Position? " + std::to_string(ImGui::GetScrollY()));
-		SLICE_LOG("Scroll Max Position? " + std::to_string(ImGui::GetScrollMaxY()));
+		/*SLICE_LOG("Scroll Position? " + std::to_string(ImGui::GetScrollY()));
+		SLICE_LOG("Scroll Max Position? " + std::to_string(ImGui::GetScrollMaxY()));*/
 
 		if (manager.autoScroll)
 		{

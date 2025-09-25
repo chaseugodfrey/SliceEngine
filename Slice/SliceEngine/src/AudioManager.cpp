@@ -39,7 +39,7 @@ namespace SliceEngine
 		std::string soundName;
 		mSoundSystem->createSound(soundFile.c_str(), FMOD_3D, nullptr, &sound);
 
-		soundName = soundFile.substr(soundFile.find_last_of("/") + 1);
+		soundName = soundFile.substr(soundFile.find_last_of("/") + 1, soundFile.find_last_of(".") - soundFile.find_last_of("/")-1);
 
 		if (sound)
 		{
