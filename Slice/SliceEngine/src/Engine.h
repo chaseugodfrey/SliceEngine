@@ -13,9 +13,9 @@ namespace SliceEngine
 {
 	class InputSystem;
 	class AudioManager;
-	class ResourceManager;;
-	class RenderManager;
-	class FramerateManager;
+	//class ResourceManager;;
+	//class RenderManager;
+	//class FramerateManager;
 
 	class Engine
 	{
@@ -29,7 +29,6 @@ namespace SliceEngine
 		std::unique_ptr<AudioManager> audio;
 		//std::unique_ptr<ResourceManager> mResource;
 		//std::unique_ptr<RenderManager> mRender;
-		std::unique_ptr<FramerateManager> framerateManager;
 		static GameTime& gameTime;
 
 		Engine();

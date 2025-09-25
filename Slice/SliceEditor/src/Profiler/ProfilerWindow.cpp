@@ -20,6 +20,12 @@ namespace SliceEditor
 			ImGui::EndTabItem();
 		}
 
+		if (ImGui::BeginTabItem("Profiler"))
+		{
+			DrawPerformanceTab();
+			ImGui::EndTabItem();
+		}
+
 		ImGui::EndTabBar();
 
 
@@ -81,6 +87,12 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawPerformanceTab()
 	{
-
+		
+		for (auto&[system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->systemDurations)
+		{
+			ImGui::Text("%s: ", system.c_str());
+			ImGui::SameLine();
+			ImGui::Text("Duration: %s",std::to_string(time).c_str());
+		}
 	}
 }

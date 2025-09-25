@@ -16,7 +16,7 @@ namespace SliceEngine
 {
 	class RenderManager;
 	class ResourceManager;
-
+	class FramerateManager;
 	class Core : public Singleton<Core>
 	{
 	public:
@@ -65,6 +65,8 @@ namespace SliceEngine
 
 		RenderManager* GetRenderManager();
 
+		FramerateManager* GetFramerateManager();
+
 		GLFWwindow* GetWindow();
 		
 		Registry& GetRegistry();
@@ -79,6 +81,7 @@ namespace SliceEngine
 		GLFWWindowManager mWindowManager;
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
+		std::unique_ptr<FramerateManager> mFramerateManager;
 
 	};
 
@@ -87,6 +90,7 @@ namespace SliceEngine
 #define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
 #define RenderManagerInstance Core::GetInstance()->GetRenderManager()
 #define FactoryInstance Core::GetInstance()->mFactory
+#define FramerateManagerInstance Core::Getnstance()->GetFraterateManager()
 
 }
 

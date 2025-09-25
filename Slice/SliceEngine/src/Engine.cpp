@@ -113,18 +113,18 @@ namespace SliceEngine
 		glfwPollEvents();
 
 		// Main Body
-		//framerateManager->StartFrame();
+		Core::GetInstance()->GetFramerateManager()->StartFrame();
 
-		//framerateManager->StartSystem("Input");
+		Core::GetInstance()->GetFramerateManager()->StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		//framerateManager->EndSystem("Input");
+		Core::GetInstance()->GetFramerateManager()->EndSystem("Input");
 
-		//framerateManager->EndFrame();
-		//
+		Core::GetInstance()->GetFramerateManager()->EndFrame();
+		
 
 		mRender->Render(mResource);
 	}

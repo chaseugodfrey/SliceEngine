@@ -77,7 +77,7 @@ namespace SliceEditor
 		SLICE_LOG("EDITOR: Initializing Managers.");
 
 		contentBrowserManager = std::make_unique<ContentBrowserManager>();
-		profilerManager = std::make_unique<ProfilerManager>(engine);
+		profilerManager = std::make_unique<ProfilerManager>();
 		hierarchyManager = std::make_unique<HierarchyManager>();
 		// find a way to make tihs look prettier tbh
 		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);

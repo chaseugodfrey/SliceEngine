@@ -3,6 +3,11 @@
 
 #include <memory>
 #include "../WindowManager/ICreateWindow.h"
+namespace SliceEngine
+{
+	class FramerateManager;
+}
+
 
 namespace SliceEditor
 {
@@ -15,6 +20,11 @@ namespace SliceEditor
 	public:
 
 		bool autoScroll = true;
+
+		//SliceEngine::FramerateManager& framerateManager;
+
+		ProfilerManager() = default;
+		~ProfilerManager() = default;
 
 		void Init();
 
