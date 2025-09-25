@@ -1,10 +1,19 @@
 #include <pch.h>
 #include "SceneViewWindow.h"
-
+#include "../../SliceEngine/src/Graphics/CameraSystem.h"
 
 namespace SliceEditor
 {
-	SceneViewWindow::SceneViewWindow() {};
+	
+
+	SceneViewWindow::SceneViewWindow(SceneViewManager& manager) : mManager(manager)
+	{
+	}
+
+	void SceneViewWindow::SetCameraTexture(GLuint texture_id)
+	{
+		tex_id = texture_id;
+	}
 
 	void SceneViewWindow::Draw()
 	{
@@ -35,7 +44,7 @@ namespace SliceEditor
 
 		ImGui::GetWindowDrawList()->AddImage(
 			//(void*)editorState.renderManager->GetTexture(), // Placeholder texture ID
-			(void*)0,
+			(void*)tex_id,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 			ImVec2(0, 1),

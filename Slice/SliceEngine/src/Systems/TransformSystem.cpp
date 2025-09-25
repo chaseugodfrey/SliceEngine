@@ -15,4 +15,5 @@ namespace SliceEngine
 	void TransformSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 	}
+
 }

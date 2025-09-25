@@ -6,6 +6,8 @@
 struct GLFWwindow;
 
 #include <memory>
+#include "SliceTime.h"
+#include "Core/Core.h"
 
 namespace SliceEngine
 {
@@ -22,12 +24,13 @@ namespace SliceEngine
 	public:
 
 		// Gonna try to grp these tgt with the other systems in core.h
-		GLFWwindow* window;
+		//GLFWwindow* window;
 		std::unique_ptr<InputSystem> inputs;
 		std::unique_ptr<AudioManager> audio;
-		std::unique_ptr<ResourceManager> mResource;
-		std::unique_ptr<RenderManager> mRender;
+		//std::unique_ptr<ResourceManager> mResource;
+		//std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<FramerateManager> framerateManager;
+		static GameTime& gameTime;
 
 		Engine();
 		~Engine();

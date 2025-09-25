@@ -7,12 +7,16 @@
 //#include "Graphics/RenderManager.h"
 //#include "Graphics/CameraSystem.h"
 #include "ECS/BaseSystem.h"
-#include "ECS/PhysicSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
+#include "../GLFWWindowManager.h"
 
 namespace SliceEngine
 {
+	class RenderManager;
+	class ResourceManager;
+
 	class Core : public Singleton<Core>
 	{
 	public:
@@ -21,7 +25,9 @@ namespace SliceEngine
 		// TODO: Update retrieving the name to use RTTR's 
 		// need to create window system that stores the window handle
 
-		void InitFactory();
+		void InitCore();
+
+		void ExitCore();
 
 		template<typename T>
 		void InitSystem()
@@ -55,6 +61,12 @@ namespace SliceEngine
 			assert("System does not exist!");
 		}
 
+		ResourceManager* GetResourceManager();
+
+		RenderManager* GetRenderManager();
+
+		GLFWwindow* GetWindow();
+		
 		Registry& GetRegistry();
 	
 		void UnbindSystems();
@@ -64,11 +76,17 @@ namespace SliceEngine
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
-
-
+		GLFWWindowManager mWindowManager;
+		std::unique_ptr<ResourceManager> mResource;
+		std::unique_ptr<RenderManager> mRender;
 
 	};
 
+#define CoreInstance Core::GetInstance()
+#define RegistryInstance Core::GetInstance()->GetRegistry()
+#define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
+#define RenderManagerInstance Core::GetInstance()->GetRenderManager()
+#define FactoryInstance Core::GetInstance()->mFactory
 
 }
 
