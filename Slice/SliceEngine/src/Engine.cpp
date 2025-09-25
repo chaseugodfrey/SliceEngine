@@ -76,8 +76,8 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		audio->Init();
-		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav");
-		audio->LoadSound("3DAudio", "Assets/Audio/3DAudioTest.wav");
+		audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
+		audio->LoadSound("Assets/Audio/3DAudioTest.wav");
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudio", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 

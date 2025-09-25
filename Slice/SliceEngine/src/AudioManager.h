@@ -89,6 +89,7 @@ namespace SliceEngine
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds3D;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
+
 		const float defaultVolume = 1.0f;
 
 
@@ -108,11 +109,19 @@ namespace SliceEngine
 			SOUND_MAX_SOUNDS
 		};
 
+	private:
+		std::vector<std::unique_ptr<SoundTrack2D>> mSound2D[SOUND_MAX_SOUNDS];
+		std::vector<std::unique_ptr<SoundTrack3D>> mSound3D[SOUND_MAX_SOUNDS];
+		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
+		float mMasterVolume;
+
+
+	public:
 		void Init();
 		void Update();
 		void Exit();
 
-		void LoadSound(const std::string& soundName, const std::string& soundFile);
+		void LoadSound(const std::string& soundFile);
 		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume, Entity id);
 
 		void SetListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
@@ -120,7 +129,7 @@ namespace SliceEngine
 
 		void SetMasterVolume(float volume);
 		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
-		void GetCategoryVolume(SoundCategory category);
+		float GetCategoryVolume(SoundCategory category);
 
 		void StopSound(InternalSound internalCategory, Entity id);
 		void StopAllSound(InternalSound SoundCategory);
@@ -129,14 +138,10 @@ namespace SliceEngine
 		void SwitchSound();
 
 	private:
-		std::vector<std::unique_ptr<SoundTrack2D>> mSound2D[SOUND_MAX_SOUNDS];
-		std::vector<std::unique_ptr<SoundTrack3D>> mSound3D[SOUND_MAX_SOUNDS];
-		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
-		//	AudioManager() = default;
-		//	~AudioManager() = default;
 
-		//	AudioManager(const AudioManager&) = delete;
-		//	AudioManager& operator=(const AudioManager&) = delete;
+		void UpdateSoundVolume(SoundTrack* track, SoundCategory category);
+		float CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const;
+		
 
 	};
 }

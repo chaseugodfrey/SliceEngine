@@ -11,18 +11,12 @@
 namespace SliceEngine
 {
 
-	/*struct SoundFile
-	{
-		std::string filePath;
-		float currentVolume;
-		bool isLoop;
-		bool is3D;
-	};*/
+	
 
 	// for keeping track of entities that belong to sound system
 	struct SoundEntity {};
 
-	struct SoundSystem : BaseSystem<SoundEntity, Sound>
+	struct SoundSystem : BaseSystem<SoundEntity, AudioSource>
 	{
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override
 		{

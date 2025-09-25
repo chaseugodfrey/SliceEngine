@@ -120,7 +120,7 @@ namespace SliceEngine
 
 	};
 
-	struct Sound
+	struct AudioSource
 	{
 		std::string soundName;
 		float currentVolume;
