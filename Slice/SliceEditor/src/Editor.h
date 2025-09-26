@@ -1,17 +1,12 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-
-
 struct GLFWwindow;
 
 #include "Engine.h"
-#include "SceneView/SceneViewManager.h"
-#include "ContentBrowser/ContentBrowserManager.h"
+#include "Core/Registry.h"
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
-#include "Hierachy/HierarchyManager.h"
-#include "Inspector/InspectorManager.h"
 #include "SelectionSystem/SelectionSystem.h"
 
 namespace SliceEditor
@@ -19,18 +14,11 @@ namespace SliceEditor
 	class Editor
 	{
 		SliceEngine::Engine engine;
+		Registry registry;
 
-		std::unique_ptr<SceneViewManager> sceneViewManager;
-		std::unique_ptr<HierarchyManager> hierarchyManager;
-		std::unique_ptr<InspectorManager> inspectorManager;
-		SelectionSystem selectionSystem;
-		ContentBrowserManager contentBrowserManager;
 		ProfilerManager profilerManager;
 		HistoryManager history;
 		WindowManager windowManager;
-
-		//std::unique_ptr<EditorState> editorState;
-		//std::unique_ptr<WindowManager> windowManager;
 
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();

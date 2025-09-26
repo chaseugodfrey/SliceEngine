@@ -11,9 +11,7 @@ namespace SliceEditor
 		std::vector<ISelectionListener*> mListeners;
 		std::unordered_set<entt::entity> mSelectedEntities;
 		
-		
 		void UpdateManagers();
-
 
 	public:
 		SelectionSystem() = default;
@@ -21,6 +19,9 @@ namespace SliceEditor
 
 		void RegisterListener(ISelectionListener* listener);
 		void UpdateSelection(std::unordered_set<entt::entity>& entities);
+
+		// replace this with listener pattern
+		std::unordered_set<entt::entity>& GetSelectedEntities();
 	};
 }
 

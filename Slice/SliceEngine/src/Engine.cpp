@@ -123,6 +123,7 @@ namespace SliceEngine
 
 		//framerateManager->EndFrame();
 		//
+		
 
 		mRender->Render(mResource);
 	}

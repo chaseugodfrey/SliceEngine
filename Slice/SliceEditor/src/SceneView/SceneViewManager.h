@@ -1,6 +1,7 @@
 #ifndef SCENE_VIEW_MANAGER_H
 #define SCENE_VIEW_MANAGER_H
 
+#include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 #include "../SelectionSystem/ISelectionService.h"
 
@@ -11,16 +12,17 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
-	class SceneViewManager : public ICreateWindow, public ISelectionListener
+	class Registry;
+
+	class SceneViewManager : public IBaseManager, public ICreateWindow, public ISelectionListener
 	{
 
 	public:
-		SliceEngine::RenderManager& mRenderManager;
 
-		SceneViewManager(SliceEngine::RenderManager& renderManager) : mRenderManager(renderManager) {}
+		SceneViewManager(Registry& reg) : IBaseManager(reg) {};
 		~SceneViewManager() = default;
 
-		void Init();
+		void Init() override;
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 

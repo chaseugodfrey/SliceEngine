@@ -20,4 +20,9 @@ namespace SliceEditor
 	{
 		mSelectedEntities = entities;
 	}
+
+	std::unordered_set<entt::entity>& SelectionSystem::GetSelectedEntities()
+	{
+		return mSelectedEntities;
+	}
 }

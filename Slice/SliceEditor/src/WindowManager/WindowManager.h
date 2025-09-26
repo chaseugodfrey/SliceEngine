@@ -7,7 +7,7 @@
 
 namespace SliceEditor
 {
-	struct ICreateWindow;
+	class ICreateWindow;
 
 	class WindowManager
 	{
