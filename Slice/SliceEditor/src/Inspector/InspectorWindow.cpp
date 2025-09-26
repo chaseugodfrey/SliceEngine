@@ -32,6 +32,11 @@ namespace SliceEditor
 				DisplayCollider3D();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(selected_entity))
+			{
+				DisplayAudioSource();
+			}
+
 			ImGui::Separator();
 
 			AddComponentButton();
@@ -71,10 +76,39 @@ namespace SliceEditor
 	{
 		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity);
 
-		/*if (ImGui::TreeNodeEx("AudioSource"))
+		std::vector<std::string> items = {"BGM_MainMenu_Mix1, 3DAudioTest"};
+		static int current_item = 0;
+
+		if (ImGui::TreeNodeEx("AudioSource"))
 		{
-			ImGui::BeginCombo("Sound Name", )
-		}*/
+			
+			if (ImGui::BeginCombo("Sound Name", items[current_item].c_str()))
+			{
+				for (int i = 0; i < items.size(); i++)
+				{
+					bool is_selected = (current_item == i);
+
+					if (ImGui::Selectable(items[i].c_str(), is_selected))
+					{
+						current_item = i;
+					}
+
+					if (is_selected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+			}
+
+			ImGui::EndCombo();
+
+			ImGui::SliderFloat("Volume", &as.currentVolume, 0.0f, 1.0f);
+
+
+			ImGui::Checkbox("isLoop", &as.isLoop);
+
+			ImGui::Checkbox("is3D", &as.is3D);
+		}
 	}
 
 	void InspectorWindow::DisplayMeshRenderer()

@@ -104,8 +104,11 @@ namespace SliceEngine
 		//JSONSerializer::Test2();
 		//JSONSerializer::Tests::RunTests(false);
 		JSONSerializer::Tests::RunTests(false);
-		entt::entity object = Core::GetInstance()->GetRegistry().create();
-		Core::GetInstance()->GetRegistry().emplace<AudioSource>(object);
+		GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
+
+		testing.AddComponent<Renderer>();
+		testing.AddComponent<Transform>();
+		testing.AddComponent<AudioSource>();
 
 		Core::GetInstance()->mFactory.TestLoop();
 	}
