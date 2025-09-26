@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
+#include "../SelectionSystem/SelectionSystem.h"
 //#include "../../SliceEngine/src/Core/Core.h"
 
 namespace SliceEditor
@@ -8,11 +9,10 @@ namespace SliceEditor
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-	std::unordered_set<TestNode*> set;
 
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
+	HierarchyWindow::HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection) : mManager(manager), mSelection(selection)
 	{
-		set = std::unordered_set<TestNode*>();
+
 	}
 
 	void HierarchyWindow::DrawNode(TestNode& node)
@@ -24,7 +24,9 @@ namespace SliceEditor
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool isOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+
+		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
 		if (ImGui::IsItemClicked())
 		{
@@ -120,7 +122,6 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Hierarchy");
 
-
 		DrawNodeGraph();
 
 		ImGui::BeginGroup();
@@ -143,5 +144,14 @@ namespace SliceEditor
 		}
 
 		ImGui::End();
+
+		std::unordered_set<entt::entity> entities{};
+
+		for (TestNode* node : set)
+		{
+			entities.insert(node->entity);
+		}
+
+		mSelection.UpdateSelection(entities);
 	}
 }

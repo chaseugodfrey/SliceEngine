@@ -9,7 +9,7 @@ namespace SliceEngine
 {
 	glm::quat Vec3ToQuat(const glm::vec3& in)
 	{
-		return glm::quat(in);
+		return glm::quat(in/TOANGLEF);
 	}
 
 	glm::vec3 QuatToVec3(const glm::quat& in)

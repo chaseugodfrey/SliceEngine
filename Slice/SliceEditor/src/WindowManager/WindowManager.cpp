@@ -40,7 +40,7 @@ namespace SliceEditor
 		}
 		else
 		{
-			SLICE_LOG_VALUES("No registered window with name: ", name.c_str());
+			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
 		}
 	}
 
