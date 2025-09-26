@@ -6,7 +6,7 @@
 namespace SliceEngine
 {
 	glm::quat Vec3ToQuat(const glm::vec3& in);
-	glm::vec3 QuatToVec3(const glm::quat& in);
+	glm::vec3 QuatToVec3(glm::quat q);
 }
 
 #endif
