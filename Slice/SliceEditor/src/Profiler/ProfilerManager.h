@@ -19,7 +19,8 @@ namespace SliceEditor
 
 	public:
 
-		bool autoScroll = true;
+		bool mAutoScroll = true;
+
 
 		//SliceEngine::FramerateManager& framerateManager;
 

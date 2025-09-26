@@ -16,18 +16,21 @@ namespace SliceEngine
 		void StartSystem(const std::string &name);  
 		void EndSystem(const std::string &name);
 		void CapFPS(int maxFPS);
+		void CalculateSystemPercentages();
 		float GetCurrFPS();
 		const std::unordered_map<std::string, std::pair<TimePoint, TimePoint>> GetSysStartEndTimes();
 		const std::unordered_map<std::string, float> GetSysDurations();
+		const std::unordered_map<std::string, float> GetSystemPercentages();
 		const float GetFrameTime();
 
 	private:
 		std::unordered_map<std::string, std::pair<TimePoint,TimePoint>> systemStartEndTimes;
 		std::unordered_map<std::string, float> systemDurations;
+		std::unordered_map<std::string, float> mSystemPercentages;
 		TimePoint frameStartTime;
 		TimePoint frameEndTime;
 		float currFPS;
-		float totalFrameTime;
+		float mTotalFrameTime;
 		bool firstFrameDone = false;
 
 	};

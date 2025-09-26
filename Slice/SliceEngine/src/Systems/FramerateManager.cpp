@@ -18,13 +18,14 @@ namespace SliceEngine
 	{
 		frameEndTime = Clock::now();
 
-		float frameTime = std::chrono::duration<float>(frameEndTime - frameStartTime).count();
+		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
+		mTotalFrameTime =frameTime;
+
 		currFPS = 1.0f / frameTime;
 
 
-		totalFrameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();;
 
-		std::cout << "1 Frame Time: " << totalFrameTime << std::endl;
+		std::cout << "1 frame time: " << frameTime << std::endl;
 
 		if (!firstFrameDone)
 		{
@@ -69,7 +70,12 @@ namespace SliceEngine
 
 	const float FramerateManager::GetFrameTime()
 	{
-		return totalFrameTime;
+		return mTotalFrameTime;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetSystemPercentages()
+	{
+		return mSystemPercentages;
 	}
 
 	void FramerateManager::CapFPS(int targetFPS)
@@ -85,6 +91,18 @@ namespace SliceEngine
 		{
 			currentTime = Clock::now();
 			elapsedTime = duration<double>(currentTime - frameStartTime);
+		}
+	}
+
+	void FramerateManager::CalculateSystemPercentages()
+	{
+		mSystemPercentages.clear();
+
+		for (const auto [system, time] : systemDurations)
+		{
+			auto systemPercentage = (time / mTotalFrameTime);
+
+			mSystemPercentages[system] = systemPercentage;
 		}
 	}
 }

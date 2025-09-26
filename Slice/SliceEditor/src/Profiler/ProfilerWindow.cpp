@@ -53,7 +53,7 @@ namespace SliceEditor
 	{
 		
 
-		ImGui::Checkbox("Auto-Scroll", &mManager.autoScroll);
+		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
 
 		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
 		for (int i = 0; i < Logger::savedLogs.size(); i++)
@@ -69,18 +69,18 @@ namespace SliceEditor
 			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
 		}
 
-		if (mManager.autoScroll)
+		if (mManager.mAutoScroll)
 		{
 			ImGui::SetScrollHereY(1.0);
 		}
 
 		if (ImGui::GetScrollY() < ImGui::GetScrollMaxY())
 		{
-			mManager.autoScroll = false;
+			mManager.mAutoScroll = false;
 		}
 		else
 		{
-			mManager.autoScroll = true;
+			mManager.mAutoScroll = true;
 		}
 		ImGui::EndChild();
 	}
@@ -88,11 +88,14 @@ namespace SliceEditor
 	void ProfilerWindow::DrawPerformanceTab()
 	{
 		
-		for (auto&[system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
+		for (auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
 		{
-			ImGui::Text("%s: ", system.c_str());
+			ImGui::Text("%s ", system.c_str());
 			ImGui::SameLine();
-			ImGui::Text("Duration: %.4f",time);
+			ImGui::Text("Duration: %.4f", time);
+
+			auto sysPercent = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
+			ImGui::Text("Percentage: %.2f%", sysPercent[system]);
 		}
 
 		ImGui::Text("Total Frame Time: %.4f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetFrameTime());

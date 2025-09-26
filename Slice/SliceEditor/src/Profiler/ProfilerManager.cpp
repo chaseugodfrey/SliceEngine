@@ -36,4 +36,6 @@ namespace SliceEditor
 			return ImVec4(1,1,1,1);
 		}
 	}
+
+
 }

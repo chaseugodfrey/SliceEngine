@@ -102,6 +102,11 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		Core::GetInstance()->GetFramerateManager()->StartFrame();
+
+
+		Core::GetInstance()->GetFramerateManager()->StartSystem("Random BS");
+
 		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
@@ -112,8 +117,8 @@ namespace SliceEngine
 
 		glfwPollEvents();
 
+		Core::GetInstance()->GetFramerateManager()->EndSystem("Random BS");
 		// Main Body
-		Core::GetInstance()->GetFramerateManager()->StartFrame();
 
 		Core::GetInstance()->GetFramerateManager()->StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
@@ -129,6 +134,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetFramerateManager()->EndSystem("Graphics");
 
 		Core::GetInstance()->GetFramerateManager()->EndFrame();
+		Core::GetInstance()->GetFramerateManager()->CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
