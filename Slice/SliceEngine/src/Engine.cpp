@@ -123,10 +123,12 @@ namespace SliceEngine
 		inputs->Update();
 		Core::GetInstance()->GetFramerateManager()->EndSystem("Input");
 
-		Core::GetInstance()->GetFramerateManager()->EndFrame();
 		
-
+		Core::GetInstance()->GetFramerateManager()->StartSystem("Graphics");
 		mRender->Render(mResource);
+		Core::GetInstance()->GetFramerateManager()->EndSystem("Graphics");
+
+		Core::GetInstance()->GetFramerateManager()->EndFrame();
 	}
 
 	void Engine::EndFrame()

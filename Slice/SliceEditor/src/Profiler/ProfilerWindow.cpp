@@ -3,7 +3,7 @@
 
 namespace SliceEditor
 {
-	ProfilerWindow::ProfilerWindow(ProfilerManager& man) : manager(man)
+	ProfilerWindow::ProfilerWindow(ProfilerManager& man) : mManager(man)
 	{
 	}
 
@@ -53,7 +53,7 @@ namespace SliceEditor
 	{
 		
 
-		ImGui::Checkbox("Auto-Scroll", &manager.autoScroll);
+		ImGui::Checkbox("Auto-Scroll", &mManager.autoScroll);
 
 		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
 		for (int i = 0; i < Logger::savedLogs.size(); i++)
@@ -62,25 +62,25 @@ namespace SliceEditor
 
 			ss << " [" << Logger::LogLevelToString(Logger::savedLogs[i].first) << "] ";
 
-			ImGui::TextColored(manager.LogLevelToImVec4(Logger::savedLogs[i].first), ss.str().c_str());
+			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::savedLogs[i].first), ss.str().c_str());
 
 			ImGui::SameLine();
 
 			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
 		}
 
-		if (manager.autoScroll)
+		if (mManager.autoScroll)
 		{
 			ImGui::SetScrollHereY(1.0);
 		}
 
 		if (ImGui::GetScrollY() < ImGui::GetScrollMaxY())
 		{
-			manager.autoScroll = false;
+			mManager.autoScroll = false;
 		}
 		else
 		{
-			manager.autoScroll = true;
+			mManager.autoScroll = true;
 		}
 		ImGui::EndChild();
 	}
@@ -88,11 +88,13 @@ namespace SliceEditor
 	void ProfilerWindow::DrawPerformanceTab()
 	{
 		
-		for (auto&[system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->systemDurations)
+		for (auto&[system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
 		{
 			ImGui::Text("%s: ", system.c_str());
 			ImGui::SameLine();
-			ImGui::Text("Duration: %s",std::to_string(time).c_str());
+			ImGui::Text("Duration: %.4f",time);
 		}
+
+		ImGui::Text("Total Frame Time: %.4f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetFrameTime());
 	}
 }

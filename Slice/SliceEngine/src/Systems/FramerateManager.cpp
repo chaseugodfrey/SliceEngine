@@ -21,6 +21,11 @@ namespace SliceEngine
 		float frameTime = std::chrono::duration<float>(frameEndTime - frameStartTime).count();
 		currFPS = 1.0f / frameTime;
 
+
+		totalFrameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();;
+
+		std::cout << "1 Frame Time: " << totalFrameTime << std::endl;
+
 		if (!firstFrameDone)
 		{
 			// can be removed if don't want it to be printed for every startup
@@ -30,6 +35,7 @@ namespace SliceEngine
 
 			firstFrameDone = true;
 		}
+
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -59,6 +65,11 @@ namespace SliceEngine
 	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
 	{
 		return systemDurations;
+	}
+
+	const float FramerateManager::GetFrameTime()
+	{
+		return totalFrameTime;
 	}
 
 	void FramerateManager::CapFPS(int targetFPS)

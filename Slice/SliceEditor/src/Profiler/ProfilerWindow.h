@@ -8,7 +8,7 @@ namespace SliceEditor
 {
 	class ProfilerWindow : public EditorWindow
 	{
-		ProfilerManager& manager;
+		ProfilerManager& mManager;
 	public:
 		~ProfilerWindow() = default;
 

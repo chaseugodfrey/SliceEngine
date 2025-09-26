@@ -19,13 +19,15 @@ namespace SliceEngine
 		float GetCurrFPS();
 		const std::unordered_map<std::string, std::pair<TimePoint, TimePoint>> GetSysStartEndTimes();
 		const std::unordered_map<std::string, float> GetSysDurations();
+		const float GetFrameTime();
 
+	private:
 		std::unordered_map<std::string, std::pair<TimePoint,TimePoint>> systemStartEndTimes;
 		std::unordered_map<std::string, float> systemDurations;
-	private:
 		TimePoint frameStartTime;
 		TimePoint frameEndTime;
 		float currFPS;
+		float totalFrameTime;
 		bool firstFrameDone = false;
 
 	};
