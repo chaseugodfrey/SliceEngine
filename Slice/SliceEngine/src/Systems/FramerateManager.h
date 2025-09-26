@@ -20,7 +20,7 @@ namespace SliceEngine
 		float GetCurrFPS();
 		const std::unordered_map<std::string, std::pair<TimePoint, TimePoint>> GetSysStartEndTimes();
 		const std::unordered_map<std::string, float> GetSysDurations();
-		const std::unordered_map<std::string, float> GetSystemPercentages();
+		const std::unordered_map<std::string, float> GetSystemPercentages() const;
 		const float GetFrameTime();
 
 	private:

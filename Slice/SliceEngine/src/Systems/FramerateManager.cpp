@@ -73,7 +73,7 @@ namespace SliceEngine
 		return mTotalFrameTime;
 	}
 
-	const std::unordered_map<std::string, float> FramerateManager::GetSystemPercentages()
+	const std::unordered_map<std::string, float> FramerateManager::GetSystemPercentages() const
 	{
 		return mSystemPercentages;
 	}
@@ -100,7 +100,7 @@ namespace SliceEngine
 
 		for (const auto [system, time] : systemDurations)
 		{
-			auto systemPercentage = (time / mTotalFrameTime);
+			auto systemPercentage = (time / mTotalFrameTime) * 100.0f;
 
 			mSystemPercentages[system] = systemPercentage;
 		}

@@ -19,6 +19,10 @@ namespace SliceEditor
 		void DrawLoggerTab();
 
 		void DrawPerformanceTab();
+
+		void DrawSystemTimeline();
+
+		void DrawSystemBreakdown();
 	};
 }
 
