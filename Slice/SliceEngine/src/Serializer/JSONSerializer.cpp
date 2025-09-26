@@ -188,7 +188,7 @@ namespace SliceEngine
 						continue;
 					}
 
-					//Note for hafiz and me: I moved the mName to sliceentity component
+					// Note for hafiz and me: I moved the mName to sliceentity component
 					// technically there should never be an instance of two objects with the same name serialized
 					// since factory checks for that
 					// So i shouldn't have to check for duplicate names when deserializing
@@ -347,6 +347,11 @@ namespace SliceEngine
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
 				}
 				SLICE_LOG("Test 2 Ended.");
+			}
+
+			void Test3(bool cleanOutput)
+			{
+
 			}
 
 			void RunTests(bool cleanOutput)
