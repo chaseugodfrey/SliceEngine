@@ -29,6 +29,12 @@ namespace SliceEngine
 		std::array<Entity, Direction::DIRECTIONS> neighbours{};
 	};
 
+	struct Script
+	{
+		std::string scriptName;
+		//std::unordered_map<std::string, variantVar> scriptableFieldMap;
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;
