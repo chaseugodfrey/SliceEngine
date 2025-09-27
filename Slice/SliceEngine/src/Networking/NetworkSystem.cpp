@@ -167,13 +167,24 @@ namespace SliceEngine
             Packet pkt{};
             pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
-            int bytes = { sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&player1Dest), sizeof(player1Dest)) };
+            //int bytes = { sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&player1Dest), sizeof(player1Dest)) };
+            int bytes = SendTo(soc, pkt, player1Dest);
             if (bytes == SOCKET_ERROR || bytes == 0)
             {
                 std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
                 //closesocket(pSocket);
             }
         }
+    }
+
+    int NetworkingThread::SendTo(const SOCKET& soc, const Packet& pkt, sockaddr_in pAddr)
+    {
+        return sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&pAddr), sizeof(pAddr));
+    }
+
+    int NetworkingThread::RecvFrom(const SOCKET& soc, char(&pkt)[MAX_STR_LEN], sockaddr_in& pAddr, int& size)
+    {
+        return recvfrom(soc, pkt, sizeof(pkt), 0, reinterpret_cast<sockaddr*> (&pAddr), &size);
     }
 
     void NetworkingThread::ReceiveThread(SOCKET otherPlayerSoc)
@@ -184,7 +195,8 @@ namespace SliceEngine
 
         while (keep_running)
         {
-            int bytes_received = recvfrom(otherPlayerSoc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&client_addr), &client_addr_len);
+            //int bytes_received = recvfrom(otherPlayerSoc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&client_addr), &client_addr_len);
+            int bytes_received = RecvFrom(otherPlayerSoc, buffer, client_addr, client_addr_len);
 
             if (bytes_received == SOCKET_ERROR) 
             {
@@ -221,7 +233,8 @@ namespace SliceEngine
                 Packet pkt{};
                 pkt << cmdIDs.GetID("N_RSP_CONNECT");
 
-                int bytes = { sendto(otherPlayerSoc,  reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr)) };
+                //int bytes = { sendto(otherPlayerSoc,  reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr)) };
+                int bytes = SendTo(otherPlayerSoc, pkt, client_addr);
                 if (bytes == SOCKET_ERROR || bytes == 0)
                 {
                     std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;

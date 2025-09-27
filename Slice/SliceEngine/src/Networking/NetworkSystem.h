@@ -113,7 +113,9 @@ namespace SliceEngine
     {
         void printAddr();
         void ReceiveThread(SOCKET serverSock);
-        void SendThread(SOCKET serverSocket);
+        void SendThread(SOCKET serverSock);
+        int SendTo(const SOCKET& Sock, const Packet& pkt, sockaddr_in pAddr);
+        int RecvFrom(const SOCKET& Sock, char (&pkt)[MAX_STR_LEN] , sockaddr_in& pAddr, int& size);
     }
 
 
