@@ -11,8 +11,9 @@ namespace Logger
 	#define BLUE    "\033[34m"      /* Blue */
 
 	// early declaration
-	static const char* LogLevelToString(LogLevel level);
+	//static const char* LogLevelToString(LogLevel level);
 	static const char* LogLevelToColor(LogLevel level);
+	std::deque <std::pair<LogLevel, std::string>> savedLogs;
 
 	void Log(const char* function_name, const std::string& message, LogLevel level)
 	{
@@ -20,12 +21,30 @@ namespace Logger
 		std::time_t now_c = std::chrono::system_clock::to_time_t(now);
 		std::tm local_tm{};
 		localtime_s(&local_tm, &now_c);
+		std::ostringstream oss;
+
+		oss /*<< std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S")
+			<< " [" << LogLevelToString(level) << "] "*/
+			<< '(' << function_name << ") - "
+			<< message << '\n';
 
 		std::cout
 			<< std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S")
 			<< LogLevelToColor(level) << " [" << LogLevelToString(level) << "] " << RESET
 			<< '(' << function_name << ") - "
 			<< message << '\n';
+
+
+		
+
+		std::string newMessage = oss.str();
+
+		if (savedLogs.size() == 2000)
+		{
+			savedLogs.pop_front();
+		}
+
+		savedLogs.push_back(std::pair(level, newMessage));
 	}
 
 	void LogWarning(const char* function_name, const std::string& message)
@@ -43,7 +62,7 @@ namespace Logger
 		Log(function_name, message, LogLevel::CRITICAL);
 	}
 
-	static const char* LogLevelToString(LogLevel level)
+	const char* LogLevelToString(LogLevel level)
 	{
 		switch (level)
 		{

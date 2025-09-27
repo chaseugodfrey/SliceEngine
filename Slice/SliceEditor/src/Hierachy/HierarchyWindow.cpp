@@ -1,18 +1,18 @@
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
-#include "../../SliceEngine/src/Core/Core.h"
+#include "../SelectionSystem/SelectionSystem.h"
+//#include "../../SliceEngine/src/Core/Core.h"
 
 namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-	std::unordered_set<TestNode*> set;
 
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
+	HierarchyWindow::HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection) : mManager(manager), mSelection(selection)
 	{
-		set = std::unordered_set<TestNode*>();
+
 	}
 
 	void HierarchyWindow::DrawNode(TestNode& node)
@@ -24,7 +24,9 @@ namespace SliceEditor
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool isOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+
+		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
 		if (ImGui::IsItemClicked())
 		{
@@ -62,6 +64,11 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup("entity_pop_up");
+		}
+
 		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
 		//{
 		//	for (size_t i = 0; i < node.children.size(); i++)
@@ -72,6 +79,7 @@ namespace SliceEditor
 		//	ImGui::TreePop();
 		//}
 
+		EntityContextPopUp(node);
 	}
 
 	void HierarchyWindow::DrawSceneNode(TestNode& node)
@@ -84,28 +92,40 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNodeGraph()
 	{
+		ImGui::BeginGroup();
+
 		auto& rootNodes = mManager.GetNodes();
 
 		for (size_t i = 0; i < rootNodes.size(); i++)
 		{
 			DrawSceneNode(rootNodes[i]);
 		}
+
+		ImGui::EndGroup();
 	}
 
+	void HierarchyWindow::EntityContextPopUp(TestNode& node)
+	{
+		if (ImGui::BeginPopupContextItem("entity_pop_up"))
+		{
+			if (ImGui::Selectable("Add Component"))
+			{
+
+			}
+
+			ImGui::EndPopup();
+		}
+
+	}
 
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");
 
-
-		ImGui::BeginGroup();
 		DrawNodeGraph();
-		ImGui::EndGroup();
 
 		ImGui::BeginGroup();
-
-		ImGui::InvisibleButton("##hierarchy empty space", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
-
+		ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
 		ImGui::EndGroup();
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
@@ -117,13 +137,21 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Add GameObject"))
 			{
-				auto obj = SliceEngine::Core::GetInstance()->mFactory.CreateGO();
-				obj.AddComponent<SliceEngine::Renderer>();
+				mManager.AddGameObject();
 			}
 
 			ImGui::EndPopup();
 		}
 
 		ImGui::End();
+
+		std::unordered_set<entt::entity> entities{};
+
+		for (TestNode* node : set)
+		{
+			entities.insert(node->entity);
+		}
+
+		mSelection.UpdateSelection(entities);
 	}
 }

@@ -1,7 +1,9 @@
 
 #include <pch.h>
+#include "../Core/Core.h"
 #include "PhysicsSystem.h"
 #include "PhysicsDebug.h"
+#include "../Graphics/TransformHelper.h"
 
 namespace SliceEngine 
 {
@@ -22,7 +24,7 @@ namespace SliceEngine
 		{
 			if (threadCount == 0) 
 			{
-				threadCount = std::thread::hardware_concurrency();
+				threadCount = std::thread::hardware_concurrency() - 1;
 				if (threadCount == 0) 
 				{
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
@@ -68,7 +70,7 @@ namespace SliceEngine
 		}
 	}
 
-	bool PhysicsSystem::IsInitialized() { return isInitialized; }
+	bool PhysicsSystem::IsInitialized() const { return isInitialized; }
 
 	void PhysicsSystem::Shutdown() 
 	{
@@ -84,23 +86,180 @@ namespace SliceEngine
 		}
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
+	{
+		switch (collider.type)
+		{
+
+		case ColliderShape::ColliderType::Box:
+		{
+			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
+			JPH::BoxShapeSettings shapeSetting(boxData.halfExtend);
+
+			auto result = shapeSetting.Create();
+
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
+				return nullptr;
+			}
+
+			return result.Get();
+		}	
+		case ColliderShape::ColliderType::Sphere:
+		{
+			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
+			JPH::SphereShapeSettings shapeSetting(sphereData.radius);
+
+			auto result = shapeSetting.Create();
+
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
+				return nullptr;
+			}
+
+			return result.Get();
+		}
+		default:
+				SLICE_LOG_ERROR("Unsupported Collider Shape");
+				return nullptr;
+
+		}
+	}
+
+	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
+	{
+		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
+		glm::quat rot = Vec3ToQuat(transform.rotation);
+		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+
+		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
+ 
+	}
+
+	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
+	{
+		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
+		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
+
+		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()));
+
+		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
+		transform.rotation = rot;
+	}
 
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		std::cout << "Entity entering physics system" << std::endl;
+		auto& transform = reg.get<Transform>(entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		bool isRigibody = false;
+
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (checkEntity.HasComponent<RigidBody>())
+		{
+			auto& rigidBody = reg.get<RigidBody>(entity);
+			isRigibody = true;
+		}
+
+		//Create shape based on collider
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape);
+		if (!shape)
+		{
+			SLICE_LOG_ERROR("Failed to create Shape for entity");
+			return;
+		}
+
+		//Convert transform data
+		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
+		glm::quat rot = Vec3ToQuat(transform.rotation);
+		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+
+		JPH::BodyCreationSettings bodySettings;
+
+		//Create body
+		if (isRigibody)
+		{
+			auto& rigidBody = reg.get<RigidBody>(entity);
+			if(rigidBody.isKinematic)
+			{
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+			}
+			else
+			{
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+			}
+
+			//Set physics properties
+			if(!rigidBody.isKinematic)
+			{
+				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
+				bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
+				bodySettings.mFriction = rigidBody.friction;
+				bodySettings.mRestitution = rigidBody.restitution;
+				bodySettings.mLinearDamping = rigidBody.linearDamping;
+				bodySettings.mAngularDamping = rigidBody.angularDamping;
+			}
+			if(rigidBody.isKinematic)
+			{
+				bodySettings.mFriction = rigidBody.friction;
+				bodySettings.mRestitution = rigidBody.restitution;
+			}
+		}
+		else if (!isRigibody)
+		{
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+		}
+
+		//Set as sensor for triggers
+		if (colliderShape.isTrigger)
+		{
+			bodySettings.mIsSensor = true;
+		}
+
+
+		//Store entity ID in user data for collision callbacks
+		bodySettings.mUserData = static_cast<uint64_t>(entity);
+
+		//Create and add the body
+		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
+		if (!body)
+		{
+			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
+			return;
+		}
+
+		//Add to physics world and store bodyID in rigidbody
+		colliderShape.bodyID = body->GetID();
+		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+
+		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
+
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-		std::cout << "Entity exiting physics system" << std::endl;
+
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 	}
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto& transform = reg.get<Transform>(entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		//std::cout << "Update Entity " << transform.rot << std::endl;
+		SyncECSToPhysics(transform, colliderShape);
+		physicsSystem->Update(dt, 1, tempAllocator.get(), jobSystem.get());
+		SyncPhysicsToECS(transform, colliderShape);
 	}
 
 }

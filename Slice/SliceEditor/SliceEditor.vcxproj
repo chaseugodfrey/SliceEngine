@@ -90,7 +90,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\nlohmann\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;..\SliceEngine\thirdparty\JoltPhysics;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -123,15 +123,19 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
   <ItemGroup>
     <ClInclude Include="src\ContentBrowser\ContentBrowserManager.h" />
     <ClInclude Include="src\ContentBrowser\ContentBrowserWindow.h" />
-    <ClInclude Include="src\Core.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\EditorCommonTypes.h" />
+    <ClInclude Include="src\Core\Registry.h" />
     <ClInclude Include="src\Hierachy\HierarchyManager.h" />
     <ClInclude Include="src\Hierachy\HierarchyWindow.h" />
     <ClInclude Include="src\History\HistoryManager.h" />
+    <ClInclude Include="src\Inspector\ComponentPropertiesGUI.h" />
     <ClInclude Include="src\Inspector\InspectorManager.h" />
     <ClInclude Include="src\Inspector\InspectorWindow.h" />
+    <ClInclude Include="src\Core\IBaseManager.h" />
     <ClInclude Include="src\Logger\Logger.h" />
+    <ClInclude Include="src\Profiler\ProfilerManager.h" />
+    <ClInclude Include="src\Profiler\ProfilerWindow.h" />
     <ClInclude Include="src\SceneView\SceneViewManager.h" />
     <ClInclude Include="src\SceneView\SceneViewWindow.h" />
     <ClInclude Include="src\SelectionSystem\ISelectionService.h" />
@@ -161,16 +165,20 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
   <ItemGroup>
     <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
     <ClCompile Include="src\ContentBrowser\ContentBrowserWindow.cpp" />
-    <ClCompile Include="src\Core.cpp" />
     <ClCompile Include="src\Editor.cpp" />
+    <ClCompile Include="src\Core\Registry.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyManager.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyWindow.cpp" />
     <ClCompile Include="src\History\HistoryManager.cpp" />
+    <ClCompile Include="src\Inspector\ComponentPropertiesGUI.cpp" />
     <ClCompile Include="src\Inspector\InspectorManager.cpp" />
     <ClCompile Include="src\Inspector\InspectorWindow.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
+    <ClCompile Include="src\Profiler\ProfilerManager.cpp" />
+    <ClCompile Include="src\Profiler\ProfilerWindow.cpp" />
     <ClCompile Include="src\SceneView\SceneViewManager.cpp" />
     <ClCompile Include="src\SceneView\SceneViewWindow.cpp" />
+    <ClCompile Include="src\SelectionSystem\SelectionSystem.cpp" />
     <ClCompile Include="src\WindowManager\WindowManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">

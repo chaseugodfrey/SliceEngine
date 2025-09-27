@@ -15,7 +15,10 @@ namespace SliceEngine
 		void EndFrame();
 		void StartSystem(const std::string &name);  
 		void EndSystem(const std::string &name);
+		void CapFPS(int maxFPS);
 		float GetCurrFPS();
+		const std::unordered_map<std::string, std::pair<TimePoint, TimePoint>> GetSysStartEndTimes();
+		const std::unordered_map<std::string, float> GetSysDurations();
 
 	private:
 		TimePoint frameStartTime;

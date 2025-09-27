@@ -65,7 +65,9 @@ namespace SliceEngine
 		inputs = std::make_unique<InputSystem>();
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
-		//mResource = std::make_unique<ResourceManager>();
+		// mResource = std::make_unique<ResourceManager>();
+		framerateManager = std::make_unique<FramerateManager>();
+		framerateManager->Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -91,6 +93,8 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
+
+
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -101,10 +105,14 @@ namespace SliceEngine
 
 		
 		//JSONSerializer::Test2();
+		JSONSerializer::Tests::RunTests(false);
+		Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
+		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
@@ -114,18 +122,21 @@ namespace SliceEngine
 		glfwPollEvents();
 
 		// Main Body
-		//framerateManager->StartFrame();
+		framerateManager->StartFrame();
 
-		//framerateManager->StartSystem("Input");
-		if (inputs->IsKeyPressed(GLFW_KEY_A))
+		framerateManager->StartSystem("Input");
+		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		//framerateManager->EndSystem("Input");
+		framerateManager->EndSystem("Input");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
 
-		//framerateManager->EndFrame();
-		//
+		// framerateManager->CapFPS(60);
+
+		framerateManager->EndFrame();
+		////
 
 		mRender->Render(mResource);
 	}

@@ -79,7 +79,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\rttr\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -114,6 +114,7 @@
     <ClInclude Include="src\Graphics\CameraSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\ResourceManager.h" />
+    <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
@@ -122,6 +123,10 @@
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\GUID.h" />
+    <ClInclude Include="src\Resource\Resource.h" />
+    <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\SliceTime.h" />
@@ -143,6 +148,7 @@
     <ClCompile Include="src\Graphics\CameraSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\ResourceManager.cpp" />
+    <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
@@ -150,6 +156,8 @@
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\SliceTime.cpp" />
