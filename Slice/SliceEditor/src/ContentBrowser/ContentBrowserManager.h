@@ -2,15 +2,16 @@
 #define CONTENT_BROWSER_MANAGER_H
 
 #include <memory>
+#include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 
 namespace SliceEditor
 {
 	struct DirectoryNode;
+	class Registry;
 
-	class ContentBrowserManager : public ICreateWindow
+	class ContentBrowserManager : public IBaseManager, public ICreateWindow
 	{
-
 
 		void BuildTree();
 
@@ -20,13 +21,17 @@ namespace SliceEditor
 
 	
 	public:
+
+		ContentBrowserManager(Registry& reg) : IBaseManager(reg) {};
+		~ContentBrowserManager() = default;
+
 		std::unique_ptr<DirectoryNode> rootNode;
 
 		DirectoryNode* selectedFolder;
 
 		bool openRenameFile = false;
 
-		void Init();
+		void Init() override;
 		
 		void RebuildDirectory(DirectoryNode& node);
 

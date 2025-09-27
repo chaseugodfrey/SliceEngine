@@ -3,6 +3,38 @@
 
 namespace SliceEditor
 {
+
+	enum class ManagerID
+	{
+		CONTENTBROWSER,
+		HIERARCHY,
+		INSPECTOR,
+		SCENEVIEW,
+		GAMEVIEW,
+		ANIMATOR,
+		NAVMESH,
+		LIGHTING,
+		AUDIO,
+		PROFILER,
+		CONSOLE,
+		ID_MAX
+	};
+
+	enum class WindowID
+	{
+		CONTENTBROWSER,
+		HIERARCHY,
+		INSPECTOR,
+		SCENEVIEW,
+		GAMEVIEW,
+		ANIMATOR,
+		NAVMESH,
+		LIGHTING,
+		AUDIO,
+		PROFILER,
+		CONSOLE,
+		ID_MAX
+	};
 	
 	struct TreeNode
 	{
