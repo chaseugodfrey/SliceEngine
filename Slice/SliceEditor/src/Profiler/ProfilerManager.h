@@ -2,6 +2,7 @@
 #define PROFILER_MANAGER_H
 
 #include <memory>
+#include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 namespace SliceEngine
 {
@@ -11,8 +12,9 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
+	class Registry;
 
-	class ProfilerManager : public ICreateWindow
+	class ProfilerManager : public IBaseManager, public ICreateWindow
 	{
 	private:
 		struct DebugStats
@@ -33,7 +35,7 @@ namespace SliceEditor
 
 		//SliceEngine::FramerateManager& framerateManager;
 
-		ProfilerManager() = default;
+		ProfilerManager(Registry& reg) : IBaseManager(reg) {};
 		~ProfilerManager() = default;
 
 		void Init();

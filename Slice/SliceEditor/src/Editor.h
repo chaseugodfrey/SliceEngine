@@ -16,7 +16,6 @@ namespace SliceEditor
 		SliceEngine::Engine engine;
 		Registry registry;
 
-		ProfilerManager profilerManager;
 		HistoryManager history;
 		WindowManager windowManager;
 
