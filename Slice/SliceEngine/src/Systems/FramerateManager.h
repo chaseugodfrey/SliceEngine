@@ -23,6 +23,7 @@ namespace SliceEngine
 
 	public:
 		// SliceTime funcs
+		FramerateManager(); //line 75
 		FramerateManager(const FramerateManager &) = delete;
 		FramerateManager &operator=(const FramerateManager &) = delete;
 
@@ -78,7 +79,6 @@ namespace SliceEngine
 		double accumulatedTime;
 		int currentNumberOfSteps;
 
-		FramerateManager(); //line 75
 
 		TimePoint frameStartTime;
 		TimePoint frameEndTime;

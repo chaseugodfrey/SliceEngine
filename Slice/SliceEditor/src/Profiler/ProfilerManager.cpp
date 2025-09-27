@@ -40,9 +40,9 @@ namespace SliceEditor
 	void ProfilerManager::UpdateDebugStatistics()
 	{
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
-		const auto& sysPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
+		const auto& sysPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
 
-		for (const auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
+		for (const auto& [system, time] : SliceEngine::FramerateManager::getInstance().GetSysDurations())
 		{
 			ProfilerManager::DebugStats stats;
 

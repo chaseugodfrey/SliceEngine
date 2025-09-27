@@ -100,18 +100,19 @@ namespace SliceEngine
 	void Engine::Update()
 	{
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.StartFrame();
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
+		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
-		Core::GetInstance()->GetFramerateManager()->EndSystem("Random BS");
+		frm.EndSystem("GLFW Poll Events");
 		// Main Body
-		frm.StartFrame();
 
 		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
@@ -120,20 +121,20 @@ namespace SliceEngine
 		}
 		inputs->Update();
 		frm.EndSystem("Input");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
 
+		frm.StartSystem("Physics");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
-		frm.EndFrame();
 		////
 
-		
-		Core::GetInstance()->GetFramerateManager()->StartSystem("Graphics");
+		frm.StartSystem("Graphics");
 		mRender->Render(mResource);
-		Core::GetInstance()->GetFramerateManager()->EndSystem("Graphics");
+		frm.EndSystem("Graphics");
 
-		Core::GetInstance()->GetFramerateManager()->EndFrame();
-		Core::GetInstance()->GetFramerateManager()->CalculateSystemPercentages();
+		frm.EndFrame();
+		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
