@@ -27,6 +27,10 @@ namespace SliceEditor
 		void DisplayCollider3D();
 		void AddComponentButton();
 
+		void R();
+
+
+
 	public:
 
 		InspectorWindow(InspectorManager& manager);

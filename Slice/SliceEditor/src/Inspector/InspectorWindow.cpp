@@ -60,6 +60,14 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void R()
+	{
+		
+	}
+
+	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
+
+	
 	void InspectorWindow::DisplayEntityData()
 	{
 		static bool is_active = false;

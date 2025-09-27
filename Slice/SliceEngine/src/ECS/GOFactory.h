@@ -131,7 +131,7 @@ namespace SliceEngine
 			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();
 		}
 
-		GameObject CreateBlank(std::string name = "GameObject"); // for deserializing
+		GameObject CreateBlank(); // for deserializing
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
