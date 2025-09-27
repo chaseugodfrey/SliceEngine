@@ -68,7 +68,22 @@ public:
 		mDispatcher.trigger<Event>(std::forward<Args>(args)...);
 	}
 
-	//void PublishByName
+	/// <summary>
+	/// Potentially for editor or scriptign systems to trigger events by string
+	/// </summary>
+	/// <param name="eventName"></param>
+	void Publish(const std::string& eventName);
+
+	std::vector<std::string> GetRegisteredEvents() const
+	{
+		std::vector<std::string> names;
+		for (const auto& type : mRegisteredEventTypes)
+		{
+			names.push_back(type.get_name().to_string());
+		}
+
+		return names;
+	}
 };
 
 #endif
