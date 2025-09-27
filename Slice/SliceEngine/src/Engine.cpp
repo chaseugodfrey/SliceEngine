@@ -34,9 +34,8 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
-	GameTime& Engine::gameTime = GameTime::getInstance();
 
-	Engine::Engine()
+	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
 	}
 	Engine::~Engine()
@@ -66,8 +65,7 @@ namespace SliceEngine
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
-		framerateManager = std::make_unique<FramerateManager>();
-		framerateManager->Init();
+		frm.Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -111,7 +109,7 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
-		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
@@ -122,20 +120,20 @@ namespace SliceEngine
 		glfwPollEvents();
 
 		// Main Body
-		framerateManager->StartFrame();
+		frm.StartFrame();
 
-		framerateManager->StartSystem("Input");
+		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		framerateManager->EndSystem("Input");
+		frm.EndSystem("Input");
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
 
 		// framerateManager->CapFPS(60);
 
-		framerateManager->EndFrame();
+		frm.EndFrame();
 		////
 
 		mRender->Render(mResource);

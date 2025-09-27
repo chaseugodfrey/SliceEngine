@@ -7,25 +7,37 @@ namespace SliceEngine
 {
 	GameObject::GameObject() : mRegistry(Core::GetInstance()->mFactory.mRegistry) {}
 
-	GameObject::GameObject(Registry& reg, Entity entity, std::string name) : mRegistry(reg), mEntity(entity), mName(name)
+	GameObject::GameObject(Registry& reg, Entity entity) : mRegistry(reg), mEntity(entity)
 	{
 		//mEntity = mRegistry->create();
 	}
 
 	void GameObject::SetName(std::string name)
 	{
-
-		//mName = name;
+		if (HasComponent<SliceEntity>())
+		{
+			std::string newName = FactoryInstance.CreateName(name);
+			FactoryInstance.UpdateName(newName, mEntity);
+			GetComponent<SliceEntity>().mName = newName;
+		}
 	}
 
 	std::string GameObject::GetName()
 	{
-		return mName;
+		if (HasComponent<SliceEntity>())
+		{
+			return GetComponent<SliceEntity>().mName;
+		}
+		return std::string(); // blank str
 	}
 
 	const std::string GameObject::GetName() const
 	{
-		return mName;
+		if (HasComponent<SliceEntity>())
+		{
+			return GetComponent<SliceEntity>().mName;
+		}
+		return std::string(); // blank str
 	}
 
 	void GameObject::Destroy()

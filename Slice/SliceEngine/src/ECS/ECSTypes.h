@@ -26,11 +26,12 @@ namespace SliceEngine
 		};
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
-		std::array<uint32_t, Direction::DIRECTIONS> neighbours{};
+		std::array<Entity, Direction::DIRECTIONS> neighbours{};
 	};
 
 	struct SliceEntity 
 	{
+		std::string mName;
 		bool active;
 
 		SliceEntity() : active(true) {}
