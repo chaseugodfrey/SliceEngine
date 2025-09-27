@@ -128,7 +128,6 @@
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
-    <ClInclude Include="src\SliceTime.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
@@ -158,7 +157,6 @@
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
-    <ClCompile Include="src\SliceTime.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
