@@ -45,7 +45,7 @@ namespace SliceEditor
 				DisplayCollider3D();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(selected_entity))
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
 				DisplayAudioSource();
 			}
@@ -82,7 +82,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayAudioSource()
 	{
-		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity);
+		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
 
 		std::vector<std::string> items = {"BGM_MainMenu_Mix1, 3DAudioTest"};
 		static int current_item = 0;
@@ -117,6 +117,8 @@ namespace SliceEditor
 
 			ImGui::Checkbox("is3D", &as.is3D);
 		}
+
+		ImGui::TreePop();
 	}
 
 	void InspectorWindow::DisplayMeshRenderer()
@@ -177,6 +179,11 @@ namespace SliceEditor
 			if (ImGui::Selectable("Add Collider3D"))
 			{
 				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity.value());
+			}
+
+			if (ImGui::Selectable("Add AudioSource"))
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();
