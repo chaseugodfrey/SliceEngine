@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
+#include "Systems/FramerateManager.h"
 namespace SliceEngine
 {
 	Core::Core()
@@ -25,6 +26,8 @@ namespace SliceEngine
 
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
+		mFramerateManager = std::make_unique<FramerateManager>();
+		//mFactory.RegisterSerializableComponent<Transform>();
 
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
@@ -55,6 +58,11 @@ namespace SliceEngine
 	RenderManager* Core::GetRenderManager()
 	{
 		return mRender.get();
+	}
+
+	FramerateManager* Core::GetFramerateManager()
+	{
+		return mFramerateManager.get();
 	}
 
 	GLFWwindow* Core::GetWindow()

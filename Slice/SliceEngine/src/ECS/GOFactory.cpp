@@ -60,6 +60,7 @@ namespace SliceEngine
 		//mRegistry.emplace_or_replace<Transform>(go);
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
+		go.AddComponent<SceneGraph>();
 
 		return go;
 	}
