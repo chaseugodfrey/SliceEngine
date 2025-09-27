@@ -60,15 +60,23 @@ namespace SliceEngine
         float timestamp;
     };
 
+    struct Packet 
+    {
+        std::vector<uint8_t> msg;
+        size_t offset = 0;
+    };
+
+
+
     //std::unordered_map<std::string, sockaddr_in> clients;  // Map of "IP:Port" -> SOCKET
 
     // Stores id and function pointer for the command
     // Size function pointer - 8 bytes, id - 1 byte
-    struct CmdObj
+   /* struct CmdObj
     {
         void (*execFunc)(SOCKET,sockaddr_in);
-        unsigned char id;
-    };
+        uint8_t id;
+    };*/
 
 
 	/// <summary>
@@ -82,21 +90,21 @@ namespace SliceEngine
         /*
             Register name and it will set the id incrementally, and define a function for the command ID
         */
-        void Register(const std::string& cmdName, void(*func)(SOCKET,sockaddr_in));
+        void Register(const std::string& cmdName);
 
         /*
             Get id of registered name
         */
-        unsigned char GetID(const std::string& name);
+        uint8_t GetID(const std::string& name);
 
         /*
           Executes function associated with command name
         */
-        void ProcessFunc(const std::string& name, SOCKET, sockaddr_in player);
-        
+        //void ProcessFunc(const std::string& name, SOCKET, sockaddr_in player);
+
     private:
-        unsigned char nextId = 1;
-        std::unordered_map<std::string, CmdObj> cmdMap;
+        uint8_t nextId = 1;
+        std::unordered_map<std::string, uint8_t> cmdMap;
     };
 
     
@@ -116,7 +124,134 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 	};
 
-    
+    // general template
+    template<typename T>
+    Packet& operator<<(Packet& msg, const T& data)
+    {
+        static_assert(sizeof(T) == 0, "Unsupported");
+
+        return msg;
+    }
+
+    // general template
+    template<typename T>
+    Packet& operator>>(Packet& msg, const T& data)
+    {
+        static_assert(sizeof(T) == 0, "Unsupported");
+
+        return msg;
+    }
+
+    // 1 byte signed
+    template<>
+    inline Packet& operator<<(Packet& pkt, const int8_t& data)
+    {
+        int8_t tmp = static_cast<uint8_t>(data);
+
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 1 byte unsigned
+    template<>
+    inline Packet& operator<<(Packet& pkt, const uint8_t& data)
+    {
+        uint8_t tmp = data;
+
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 2 byte signed
+    template<>
+    inline Packet& operator<<(Packet& pkt, const int16_t& data)
+    {
+        uint16_t tmp = htons(static_cast<uint16_t>(data));
+
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 2 byte unsigned
+    template<>
+    inline Packet& operator<<(Packet& pkt, const uint16_t& data)
+    {
+        uint16_t tmp = htons(data);
+        
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 4 byte signed
+    template<>
+    inline Packet& operator<<(Packet& pkt, const int32_t& data)
+    {
+        uint32_t tmp = htonl(static_cast<uint32_t>(data));
+        
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 4 byte unsigned
+    template<>
+    inline Packet& operator<<(Packet& pkt, const uint32_t& data)
+    {
+        uint32_t tmp = htonl(data);
+        
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 4 byte float
+    template<>
+    inline Packet& operator<<(Packet& pkt, const float& data)
+    {
+        float tmp = htonf(data);
+
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 8 byte signed
+    template<>
+    inline Packet& operator<<(Packet& pkt, const int64_t& data)
+    {
+        uint64_t tmp = htonll(static_cast<uint64_t>(data));
+        
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+    // 8 byte unsigned
+    template<>
+    inline Packet& operator<<(Packet& pkt, const uint64_t& data)
+    {
+        uint64_t tmp = htonll(data);
+        
+        auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
+        pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
+
+        return pkt;
+    }
+
+
+
 }
 
 #endif

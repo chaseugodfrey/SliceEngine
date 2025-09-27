@@ -23,18 +23,18 @@ namespace SliceEngine
         NetworkCommandID cmdIDs{};
     }
 
-	void NetworkCommandID::Register(const std::string& cmdName, void(*func)(SOCKET ,sockaddr_in))
+	void NetworkCommandID::Register(const std::string& cmdName)
 	{
-		unsigned char value = nextId++;
-		CmdObj obj{ func,value };
-		cmdMap[cmdName] = obj;
+        uint8_t value = nextId++;
+		//CmdObj obj{ func,value };
+		cmdMap[cmdName] = value;
 	}
 
-	unsigned char NetworkCommandID::GetID(const std::string& cmdName)
+    uint8_t NetworkCommandID::GetID(const std::string& cmdName)
 	{
 		if (cmdMap.find(cmdName) != cmdMap.end())
 		{
-			return cmdMap.at(cmdName).id;
+			return cmdMap.at(cmdName);
 		}
 		else 
 		{
@@ -43,7 +43,7 @@ namespace SliceEngine
 		
 	}
 
-	void NetworkCommandID::ProcessFunc(const std::string& cmdName, SOCKET pSocket, sockaddr_in pAddr)
+	/*void NetworkCommandID::ProcessFunc(const std::string& cmdName, SOCKET pSocket, sockaddr_in pAddr)
 	{
 		if (cmdMap.find(cmdName) != cmdMap.end())
 		{
@@ -53,7 +53,7 @@ namespace SliceEngine
 		{
 			std::cout << "No function registered for ID: " << cmdName << std::endl;
 		}
-	}
+	}*/
 
     void NetworkingThread::printAddr()
     {
@@ -67,26 +67,16 @@ namespace SliceEngine
         std::getline(ifile, clientNumber);
         ifile.close();
 
-        std::ofstream ofile("Assets/client.txt");
-        if (!ofile)
-        {
-            std::cerr << "cannot open client file" << std::endl;
-        }
-
         if (std::stoi(clientNumber) == 0)
         {
             portNumber = "12345";
-            ofile << 1;
         }
 
         if (std::stoi(clientNumber) == 1)
         {
             portNumber = "12346";
-            ofile << 0;
             player2 = true;
         }
-
-        ofile.close();
 
         sockaddr_in cAddr{};
 
@@ -153,23 +143,11 @@ namespace SliceEngine
 
         std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: "<< clientNumber << " ...\n";
 
-        cmdIDs.Register("N_REQ_CONNECT", [](SOCKET pSocket ,sockaddr_in pAddr) {
 
-            std::cout << "REQ received....\n";
-            std::string message{};
-            message += cmdIDs.GetID("N_RSP_CONNECT");
+        // REGISTER ID HERE
+        cmdIDs.Register("N_REQ_CONNECT");
+        cmdIDs.Register("N_RSP_CONNECT");
 
-            int bytes = { sendto(pSocket, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&pAddr), sizeof(pAddr)) };
-            if (bytes == SOCKET_ERROR || bytes == 0)
-            {
-                std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
-                //closesocket(pSocket);
-            }
-            });
-
-        cmdIDs.Register("N_RSP_CONNECT", [](SOCKET pSocket, sockaddr_in pAddr) {
-            std::cout << "connected " << std::endl;
-            });
 
         keep_running = true;
 
@@ -179,7 +157,6 @@ namespace SliceEngine
 
         if (player2)
         {
-
             std::cout << "sending req....\n";
 
             sockaddr_in player1Dest{};
@@ -187,10 +164,10 @@ namespace SliceEngine
             player1Dest.sin_port = htons((u_short)std::stoi("12345"));
             inet_pton(AF_INET, serverIPAddr, &player1Dest.sin_addr);
 
-            std::string message{};
-            message += cmdIDs.GetID("N_REQ_CONNECT");
+            Packet pkt{};
+            pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
-            int bytes = { sendto(soc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&player1Dest), sizeof(player1Dest)) };
+            int bytes = { sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&player1Dest), sizeof(player1Dest)) };
             if (bytes == SOCKET_ERROR || bytes == 0)
             {
                 std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
@@ -240,47 +217,61 @@ namespace SliceEngine
 
             if (buffer[0] == cmdIDs.GetID("N_REQ_CONNECT"))
             {
+                std::cout << "REQ received....\n";
+                Packet pkt{};
+                pkt << cmdIDs.GetID("N_RSP_CONNECT");
+
+                int bytes = { sendto(otherPlayerSoc,  reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr)) };
+                if (bytes == SOCKET_ERROR || bytes == 0)
+                {
+                    std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
+                    //closesocket(pSocket);
+                }
                 
-                cmdIDs.ProcessFunc("N_REQ_CONNECT", otherPlayerSoc, client_addr);
+                // commented reference
+                {
+                    //cmdIDs.ProcessFunc("N_REQ_CONNECT", otherPlayerSoc, client_addr);
 
-                //if (clients.size() < TOTAL_PLAYERS)
-                //{
-                    /*std::pair<std::string, int> newIndex{};
-
-                    {
-                        std::lock_guard<std::mutex> lock(_eventMutex);
-                        newIndex = std::pair<std::string, int>(IpPort, (int)clients.size());
-                        playersIndex.insert(newIndex);
-
-                        std::pair<std::string, sockaddr_in> newClient(IpPort, client_addr);
-                        clients.insert(newClient);
-                    }*/
-
-                    //std::string message{};
-                    //message += cmdIDs.GetID("N_RSP_CONNECT");
-
-                    /*int tmp = htonl(newIndex.second);
-                    message.append((char*)(&tmp), (char*)(&tmp) + 4);*/
-
-                    //sendto(otherPlayerSoc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr));
-
-                    //if (clients.size() == TOTAL_PLAYERS)
+                    //if (clients.size() < TOTAL_PLAYERS)
                     //{
-                        //gameStart = true;
-                        //appTime = 0;
+                        /*std::pair<std::string, int> newIndex{};
 
-                        // send all clients
-                      /*  for (auto& client : clients)
                         {
-                            sendto(serverSock, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client.second), sizeof(client.second));
+                            std::lock_guard<std::mutex> lock(_eventMutex);
+                            newIndex = std::pair<std::string, int>(IpPort, (int)clients.size());
+                            playersIndex.insert(newIndex);
+
+                            std::pair<std::string, sockaddr_in> newClient(IpPort, client_addr);
+                            clients.insert(newClient);
                         }*/
-                    //}
-                //}
+
+                        //std::string message{};
+                        //message += cmdIDs.GetID("N_RSP_CONNECT");
+
+                        /*int tmp = htonl(newIndex.second);
+                        message.append((char*)(&tmp), (char*)(&tmp) + 4);*/
+
+                        //sendto(otherPlayerSoc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr));
+
+                        //if (clients.size() == TOTAL_PLAYERS)
+                        //{
+                            //gameStart = true;
+                            //appTime = 0;
+
+                            // send all clients
+                          /*  for (auto& client : clients)
+                            {
+                                sendto(serverSock, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client.second), sizeof(client.second));
+                            }*/
+                            //}
+                        //}
+                }
             }
 
             if (buffer[0] == cmdIDs.GetID("N_RSP_CONNECT"))
             {
-                cmdIDs.ProcessFunc("N_RSP_CONNECT", otherPlayerSoc, client_addr);
+                //cmdIDs.ProcessFunc("N_RSP_CONNECT", otherPlayerSoc, client_addr);
+                std::cout << "connected " << std::endl;
                 keep_running = false;
             }
 
