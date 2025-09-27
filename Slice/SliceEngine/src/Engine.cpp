@@ -122,6 +122,7 @@ namespace SliceEngine
 		}
 		inputs->Update();
 		framerateManager->EndSystem("Input");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
 
 		// framerateManager->CapFPS(60);
 
