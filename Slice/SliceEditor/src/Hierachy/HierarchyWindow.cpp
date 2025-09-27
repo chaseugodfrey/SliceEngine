@@ -28,6 +28,28 @@ namespace SliceEditor
 
 		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
+			ImGui::Text(node.name.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity entity = *(static_cast<entt::entity*>(payload->Data));
+
+				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+				auto go = factory.GetGOByEntity(entity);
+				factory.SetParent(entity, node.entity);
+
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
 		if (ImGui::IsItemClicked())
 		{
 			if (ImGui::GetIO().KeyCtrl)
@@ -68,16 +90,6 @@ namespace SliceEditor
 		{
 			ImGui::OpenPopup("entity_pop_up");
 		}
-
-		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
-		//{
-		//	for (size_t i = 0; i < node.children.size(); i++)
-		//	{
-		//		DrawNode(node.children[i]);
-		//	}
-
-		//	ImGui::TreePop();
-		//}
 
 		EntityContextPopUp(node);
 	}
@@ -145,6 +157,7 @@ namespace SliceEditor
 
 		ImGui::End();
 
+		// to do: don't update this interaction every frame.
 		std::unordered_set<entt::entity> entities{};
 
 		for (TestNode* node : set)

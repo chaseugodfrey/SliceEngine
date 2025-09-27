@@ -12,7 +12,6 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "SliceTime.h"
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
@@ -33,9 +32,8 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
-	GameTime& Engine::gameTime = GameTime::getInstance();
 
-	Engine::Engine()
+	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
 	}
 	Engine::~Engine()
@@ -65,8 +63,7 @@ namespace SliceEngine
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
-		//framerateManager = std::make_unique<FramerateManager>();
-		//framerateManager->Init();
+		frm.Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -96,18 +93,13 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		JSONSerializer::Tests::RunTests(false);
-		Core::GetInstance()->mFactory.TestLoop();
+		//JSONSerializer::Tests::RunTests(false);
+		//Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
-		Core::GetInstance()->GetFramerateManager()->StartFrame();
-
-
-		Core::GetInstance()->GetFramerateManager()->StartSystem("Random BS");
-
-		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
@@ -119,14 +111,21 @@ namespace SliceEngine
 
 		Core::GetInstance()->GetFramerateManager()->EndSystem("Random BS");
 		// Main Body
+		frm.StartFrame();
 
-		Core::GetInstance()->GetFramerateManager()->StartSystem("Input");
+		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		Core::GetInstance()->GetFramerateManager()->EndSystem("Input");
+		frm.EndSystem("Input");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+
+		// framerateManager->CapFPS(60);
+
+		frm.EndFrame();
+		////
 
 		
 		Core::GetInstance()->GetFramerateManager()->StartSystem("Graphics");

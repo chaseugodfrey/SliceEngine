@@ -6,16 +6,15 @@
 struct GLFWwindow;
 
 #include <memory>
-#include "SliceTime.h"
 #include "Core/Core.h"
 
 namespace SliceEngine
 {
 	class InputSystem;
 	class AudioManager;
-	//class ResourceManager;;
-	//class RenderManager;
-	//class FramerateManager;
+	class ResourceManager;
+	class RenderManager;
+	class FramerateManager; //here
 
 	class Engine
 	{
@@ -29,7 +28,8 @@ namespace SliceEngine
 		std::unique_ptr<AudioManager> audio;
 		//std::unique_ptr<ResourceManager> mResource;
 		//std::unique_ptr<RenderManager> mRender;
-		static GameTime& gameTime;
+
+		FramerateManager &frm ;
 
 		Engine();
 		~Engine();
