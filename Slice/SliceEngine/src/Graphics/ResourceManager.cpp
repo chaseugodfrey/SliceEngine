@@ -5,20 +5,23 @@
 namespace SliceEngine
 {
 	//SLICE_LOG("Creating Main Window.");
-	ResourceManager::ResourceManager() : mOnlyShader(), mOnlyModel(){}
+	ResourceManager::ResourceManager() : mShaders(), mModels(){}
 
 	ResourceManager::~ResourceManager()
 	{
-		glDeleteProgram(mOnlyShader.s);
+		for(auto& i : mShaders)
+			glDeleteProgram(i.second.s);
 
-		glDeleteVertexArrays(1, &mOnlyModel.vao);
-		glDeleteBuffers(1, &mOnlyModel.vbo);
+		for (auto& i : mModels)
+		{
+			glDeleteVertexArrays(1, &i.second.vao);
+			glDeleteBuffers(1, &i.second.vbo);
+		}
 	}
 
 	void ResourceManager::LoadShader(const std::string& vertFile, const std::string& fragFile)
 	{
 		std::ifstream vertShaderFile(vertFile, std::ios::binary);
-
 
 		if (!vertShaderFile)
 		{
@@ -93,7 +96,8 @@ namespace SliceEngine
 		}
 		glDeleteShader(vertShader);
 		glDeleteShader(fragShader);
-		mOnlyShader.s = shader;
+
+		mShaders.emplace(vertFile.substr(vertFile.find_last_of('/') + 1, vertFile.find('.') - vertFile.find_last_of('/') - 1), shader);
 	}
 
 	void ResourceManager::LoadModel(const std::string& file)
@@ -125,7 +129,7 @@ namespace SliceEngine
 		ifs.close();
 
 		glCreateBuffers(1, &m.vbo);
-		glNamedBufferStorage(m.vbo, m.vtx.size() * sizeof(glm::vec3), m.vtx.data(), GL_MAP_WRITE_BIT);
+		glNamedBufferStorage(m.vbo, m.vtx.size() * sizeof(glm::vec3), m.vtx.data(), GL_DYNAMIC_STORAGE_BIT);
 		glCreateVertexArrays(1, &m.vao);
 		// layout=0
 		glEnableVertexArrayAttrib(m.vao, 0);
@@ -133,17 +137,21 @@ namespace SliceEngine
 		glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(m.vao, 0, 0);
 
-		mOnlyModel = m;
+		mModels.emplace(file.substr(file.find_last_of('/') + 1, file.find('.') - file.find_last_of('/') - 1), m);
 	}
 
-	Shader& ResourceManager::GetShader()
+	Shader& ResourceManager::GetShader(const std::string& name)
 	{
-		return mOnlyShader;
+		if (mShaders.find(name) != mShaders.end())
+			return mShaders.find(name)->second;
+		return mShaders.begin()->second;
 	}
 
-	Model& ResourceManager::GetModel()
+	Model& ResourceManager::GetModel(const std::string& name)
 	{
-		return mOnlyModel;
+		if (mModels.find(name) != mModels.end())
+			return mModels.find(name)->second;
+		return mModels.begin()->second;
 	}
 
 }

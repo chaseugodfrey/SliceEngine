@@ -8,12 +8,13 @@
 
 namespace SliceEngine
 {
-	void WorldSpaceGraphicsSystem::UseShader(ResourceManager* rcManager)
+	Shader WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = rcManager->GetShader();
+		mShader = Core::GetInstance()->GetResourceManager()->GetShader("basic");
 		glUseProgram(mShader.s);
+		return mShader;
 	}
-	void WorldSpaceGraphicsSystem::Render(ResourceManager* rcManager, Entity cam)
+	void WorldSpaceGraphicsSystem::Render(Entity cam)
 	{
 		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -24,18 +25,29 @@ namespace SliceEngine
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		ResetVisibleEntities();
-
-		tempModel = rcManager->GetModel();
-
-		FetchFrustrumCull(cam);
-		auto view = Core::GetInstance()->GetRegistry().view<visibleEntity>(); //renderEntity
+		//ResetVisibleEntities();
+		//
+		//
+		//FetchFrustrumCull(cam);
+		tempModel = Core::GetInstance()->GetResourceManager()->GetModel("Cube");
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);
 		}
-		//for (auto& i : objs)
-		//	EntityDraw(i);
+	}
+
+	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
+	{
+		glBindVertexArray(tempModel.vao);
+
+		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+
+		GLint uniformLoc;
+		uniformLoc = glGetUniformLocation(mShader.s, "M");
+		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+
+		glDrawArrays(tempModel.drawMode, 0, tempModel.drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
@@ -88,19 +100,6 @@ namespace SliceEngine
 			spatialData[xPos * gridNum + zPos].push_back(entity);
 		else
 			outerSpatial.push_back(entity);
-	}
-
-	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
-	{
-		glBindVertexArray(tempModel.vao);
-
-		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
-
-		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(mShader.s, "M");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-
-		glDrawArrays(tempModel.drawMode, 0, tempModel.drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
