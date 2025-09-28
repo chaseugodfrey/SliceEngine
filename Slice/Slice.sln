@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SliceEditor", "SliceEditor\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SliceEngine", "SliceEngine\SliceEngine.vcxproj", "{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SliceScript", "SliceScript\SliceScript.csproj", "{4A610329-B616-7C1E-3F0B-76F5ABBF7222}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		EditorDebug|x64 = EditorDebug|x64
@@ -19,6 +21,10 @@ Global
 		{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}.EditorDebug|x64.Build.0 = EditorDebug|x64
 		{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}.EditorRelease|x64.ActiveCfg = EditorRelease|x64
 		{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}.EditorRelease|x64.Build.0 = EditorRelease|x64
+		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.EditorDebug|x64.ActiveCfg = EditorDebug|x64
+		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.EditorDebug|x64.Build.0 = EditorDebug|x64
+		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.EditorRelease|x64.ActiveCfg = EditorRelease|x64
+		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.EditorRelease|x64.Build.0 = EditorRelease|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
