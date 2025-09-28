@@ -14,6 +14,7 @@ namespace SliceEditor
 		//contentBrowserManager.Init();
 		//profilerManager.Init();
 		InitManagers();
+		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
 		InitWindowManager();
 	}
 

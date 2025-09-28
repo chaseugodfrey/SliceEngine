@@ -83,16 +83,17 @@ namespace SliceEngine
 			return Handle<T>(*this, data, guid);
 		}
 
-	private:
-		template<typename T> friend class Handle;
-
-
 		template<typename T>
 		void RegisterAsset(const std::string& path)
 		{
 			GUID guid = GUID::Generate();
 			mGUIDToPath[guid] = path;
 		}
+
+	private:
+		template<typename T> friend class Handle;
+
+
 
 		std::unordered_map<GUID, detail::Instance> mInstances;
 		std::unordered_map<GUID, std::string> mGUIDToPath;
