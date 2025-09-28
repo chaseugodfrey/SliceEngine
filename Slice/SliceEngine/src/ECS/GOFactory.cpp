@@ -61,7 +61,7 @@ namespace SliceEngine
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
 		go.AddComponent<SceneGraph>();
-
+		SetParent(go.GetEntity());
 		return go;
 	}
 
@@ -134,6 +134,11 @@ namespace SliceEngine
 	void GOFactory::Destroy(GameObject& go)
 	{
 		mDeleteList.insert(go.GetEntity());
+	}
+
+	void GOFactory::Destroy(entt::entity entity)
+	{
+		mDeleteList.insert(entity);
 	}
 
 	void GOFactory::InitRootEntity()
@@ -382,16 +387,16 @@ namespace SliceEngine
 	/// </summary>
 	void GOFactory::UpdateDestroyed()
 	{
-		for (auto& Entity : mDeleteList)
+		for (auto Entity : mDeleteList)
 		{
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
+			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
 			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO.erase(Entity);
 
-			mEntityToGO[Entity].Destroy();
 
 			//mRegistry.destroy(Entity);
 		}
