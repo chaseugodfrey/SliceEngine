@@ -15,7 +15,7 @@
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
-
+#include "Graphics/TransformHelper.h"
 
 	//using namespace rttr;
 
@@ -81,9 +81,11 @@ namespace SliceEngine
 
 		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadShader("Assets/Shaders/instanced.vert", "Assets/Shaders/instanced.frag");
+		mResource->LoadShader("Assets/Shaders/debugLine.vert", "Assets/Shaders/debugLine.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");
 		mResource->LoadModel("Assets/Models/FrustrumFake.txt");
 		mResource->LoadModel("Assets/Models/CubeWireframe.txt");
+		mResource->LoadModel("Assets/Models/Line.txt");
 		
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
