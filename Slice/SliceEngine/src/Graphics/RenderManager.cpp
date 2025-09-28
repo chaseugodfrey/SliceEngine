@@ -1,11 +1,17 @@
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
-#include "gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/common.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 #include "Core/Core.h"
+
+#include "Resource/ResourceManager.h"
+#include "Resource/Shader.h"
+#include "Resource/Model.h"
 
 // My Comments to (Ctrl + f): TODO: MAYDO:
 
@@ -66,7 +72,8 @@ namespace SliceEngine
 
 		// Draw other cameras' frustrum
 		{
-			auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
+			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
+			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
 			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 			for (auto& entity : cams)
 			{
@@ -126,7 +133,7 @@ namespace SliceEngine
 		// Draw Instance Debug Box
 		{
 			mCurrShader = mInstanceShader;
-			glUseProgram(mCurrShader.s);
+			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
 
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
@@ -138,7 +145,8 @@ namespace SliceEngine
 				num++;
 			}
 			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
-			auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
+			//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/CubeWireframe.txt").get();
 			glBindVertexArray(mdl.vao);
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
 		}
@@ -146,7 +154,7 @@ namespace SliceEngine
 		// Draw Debug Line
 		{
 			mCurrShader = mDebugLineShader;
-			glUseProgram(mCurrShader.s);
+			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
 			auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("Line");
 			
@@ -179,6 +187,9 @@ namespace SliceEngine
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, camera.textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
 
+		//scuffed hack
+		//auto const& shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+
 		GLint uniformLoc;
 		if (UniformExists("V", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
@@ -190,7 +201,7 @@ namespace SliceEngine
 
 	bool RenderManager::UniformExists(const char* str, GLint& ref)
 	{
-		ref = glGetUniformLocation(mCurrShader.s, str);
+		ref = glGetUniformLocation(mCurrShader.get()->s, str);
 		if (ref >= 0)
 			return true;
 
@@ -237,7 +248,8 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateInstancingParams()
 	{
-		mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
+		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
+		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
@@ -266,7 +278,9 @@ namespace SliceEngine
 	}
 	void RenderManager::LinkTransformInstancing(const std::string& mdlName)
 	{
-		auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
+		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
+		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 
 		// Link drawing models with instancing vbo
 		for (int i{}; i < 4; ++i)

@@ -11,8 +11,12 @@
 #include "../ECS/ECSTypes.h"
 #include "../ECS/GameObject.h"
 
+#include "Resource/ResourceManager.h"
+#include "Resource/Resource.h"
+
 namespace SliceEngine
 {
+	class ResourceManager;
 	class RenderManager
 	{
 	public:
@@ -27,6 +31,9 @@ namespace SliceEngine
 		GLuint GetTexture();
 		Transform& GetMainCameraTransform();
 		void GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+
+		void LinkInstancing(const std::string& mdlName);
+
 		void IDPick(const int& mouseX, const int& mouseY);
 		// Rendering functions
 		void CalculateVP(Entity& cam);
@@ -51,11 +58,14 @@ namespace SliceEngine
 
 		std::optional<Entity> mainCam;
 
-		Shader mCurrShader;
-		Shader mInstanceShader;
-		Shader mDebugLineShader;
+		Handle<SliceEngineTypes::Shader> mCurrShader;
+		Handle<SliceEngineTypes::Shader> mInstanceShader;
+		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
 		glm::mat4 V, P;
+
+		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
+		//std::shared_ptr<CameraSystem> mCameraSys;
 	};
 }
 

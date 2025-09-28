@@ -1,17 +1,22 @@
 #include <pch.h>
-#include "ResourceManager.h"
+
+//#include "ResourceManager.h"
+#include "Resource/Shader.h"
+#include "Resource/Model.h"
+
 #include "WorldSpaceGraphicsSystem.h"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 #include "../Core/Core.h"
 
 namespace SliceEngine
 {
-	Shader WorldSpaceGraphicsSystem::UseShader()
+	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->GetShader("basic");
-		glUseProgram(mShader.s);
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		//mShader = rcManager->GetShader();
+		glUseProgram(mShader.get()->s);
 		return mShader;
 	}
 	void WorldSpaceGraphicsSystem::Render(Entity cam)
@@ -26,28 +31,14 @@ namespace SliceEngine
 		glDepthFunc(GL_LESS);
 
 		//ResetVisibleEntities();
-		//
-		//
-		//FetchFrustrumCull(cam);
-		tempModel = Core::GetInstance()->GetResourceManager()->GetModel("Cube");
+
+		//tempModel = rcManager->GetModel();
+		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);
 		}
-	}
-
-	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
-	{
-		glBindVertexArray(tempModel.vao);
-
-		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
-
-		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(mShader.s, "M");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-
-		glDrawArrays(tempModel.drawMode, 0, tempModel.drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
@@ -100,6 +91,21 @@ namespace SliceEngine
 			spatialData[xPos * gridNum + zPos].push_back(entity);
 		else
 			outerSpatial.push_back(entity);
+	}
+
+	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
+	{
+		glBindVertexArray(/*tempModel.vao*/
+		tempModel.get()->vao);
+
+		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+
+		GLint uniformLoc;
+		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
+		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+
+		glDrawArrays(/*tempModel.drawMode, 0, tempModel.drawCnt*/
+			tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

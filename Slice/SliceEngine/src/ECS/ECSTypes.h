@@ -2,7 +2,7 @@
 #define ECS_TYPES
 
 #include <entt.hpp>
-#include <gtc/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glfw3.h>
 #include <variant>
 #include "../Physics/CollisionLayer.h"

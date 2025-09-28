@@ -5,7 +5,7 @@
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 namespace SliceEditor
 {

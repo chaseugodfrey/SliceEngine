@@ -46,7 +46,7 @@
 // #include <fmod_studio.hpp>
 // #include <fmod_studio_common.h>
 
-#include <glm.hpp>
+#include <glm/glm.hpp>
 
 // imgui
 #include <imgui.h>
