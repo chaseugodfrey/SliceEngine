@@ -9,12 +9,17 @@ namespace SliceEngine
 	namespace SliceEngineTypes
 	{
 		class Texture;
+		class Model;
+		class Shader;
 		class Sound;
 	}
 
 	namespace FNVHash
 	{
-		constexpr uint64_t Prime = 1099511628211ULL;
+		//temporarily mvoed to resourcemanager.h
+
+
+		/*constexpr uint64_t Prime = 1099511628211ULL;
 		constexpr uint64_t OffsetBasis = 14695981039346656037ULL;
 
 		constexpr uint64_t fnv1a(const std::string_view str)
@@ -27,13 +32,15 @@ namespace SliceEngine
 			}
 
 			return hash;
-		}
+		}*/
 	}
 
 	// type UUIDs 
 	namespace ResourceTypeIDs
 	{
 		constexpr uint64_t TEXTURE = FNVHash::fnv1a("Texture");
+		constexpr uint64_t SHADER = FNVHash::fnv1a("Shader");
+		constexpr uint64_t MODEL = FNVHash::fnv1a("Model");
 		constexpr uint64_t SOUND = FNVHash::fnv1a("Sound");
 	}
 
@@ -43,11 +50,35 @@ namespace SliceEngine
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
 		// for when we implement meta data files
-		static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, uint64_t resourceID);
+		//static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, uint64_t resourceID);
 		// for now load with file name directly
 		static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Shader>
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
+
+		// for now load with file name directly
+		static SliceEngineTypes::Shader* Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Model>
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
+
+		// for now load with file name directly
+		static SliceEngineTypes::Model* Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::Model& resource, ResourceManager& resourceMgr);
 
 	};
 

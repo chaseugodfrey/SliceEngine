@@ -127,8 +127,10 @@
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Resource\GUID.h" />
+    <ClInclude Include="src\Resource\Model.h" />
     <ClInclude Include="src\Resource\Resource.h" />
     <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Shader.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
     <ClInclude Include="src\Scripting\ScriptObject.h" />
@@ -161,7 +163,9 @@
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Shader.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />

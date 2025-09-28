@@ -19,7 +19,7 @@ namespace SliceEngine
 		// Each specialization MUST provide:
 		// constexpr static inline uint64_t typeUUID = YOUR_UNIQUE_ID;
 		// constexpr static inline uint64_t defaultResourceGUID = YOUR_DEFAULT_ID;
-		// static ResourceType* Load(ResourceManager&, uint64_t guid, const std::string& path);
+		 static ResourceType* Load(ResourceManager&, /*uint64_t guid,*/ const std::string& path);
 		// static void Destroy(ResourceType&, ResourceManager&);
 	};
 
@@ -33,6 +33,28 @@ namespace SliceEngine
 		};
 	}
 
+	//used for the hack (see below in resource manager)
+	namespace FNVHash
+	{
+		//temporarily moved from resource.h
+
+		constexpr uint64_t Prime = 1099511628211ULL;
+		constexpr uint64_t OffsetBasis = 14695981039346656037ULL;
+
+		constexpr uint64_t fnv1a(const std::string_view str)
+		{
+			uint64_t hash = OffsetBasis;
+			for (char c : str)
+			{
+				hash ^= static_cast<uint64_t>(c);
+				hash *= Prime;
+			}
+
+			return hash;
+		};
+	}
+
+
 	class ResourceManager
 	{
 	public:
@@ -45,6 +67,7 @@ namespace SliceEngine
 		//	uint64_t typeID = Type<T>::typeUUID;
 
 		//}
+
 
 		template<typename T>
 		Handle<T> get(const GUID& guid)
@@ -63,7 +86,7 @@ namespace SliceEngine
 				path = mGUIDToPath.at(guid);
 			}
 
-			T* data = Type<T>::Load(*this, guid.GetGUID(), path);
+			T* data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
 			{
 				SLICE_LOG_ERROR("Unable to load resource");
@@ -82,6 +105,29 @@ namespace SliceEngine
 
 			return Handle<T>(*this, data, guid);
 		}
+
+
+		/*
+		* ----------------PLEASE READ---------------
+		* THIS IS A HACK TO QUICKLY LINK FILE PATHS TO RESOURCES FOR NOW
+		* TO PREVENT BREAKING AS MUCH CODE AS POSSIBLE
+		* MUST BE REMOVED EVENTUALLY(please)
+		* Following functions:
+		* Handle<T> get(string)
+		* RegisterFileAsset(string)
+		*/
+		template<typename T>
+		Handle<T> get(std::string const& path) {
+			return get<T>(GUID(FNVHash::fnv1a(path)));
+		}
+		//template<typename T>
+		void RegisterFileAsset(const std::string& path)
+		{
+			mGUIDToPath[GUID(FNVHash::fnv1a(path))] = path;
+		}
+		/*
+		* ----------------END OF HACK---------------
+		*/
 
 	private:
 		template<typename T> friend class Handle;
@@ -107,14 +153,14 @@ namespace SliceEngine
 		// TODO: Move all into cpp file
 		Handle() : mManager(nullptr), mPtr(nullptr) {}
 		
-		Handle(ResourceManager& resourceMgr, T* ptr, GUID guid) : mManager(resourceMgr), mPtr(ptr), mGUID(guid) {}
+		Handle(ResourceManager& resourceMgr, T* ptr, GUID guid) : mManager(&resourceMgr), mPtr(ptr), mGUID(guid) {}
 		
 		~Handle() 
 		{ 
 			Release(); 
 		}
 
-		Handle(const Handle& other) : mManager(other.mManager), mPtr(other.mPtr), mGUID(other.mGUID)
+		Handle(const Handle& other) : mManager(&other.mManager), mPtr(other.mPtr), mGUID(other.mGUID)
 		{
 			AddRef();
 		}

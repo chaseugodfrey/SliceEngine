@@ -7,7 +7,10 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-#include "Graphics/ResourceManager.h"
+
+//#include "Graphics/ResourceManager.h"
+#include "Resource/ResourceManager.h"
+
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -80,8 +83,12 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		mResource->LoadModel("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
+
+		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		mResource->LoadModel("Assets/Models/Cube.txt");*/
 		
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();

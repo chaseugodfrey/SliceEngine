@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "Core.h"
-#include "Graphics/ResourceManager.h"
+//#include "Graphics/ResourceManager.h"
+#include "Resource/ResourceManager.h"
+
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
+
+
 namespace SliceEngine
 {
 	Core::Core()
