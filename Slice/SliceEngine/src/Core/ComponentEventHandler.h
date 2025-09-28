@@ -2,9 +2,13 @@
 #define COMPONENT_EVENT_HANDLER_H
 #include <entt.hpp>
 
-void OnColliderShapeAdded(entt::registry& reg, entt::entity entity);
-void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity);
-void OnRigidBodyAdded(entt::registry& reg, entt::entity entity);
-void OnRigidBodyRemoved(entt::registry& reg, entt::entity entity);
+namespace SliceEngine
+{
+	void OnColliderShapeAdded(entt::registry& reg, entt::entity entity);
+	void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity);
+	void OnRigidBodyAdded(entt::registry& reg, entt::entity entity);
+	void OnRigidBodyRemoved(entt::registry& reg, entt::entity entity);
+}
+
 
 #endif

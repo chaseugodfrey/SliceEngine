@@ -66,11 +66,24 @@ public:
 		mDispatcher.sink<Event>().connect<Candidate>(*instance);
 	}
 
+	template <typename Event>
+	void Publish(const Event& event)
+	{
+		mDispatcher.trigger(event);
+	}
+
+	template <typename Event>
+	void Publish(const Event event)
+	{
+		mDispatcher.trigger(event);
+	}
+
 	template <typename Event, typename... Args>
 	void Publish(Args&&... args)
 	{
 		mDispatcher.trigger<Event>(std::forward<Args>(args)...);
 	}
+
 #pragma region STRING BASED FOR EDITOR/SCRIPTING
 	
 	/// <summary>

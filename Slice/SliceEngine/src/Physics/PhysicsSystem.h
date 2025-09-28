@@ -66,7 +66,7 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void SubscribeToCollisionEvents() const;
+		void SubscribeToCollisionEvents();
 	};
 
 

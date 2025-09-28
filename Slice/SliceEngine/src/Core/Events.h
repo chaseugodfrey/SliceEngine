@@ -1,6 +1,7 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 #include "ECS/ECSTypes.h"
+#include <rttr/registration.h>
 /*
 	Define any events here
 */
