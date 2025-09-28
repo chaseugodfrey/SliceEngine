@@ -87,7 +87,7 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
-
+		test();
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -123,7 +123,7 @@ namespace SliceEngine
 		frm.EndSystem("Input");
 
 		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
