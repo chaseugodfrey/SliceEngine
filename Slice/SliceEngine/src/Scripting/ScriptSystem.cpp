@@ -96,11 +96,11 @@ namespace SliceEngine
 
     void ScriptSystem::Init()
     {
-        InitMono();
+       InitMono();
 
-        //ScriptFunctions::RegisterFunctions();
+       ScriptFunctions::RegisterFunctions();
 
-       // LoadEntityClasses();
+       LoadEntityClasses();
 
         //ScriptFunctions::RegisterComponents();
 
@@ -302,7 +302,7 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
-            scriptRef->InvokeOnConstruct(id);
+            scriptRef->InvokeOnConstruct((unsigned int)id);
             scriptRef->InvokeOnCreate();
         }
     }
@@ -337,7 +337,27 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
-        
+	/*	auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        auto& scriptRef = mEntityInstances[entity];
+        const auto& fields = scriptRef->GetScriptClass()->mFields;
+        for (const auto& it : fields)
+        {
+            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            {
+                if (it.second.mType == ScriptFieldType::String)
+                {
+                    std::string str = std::get<std::string>(scriptComponent.scriptableFieldMap[it.first]);
+                    scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                }
+                else
+                {
+                    scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                }
+            }
+
+        }*/
+
     }
 
     void ScriptSystem::UpdateScriptComponent(Entity entity)
@@ -345,24 +365,34 @@ namespace SliceEngine
 
     }
 
-    void ScriptSystem::UpdateScriptPrefabComponent(Script& scriptComponent)
-    {
-
-    }
-
-    //void ScriptSystem::UpdateAllPrefabScriptComponents()
-    //{
-
-    //}
-
-    void ScriptSystem::UpdateExistingPrefabScript(Script& scriptComponent)
-    {
-
-    }
-
     void ScriptSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
     {
+        if (mEntityInstances.count(entity) != 0)
+        {
+            // already has an instance
+            return;
+		}
 
+		auto& scriptComponent = reg.get<Script>(entity);
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+			mEntityInstances[entity] = instance;
+
+			// Update the script variables from the script component to the script instance
+            // useful for seeing variables in the inspector
+            // but after M1 or after tuesday
+
+            // Check if an entity is created on runtime
+			// if it is then we have to invoke the construct and oncreate
+            // but again after M1 
+		}
+        else
+        {
+			// Script not assigned yet, so add to the entity added list
+            // to check later
+            entityAdded.push_back(entity);
+        }
     }
 
     /// <summary>
@@ -462,7 +492,7 @@ namespace SliceEngine
         return ScriptFieldType::None;
     }
 
-    std::shared_ptr<ScriptObject> ScriptSystem::GetScriptInstance(unsigned int entityID)
+    std::shared_ptr<ScriptObject> ScriptSystem::GetScriptInstance(Entity entityID)
     {
         if (mEntityInstances.count(entityID) == 0)
         {
