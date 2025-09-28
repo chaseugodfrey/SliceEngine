@@ -114,9 +114,9 @@ namespace SliceEditor
 						ImGui::SetItemDefaultFocus();
 					}
 				}
+				ImGui::EndCombo();
 			}
 
-			ImGui::EndCombo();
 
 			ImGui::SliderFloat("Volume", &as.currentVolume, 0.0f, 1.0f);
 
@@ -124,9 +124,10 @@ namespace SliceEditor
 			ImGui::Checkbox("isLoop", &as.isLoop);
 
 			ImGui::Checkbox("is3D", &as.is3D);
+
+			ImGui::TreePop();
 		}
 
-		ImGui::TreePop();
 	}
 
 	void InspectorWindow::DisplayMeshRenderer()

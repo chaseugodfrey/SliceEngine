@@ -59,6 +59,8 @@ namespace SliceEditor
 		node.name = "scene1";
 		mRootNodes.push_back(node);
 
+		auto& root = mRootNodes.back();
+
 		auto entityview = core->GetRegistry().view<SliceEngine::SliceEntity>();
 
 		int i = 1;
@@ -69,7 +71,7 @@ namespace SliceEditor
 			childNode.parent = &node;
 			childNode.entity = entity;
 			childNode.name = "dummy" + std::to_string(i++);
-			node.children.push_back(childNode);
+			root.children.push_back(childNode);
 		}
 	}
 

@@ -45,7 +45,7 @@ namespace SliceEditor
 				auto go = factory.GetGOByEntity(entity);
 				factory.SetParent(entity, node.entity);
 
-				isDirty = true;
+				//isDirty = true;
 			}
 
 			ImGui::EndDragDropTarget();
@@ -170,9 +170,9 @@ namespace SliceEditor
 		mSelection.UpdateSelection(entities);
 
 		// to do: check this in a function
-		if (isDirty)
+		/*if (isDirty)
 		{
 			mManager.BuildHierarchy();
-		}
+		}*/
 	}
 }
