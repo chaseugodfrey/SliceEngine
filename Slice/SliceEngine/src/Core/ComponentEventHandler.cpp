@@ -19,23 +19,26 @@ namespace SliceEngine
 
     void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity)
     {
-        //std::unordered_map<std::string, rttr::variant> properties;
-        //properties["entity"] = static_cast<uint64_t>(entity);
-        //EventManager::GetInstance()->Publish("ColliderShapeRemoved", properties);
+        ColliderShapeRemovedEvent event;
+        event.entity = entity;
+
+        EventManager::GetInstance()->Publish<ColliderShapeRemovedEvent>(event);
     }
 
     void OnRigidBodyAdded(entt::registry& reg, entt::entity entity)
     {
-        //std::unordered_map<std::string, rttr::variant> properties;
-        //properties["entity"] = static_cast<uint64_t>(entity);
-        //EventManager::GetInstance()->Publish("RigidBodyAdded", properties);
+        RigidBodyAddedEvent event;
+        event.entity = entity;
+
+        EventManager::GetInstance()->Publish<RigidBodyAddedEvent>(event);
     }
 
     void OnRigidBodyRemoved(entt::registry& reg, entt::entity entity)
     {
-        //std::unordered_map<std::string, rttr::variant> properties;
-        //properties["entity"] = static_cast<uint64_t>(entity);
-        //EventManager::GetInstance()->Publish("RigidBodyRemoved", properties);
+        RigidBodyRemovedEvent event;
+        event.entity = entity;
+
+        EventManager::GetInstance()->Publish<RigidBodyRemovedEvent>(event);
 
     }
 
