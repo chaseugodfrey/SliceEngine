@@ -74,7 +74,8 @@
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceScript\SliceScript.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorDebug\SliceEditor"
@@ -82,7 +83,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..
 xcopy /Q /E /Y /I "" "..\build\bin\EditorDebug\SliceEditor\Assets"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorDebug\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core.dll" "..\build\bin\EditorDebug\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\Mono\lib\*.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -90,7 +92,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;..\SliceEngine\src;..\SliceEngine\thirdparty\glew\GL;..\SliceEngine\thirdparty\glfw\include;..\SliceEngine\thirdparty\fmod\include;..\SliceEngine\thirdparty\nlohmann\include;..\SliceEngine\thirdparty\rttr\include;..\SliceEngine\thirdparty\entt;..\SliceEngine\thirdparty\glm;..\SliceEngine\thirdparty\JoltPhysics;thirdparty\imgui\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -109,7 +111,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceScript\SliceScript.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorRelease\SliceEditor"
@@ -117,12 +120,15 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..
 xcopy /Q /E /Y /I "" "..\build\bin\EditorRelease\SliceEditor\Assets"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorRelease\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core.dll" "..\build\bin\EditorRelease\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\Mono\lib\*.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\ContentBrowser\ContentBrowserManager.h" />
     <ClInclude Include="src\ContentBrowser\ContentBrowserWindow.h" />
+    <ClInclude Include="src\Core\IBaseManager.h" />
+    <ClInclude Include="src\Core\Registry.h" />
     <ClInclude Include="src\Editor.h" />
     <ClInclude Include="src\EditorCommonTypes.h" />
     <ClInclude Include="src\Hierachy\HierarchyManager.h" />
@@ -163,6 +169,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
   <ItemGroup>
     <ClCompile Include="src\ContentBrowser\ContentBrowserManager.cpp" />
     <ClCompile Include="src\ContentBrowser\ContentBrowserWindow.cpp" />
+    <ClCompile Include="src\Core\Registry.cpp" />
     <ClCompile Include="src\Editor.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyManager.cpp" />
     <ClCompile Include="src\Hierachy\HierarchyWindow.cpp" />
@@ -175,6 +182,7 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
     <ClCompile Include="src\Profiler\ProfilerWindow.cpp" />
     <ClCompile Include="src\SceneView\SceneViewManager.cpp" />
     <ClCompile Include="src\SceneView\SceneViewWindow.cpp" />
+    <ClCompile Include="src\SelectionSystem\SelectionSystem.cpp" />
     <ClCompile Include="src\WindowManager\WindowManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pch.cpp">

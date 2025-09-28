@@ -12,11 +12,10 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "SliceTime.h"
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
-
+#include "Scripting/ScriptSystem.h"
 
 	//using namespace rttr;
 
@@ -33,9 +32,8 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
-	GameTime& Engine::gameTime = GameTime::getInstance();
 
-	Engine::Engine()
+	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
 	}
 	Engine::~Engine()
@@ -65,16 +63,16 @@ namespace SliceEngine
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
-		framerateManager = std::make_unique<FramerateManager>();
-		framerateManager->Init();
+		frm.Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-
+		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
+		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
@@ -96,39 +94,48 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		JSONSerializer::Tests::RunTests(false);
-		Core::GetInstance()->mFactory.TestLoop();
+		//JSONSerializer::Tests::RunTests(false);
+		//Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
-		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.StartFrame();
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
+		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
+		frm.EndSystem("GLFW Poll Events");
 		// Main Body
-		framerateManager->StartFrame();
 
-		framerateManager->StartSystem("Input");
+		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		framerateManager->EndSystem("Input");
+		frm.EndSystem("Input");
 
+		frm.StartSystem("Physics");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
-		framerateManager->EndFrame();
 		////
 
+		frm.StartSystem("Graphics");
 		mRender->Render(mResource);
+		frm.EndSystem("Graphics");
+
+		frm.EndFrame();
+		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()

@@ -19,7 +19,12 @@ project "SliceEngine"
         "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",
         "thirdparty/nlohmann/include",
-        ThirdParty.RTTR_INC
+        ThirdParty.RTTR_INC,
+        ThirdParty.MONO_INC
+    }
+
+    externalincludedirs {
+        "thirdparty/Mono/bin"
     }
 
     libdirs {
@@ -27,7 +32,8 @@ project "SliceEngine"
         "thirdparty/glfw/lib-vc2022",
         "thirdparty/fmod/lib",
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB
+        ThirdParty.JOLT_LIB,
+        ThirdParty.MONO_LIB
         }
 
     links {
@@ -35,13 +41,16 @@ project "SliceEngine"
         "opengl32",
         "glfw3",
         "fmod_vc",
+        "mono-2.0-sgen.lib",
+        "MonoPosixHelper.lib"
         --"rttr_core"
         }
 
     defines
     {
         "RTTR_DLL",
-        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
+        "JPH_ENABLE_ASSERTS"
     }
 
     pchheader "pch.h"
@@ -52,11 +61,6 @@ project "SliceEngine"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
-
-        defines
-        {
-         "JPH_ENABLE_ASSERTS"
-        }
         
          links {
             "rttr_core_d",

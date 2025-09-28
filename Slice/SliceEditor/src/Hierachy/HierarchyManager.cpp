@@ -1,13 +1,10 @@
 #include <pch.h>
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
+#include "../Core/Registry.h"
 
 namespace SliceEditor
 {
-	HierarchyManager::HierarchyManager()
-	{
-
-	}
 
 	void HierarchyManager::Test()
 	{
@@ -79,7 +76,8 @@ namespace SliceEditor
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()
 	{
-		auto window = std::make_unique<HierarchyWindow>(*this);
+		auto& selectionSystem = registry.GetSelectionSystem();
+		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
 		return window;
 	}
 }

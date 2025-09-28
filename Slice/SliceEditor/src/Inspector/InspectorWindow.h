@@ -17,7 +17,7 @@ namespace SliceEditor
 		InspectorManager& mManager;
 
 		// to do: change later
-		entt::entity selected_entity;
+		std::optional<entt::entity> selected_entity;
 
 		void DisplayEntityData();
 		void DisplayTransform();
@@ -26,13 +26,15 @@ namespace SliceEditor
 		void DisplayCollider3D();
 		void AddComponentButton();
 
+		void R();
+
+
+
 	public:
 
 		InspectorWindow(InspectorManager& manager);
 		~InspectorWindow() = default;
 		void Draw() override final;
-
-		void UpdateSelectedEntity(entt::entity entity);
 	};
 }
 

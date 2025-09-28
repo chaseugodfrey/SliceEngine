@@ -11,8 +11,8 @@ namespace SliceEditor
 		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
 		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
-		contentBrowserManager.Init();
-		profilerManager.Init();
+		//contentBrowserManager.Init();
+		//profilerManager.Init();
 		InitManagers();
 		InitWindowManager();
 	}
@@ -77,15 +77,7 @@ namespace SliceEditor
 	void Editor::InitManagers()
 	{
 		SLICE_LOG("EDITOR: Initializing Managers.");
-		contentBrowserManager.Init();
-
-		hierarchyManager = std::make_unique<HierarchyManager>();
-		// find a way to make tihs look prettier tbh
-		sceneViewManager = std::make_unique<SceneViewManager>(*SliceEngine::RenderManagerInstance);
-		inspectorManager = std::make_unique<InspectorManager>();
-		hierarchyManager->Init();
-		sceneViewManager->Init();
-
+		registry.Init();
 	}
 
 	void Editor::InitEditorState()
@@ -98,11 +90,20 @@ namespace SliceEditor
 	void Editor::InitWindowManager()
 	{
 		SLICE_LOG("Registering Systems to WindowManager.");
-		windowManager.RegisterInterface("ContentBrowser", &contentBrowserManager);
-		windowManager.RegisterInterface("Profiler", &profilerManager);
-		windowManager.RegisterInterface("SceneView", sceneViewManager.get());
-		windowManager.RegisterInterface("Hierarchy", hierarchyManager.get());
-		windowManager.RegisterInterface("Inspector", inspectorManager.get());
+
+		auto& managers = registry.GetManagers();
+
+		for (const auto& [key, value] : managers)
+		{
+			if (auto other = dynamic_cast<ICreateWindow*>(value.get()))
+			{
+				SLICE_LOG(key);
+				windowManager.RegisterInterface(key, other);
+			}
+		}
+
+		//windowManager.RegisterInterface("Profiler", &profilerManager);
+
 		windowManager.Init();
 	}
 
@@ -119,11 +120,12 @@ namespace SliceEditor
 
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
-		auto target = contentBrowserManager.selectedFolder->path / path.filename();
+		auto manager = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		auto target = manager->selectedFolder->path / path.filename();
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
-		contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+		manager->RebuildDirectory(*manager->rootNode);
 	}
 
 

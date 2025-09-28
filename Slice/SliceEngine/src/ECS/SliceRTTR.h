@@ -44,6 +44,20 @@ namespace SliceEngine
 		.method("fill", &std::array<uint32_t, 4>::fill)
 		.method("front", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::front))
 		.method("back", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::back));
+	
+	rttr::registration::class_<std::string>("std::string")
+		// Constructors
+		.constructor<>()
+		.constructor<const char*>()
+		.constructor<const std::string&>()
+
+		// Methods
+		.method("size", &std::string::size)
+		.method("length", &std::string::length)
+		.method("clear", &std::string::clear)
+		.method("empty", &std::string::empty)
+		.method("c_str", &std::string::c_str);
+
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()
@@ -54,10 +68,14 @@ namespace SliceEngine
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
 		.property("neighbours", &SceneGraph::neighbours);
+
+	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
+		.constructor<>()
+		.property("mName", &SliceEntity::mName);
         		rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
-			.property("Motiontype", &RigidBody::motionType)
-			.property("layer", &RigidBody::layer)
-			.property("isActive", &RigidBody::isActive)
+			.property("isKinematic", &RigidBody::isKinematic)
+			.property("gravityFactor", &RigidBody::gravityFactor)
+			.property("CollisionDetection", &RigidBody::CollisionDetection)
 			.property("mass", &RigidBody::mass)
 			.property("friction", &RigidBody::friction)
 			.property("restituition", &RigidBody::restitution)
@@ -65,6 +83,7 @@ namespace SliceEngine
 			.property("angularDamping", &RigidBody::angularDamping);
 
 		rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+			.property("layer", &ColliderShape::layer)
 			.property("ColliderType", &ColliderShape::type)
 			.property("ShapeData", &ColliderShape::shapeData)
 			.property("offSet", &ColliderShape::offSet)

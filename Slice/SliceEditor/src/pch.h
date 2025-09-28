@@ -28,6 +28,7 @@
 // Logger
 #include "Logger/Logger.h"
 #include "EditorCommonTypes.h"
+#include "../../SliceEngine/src/Systems/FramerateManager.h"
 
 // Common Types
 //#include "Vectors/Vector2.h"
@@ -44,6 +45,8 @@
 // #include <fmod_common.h>
 // #include <fmod_studio.hpp>
 // #include <fmod_studio_common.h>
+
+#include <glm.hpp>
 
 // imgui
 #include <imgui.h>
