@@ -156,7 +156,7 @@ namespace SliceEngine
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
-			auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("Line");
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Line.txt").get();
 			
 			GLint uniformLoc;
 			if(UniformExists("uPosOffset", uniformLoc))
@@ -256,7 +256,7 @@ namespace SliceEngine
 		LinkTransformInstancing("CubeWireframe");
 
 		// Make Debug Line VBO
-		mDebugLineShader = Core::GetInstance()->GetResourceManager()->GetShader("debugLine");
+		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/debugLine.txt");
 		std::vector<glm::vec3> mDebugLines;
 		mDebugLines.reserve(mMaxInstance);
 		// offset, scale, if rotate
@@ -298,7 +298,8 @@ namespace SliceEngine
 	}
 	void RenderManager::LinkDebugLineInstancing(const std::string& mdlName)
 	{
-		auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
+		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
 
 		glBindVertexArray(mdl.vao);
 		int idx = 15;
