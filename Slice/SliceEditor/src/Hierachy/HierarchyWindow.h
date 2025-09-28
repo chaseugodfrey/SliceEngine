@@ -7,19 +7,27 @@
 namespace SliceEditor
 {
 	class HierarchyManager;
+	class SelectionSystem;
 	struct TestNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
 		HierarchyManager& mManager;
+		// temporary solution todo: remove this and call from registry/event bus
+		SelectionSystem& mSelection;
+		bool isDirty;
 
-		void DrawNode(TestNode const& node);
-		void DrawSceneNode(TestNode const& node);
+		void DrawNode(TestNode& node);
+		void DrawSceneNode(TestNode& node);
 		void DrawNodeGraph();
+
+		void EntityContextPopUp(TestNode& node);
+
+		std::unordered_set<TestNode*> set;
 
 	public:
 
-		HierarchyWindow(HierarchyManager& manager);
+		HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection);
 		~HierarchyWindow() = default;
 		void Draw() override final;
 	};

@@ -1,0 +1,229 @@
+#include <pch.h>
+#include "ProfilerWindow.h"
+
+namespace SliceEditor
+{
+	ProfilerWindow::ProfilerWindow(ProfilerManager& man) : mManager(man)
+	{
+	}
+
+	void ProfilerWindow::Draw()
+	{
+
+		ImGui::Begin("Profiler");
+
+		ImGui::BeginTabBar("##Profiler");
+
+		if(ImGui::BeginTabItem("Logger"))
+		{
+			DrawLoggerTab();
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("Profiler"))
+		{
+			DrawPerformanceTab();
+			ImGui::EndTabItem();
+		}
+
+		ImGui::EndTabBar();
+
+
+		ImGui::End();
+
+		if (ImGui::IsKeyPressed(ImGuiKey_C))
+		{
+			SLICE_LOG_CRITICAL("Critical Message!");
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_Z))
+		{
+			SLICE_LOG_VALUES("Values Message!");
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_X))
+		{
+			SLICE_LOG_WARNING("Warning Message!");
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_V))
+		{
+			SLICE_LOG_ERROR("Error Message!");
+		}
+	}
+
+	void ProfilerWindow::DrawLoggerTab()
+	{
+		
+
+		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
+
+		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
+		for (int i = 0; i < Logger::savedLogs.size(); i++)
+		{
+			std::stringstream ss;
+
+			ss << " [" << Logger::LogLevelToString(Logger::savedLogs[i].first) << "] ";
+
+			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::savedLogs[i].first), ss.str().c_str());
+
+			ImGui::SameLine();
+
+			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
+		}
+
+		if (mManager.mAutoScroll)
+		{
+			ImGui::SetScrollHereY(1.0);
+		}
+
+		if (ImGui::GetScrollY() < ImGui::GetScrollMaxY())
+		{
+			mManager.mAutoScroll = false;
+		}
+		else
+		{
+			mManager.mAutoScroll = true;
+		}
+		ImGui::EndChild();
+	}
+
+	void ProfilerWindow::DrawPerformanceTab()
+	{
+		static int time = 0;
+		time += 1;
+
+		if (time % 10 == 0) //Change this later
+		{
+			time = 0;
+			mManager.UpdateDebugStatistics();
+		}
+
+		DrawSystemTimeline();
+
+		DrawSystemBreakdown();
+		/*for (auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
+		{
+			ImGui::Text("%s ", system.c_str());
+			ImGui::SameLine();
+			ImGui::Text("Duration: %.4f", time);
+
+			auto sysPercent = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
+			ImGui::Text("Percentage: %.2f%", sysPercent[system]);
+		}*/
+
+	}
+
+
+	void ProfilerWindow::DrawSystemTimeline()
+	{
+		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+
+		ImGui::Text("System Timeline");
+		ImGui::BeginChild("Timeline", ImVec2(0, 30), ImGuiChildFlags_AutoResizeY);
+		{
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
+			ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+			float xPos = canvas_pos.x;
+			const float height = 20.0f;
+
+			// Draw timeline background
+			draw_list->AddRectFilled(
+				canvas_pos,
+				ImVec2(canvas_pos.x + canvas_size.x, canvas_pos.y + height),
+				IM_COL32(30, 30, 30, 255)
+			);
+
+
+			// Draw each system's time slice
+			for (const auto& pair : systemPercentages) 
+			{
+				ImU32 sysColor = mManager.GetSystemColor(pair.first);
+
+				draw_list->AddRectFilled(
+					ImVec2(xPos, canvas_pos.y),
+					ImVec2(xPos + mManager.mDebugStats[pair.first].width, canvas_pos.y + height),
+					sysColor
+				);
+
+				// System label if there's enough space
+
+				float luminance = mManager.LuminanceCalculation(sysColor);
+				ImU32 textColor = IM_COL32(255, 255, 255, 255);
+
+				if (luminance > 0.5f)
+				{
+					textColor = IM_COL32(0, 0, 0, 255);
+				}
+
+				if (mManager.mDebugStats[pair.first].width > 50.0f) {
+					draw_list->AddText(
+						ImVec2(xPos + 2, canvas_pos.y + 2),
+						textColor,
+						pair.first.c_str()
+					);
+				}
+
+				// Tooltip on hover
+				if (ImGui::IsMouseHoveringRect(
+					ImVec2(xPos, canvas_pos.y),
+					ImVec2(xPos + mManager.mDebugStats[pair.first].width, canvas_pos.y + height)))
+				{
+					ImGui::BeginTooltip();
+					ImGui::Text("%s\nTime: %.3f ms\nPercentage: %.1f%%",
+						pair.first.c_str(),
+						mManager.mDebugStats[pair.first].timeTaken,
+						mManager.mDebugStats[pair.first].loadPercentage);
+					ImGui::EndTooltip();
+				}
+
+				xPos += mManager.mDebugStats[pair.first].width;
+			}
+		}
+		ImGui::EndChild();
+	}
+
+	void ProfilerWindow::DrawSystemBreakdown()
+	{
+		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		ImGui::Text("System Statistics");
+		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
+		{
+			for (const auto& pair : systemPercentages) {
+				// Create a bordered box for each system
+				ImGui::BeginChild(pair.first.c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
+				{
+					// System Name with colored indicator
+
+					ImU32 color = mManager.GetSystemColor(pair.first);
+					ImGui::ColorButton("##color", ImColor(color), ImGuiColorEditFlags_NoTooltip, ImVec2(16, 16));
+					ImGui::SameLine();
+					ImGui::Text("%s", pair.first.c_str());
+
+					// Performance metrics in two columns
+					ImGui::Columns(2, nullptr, false);
+
+					ImGui::Text("Time:");
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "%.3f ms",
+						mManager.mDebugStats[pair.first].timeTaken);
+
+					ImGui::NextColumn();
+
+					ImGui::Text("Load:");
+					ImGui::SameLine();
+					ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.5f, 1.0f), "%.1f%%",
+						mManager.mDebugStats[pair.first].loadPercentage);
+
+					ImGui::Columns(1);
+
+					// Progress bar showing system load
+					ImGui::ProgressBar((float)mManager.mDebugStats[pair.first].loadPercentage / 100.0f, ImVec2(-1, 4), "");
+				}
+				ImGui::EndChild();
+				ImGui::Spacing();
+			}
+		}
+		ImGui::EndChild();
+
+		ImGui::Text("Total Frame Time: %.4f", SliceEngine::FramerateManager::getInstance().GetFrameTime());
+	}
+}

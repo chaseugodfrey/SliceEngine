@@ -3,10 +3,7 @@
 
 #include "../WindowManager/EditorWindow.h"
 
-namespace SliceEngine
-{
 
-}
 
 namespace SliceEditor
 {
@@ -14,15 +11,17 @@ namespace SliceEditor
 
 	class SceneViewWindow : public EditorWindow
 	{
+		SliceEngine::GameObject camObj;
 		SceneViewManager& mManager;
+		GLuint tex_id;
 
 	public:
 
-		SceneViewWindow(SceneViewManager& manager);
+		SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam);
 		~SceneViewWindow() = default;
 
 		// TO DO: replace this with proper camera attaching
-		void SetCameraTexture(void* id);
+		void SetCameraTexture(GLuint texture_id);
 		void Draw() override final;
 	};
 }

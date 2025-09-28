@@ -12,7 +12,6 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "SliceTime.h"
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
@@ -33,9 +32,8 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
-	GameTime& Engine::gameTime = GameTime::getInstance();
 
-	Engine::Engine()
+	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
 	}
 	Engine::~Engine()
@@ -64,7 +62,8 @@ namespace SliceEngine
 		inputs = std::make_unique<InputSystem>();
 		inputs->Init(window);
 		audio = std::make_unique<AudioManager>();
-		//mResource = std::make_unique<ResourceManager>();
+		// mResource = std::make_unique<ResourceManager>();
+		frm.Init();
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -88,43 +87,54 @@ namespace SliceEngine
 
 		mRender->CreateCamera();
 
-		GameObject newGO = Core::GetInstance()->mFactory.CreateGO();
-		newGO.AddComponent<Renderer>();
-		newGO.GetComponent<Transform>().position = glm::vec3(1.f, 0.f, 0.f);
+
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		JSONSerializer::Tests::RunTests(false);
-		Core::GetInstance()->mFactory.TestLoop();
+		//JSONSerializer::Tests::RunTests(false);
+		//Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
+		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.StartFrame();
+
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
+		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
+		frm.EndSystem("GLFW Poll Events");
 		// Main Body
-		//framerateManager->StartFrame();
 
-		//framerateManager->StartSystem("Input");
+		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
 			std::cout << " test " << std::endl;
 		}
 		inputs->Update();
-		//framerateManager->EndSystem("Input");
+		frm.EndSystem("Input");
 
-		//framerateManager->EndFrame();
-		//
+		frm.StartSystem("Physics");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		frm.EndSystem("Physics");
+		// framerateManager->CapFPS(60);
 
+		////
+
+		frm.StartSystem("Graphics");
 		mRender->Render(mResource);
+		frm.EndSystem("Graphics");
+
+		frm.EndFrame();
+		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()

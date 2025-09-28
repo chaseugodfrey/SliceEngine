@@ -10,8 +10,10 @@ namespace SliceEditor
 		SLICE_LOG("Initializing WindowManager.");
 
 		AddWindow("ContentBrowser");
+		AddWindow("Profiler");
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
+		AddWindow("Inspector");
 		//AddWindow<ContentBrowserWindow>();
 		//AddWindow<SceneViewWindow>();
 		//AddWindow<GameView>(editorState);
@@ -38,7 +40,7 @@ namespace SliceEditor
 		}
 		else
 		{
-			SLICE_LOG_VALUES("No registered window with name: ", name.c_str());
+			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
 		}
 	}
 
