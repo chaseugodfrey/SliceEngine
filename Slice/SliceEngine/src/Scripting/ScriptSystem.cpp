@@ -96,17 +96,17 @@ namespace SliceEngine
 
     void ScriptSystem::Init()
     {
-        InitMono();
+       InitMono();
 
-        ScriptFunctions::RegisterFunctions();
+       ScriptFunctions::RegisterFunctions();
 
-        LoadEntityClasses();
+       LoadEntityClasses();
 
-        ScriptFunctions::RegisterComponents();
+        //ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
          // retrieve the main Entity class
-        mEntityClass = ScriptClass("Carmicah", "Entity");
+        //mEntityClass = ScriptClass("Slice", "Entity");
 
     }
 
@@ -155,9 +155,9 @@ namespace SliceEngine
     void ScriptSystem::InitMono()
     {
         // while (true) {};
-        mono_set_assemblies_path("../Dependencies/bin");
+        mono_set_assemblies_path("thirdparty/Mono/bin");
 
-        mRootDomain = mono_jit_init("CarmicahJITRuntime");
+        mRootDomain = mono_jit_init("SliceJITRuntime");
         if (mRootDomain == nullptr)
         {
             SLICE_LOG_ERROR("Unable to init mono");
@@ -167,8 +167,9 @@ namespace SliceEngine
 
         //mRootDomain = rootDomain;
 
-        LoadMonoAssembly("../CarmicahScriptCore/CarmicahScriptCore.dll");
+        LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
+		PrintAssemblyTypes(mCoreAssembly);
         //MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         //MonoClass* monoClass = mono_class_from_name(image, "Carmicah", "Main");
         //MonoObject* classInstance = mono_object_new(mAppDomain, monoClass);
@@ -287,7 +288,7 @@ namespace SliceEngine
             const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
            // UNUSED(name);
            // UNUSED(nameSpace);
-            //printf("%s.%s\n", nameSpace, name);
+           printf("%s.%s\n", nameSpace, name);
         }
     }
 
@@ -301,7 +302,7 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
-            scriptRef->InvokeOnConstruct(id);
+            scriptRef->InvokeOnConstruct((unsigned int)id);
             scriptRef->InvokeOnCreate();
         }
     }
@@ -336,7 +337,27 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
-        
+	/*	auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        auto& scriptRef = mEntityInstances[entity];
+        const auto& fields = scriptRef->GetScriptClass()->mFields;
+        for (const auto& it : fields)
+        {
+            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            {
+                if (it.second.mType == ScriptFieldType::String)
+                {
+                    std::string str = std::get<std::string>(scriptComponent.scriptableFieldMap[it.first]);
+                    scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                }
+                else
+                {
+                    scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                }
+            }
+
+        }*/
+
     }
 
     void ScriptSystem::UpdateScriptComponent(Entity entity)
@@ -344,24 +365,34 @@ namespace SliceEngine
 
     }
 
-    void ScriptSystem::UpdateScriptPrefabComponent(Script& scriptComponent)
-    {
-
-    }
-
-    //void ScriptSystem::UpdateAllPrefabScriptComponents()
-    //{
-
-    //}
-
-    void ScriptSystem::UpdateExistingPrefabScript(Script& scriptComponent)
-    {
-
-    }
-
     void ScriptSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
     {
+        if (mEntityInstances.count(entity) != 0)
+        {
+            // already has an instance
+            return;
+		}
 
+		auto& scriptComponent = reg.get<Script>(entity);
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+			mEntityInstances[entity] = instance;
+
+			// Update the script variables from the script component to the script instance
+            // useful for seeing variables in the inspector
+            // but after M1 or after tuesday
+
+            // Check if an entity is created on runtime
+			// if it is then we have to invoke the construct and oncreate
+            // but again after M1 
+		}
+        else
+        {
+			// Script not assigned yet, so add to the entity added list
+            // to check later
+            entityAdded.push_back(entity);
+        }
     }
 
     /// <summary>
@@ -373,6 +404,11 @@ namespace SliceEngine
         
     }
 
+    void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+    {
+        
+	}
+
     void ScriptSystem::LoadEntityClasses()
     {
         // clear the map before using it
@@ -381,7 +417,7 @@ namespace SliceEngine
         MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "Carmicah", "Entity");
+        MonoClass* entityClass = mono_class_from_name(image, "Slice", "Entity");
 
         for (int32_t i = 0; i < numTypes; i++)
         {
@@ -456,7 +492,7 @@ namespace SliceEngine
         return ScriptFieldType::None;
     }
 
-    std::shared_ptr<ScriptObject> ScriptSystem::GetScriptInstance(unsigned int entityID)
+    std::shared_ptr<ScriptObject> ScriptSystem::GetScriptInstance(Entity entityID)
     {
         if (mEntityInstances.count(entityID) == 0)
         {

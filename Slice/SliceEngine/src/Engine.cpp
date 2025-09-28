@@ -16,6 +16,7 @@
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
+#include "Scripting/ScriptSystem.h"
 
 	//using namespace rttr;
 
@@ -69,9 +70,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
-
+		Core::GetInstance()->InitSystem<ScriptSystem>();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
@@ -93,14 +95,14 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
 
-
-
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+
 	}
 
 	void Engine::Update()
@@ -129,7 +131,7 @@ namespace SliceEngine
 		frm.EndSystem("Input");
 
 		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
@@ -139,12 +141,16 @@ namespace SliceEngine
 		mRender->Render();
 		frm.EndSystem("Graphics");
 
+
+
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
 	{
+		Core::FactoryInstance.UpdateDestroyed();
+
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;

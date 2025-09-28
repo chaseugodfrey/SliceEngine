@@ -4,8 +4,10 @@
 #include "PhysicsSystem.h"
 #include "PhysicsDebug.h"
 #include "../Graphics/TransformHelper.h"
+#include "../Core/EventManager.h"
 
-namespace SliceEngine 
+
+namespace SliceEngine
 {
 
 	PhysicsSystem::~PhysicsSystem()
@@ -14,7 +16,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize(float fixedDt, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -22,15 +24,16 @@ namespace SliceEngine
 		}
 		try
 		{
-			if (threadCount == 0) 
+			if (threadCount == 0)
 			{
 				threadCount = std::thread::hardware_concurrency() - 1;
-				if (threadCount == 0) 
+				if (threadCount == 0)
 				{
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
 				}
 			}
 
+			collisionSteps = static_cast<int>(ceil(fixedDt / (1.0f / 60.f)));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -40,7 +43,7 @@ namespace SliceEngine
 			//Hook Jolt Trace to SliceEngines logger.
 			JPH::Trace = JoltTraceImpl;
 			JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
-			SLICE_LOG("Hook Jolt Tracer to SliceEngine Logger");
+				SLICE_LOG("Hook Jolt Tracer to SliceEngine Logger");
 
 			JPH::Factory::sInstance = new JPH::Factory;
 			JPH::RegisterTypes();
@@ -51,13 +54,13 @@ namespace SliceEngine
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
 			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
-		    objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
+			objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
 
 			physicsSystem = std::make_unique<JPH::PhysicsSystem>();
-			physicsSystem->Init(maxBodies, numBodyMutex,maxBodies, maxContactConstraints,
-								*broadphaseLayerInterface,
-								*objectVsBroadphaseLayerFilter,
-								*objectLayerPairFilter);
+			physicsSystem->Init(maxBodies, numBodyMutex, maxBodies, maxContactConstraints,
+				*broadphaseLayerInterface,
+				*objectVsBroadphaseLayerFilter,
+				*objectLayerPairFilter);
 
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
@@ -72,9 +75,9 @@ namespace SliceEngine
 
 	bool PhysicsSystem::IsInitialized() const { return isInitialized; }
 
-	void PhysicsSystem::Shutdown() 
+	void PhysicsSystem::Shutdown()
 	{
-		if (isInitialized) 
+		if (isInitialized)
 		{
 			physicsSystem.reset();
 			jobSystem.reset();
@@ -84,6 +87,93 @@ namespace SliceEngine
 			JPH::Factory::sInstance = nullptr;
 			isInitialized = false;
 		}
+	}
+
+	void PhysicsSystem::OnColliderAdd(const ColliderShapeAddedEvent& event)
+	{
+		std::cout << "LMOA OI ADDED Collider\n";
+	}
+
+	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
+	{
+	}
+
+	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
+	{
+		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+
+		if (rigidBody.isKinematic)
+		{
+			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Kinematic, JPH::EActivation::Activate);
+		}
+		else
+		{
+			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
+		}
+
+
+
+		//Set physics properties
+		if (!rigidBody.isKinematic)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
+			physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
+
+			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+
+			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				JPH::MotionProperties* mp = body.GetMotionProperties();
+
+				mp->ScaleToMass(rigidBody.mass);
+				mp->SetLinearDamping(rigidBody.linearDamping);
+				mp->SetAngularDamping(rigidBody.angularDamping);
+			}
+
+		}
+		if (rigidBody.isKinematic)
+		{
+			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+		}
+
+	}
+
+	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
+	{
+		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+
+		physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Static, JPH::EActivation::DontActivate);
+
+		float mass = 1.0f;
+		float friction = 0.5f;
+		float restitution = 0.0f;
+		float linearDamping = 0.05f;
+		float angularDamping = 0.05f;
+
+		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
+
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, restitution);
+
+		JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+		if (lock.Succeeded())
+		{
+			JPH::Body& body = lock.GetBody();
+			JPH::MotionProperties* mp = body.GetMotionProperties();
+
+			mp->ScaleToMass(mass);
+			mp->SetLinearDamping(linearDamping);
+			mp->SetAngularDamping(angularDamping);
+		}
+
 	}
 
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
@@ -105,7 +195,7 @@ namespace SliceEngine
 			}
 
 			return result.Get();
-		}	
+		}
 		case ColliderShape::ColliderType::Sphere:
 		{
 			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
@@ -122,8 +212,8 @@ namespace SliceEngine
 			return result.Get();
 		}
 		default:
-				SLICE_LOG_ERROR("Unsupported Collider Shape");
-				return nullptr;
+			SLICE_LOG_ERROR("Unsupported Collider Shape");
+			return nullptr;
 
 		}
 	}
@@ -134,9 +224,9 @@ namespace SliceEngine
 		glm::quat rot = Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
+
 		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
 		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
- 
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -144,10 +234,11 @@ namespace SliceEngine
 		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
 		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
 
-		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()));
+		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
 		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
 		transform.rotation = rot;
+
 	}
 
 
@@ -184,18 +275,19 @@ namespace SliceEngine
 		if (isRigibody)
 		{
 			auto& rigidBody = reg.get<RigidBody>(entity);
-			if(rigidBody.isKinematic)
+			if (rigidBody.isKinematic)
 			{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
 			}
 			else
 			{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
 			}
 
 			//Set physics properties
-			if(!rigidBody.isKinematic)
+			if (!rigidBody.isKinematic)
 			{
+				bodySettings.mGravityFactor = rigidBody.gravityFactor;
 				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
 				bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
 				bodySettings.mFriction = rigidBody.friction;
@@ -203,7 +295,7 @@ namespace SliceEngine
 				bodySettings.mLinearDamping = rigidBody.linearDamping;
 				bodySettings.mAngularDamping = rigidBody.angularDamping;
 			}
-			if(rigidBody.isKinematic)
+			if (rigidBody.isKinematic)
 			{
 				bodySettings.mFriction = rigidBody.friction;
 				bodySettings.mRestitution = rigidBody.restitution;
@@ -220,6 +312,7 @@ namespace SliceEngine
 			bodySettings.mIsSensor = true;
 		}
 
+		bodySettings.mAllowDynamicOrKinematic = true; // allow changing motion type at runtime
 
 		//Store entity ID in user data for collision callbacks
 		bodySettings.mUserData = static_cast<uint64_t>(entity);
@@ -258,8 +351,26 @@ namespace SliceEngine
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
-		physicsSystem->Update(dt, 1, tempAllocator.get(), jobSystem.get());
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
+	}
+
+	void PhysicsSystem::SubscribeToCollisionEvents()
+	{
+		// Get the EventManager instance and subscribe our member functions.
+		auto* eventManager = EventManager::GetInstance();
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 	}
 
 }

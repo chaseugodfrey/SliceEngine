@@ -89,7 +89,7 @@ namespace SliceEngine
 
 		ScriptFieldType GetScriptFieldType(MonoType* type);
 
-		std::shared_ptr<ScriptObject> GetScriptInstance(unsigned int entityID);
+		std::shared_ptr<ScriptObject> GetScriptInstance(Entity entityID);
 
 		void UpdateScriptVariables(Entity entity);
 
@@ -129,7 +129,7 @@ namespace SliceEngine
 		// keep track of every type of entity classes
 		std::unordered_map<std::string, std::shared_ptr<ScriptClass>> mEntityClasses;
 		// keep track of entity to script object
-		std::unordered_map<unsigned int, std::shared_ptr<ScriptObject>> mEntityInstances;
+		std::unordered_map<Entity, std::shared_ptr<ScriptObject>> mEntityInstances;
 
 		// cause I dont want to constantly loop through mEntitiesSet to pick up new entities
 		// ill store new entities thats added in a vector
