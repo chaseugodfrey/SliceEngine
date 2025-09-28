@@ -3,8 +3,6 @@
 
 //#include "ResourceManager.h"
 #include "Resource/ResourceManager.h"
-#include "Resource/Model.h"
-#include "Resource/Shader.h"
 
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"

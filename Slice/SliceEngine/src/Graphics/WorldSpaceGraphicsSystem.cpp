@@ -14,7 +14,7 @@ namespace SliceEngine
 {
 	void WorldSpaceGraphicsSystem::UseShader(ResourceManager* rcManager)
 	{
-		mShader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/Shader.txt");
+		mShader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 	}

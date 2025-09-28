@@ -111,7 +111,11 @@ namespace SliceEngine
 				return {};
 			}
 
-			return { CompileShader(vert, frag) };
+			std::filesystem::path directory(filepath);
+			auto vert_dir = directory.parent_path() / vert;
+			auto frag_dir = directory.parent_path() / frag;
+
+			return { CompileShader(vert_dir.string(), frag_dir.string())};
 		}
 
 		void Shader::DestroyShader() {

@@ -43,7 +43,13 @@ namespace SliceEngine
 	//Model
 	SliceEngineTypes::Model* Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		return new SliceEngineTypes::Model{ SliceEngineTypes::Model::LoadModel(path) };
+		auto* m = new SliceEngineTypes::Model();
+		if (!m->LoadModel(path)) {
+			delete m;
+			return nullptr;
+		}
+		//return new SliceEngineTypes::Model{SliceEngineTypes::Model::LoadModel(path)};
+		return m;
 	}
 
 	void Type<SliceEngineTypes::Model>::Destroy(SliceEngineTypes::Model& resource, ResourceManager& resourceMgr)
