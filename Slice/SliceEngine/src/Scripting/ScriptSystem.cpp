@@ -102,11 +102,11 @@ namespace SliceEngine
 
        LoadEntityClasses();
 
-        //ScriptFunctions::RegisterComponents();
+       ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
          // retrieve the main Entity class
-        //mEntityClass = ScriptClass("Slice", "Entity");
+        mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
     }
 
@@ -417,7 +417,7 @@ namespace SliceEngine
         MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "Slice", "Entity");
+        MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
 
         for (int32_t i = 0; i < numTypes; i++)
         {
