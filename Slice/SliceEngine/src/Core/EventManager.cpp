@@ -7,7 +7,10 @@
 /// </summary>
 void EventManager::SetupEventManager()
 {
-
+	RegisterEvent<ColliderShapeAddedEvent>();
+	RegisterEvent<ColliderShapeRemovedEvent>();
+	RegisterEvent<RigidBodyAddedEvent>();
+	RegisterEvent<RigidBodyRemovedEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

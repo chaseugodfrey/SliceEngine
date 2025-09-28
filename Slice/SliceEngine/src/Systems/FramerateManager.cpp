@@ -112,7 +112,7 @@ namespace SliceEngine
 
 
 
-		std::cout << "1 frame time: " << frameTime << std::endl;
+		//std::cout << "1 frame time: " << frameTime << std::endl;
 
 		if (!firstFrameDone)
 		{

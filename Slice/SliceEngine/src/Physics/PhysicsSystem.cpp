@@ -4,6 +4,8 @@
 #include "PhysicsSystem.h"
 #include "PhysicsDebug.h"
 #include "../Graphics/TransformHelper.h"
+#include "../Core/EventManager.h"
+
 
 namespace SliceEngine 
 {
@@ -14,7 +16,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize(float fixedDt,JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -31,6 +33,7 @@ namespace SliceEngine
 				}
 			}
 
+			collisionSteps = static_cast<int>(ceil(fixedDt / (1.0f / 60.f)));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -86,6 +89,24 @@ namespace SliceEngine
 		}
 	}
 
+	void PhysicsSystem::OnColliderAdd(const ColliderShapeAddedEvent& event)
+	{
+		std::cout << "LMOA OI ADDED Collider\n";
+	}
+
+	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
+	{
+	}
+
+	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
+	{
+		std::cout << "LMOA OI ADDED RIGIDBODY\n";
+	}
+
+	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
+	{
+	}
+
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
 	{
 		switch (collider.type)
@@ -134,9 +155,9 @@ namespace SliceEngine
 		glm::quat rot = Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
+
 		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
 		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
- 
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -144,10 +165,11 @@ namespace SliceEngine
 		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
 		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
 
-		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetX(), rotation.GetY(), rotation.GetZ(), rotation.GetW()));
+		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
 		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
 		transform.rotation = rot;
+
 	}
 
 
@@ -258,8 +280,26 @@ namespace SliceEngine
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
-		physicsSystem->Update(dt, 1, tempAllocator.get(), jobSystem.get());
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
+	}
+
+	void PhysicsSystem::SubscribeToCollisionEvents() const
+	{
+		// Get the EventManager instance and subscribe our member functions.
+		auto* eventManager = EventManager::GetInstance();
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 	}
 
 }

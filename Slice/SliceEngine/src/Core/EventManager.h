@@ -46,7 +46,9 @@ public:
 		mEventPublishers[eventType] = [this](rttr::variant& eventInstance)
 		{
 			// convert the variant to the event for dispatcher to trigger
-			if (eventInstance.convert<Event>())
+			bool isOkay = false;
+			eventInstance.convert<Event>(&isOkay);
+			if (isOkay)
 			{
 				mDispatcher.trigger(eventInstance.get_value<Event>());
 			}
