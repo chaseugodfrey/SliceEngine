@@ -2,8 +2,9 @@ project "SliceScript"
     kind "SharedLib"
     language "C#"
     dotnetframework "4.7.2"
-    targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
-    objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
+    -- targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
+    -- objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
+    targetdir ("")
 
     files
     {

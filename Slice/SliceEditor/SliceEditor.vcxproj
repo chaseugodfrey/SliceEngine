@@ -74,7 +74,8 @@
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceScript\SliceScript.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorDebug\SliceEditor"
@@ -82,7 +83,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..
 xcopy /Q /E /Y /I "" "..\build\bin\EditorDebug\SliceEditor\Assets"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorDebug\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core.dll" "..\build\bin\EditorDebug\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorDebug\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\Mono\lib\*.dll" "..\build\bin\EditorDebug\SliceEditor"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -109,7 +111,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\
       <AdditionalLibraryDirectories>..\SliceEngine\thirdparty\glew;..\SliceEngine\thirdparty\glfw\lib-vc2022;..\SliceEngine\thirdparty\fmod\lib;..\SliceEngine\thirdparty\rttr\lib;..\SliceEngine\thirdparty\JoltPhysics\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\SliceEngine.lib" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceScript\SliceScript.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
     </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glew\glew32.dll" "..\build\bin\EditorRelease\SliceEditor"
@@ -117,7 +120,8 @@ copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\glfw\lib-vc2022\glfw3.dll" "..
 xcopy /Q /E /Y /I "" "..\build\bin\EditorRelease\SliceEditor\Assets"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\build\bin\EditorRelease\SliceEditor"
 copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core.dll" "..\build\bin\EditorRelease\SliceEditor"
-copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\rttr\bin\rttr_core_d.dll" "..\build\bin\EditorRelease\SliceEditor"
+copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\Mono\lib\*.dll" "..\build\bin\EditorRelease\SliceEditor"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
