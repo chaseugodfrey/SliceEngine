@@ -7,6 +7,7 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "CollisionLayer.h"
+#include "../Core/Events.h"
 
 
 namespace SliceEngine
@@ -32,6 +33,14 @@ namespace SliceEngine
 
 		void Shutdown();
 
+		void OnColliderAdd(const ColliderShapeAddedEvent& event);
+
+		void OnColliderRemove(const ColliderShapeRemovedEvent& event);
+
+		void OnRigidBodyAdd(const RigidBodyAddedEvent& event);
+
+		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
+
 	public:
 
 		PhysicsSystem() = default;
@@ -56,6 +65,8 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+
+		void SubscribeToCollisionEvents() const;
 	};
 
 

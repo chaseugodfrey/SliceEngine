@@ -4,6 +4,8 @@
 #include "PhysicsSystem.h"
 #include "PhysicsDebug.h"
 #include "../Graphics/TransformHelper.h"
+#include "../Core/EventManager.h"
+
 
 namespace SliceEngine 
 {
@@ -85,6 +87,24 @@ namespace SliceEngine
 			JPH::Factory::sInstance = nullptr;
 			isInitialized = false;
 		}
+	}
+
+	void PhysicsSystem::OnColliderAdd(const ColliderShapeAddedEvent& event)
+	{
+		std::cout << "LMOA OI ADDED Collider\n";
+	}
+
+	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
+	{
+	}
+
+	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
+	{
+		std::cout << "LMOA OI ADDED RIGIDBODY\n";
+	}
+
+	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
+	{
 	}
 
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
@@ -262,6 +282,24 @@ namespace SliceEngine
 		SyncECSToPhysics(transform, colliderShape);
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
+	}
+
+	void PhysicsSystem::SubscribeToCollisionEvents() const
+	{
+		// Get the EventManager instance and subscribe our member functions.
+		auto* eventManager = EventManager::GetInstance();
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
+
+		// Subscribe to the PlayerJumpedEvent
+		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
+
+		// Subscribe to the EnemyDefeatedEvent
+		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 	}
 
 }
