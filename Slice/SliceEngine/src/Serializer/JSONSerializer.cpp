@@ -351,7 +351,58 @@ namespace SliceEngine
 
 			void Test3(bool cleanOutput)
 			{
+				SLICE_LOG("Test 3 Beginning...");
+				//auto& factory = FactoryInstance;
 
+				//// Create a root object with SceneGraph neighbours
+				//GameObject root = factory.CreateGO("RootWithNeighbours");
+
+				//// Set up SceneGraph with dummy neighbours [0..DIRECTIONS-1]
+				//root.AddComponent<SceneGraph>();
+				//auto& scenegraph = root.GetComponent<SceneGraph>();
+				//scenegraph.entity_id = entt::to_integral(root.GetEntity());
+				//for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
+				//{
+				//	scenegraph.neighbours[i] = static_cast<Entity>(i); // old IDs
+				//}
+
+				//// Serialize
+				//std::string filename = testPath + std::string("JSONTest3.json");
+				//Serialize(SerializeGameObject(root), filename);
+
+				//factory.Destroy(root);
+
+				//// Deserialize and capture mapping
+				//auto [newObjects, idMap] = DeserializeGameObjectsWithMap(Deserialize(filename));
+				//// ^ You’ll need your deserializer to expose the old->new mapping.
+				////   If you only have DeserializeGameObjects, you could modify it to also return the map.
+
+				//// Verify neighbour remapping
+				//for (auto& obj : newObjects)
+				//{
+				//	if (obj.HasComponent<SceneGraph>())
+				//	{
+				//		auto& sg = obj.GetComponent<SceneGraph>();
+				//		for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
+				//		{
+				//			Entity oldId = static_cast<Entity>(i);
+				//			Entity expectedNewId = idMap.at(oldId);   // what it *should* map to
+				//			Entity actual = sg.neighbours[i];        // what got written in new object
+				//			if (actual != expectedNewId)
+				//			{
+				//				SLICE_LOG("Mismatch at neighbour " << i
+				//					<< ": expected " << entt::to_integral(expectedNewId)
+				//					<< ", got " << entt::to_integral(actual));
+				//			}
+				//		}
+				//	}
+				//}
+
+				//if (cleanOutput)
+				//{
+				//	std::filesystem::remove(filename);
+				//}
+				SLICE_LOG("Test 3 Ended.");
 			}
 
 			void RunTests(bool cleanOutput)
