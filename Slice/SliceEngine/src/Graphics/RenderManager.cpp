@@ -158,13 +158,13 @@ namespace SliceEngine
 		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 
 		//scuffed hack
-		auto const& shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		//auto const& shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
 
 		GLint uniformLoc;
 
-		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "V");
+		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/mCurrShader.get()->s, "V");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
-		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "P");
+		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/mCurrShader.get()->s, "P");
 
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
