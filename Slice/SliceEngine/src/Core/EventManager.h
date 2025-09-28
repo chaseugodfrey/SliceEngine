@@ -18,11 +18,13 @@ public:
 	EventManager(const EventManager&) = delete;
 	EventManager& operator=(const EventManager&) = delete;
 
+	void SetupEventManager();
+
 	/// <summary>
 	/// Register the event type to allow for runtime reeflection.
 	/// Useful for editor function calls
 	/// </summary>
-	/// <typeparam name="Event"></typeparam>
+	/// <typeparam name="Event">Event to register</typeparam>
 	template<typename Event>
 	void RegisterEvent()
 	{
@@ -67,8 +69,19 @@ public:
 	{
 		mDispatcher.trigger<Event>(std::forward<Args>(args)...);
 	}
+#pragma region STRING BASED FOR EDITOR/SCRIPTING
+	
+	/// <summary>
+	/// Potentially for editor or scriptign systems to trigger events by string
+	/// </summary>
+	/// <param name="eventName"></param>
+	void Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties);
 
-	//void PublishByName
+	std::vector<std::string> GetRegisteredEvents() const;
+
+	std::vector<std::pair<std::string, std::string>> GetEventProperties(const std::string& eventName) const;
+
+#pragma endregion
 };
 
 #endif

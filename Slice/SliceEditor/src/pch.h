@@ -28,6 +28,7 @@
 // Logger
 #include "Logger/Logger.h"
 #include "EditorCommonTypes.h"
+#include "../../SliceEngine/src/Systems/FramerateManager.h"
 
 // Common Types
 //#include "Vectors/Vector2.h"

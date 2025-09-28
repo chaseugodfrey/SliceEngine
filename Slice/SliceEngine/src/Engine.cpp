@@ -17,7 +17,7 @@
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
-
+#include "Scripting/ScriptSystem.h"
 
 	//using namespace rttr;
 
@@ -73,9 +73,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<NetworkSystem>();
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-
+		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
+		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
@@ -103,24 +104,26 @@ namespace SliceEngine
 
 		
 		//JSONSerializer::Test2();
-		JSONSerializer::Tests::RunTests(false);
-		Core::GetInstance()->mFactory.TestLoop();
+		//JSONSerializer::Tests::RunTests(false);
+		//Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()
 	{
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.StartFrame();
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
+		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
+		frm.EndSystem("GLFW Poll Events");
 		// Main Body
-		frm.StartFrame();
 
 		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
@@ -129,14 +132,20 @@ namespace SliceEngine
 		}
 		inputs->Update();
 		frm.EndSystem("Input");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
 
+		frm.StartSystem("Physics");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
-		frm.EndFrame();
 		////
 
+		frm.StartSystem("Graphics");
 		mRender->Render(mResource);
+		frm.EndSystem("Graphics");
+
+		frm.EndFrame();
+		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()

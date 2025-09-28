@@ -3,7 +3,7 @@
 
 namespace SliceEditor
 {
-	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man) : manager(man)
+	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man) : mManager(man)
 	{}
 
 	void ContentBrowserWindow::Draw()
@@ -14,7 +14,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Reload"))
 		{
-			manager.RebuildDirectory(*manager.rootNode);
+			mManager.RebuildDirectory(*mManager.rootNode);
 		}
 
 		/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/
@@ -30,7 +30,7 @@ namespace SliceEditor
 			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
 			{
 
-				DisplayFolders(*manager.rootNode);
+				DisplayFolders(*mManager.rootNode);
 				//ImGui::Text("Directory Here!");
 
 				ImGui::EndChild();
@@ -46,7 +46,7 @@ namespace SliceEditor
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
 
-				DisplayItems(*manager.selectedFolder);
+				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
 			}
 		}
@@ -134,12 +134,12 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Rename File"))
 						{
-							manager.openRenameFile = true;
+							mManager.openRenameFile = true;
 						}
 
 						if (ImGui::MenuItem("Delete Folder"))
 						{
-							manager.DeleteFile(entry);
+							mManager.DeleteFile(entry);
 							selectedEntry = nullptr;
 							ImGui::EndPopup();
 							ImGui::EndTable();
@@ -174,7 +174,7 @@ namespace SliceEditor
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 					{
-						manager.OpenFile();
+						mManager.OpenFile();
 					}
 
 					if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
@@ -183,18 +183,18 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Open File"))
 						{
-							manager.OpenFile();
+							mManager.OpenFile();
 						}
 						if (ImGui::MenuItem("Rename File"))
 						{
-							manager.openRenameFile = true;
+							mManager.openRenameFile = true;
 						}
 						if (ImGui::MenuItem("Delete File"))
 						{
 							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
 							//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
 							//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-							manager.DeleteFile(entry);
+							mManager.DeleteFile(entry);
 							selectedEntry = nullptr;
 							ImGui::EndPopup();
 							break;
@@ -206,9 +206,9 @@ namespace SliceEditor
 				}
 			}
 
-			if (manager.openRenameFile)
+			if (mManager.openRenameFile)
 			{
-				manager.openRenameFile = !manager.openRenameFile;
+				mManager.openRenameFile = !mManager.openRenameFile;
 				ImGui::OpenPopup("##RenameFile");
 			}
 
@@ -251,12 +251,12 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Rename File"))
 			{
-				manager.openRenameFile = true;
+				mManager.openRenameFile = true;
 			}
 
 			if (ImGui::MenuItem("Delete Folder"))
 			{
-				manager.DeleteFile(entry);
+				mManager.DeleteFile(entry);
 				selectedEntry = nullptr;
 				ImGui::EndPopup();
 				ImGui::EndTable();
@@ -270,7 +270,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::SelectFile(DirectoryNode& node)
 	{
-		manager.selectedFolder = &node;
+		mManager.selectedFolder = &node;
 	}
 
 	void ContentBrowserWindow::RenameFilePopup(DirectoryNode& entry)
@@ -294,7 +294,7 @@ namespace SliceEditor
 			{
 				if (newName[0] != '\0')
 				{
-					manager.RenameFile(entry, newName);
+					mManager.RenameFile(entry, newName);
 					ImGui::CloseCurrentPopup();
 				}
 				else

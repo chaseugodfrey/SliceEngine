@@ -4,6 +4,7 @@
 #include "Hierachy/HierarchyManager.h"
 #include "Inspector/InspectorManager.h"
 #include "ContentBrowser/ContentBrowserManager.h"
+#include "Profiler/ProfilerManager.h"
 
 namespace SliceEditor
 {
@@ -13,6 +14,7 @@ namespace SliceEditor
 		CreateManager<HierarchyManager>("Hierarchy");
 		CreateManager<InspectorManager>("Inspector");
 		CreateManager<SceneViewManager>("SceneView");
+		CreateManager<ProfilerManager>("Profiler");
 
 		for (auto& [name, manager] : mManagers)
 		{

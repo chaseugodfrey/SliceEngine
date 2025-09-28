@@ -23,6 +23,7 @@ namespace SliceEngine
 
 	public:
 		// SliceTime funcs
+		FramerateManager(); //line 75
 		FramerateManager(const FramerateManager &) = delete;
 		FramerateManager &operator=(const FramerateManager &) = delete;
 
@@ -59,11 +60,17 @@ namespace SliceEngine
 		void StartSystem(const std::string &name);  
 		void EndSystem(const std::string &name);
 		void CapFPS(int maxFPS);
+		void CalculateSystemPercentages();
 		float GetCurrFPS();
 		const std::unordered_map<std::string, std::pair<TimePoint, TimePoint>> GetSysStartEndTimes();
 		const std::unordered_map<std::string, float> GetSysDurations();
+		const std::unordered_map<std::string, float> GetSystemPercentages() const;
+		const float GetFrameTime();
 
 	private:
+		std::unordered_map<std::string, std::pair<TimePoint,TimePoint>> systemStartEndTimes;
+		std::unordered_map<std::string, float> systemDurations;
+		std::unordered_map<std::string, float> mSystemPercentages;
 		// SliceTime objs
 		double deltaTime;     // Holds the delta time value
 		double prevTime;     // Holds the previous time
@@ -72,15 +79,13 @@ namespace SliceEngine
 		double accumulatedTime;
 		int currentNumberOfSteps;
 
-		FramerateManager(); //line 75
 
 		TimePoint frameStartTime;
 		TimePoint frameEndTime;
 		float currFPS;
+		float mTotalFrameTime;
 		bool firstFrameDone = false;
 
-		std::unordered_map<std::string, std::pair<TimePoint,TimePoint>> systemStartEndTimes;
-		std::unordered_map<std::string, float> systemDurations;
 	};
 }
 
