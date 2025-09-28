@@ -18,17 +18,17 @@
 #include "Serializer/CSVSerializer.h"
 
 
-	//using namespace rttr;
+//using namespace rttr;
 
-	//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
 
-	//RTTR_REGISTRATION
-	//{
-	//	registration::class_<MyStruct>("MyStruct")
-	//		 .constructor<>()
-	//		 .property("data", &MyStruct::data)
-	//		 .method("func", &MyStruct::func);
-	//}
+//RTTR_REGISTRATION
+//{
+//	registration::class_<MyStruct>("MyStruct")
+//		 .constructor<>()
+//		 .property("data", &MyStruct::data)
+//		 .method("func", &MyStruct::func);
+//}
 
 namespace SliceEngine
 {
@@ -47,13 +47,13 @@ namespace SliceEngine
 		std::cout << " Hi from Engine Test Function\n";
 	}
 
-	
+
 
 	void Engine::Init()
 	{
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
-		
+
 		Core::GetInstance()->InitCore();
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
@@ -61,8 +61,7 @@ namespace SliceEngine
 
 		auto window = Core::GetInstance()->GetWindow();
 
-		inputs = std::make_unique<InputSystem>();
-		inputs->Init(window);
+
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		framerateManager = std::make_unique<FramerateManager>();
@@ -84,7 +83,7 @@ namespace SliceEngine
 
 		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");
-		
+
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
@@ -106,6 +105,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
+		auto inputs = Core::GetInstance()->GetInputSystem();
 
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -115,11 +115,11 @@ namespace SliceEngine
 		// Main Body
 		framerateManager->StartFrame();
 
-		framerateManager->StartSystem("Input");
-		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
-		{
-			std::cout << " test " << std::endl;
-		}
+		//framerateManager->StartSystem("Input");
+		//if (inputs->IsKeyDown(GLFW_KEY_LEFT))
+		//{
+		//	std::cout << " test " << std::endl;
+		//}
 		inputs->Update();
 		framerateManager->EndSystem("Input");
 
