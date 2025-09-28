@@ -84,15 +84,24 @@ namespace SliceEngine
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
 		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
 		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
 		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 
 		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");*/
+		// mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		// mResource->LoadShader("Assets/Shaders/instanced.vert", "Assets/Shaders/instanced.frag");
+		// mResource->LoadModel("Assets/Models/Cube.txt");
+		// mResource->LoadModel("Assets/Models/FrustrumFake.txt");
+		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
 		
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
-
+		
+		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
 
 
@@ -138,7 +147,7 @@ namespace SliceEngine
 		////
 
 		frm.StartSystem("Graphics");
-		mRender->Render(mResource);
+		mRender->Render();
 		frm.EndSystem("Graphics");
 
 		frm.EndFrame();

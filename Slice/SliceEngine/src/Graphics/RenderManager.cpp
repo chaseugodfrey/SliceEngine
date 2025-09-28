@@ -24,6 +24,8 @@ namespace SliceEngine
 	RenderManager::~RenderManager()
 	{
 		glDeleteFramebuffers(1, &mFBO);
+		glDeleteBuffers(1, &mIVBO);
+
 		//glDeleteBuffers(2, pboIds);
 	}
 	GameObject& RenderManager::CreateCamera()
@@ -41,7 +43,7 @@ namespace SliceEngine
 		return newCam;
 	}
 
-	void RenderManager::Render( ResourceManager* rcManager)
+	void RenderManager::Render()
 	{
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 
@@ -51,17 +53,96 @@ namespace SliceEngine
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader(rcManager);
-			UpdateCamGPU(rcManager, cam);
+			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
+			UpdateCamGPU(cam);
 
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(rcManager, cam);
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(cam);
+			RenderDebug(cam);
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
 
-	void RenderManager::UpdateCamGPU(ResourceManager* rcManager, Entity& cam)
+	void RenderManager::RenderDebug(Entity& cam)
+	{
+		auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
+		//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
+		
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		for (auto entity : cams)
+		{
+			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
+
+			transform.transform = glm::mat4x4(1.f);
+			transform.transform = glm::translate(transform.transform, transform.position);
+			glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
+			transform.transform *= Rot;
+			transform.transform = glm::scale(transform.transform, transform.scale);
+
+			glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
+
+			float tanT = tanf(glm::radians(camera.pov) * 0.5f);
+
+			float nn = camera.near;
+			float nh = nn * tanT;
+			float nw = nh / camera.height * camera.width;
+			float ff = camera.far;
+			float fh = ff * tanT;
+			float fw = fh / camera.height * camera.width;
+
+			frustrum.vtx[0] = glm::vec3(-nw, -nh, nn);
+			frustrum.vtx[1] = glm::vec3(nw, -nh, nn);
+			frustrum.vtx[2] = glm::vec3(nw, nh, nn);
+			frustrum.vtx[3] = glm::vec3(-nw, nh, nn);
+			frustrum.vtx[4] = glm::vec3(-nw, -nh, nn);
+			
+			frustrum.vtx[5] = glm::vec3(-fw, -fh, ff);// C
+			frustrum.vtx[6] = glm::vec3(fw, -fh, ff);
+			frustrum.vtx[7] = glm::vec3(fw, fh, ff);
+			frustrum.vtx[8] = glm::vec3(-fw, fh, ff);
+			frustrum.vtx[9] = glm::vec3(-fw, -fh, ff);
+			
+			frustrum.vtx[10] = glm::vec3(fw, -fh, ff);
+			frustrum.vtx[11] = glm::vec3(nw, -nh, nn); // C
+			frustrum.vtx[12] = glm::vec3(nw, nh, nn);
+			frustrum.vtx[13] = glm::vec3(fw, fh, ff); // C
+			frustrum.vtx[14] = glm::vec3(-fw, fh, ff);
+			frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
+
+			// Frustrum Rendering
+			glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
+
+			GLint uniformLoc = glGetUniformLocation(/*mCurrShader.s*/ mCurrShader.get()->s, "M");
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+
+			glBindVertexArray(frustrum.vao);
+			glDrawArrays(frustrum.drawMode, 0, frustrum.drawCnt);
+		}
+		
+		mCurrShader = mInstanceShader;
+		//glUseProgram(mCurrShader.s);
+		glUseProgram(mCurrShader.get()->s);
+		UpdateCamGPU(cam);
+
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
+		int num{};
+		for (auto entity : view)
+		{
+			auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+			mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
+			num++;
+		}
+		glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
+		//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
+
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/CubeWireframe.txt").get();
+		glBindVertexArray(mdl.vao);
+		glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+	}
+
+	void RenderManager::UpdateCamGPU(Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
@@ -77,12 +158,14 @@ namespace SliceEngine
 		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 
 		//scuffed hack
-		auto const& shader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		auto const& shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
 
 		GLint uniformLoc;
+
 		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "V");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
 		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "P");
+
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
 		glViewport(0, 0, camera.width, camera.height);
@@ -123,6 +206,37 @@ namespace SliceEngine
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
+	void RenderManager::CreateInstancingParams()
+	{
+		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
+		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
+		mInstanceVtx.resize(100);
+		glCreateBuffers(1, &mIVBO);
+		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
+
+		LinkInstancing("CubeWireframe");
+	}
+	void RenderManager::LinkInstancing(const std::string& mdlName)
+	{
+		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
+
+//		auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
+
+		// Link drawing models with instancing vbo
+		for (int i{}; i < 4; ++i)
+		{
+			glBindVertexArray(mdl.vao);
+			int idx = 12 + i; // 13 ~ 16
+			glEnableVertexArrayAttrib(mdl.vao, idx);
+			glVertexArrayVertexBuffer(mdl.vao, idx, mIVBO, sizeof(glm::vec4) * i, sizeof(glm::mat4));
+			glVertexArrayAttribIFormat(mdl.vao, idx, 4, GL_FLOAT, 0);
+			glVertexArrayAttribBinding(mdl.vao, idx, idx);
+
+			glVertexAttribDivisor(idx, 1);
+		}
+		glBindVertexArray(0);
 	}
 	GLuint RenderManager::GetTexture()
 	{
@@ -177,5 +291,4 @@ namespace SliceEngine
 		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
 		//return;
 	}
-
 }

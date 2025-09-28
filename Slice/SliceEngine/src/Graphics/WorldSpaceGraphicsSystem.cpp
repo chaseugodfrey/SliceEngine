@@ -12,13 +12,14 @@
 
 namespace SliceEngine
 {
-	void WorldSpaceGraphicsSystem::UseShader(ResourceManager* rcManager)
+	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
+		return mShader;
 	}
-	void WorldSpaceGraphicsSystem::Render(ResourceManager* rcManager, Entity cam)
+	void WorldSpaceGraphicsSystem::Render(Entity cam)
 	{
 		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -32,15 +33,12 @@ namespace SliceEngine
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = rcManager->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
-		//FetchFrustrumCull(cam);
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //visibleEntity
+		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);
 		}
-		//for (auto& i : objs)
-		//	EntityDraw(i);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
