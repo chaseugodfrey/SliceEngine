@@ -1,11 +1,11 @@
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
-#include <glm.hpp>
-#include <common.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/common.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 #include "Core/Core.h"
 

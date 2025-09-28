@@ -1,6 +1,8 @@
 #include <pch.h>
 #include "ResourceManager.h"
 #include <fstream>
+#include <gli\gli.hpp>
+#include "..\Resource\Texture.h"
 
 namespace SliceEngine
 {
@@ -19,7 +21,7 @@ namespace SliceEngine
 	{
 		std::ifstream vertShaderFile(vertFile, std::ios::binary);
 
-
+		
 		if (!vertShaderFile)
 		{
 			SLICE_LOG_WARNING("Unable to open Vertex Shader File");
