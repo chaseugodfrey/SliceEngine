@@ -147,6 +147,7 @@ namespace SliceEngine
         // REGISTER ID HERE
         cmdIDs.Register("N_REQ_CONNECT");
         cmdIDs.Register("N_RSP_CONNECT");
+        cmdIDs.Register("N_TIME_UPDATE");
 
 
         keep_running = true;
@@ -154,7 +155,7 @@ namespace SliceEngine
         // split the threads
         std::thread recv_thread(ReceiveThread, soc);
         recv_thread.detach();
-
+         
         if (player2)
         {
             std::cout << "sending req....\n";
@@ -283,7 +284,19 @@ namespace SliceEngine
 
             if (buffer[0] == cmdIDs.GetID("N_RSP_CONNECT"))
             {
-                //cmdIDs.ProcessFunc("N_RSP_CONNECT", otherPlayerSoc, client_addr);
+                // send time update 
+                // 1b - id, 4b - time
+                Packet pkt{};
+                pkt << cmdIDs.GetID("N_TIME_UPDATE");
+                
+
+                int bytes = SendTo(otherPlayerSoc, pkt, client_addr);
+                if (bytes == SOCKET_ERROR || bytes == 0)
+                {
+                    std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
+                    //closesocket(pSocket);
+                }
+
                 std::cout << "connected " << std::endl;
                 keep_running = false;
             }
@@ -395,7 +408,14 @@ namespace SliceEngine
 
     void NetworkingThread::SendThread(SOCKET serverSocket)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_RATE));
 
+        Packet pkt{};
+        pkt << cmdIDs.GetID("N_TIME_UPDATE");
+
+        // timestamp
+        uint32_t tmp = htonf(appTime);
+        pkt << tmp;
     }
 
 	void NetworkSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -490,7 +510,7 @@ namespace SliceEngine
         
         //NetworkCommandID cmds{};
 
-        auto& networkEnt = reg.get<NetworkEntity>(entity);
+        auto& networkEnt = reg.get<NetworkObj>(entity);
         networkEnt.port = portNumber;
         networkEnt.IP = serverIPAddr;
 	}

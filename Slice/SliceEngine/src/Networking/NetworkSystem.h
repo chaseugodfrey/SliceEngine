@@ -51,12 +51,13 @@ namespace SliceEngine
 {
 	struct NetworkEntity 
     {
-        std::string port;
-        std::string IP;
     };
+
 	struct NetworkObj 
     {
 
+        std::string port;
+        std::string IP;
     };
 
 
@@ -113,6 +114,8 @@ namespace SliceEngine
 
     namespace NetworkingThread 
     {
+
+
         void printAddr();
         void ReceiveThread(SOCKET serverSock);
         void SendThread(SOCKET serverSock);
@@ -139,7 +142,7 @@ namespace SliceEngine
 
     // general template
     template<typename T>
-    Packet& operator>>(Packet& msg, const T& data)
+    Packet& operator>>(Packet& msg, T& data)
     {
         static_assert(sizeof(T) == 0, "Unsupported");
 
@@ -158,6 +161,13 @@ namespace SliceEngine
         return pkt;
     }
 
+    template<>
+    inline Packet& operator>>(Packet& pkt, int8_t& data)
+    {
+        data = static_cast<int8_t>(pkt.msg[pkt.offset++]);
+        return pkt;
+    }
+
     // 1 byte unsigned
     template<>
     inline Packet& operator<<(Packet& pkt, const uint8_t& data)
@@ -167,6 +177,13 @@ namespace SliceEngine
         auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
         pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
 
+        return pkt;
+    }
+
+    template<>
+    inline Packet& operator>>(Packet& pkt, uint8_t& data)
+    {
+        data = pkt.msg[pkt.offset++];
         return pkt;
     }
 
@@ -182,6 +199,16 @@ namespace SliceEngine
         return pkt;
     }
 
+    template<>
+    inline Packet& operator>>(Packet& pkt, int16_t& data)
+    {
+        int16_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = static_cast<int16_t>(ntohs(tmp));
+        return pkt;
+    }
+
     // 2 byte unsigned
     template<>
     inline Packet& operator<<(Packet& pkt, const uint16_t& data)
@@ -191,6 +218,16 @@ namespace SliceEngine
         auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
         pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
 
+        return pkt;
+    }
+
+    template<>
+    inline Packet& operator>>(Packet& pkt, uint16_t& data)
+    {
+        int16_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = ntohs(tmp);
         return pkt;
     }
 
@@ -206,6 +243,16 @@ namespace SliceEngine
         return pkt;
     }
 
+    template<>
+    inline Packet& operator>>(Packet& pkt, int32_t& data)
+    {
+        int32_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = static_cast<int32_t>(ntohl(tmp));
+        return pkt;
+    }
+
     // 4 byte unsigned
     template<>
     inline Packet& operator<<(Packet& pkt, const uint32_t& data)
@@ -215,6 +262,16 @@ namespace SliceEngine
         auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
         pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
 
+        return pkt;
+    }
+
+    template<>
+    inline Packet& operator>>(Packet& pkt, uint32_t& data)
+    {
+        int32_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = ntohl(tmp);
         return pkt;
     }
 
@@ -230,6 +287,16 @@ namespace SliceEngine
         return pkt;
     }
 
+    template<>
+    inline Packet& operator>>(Packet& pkt, float& data)
+    {
+        float tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = static_cast<float>(ntohf(tmp));
+        return pkt;
+    }
+
     // 8 byte signed
     template<>
     inline Packet& operator<<(Packet& pkt, const int64_t& data)
@@ -242,6 +309,16 @@ namespace SliceEngine
         return pkt;
     }
 
+    template<>
+    inline Packet& operator>>(Packet& pkt, int64_t& data)
+    {
+        int64_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = static_cast<int64_t>(ntohll(tmp));
+        return pkt;
+    }
+
     // 8 byte unsigned
     template<>
     inline Packet& operator<<(Packet& pkt, const uint64_t& data)
@@ -251,6 +328,16 @@ namespace SliceEngine
         auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
         pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
 
+        return pkt;
+    }
+
+    template<>
+    inline Packet& operator>>(Packet& pkt, uint64_t& data)
+    {
+        uint64_t tmp{};
+        std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
+        pkt.offset += sizeof(tmp);
+        data = ntohll(tmp);
         return pkt;
     }
 
