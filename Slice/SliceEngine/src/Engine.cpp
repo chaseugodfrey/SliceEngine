@@ -89,12 +89,11 @@ namespace SliceEngine
 		mRender->CreateCamera();
 
 
-
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		//JSONSerializer::Tests::RunTests(false);
+		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		//Core::GetInstance()->mFactory.TestLoop();
 	}
 

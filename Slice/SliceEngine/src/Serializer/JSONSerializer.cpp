@@ -352,64 +352,71 @@ namespace SliceEngine
 			void Test3(bool cleanOutput)
 			{
 				SLICE_LOG("Test 3 Beginning...");
-				//auto& factory = FactoryInstance;
+				auto& factory = FactoryInstance;
 
-				//// Create a root object with SceneGraph neighbours
-				//GameObject root = factory.CreateGO("RootWithNeighbours");
+				GameObject parent = factory.CreateGO("Bing_Bong_Parent");
+				GameObject child = factory.CreateGO("Bing_Bong_Child");
 
-				//// Set up SceneGraph with dummy neighbours [0..DIRECTIONS-1]
-				//root.AddComponent<SceneGraph>();
-				//auto& scenegraph = root.GetComponent<SceneGraph>();
-				//scenegraph.entity_id = entt::to_integral(root.GetEntity());
-				//for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
-				//{
-				//	scenegraph.neighbours[i] = static_cast<Entity>(i); // old IDs
-				//}
+				// Set up transform via the component system
+				auto& parentTransform = parent.GetComponent<Transform>();
+				parentTransform.position = glm::vec3(10, 11, 12);
+				parentTransform.rotation = glm::vec3(13, 14, 15);
+				parentTransform.scale = glm::vec3(16, 17, 18);
 
-				//// Serialize
-				//std::string filename = testPath + std::string("JSONTest3.json");
-				//Serialize(SerializeGameObject(root), filename);
+				auto& childTransform = parent.GetComponent<Transform>();
+				childTransform.position = glm::vec3(10, 11, 12);
+				childTransform.rotation = glm::vec3(13, 14, 15);
+				childTransform.scale = glm::vec3(16, 17, 18);
 
-				//factory.Destroy(root);
+				parent.AddComponent<SceneGraph>();
+				auto& parentScenegraph = parent.GetComponent<SceneGraph>();
+				parentScenegraph.entity_id = entt::to_integral(parent.GetEntity());
 
-				//// Deserialize and capture mapping
-				//auto [newObjects, idMap] = DeserializeGameObjectsWithMap(Deserialize(filename));
-				//// ^ You’ll need your deserializer to expose the old->new mapping.
-				////   If you only have DeserializeGameObjects, you could modify it to also return the map.
+				child.AddComponent<SceneGraph>();
+				auto& childScenegraph = child.GetComponent<SceneGraph>();
+				childScenegraph.entity_id = entt::to_integral(child.GetEntity());
 
-				//// Verify neighbour remapping
-				//for (auto& obj : newObjects)
-				//{
-				//	if (obj.HasComponent<SceneGraph>())
-				//	{
-				//		auto& sg = obj.GetComponent<SceneGraph>();
-				//		for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
-				//		{
-				//			Entity oldId = static_cast<Entity>(i);
-				//			Entity expectedNewId = idMap.at(oldId);   // what it *should* map to
-				//			Entity actual = sg.neighbours[i];        // what got written in new object
-				//			if (actual != expectedNewId)
-				//			{
-				//				SLICE_LOG("Mismatch at neighbour " << i
-				//					<< ": expected " << entt::to_integral(expectedNewId)
-				//					<< ", got " << entt::to_integral(actual));
-				//			}
-				//		}
-				//	}
-				//}
+				factory.SetParent(child.GetEntity(),parent.GetEntity());				
 
-				//if (cleanOutput)
-				//{
-				//	std::filesystem::remove(filename);
-				//}
+				json output = json::array();
+				output.push_back(SerializeGameObject(child));
+				output.push_back(SerializeGameObject(parent));
+				Serialize(output, testPath + std::string("JSONTest3.json"));
+
+				factory.Destroy(parent);
+				factory.Destroy(child);
+
+				DeserializeGameObjects(Deserialize(testPath + std::string("JSONTest3.json")));
+				if (cleanOutput)
+				{
+					std::filesystem::remove(testPath + std::string("JSONTest3.json"));
+				}
 				SLICE_LOG("Test 3 Ended.");
 			}
 
-			void RunTests(bool cleanOutput)
+			void RunTests(TestNum testNum, bool cleanOutput)
 			{
-				Test1(cleanOutput);
-				Test2(cleanOutput);
-				SLICE_LOG("Tests Completed, Examine Console Log for Errors");
+				switch (testNum)
+				{
+				case TEST1:
+					Test1(cleanOutput);
+					break;
+
+				case TEST2:
+					Test2(cleanOutput);
+					break;
+
+				case TEST3:
+					Test3(cleanOutput);
+					break;
+
+				default:
+					Test1(cleanOutput);
+					Test2(cleanOutput);
+					Test3(cleanOutput);
+					break;
+				}
+				SLICE_LOG("Test(s) Completed, Examine Console Log for Errors");
 			}
 		}
 	}

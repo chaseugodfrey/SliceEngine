@@ -31,9 +31,17 @@ namespace SliceEngine
 
 		namespace Tests
 		{
+			enum TestNum
+			{
+				TEST1 = 1,
+				TEST2 = 2,
+				TEST3 = 3,
+				ALLTESTS = 0
+			};
+
 			//Take note of any errors and logs that can appear on the console during the tests
 			//param cleanOutput = false to keep logs to assist in debugging. By default its true if console error logs are enough
-			void RunTests(bool cleanOutput = true);
+			void RunTests(TestNum testNum = ALLTESTS, bool cleanOutput = true);
 		}
 	}	
 }
