@@ -35,7 +35,7 @@ namespace SliceEngine
 			ifs.close();
 
 			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_MAP_WRITE_BIT);
+			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
 			glCreateVertexArrays(1, &vao);
 			// layout=0
 			glEnableVertexArrayAttrib(vao, 0);
