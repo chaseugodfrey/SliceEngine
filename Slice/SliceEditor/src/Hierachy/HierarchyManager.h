@@ -21,6 +21,9 @@ namespace SliceEditor
 	{
 		// TO DO: replace this with proper scene graph
 		std::vector<TestNode> mRootNodes;
+		bool isDirty;
+
+		void BuildHierarchy();
 
 	public:
 
@@ -29,7 +32,8 @@ namespace SliceEditor
 
 		void Test();
 		void Init() override;
-		void BuildHierarchy();
+		void SetDirty();
+		void CheckDirty();
 		void AddGameObject();
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;

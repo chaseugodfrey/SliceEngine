@@ -37,6 +37,19 @@ namespace SliceEditor
 		BuildHierarchy();
 	}
 
+	void HierarchyManager::SetDirty()
+	{
+		isDirty = true;
+	}
+
+	void HierarchyManager::CheckDirty()
+	{
+		if (isDirty)
+		{
+			BuildHierarchy();
+		}
+	}
+
 	void HierarchyManager::BuildHierarchy()
 	{
 		auto* core = SliceEngine::Core::GetInstance();

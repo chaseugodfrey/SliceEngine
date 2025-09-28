@@ -45,6 +45,7 @@ namespace SliceEditor
 				auto go = factory.GetGOByEntity(entity);
 				factory.SetParent(entity, node.entity);
 
+				isDirty = true;
 			}
 
 			ImGui::EndDragDropTarget();
@@ -157,6 +158,7 @@ namespace SliceEditor
 
 		ImGui::End();
 
+
 		// to do: don't update this interaction every frame.
 		std::unordered_set<entt::entity> entities{};
 
@@ -166,5 +168,11 @@ namespace SliceEditor
 		}
 
 		mSelection.UpdateSelection(entities);
+
+		// to do: check this in a function
+		if (isDirty)
+		{
+			mManager.BuildHierarchy();
+		}
 	}
 }
