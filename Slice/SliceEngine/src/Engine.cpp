@@ -134,12 +134,16 @@ namespace SliceEngine
 		mRender->Render(mResource);
 		frm.EndSystem("Graphics");
 
+
+
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
 	{
+		Core::FactoryInstance.UpdateDestroyed();
+
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;

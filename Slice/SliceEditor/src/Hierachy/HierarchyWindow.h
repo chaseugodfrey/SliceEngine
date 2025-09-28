@@ -15,7 +15,6 @@ namespace SliceEditor
 		HierarchyManager& mManager;
 		// temporary solution todo: remove this and call from registry/event bus
 		SelectionSystem& mSelection;
-		bool isDirty;
 
 		void DrawNode(TestNode& node);
 		void DrawSceneNode(TestNode& node);

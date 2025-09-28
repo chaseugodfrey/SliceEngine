@@ -20,6 +20,8 @@ namespace SliceEditor
 		std::optional<entt::entity> selected_entity;
 
 		void DisplayEntityData();
+
+		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
