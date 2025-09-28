@@ -94,8 +94,8 @@ namespace SliceEngine
 			mGUIDToPath[guid] = path;
 		}
 
-		std::unordered_map<GUID, detail::Instance, GUID::Hasher> mInstances;
-		std::unordered_map<GUID, std::string, GUID::Hasher> mGUIDToPath;
+		std::unordered_map<GUID, detail::Instance> mInstances;
+		std::unordered_map<GUID, std::string> mGUIDToPath;
 
 	};
 
@@ -206,6 +206,7 @@ namespace SliceEngine
 			}
 		}
 
+		// 24 bytes 
 		ResourceManager* mManager;
 		T* mPtr;
 		GUID mGUID;

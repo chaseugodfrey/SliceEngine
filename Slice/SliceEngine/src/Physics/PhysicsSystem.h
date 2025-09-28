@@ -14,7 +14,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
 
-	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, RigidBody, ColliderShape>
+	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
 	private:
 
@@ -46,11 +46,9 @@ namespace SliceEngine
 
 		bool IsInitialized() const;
 
-		void CreateBodyFromComponent(entt::entity entity, const Transform& transform, RigidBody& rigidBody, const ColliderShape& colliderShape) const;
+		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
 
-		void SyncECSToPhysics(Transform& transform, RigidBody& rigidBody) const;
-
-		void SyncPhysicsToECS(Transform& transform, RigidBody& rigidBody) const;
+		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
 
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 

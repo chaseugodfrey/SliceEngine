@@ -8,7 +8,7 @@ namespace SliceEditor
 {
 	class ContentBrowserWindow : public EditorWindow
 	{
-		ContentBrowserManager& manager;
+		ContentBrowserManager& mManager;
 	public:
 		//ContentBrowserManager() = default;
 		~ContentBrowserWindow() = default;
