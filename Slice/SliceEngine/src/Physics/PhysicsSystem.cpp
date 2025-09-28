@@ -14,7 +14,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize(float fixedDt,JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -31,6 +31,7 @@ namespace SliceEngine
 				}
 			}
 
+			collisionSteps = static_cast<int>(ceil(fixedDt / 1.0f / 60.f));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -258,7 +259,7 @@ namespace SliceEngine
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
-		physicsSystem->Update(dt, 1, tempAllocator.get(), jobSystem.get());
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
 	}
 

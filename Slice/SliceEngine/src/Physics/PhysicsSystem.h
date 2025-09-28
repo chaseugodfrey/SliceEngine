@@ -25,6 +25,7 @@ namespace SliceEngine
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
+		int collisionSteps;
 
 	private:
 		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
@@ -42,7 +43,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(float fixedDt, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized() const;
 

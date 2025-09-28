@@ -70,7 +70,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
 
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
