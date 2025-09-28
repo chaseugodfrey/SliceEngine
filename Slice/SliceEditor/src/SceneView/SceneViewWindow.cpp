@@ -26,29 +26,29 @@ namespace SliceEditor
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		auto& transform = mManager.mRenderManager.GetMainCameraTransform();
-		glm::vec3 forward, right, up;
+		//auto& transform = mManager.mRenderManager.GetMainCameraTransform();
+		//glm::vec3 forward, right, up;
 		
-		mManager.mRenderManager.GetMainCameraAxis(forward, right, up);
+		//mManager.mRenderManager.GetMainCameraAxis(forward, right, up);
 
 		if (ImGui::IsKeyDown(ImGuiKey_W))
 		{
-			transform.position += forward * 0.1f;
+			//transform.position += forward * 0.1f;
 		}
 
 		if (ImGui::IsKeyDown(ImGuiKey_S))
 		{
-			transform.position -= forward * 0.1f;
+			//transform.position -= forward * 0.1f;
 		}
 
 		if (ImGui::IsKeyDown(ImGuiKey_A))
 		{
-			transform.position -= right * 0.1f;
+			//transform.position -= right * 0.1f;
 		}
 
 		if (ImGui::IsKeyDown(ImGuiKey_D))
 		{
-			transform.position += right * 0.1f;
+			//transform.position += right * 0.1f;
 		}
 
 		// Btw for rotation
