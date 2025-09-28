@@ -15,7 +15,7 @@
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
-
+#include "Scripting/ScriptSystem.h"
 
 	//using namespace rttr;
 
@@ -69,9 +69,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-
+		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
+		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		audio->LoadSound("Assets/Audio/3DAudioTest.wav");

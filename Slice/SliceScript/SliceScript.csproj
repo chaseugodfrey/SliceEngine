@@ -19,8 +19,8 @@
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
-    <OutputPath>..\build\bin\EditorDebug\SliceScript\</OutputPath>
-    <BaseIntermediateOutputPath>..\build\bin-int\EditorDebug\SliceScript\</BaseIntermediateOutputPath>
+    <OutputPath>.\</OutputPath>
+    <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <DefineConstants>
     </DefineConstants>
@@ -32,8 +32,8 @@
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
-    <OutputPath>..\build\bin\EditorRelease\SliceScript\</OutputPath>
-    <BaseIntermediateOutputPath>..\build\bin-int\EditorRelease\SliceScript\</BaseIntermediateOutputPath>
+    <OutputPath>.\</OutputPath>
+    <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <DefineConstants>
     </DefineConstants>
@@ -45,6 +45,7 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Core\Entity.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
