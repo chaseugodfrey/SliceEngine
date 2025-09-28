@@ -71,11 +71,17 @@ namespace SliceEngine
 
 	//XPROPERTY_REG(Transform);
 
+	enum RENDER_TAG : unsigned char
+	{
+		DEBUG_TAG = 0x01
+	};
+
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
 		std::string model;
 		std::string texture;
+		unsigned char renderTag;
 	};
 
 	struct Camera
@@ -83,6 +89,7 @@ namespace SliceEngine
 		int width, height;
 		float pov, near, far;// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
+		unsigned char renderTag;
 	};
 
 	struct RigidBody

@@ -28,11 +28,14 @@ namespace SliceEngine
 		void LoadShader(const std::string& vertFile, const std::string& fragFile);
 		void LoadModel(const std::string& file);
 
-		Shader& GetShader();
-		Model& GetModel();
+		Shader& GetShader(const std::string& name);
+		Model& GetModel(const std::string& name);
 	private:
 		Shader mOnlyShader;
 		Model mOnlyModel;
+	
+		std::unordered_map<std::string, Shader> mShaders;
+		std::unordered_map<std::string, Model> mModels;
 	};*/
 }
 
