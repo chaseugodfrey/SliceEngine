@@ -49,10 +49,17 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	struct NetworkEntity {};
+	struct NetworkEntity 
+    {
+        std::string port;
+        std::string IP;
+    };
 	struct NetworkObj 
     {
+
     };
+
+
     struct Player
     {
         Transform go;
@@ -88,7 +95,7 @@ namespace SliceEngine
     {
     public:
         /*
-            Register name and it will set the id incrementally, and define a function for the command ID
+            Register name and it will set the id incrementally
         */
         void Register(const std::string& cmdName);
 
@@ -96,11 +103,6 @@ namespace SliceEngine
             Get id of registered name
         */
         uint8_t GetID(const std::string& name);
-
-        /*
-          Executes function associated with command name
-        */
-        //void ProcessFunc(const std::string& name, SOCKET, sockaddr_in player);
 
     private:
         uint8_t nextId = 1;

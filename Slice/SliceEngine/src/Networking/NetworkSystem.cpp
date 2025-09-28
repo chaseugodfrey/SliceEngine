@@ -141,7 +141,7 @@ namespace SliceEngine
         inet_ntop(AF_INET, &(cAddr.sin_addr), serverIPAddr, INET_ADDRSTRLEN);
         getnameinfo(info->ai_addr, static_cast <socklen_t> (info->ai_addrlen), serverIPAddr, sizeof(serverIPAddr), nullptr, 0, NI_NUMERICHOST);
 
-        std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: "<< clientNumber << " ...\n";
+        std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
 
 
         // REGISTER ID HERE
@@ -401,7 +401,98 @@ namespace SliceEngine
 	void NetworkSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
         keep_running = true;
+
+        std::string clientNumber{};
+        std::string portNumber{};
+        std::ifstream ifile("Assets/client.txt");
+        if (!ifile)
+        {
+            std::cerr << "cannot open client file" << std::endl;
+        }
+        std::getline(ifile, clientNumber);
+        ifile.close();
+
+        if (std::stoi(clientNumber) == 0)
+        {
+            portNumber = "12345";
+        }
+
+        if (std::stoi(clientNumber) == 1)
+        {
+            portNumber = "12346";
+            player2 = true;
+        }
+
+        sockaddr_in cAddr{};
+
+        // Initialize Winsock
+        WSADATA wsaData{};
+        int errorCode = WSAStartup(MAKEWORD(WINSOCK_VERSION, WINSOCK_SUBVERSION), &wsaData);
+        if (errorCode != NO_ERROR)
+        {
+            std::cerr << "WSAStartup() failed." << std::endl;
+            //return errorCode;
+        }
+
+        // Object hints indicates which protocols to use to fill in the info.
+        addrinfo hints{};
+        SecureZeroMemory(&hints, sizeof(hints));
+        hints.ai_family = AF_INET;			// IPv4
+        // For UDP use SOCK_DGRAM instead of SOCK_STREAM.
+        hints.ai_socktype = SOCK_STREAM;	// Reliable delivery
+        // Could be 0 for autodetect, but reliable delivery over IPv4 is always TCP.
+        hints.ai_protocol = IPPROTO_UDP;	// UDP
+        // Create a passive socket that is suitable for bind() and listen().
+        hints.ai_flags = AI_PASSIVE;
+
+        SOCKET soc{ socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP) };
+        if (soc == INVALID_SOCKET)
+        {
+            std::cerr << "UDP socket() failed." << std::endl;
+            //return false;
+        }
+
+
+        char host[MAX_STR_LEN];
+        gethostname(host, MAX_STR_LEN);
+
+        addrinfo* info = nullptr;
+        errorCode = getaddrinfo(host, portNumber.c_str(), &hints, &info);
+        if ((errorCode) || (info == nullptr))
+        {
+            std::cerr << "getaddrinfo() failed." << std::endl;
+            WSACleanup();
+            //return errorCode;
+        }
+
+        // Set up server address
+        cAddr.sin_family = AF_INET;
+        cAddr.sin_addr.s_addr = INADDR_ANY;
+        cAddr.sin_port = htons(std::stoi(portNumber));
+
+        // Bind the socket
+        if (bind(soc, reinterpret_cast<sockaddr*>(&cAddr), sizeof(cAddr)) != NO_ERROR)
+        {
+            std::cerr << "Bind failed: " << WSAGetLastError() << std::endl;
+            closesocket(soc);
+            WSACleanup();
+            throw std::runtime_error("Bind failed");
+        }
+
+        u_long enable = 1;
+        ioctlsocket(soc, FIONBIO, &enable);
+
+        char serverIPAddr[MAX_STR_LEN];
+        inet_ntop(AF_INET, &(cAddr.sin_addr), serverIPAddr, INET_ADDRSTRLEN);
+        getnameinfo(info->ai_addr, static_cast <socklen_t> (info->ai_addrlen), serverIPAddr, sizeof(serverIPAddr), nullptr, 0, NI_NUMERICHOST);
+
+        //std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
+        
         //NetworkCommandID cmds{};
+
+        auto& networkEnt = reg.get<NetworkEntity>(entity);
+        networkEnt.port = portNumber;
+        networkEnt.IP = serverIPAddr;
 	}
 	void NetworkSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
