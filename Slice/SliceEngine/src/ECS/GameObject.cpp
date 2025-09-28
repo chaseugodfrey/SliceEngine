@@ -14,12 +14,30 @@ namespace SliceEngine
 
 	void GameObject::SetName(std::string name)
 	{
-		mName = name;
+		if (HasComponent<SliceEntity>())
+		{
+			std::string newName = FactoryInstance.CreateName(name);
+			FactoryInstance.UpdateName(newName, mEntity);
+			GetComponent<SliceEntity>().mName = newName;
+		}
 	}
 
 	std::string GameObject::GetName()
 	{
-		return mName;
+		if (HasComponent<SliceEntity>())
+		{
+			return GetComponent<SliceEntity>().mName;
+		}
+		return std::string(); // blank str
+	}
+
+	const std::string GameObject::GetName() const
+	{
+		if (HasComponent<SliceEntity>())
+		{
+			return GetComponent<SliceEntity>().mName;
+		}
+		return std::string(); // blank str
 	}
 
 	void GameObject::Destroy()

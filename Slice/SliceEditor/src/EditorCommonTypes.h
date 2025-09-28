@@ -3,6 +3,38 @@
 
 namespace SliceEditor
 {
+
+	enum class ManagerID
+	{
+		CONTENTBROWSER,
+		HIERARCHY,
+		INSPECTOR,
+		SCENEVIEW,
+		GAMEVIEW,
+		ANIMATOR,
+		NAVMESH,
+		LIGHTING,
+		AUDIO,
+		PROFILER,
+		CONSOLE,
+		ID_MAX
+	};
+
+	enum class WindowID
+	{
+		CONTENTBROWSER,
+		HIERARCHY,
+		INSPECTOR,
+		SCENEVIEW,
+		GAMEVIEW,
+		ANIMATOR,
+		NAVMESH,
+		LIGHTING,
+		AUDIO,
+		PROFILER,
+		CONSOLE,
+		ID_MAX
+	};
 	
 	struct TreeNode
 	{
@@ -11,6 +43,15 @@ namespace SliceEditor
 		TreeNode* child;
 		TreeNode* previous;
 		TreeNode* next;
+	};
+
+	struct DirectoryNode
+	{
+		std::string fileName;
+		bool isDirectory = false;
+		std::filesystem::path path;
+		DirectoryNode* parent = nullptr;
+		std::map<std::string, DirectoryNode> children;
 	};
 
 	struct Command

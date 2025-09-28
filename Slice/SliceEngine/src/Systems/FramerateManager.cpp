@@ -1,8 +1,95 @@
+/******************************************************************************/
+/*!
+\file       Time.cpp
+\author     Teo Kok Chin Aloysius (teo.k@digipen.edu)
+\date       Mon day year
+\brief      Implementation of time-related functionality for the project.
+			This file contains the implementation of the GameTime class, which
+			handles delta time calculation.
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior
+written consent of DigiPen Institute of Technology is prohibited.
+*/
+/******************************************************************************/
 #include <pch.h>
 #include "FramerateManager.h"
 
 namespace SliceEngine
 {
+	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(glfwGetTime()),
+		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) 
+	{
+		fixedDeltaTime = 1.0 / targetfps;
+	}
+
+	FramerateManager &FramerateManager::getInstance()
+	{
+		static FramerateManager instance;
+		return instance;
+	}
+
+	/******************************************************************************/
+	/*!
+	\brief      Updates the delta time and calculates FPS.
+				This method calculates the time elapsed since the last frame,
+				updates the delta time, and recalculates the FPS every second.
+
+	\return     None.
+	*/
+	/******************************************************************************/
+	void FramerateManager::updateDeltaTime()
+	{
+		currentNumberOfSteps = 0;
+		double curr_time = glfwGetTime();       // Get the current time
+		deltaTime = curr_time - prevTime;	    // Calculate delta time
+		prevTime = curr_time;                  // Update prev_time to the current time
+
+		accumulatedTime += deltaTime;
+
+		while (accumulatedTime >= fixedDeltaTime)
+		{
+			accumulatedTime -= fixedDeltaTime;
+			++currentNumberOfSteps;
+		}
+	}
+	/******************************************************************************/
+	/*!
+	\brief      Retrieves the current delta time.
+
+	\return     double - The time elapsed since the last frame in seconds.
+	*/
+	/******************************************************************************/
+	double FramerateManager::getDeltaTime() const
+	{
+		return deltaTime;
+	}
+
+	int FramerateManager::getCurrentNumberOfSteps() const
+	{
+		return currentNumberOfSteps;
+	}
+
+	double FramerateManager::getFixedDeltaTime() const
+	{
+		return fixedDeltaTime;
+	}
+
+	void FramerateManager::setAccumulatedTime(double t)
+	{
+		accumulatedTime = t;
+	}
+
+	void FramerateManager::setCurrentNumberOfSteps(int steps)
+	{
+		currentNumberOfSteps = steps;
+	}
+
+	void FramerateManager::IncrementNumberOfSteps()
+	{
+		++currentNumberOfSteps;
+	}
+
 	void FramerateManager::Init()
 	{
 		firstFrameDone = false;
@@ -17,18 +104,26 @@ namespace SliceEngine
 	void FramerateManager::EndFrame()
 	{
 		frameEndTime = Clock::now();
+
 		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
-		currFPS = frameTime;
+		mTotalFrameTime =frameTime;
+
+		currFPS = 1.0f / frameTime;
+
+
+
+		std::cout << "1 frame time: " << frameTime << std::endl;
 
 		if (!firstFrameDone)
 		{
 			// can be removed if don't want it to be printed for every startup
-			std::cout << "First frame time: " << frameTime << " ms\n";
+			std::cout << "First frame time: " << frameTime * 1000.0f << " ms\n";
 			for (auto &[name, duration] : systemDurations)
 				std::cout << name << ": " << duration << " ms\n";
 
 			firstFrameDone = true;
 		}
+
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -44,8 +139,57 @@ namespace SliceEngine
 		float duration = std::chrono::duration<float, std::milli>(endTime - systemStartEndTimes[name].first).count();
 		systemDurations[name] = duration;
 	}
+
 	float FramerateManager::GetCurrFPS()
 	{
 		return currFPS;
+	}
+
+	const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
+	{
+		return systemStartEndTimes;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
+	{
+		return systemDurations;
+	}
+
+	const float FramerateManager::GetFrameTime()
+	{
+		return mTotalFrameTime;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetSystemPercentages() const
+	{
+		return mSystemPercentages;
+	}
+
+	void FramerateManager::CapFPS(int targetFPS)
+	{
+		using namespace std::chrono;
+
+		auto targetFrameDuration = duration<double>(1.0 / targetFPS);
+
+		auto currentTime = Clock::now();
+		auto elapsedTime = duration<double>(currentTime - frameStartTime);
+
+		while (elapsedTime < targetFrameDuration)
+		{
+			currentTime = Clock::now();
+			elapsedTime = duration<double>(currentTime - frameStartTime);
+		}
+	}
+
+	void FramerateManager::CalculateSystemPercentages()
+	{
+		mSystemPercentages.clear();
+
+		for (const auto [system, time] : systemDurations)
+		{
+			auto systemPercentage = (time / mTotalFrameTime) * 100.0f;
+
+			mSystemPercentages[system] = systemPercentage;
+		}
 	}
 }

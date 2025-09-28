@@ -13,8 +13,31 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct SceneGraph
+	{
+		uint32_t entity_id;
+
+		enum Direction {
+			UP = 0,
+			DOWN,
+			LEFT,
+			RIGHT,
+			DIRECTIONS
+		};
+		// rttr doesnt like c style arrays lol
+		//uint32_t neighbours[4];
+		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
+	};
+
+	struct Script
+	{
+		std::string scriptName;
+		//std::unordered_map<std::string, variantVar> scriptableFieldMap;
+	};
+
 	struct SliceEntity 
 	{
+		std::string mName;
 		bool active;
 
 		SliceEntity() : active(true) {}
@@ -71,10 +94,10 @@ namespace SliceEngine
 
 	struct RigidBody
 	{
-		JPH::BodyID bodyID;								   // Jolt body reference
-		JPH::EMotionType motionType;					   // Static/Kinematic/Dynamic
-		JPH::ObjectLayer layer;							   // Collision layer
-		bool isActive = true;
+		
+		bool isKinematic = false;		// Set to Kinematic
+		float gravityFactor = 1.0f;		// Gravity multiplier
+		JPH::EMotionQuality CollisionDetection = JPH::EMotionQuality::Discrete; // Motion quality(Discrete or Continuous)
 
 		// Physics properties
 		float mass = 1.0f;
@@ -95,7 +118,7 @@ namespace SliceEngine
 
 		struct BoxData
 		{
-			JPH::Vec3 halfExtend{ 1.0f,1.0f,1.0f };
+			JPH::Vec3 halfExtend{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
@@ -103,6 +126,8 @@ namespace SliceEngine
 			float radius{ 1.0f };
 		};
 
+		JPH::BodyID bodyID;										// Jolt body reference
+		JPH::ObjectLayer layer;									// Collision layer
 		ColliderType type = ColliderType::Box;					// Set Box Collider as default
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes
 		JPH::ShapeRefC shape;									// Jolt shape ref
@@ -110,11 +135,6 @@ namespace SliceEngine
 		bool isTrigger = false;									// leaving thjis here in case we need trniggers
 
 	};
-
-
-
-
-
 }
 
 #endif

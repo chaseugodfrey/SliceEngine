@@ -14,7 +14,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
 
-	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, RigidBody>
+	struct PhysicsSystem final: BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
 	private:
 
@@ -26,6 +26,11 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
 
+	private:
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
+
+		void Shutdown();
+
 	public:
 
 		PhysicsSystem() = default;
@@ -36,12 +41,14 @@ namespace SliceEngine
 
 		~PhysicsSystem();
 
-		void Shutdown();
-
 		// may be redundant might remove return bool and change to void
 		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
-		bool IsInitialized();
+		bool IsInitialized() const;
+
+		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
+
+		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
 
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 

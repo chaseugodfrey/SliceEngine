@@ -3,6 +3,7 @@
 
 #include "../ContentBrowser/ContentBrowserWindow.h"
 #include "../SceneView/SceneViewWindow.h"
+#include "../Profiler/ProfilerWindow.h"
 //#include "Windows/EW_GameView.h"
 //#include "Windows/EW_Hierarchy.h"
 //#include "Windows/EW_Inspector.h"

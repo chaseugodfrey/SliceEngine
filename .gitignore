@@ -26,6 +26,9 @@ x64/
 *.tmp
 *.log
 *.tlog
+*.idb
+*.pdb
+*.vcxproj
 *.vspscc
 *.vssscc
 .builds
@@ -44,3 +47,4 @@ ipch/
 
 *.scene_temp
 build/
+Slice/SliceEngine/SliceEngine.lib

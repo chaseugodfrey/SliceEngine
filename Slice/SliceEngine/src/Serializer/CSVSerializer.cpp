@@ -5,6 +5,7 @@ namespace SliceEngine
 {
 	namespace CSVSerializer
 	{
+        constexpr auto testPath("Assets/Tests/");
 
         void Serialize(csv const& input, std::filesystem::path const& filePath)
         {
@@ -142,11 +143,75 @@ namespace SliceEngine
             }
         }
 
-		void Test()
-		{			
-            csv test = Deserialize("Assets/CSVTest1.csv");
-            csv empty;
-            Serialize(test, "Assets/CSVTest1.csv");
-		}
+        namespace Tests
+        {
+            void Test1(bool cleanOutput)
+            {
+                SLICE_LOG("Test 1 Beginning...");
+                // Test data
+                csv input;
+                input.col_keys = { "Unit Type", "Health", "Speed", "Cost", "Weapon" };
+                input.row_keys = { "Commander", "Spearman", "Ranger", "Knight", "Wyrmling", "Swarmling", "Viper" };
+                input.num_cols = static_cast<int>(input.col_keys.size());
+                input.num_rows = static_cast<int>(input.row_keys.size());
+
+                // Fill data
+                input.data["Commander"]["Unit Type"] = "Commander";
+                input.data["Commander"]["Health"] = "15";
+                input.data["Commander"]["Speed"] = "0";
+                input.data["Commander"]["Cost"] = "0";
+                input.data["Commander"]["Weapon"] = "Commander_Sword";
+
+                input.data["Spearman"]["Unit Type"] = "Spearman";
+                input.data["Spearman"]["Health"] = "20";
+                input.data["Spearman"]["Speed"] = "65";
+                input.data["Spearman"]["Cost"] = "25";
+                input.data["Spearman"]["Weapon"] = "Spearman_Spear";
+
+                input.data["Ranger"]["Unit Type"] = "Ranger";
+                input.data["Ranger"]["Health"] = "25";
+                input.data["Ranger"]["Speed"] = "65";
+                input.data["Ranger"]["Cost"] = "30";
+                input.data["Ranger"]["Weapon"] = "Ranger_Crossbow";
+
+                input.data["Knight"]["Unit Type"] = "Knight";
+                input.data["Knight"]["Health"] = "35";
+                input.data["Knight"]["Speed"] = "180";
+                input.data["Knight"]["Cost"] = "50";
+                input.data["Knight"]["Weapon"] = "Knight_Halberd";
+
+                input.data["Wyrmling"]["Unit Type"] = "Wyrmling";
+                input.data["Wyrmling"]["Health"] = "20";
+                input.data["Wyrmling"]["Speed"] = "75";
+                input.data["Wyrmling"]["Cost"] = "0";
+                input.data["Wyrmling"]["Weapon"] = "Wyrmling_Claw";
+
+                input.data["Swarmling"]["Unit Type"] = "Swarmling";
+                input.data["Swarmling"]["Health"] = "5";
+                input.data["Swarmling"]["Speed"] = "100";
+                input.data["Swarmling"]["Cost"] = "0";
+                input.data["Swarmling"]["Weapon"] = "Swarmling_Claw";
+
+                input.data["Viper"]["Unit Type"] = "Viper";
+                input.data["Viper"]["Health"] = "25";
+                input.data["Viper"]["Speed"] = "0";
+                input.data["Viper"]["Cost"] = "0";
+                input.data["Viper"]["Weapon"] = "Viper_Spine_Thrower";
+
+                Serialize(input, testPath + std::string("CSVTest1.csv"));
+                csv output = Deserialize(testPath + std::string("CSVTest1.csv"));
+                if (cleanOutput)
+                {
+                    std::filesystem::remove(testPath + std::string("CSVTest1.csv"));
+                }
+                SLICE_LOG("Test 1 Ended...");
+            }
+
+            void RunTests(bool cleanOutput)
+            {
+                Test1(cleanOutput);
+                SLICE_LOG("Tests Completed, Examine Console Log for Errors");
+            }
+        }
 	}
 }

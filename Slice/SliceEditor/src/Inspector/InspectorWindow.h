@@ -16,6 +16,20 @@ namespace SliceEditor
 	{
 		InspectorManager& mManager;
 
+		// to do: change later
+		std::optional<entt::entity> selected_entity;
+
+		void DisplayEntityData();
+		void DisplayTransform();
+		void DisplayMeshRenderer();
+		void DisplayRigidbody();
+		void DisplayCollider3D();
+		void AddComponentButton();
+
+		void R();
+
+
+
 	public:
 
 		InspectorWindow(InspectorManager& manager);
