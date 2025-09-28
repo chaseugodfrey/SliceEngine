@@ -1,8 +1,12 @@
 #include <pch.h>
-#include "ResourceManager.h"
+
+//#include "ResourceManager.h"
+#include "Resource/Shader.h"
+#include "Resource/Model.h"
+
 #include "WorldSpaceGraphicsSystem.h"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 #include "../Core/Core.h"
 
@@ -10,8 +14,9 @@ namespace SliceEngine
 {
 	void WorldSpaceGraphicsSystem::UseShader(ResourceManager* rcManager)
 	{
-		mShader = rcManager->GetShader();
-		glUseProgram(mShader.s);
+		mShader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		//mShader = rcManager->GetShader();
+		glUseProgram(mShader.get()->s);
 	}
 	void WorldSpaceGraphicsSystem::Render(ResourceManager* rcManager, Entity cam)
 	{
@@ -26,8 +31,8 @@ namespace SliceEngine
 
 		//ResetVisibleEntities();
 
-		tempModel = rcManager->GetModel();
-
+		//tempModel = rcManager->GetModel();
+		tempModel = rcManager->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		//FetchFrustrumCull(cam);
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //visibleEntity
 		for (auto entity : view)
@@ -92,15 +97,17 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(tempModel.vao);
+		glBindVertexArray(/*tempModel.vao*/
+		tempModel.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
 		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(mShader.s, "M");
+		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
 
-		glDrawArrays(tempModel.drawMode, 0, tempModel.drawCnt);
+		glDrawArrays(/*tempModel.drawMode, 0, tempModel.drawCnt*/
+			tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

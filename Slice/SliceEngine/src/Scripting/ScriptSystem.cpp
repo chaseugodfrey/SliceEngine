@@ -98,15 +98,15 @@ namespace SliceEngine
     {
         InitMono();
 
-        ScriptFunctions::RegisterFunctions();
+        //ScriptFunctions::RegisterFunctions();
 
-        LoadEntityClasses();
+       // LoadEntityClasses();
 
-        ScriptFunctions::RegisterComponents();
+        //ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
          // retrieve the main Entity class
-        mEntityClass = ScriptClass("Carmicah", "Entity");
+        //mEntityClass = ScriptClass("Slice", "Entity");
 
     }
 
@@ -155,9 +155,9 @@ namespace SliceEngine
     void ScriptSystem::InitMono()
     {
         // while (true) {};
-        mono_set_assemblies_path("../Dependencies/bin");
+        mono_set_assemblies_path("thirdparty/Mono/bin");
 
-        mRootDomain = mono_jit_init("CarmicahJITRuntime");
+        mRootDomain = mono_jit_init("SliceJITRuntime");
         if (mRootDomain == nullptr)
         {
             SLICE_LOG_ERROR("Unable to init mono");
@@ -167,8 +167,9 @@ namespace SliceEngine
 
         //mRootDomain = rootDomain;
 
-        LoadMonoAssembly("../CarmicahScriptCore/CarmicahScriptCore.dll");
+        LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
+		PrintAssemblyTypes(mCoreAssembly);
         //MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         //MonoClass* monoClass = mono_class_from_name(image, "Carmicah", "Main");
         //MonoObject* classInstance = mono_object_new(mAppDomain, monoClass);
@@ -287,7 +288,7 @@ namespace SliceEngine
             const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
            // UNUSED(name);
            // UNUSED(nameSpace);
-            //printf("%s.%s\n", nameSpace, name);
+           printf("%s.%s\n", nameSpace, name);
         }
     }
 
@@ -373,6 +374,11 @@ namespace SliceEngine
         
     }
 
+    void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+    {
+        
+	}
+
     void ScriptSystem::LoadEntityClasses()
     {
         // clear the map before using it
@@ -381,7 +387,7 @@ namespace SliceEngine
         MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "Carmicah", "Entity");
+        MonoClass* entityClass = mono_class_from_name(image, "Slice", "Entity");
 
         for (int32_t i = 0; i < numTypes; i++)
         {

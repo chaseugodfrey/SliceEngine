@@ -1,11 +1,11 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
-#include "vec3.hpp"
-#include "mat4x4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 
 namespace SliceEngine
-{
+{/*
 	struct Shader
 	{
 		GLuint s;
@@ -33,7 +33,7 @@ namespace SliceEngine
 	private:
 		Shader mOnlyShader;
 		Model mOnlyModel;
-	};
+	};*/
 }
 
 

@@ -6,6 +6,7 @@ workspace "Slice"
     warnings "Extra"
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
+script_lib_path = "%{wks.location}/SliceScript/SliceScript.dll"
 assets_build_path = "%{wks.location}/SliceEditor/Assets"
 assets_dev_path = "%{wks.location}/SliceEditor/DevAssets"
 
@@ -41,7 +42,9 @@ ThirdParty.RTTR_DLL_DEBUG = "%{wks.location}/SliceEngine/thirdparty/rttr/bin/rtt
 ThirdParty.MONO_INC = "%{wks.location}/SliceEngine/thirdparty/Mono/include"
 ThirdParty.MONO_LIB = "%{wks.location}/SliceEngine/thirdparty/Mono/lib"
 ThirdParty.MONO_MONO = "%{wks.location}/SliceEngine/thirdparty/Mono/mono"
+ThirdParty.MONO_DLL = "%{wks.location}/SliceEngine/thirdparty/Mono/lib/*.dll"
+ThirdParty.MONO_BIN = "%{wks.location}/SliceEngine/thirdparty/Mono/bin"
 
 include "SliceEngine/premake5.lua"
-include "SliceEditor/premake5.lua"
 include "SliceScript/premake5.lua"
+include "SliceEditor/premake5.lua"

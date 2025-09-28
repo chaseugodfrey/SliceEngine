@@ -1,13 +1,17 @@
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
-#include <glm.hpp>
-#include <common.hpp>
-#include <gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/common.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 #include "Core/Core.h"
+
+#include "Resource/ResourceManager.h"
+#include "Resource/Shader.h"
+#include "Resource/Model.h"
 
 // My Comments to (Ctrl + f): TODO: MAYDO:
 
@@ -72,10 +76,13 @@ namespace SliceEngine
 
 		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 
+		//scuffed hack
+		auto const& shader = rcManager->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+
 		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "V");
+		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "V");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
-		uniformLoc = glGetUniformLocation(rcManager->GetShader().s, "P");
+		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/shader.get()->s, "P");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
 		glViewport(0, 0, camera.width, camera.height);

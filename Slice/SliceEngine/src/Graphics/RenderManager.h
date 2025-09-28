@@ -13,6 +13,7 @@
 
 namespace SliceEngine
 {
+	class ResourceManager;
 	class RenderManager
 	{
 	public:		
