@@ -5,7 +5,7 @@
 #include "glm/mat4x4.hpp"
 
 namespace SliceEngine
-{
+{/*
 	struct Shader
 	{
 		GLuint s;
@@ -33,7 +33,7 @@ namespace SliceEngine
 	private:
 		Shader mOnlyShader;
 		Model mOnlyModel;
-	};
+	};*/
 }
 
 

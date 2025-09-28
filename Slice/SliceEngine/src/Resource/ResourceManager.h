@@ -59,7 +59,16 @@ namespace SliceEngine
 	{
 	public:
 		ResourceManager() = default;
-		~ResourceManager();
+
+		/*
+		* Hack number 2 i dont actually know why this is like this
+		*/
+		~ResourceManager() {
+			for (auto& i : mInstances) {
+				i.second.destroyer(i.second.data, *this);
+				delete i.second.data;	//not sure but 50% sure this is supposed to be here
+			}
+		}
 
 		//template<typename T>
 		//Handle<T> get(const std::string& path)
@@ -157,7 +166,7 @@ namespace SliceEngine
 		
 		~Handle() 
 		{ 
-			Release(); 
+			//Release(); //not sure but im like 90% sure this is not supposed to be here
 		}
 
 		Handle(const Handle& other) : mManager(&other.mManager), mPtr(other.mPtr), mGUID(other.mGUID)
@@ -257,9 +266,11 @@ namespace SliceEngine
 		T* mPtr;
 		GUID mGUID;
 	};
+
 }
 
 
+#include "Resource.h"
 
 
 #endif

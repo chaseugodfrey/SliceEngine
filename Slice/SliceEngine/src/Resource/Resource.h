@@ -1,6 +1,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
-#include "ResourceManager.h"
+//#include "ResourceManager.h"
 #include <cstdint>
 #include <string_view>
 
