@@ -294,7 +294,8 @@ namespace SliceEditor
 						{
 							if (ImGui::Selectable(script_list[i]))
 							{
-								script.scriptName = script_list[i];
+								script.scriptName = "SliceEngine.";
+								script.scriptName += script_list[i];
 								ImGui::CloseCurrentPopup();
 							}
 						}
