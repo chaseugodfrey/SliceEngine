@@ -112,6 +112,8 @@ namespace SliceEditor
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
+			DisplayComponentHeader<SliceEngine::Transform>(false);
+
 			DragVec3InputHeader("Position", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
 			DragVec3InputHeader("Scale", "##s", tr.scale);
@@ -140,30 +142,46 @@ namespace SliceEditor
 	{
 		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
 
-
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto entity = selected_entity.value();
 
 		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
 			if (ImGui::TreeNodeEx("AudioSource"))
 			{
-				ImGui::Text(as.soundName.c_str());
+				DisplayComponentHeader<SliceEngine::AudioSource>();
 
+				ImGui::Text("Audio Clip");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Volume");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				float volume = as.currentVolume;
-				if (ImGui::SliderFloat("Volume", &volume, 0.0f, 1.0f))
+				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
 					as.currentVolume = volume; // mark dirty via patch
 
+				ImGui::Text("Is Loop");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool loop = as.isLoop;
-				if (ImGui::Checkbox("isLoop", &loop))
+				if (ImGui::Checkbox("##isloop", &loop))
 					as.isLoop = loop;
 
-				bool paused = as.isPaused;
-				if (ImGui::Checkbox("isPaused", &paused))
-					as.isPaused = paused;
-
+				ImGui::Text("Is 3D");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool is3D = as.is3D;
-				if (ImGui::Checkbox("is3D", &is3D))
+				if (ImGui::Checkbox("##is3d", &is3D))
 					as.is3D = is3D;
+
+				ImGui::Text("Is Paused");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool paused = as.isPaused;
+				if (ImGui::Checkbox("##ispaused", &paused))
+					as.isPaused = paused;
 
 				ImGui::TreePop();
 			}
