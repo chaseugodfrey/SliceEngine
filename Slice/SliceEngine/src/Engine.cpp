@@ -129,13 +129,14 @@ namespace SliceEngine
 		}
 		inputs->Update();
 		frm.EndSystem("Input");
-
+		frm.StartSystem("Physics");
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
-			frm.StartSystem("Physics");
+
 			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
-			frm.EndSystem("Physics");
+			
 		}
+		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
 		////
