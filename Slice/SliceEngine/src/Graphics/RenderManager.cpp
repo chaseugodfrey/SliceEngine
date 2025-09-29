@@ -38,9 +38,13 @@ namespace SliceEngine
 		newCam.AddComponent<Camera>();
 
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-		if (!mainCam.has_value())
-			mainCam = newCam.GetEntity();
+
 		return newCam;
+	}
+
+	void RenderManager::SetMainGameCamera(GameObject cam)
+	{
+		mainCam.emplace(cam);
 	}
 
 	void RenderManager::Render()
@@ -311,9 +315,9 @@ namespace SliceEngine
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
 	}
-	GameObject RenderManager::GetGameCamera()
+	std::optional<GameObject>& RenderManager::GetGameCamera()
 	{
-		return Core::GetInstance()->mFactory.GetGOByEntity(mainCam.value());
+		return mainCam;
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
