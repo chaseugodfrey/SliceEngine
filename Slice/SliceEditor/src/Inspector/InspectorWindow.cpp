@@ -193,9 +193,9 @@ namespace SliceEditor
 	{
 		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			DisplayComponentHeader<SliceEngine::RigidBody>();
+			DisplayComponentHeader<SliceEngine::Renderer>();
 
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
