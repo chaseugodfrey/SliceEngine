@@ -16,8 +16,9 @@ namespace SliceEngine
             Console.WriteLine("TestEntity Created with ID: " + mID);
         }
 
-        public override void OnUdate(float dt)
+        public override void OnUpdate(float dt)
         {
+            Console.WriteLine("TestEntity Update called with dt: " + dt);
 
             if (Input.IsKeyPressed(Keys.KEY_W))
             {

@@ -26,7 +26,7 @@ namespace SliceEngine
         }
 
         public virtual void OnCreate() { }
-        public virtual void OnUdate(float dt) { }
+        public virtual void OnUpdate(float dt) { }
         //public virtual void OnDestroy() { }
        // public virtual void OnFixedUpdate(float dt) { }
 

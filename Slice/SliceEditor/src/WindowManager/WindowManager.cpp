@@ -50,7 +50,7 @@ namespace SliceEditor
 		DrawMainMenu();
 		DrawPlayState();
 		DrawDockspace();
-		DrawGamestateBar();
+		DrawPlayState();
 		
 		for (auto& window : list)
 		{

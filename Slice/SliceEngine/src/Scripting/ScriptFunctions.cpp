@@ -55,7 +55,7 @@ namespace SliceEngine
 		//		CM_CORE_INFO("ESC KEY NOT BEING PRESSED");
 		//	}
 		//}
-		return InputSystem::Get().IsKeyPressed(keyCode);
+		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
 #pragma region Console Logging functions

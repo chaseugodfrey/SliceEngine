@@ -119,10 +119,10 @@ namespace SliceEngine
 		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 
 		frm.StartSystem("Input");
-		// if (inputs->IsKeyDown(GLFW_KEY_LEFT))
-		// {
-		// 	std::cout << " test " << std::endl;
-		// }
+		 if (inputs->IsKeyPressed(KEY_W))
+		 {
+		 	std::cout << " test " << std::endl;
+		 }
 		inputs->Update();
 		frm.EndSystem("Input");
 
