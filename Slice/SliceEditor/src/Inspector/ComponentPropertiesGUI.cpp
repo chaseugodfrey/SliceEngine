@@ -51,17 +51,17 @@ namespace SliceEditor
 		ImGui::SameLine(100.0f);
 		ImGui::SetNextItemWidth(50.0f);
 
-		DragFloatInput(("x##"s + id).c_str(), val.x, "X: %.3f");
+		DragFloatInput((id + "_x"s).c_str(), val.x, "X: %.3f");
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
 
-		DragFloatInput(("y##"s + id).c_str(), val.y, "Y: %.3f");
+		DragFloatInput((id + "_y"s).c_str(), val.y, "Y: %.3f");
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
 
-		DragFloatInput(("z##"s + id).c_str(), val.z, "Z: %.3f");
+		DragFloatInput((id + "_z"s).c_str(), val.z, "Z: %.3f");
 	}
 
 }
