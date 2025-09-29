@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "Editor.h"
+#include "../../src/Input/InputSystem.h"
 
 namespace SliceEditor
 {
@@ -7,15 +8,18 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
+
+		// todo: calling this here first to put this when loading scene + 
+		// reminder to change scene root to a list in case we want to have multiple scenes
+		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
+
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
-		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
-		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
-		//contentBrowserManager.Init();
-		//profilerManager.Init();
+
 		InitManagers();
 		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
 		InitWindowManager();
+
 	}
 
 	void Editor::Run()
@@ -34,6 +38,13 @@ namespace SliceEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
+
+		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
+		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
+		ImGuiIO& io = ImGui::GetIO();
+		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
+
 
 		windowManager.Render();
 		
