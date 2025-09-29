@@ -3,6 +3,8 @@
 #include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
 #include "ScriptSystem.h"
+#include "../Core/Core.h"
+#include "../Input/InputSystem.h"
 
 namespace SliceEngine
 {
@@ -22,6 +24,69 @@ namespace SliceEngine
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
 	
+	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
+	{
+		//SLICE_LOG("Getting position from C++ for entity: {}", entity);
+		// note if we add UI objects
+		// this might need to be modified to check which transform it has
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		
+		*outPosition = transform.position;
+	}
+
+	static void Transform_SetPosition(unsigned int entity, glm::vec3* position)
+	{
+		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.position = *position;
+	}
+
+	static bool IsKeyPressed(Keys keyCode)
+	{
+		//if (keyCode == Keys::KEY_ESCAPE)
+		//{
+		//	if (Input.IsKeyPressed(keyCode))
+		//	{
+		//		CM_CORE_INFO("ESC KEY BEING PRESSED");
+
+		//	}
+		//	else
+		//	{
+		//		CM_CORE_INFO("ESC KEY NOT BEING PRESSED");
+		//	}
+		//}
+		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
+	}
+
+#pragma region Console Logging functions
+
+	static void Log(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_DEBUG(cStrName);
+		//CM_CORE_INFO(cStrName);
+		//mono_free(cStr);
+	}
+
+	static void LogWarn(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_WARNING(cStrName);
+		//CM_CORE_WARN(cStrName);
+		//mono_free(cStr);
+	}
+
+	static void LogError(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_ERROR(cStrName);
+		//CM_CORE_ERROR(cStrName);
+		//mono_free(cStr);
+	}
+#pragma endregion
+
+
+
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -52,7 +117,7 @@ namespace SliceEngine
 		// then we might need to clear the map before registering again
 		//mGameObjectHasComponentFuncs.clear();
 		//// Only these 2 for now
-		//RegisterComponent<Transform>();
+		RegisterComponent<Transform>();
 		//RegisterComponent<Collider2D>();
 		//RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
@@ -67,7 +132,17 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		ADD_INTERNAL_CALL(Transform_GetPosition);
+		ADD_INTERNAL_CALL(Transform_SetPosition);
 
+		// Key input
+		ADD_INTERNAL_CALL(IsKeyPressed);
+
+
+		// Console logging
+		ADD_INTERNAL_CALL(Log);
+		ADD_INTERNAL_CALL(LogWarn);
+		ADD_INTERNAL_CALL(LogError);
 	}
 
 }

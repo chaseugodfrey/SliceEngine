@@ -7,7 +7,10 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-#include "Graphics/ResourceManager.h"
+
+//#include "Graphics/ResourceManager.h"
+#include "Resource/ResourceManager.h"
+
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -15,19 +18,20 @@
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
+#include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 
-	//using namespace rttr;
+//using namespace rttr;
 
-	//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
 
-	//RTTR_REGISTRATION
-	//{
-	//	registration::class_<MyStruct>("MyStruct")
-	//		 .constructor<>()
-	//		 .property("data", &MyStruct::data)
-	//		 .method("func", &MyStruct::func);
-	//}
+//RTTR_REGISTRATION
+//{
+//	registration::class_<MyStruct>("MyStruct")
+//		 .constructor<>()
+//		 .property("data", &MyStruct::data)
+//		 .method("func", &MyStruct::func);
+//}
 
 namespace SliceEngine
 {
@@ -45,13 +49,13 @@ namespace SliceEngine
 		std::cout << " Hi from Engine Test Function\n";
 	}
 
-	
+
 
 	void Engine::Init()
 	{
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
-		
+
 		Core::GetInstance()->InitCore();
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
@@ -59,8 +63,7 @@ namespace SliceEngine
 
 		auto window = Core::GetInstance()->GetWindow();
 
-		inputs = std::make_unique<InputSystem>();
-		inputs->Init(window);
+
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
@@ -77,6 +80,7 @@ namespace SliceEngine
 		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
 		
+		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
@@ -92,14 +96,36 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		mResource->LoadModel("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
+		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
+		mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 		
+		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		mResource->LoadModel("Assets/Models/Cube.txt");*/
+		// mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		// mResource->LoadShader("Assets/Shaders/instanced.vert", "Assets/Shaders/instanced.frag");
+		// mResource->LoadShader("Assets/Shaders/debugLine.vert", "Assets/Shaders/debugLine.frag");
+		// mResource->LoadModel("Assets/Models/Cube.txt");
+		// mResource->LoadModel("Assets/Models/FrustrumFake.txt");
+		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
+		// mResource->LoadModel("Assets/Models/Line.txt");
+		
+		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		//mResource->LoadModel("Assets/Models/Cube.txt");
+
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
-
+		
+		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
 		
+
+
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -119,7 +145,14 @@ namespace SliceEngine
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
+		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		floor.AddComponent<Transform>();
+		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		floor.AddComponent<ColliderShape>();
+		floor.AddComponent<Renderer>();
 
+		
 	}
 
 	void Engine::Update()
@@ -130,6 +163,7 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		auto inputs = Core::GetInstance()->GetInputSystem();
 
 		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
@@ -140,25 +174,33 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
+		gScriptSystem->UpdateScripts();
+		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+
 		frm.StartSystem("Input");
-		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
-		{
-			std::cout << " test " << std::endl;
-		}
+		 if (inputs->IsKeyPressed(KEY_W))
+		 {
+		 	std::cout << " test " << std::endl;
+		 }
 		inputs->Update();
 		frm.EndSystem("Input");
-
 		frm.StartSystem("Physics");
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
 		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
 		mAudioManager->Update();
+		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		{
+
+			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			
+		}
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
 		////
 
 		frm.StartSystem("Graphics");
-		mRender->Render(mResource);
+		mRender->Render();
 		frm.EndSystem("Graphics");
 
 

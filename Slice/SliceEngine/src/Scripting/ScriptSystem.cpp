@@ -40,8 +40,9 @@ namespace SliceEngine
         {"System.Int32", ScriptFieldType::Int},
         {"System.UInt32", ScriptFieldType::UInt},
         {"System.String", ScriptFieldType::String},
-        {"Carmicah.Vector2", ScriptFieldType::Vector2},
-        {"Carmicah.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.Vector2", ScriptFieldType::Vector2},
+        {"SliceEngine.Vector3", ScriptFieldType::Vector3},
+        {"SliceEngine.Entity", ScriptFieldType::Entity},
     };
 
     ScriptSystem::ScriptSystem()
@@ -102,11 +103,11 @@ namespace SliceEngine
 
        LoadEntityClasses();
 
-        //ScriptFunctions::RegisterComponents();
+       ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
          // retrieve the main Entity class
-        //mEntityClass = ScriptClass("Slice", "Entity");
+        mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
     }
 
@@ -327,7 +328,30 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScripts()
     {
+        for (auto entity = entityAdded.begin(); entity != entityAdded.end(); ++entity)
+        {
+            if (mEntityInstances.count(*entity) == 0)
+            {
+                auto& scriptComponent = mRegistry->get<Script>(*entity);//ComponentManager::GetInstance()->GetComponent<Script>(*entity);
+                if (HasEntityClass(scriptComponent.scriptName)) // Technically dont have to check IMGUI only allows for entity classes to be picked
+                {
+                    std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], *entity);
+                    //  scriptRef->SetUpEntity(id); // Instantiate and set up the method handling
+                   // CM_CORE_INFO("Setting up a new script");
 
+                    mEntityInstances[*entity] = scriptObj;
+
+                    //check if its running or in edit mode but for now just call
+                    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    mEntityInstances[*entity]->InvokeOnCreate();
+
+                    UpdateScriptComponent(*entity);
+                    entityAdded.erase(entity);
+                    break;
+                    // entity = entityAdded.begin();
+                }
+            }
+        }
     }
 
     void ScriptSystem::OnEnd()
@@ -386,6 +410,10 @@ namespace SliceEngine
             // Check if an entity is created on runtime
 			// if it is then we have to invoke the construct and oncreate
             // but again after M1 
+
+            // for now we just invoke the moment it has been added
+			mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+			mEntityInstances[entity]->InvokeOnCreate();
 		}
         else
         {
@@ -417,7 +445,7 @@ namespace SliceEngine
         MonoImage* image = mono_assembly_get_image(mCoreAssembly);
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "Slice", "Entity");
+        MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
 
         for (int32_t i = 0; i < numTypes; i++)
         {
@@ -445,7 +473,7 @@ namespace SliceEngine
             {
                 std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
                 mEntityClasses[className] = script;
-
+                 
                 MonoClass* currentClass = monoClass;
                 while (currentClass)
                 {
@@ -459,10 +487,12 @@ namespace SliceEngine
                         {
                             MonoType* type = mono_field_get_type(field);
                             ScriptFieldType fieldType = GetScriptFieldType(type);
+
+
                             //variantVar defaultValue;
 
                             // Store it in the script's field map
-                            //script->mFields[fieldName] = { fieldType, fieldName, field, defaultValue };
+                            script->mFields[fieldName] = { fieldType, fieldName, field };
                         }
                     }
 

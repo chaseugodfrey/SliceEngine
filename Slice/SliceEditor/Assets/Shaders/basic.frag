@@ -7,7 +7,7 @@ layout (location=0)	out vec4	fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (binding = 0) uniform sampler2DArray 	uTex;
 
 void main(void){
-	vec4 col = vec4(vTexCoord,1.f);
+	vec4 col = vec4(0.6, 0.6, 0.6, 1.0);
 
 	//col = texture(uTex, vec3(vTexCoord, vID.y) ) * col;
 
