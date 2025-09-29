@@ -115,6 +115,9 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
+		gScriptSystem->UpdateScripts();
+		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+
 		frm.StartSystem("Input");
 		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
 		{
