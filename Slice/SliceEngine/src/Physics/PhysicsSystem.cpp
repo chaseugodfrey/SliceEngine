@@ -100,6 +100,13 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		
+		if (!checkEntity.HasComponent<ColliderShape>())
+		{
+			return;
+		}
+
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
@@ -176,7 +183,7 @@ namespace SliceEngine
 
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
 	{
 		switch (collider.type)
 		{
@@ -184,7 +191,7 @@ namespace SliceEngine
 		case ColliderShape::ColliderType::Box:
 		{
 			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings shapeSetting(boxData.halfExtend);
+			JPH::BoxShapeSettings shapeSetting(JPH::Vec3(boxData.scale.GetX()*transform.scale.x,boxData.scale.GetY()*transform.scale.y,boxData.scale.GetZ()*transform.scale.z));
 
 			auto result = shapeSetting.Create();
 
@@ -257,7 +264,7 @@ namespace SliceEngine
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape,transform);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");

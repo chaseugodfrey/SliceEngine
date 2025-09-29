@@ -29,7 +29,7 @@ namespace SliceEngine
 		int collisionSteps;
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider,const Transform& transform) const;
 
 		void Shutdown();
 

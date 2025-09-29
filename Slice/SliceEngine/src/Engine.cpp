@@ -95,7 +95,14 @@ namespace SliceEngine
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
+		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		floor.AddComponent<Transform>();
+		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		floor.AddComponent<ColliderShape>();
+		floor.AddComponent<Renderer>();
 
+		
 	}
 
 	void Engine::Update()
@@ -123,9 +130,12 @@ namespace SliceEngine
 		inputs->Update();
 		frm.EndSystem("Input");
 
-		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
-		frm.EndSystem("Physics");
+		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		{
+			frm.StartSystem("Physics");
+			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			frm.EndSystem("Physics");
+		}
 		// framerateManager->CapFPS(60);
 
 		////
