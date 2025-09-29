@@ -7,7 +7,10 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-#include "Graphics/ResourceManager.h"
+
+//#include "Graphics/ResourceManager.h"
+#include "Resource/ResourceManager.h"
+
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -15,6 +18,7 @@
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
+#include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 
 //using namespace rttr;
@@ -79,13 +83,34 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		mResource->LoadModel("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
+		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
+		mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
+		
+		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		mResource->LoadModel("Assets/Models/Cube.txt");*/
+		// mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		// mResource->LoadShader("Assets/Shaders/instanced.vert", "Assets/Shaders/instanced.frag");
+		// mResource->LoadShader("Assets/Shaders/debugLine.vert", "Assets/Shaders/debugLine.frag");
+		// mResource->LoadModel("Assets/Models/Cube.txt");
+		// mResource->LoadModel("Assets/Models/FrustrumFake.txt");
+		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
+		// mResource->LoadModel("Assets/Models/Line.txt");
+		
+		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		//mResource->LoadModel("Assets/Models/Cube.txt");
 
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
-
+		
+		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
+
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -142,7 +167,7 @@ namespace SliceEngine
 		////
 
 		frm.StartSystem("Graphics");
-		mRender->Render(mResource);
+		mRender->Render();
 		frm.EndSystem("Graphics");
 
 

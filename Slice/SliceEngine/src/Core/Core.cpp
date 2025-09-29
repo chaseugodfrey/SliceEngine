@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Core.h"
-#include "Graphics/ResourceManager.h"
+//#include "Graphics/ResourceManager.h"
+#include "Resource/ResourceManager.h"
+
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
 #include "Input/InputSystem.h"

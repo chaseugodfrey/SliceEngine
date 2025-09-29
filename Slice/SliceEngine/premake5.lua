@@ -15,6 +15,7 @@ project "SliceEngine"
         "thirdparty/glew",
         "thirdparty/glfw/include",
         "thirdparty/glm",
+        "thirdparty/gli",
         --"thirdparty/xprop",
         "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",

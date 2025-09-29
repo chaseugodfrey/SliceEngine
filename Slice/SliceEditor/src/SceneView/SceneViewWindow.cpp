@@ -5,7 +5,7 @@
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 
 namespace SliceEditor
 {
@@ -31,7 +31,7 @@ namespace SliceEditor
 		
 		glm::vec3 forward{}, right{}, up{};
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetMainCameraAxis(forward, right, up);
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{
@@ -83,6 +83,11 @@ namespace SliceEditor
 				}
 			}
 		}
+
+
+		// Btw for rotation
+		//camera.rotation.y -= (newMousePos.x - mousePos.x);
+		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
 
 		ImGui::GetWindowDrawList()->AddImage(
