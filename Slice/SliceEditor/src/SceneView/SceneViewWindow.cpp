@@ -55,6 +55,16 @@ namespace SliceEditor
 				cam_tr.position += right * 0.01f;
 			}
 
+			if (ImGui::IsKeyDown(ImGuiKey_Q))
+			{
+				cam_tr.position -= up * 0.01f;
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_E))
+			{
+				cam_tr.position += up * 0.01f;
+			}
+
 			static ImVec2 pos{};
 			static bool isRotating = false;
 			static ImVec2 init_rot{};
