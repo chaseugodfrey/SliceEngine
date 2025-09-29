@@ -20,6 +20,8 @@ DigiPen Institute of Technology is prohibited.
 // note for micah: dont include windows.h
 // it fks up glfw window 
 
+#include <glfw3.h>
+
 namespace SliceEngine
 {
     // i am not sure i need this anymore tbh
@@ -31,19 +33,19 @@ namespace SliceEngine
 
         // Printable Keys
         KEY_SPACEBAR = GLFW_KEY_SPACE,
-        KEY_APOSTROPHE = GLFW_KEY_APOSTROPHE,          
-        KEY_COMMA = GLFW_KEY_COMMA,                     
-        KEY_MINUS = GLFW_KEY_MINUS,                     
-        KEY_PERIOD = GLFW_KEY_PERIOD,                   
-        KEY_SLASH = GLFW_KEY_SLASH,                     
-        KEY_SEMICOLON = GLFW_KEY_SEMICOLON,             
-        KEY_EQUAL = GLFW_KEY_EQUAL,                     
-        KEY_LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET,       
-        KEY_BACKSLASH = GLFW_KEY_BACKSLASH,             
-        KEY_RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET,     
-        KEY_GRAVE_ACCENT = GLFW_KEY_GRAVE_ACCENT,       
-        KEY_WORLD_1 = GLFW_KEY_WORLD_1,                 
-        KEY_WORLD_2 = GLFW_KEY_WORLD_2,                 
+        KEY_APOSTROPHE = GLFW_KEY_APOSTROPHE,
+        KEY_COMMA = GLFW_KEY_COMMA,
+        KEY_MINUS = GLFW_KEY_MINUS,
+        KEY_PERIOD = GLFW_KEY_PERIOD,
+        KEY_SLASH = GLFW_KEY_SLASH,
+        KEY_SEMICOLON = GLFW_KEY_SEMICOLON,
+        KEY_EQUAL = GLFW_KEY_EQUAL,
+        KEY_LEFT_BRACKET = GLFW_KEY_LEFT_BRACKET,
+        KEY_BACKSLASH = GLFW_KEY_BACKSLASH,
+        KEY_RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET,
+        KEY_GRAVE_ACCENT = GLFW_KEY_GRAVE_ACCENT,
+        KEY_WORLD_1 = GLFW_KEY_WORLD_1,
+        KEY_WORLD_2 = GLFW_KEY_WORLD_2,
 
         KEY_0 = GLFW_KEY_0,
         KEY_1 = GLFW_KEY_1,
@@ -131,6 +133,39 @@ namespace SliceEngine
         MAX_KEYBOARD_KEYS
     };
     
+
+    // enum to switch between game and editor
+    enum class InputMode : uint8_t
+    {
+        Game = 0,
+        Editor
+    };
+
+    // these modifiers are used to check if ctrl, shift, alt are pressed
+    struct Modifiers
+    {
+        bool ctrl{ false };
+        bool shift{ false };
+        bool alt{ false };
+
+        static Modifiers FromGLFW(int mods)
+        {
+            Modifiers m;
+            m.shift = (mods & GLFW_MOD_SHIFT) != 0;
+            m.ctrl = (mods & GLFW_MOD_CONTROL) != 0;
+            m.alt = (mods & GLFW_MOD_ALT) != 0;
+            return m;
+        }
+
+        bool matches(int mods) const
+        {
+            const bool wantShift = shift, wantCtrl = ctrl, wantAlt = alt;
+            const bool hasShift = (mods & GLFW_MOD_SHIFT) != 0;
+            const bool hasCtrl = (mods & GLFW_MOD_CONTROL) != 0;
+            const bool hasAlt = (mods & GLFW_MOD_ALT) != 0;
+            return wantShift == hasShift && wantCtrl == hasCtrl && wantAlt == hasAlt;
+        }
+    };
 
     enum MouseButtons
     {

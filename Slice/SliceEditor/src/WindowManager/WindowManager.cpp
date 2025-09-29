@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
+#include "../../src/Input/InputSystem.h"
 
 namespace SliceEditor
 {
@@ -49,6 +50,7 @@ namespace SliceEditor
 		DrawMainMenu();
 		DrawPlayState();
 		DrawDockspace();
+		DrawGamestateBar();
 		
 		for (auto& window : list)
 		{
@@ -174,8 +176,28 @@ namespace SliceEditor
 			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking);
 
-		if (ImGui::Button("Play", ImVec2{ 60, 35 }));
-		ImGui::SameLine();
+        ImGuiIO& io = ImGui::GetIO();
+		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
+
+        static bool isPlaying = false;
+
+		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
+        {
+         isPlaying = !isPlaying;
+
+			if (isPlaying) // if its play, enable game input
+			{
+				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+				inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+			}
+			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+			{
+				inputs->UnbindCallbacks();
+				inputs->SetMode(SliceEngine::InputMode::Editor);
+			}   
+        }
+        ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
 
 		ImGui::End();
