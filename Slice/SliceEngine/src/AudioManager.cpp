@@ -1,5 +1,7 @@
 #include <pch.h>
 #include "AudioManager.h"
+#include "../src/Core/Core.h"
+#include "Input/InputSystem.h"
 
 namespace SliceEngine
 {
@@ -60,7 +62,10 @@ namespace SliceEngine
 
 	void AudioManager::Update()
 	{
-		
+		auto* input = Core::GetInstance()->GetInputSystem();
+		if (input->IsKeyPressed(GLFW_KEY_SPACE)) {
+			std::cout << "InputSystem WORKS\n";
+		}
 	}
 
 	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool isLoop, float volume)
@@ -86,6 +91,7 @@ namespace SliceEngine
 		track->category = category;
 		track->isLooping = isLoop;
 		track->currentSoundVolume = volume;
+
 
 		if (channel)
 		{

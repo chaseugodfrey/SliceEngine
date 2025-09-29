@@ -58,7 +58,6 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-
 		auto window = Core::GetInstance()->GetWindow();
 
 
@@ -71,7 +70,6 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		audio->Init();
@@ -88,8 +86,6 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
 		mRender->CreateCamera();
-
-
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -121,6 +117,7 @@ namespace SliceEngine
 		//	std::cout << " test " << std::endl;
 		//}
 		inputs->Update();
+
 		framerateManager->EndSystem("Input");
 
 		// framerateManager->CapFPS(60);
@@ -136,7 +133,8 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-
+		auto inputs = Core::GetInstance()->GetInputSystem();
+		inputs->UpdatePrevInput();
 		glfwSwapBuffers(window);
 	}
 
