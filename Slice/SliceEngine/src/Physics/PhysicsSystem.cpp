@@ -378,7 +378,7 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
 		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
-
+		physicsSystem->OptimizeBroadPhase();
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -421,6 +421,12 @@ namespace SliceEngine
 
 		// Subscribe to the EnemyDefeatedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
+	}
+
+	void PhysicsSystem::SetLinearVelocity(Entity entity,JPH::Vec3 vel)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
 }
