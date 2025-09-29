@@ -75,6 +75,11 @@ namespace SliceEditor
 
 	void SelectionSystem::ClearSelection()
 	{
+		for (auto& listener : mListeners)
+		{
+			listener->OnUpdateDeselected(mSelectedEntities);
+		}
+
 		// to do: get managers to subscribe
 		mSelectedEntities.clear();
 	}

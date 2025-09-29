@@ -312,7 +312,7 @@ namespace SliceEditor
 			else
 			{
 				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-				auto& script_class = script_map.at("SliceEngine." + script.scriptName);
+				auto& script_class = script_map.at(script.scriptName);
 				auto& script_vars = script_class->mFields;
 
 				for (auto& var : script_vars)

@@ -74,6 +74,7 @@ namespace SliceEditor
 
 			else
 			{
+				mSelection.ClearSelection();
 				mSelection.UpdateSelected(node.entity);
 			}
 		}
@@ -127,10 +128,10 @@ namespace SliceEditor
 			if (!hasParent)
 				ImGui::EndDisabled();
 
-			if (ImGui::Selectable("Add Component"))
-			{
+			//if (ImGui::Selectable("Add Component"))
+			//{
 
-			}
+			//}
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
