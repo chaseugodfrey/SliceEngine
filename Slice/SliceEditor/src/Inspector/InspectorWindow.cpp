@@ -2,6 +2,7 @@
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 
 namespace SliceEditor
 {
@@ -51,6 +52,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
+			{
+				DisplaySliceScript();
+				ImGui::Separator();
+			}
 
 			AddComponentButton();
 		}
@@ -150,6 +157,86 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplaySliceScript()
+	{
+		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(selected_entity.value());
+
+		if (ImGui::TreeNodeEx("Script", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::Script>();
+
+			std::string script_name = script.scriptName;
+			if (script_name.empty())
+				script_name = "(Empty)";
+
+			// Script Name
+
+			ImGui::Text("Script Class: ");
+			ImGui::SameLine();
+			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Separator();
+
+			if (script.scriptName.empty())
+			{
+				if (ImGui::Button("Add Script"))
+				{
+					ImGui::OpenPopup("script_list_popup");
+				}
+
+				if (ImGui::BeginPopupContextItem("script_list_popup"))
+				{					
+					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
+
+					std::vector<const char*> script_list{};
+
+					static int list_index = 1;
+
+					for (auto& [key, value] : script_map)
+					{
+						script_list.push_back(value->mClassName.c_str());
+					}
+
+					//std::string selected_script_class{};
+
+					if (ImGui::BeginListBox("##script_list"))
+					{
+						for (size_t i = 0; i < script_list.size(); i++)
+						{
+							if (ImGui::Selectable(script_list[i]))
+							{
+								script.scriptName = script_list[i];
+								ImGui::CloseCurrentPopup();
+							}
+						}
+
+						ImGui::EndListBox();
+					}
+
+					ImGui::EndPopup();
+				}
+
+				// Script Variables
+
+				else
+				{
+					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
+					auto& script_class = script_map.at(script_name);
+					auto& script_vars = script_class->mFields;
+
+					for (auto& var : script_vars)
+					{
+
+					}
+
+				}
+
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::AddComponentButton()
 	{
 		const char* arr[5] =
@@ -171,14 +258,21 @@ namespace SliceEditor
 
 		if (ImGui::BeginPopupContextItem("##add_component_list"))
 		{
+			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			
 			if (ImGui::Selectable("Add Rigidbody"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::RigidBody>(selected_entity.value());
+				reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
 			}
 
 			if (ImGui::Selectable("Add Collider3D"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity.value());
+				reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
+			}
+			
+			if (ImGui::Selectable("Add Script Container"))
+			{
+				reg.emplace<SliceEngine::Script>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();

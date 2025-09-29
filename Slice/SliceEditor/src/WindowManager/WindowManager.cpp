@@ -50,7 +50,6 @@ namespace SliceEditor
 		DrawMainMenu();
 		DrawPlayState();
 		DrawDockspace();
-		DrawPlayState();
 		
 		for (auto& window : list)
 		{
@@ -197,6 +196,7 @@ namespace SliceEditor
 				inputs->SetMode(SliceEngine::InputMode::Editor);
 			}   
         }
+
         ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
 

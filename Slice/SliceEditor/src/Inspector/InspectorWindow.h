@@ -53,6 +53,7 @@ namespace SliceEditor
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
 		void DisplayCollider3D();
+		void DisplaySliceScript();
 		void AddComponentButton();
 
 		void R();
