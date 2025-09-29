@@ -37,32 +37,43 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyDown(ImGuiKey_W))
 			{
-				cam_tr.position += forward * 0.01f;
+				cam_tr.position += forward * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_S))
 			{
-				cam_tr.position -= forward * 0.01f;
+				cam_tr.position -= forward * mManager.GetCameraSpeed();
 			}
 			
 			if (ImGui::IsKeyDown(ImGuiKey_A))
 			{
-				cam_tr.position -= right * 0.01f;
+				cam_tr.position -= right * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_D))
 			{
-				cam_tr.position += right * 0.01f;
+				cam_tr.position += right * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_Q))
 			{
-				cam_tr.position -= up * 0.01f;
+				cam_tr.position -= up * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_E))
 			{
-				cam_tr.position += up * 0.01f;
+				cam_tr.position += up * mManager.GetCameraSpeed();
+			}
+
+			//Camera Speed Change
+			ImGuiIO& io = ImGui::GetIO();
+			if (io.MouseWheel > 0.0f)
+			{
+				mManager.ChangeCameraSpeed(0.01f);
+			}
+			else if (io.MouseWheel < 0.0f)
+			{
+				mManager.ChangeCameraSpeed(-0.01f);
 			}
 
 			static ImVec2 pos{};
