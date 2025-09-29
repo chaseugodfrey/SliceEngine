@@ -64,7 +64,7 @@ namespace SliceEngine
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
-
+		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();

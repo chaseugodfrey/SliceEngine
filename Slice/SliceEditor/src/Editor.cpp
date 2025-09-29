@@ -10,7 +10,7 @@ namespace SliceEditor
 
 		// todo: calling this here first to put this when loading scene + 
 		// reminder to change scene root to a list in case we want to have multiple scenes
-		SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
+		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
 
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		SLICE_LOG("Initializing Editor Systems.");
