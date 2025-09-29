@@ -29,7 +29,7 @@ namespace SliceEngine
 		int collisionSteps;
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider,const Transform& transform) const;
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
 
 		void Shutdown();
 
@@ -40,6 +40,8 @@ namespace SliceEngine
 		void OnRigidBodyAdd(const RigidBodyAddedEvent& event);
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
+
+		void UpdateShapeFromTransform(Entity entity);
 
 	public:
 

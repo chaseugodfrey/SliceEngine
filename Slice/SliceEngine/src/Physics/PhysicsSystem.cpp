@@ -6,6 +6,7 @@
 #include "../Graphics/TransformHelper.h"
 #include "../Core/EventManager.h"
 
+#define EPSILON 0.0001f
 
 namespace SliceEngine
 {
@@ -100,13 +101,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
 	{
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
-		
-		if (!checkEntity.HasComponent<ColliderShape>())
-		{
-			return;
-		}
-
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
@@ -183,7 +177,66 @@ namespace SliceEngine
 
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
+	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
+	{
+		auto& transform = mRegistry->get<Transform>(entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+			if (transform.scale == transform.previousScale)
+				return;
+
+			// Rebuild only if Box (sphere generally uses radius; you could scale radius by max component if desired)
+			if (colliderShape.type == ColliderShape::ColliderType::Box)
+			{
+				const auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
+				JPH::Vec3 newHalf(
+					boxData.scale.GetX() * transform.scale.x,
+					boxData.scale.GetY() * transform.scale.y,
+					boxData.scale.GetZ() * transform.scale.z
+				);
+
+				JPH::BoxShapeSettings settings(newHalf);
+				auto result = settings.Create();
+				if (result.HasError())
+				{
+					SLICE_LOG_ERROR("Failed to rebuild scaled box: " + std::string(result.GetError()));
+					return;
+				}
+				colliderShape.shape = result.Get();
+
+				// Replace shape on body if it already exists
+				if (!colliderShape.bodyID.IsInvalid())
+				{
+					// Update shape; true => update mass properties (you can pass false then re-apply custom mass if needed)
+					physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+					// If you have overridden mass, re-apply:
+					if (mRegistry->any_of<RigidBody>(entity))
+					{
+						auto& rb = mRegistry->get<RigidBody>(entity);
+						if (!rb.isKinematic)
+						{
+							JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+							if (lock.Succeeded())
+							{
+								JPH::Body& body = lock.GetBody();
+								if (auto* mp = body.GetMotionProperties())
+								{
+									mp->ScaleToMass(rb.mass);
+									mp->SetLinearDamping(rb.linearDamping);
+									mp->SetAngularDamping(rb.angularDamping);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			transform.previousScale = transform.scale;	
+
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
 	{
 		switch (collider.type)
 		{
@@ -191,7 +244,7 @@ namespace SliceEngine
 		case ColliderShape::ColliderType::Box:
 		{
 			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings shapeSetting(JPH::Vec3(boxData.scale.GetX()*transform.scale.x,boxData.scale.GetY()*transform.scale.y,boxData.scale.GetZ()*transform.scale.z));
+			JPH::BoxShapeSettings shapeSetting(boxData.scale);
 
 			auto result = shapeSetting.Create();
 
@@ -264,7 +317,7 @@ namespace SliceEngine
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape,transform);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
@@ -356,6 +409,8 @@ namespace SliceEngine
 	{
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());

@@ -62,6 +62,8 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
+		glm::vec3 previousScale{};
+
 		glm::mat4 transform{};
 	};
 
