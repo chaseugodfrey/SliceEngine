@@ -97,8 +97,8 @@ namespace SliceEngine
 		// mResource->LoadModel("Assets/Models/FrustrumFake.txt");
 		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
 		
-		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		mResource->LoadModel("Assets/Models/Cube.txt");
+		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		//mResource->LoadModel("Assets/Models/Cube.txt");
 
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
