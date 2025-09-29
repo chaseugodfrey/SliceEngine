@@ -64,10 +64,14 @@ namespace SliceEngine
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
-		audio->Init();
-		audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
-		audio->LoadSound("Assets/Audio/3DAudioTest.wav");
 
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
+		mAudioManager->Init();
+		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+
+		
+		
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
@@ -75,6 +79,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -100,10 +105,10 @@ namespace SliceEngine
 		//JSONSerializer::Test2();
 		//JSONSerializer::Tests::RunTests(false);
 		//JSONSerializer::Tests::RunTests(false);
-		GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
+		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
 
 		testing.AddComponent<Renderer>();
-		testing.AddComponent<AudioSource>();
+		testing.AddComponent<AudioSource>();*/
 
 		Core::GetInstance()->mFactory.TestLoop();
 		//JSONSerializer::Tests::RunTests(false);

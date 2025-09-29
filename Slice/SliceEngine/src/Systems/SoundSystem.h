@@ -21,6 +21,9 @@ namespace SliceEngine
 		
 
 		public:
+
+		void BindToAudioSource();
+
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
@@ -28,6 +31,9 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		
+		void onVolumeUpdated(entt::registry& reg, entt::entity);
+
+		void onPauseUpdated(entt::registry& reg, entt::entity);
 	};
 }
 

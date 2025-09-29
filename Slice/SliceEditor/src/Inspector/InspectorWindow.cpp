@@ -114,8 +114,11 @@ namespace SliceEditor
 
 			ImGui::SliderFloat("Volume", &as.currentVolume, 0.0f, 1.0f);
 
+			std::cout << as.currentVolume << std::endl;
 
 			ImGui::Checkbox("isLoop", &as.isLoop);
+
+			ImGui::Checkbox("isPaused", &as.isPaused);
 
 			ImGui::Checkbox("is3D", &as.is3D);
 

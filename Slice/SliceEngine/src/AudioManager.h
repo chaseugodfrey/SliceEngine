@@ -141,6 +141,8 @@ namespace SliceEngine
 		void SetMasterVolume(float volume);
 		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
 		float GetCategoryVolume(SoundCategory category);
+		void UpdateSoundVolume(Entity& id, float volume);
+		float GetCurrentTrackVolume(Entity& id);
 
 		void UpdatePauseSound(Entity& id, bool isPaused);
 
@@ -153,7 +155,6 @@ namespace SliceEngine
 	private:
 
 		void UpdateSoundVolume(SoundTrack* track);
-		void UpdateSoundVolume(Entity& id);
 		float CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const;
 		
 

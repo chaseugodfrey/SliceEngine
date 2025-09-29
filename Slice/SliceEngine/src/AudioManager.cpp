@@ -165,7 +165,21 @@ namespace SliceEngine
 		
 	}
 
-	void AudioManager::UpdateSoundVolume(Entity& id)
+	float AudioManager::GetCurrentTrackVolume(Entity& id)
+	{
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; ++i)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == id && track->channel)
+				{
+					return track->currentSoundVolume;
+				}
+			}
+		}
+	}
+
+	void AudioManager::UpdateSoundVolume(Entity& id, float volume)
 	{
 		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
 		{
@@ -173,6 +187,7 @@ namespace SliceEngine
 			{
 				if (track->entityID == id)
 				{
+					track->currentSoundVolume = volume;
 					UpdateSoundVolume(track.get());
 					break;
 				}
