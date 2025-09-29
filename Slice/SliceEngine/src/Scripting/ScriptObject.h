@@ -32,6 +32,7 @@ namespace SliceEngine
 		Short,
 		UInt,
 		Vector2,
+		Vector3,
 		Entity,
 		String
 	};

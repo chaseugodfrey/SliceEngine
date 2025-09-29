@@ -126,7 +126,7 @@ namespace SliceEngine
 		// These are the other functions that every other script that inherits Entity will have
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
-		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
