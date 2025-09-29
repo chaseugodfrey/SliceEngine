@@ -4,10 +4,52 @@
 
 namespace SliceEditor
 {
+	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+
+		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
+		{
+			if (action == GLFW_PRESS)
+			{
+				// update that particular key to pressed state
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESS);
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASE);
+			}
+		}
+	}
+	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	{
+		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+		// 2. Check if ImGui wants to capture the mouse
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse)
+		{
+			return; // Stop processing, ImGui has it
+		}
+
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (action == GLFW_PRESS)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+		}
+	}
+
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
 
 		// todo: calling this here first to put this when loading scene + 
 		// reminder to change scene root to a list in case we want to have multiple scenes
@@ -20,6 +62,7 @@ namespace SliceEditor
 		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
 		InitWindowManager();
 
+		inputSys->SetMode(SliceEngine::InputMode::Editor);
 	}
 
 	void Editor::Run()
@@ -81,7 +124,8 @@ namespace SliceEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 		ImGui_ImplOpenGL3_Init("#version 450");
 		glfwSetWindowUserPointer(window, this);
-		glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+		glfwSetKeyCallback(window, MasterKeyCallback);
+		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
 	}
 
