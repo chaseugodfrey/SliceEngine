@@ -41,6 +41,6 @@ namespace SliceEditor
 			mCameraSpeed = 0.f;
 		}
 
-		SLICE_LOG_VALUES("New Camera Speed: ", mCameraSpeed);
+		//SLICE_LOG_VALUES("New Camera Speed: ", mCameraSpeed);
 	}
 }
