@@ -410,16 +410,16 @@ namespace SliceEngine
 		// Get the EventManager instance and subscribe our member functions.
 		auto* eventManager = EventManager::GetInstance();
 
-		// Subscribe to the PlayerJumpedEvent
+		// Subscribe to the ColliderShapeAddedEvent
 		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
 
-		// Subscribe to the EnemyDefeatedEvent
+		// Subscribe to the ColliderShapeRemovedEvent
 		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
 
-		// Subscribe to the PlayerJumpedEvent
+		// Subscribe to the RigidBodyAddedEvent
 		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
 
-		// Subscribe to the EnemyDefeatedEvent
+		// Subscribe to the RigidBodyRemovedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 	}
 
