@@ -6,6 +6,8 @@
 #include <random>
 #include <rttr/registration.h>
 
+
+
 namespace SliceEngine
 {
 	struct GUID
@@ -15,10 +17,13 @@ namespace SliceEngine
 		explicit GUID(uint64_t value) : mValue(value) {}
 		bool operator==(const GUID& other) const { return mValue == other.mValue; }
 		bool operator!=(const GUID& other) const { return mValue != other.mValue; }
-		bool operator<(const GUID& other) const { return mValue < other.mValue; }
-		bool operator<=(const GUID& other) const { return mValue <= other.mValue; }
-		bool operator>(const GUID& other) const { return mValue > other.mValue; }
-		bool operator>=(const GUID& other) const { return mValue >= other.mValue; }
+		//bool operator<(const GUID& other) const { return mValue < other.mValue; }
+		//bool operator<=(const GUID& other) const { return mValue <= other.mValue; }
+		//bool operator>(const GUID& other) const { return mValue > other.mValue; }
+		//bool operator>=(const GUID& other) const { return mValue >= other.mValue; }
+		
+		// this shit is cool wtf 4 for the price of 1
+		bool operator<=>(const GUID& other) const { return mValue >= other.mValue; }
 
 		static GUID Generate()
 		{
@@ -27,13 +32,6 @@ namespace SliceEngine
 			return GUID(dist(rng) | (1ULL << 63)); // Ensure first bit is 1
 		}
 
-		struct Hasher
-		{
-			std::size_t operator()(const GUID& guid) const noexcept
-			{
-				return std::hash<uint64_t>{}(guid.mValue);
-			}
-		};
 
 		uint64_t GetGUID() const { return mValue; }
 
@@ -50,5 +48,13 @@ namespace SliceEngine
 	}
 }
 
+template<>
+struct std::hash<SliceEngine::GUID>
+{
+	std::size_t operator()(const SliceEngine::GUID& guid) const noexcept
+	{
+		return std::hash<uint64_t>{}(guid.GetGUID());
+	}
+};
 
 #endif // !GUID_H

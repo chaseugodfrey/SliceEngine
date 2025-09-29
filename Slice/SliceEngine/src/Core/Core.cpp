@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
+#include "Systems/FramerateManager.h"
 #include "Input/InputSystem.h"
 namespace SliceEngine
 {
@@ -26,6 +27,8 @@ namespace SliceEngine
 
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
+		mFramerateManager = std::make_unique<FramerateManager>();
+		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
@@ -62,6 +65,11 @@ namespace SliceEngine
 	RenderManager* Core::GetRenderManager()
 	{
 		return mRender.get();
+	}
+
+	FramerateManager* Core::GetFramerateManager()
+	{
+		return mFramerateManager.get();
 	}
 
 	GLFWwindow* Core::GetWindow()

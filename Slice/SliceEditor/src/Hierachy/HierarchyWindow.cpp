@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
+#include "../SelectionSystem/SelectionSystem.h"
 //#include "../../SliceEngine/src/Core/Core.h"
 
 namespace SliceEditor
@@ -8,11 +9,10 @@ namespace SliceEditor
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-	std::unordered_set<TestNode*> set;
 
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
+	HierarchyWindow::HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection) : mManager(manager), mSelection(selection)
 	{
-		set = std::unordered_set<TestNode*>();
+
 	}
 
 	void HierarchyWindow::DrawNode(TestNode& node)
@@ -24,7 +24,32 @@ namespace SliceEditor
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		bool isOpen = ImGui::TreeNodeEx(node.name.c_str(), flags);
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+
+		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
+			ImGui::Text(node.name.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
+
+				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+				auto go = factory.GetGOByEntity(child_entity);
+				factory.SetParent(child_entity, node.entity);
+				mManager.ParentGameObject(child_entity, node.entity);
+				//mManager.SetDirty();
+			}
+
+			ImGui::EndDragDropTarget();
+		}
 
 		if (ImGui::IsItemClicked())
 		{
@@ -52,11 +77,17 @@ namespace SliceEditor
 			}
 		}
 
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup("entity_popup");
+		}
+
 		if (isOpen)
 		{
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
-				DrawNode(node.children[i]);
+				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+				DrawNode(child_node);
 			}
 
 			ImGui::TreePop();
@@ -64,7 +95,7 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("entity_pop_up");
+			ImGui::OpenPopup("entity_popup");
 		}
 
 		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
@@ -84,42 +115,41 @@ namespace SliceEditor
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
 		{
-			DrawNode(node.children[i]);
+			auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+			DrawNode(child_node);
 		}
 	}
 
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-
-		auto& rootNodes = mManager.GetNodes();
-
-		for (size_t i = 0; i < rootNodes.size(); i++)
-		{
-			DrawSceneNode(rootNodes[i]);
-		}
-
+		auto root_entity = SliceEngine::Core::GetInstance()->mFactory.GetRootEntity();
+		auto& hierarchy = mManager.GetHierarchy();
+		DrawSceneNode(hierarchy[root_entity]);
 		ImGui::EndGroup();
 	}
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
-		if (ImGui::BeginPopupContextItem("entity_pop_up"))
+		if (ImGui::BeginPopupContextItem("entity_popup"))
 		{
 			if (ImGui::Selectable("Add Component"))
 			{
 
 			}
 
+			if (ImGui::Selectable("Remove GameObject"))
+			{
+				mManager.RemoveGameObject(node.entity);
+			}
+
 			ImGui::EndPopup();
 		}
-
 	}
 
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");
-
 
 		DrawNodeGraph();
 
@@ -129,12 +159,12 @@ namespace SliceEditor
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("right click");
+			ImGui::OpenPopup("window_popup");
 		}
 
-		if (ImGui::BeginPopupContextItem("right click"))
+		if (ImGui::BeginPopupContextItem("window_popup"))
 		{
-			if (ImGui::MenuItem("Add GameObject"))
+			if (ImGui::Selectable("Add GameObject"))
 			{
 				mManager.AddGameObject();
 			}
@@ -143,5 +173,18 @@ namespace SliceEditor
 		}
 
 		ImGui::End();
+
+
+		// to do: don't update this interaction every frame.
+		std::unordered_set<entt::entity> entities{};
+
+		for (TestNode* node : set)
+		{
+			entities.insert(node->entity);
+		}
+
+		mSelection.UpdateSelection(entities);
+		
+		mManager.CheckDirty();
 	}
 }

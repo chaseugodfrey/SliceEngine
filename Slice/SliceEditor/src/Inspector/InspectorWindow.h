@@ -17,22 +17,53 @@ namespace SliceEditor
 		InspectorManager& mManager;
 
 		// to do: change later
-		entt::entity selected_entity;
+		std::optional<entt::entity> selected_entity;
 
 		void DisplayEntityData();
+
+		// temp component header
+		template <typename ComponentType>
+		void DisplayComponentHeader(bool closeable = true)
+		{
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
+			if (ImGui::Button("-"))
+			{
+				ImGui::OpenPopup("ComponentContextMenu");  // Open the popup when button is clicked
+			}
+
+			if (ImGui::BeginPopup("ComponentContextMenu"))  // Check if popup is open
+			{
+				if (!closeable)
+					ImGui::BeginDisabled();
+
+				if (ImGui::MenuItem("Remove Component"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(selected_entity.value());
+				}
+				
+				if (!closeable)
+					ImGui::EndDisabled();
+
+				ImGui::EndPopup();
+			}
+		}
+
+		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
 		void DisplayCollider3D();
 		void AddComponentButton();
 
+		void R();
+
+
+
 	public:
 
 		InspectorWindow(InspectorManager& manager);
 		~InspectorWindow() = default;
 		void Draw() override final;
-
-		void UpdateSelectedEntity(entt::entity entity);
 	};
 }
 

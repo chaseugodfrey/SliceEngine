@@ -7,7 +7,7 @@
 
 namespace SliceEditor
 {
-	struct ICreateWindow;
+	class ICreateWindow;
 
 	class WindowManager
 	{
@@ -17,7 +17,7 @@ namespace SliceEditor
 		//std::shared_ptr<EditorState> editorState;
 		void DrawMainMenu();
 		void DrawDockspace();
-		void DrawGamestateBar();
+		void DrawPlayState();
 		void DrawPreferenceWindow();
 
 	public:

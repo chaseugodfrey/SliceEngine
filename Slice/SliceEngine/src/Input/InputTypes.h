@@ -25,7 +25,7 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
     // i am not sure i need this anymore tbh
-    /*
+    
     enum Keys : int
     {
         // Special and Unknown Keys
@@ -132,7 +132,7 @@ namespace SliceEngine
 
         MAX_KEYBOARD_KEYS
     };
-    */
+    
 
     // enum to switch between game and editor
     enum class InputMode : uint8_t

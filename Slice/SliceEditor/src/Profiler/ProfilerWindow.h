@@ -8,7 +8,7 @@ namespace SliceEditor
 {
 	class ProfilerWindow : public EditorWindow
 	{
-		ProfilerManager& manager;
+		ProfilerManager& mManager;
 	public:
 		~ProfilerWindow() = default;
 
@@ -19,6 +19,10 @@ namespace SliceEditor
 		void DrawLoggerTab();
 
 		void DrawPerformanceTab();
+
+		void DrawSystemTimeline();
+
+		void DrawSystemBreakdown();
 	};
 }
 

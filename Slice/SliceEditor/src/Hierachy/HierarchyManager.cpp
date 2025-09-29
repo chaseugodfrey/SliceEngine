@@ -1,13 +1,10 @@
 #include <pch.h>
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
+#include "../Core/Registry.h"
 
 namespace SliceEditor
 {
-	HierarchyManager::HierarchyManager()
-	{
-
-	}
 
 	void HierarchyManager::Test()
 	{
@@ -40,46 +37,120 @@ namespace SliceEditor
 		BuildHierarchy();
 	}
 
+	void HierarchyManager::SetDirty()
+	{
+		isDirty = true;
+	}
+
+	void HierarchyManager::CheckDirty()
+	{
+		if (isDirty)
+		{
+			//BuildHierarchy();
+			isDirty = false;
+		}
+	}
+
 	void HierarchyManager::BuildHierarchy()
 	{
-		auto* core = SliceEngine::Core::GetInstance();
-		TestNode node{};
-		node.parent = nullptr;
-		node.isSelected = false;
-		node.name = "scene1";
-		mRootNodes.push_back(node);
+		mHierarchy.clear();
 
-		auto entityview = core->GetRegistry().view<SliceEngine::SliceEntity>();
+		auto core = SliceEngine::Core::GetInstance();
+		auto& reg = core->GetRegistry();
+		auto root_entity = core->mFactory.GetRootEntity();
 
-		int i = 1;
-		
-		for (auto entity: entityview)
+		TestNode rootNode{};
+		rootNode.entity = root_entity;
+		mHierarchy.emplace(root_entity, rootNode);
+
+		auto hierarchy = reg.view<SliceEngine::SliceEntity>();
+
+		for (auto entity : hierarchy)
 		{
-			TestNode childNode{};
-			childNode.parent = &node;
-			childNode.entity = entity;
-			childNode.name = "dummy" + std::to_string(i++);
-			node.children.push_back(childNode);
+			TestNode node{};
+			node.entity = entity;
+			mHierarchy.emplace(entity, node);
+		}
+
+		for (auto& [entity, node] : mHierarchy)
+		{
+			auto& scene_graph = reg.get<SliceEngine::SceneGraph>(entity);
+			auto parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+			auto child = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			if (parent != entt::null)
+				node.parent = &mHierarchy[parent];
+
+			while (child != entt::null)
+			{
+				node.children.push_back(child);
+				child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
 		}
 	}
 
 	void HierarchyManager::AddGameObject()
 	{
-		static int i = 10;
-		auto go = SliceEngine::Core::GetInstance()->mFactory.CreateGO();
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.CreateGO();
+
+		// testing
 		go.AddComponent<SliceEngine::Renderer>();
 
-		auto& rootNode = mRootNodes[0];
 		TestNode node{};
 		node.entity = go.GetEntity();
-		node.parent = &rootNode;
-		node.name = "child" + std::to_string(i++);
-		rootNode.children.push_back(node);
+		mHierarchy.emplace(node.entity, node);
+
+		auto rootEntity = factory.GetRootEntity();
+		ParentGameObject(node.entity, rootEntity);
+
+		//isDirty = true;
+	}
+
+	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)
+	{
+		auto& child_node = mHierarchy.at(child_entity);
+		auto& parent_node = mHierarchy.at(parent_entity);
+		// detach from previous parent
+		// skip if node was just created
+		if (child_node.parent != nullptr)
+		{
+			auto& children_list = child_node.parent->children;
+
+			auto it = std::find(std::begin(children_list), std::end(children_list), child_node.entity);
+			if (it != children_list.end())
+			{
+				children_list.erase(it);
+			}
+		}
+
+		// add new parent
+		child_node.parent = &parent_node;
+
+		// attach to new parent
+		parent_node.children.push_back(child_node.entity);
+	}
+
+	void HierarchyManager::RemoveGameObject(entt::entity target)
+	{
+		auto parent_entity = mHierarchy[target].parent;
+
+		// remove from parent's children list
+		auto& children = parent_entity->children;
+		auto it = std::find(std::begin(children), std::end(children), target);
+		children.erase(it);
+
+		// remove from node structure
+		mHierarchy.erase(target);
+
+		// remove from core registry
+		SliceEngine::FactoryInstance.Destroy(target);
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()
 	{
-		auto window = std::make_unique<HierarchyWindow>(*this);
+		auto& selectionSystem = registry.GetSelectionSystem();
+		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
 		return window;
 	}
 }

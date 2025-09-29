@@ -16,6 +16,7 @@ namespace SliceEngine
 {
 	class RenderManager;
 	class ResourceManager;
+	class FramerateManager;
 	class InputSystem;
 
 	class Core : public Singleton<Core>
@@ -67,6 +68,8 @@ namespace SliceEngine
 
 		RenderManager* GetRenderManager();
 
+		FramerateManager* GetFramerateManager();
+
 		GLFWwindow* GetWindow();
 
 		Registry& GetRegistry();
@@ -82,6 +85,8 @@ namespace SliceEngine
 		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
+		std::unique_ptr<FramerateManager> mFramerateManager;
+
 	};
 
 #define CoreInstance Core::GetInstance()
@@ -89,6 +94,7 @@ namespace SliceEngine
 #define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
 #define RenderManagerInstance Core::GetInstance()->GetRenderManager()
 #define FactoryInstance Core::GetInstance()->mFactory
+#define FramerateManagerInstance Core::Getnstance()->GetFraterateManager()
 
 }
 

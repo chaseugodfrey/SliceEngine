@@ -45,7 +45,8 @@ project "SliceEditor"
     defines
     {
         "RTTR_DLL",
-        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS"
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
+        "JPH_ENABLE_ASSERTS"
     }
 
     pchheader "pch.h"
@@ -59,11 +60,6 @@ project "SliceEditor"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
-
-        defines
-        {
-         "JPH_ENABLE_ASSERTS"
-        }
         
         links {
             "rttr_core_d",
@@ -94,7 +90,8 @@ project "SliceEditor"
 
  
     prebuildcommands {
-        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"'
+        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
+        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
@@ -103,7 +100,9 @@ project "SliceEditor"
         '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"'
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"',
+        '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"'
 
     }
 

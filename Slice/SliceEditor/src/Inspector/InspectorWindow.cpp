@@ -14,39 +14,56 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Inspector");
 
-		UpdateSelectedEntity(entt::entity{ 1 });
+		auto& entities = mManager.GetSelectedEntities();
 
-		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity))
+		if (entities.size() > 0)
+			selected_entity = *entities.begin();
+
+		else
+			selected_entity.reset();
+
+		if (!selected_entity.has_value())
 		{
+			ImGui::End();
+			return;
+		}
+
+		// to do : use gamefactory component view
+		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
+		{
+			auto entity = selected_entity.value();
 			DisplayTransform();
+			ImGui::Separator();
 
 			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(selected_entity))
-			{
-				DisplayRigidbody();
-			}
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(selected_entity))
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
 			{
 				DisplayCollider3D();
+				ImGui::Separator();
 			}
 
-			ImGui::Separator();
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
+			{
+				DisplayRigidbody();
+				ImGui::Separator();
+			}
+
 
 			AddComponentButton();
 		}
-		
-
 
 		ImGui::End();
 	}
 
-	void InspectorWindow::UpdateSelectedEntity(entt::entity entity)
+	void R()
 	{
-		selected_entity = entity;
+		
 	}
 
+	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
+
+	
 	void InspectorWindow::DisplayEntityData()
 	{
 		static bool is_active = false;
@@ -58,13 +75,24 @@ namespace SliceEditor
 
 	}
 
+	//void InspectorWindow::DisplayComponentHeader(bool closeable)
+	//{
+	//}
+
 	void InspectorWindow::DisplayTransform()
 	{
-		auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity);
+		if (ImGui::TreeNodeEx("Transform"))
+		{
+			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
-		DragVec3InputHeader("Translation", "t", tr.position);
-		//DragVec2InputHeader(service, "Scale", "s", transform.localScale);
-		//DragDoubleInputHeader(service, "Rotation", "##r", transform.localRotation, "%.3f");
+			DisplayComponentHeader<SliceEngine::Transform>(false);
+
+			DragVec3InputHeader("Translation", "##t", tr.position);
+			DragVec3InputHeader("Rotation", "##r", tr.rotation);
+			DragVec3InputHeader("Scale", "##s", tr.scale);
+
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplayMeshRenderer()
@@ -74,10 +102,12 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayRigidbody()
 	{
-		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity);
+		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
 
 		if (ImGui::TreeNodeEx("Rigidbody"))
 		{
+			DisplayComponentHeader<SliceEngine::RigidBody>();
+
 			ImGui::DragFloat("Friction", &rb.friction);
 
 			ImGui::TreePop();
@@ -86,10 +116,12 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayCollider3D()
 	{
-		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity);
+		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
 
 		if (ImGui::TreeNodeEx("Collider3D"))
 		{
+			DisplayComponentHeader<SliceEngine::ColliderShape>();
+
 			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
 
 			ImGui::TreePop();
@@ -119,12 +151,12 @@ namespace SliceEditor
 		{
 			if (ImGui::Selectable("Add Rigidbody"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::RigidBody>(selected_entity);
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::RigidBody>(selected_entity.value());
 			}
 
 			if (ImGui::Selectable("Add Collider3D"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity);
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();

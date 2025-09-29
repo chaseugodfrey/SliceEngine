@@ -26,9 +26,18 @@ x64/
 *.tmp
 *.log
 *.tlog
+*.idb
+*.pdb
+*.vcxproj
 *.vspscc
 *.vssscc
+*.cache
+*.nupkg
 .builds
+
+# Automatically generated files
+*.Generated.cs
+*.AssemblyAttributes.cs
 
 # Visual C++ cache files
 ipch/

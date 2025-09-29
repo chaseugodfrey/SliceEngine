@@ -12,11 +12,10 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "SliceTime.h"
 #include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
-
+#include "Scripting/ScriptSystem.h"
 
 //using namespace rttr;
 
@@ -33,9 +32,8 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
-	GameTime& Engine::gameTime = GameTime::getInstance();
 
-	Engine::Engine()
+	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
 	}
 	Engine::~Engine()
@@ -63,15 +61,16 @@ namespace SliceEngine
 
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
-		framerateManager = std::make_unique<FramerateManager>();
-		framerateManager->Init();
-
+		frm.Init();
+		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
-
+		Core::GetInstance()->InitSystem<ScriptSystem>();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
 		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
@@ -91,45 +90,73 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		JSONSerializer::Tests::RunTests(false);
-		Core::GetInstance()->mFactory.TestLoop();
+		//JSONSerializer::Tests::RunTests(false);
+		//Core::GetInstance()->mFactory.TestLoop();
+
+		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		floor.AddComponent<Transform>();
+		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		floor.AddComponent<ColliderShape>();
+		floor.AddComponent<Renderer>();
+
+		
 	}
 
 	void Engine::Update()
 	{
-		gameTime.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm.StartFrame();
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
 
+		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
+		frm.EndSystem("GLFW Poll Events");
 		// Main Body
-		framerateManager->StartFrame();
 
-		//framerateManager->StartSystem("Input");
-		//if (inputs->IsKeyDown(GLFW_KEY_LEFT))
-		//{
-		//	std::cout << " test " << std::endl;
-		//}
+		gScriptSystem->UpdateScripts();
+		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+
+		frm.StartSystem("Input");
+		 if (inputs->IsKeyPressed(KEY_W))
+		 {
+		 	std::cout << " test " << std::endl;
+		 }
 		inputs->Update();
+		frm.EndSystem("Input");
+		frm.StartSystem("Physics");
+		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		{
 
-		framerateManager->EndSystem("Input");
-
+			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			
+		}
+		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
-		framerateManager->EndFrame();
 		////
 
+		frm.StartSystem("Graphics");
 		mRender->Render(mResource);
+		frm.EndSystem("Graphics");
+
+
+
+		frm.EndFrame();
+		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
 	{
+		Core::FactoryInstance.UpdateDestroyed();
+
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
