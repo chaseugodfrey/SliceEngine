@@ -9,6 +9,11 @@
 #include "CollisionLayer.h"
 #include "../Core/Events.h"
 
+namespace 
+{
+	constexpr size_t TEN_MB = (10 * 1024 * 1024); //Jolt says 10mb is for typical usage;
+}
+
 
 namespace SliceEngine
 {
@@ -58,7 +63,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(float fixedDt, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(float fixedDt,size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized() const;
 

@@ -18,7 +18,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(float fixedDt, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize(float fixedDt, size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -50,7 +50,7 @@ namespace SliceEngine
 			JPH::Factory::sInstance = new JPH::Factory;
 			JPH::RegisterTypes();
 
-			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024); //temporary use 10mb
+			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(tempAllocatorSize);
 
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
