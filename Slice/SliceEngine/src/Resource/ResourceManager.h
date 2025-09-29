@@ -149,6 +149,11 @@ namespace SliceEngine
 			mGUIDToPath[guid] = path;
 		}
 
+	private:
+		template<typename T> friend class Handle;
+
+
+
 		std::unordered_map<GUID, detail::Instance> mInstances;
 		std::unordered_map<GUID, std::string> mGUIDToPath;
 

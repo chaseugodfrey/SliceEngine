@@ -83,7 +83,6 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-
 		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
 		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
 		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
@@ -103,11 +102,15 @@ namespace SliceEngine
 		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
 		// mResource->LoadModel("Assets/Models/Line.txt");
 		
+		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
+		//mResource->LoadModel("Assets/Models/Cube.txt");
+
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
+
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
