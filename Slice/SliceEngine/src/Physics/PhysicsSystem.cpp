@@ -152,33 +152,16 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
 	{
-		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Static, JPH::EActivation::DontActivate);
 
-		float mass = 1.0f;
-		float friction = 0.5f;
-		float restitution = 0.0f;
-		float linearDamping = 0.05f;
-		float angularDamping = 0.05f;
-
-		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
+		float friction = 0.5f; // default friction value
+		float restitution = 0.0f; // default restitution value
 
 		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, friction);
 		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, restitution);
-
-		JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
-		if (lock.Succeeded())
-		{
-			JPH::Body& body = lock.GetBody();
-			JPH::MotionProperties* mp = body.GetMotionProperties();
-
-			mp->ScaleToMass(mass);
-			mp->SetLinearDamping(linearDamping);
-			mp->SetAngularDamping(angularDamping);
-		}
 
 	}
 
