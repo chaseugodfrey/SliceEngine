@@ -3,6 +3,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
+#include "../AudioManager.h"
 namespace SliceEngine
 {
 	Core::Core()
@@ -26,6 +27,7 @@ namespace SliceEngine
 
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
+		mAudioManager = std::make_unique<AudioManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 
@@ -63,6 +65,11 @@ namespace SliceEngine
 	FramerateManager* Core::GetFramerateManager()
 	{
 		return mFramerateManager.get();
+	}
+
+	AudioManager* Core::GetAudioManager()
+	{
+		return mAudioManager.get();
 	}
 
 	GLFWwindow* Core::GetWindow()

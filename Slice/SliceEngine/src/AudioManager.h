@@ -24,6 +24,8 @@ namespace SliceEngine
 		FMOD::Channel* channel = nullptr;
 		float defaultSoundVolume = 1.0f;
 		float currentSoundVolume = 1.0f;
+		FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
+		FMOD_VECTOR vel = { 0.f,0.f,0.f };
 		SoundCategory category = SoundCategory::SFX;
 		bool isLooping = false;
 		bool isPaused = false;
@@ -39,6 +41,8 @@ namespace SliceEngine
 			{
 				channel->setVolume(currentSoundVolume);
 				channel->setMode(isLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+				channel->set3DAttributes(&soundPos3D, &vel);
+				channel->set3DMinMaxDistance(0.1f, 0.6f);
 			}
 		}
 	};
@@ -121,17 +125,26 @@ namespace SliceEngine
 		void Update();
 		void Exit();
 
+		FMOD_VECTOR Vec3ToFMODVec3(glm::vec3& vector)
+		{
+			return FMOD_VECTOR{ vector.x,vector.y,vector.z };
+		}
+
 		void LoadSound(const std::string& soundFile);
-		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isLoop, float volume, Entity id);
+		bool PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
 
 		void SetListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
-		void SetSound3DPosition(const std::string& soundName, glm::vec3 soundPos);
+
+		//to do : Add in parameter for min and max distance when after it is added to AudioSource Component
+		void SetSound3DPosition(Entity& id, glm::vec3 soundPos);
 
 		void SetMasterVolume(float volume);
 		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
 		float GetCategoryVolume(SoundCategory category);
 
-		void StopSound(InternalSound internalCategory, Entity id);
+		void UpdatePauseSound(Entity& id, bool isPaused);
+
+		void StopSound(Entity& id);
 		void StopAllSound(InternalSound SoundCategory);
 
 		void CleanUpStoppedSounds();
@@ -139,7 +152,8 @@ namespace SliceEngine
 
 	private:
 
-		void UpdateSoundVolume(SoundTrack* track, SoundCategory category);
+		void UpdateSoundVolume(SoundTrack* track);
+		void UpdateSoundVolume(Entity& id);
 		float CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const;
 		
 

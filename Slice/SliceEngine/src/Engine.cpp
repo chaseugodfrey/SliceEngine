@@ -64,6 +64,9 @@ namespace SliceEngine
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
+		audio->Init();
+		audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
+		audio->LoadSound("Assets/Audio/3DAudioTest.wav");
 
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -73,9 +76,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 
 		gScriptSystem->Init();
-		audio->Init();
-		audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
-		audio->LoadSound("Assets/Audio/3DAudioTest.wav");
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
@@ -105,7 +105,6 @@ namespace SliceEngine
 		GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
 
 		testing.AddComponent<Renderer>();
-		testing.AddComponent<Transform>();
 		testing.AddComponent<AudioSource>();
 
 		Core::GetInstance()->mFactory.TestLoop();

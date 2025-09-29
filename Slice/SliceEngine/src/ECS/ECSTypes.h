@@ -134,6 +134,7 @@ namespace SliceEngine
 		std::string soundName;
 		float currentVolume;
 		bool isLoop;
+		bool isPaused;
 		bool is3D;
 	};
 
