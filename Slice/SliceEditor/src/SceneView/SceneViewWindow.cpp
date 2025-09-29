@@ -30,6 +30,7 @@ namespace SliceEditor
 		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
 		
 		glm::vec3 forward{}, right{}, up{};
+		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
 
@@ -101,8 +102,8 @@ namespace SliceEditor
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
 					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
-					cam_tr.rotation.y = init_rot.x + mouse_diff.x;
-					cam_tr.rotation.z = init_rot.y + mouse_diff.y;
+					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
+					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
 				}
 			}
 		}

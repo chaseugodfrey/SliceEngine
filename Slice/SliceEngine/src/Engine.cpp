@@ -60,7 +60,6 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-
 		auto window = Core::GetInstance()->GetWindow();
 
 
@@ -175,11 +174,13 @@ namespace SliceEngine
 		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 
 		frm.StartSystem("Input");
-		 if (inputs->IsKeyPressed(KEY_W))
-		 {
-		 	std::cout << " test " << std::endl;
-		 }
-		inputs->Update();
+		//inputs->Update();
+
+		if (inputs->IsKeyDown(GLFW_KEY_W) || inputs->IsKeyPressed(GLFW_KEY_W))
+		{
+			//SLICE_LOG_DEBUG("ASDIOASJIODAS");
+		}
+		inputs->UpdatePrevInput();
 		frm.EndSystem("Input");
 		frm.StartSystem("Physics");
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
@@ -187,14 +188,9 @@ namespace SliceEngine
 		mAudioManager->Update();
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
-
 			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
-			
 		}
 		frm.EndSystem("Physics");
-		// framerateManager->CapFPS(60);
-
-		////
 
 		frm.StartSystem("Graphics");
 		mRender->Render();
@@ -213,7 +209,7 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-
+		auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 

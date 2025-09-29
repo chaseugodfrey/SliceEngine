@@ -35,7 +35,7 @@ namespace SliceEngine
 		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
-
+		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 	}

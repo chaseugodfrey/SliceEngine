@@ -1,5 +1,7 @@
 #include <pch.h>
 #include "AudioManager.h"
+#include "../src/Core/Core.h"
+#include "Input/InputSystem.h"
 
 namespace SliceEngine
 {
@@ -64,7 +66,9 @@ namespace SliceEngine
 
 	void AudioManager::Update()
 	{
+
 		mSoundSystem->update();
+
 	}
 
 	bool AudioManager::PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos)
