@@ -36,7 +36,7 @@ namespace SliceEngine
 		transform.position = glm::vec3(-2.f, 1.f, 0.f);
 		transform.rotation = glm::vec3(0.f, 0.f, -10.f);
 		newCam.AddComponent<Camera>();
-
+		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 
 		return newCam;
@@ -63,7 +63,8 @@ namespace SliceEngine
 			UpdateCamGPU(cam);
 
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(cam);
-			RenderDebug(cam);
+			if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
+				RenderDebug(cam);
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -75,6 +76,7 @@ namespace SliceEngine
 		glDisable(GL_DEPTH_TEST);
 
 		// Draw other cameras' frustrum
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
 			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
@@ -135,6 +137,7 @@ namespace SliceEngine
 		}
 		
 		// Draw Instance Debug Box
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
 		{
 			mCurrShader = mInstanceShader;
 			glUseProgram(mCurrShader.get()->s);
@@ -156,6 +159,7 @@ namespace SliceEngine
 		}
 
 		// Draw Debug Line
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_GRID_TAG)
 		{
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
