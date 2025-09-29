@@ -45,6 +45,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
+			{
+				DisplayMeshRenderer();
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
 			{
@@ -126,6 +132,24 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMeshRenderer()
 	{
+		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(selected_entity.value());
+
+		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::RigidBody>();
+
+			ImGui::Text("Mesh");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##mesh", &rend.model, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Text("Texture");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##texture", &rend.texture, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::TreePop();
+		}
 
 	}
 
@@ -137,7 +161,10 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::RigidBody>();
 
-			ImGui::DragFloat("Friction", &rb.friction);
+			ImGui::Text("Friction");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::DragFloat("##friction", &rb.friction);
 
 			ImGui::TreePop();
 		}
@@ -151,7 +178,9 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::ColliderShape>();
 
-			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
+			ImGui::Text("Trigger");
+			ImGui::SameLine(150.0f);
+			ImGui::Checkbox("##trigger", &col3d.isTrigger);
 
 			ImGui::TreePop();
 		}
@@ -172,7 +201,8 @@ namespace SliceEditor
 			// Script Name
 
 			ImGui::Text("Script Class: ");
-			ImGui::SameLine();
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
 
 			ImGui::Separator();
@@ -228,7 +258,8 @@ namespace SliceEditor
 				for (auto& var : script_vars)
 				{
 					ImGui::Text(var.first.c_str());
-					ImGui::SameLine();
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					std::string temp{ 0 };
 					if (ImGui::InputText(("##" + var.first).c_str(), &temp))
 					{

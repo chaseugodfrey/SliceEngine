@@ -46,6 +46,8 @@ namespace SliceEditor
 
 				ImGui::EndPopup();
 			}
+
+			ImGui::Separator();
 		}
 
 		// to do in m2 : use rttr to read types.
