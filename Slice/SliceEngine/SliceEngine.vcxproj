@@ -122,10 +122,15 @@
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\GUID.h" />
+    <ClInclude Include="src\Resource\Resource.h" />
+    <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\SliceTime.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
+    <ClInclude Include="src\Systems\GameStateManager.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
     <ClInclude Include="src\Vectors\Vector2.h" />
@@ -150,10 +155,13 @@
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\SliceTime.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
+    <ClCompile Include="src\Systems\GameStateManager.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
