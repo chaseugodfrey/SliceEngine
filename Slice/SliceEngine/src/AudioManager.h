@@ -27,6 +27,7 @@ namespace SliceEngine
 		FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
 		FMOD_VECTOR vel = { 0.f,0.f,0.f };
 		SoundCategory category = SoundCategory::SFX;
+		bool is3D = true;
 		bool isLooping = false;
 		bool isPaused = false;
 		bool muffle = false;
@@ -117,7 +118,7 @@ namespace SliceEngine
 		std::vector<std::unique_ptr<SoundTrack2D>> mSound2D[SOUND_MAX_SOUNDS];
 		std::vector<std::unique_ptr<SoundTrack3D>> mSound3D[SOUND_MAX_SOUNDS];
 		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
-		float mMasterVolume;
+		float mMasterVolume = 1.0f;
 
 
 	public:
@@ -130,6 +131,11 @@ namespace SliceEngine
 			return FMOD_VECTOR{ vector.x,vector.y,vector.z };
 		}
 
+		glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
+		{
+			return glm::vec3{ vector.x, vector.y, vector.z };
+		}
+
 		void LoadSound(const std::string& soundFile);
 		bool PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
 
@@ -137,14 +143,19 @@ namespace SliceEngine
 
 		//to do : Add in parameter for min and max distance when after it is added to AudioSource Component
 		void SetSound3DPosition(Entity& id, glm::vec3 soundPos);
+		glm::vec3 GetSound3DPosition(Entity& id);
 
 		void SetMasterVolume(float volume);
 		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
-		float GetCategoryVolume(SoundCategory category);
+		float GetCategoryVolume(SoundCategory category) const;
 		void UpdateSoundVolume(Entity& id, float volume);
 		float GetCurrentTrackVolume(Entity& id);
 
+		bool IsFMOD3D(Entity& id);
+		void UpdateFMODMode(Entity& id, bool is3D);
+
 		void UpdatePauseSound(Entity& id, bool isPaused);
+		bool GetPauseState(Entity& id);
 
 		void StopSound(Entity& id);
 		void StopAllSound(InternalSound SoundCategory);

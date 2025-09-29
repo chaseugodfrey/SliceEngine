@@ -19,6 +19,11 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("FMOD System initialization failed");
 			return;
 		}
+
+		for (int i{}; i < 4; i++)
+		{
+			mCategoryVolumes.emplace(static_cast<SoundCategory>(i), 1.0f);
+		}
 	}
 
 	void AudioManager::LoadSound(const std::string& soundFile)
@@ -143,22 +148,21 @@ namespace SliceEngine
 		}
 	}
 
-	float AudioManager::GetCategoryVolume(SoundCategory category)
+	float AudioManager::GetCategoryVolume(SoundCategory category) const
 	{
-		return mCategoryVolumes[category];
+		return mCategoryVolumes.at(category);
 	}
 
 	float AudioManager::CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const
 	{
-		return track->currentSoundVolume * mCategoryVolumes.at(category) * mMasterVolume;
+		float catVolume = GetCategoryVolume(category);
+
+		return track->currentSoundVolume * GetCategoryVolume(category) * mMasterVolume;
 	}
 
 	void AudioManager::UpdateSoundVolume(SoundTrack* track)
 	{
-		if (!track || track->channel)
-		{
-			return;
-		}
+		
 
 		float finalVolume = CalculateFinalVolume(track, track->category);
 		track->channel->setVolume(finalVolume);
@@ -222,8 +226,29 @@ namespace SliceEngine
 				{
 					track->soundPos3D = Vec3ToFMODVec3(soundPos);
 					track->channel->set3DAttributes(&track->soundPos3D, &track->vel);
-					track->channel->set3DMinMaxDistance(0.1f, 0.6f);
+					if (track->is3D == false && soundPos.x == 0.f && soundPos.y == 0.f && soundPos.z == 0.f)
+					{
+						track->channel->set3DMinMaxDistance(1.0f, 1.0f);
+					}
+					else
+					{
+						track->channel->set3DMinMaxDistance(0.1f, 0.6f);
+					}
 					break;
+				}
+			}
+		}
+	}
+
+	glm::vec3 AudioManager::GetSound3DPosition(Entity& id)
+	{
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == id && track->channel)
+				{
+					return FMODVec3ToVec3(track->soundPos3D);
 				}
 			}
 		}
@@ -237,7 +262,59 @@ namespace SliceEngine
 			{
 				if (track->entityID == id && track->channel)
 				{
+					track->isPaused = isPaused;
 					track->channel->setPaused(isPaused);
+				}
+			}
+		}
+	}
+
+	bool AudioManager::GetPauseState(Entity& id)
+	{
+
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == id && track->channel)
+				{
+					return track->isPaused;
+				}
+			}
+		}
+	}
+
+	bool AudioManager::IsFMOD3D(Entity& id)
+	{
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == id && track->channel)
+				{
+					return track->is3D;
+				}
+			}
+		}
+	}
+
+	void AudioManager::UpdateFMODMode(Entity& id, bool is3D)
+	{
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == id && track->channel)
+				{
+					track->is3D = is3D;
+					if (is3D)
+					{
+						track->channel->setMode(FMOD_3D);
+					}
+					else
+					{
+						track->channel->setMode(FMOD_2D);
+					}
 				}
 			}
 		}

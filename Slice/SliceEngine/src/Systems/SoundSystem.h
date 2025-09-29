@@ -31,7 +31,7 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		
-		void onVolumeUpdated(entt::registry& reg, entt::entity);
+		void ComponentUpdate(entt::registry& reg, entt::entity);
 
 		void onPauseUpdated(entt::registry& reg, entt::entity);
 	};

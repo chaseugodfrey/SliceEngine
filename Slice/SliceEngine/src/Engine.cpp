@@ -69,7 +69,12 @@ namespace SliceEngine
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
 		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
+		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
+		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
+		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
 
+		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
 		
 		Core::GetInstance()->InitSystem<SoundSystem>();
@@ -94,7 +99,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
 		mRender->CreateCamera();
-
+		
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -124,6 +129,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 
 		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
@@ -144,6 +150,8 @@ namespace SliceEngine
 
 		frm.StartSystem("Physics");
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
+		mAudioManager->Update();
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 

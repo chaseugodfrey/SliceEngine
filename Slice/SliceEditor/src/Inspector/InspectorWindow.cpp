@@ -106,24 +106,33 @@ namespace SliceEditor
 		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
 
 
-		if (ImGui::TreeNodeEx("AudioSource"))
-		{
-			
-			ImGui::Text(as.soundName.c_str());
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
 
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
+			if (ImGui::TreeNodeEx("AudioSource"))
+			{
+				ImGui::Text(as.soundName.c_str());
 
-			ImGui::SliderFloat("Volume", &as.currentVolume, 0.0f, 1.0f);
+				float volume = as.currentVolume;
+				if (ImGui::SliderFloat("Volume", &volume, 0.0f, 1.0f))
+					as.currentVolume = volume; // mark dirty via patch
 
-			std::cout << as.currentVolume << std::endl;
+				bool loop = as.isLoop;
+				if (ImGui::Checkbox("isLoop", &loop))
+					as.isLoop = loop;
 
-			ImGui::Checkbox("isLoop", &as.isLoop);
+				bool paused = as.isPaused;
+				if (ImGui::Checkbox("isPaused", &paused))
+					as.isPaused = paused;
 
-			ImGui::Checkbox("isPaused", &as.isPaused);
+				bool is3D = as.is3D;
+				if (ImGui::Checkbox("is3D", &is3D))
+					as.is3D = is3D;
 
-			ImGui::Checkbox("is3D", &as.is3D);
-
-			ImGui::TreePop();
-		}
+				ImGui::TreePop();
+			}
+			});
 
 	}
 
