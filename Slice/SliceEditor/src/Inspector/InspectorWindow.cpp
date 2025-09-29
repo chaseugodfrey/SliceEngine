@@ -215,20 +215,25 @@ namespace SliceEditor
 
 					ImGui::EndPopup();
 				}
+			}
 
-				// Script Variables
+			// Script Variables
 
-				else
+			else
+			{
+				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
+				auto& script_class = script_map.at("SliceEngine." + script.scriptName);
+				auto& script_vars = script_class->mFields;
+
+				for (auto& var : script_vars)
 				{
-					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-					auto& script_class = script_map.at(script_name);
-					auto& script_vars = script_class->mFields;
-
-					for (auto& var : script_vars)
+					ImGui::Text(var.first.c_str());
+					ImGui::SameLine();
+					std::string temp{ 0 };
+					if (ImGui::InputText(("##" + var.first).c_str(), &temp))
 					{
 
 					}
-
 				}
 
 			}

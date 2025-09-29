@@ -44,9 +44,8 @@ namespace SliceEditor
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
 
+		registry.GetManager<WindowManager>("Windows")->Render();
 
-		windowManager.Render();
-		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		ImGui::UpdatePlatformWindows();
@@ -100,22 +99,7 @@ namespace SliceEditor
 
 	void Editor::InitWindowManager()
 	{
-		SLICE_LOG("Registering Systems to WindowManager.");
 
-		auto& managers = registry.GetManagers();
-
-		for (const auto& [key, value] : managers)
-		{
-			if (auto other = dynamic_cast<ICreateWindow*>(value.get()))
-			{
-				SLICE_LOG(key);
-				windowManager.RegisterInterface(key, other);
-			}
-		}
-
-		//windowManager.RegisterInterface("Profiler", &profilerManager);
-
-		windowManager.Init();
 	}
 
 	void Editor::DropCallback(GLFWwindow* window, int count, const char** paths)

@@ -2,6 +2,8 @@
 #include "WindowManager.h"
 #include "ICreateWindow.h"
 #include "../../src/Input/InputSystem.h"
+#include "../Core/Registry.h"
+#include "../Hierachy/HierarchyManager.h"
 
 namespace SliceEditor
 {
@@ -9,21 +11,26 @@ namespace SliceEditor
 	void WindowManager::Init()
 	{
 		SLICE_LOG("Initializing WindowManager.");
+		SLICE_LOG("Registering Systems to WindowManager.");
 
+		auto& managers = registry.GetManagers();
+
+		for (const auto& [key, value] : managers)
+		{
+			if (auto other = dynamic_cast<ICreateWindow*>(value.get()))
+			{
+				RegisterInterface(key, other);
+			}
+		}
+
+		// Create windows
+		// to do: maybe read from imgui ini file and load accordingly
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
 		AddWindow("Inspector");
-		//AddWindow<ContentBrowserWindow>();
-		//AddWindow<SceneViewWindow>();
-		//AddWindow<GameView>(editorState);
-		//AddWindow<Hierarchy>(editorState);
-		//AddWindow<Inspector>(editorState);
-		//AddWindow<Console>();
-		//AddWindow<Animator>();
-		//AddWindow<Profiler>();
-		//AddWindow<Animation>();
+		AddWindow("GameView");
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -63,6 +70,8 @@ namespace SliceEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 10.0f));
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
+
+		auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -138,6 +147,19 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Profiler"))
 			{
 
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("GameObject"))
+		{
+			if (ImGui::MenuItem("Camera"))
+			{
+				auto go = core->mFactory.CreateGO("Camera");
+				go.AddComponent<SliceEngine::Camera>();
+				core->mFactory.SetParent(go.GetEntity());
+				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
 			ImGui::EndMenu();

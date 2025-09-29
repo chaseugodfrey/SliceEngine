@@ -46,9 +46,22 @@ namespace SliceEditor
 	{
 		if (isDirty)
 		{
-			//BuildHierarchy();
+			BuildHierarchy();
 			isDirty = false;
 		}
+	}
+
+	void HierarchyManager::AddEntityDirectly(entt::entity entity)
+	{
+		TestNode node{};
+		node.entity = entity;
+
+		auto& scene_graph_comp = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+		auto parent_entity = scene_graph_comp.neighbours[SliceEngine::SceneGraph::UP];
+
+		node.parent = &mHierarchy.at(parent_entity);
+		node.parent->children.push_back(entity);
+		mHierarchy.emplace(entity, node);
 	}
 
 	void HierarchyManager::BuildHierarchy()
@@ -100,7 +113,7 @@ namespace SliceEditor
 		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
 		auto go = factory.CreateGO();
 
-		// testing
+		// todo : remove
 		go.AddComponent<SliceEngine::Renderer>();
 
 		TestNode node{};

@@ -3,13 +3,12 @@
 
 #include "WindowTypes.h"
 #include "EditorWindow.h"
+#include "../Core/IBaseManager.h"
 //#include "EditorState.h"
 
 namespace SliceEditor
 {
-	class ICreateWindow;
-
-	class WindowManager
+	class WindowManager : public IBaseManager
 	{
 		std::vector<std::unique_ptr<EditorWindow>> list;
 		std::unordered_map<std::string, ICreateWindow*> windowFactoryMap;
@@ -22,13 +21,14 @@ namespace SliceEditor
 
 	public:
 		
+		WindowManager(Registry& reg) : IBaseManager(reg) {};
+		~WindowManager() = default;
 
 		//void Init(EditorState& editorState);
 		void AddWindow(const std::string& name);
 		void Init();
 		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();
-
 
 	};
 }
