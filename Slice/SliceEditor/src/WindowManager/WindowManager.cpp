@@ -4,6 +4,7 @@
 #include "../../src/Input/InputSystem.h"
 #include "../Core/Registry.h"
 #include "../Hierachy/HierarchyManager.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 
 namespace SliceEditor
 {
@@ -211,6 +212,7 @@ namespace SliceEditor
 			{
 				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
 				inputs->SetEnabled(true);
+				SliceEngine::gScriptSystem->OnStart();
 				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 			}
 			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
