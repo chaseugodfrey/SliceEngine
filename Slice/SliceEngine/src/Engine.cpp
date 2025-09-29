@@ -73,8 +73,8 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
-
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -89,8 +89,6 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
 		mRender->CreateCamera();
-
-
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -110,6 +108,8 @@ namespace SliceEngine
 		Core::GetInstance()->mFactory.TestLoop();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+
 	}
 
 	void Engine::Update()
@@ -138,7 +138,7 @@ namespace SliceEngine
 		frm.EndSystem("Input");
 
 		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 
@@ -148,12 +148,16 @@ namespace SliceEngine
 		mRender->Render(mResource);
 		frm.EndSystem("Graphics");
 
+
+
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
 	{
+		Core::FactoryInstance.UpdateDestroyed();
+
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;

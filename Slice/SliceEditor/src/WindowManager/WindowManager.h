@@ -17,6 +17,7 @@ namespace SliceEditor
 		//std::shared_ptr<EditorState> editorState;
 		void DrawMainMenu();
 		void DrawDockspace();
+		void DrawPlayState();
 		void DrawPreferenceWindow();
 
 	public:

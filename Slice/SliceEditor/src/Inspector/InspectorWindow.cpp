@@ -28,34 +28,36 @@ namespace SliceEditor
 			return;
 		}
 
+		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
 		{
 			auto entity = selected_entity.value();
 			DisplayTransform();
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
-			{
-				DisplayRigidbody();
-			}
+			ImGui::Separator();
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
 			{
 				DisplayCollider3D();
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
+			{
+				DisplayRigidbody();
+				ImGui::Separator();
 			}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
 				DisplayAudioSource();
+				ImGui::Separator();
 			}
 
-			ImGui::Separator();
 
 			AddComponentButton();
 		}
-		
-
 
 		ImGui::End();
 	}
@@ -79,13 +81,24 @@ namespace SliceEditor
 
 	}
 
+	//void InspectorWindow::DisplayComponentHeader(bool closeable)
+	//{
+	//}
+
 	void InspectorWindow::DisplayTransform()
 	{
-		auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
+		if (ImGui::TreeNodeEx("Transform"))
+		{
+			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
-		DragVec3InputHeader("Translation", "t", tr.position);
-		//DragVec2InputHeader(service, "Scale", "s", transform.localScale);
-		//DragDoubleInputHeader(service, "Rotation", "##r", transform.localRotation, "%.3f");
+			DisplayComponentHeader<SliceEngine::Transform>(false);
+
+			DragVec3InputHeader("Translation", "##t", tr.position);
+			DragVec3InputHeader("Rotation", "##r", tr.rotation);
+			DragVec3InputHeader("Scale", "##s", tr.scale);
+
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplayAudioSource()
@@ -141,6 +154,8 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Rigidbody"))
 		{
+			DisplayComponentHeader<SliceEngine::RigidBody>();
+
 			ImGui::DragFloat("Friction", &rb.friction);
 
 			ImGui::TreePop();
@@ -153,6 +168,8 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Collider3D"))
 		{
+			DisplayComponentHeader<SliceEngine::ColliderShape>();
+
 			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
 
 			ImGui::TreePop();

@@ -39,13 +39,13 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
-				entt::entity entity = *(static_cast<entt::entity*>(payload->Data));
+				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
 
 				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
-				auto go = factory.GetGOByEntity(entity);
-				factory.SetParent(entity, node.entity);
-
-				//isDirty = true;
+				auto go = factory.GetGOByEntity(child_entity);
+				factory.SetParent(child_entity, node.entity);
+				mManager.ParentGameObject(child_entity, node.entity);
+				//mManager.SetDirty();
 			}
 
 			ImGui::EndDragDropTarget();
@@ -77,11 +77,17 @@ namespace SliceEditor
 			}
 		}
 
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup("entity_popup");
+		}
+
 		if (isOpen)
 		{
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
-				DrawNode(node.children[i]);
+				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+				DrawNode(child_node);
 			}
 
 			ImGui::TreePop();
@@ -89,8 +95,18 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("entity_pop_up");
+			ImGui::OpenPopup("entity_popup");
 		}
+
+		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
+		//{
+		//	for (size_t i = 0; i < node.children.size(); i++)
+		//	{
+		//		DrawNode(node.children[i]);
+		//	}
+
+		//	ImGui::TreePop();
+		//}
 
 		EntityContextPopUp(node);
 	}
@@ -99,36 +115,36 @@ namespace SliceEditor
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
 		{
-			DrawNode(node.children[i]);
+			auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+			DrawNode(child_node);
 		}
 	}
 
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-
-		auto& rootNodes = mManager.GetNodes();
-
-		for (size_t i = 0; i < rootNodes.size(); i++)
-		{
-			DrawSceneNode(rootNodes[i]);
-		}
-
+		auto root_entity = SliceEngine::Core::GetInstance()->mFactory.GetRootEntity();
+		auto& hierarchy = mManager.GetHierarchy();
+		DrawSceneNode(hierarchy[root_entity]);
 		ImGui::EndGroup();
 	}
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
-		if (ImGui::BeginPopupContextItem("entity_pop_up"))
+		if (ImGui::BeginPopupContextItem("entity_popup"))
 		{
 			if (ImGui::Selectable("Add Component"))
 			{
 
 			}
 
+			if (ImGui::Selectable("Remove GameObject"))
+			{
+				mManager.RemoveGameObject(node.entity);
+			}
+
 			ImGui::EndPopup();
 		}
-
 	}
 
 	void HierarchyWindow::Draw()
@@ -143,12 +159,12 @@ namespace SliceEditor
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("right click");
+			ImGui::OpenPopup("window_popup");
 		}
 
-		if (ImGui::BeginPopupContextItem("right click"))
+		if (ImGui::BeginPopupContextItem("window_popup"))
 		{
-			if (ImGui::MenuItem("Add GameObject"))
+			if (ImGui::Selectable("Add GameObject"))
 			{
 				mManager.AddGameObject();
 			}
@@ -168,11 +184,7 @@ namespace SliceEditor
 		}
 
 		mSelection.UpdateSelection(entities);
-
-		// to do: check this in a function
-		/*if (isDirty)
-		{
-			mManager.BuildHierarchy();
-		}*/
+		
+		mManager.CheckDirty();
 	}
 }

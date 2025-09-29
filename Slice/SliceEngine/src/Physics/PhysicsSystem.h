@@ -7,6 +7,7 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "CollisionLayer.h"
+#include "../Core/Events.h"
 
 
 namespace SliceEngine
@@ -25,11 +26,20 @@ namespace SliceEngine
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
+		int collisionSteps;
 
 	private:
 		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
 
 		void Shutdown();
+
+		void OnColliderAdd(const ColliderShapeAddedEvent& event);
+
+		void OnColliderRemove(const ColliderShapeRemovedEvent& event);
+
+		void OnRigidBodyAdd(const RigidBodyAddedEvent& event);
+
+		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
 	public:
 
@@ -42,7 +52,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(float fixedDt, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized() const;
 
@@ -55,6 +65,8 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+
+		void SubscribeToCollisionEvents();
 	};
 
 

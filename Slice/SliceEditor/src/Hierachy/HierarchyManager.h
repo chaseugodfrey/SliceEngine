@@ -12,7 +12,12 @@ namespace SliceEditor
 		entt::entity entity;
 		std::string name;
 		bool isSelected;
-		std::vector<TestNode> children;
+		std::vector<entt::entity> children;
+
+		bool operator==(TestNode& rhs)
+		{
+			return entity == rhs.entity;
+		}
 	};
 
 	class Registry;
@@ -21,6 +26,9 @@ namespace SliceEditor
 	{
 		// TO DO: replace this with proper scene graph
 		std::vector<TestNode> mRootNodes;
+		
+		std::map<entt::entity, TestNode> mHierarchy;
+
 		bool isDirty;
 
 		void BuildHierarchy();
@@ -34,11 +42,16 @@ namespace SliceEditor
 		void Init() override;
 		void SetDirty();
 		void CheckDirty();
+
+
 		void AddGameObject();
+		void ParentGameObject(entt::entity child, entt::entity parent);
+		void RemoveGameObject(entt::entity target);
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 
 		std::vector<TestNode>& GetNodes() { return mRootNodes; }
+		std::map<entt::entity, TestNode>& GetHierarchy() { return mHierarchy; }
 	};
 }
 

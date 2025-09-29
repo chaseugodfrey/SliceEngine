@@ -141,6 +141,7 @@ namespace SliceEngine
 		Entity GetRootEntity();
 		void UpdateName(std::string newName, Entity entity);
 		void Destroy(GameObject& go);
+		void Destroy(entt::entity entity);
 		void TestLoop();
 		void UpdateDestroyed();
 		void VisitComponents(Entity entity, ComponentVisitor visitor);

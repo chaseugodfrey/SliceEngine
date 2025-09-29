@@ -46,7 +46,9 @@ public:
 		mEventPublishers[eventType] = [this](rttr::variant& eventInstance)
 		{
 			// convert the variant to the event for dispatcher to trigger
-			if (eventInstance.convert<Event>())
+			bool isOkay = false;
+			eventInstance.convert<Event>(&isOkay);
+			if (isOkay)
 			{
 				mDispatcher.trigger(eventInstance.get_value<Event>());
 			}
@@ -64,11 +66,24 @@ public:
 		mDispatcher.sink<Event>().connect<Candidate>(*instance);
 	}
 
+	template <typename Event>
+	void Publish(const Event& event)
+	{
+		mDispatcher.trigger(event);
+	}
+
+	template <typename Event>
+	void Publish(const Event event)
+	{
+		mDispatcher.trigger(event);
+	}
+
 	template <typename Event, typename... Args>
 	void Publish(Args&&... args)
 	{
 		mDispatcher.trigger<Event>(std::forward<Args>(args)...);
 	}
+
 #pragma region STRING BASED FOR EDITOR/SCRIPTING
 	
 	/// <summary>
