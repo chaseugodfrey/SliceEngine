@@ -57,13 +57,14 @@ namespace SliceEditor
 
 			static ImVec2 pos{};
 			static bool isRotating = false;
-			static float init_rot{};
+			static ImVec2 init_rot{};
 
 			if (ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					init_rot = cam_tr.rotation.y;
+					init_rot.x = cam_tr.rotation.y;
+					init_rot.y = cam_tr.rotation.z;
 					pos = ImGui::GetMousePos();
 					isRotating = true;
 				}
@@ -79,7 +80,8 @@ namespace SliceEditor
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
 					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
-					cam_tr.rotation.y = init_rot + mouse_diff.x;
+					cam_tr.rotation.y = init_rot.x + mouse_diff.x;
+					cam_tr.rotation.z = init_rot.y + mouse_diff.y;
 				}
 			}
 		}
