@@ -75,11 +75,17 @@ namespace SliceEditor
 
 	}
 
+	//void InspectorWindow::DisplayComponentHeader(bool closeable)
+	//{
+	//}
+
 	void InspectorWindow::DisplayTransform()
 	{
 		if (ImGui::TreeNodeEx("Transform"))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
+
+			DisplayComponentHeader<SliceEngine::Transform>(false);
 
 			DragVec3InputHeader("Translation", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
@@ -100,6 +106,8 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Rigidbody"))
 		{
+			DisplayComponentHeader<SliceEngine::RigidBody>();
+
 			ImGui::DragFloat("Friction", &rb.friction);
 
 			ImGui::TreePop();
@@ -112,6 +120,8 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Collider3D"))
 		{
+			DisplayComponentHeader<SliceEngine::ColliderShape>();
+
 			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
 
 			ImGui::TreePop();
