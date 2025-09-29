@@ -15,5 +15,17 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetPosition(uint entityID, ref Vector3 position);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsKeyPressed(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Log(string msg);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void LogWarn(string msg);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void LogError(string msg);
+
     }
 }

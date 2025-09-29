@@ -41,10 +41,51 @@ namespace SliceEngine
 		transform.position = *position;
 	}
 
-	static bool IsKeyPressed(int keycode)
+	static bool IsKeyPressed(Keys keyCode)
 	{
-		return InputSystem::Get().IsKeyPressed(keycode);
+		//if (keyCode == Keys::KEY_ESCAPE)
+		//{
+		//	if (Input.IsKeyPressed(keyCode))
+		//	{
+		//		CM_CORE_INFO("ESC KEY BEING PRESSED");
+
+		//	}
+		//	else
+		//	{
+		//		CM_CORE_INFO("ESC KEY NOT BEING PRESSED");
+		//	}
+		//}
+		return InputSystem::Get().IsKeyPressed(keyCode);
 	}
+
+#pragma region Console Logging functions
+
+	static void Log(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_DEBUG(cStrName);
+		//CM_CORE_INFO(cStrName);
+		//mono_free(cStr);
+	}
+
+	static void LogWarn(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_WARNING(cStrName);
+		//CM_CORE_WARN(cStrName);
+		//mono_free(cStr);
+	}
+
+	static void LogError(MonoString* string)
+	{
+		std::string cStrName = MonoToString(string);
+		SLICE_LOG_ERROR(cStrName);
+		//CM_CORE_ERROR(cStrName);
+		//mono_free(cStr);
+	}
+#pragma endregion
+
+
 
 	template <typename T>
 	static void RegisterComponent()
@@ -93,6 +134,15 @@ namespace SliceEngine
 	{
 		ADD_INTERNAL_CALL(Transform_GetPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
+
+		// Key input
+		ADD_INTERNAL_CALL(IsKeyPressed);
+
+
+		// Console logging
+		ADD_INTERNAL_CALL(Log);
+		ADD_INTERNAL_CALL(LogWarn);
+		ADD_INTERNAL_CALL(LogError);
 	}
 
 }

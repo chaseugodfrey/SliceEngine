@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    class Input
+    public class Input
     {
+        public static bool IsKeyPressed(Keys key)
+        {
+            return FunctionCalls.IsKeyPressed(key);
+        }
     }
 }
