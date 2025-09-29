@@ -104,7 +104,6 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
 
-		CSVSerializer::Tests::RunTests(false);
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
