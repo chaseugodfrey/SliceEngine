@@ -31,7 +31,7 @@ namespace SliceEditor
 		
 		glm::vec3 forward{}, right{}, up{};
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetMainCameraAxis(forward, right, up);
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{

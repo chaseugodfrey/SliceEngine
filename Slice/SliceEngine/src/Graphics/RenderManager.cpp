@@ -311,14 +311,14 @@ namespace SliceEngine
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
 	}
-	Entity& RenderManager::GetMainCamera()
+	GameObject RenderManager::GetGameCamera()
 	{
-		return mainCam.value();
+		return Core::GetInstance()->mFactory.GetGOByEntity(mainCam.value());
 	}
-	void RenderManager::GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		auto& camTrans = cam.GetComponent<Transform>();
 		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;

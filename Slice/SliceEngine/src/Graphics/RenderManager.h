@@ -28,8 +28,8 @@ namespace SliceEngine
 		void CreateFramebuffer();
 		// Camera related functions
 		GameObject& CreateCamera();
-		Entity& GetMainCamera();
-		void GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		GameObject GetGameCamera();
+		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void LinkInstancing(const std::string& mdlName);
 
