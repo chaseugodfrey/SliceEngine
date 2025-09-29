@@ -98,6 +98,9 @@ namespace SliceEngine
     // update function to transition key states and reset scroll delta
     void InputSystem::Update()
     {
+
+
+
         // transition states only if enabled
         if (!enabled)
         {
@@ -226,23 +229,17 @@ namespace SliceEngine
 
     bool InputSystem::IsKeyPressed(int key) 
     {
-        auto it = keyMap.find(key);
-        const auto s = (it == keyMap.end() ? KeyStates::NONE : it->second);
-        return allowGameKeyboard() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
+        return keyMap[key] == PRESS || keyMap[key] == PRESSED;
     }
 
     bool InputSystem::IsKeyReleased(int key) 
     {
-        auto it = keyMap.find(key);
-        const auto s = (it == keyMap.end() ? KeyStates::NONE : it->second);
-        return allowGameKeyboard() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
+        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
     bool InputSystem::IsKeyDown(int key) 
     {
-        auto it = keyMap.find(key);
-        const auto s = (it == keyMap.end() ? KeyStates::NONE : it->second);
-        return allowGameKeyboard() && (s == KeyStates::PRESSED || s == KeyStates::HOLD);
+		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
     }
 
     bool InputSystem::IsMousePressed(MouseButtons b) 
@@ -272,9 +269,9 @@ namespace SliceEngine
 #pragma region callback updates
     void InputSystem::UpdateKeyMap(int key, KeyStates state)
     {
-        if (!enabled) return;
-        if (mode != InputMode::Game) return; // editor/imgui owns keyboard
-		if (imguiWantsKeyboard) return;
+  //      if (!enabled) return;
+  //      if (mode != InputMode::Game) return; // editor/imgui owns keyboard
+		//if (imguiWantsKeyboard) return;
 
         keyMap[key] = state; // update to immediate key state in map
         changedQueue.push({ true, key, state }); // record down the changed event in the queue

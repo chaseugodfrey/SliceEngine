@@ -33,6 +33,8 @@ namespace SliceEditor
 
 		void Init();
 		static void DropCallback(GLFWwindow* window, int count, const char** paths);
+		static void MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 		void Run();
 		void Exit();
 	};

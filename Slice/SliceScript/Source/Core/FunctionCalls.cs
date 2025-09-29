@@ -19,6 +19,9 @@ namespace SliceEngine
         internal extern static bool IsKeyPressed(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsKeyDown(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

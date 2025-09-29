@@ -43,19 +43,13 @@ namespace SliceEngine
 
 	static bool IsKeyPressed(Keys keyCode)
 	{
-		//if (keyCode == Keys::KEY_ESCAPE)
-		//{
-		//	if (Input.IsKeyPressed(keyCode))
-		//	{
-		//		CM_CORE_INFO("ESC KEY BEING PRESSED");
 
-		//	}
-		//	else
-		//	{
-		//		CM_CORE_INFO("ESC KEY NOT BEING PRESSED");
-		//	}
-		//}
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
+	}
+
+	static bool IsKeyDown(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
 #pragma region Console Logging functions
@@ -137,7 +131,7 @@ namespace SliceEngine
 
 		// Key input
 		ADD_INTERNAL_CALL(IsKeyPressed);
-
+		ADD_INTERNAL_CALL(IsKeyDown);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);

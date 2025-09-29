@@ -188,12 +188,14 @@ namespace SliceEditor
 			if (isPlaying) // if its play, enable game input
 			{
 				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-				inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				inputs->SetEnabled(true);
+				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 			}
 			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
 			{
-				inputs->UnbindCallbacks();
+				//inputs->UnbindCallbacks();
 				inputs->SetMode(SliceEngine::InputMode::Editor);
+				inputs->SetEnabled(false);
 			}   
         }
 

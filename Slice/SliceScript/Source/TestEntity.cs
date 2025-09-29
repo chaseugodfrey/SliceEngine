@@ -18,9 +18,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            Console.WriteLine("TestEntity Update called with dt: " + dt);
+            //Console.WriteLine("TestEntity Update called with dt: " + dt);
 
-            if (Input.IsKeyPressed(Keys.KEY_W))
+            if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
                 Console.WriteLine("TestEntity Update called with dt: " + dt);
             }

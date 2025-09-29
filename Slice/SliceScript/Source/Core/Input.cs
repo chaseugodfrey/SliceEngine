@@ -12,5 +12,10 @@ namespace SliceEngine
         {
             return FunctionCalls.IsKeyPressed(key);
         }
+
+        public static bool IsKeyDown(Keys key)
+        {
+            return FunctionCalls.IsKeyDown(key);
+        }
     }
 }
