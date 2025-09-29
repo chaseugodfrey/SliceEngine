@@ -28,7 +28,8 @@ namespace SliceEngine
 		void CreateFramebuffer();
 		// Camera related functions
 		GameObject& CreateCamera();
-		GameObject GetGameCamera();
+		void SetMainGameCamera(GameObject cam);
+		std::optional<GameObject>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void LinkInstancing(const std::string& mdlName);
@@ -55,7 +56,7 @@ namespace SliceEngine
 	private:
 		const int mMaxInstance = 100;
 
-		std::optional<Entity> mainCam;
+		std::optional<GameObject> mainCam;
 
 		Handle<SliceEngineTypes::Shader> mCurrShader;
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
