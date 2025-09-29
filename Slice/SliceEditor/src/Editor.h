@@ -18,7 +18,6 @@ namespace SliceEditor
 		Registry registry;
 
 		HistoryManager history;
-		WindowManager windowManager;
 		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);

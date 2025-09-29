@@ -40,6 +40,7 @@ namespace SliceEditor
 		void Init() override;
 		void SetDirty();
 		void CheckDirty();
+		void AddEntityDirectly(entt::entity entity);
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();
