@@ -67,6 +67,19 @@ namespace SliceEngine
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
+
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
+		mAudioManager->Init();
+		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
+		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
+		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
+		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
+
+		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
+		
+		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -75,10 +88,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
-		audio->Init();
-		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
-		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
+		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
+		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
@@ -110,12 +123,25 @@ namespace SliceEngine
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateCamera();
+		
 
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
+		//test();
+
+		
+		//JSONSerializer::Test2();
+		//JSONSerializer::Tests::RunTests(false);
+		//JSONSerializer::Tests::RunTests(false);
+		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
+
+		testing.AddComponent<Renderer>();
+		testing.AddComponent<AudioSource>();*/
+
+		Core::GetInstance()->mFactory.TestLoop();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
@@ -133,6 +159,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
 
 		frm.StartSystem("GLFW Poll Events");
@@ -155,6 +182,9 @@ namespace SliceEngine
 		inputs->Update();
 		frm.EndSystem("Input");
 		frm.StartSystem("Physics");
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
+		mAudioManager->Update();
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
 

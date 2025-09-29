@@ -16,6 +16,7 @@ namespace SliceEngine
 {
 	class RenderManager;
 	class ResourceManager;
+	class AudioManager;
 	class FramerateManager;
 	class InputSystem;
 
@@ -68,6 +69,8 @@ namespace SliceEngine
 
 		RenderManager* GetRenderManager();
 
+		AudioManager* GetAudioManager();
+
 		FramerateManager* GetFramerateManager();
 
 		GLFWwindow* GetWindow();
@@ -85,6 +88,7 @@ namespace SliceEngine
 		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
+		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
 
 	};

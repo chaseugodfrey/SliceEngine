@@ -140,6 +140,18 @@ namespace SliceEngine
 		bool isTrigger = false;									// leaving thjis here in case we need trniggers
 
 	};
+
+	struct AudioSource
+	{
+		std::string soundName;
+		float currentVolume;
+		bool isLoop;
+		bool isPaused;
+		bool is3D;
+	};
+
+
+
 }
 
 #endif

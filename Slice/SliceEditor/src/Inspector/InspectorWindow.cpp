@@ -58,6 +58,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
+			{
+				DisplayAudioSource();
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
@@ -128,6 +134,41 @@ namespace SliceEditor
 
 			ImGui::TreePop();
 		}
+	}
+
+	void InspectorWindow::DisplayAudioSource()
+	{
+		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
+
+
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
+
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
+			if (ImGui::TreeNodeEx("AudioSource"))
+			{
+				ImGui::Text(as.soundName.c_str());
+
+				float volume = as.currentVolume;
+				if (ImGui::SliderFloat("Volume", &volume, 0.0f, 1.0f))
+					as.currentVolume = volume; // mark dirty via patch
+
+				bool loop = as.isLoop;
+				if (ImGui::Checkbox("isLoop", &loop))
+					as.isLoop = loop;
+
+				bool paused = as.isPaused;
+				if (ImGui::Checkbox("isPaused", &paused))
+					as.isPaused = paused;
+
+				bool is3D = as.is3D;
+				if (ImGui::Checkbox("is3D", &is3D))
+					as.is3D = is3D;
+
+				ImGui::TreePop();
+			}
+			});
+
 	}
 
 	void InspectorWindow::DisplayMeshRenderer()
@@ -309,6 +350,11 @@ namespace SliceEditor
 			if (ImGui::Selectable("Add Script Container"))
 			{
 				reg.emplace<SliceEngine::Script>(selected_entity.value());
+			}
+
+			if (ImGui::Selectable("Add AudioSource"))
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();
