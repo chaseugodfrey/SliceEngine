@@ -170,27 +170,36 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-		gScriptSystem->UpdateScripts();
-		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 
 		frm.StartSystem("Input");
 		//inputs->Update();
-
-		if (inputs->IsKeyDown(GLFW_KEY_W) || inputs->IsKeyPressed(GLFW_KEY_W))
-		{
-			//SLICE_LOG_DEBUG("ASDIOASJIODAS");
-		}
 		inputs->UpdatePrevInput();
 		frm.EndSystem("Input");
-		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+
+        frm.StartSystem("Audio");
 		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
 		mAudioManager->Update();
+        frm.EndSystem("Audio");
+        
+		frm.StartSystem("Script");
+		gScriptSystem->UpdateScripts();
+		if (inputs->GetMode() == InputMode::Game)
+		{
+			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+		}
+		frm.EndSystem("Script");
+
+		// TODO: Shouldn't be using input get mode to split play and editor mode
+
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
-			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			frm.StartSystem("Physics");
+			if (inputs->GetMode() == InputMode::Game)
+			{
+				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			}
+			frm.EndSystem("Physics");
 		}
-		frm.EndSystem("Physics");
 
 		frm.StartSystem("Graphics");
 		mRender->Render();
