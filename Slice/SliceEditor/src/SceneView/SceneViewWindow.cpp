@@ -31,39 +31,61 @@ namespace SliceEditor
 		
 		glm::vec3 forward{}, right{}, up{};
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetMainCameraAxis(forward, right, up);
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{
 			if (ImGui::IsKeyDown(ImGuiKey_W))
 			{
-				cam_tr.position += forward * 0.01f;
+				cam_tr.position += forward * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_S))
 			{
-				cam_tr.position -= forward * 0.01f;
+				cam_tr.position -= forward * mManager.GetCameraSpeed();
 			}
 			
 			if (ImGui::IsKeyDown(ImGuiKey_A))
 			{
-				cam_tr.position -= right * 0.01f;
+				cam_tr.position -= right * mManager.GetCameraSpeed();
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_D))
 			{
-				cam_tr.position += right * 0.01f;
+				cam_tr.position += right * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_Q))
+			{
+				cam_tr.position -= up * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_E))
+			{
+				cam_tr.position += up * mManager.GetCameraSpeed();
+			}
+
+			//Camera Speed Change
+			ImGuiIO& io = ImGui::GetIO();
+			if (io.MouseWheel > 0.0f)
+			{
+				mManager.ChangeCameraSpeed(0.01f);
+			}
+			else if (io.MouseWheel < 0.0f)
+			{
+				mManager.ChangeCameraSpeed(-0.01f);
 			}
 
 			static ImVec2 pos{};
 			static bool isRotating = false;
-			static float init_rot{};
+			static ImVec2 init_rot{};
 
 			if (ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					init_rot = cam_tr.rotation.y;
+					init_rot.x = cam_tr.rotation.y;
+					init_rot.y = cam_tr.rotation.z;
 					pos = ImGui::GetMousePos();
 					isRotating = true;
 				}
@@ -79,7 +101,8 @@ namespace SliceEditor
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
 					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
-					cam_tr.rotation.y = init_rot + mouse_diff.x;
+					cam_tr.rotation.y = init_rot.x + mouse_diff.x;
+					cam_tr.rotation.z = init_rot.y + mouse_diff.y;
 				}
 			}
 		}

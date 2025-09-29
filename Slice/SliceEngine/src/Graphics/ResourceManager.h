@@ -31,12 +31,10 @@ namespace SliceEngine
 		Shader& GetShader(const std::string& name);
 		Model& GetModel(const std::string& name);
 	private:
-		Shader mOnlyShader;
-		Model mOnlyModel;
-	
 		std::unordered_map<std::string, Shader> mShaders;
 		std::unordered_map<std::string, Model> mModels;
-	};*/
+	};
+*/
 }
 
 

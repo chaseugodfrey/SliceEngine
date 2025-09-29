@@ -26,7 +26,6 @@ DigiPen Institute of Technology is prohibited.
 #include <unordered_map>
 #include <functional>
 #include <math.h>
-
 //#ifdef SLICE_INPUT_USE_GLM
 //
 //using Vec2d = glm::dvec2;

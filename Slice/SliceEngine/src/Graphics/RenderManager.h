@@ -19,41 +19,50 @@ namespace SliceEngine
 	class ResourceManager;
 	class RenderManager
 	{
-	public:		
+	public:
+		// Default constructor and destructor
 		RenderManager();
 		~RenderManager();
-
-		GameObject& CreateCamera();
+		// One-time setup functions
 		void CreateInstancingParams();
-
-		void UpdateCamGPU(Entity& cam);
-		void Render();
-
-		void RenderDebug(Entity& cam);
-		
 		void CreateFramebuffer();
-		GLuint GetTexture();
-
-		Transform& GetMainCameraTransform();
-		void GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		// Camera related functions
+		GameObject& CreateCamera();
+		void SetMainGameCamera(GameObject cam);
+		std::optional<GameObject>& GetGameCamera();
+		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void LinkInstancing(const std::string& mdlName);
 
 		void IDPick(const int& mouseX, const int& mouseY);
+		// Rendering functions
+		void CalculateVP(Entity& cam);
+		void UpdateCamGPU(Entity& cam);
+		// Rendering calls
+		void Render();
+		void RenderDebug(Entity& cam);
+		// Utility functions
+		bool UniformExists(const char* str, GLint& ref);
+		void LinkTransformInstancing(const std::string& mdlName);
+		void LinkDebugLineInstancing(const std::string& mdlName);
 
 		GLuint mFBO;	// For drawing the scene onto a texture
 		GLuint mIVBO;
+		GLuint mDebugLineVBO;
 		//GLuint pboIds[2];	// For Object Picking
 		//GLuint pboIdx[2];
 		unsigned int mIDHovered;
 
 	private:
-		std::optional<Entity> mainCam;
+		const int mMaxInstance = 100;
+
+		std::optional<GameObject> mainCam;
 
 		Handle<SliceEngineTypes::Shader> mCurrShader;
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
+		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
-
+		glm::mat4 V, P;
 
 		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
 		//std::shared_ptr<CameraSystem> mCameraSys;

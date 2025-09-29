@@ -25,7 +25,7 @@ namespace SliceEngine
 	{
 		glDeleteFramebuffers(1, &mFBO);
 		glDeleteBuffers(1, &mIVBO);
-
+		glDeleteBuffers(1, &mDebugLineVBO);
 		//glDeleteBuffers(2, pboIds);
 	}
 	GameObject& RenderManager::CreateCamera()
@@ -33,14 +33,18 @@ namespace SliceEngine
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
 		auto& transform = newCam.GetComponent<Transform>();
-		transform.position = glm::vec3(-2.f, 0.f, 0.f);
-		
+		transform.position = glm::vec3(-2.f, 1.f, 0.f);
+		transform.rotation = glm::vec3(0.f, 0.f, -10.f);
 		newCam.AddComponent<Camera>();
 
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-		if (!mainCam.has_value())
-			mainCam = newCam.GetEntity();
+
 		return newCam;
+	}
+
+	void RenderManager::SetMainGameCamera(GameObject cam)
+	{
+		mainCam.emplace(cam);
 	}
 
 	void RenderManager::Render()
@@ -53,6 +57,8 @@ namespace SliceEngine
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
+			CalculateVP(cam);
+
 			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
 			UpdateCamGPU(cam);
 
@@ -66,111 +72,148 @@ namespace SliceEngine
 
 	void RenderManager::RenderDebug(Entity& cam)
 	{
-		auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
-		//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
-		
-		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
-		for (auto entity : cams)
+		glDisable(GL_DEPTH_TEST);
+
+		// Draw other cameras' frustrum
 		{
-			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
+			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
+			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
+			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+			for (auto& entity : cams)
+			{
+				if (entity == cam) continue;
 
-			transform.transform = glm::mat4x4(1.f);
-			transform.transform = glm::translate(transform.transform, transform.position);
-			glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
-			transform.transform *= Rot;
-			transform.transform = glm::scale(transform.transform, transform.scale);
+				auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+				auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
 
-			glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
+				transform.transform = glm::mat4x4(1.f);
+				transform.transform = glm::translate(transform.transform, transform.position);
+				glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
+				transform.transform *= Rot;
+				transform.transform = glm::scale(transform.transform, transform.scale);
 
-			float tanT = tanf(glm::radians(camera.pov) * 0.5f);
+				glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
 
-			float nn = camera.near;
-			float nh = nn * tanT;
-			float nw = nh / camera.height * camera.width;
-			float ff = camera.far;
-			float fh = ff * tanT;
-			float fw = fh / camera.height * camera.width;
+				float tanT = tanf(glm::radians(camera.pov) * 0.5f);
 
-			frustrum.vtx[0] = glm::vec3(-nw, -nh, nn);
-			frustrum.vtx[1] = glm::vec3(nw, -nh, nn);
-			frustrum.vtx[2] = glm::vec3(nw, nh, nn);
-			frustrum.vtx[3] = glm::vec3(-nw, nh, nn);
-			frustrum.vtx[4] = glm::vec3(-nw, -nh, nn);
-			
-			frustrum.vtx[5] = glm::vec3(-fw, -fh, ff);// C
-			frustrum.vtx[6] = glm::vec3(fw, -fh, ff);
-			frustrum.vtx[7] = glm::vec3(fw, fh, ff);
-			frustrum.vtx[8] = glm::vec3(-fw, fh, ff);
-			frustrum.vtx[9] = glm::vec3(-fw, -fh, ff);
-			
-			frustrum.vtx[10] = glm::vec3(fw, -fh, ff);
-			frustrum.vtx[11] = glm::vec3(nw, -nh, nn); // C
-			frustrum.vtx[12] = glm::vec3(nw, nh, nn);
-			frustrum.vtx[13] = glm::vec3(fw, fh, ff); // C
-			frustrum.vtx[14] = glm::vec3(-fw, fh, ff);
-			frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
+				float nn = camera.near;
+				float nh = nn * tanT;
+				float nw = nh / camera.height * camera.width;
+				float ff = camera.far;
+				float fh = ff * tanT;
+				float fw = fh / camera.height * camera.width;
 
-			// Frustrum Rendering
-			glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
+				frustrum.vtx[0] = glm::vec3(-nw, -nh, nn);
+				frustrum.vtx[1] = glm::vec3(nw, -nh, nn);
+				frustrum.vtx[2] = glm::vec3(nw, nh, nn);
+				frustrum.vtx[3] = glm::vec3(-nw, nh, nn);
+				frustrum.vtx[4] = glm::vec3(-nw, -nh, nn);
 
-			GLint uniformLoc = glGetUniformLocation(/*mCurrShader.s*/ mCurrShader.get()->s, "M");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+				frustrum.vtx[5] = glm::vec3(-fw, -fh, ff);// C
+				frustrum.vtx[6] = glm::vec3(fw, -fh, ff);
+				frustrum.vtx[7] = glm::vec3(fw, fh, ff);
+				frustrum.vtx[8] = glm::vec3(-fw, fh, ff);
+				frustrum.vtx[9] = glm::vec3(-fw, -fh, ff);
 
-			glBindVertexArray(frustrum.vao);
-			glDrawArrays(frustrum.drawMode, 0, frustrum.drawCnt);
+				frustrum.vtx[10] = glm::vec3(fw, -fh, ff);
+				frustrum.vtx[11] = glm::vec3(nw, -nh, nn); // C
+				frustrum.vtx[12] = glm::vec3(nw, nh, nn);
+				frustrum.vtx[13] = glm::vec3(fw, fh, ff); // C
+				frustrum.vtx[14] = glm::vec3(-fw, fh, ff);
+				frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
+
+				// Frustrum Rendering
+				glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
+
+				GLint uniformLoc;
+				if (UniformExists("M", uniformLoc))
+					glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+
+				glBindVertexArray(frustrum.vao);
+				glDrawArrays(frustrum.drawMode, 0, frustrum.drawCnt);
+			}
 		}
 		
-		mCurrShader = mInstanceShader;
-		//glUseProgram(mCurrShader.s);
-		glUseProgram(mCurrShader.get()->s);
-		UpdateCamGPU(cam);
-
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
-		int num{};
-		for (auto entity : view)
+		// Draw Instance Debug Box
 		{
-			auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
-			mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
-			num++;
-		}
-		glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
-		//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
+			mCurrShader = mInstanceShader;
+			glUseProgram(mCurrShader.get()->s);
+			UpdateCamGPU(cam);
 
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/CubeWireframe.txt").get();
-		glBindVertexArray(mdl.vao);
-		glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
+			int num{};
+			for (auto entity : view)
+			{
+				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+				mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
+				num++;
+			}
+			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
+			//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/CubeWireframe.txt").get();
+			glBindVertexArray(mdl.vao);
+			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+		}
+
+		// Draw Debug Line
+		{
+			mCurrShader = mDebugLineShader;
+			glUseProgram(mCurrShader.get()->s);
+			UpdateCamGPU(cam);
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Line.txt").get();
+			
+			GLint uniformLoc;
+			if(UniformExists("uPosOffset", uniformLoc))
+				glUniform2f(uniformLoc, 0.0f, 0.0f);
+			if(UniformExists("uScale", uniformLoc))
+				glUniform1f(uniformLoc, 1.0f);
+
+			glBindVertexArray(mdl.vao);
+			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, ((mMaxInstance - 2) / 4) * 4 + 2);
+		}
 	}
 
-	void RenderManager::UpdateCamGPU(Entity& cam)
+	void RenderManager::CalculateVP(Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, camera.textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
-
 		glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
 		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 
-		glm::mat4 V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
+		V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
+		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
+	}
+	void RenderManager::UpdateCamGPU(Entity& cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, camera.textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
 
 		//scuffed hack
 		//auto const& shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
 
 		GLint uniformLoc;
-
-		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/mCurrShader.get()->s, "V");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
-		uniformLoc = glGetUniformLocation(/*rcManager->GetShader().s*/mCurrShader.get()->s, "P");
-
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+		if (UniformExists("V", uniformLoc))
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
+		if (UniformExists("P", uniformLoc))
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
 		glViewport(0, 0, camera.width, camera.height);
 	}
 
+	bool RenderManager::UniformExists(const char* str, GLint& ref)
+	{
+		ref = glGetUniformLocation(mCurrShader.get()->s, str);
+		if (ref >= 0)
+			return true;
+
+		std::stringstream ss;
+		ss << "Uniform variable: " << str << " doesn't exist!!!\n";
+		SLICE_LOG_WARNING(ss.str());
+		return false;
+	}
 	void RenderManager::CreateFramebuffer()
 	{
 		glGenFramebuffers(1, &mFBO);
@@ -211,24 +254,43 @@ namespace SliceEngine
 	{
 		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
 		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
-		mInstanceVtx.resize(100);
+		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
+		LinkTransformInstancing("CubeWireframe");
 
-		LinkInstancing("CubeWireframe");
+		// Make Debug Line VBO
+		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/debugLine.txt");
+		std::vector<glm::vec3> mDebugLines;
+		mDebugLines.reserve(mMaxInstance);
+		// offset, scale, if rotate
+		float lineScale = mMaxInstance / 2.f;
+		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 0.f));
+		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 1.f));
+		int counter{2};
+		for (int i{}; counter + 4 < mMaxInstance; ++i)
+		{
+			mDebugLines.emplace_back(glm::vec3(i, lineScale, 0.f));
+			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 0.f));
+			mDebugLines.emplace_back(glm::vec3(i, lineScale, 1.f));
+			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 1.f));
+			counter += 4;
+		}
+		glCreateBuffers(1, &mDebugLineVBO);
+		glNamedBufferStorage(mDebugLineVBO, mDebugLines.size() * sizeof(glm::vec3), mDebugLines.data(), GL_MAP_WRITE_BIT);
+		LinkDebugLineInstancing("Line");
 	}
-	void RenderManager::LinkInstancing(const std::string& mdlName)
+	void RenderManager::LinkTransformInstancing(const std::string& mdlName)
 	{
 		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
 		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
-
-//		auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
+		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 
 		// Link drawing models with instancing vbo
 		for (int i{}; i < 4; ++i)
 		{
 			glBindVertexArray(mdl.vao);
-			int idx = 12 + i; // 13 ~ 16
+			int idx = 12 + i; // 12 ~ 15
 			glEnableVertexArrayAttrib(mdl.vao, idx);
 			glVertexArrayVertexBuffer(mdl.vao, idx, mIVBO, sizeof(glm::vec4) * i, sizeof(glm::mat4));
 			glVertexArrayAttribIFormat(mdl.vao, idx, 4, GL_FLOAT, 0);
@@ -238,18 +300,29 @@ namespace SliceEngine
 		}
 		glBindVertexArray(0);
 	}
-	GLuint RenderManager::GetTexture()
+	void RenderManager::LinkDebugLineInstancing(const std::string& mdlName)
 	{
-		return Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value()).textureID;
+		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
+
+		glBindVertexArray(mdl.vao);
+		int idx = 15;
+		glEnableVertexArrayAttrib(mdl.vao, idx);
+		glVertexArrayVertexBuffer(mdl.vao, idx, mDebugLineVBO, 0, sizeof(glm::vec3));
+		glVertexArrayAttribIFormat(mdl.vao, idx, 3, GL_FLOAT, 0);
+		glVertexArrayAttribBinding(mdl.vao, idx, idx);
+
+		glVertexAttribDivisor(idx, 1);
+		glBindVertexArray(0);
 	}
-	Transform& RenderManager::GetMainCameraTransform()
+	std::optional<GameObject>& RenderManager::GetGameCamera()
 	{
-		return Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+		return mainCam;
 	}
-	void RenderManager::GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+		auto& camTrans = cam.GetComponent<Transform>();
 		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;
