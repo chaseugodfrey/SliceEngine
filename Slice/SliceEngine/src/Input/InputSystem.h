@@ -6,8 +6,8 @@ file:           InputSystem.h
 email:          micahshengyao.lim@digipen.edu
 
 brief:          This file declares the InputSystem class, responsible for handling keyboard and mouse
-				input events in the application. It provides methods to query the state of keys and
-				mouse buttons, as well as tracking mouse position and scroll offsets.
+                input events in the application. It provides methods to query the state of keys and
+                mouse buttons, as well as tracking mouse position and scroll offsets.
 
 Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
@@ -18,41 +18,92 @@ DigiPen Institute of Technology is prohibited.
 #ifndef INPUT_SYSTEM_H
 #define INPUT_SYSTEM_H
 #include "../ECS/BaseSystem.h"
+#include <glfw3.h>
 #include "InputTypes.h"
 #include <array>
 #include <queue>
 #include <tuple>
 #include <unordered_map>
+#include <functional>
+#include <math.h>
+#include <vec2.hpp>
+//#ifdef SLICE_INPUT_USE_GLM
+//
+//using Vec2d = glm::dvec2;
+//#else
+//struct Vec2d { double x{ 0.0 }; double y{ 0.0 }; };
+//#endif
+
 // create struct for GLFWwindow to avoid including GLFW in header
 struct GLFWwindow;
 
 namespace SliceEngine
 {
+    struct InputEvent
+    {
+        bool isKey; // true if key event, false if mouse event
+        int code; // keycode or buttoncode
+        KeyStates state; // new state
+    };
+
+
     class InputSystem
     {
     private:
-		//GLFWwindow* windowRef = nullptr; // reference to the GLFW window
-		std::unordered_map<int, KeyStates> keyMap; // keycode, keystate
-		std::unordered_map<int, KeyStates> mouseMap; // buttoncode, buttonstate
-		std::queue<std::tuple<bool, int, KeyStates>> changedQueue; // isKey, code, state
+        GLFWwindow* windowRef = nullptr;
+        std::unordered_map<int, KeyStates> keyMap; // keycode, keystate
+        std::unordered_map<int, KeyStates> mouseMap; // buttoncode, buttonstate
+        //std::queue<std::tuple<bool, int, KeyStates>> changedQueue; // isKey, code, state
+        std::queue<InputEvent> changedQueue; // container for one frame events
 
-        Vec2d currMousePos{ 0.0, 0.0 }; // reset mouse positions
-        Vec2d prevMousePos{ 0.0, 0.0 }; // reset mouse positions
-		float scrollDelta = 0.0f; // reset scroll delta
+        glm::vec2 currMousePos{ 0.0, 0.0 }; // reset mouse positions
+        glm::vec2 prevMousePos{ 0.0, 0.0 };
+        float scrollDelta = 0.0f; // reset scroll delta
+
+        // runtime control
+        bool enabled = true; // global enable/disable
+        InputMode mode = InputMode::Game; // default to game mode
+
+        // imgui capture flags (editor tells us if imgui is consuming input this frame)
+        bool imguiWantsKeyboard = false;
+        bool imguiWantsMouse = false;
+
+        // internal gate
+        // if enabled and in game mode, allow input if imgui is not consuming it
+        inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game && !imguiWantsKeyboard; }
+        inline bool allowGameMouse() const { return enabled && mode == InputMode::Game && !imguiWantsMouse; }
+
+        // installation state for callbacks
+        bool callbacksBound = false; // to prevent double-binding
 
     public:
-        static InputSystem& Get()
-        {
-            static InputSystem instance;
-            return instance;
-        }
 
-		// func to convert keycode to string
+        // func to convert keycode to string
         static const char* KeyNameFallback(int key);
 
+        // lifecycle
         void Init(GLFWwindow* window);
         void Update();
         void UpdatePrevInput();
+
+        // queue 
+        bool PollEvent(InputEvent& out);      // pops one event (false if empty)
+        bool PeekEvent(InputEvent& out) const; // copy front without popping (false if empty)
+        size_t EventsThisFrame() const { return changedQueue.size(); }
+        void ClearEvents();
+
+        // bind/unbind callbacks explicitly (instead of always on)
+        void BindCallbacksToWindow(GLFWwindow* window);
+        void UnbindCallbacks();
+
+        // enable/disable & mode
+        void SetEnabled(bool on); // set enabled/disabled
+        bool IsEnabled() const { return enabled; } // check if enabled
+        void SetMode(InputMode m); // set input mode
+        InputMode GetMode() const { return mode; } // get current input mode
+
+        // imgui capture hints (call each frame from editor layer)
+        void SetImGuiCapture(bool wantKeyboard, bool wantMouse); // set imgui capture flags
 
         // key queries
         bool IsKeyPressed(int key);
@@ -65,9 +116,14 @@ namespace SliceEngine
         bool IsMouseDown(MouseButtons button);
 
         // mouse position
-        Vec2d GetMousePosition() const { return currMousePos; }
+        glm::vec2 GetMousePosition() const { return currMousePos; }
         double GetMouseX() const { return currMousePos.x; }
         double GetMouseY() const { return currMousePos.y; }
+
+#ifdef SLICE_INPUT_USE_GLM
+        // this is used to interface with glm, why are we using this function? its so that we dont have to include glm in this header
+        glm::dvec2 GetMousePositionGlm() const { return glm::dvec2(currMousePos.x, currMousePos.y); }
+#endif
 
         // scroll
         float GetScrollDelta() const { return scrollDelta; }

@@ -1,13 +1,17 @@
 #include <pch.h>
-
 #include "GOFactory.h"
+#include "ECS/ECSTypes.h"
+#include "../Core/ComponentEventHandler.h"
 
 
 namespace SliceEngine
 {
 	GOFactory::GOFactory()
 	{
-
+		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
+		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
+		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
 	}
 
 	GOFactory::~GOFactory()

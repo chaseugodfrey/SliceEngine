@@ -53,51 +53,6 @@ namespace SliceEditor
 
 	void HierarchyManager::BuildHierarchy()
 	{
-		//mRootNodes.clear();
-
-		//auto* core = SliceEngine::Core::GetInstance();
-
-		//auto parent_entity = core->mFactory.GetRootEntity();
-
-		//TestNode parent_node{};
-		//parent_node.parent = nullptr;
-		//parent_node.entity = parent_entity;
-		//parent_node.name = "scene1";
-		//parent_node.children.reserve(1);
-		//mRootNodes.push_back(parent_node);
-
-		//std::queue<entt::entity> entity_queue{};
-		//entity_queue.push(parent_entity);
-
-		//while (!entity_queue.empty())
-		//{
-		//	parent_entity = entity_queue.front();
-		//	entity_queue.pop();
-
-		//	auto& current_parent = core->GetRegistry().get<SliceEngine::SceneGraph>(parent_entity);
-		//	entt::entity child_entity = current_parent.neighbours[SliceEngine::SceneGraph::DOWN];
-
-		//	while (child_entity != entt::null)
-		//	{
-		//		// set node data
-		//		TestNode child_node{};
-		//		child_node.entity = child_entity;
-		//		child_node.parent = &parent_node;
-		//		entity_queue.push(child_entity);
-
-		//		// parent
-		//		parent_node.children.push_back(child_node);
-
-		//		// get scene graph
-		//		SliceEngine::SceneGraph& child_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-		//		child_entity = child_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
-		//	}
-
-		//}
-
-
-		// test
-		
 		mHierarchy.clear();
 
 		auto core = SliceEngine::Core::GetInstance();

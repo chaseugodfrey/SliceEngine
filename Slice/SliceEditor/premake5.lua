@@ -91,7 +91,7 @@ project "SliceEditor"
  
     prebuildcommands {
         '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}"'
+        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
@@ -101,7 +101,8 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"'
+        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"',
+        '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"'
 
     }
 

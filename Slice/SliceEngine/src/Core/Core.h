@@ -17,6 +17,8 @@ namespace SliceEngine
 	class RenderManager;
 	class ResourceManager;
 	class FramerateManager;
+	class InputSystem;
+
 	class Core : public Singleton<Core>
 	{
 	public:
@@ -60,6 +62,7 @@ namespace SliceEngine
 			// should never reach here
 			assert("System does not exist!");
 		}
+		InputSystem* GetInputSystem();
 
 		ResourceManager* GetResourceManager();
 
@@ -68,9 +71,9 @@ namespace SliceEngine
 		FramerateManager* GetFramerateManager();
 
 		GLFWwindow* GetWindow();
-		
+
 		Registry& GetRegistry();
-	
+
 		void UnbindSystems();
 
 		GOFactory mFactory;
@@ -79,6 +82,7 @@ namespace SliceEngine
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
+		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<FramerateManager> mFramerateManager;
@@ -95,4 +99,3 @@ namespace SliceEngine
 }
 
 #endif
-

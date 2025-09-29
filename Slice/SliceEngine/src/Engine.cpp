@@ -17,17 +17,17 @@
 #include "Serializer/CSVSerializer.h"
 #include "Scripting/ScriptSystem.h"
 
-	//using namespace rttr;
+//using namespace rttr;
 
-	//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
 
-	//RTTR_REGISTRATION
-	//{
-	//	registration::class_<MyStruct>("MyStruct")
-	//		 .constructor<>()
-	//		 .property("data", &MyStruct::data)
-	//		 .method("func", &MyStruct::func);
-	//}
+//RTTR_REGISTRATION
+//{
+//	registration::class_<MyStruct>("MyStruct")
+//		 .constructor<>()
+//		 .property("data", &MyStruct::data)
+//		 .method("func", &MyStruct::func);
+//}
 
 namespace SliceEngine
 {
@@ -45,13 +45,13 @@ namespace SliceEngine
 		std::cout << " Hi from Engine Test Function\n";
 	}
 
-	
+
 
 	void Engine::Init()
 	{
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
-		
+
 		Core::GetInstance()->InitCore();
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
@@ -59,19 +59,18 @@ namespace SliceEngine
 
 		auto window = Core::GetInstance()->GetWindow();
 
-		inputs = std::make_unique<InputSystem>();
-		inputs->Init(window);
+
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
-
+		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
-
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
 		gScriptSystem->Init();
 		audio->Init();
 		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
@@ -82,13 +81,11 @@ namespace SliceEngine
 
 		mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");
-		
+
 		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 
 		mRender->CreateCamera();
-
-
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
@@ -96,6 +93,15 @@ namespace SliceEngine
 
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		floor.AddComponent<Transform>();
+		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		floor.AddComponent<ColliderShape>();
+		floor.AddComponent<Renderer>();
+
+		
 	}
 
 	void Engine::Update()
@@ -105,6 +111,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
+		auto inputs = Core::GetInstance()->GetInputSystem();
 
 		frm.StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
@@ -115,16 +122,23 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
+		gScriptSystem->UpdateScripts();
+		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+
 		frm.StartSystem("Input");
-		if (inputs->IsKeyDown(GLFW_KEY_LEFT))
-		{
-			std::cout << " test " << std::endl;
-		}
+		 if (inputs->IsKeyPressed(KEY_W))
+		 {
+		 	std::cout << " test " << std::endl;
+		 }
 		inputs->Update();
 		frm.EndSystem("Input");
-
 		frm.StartSystem("Physics");
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Update(1.0f/60.f);
+		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		{
+
+			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			
+		}
 		frm.EndSystem("Physics");
 		// framerateManager->CapFPS(60);
 

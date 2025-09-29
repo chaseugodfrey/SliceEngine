@@ -5,6 +5,7 @@
 #include <gtc/quaternion.hpp>
 #include <glfw3.h>
 #include <variant>
+#include "../Physics/CollisionLayer.h"
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
@@ -61,6 +62,8 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
+		glm::vec3 previousScale{};
+
 		glm::mat4 transform{};
 	};
 
@@ -111,7 +114,7 @@ namespace SliceEngine
 
 		struct BoxData
 		{
-			JPH::Vec3 halfExtend{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
@@ -120,7 +123,7 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
-		JPH::ObjectLayer layer;									// Collision layer
+		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer
 		ColliderType type = ColliderType::Box;					// Set Box Collider as default
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes
 		JPH::ShapeRefC shape;									// Jolt shape ref
