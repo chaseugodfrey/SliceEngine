@@ -311,18 +311,14 @@ namespace SliceEngine
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
 	}
-	GLuint RenderManager::GetTexture()
+	Entity& RenderManager::GetMainCamera()
 	{
-		return Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value()).textureID;
+		return mainCam.value();
 	}
-	Transform& RenderManager::GetMainCameraTransform()
-	{
-		return Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
-	}
-	void RenderManager::GetMainCameraAxis(glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	void RenderManager::GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(mainCam.value());
+		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;
