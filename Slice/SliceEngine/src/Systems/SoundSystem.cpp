@@ -21,7 +21,7 @@ namespace SliceEngine
 		{
 			audioComp.soundName = "3DAudioTest";
 		}
-		audioComp.isPaused = false;
+		audioComp.isPaused = true;
 		audioComp.is3D = true;
 		audioComp.currentVolume = 0.3f;
 
