@@ -5,6 +5,7 @@
 #include "PhysicsDebug.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Core/EventManager.h"
+#include "../ECS/GOFactory.h"
 
 #define EPSILON 0.0001f
 
@@ -101,6 +102,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 

@@ -104,10 +104,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\AudioManager.h" />
+    <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EventManager.h" />
     <ClInclude Include="src\Core\Events.h" />
-    <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\Singleton.h" />
     <ClInclude Include="src\ECS\BaseSystem.h" />
     <ClInclude Include="src\ECS\ECSTypes.h" />
