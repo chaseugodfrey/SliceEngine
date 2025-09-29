@@ -54,6 +54,11 @@ namespace SliceEditor
 
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
+			if (entry.path().extension().string() == ".meta")
+			{
+				continue; //Ignore
+			}
+
 			DirectoryNode child;
 			child.fileName = entry.path().filename().string();
 

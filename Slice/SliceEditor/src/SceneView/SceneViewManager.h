@@ -16,6 +16,8 @@ namespace SliceEditor
 
 	class SceneViewManager : public IBaseManager, public ICreateWindow
 	{
+		
+		float mCameraSpeed = 0.01f;
 
 	public:
 
@@ -25,6 +27,10 @@ namespace SliceEditor
 		void Init() override;
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
+
+		float GetCameraSpeed();
+
+		void ChangeCameraSpeed(float speed);
 	};
 }
 #endif

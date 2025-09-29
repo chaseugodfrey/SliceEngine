@@ -8,7 +8,7 @@ namespace SliceEditor
 {
 	void SceneViewManager::Init()
 	{
-
+		mCameraSpeed = 0.01f;
 	}
 
 	std::unique_ptr<EditorWindow> SceneViewManager::CreateWindow()
@@ -23,5 +23,24 @@ namespace SliceEditor
 		//window->SetCameraTexture(id);
 
 		return window;
+	}
+
+	float SceneViewManager::GetCameraSpeed()
+	{
+		return mCameraSpeed;
+	}
+
+
+	void SceneViewManager::ChangeCameraSpeed(float speed)
+	{
+
+		mCameraSpeed += speed;
+
+		if (mCameraSpeed < 0.f)
+		{
+			mCameraSpeed = 0.f;
+		}
+
+		//SLICE_LOG_VALUES("New Camera Speed: ", mCameraSpeed);
 	}
 }
