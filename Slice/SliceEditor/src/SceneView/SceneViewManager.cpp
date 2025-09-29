@@ -22,9 +22,4 @@ namespace SliceEditor
 
 		return window;
 	}
-
-	void SceneViewManager::OnUpdateSelected(std::unordered_set<entt::entity>&)
-	{
-
-	}
 }

@@ -8,6 +8,7 @@ struct GLFWwindow;
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
 #include "SelectionSystem/SelectionSystem.h"
+#include "AssetManager/AssetManager.h"
 
 namespace SliceEditor
 {
@@ -18,6 +19,7 @@ namespace SliceEditor
 
 		HistoryManager history;
 		WindowManager windowManager;
+		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();

@@ -21,6 +21,7 @@ project "SliceEditor"
         IncludeDir.EnTT,
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
+        ThirdParty.MONO_INC,
         "thirdparty/imgui/include"
         
     }
@@ -30,7 +31,8 @@ project "SliceEditor"
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB
+        ThirdParty.JOLT_LIB,
+        ThirdParty.MONO_LIB
     }
 
     links { 
@@ -39,6 +41,8 @@ project "SliceEditor"
         "opengl32",
         "glfw3",
         "fmod_vc",
+        "mono-2.0-sgen.lib",
+        "MonoPosixHelper.lib"
         --"rttr_core"
          }
 
