@@ -41,6 +41,12 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
+		void UpdateShapeFromTransform(Entity entity);
+
+		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
+
+		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
+
 	public:
 
 		PhysicsSystem() = default;
@@ -56,10 +62,6 @@ namespace SliceEngine
 
 		bool IsInitialized() const;
 
-		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
-
-		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
-
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
@@ -67,6 +69,9 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
 		void SubscribeToCollisionEvents();
+
+		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
+
 	};
 
 

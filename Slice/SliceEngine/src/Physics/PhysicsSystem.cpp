@@ -5,7 +5,9 @@
 #include "PhysicsDebug.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Core/EventManager.h"
+#include "../ECS/GOFactory.h"
 
+#define EPSILON 0.0001f
 
 namespace SliceEngine
 {
@@ -100,6 +102,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
@@ -146,33 +152,75 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
 	{
-		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Static, JPH::EActivation::DontActivate);
 
-		float mass = 1.0f;
-		float friction = 0.5f;
-		float restitution = 0.0f;
-		float linearDamping = 0.05f;
-		float angularDamping = 0.05f;
-
-		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
+		float friction = 0.5f; // default friction value
+		float restitution = 0.0f; // default restitution value
 
 		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, friction);
 		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, restitution);
 
-		JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
-		if (lock.Succeeded())
-		{
-			JPH::Body& body = lock.GetBody();
-			JPH::MotionProperties* mp = body.GetMotionProperties();
+	}
 
-			mp->ScaleToMass(mass);
-			mp->SetLinearDamping(linearDamping);
-			mp->SetAngularDamping(angularDamping);
-		}
+	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
+	{
+		auto& transform = mRegistry->get<Transform>(entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+			if (transform.scale == transform.previousScale)
+				return;
+
+			// Rebuild only if Box (sphere generally uses radius; you could scale radius by max component if desired)
+			if (colliderShape.type == ColliderShape::ColliderType::Box)
+			{
+				const auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
+				JPH::Vec3 newHalf(
+					boxData.scale.GetX() * fabs(transform.scale.x),
+					boxData.scale.GetY() * fabs(transform.scale.y),
+					boxData.scale.GetZ() * fabs(transform.scale.z)
+				);
+
+				JPH::BoxShapeSettings settings(newHalf);
+				auto result = settings.Create();
+				if (result.HasError())
+				{
+					SLICE_LOG_ERROR("Failed to rebuild scaled box: " + std::string(result.GetError()));
+					return;
+				}
+				colliderShape.shape = result.Get();
+
+				// Replace shape on body if it already exists
+				if (!colliderShape.bodyID.IsInvalid())
+				{
+					// Update shape; true => update mass properties (you can pass false then re-apply custom mass if needed)
+					physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+					// If you have overridden mass, re-apply:
+					if (mRegistry->any_of<RigidBody>(entity))
+					{
+						auto& rb = mRegistry->get<RigidBody>(entity);
+						if (!rb.isKinematic)
+						{
+							JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+							if (lock.Succeeded())
+							{
+								JPH::Body& body = lock.GetBody();
+								if (auto* mp = body.GetMotionProperties())
+								{
+									mp->ScaleToMass(rb.mass);
+									mp->SetLinearDamping(rb.linearDamping);
+									mp->SetAngularDamping(rb.angularDamping);
+								}
+							}
+						}
+					}
+				}
+			}
+
+			transform.previousScale = transform.scale;	
 
 	}
 
@@ -184,7 +232,7 @@ namespace SliceEngine
 		case ColliderShape::ColliderType::Box:
 		{
 			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings shapeSetting(boxData.halfExtend);
+			JPH::BoxShapeSettings shapeSetting(boxData.scale);
 
 			auto result = shapeSetting.Create();
 
@@ -330,7 +378,7 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
 		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
-
+		physicsSystem->OptimizeBroadPhase();
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -349,6 +397,8 @@ namespace SliceEngine
 	{
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
@@ -371,6 +421,12 @@ namespace SliceEngine
 
 		// Subscribe to the EnemyDefeatedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
+	}
+
+	void PhysicsSystem::SetLinearVelocity(Entity entity,JPH::Vec3 vel)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
 }

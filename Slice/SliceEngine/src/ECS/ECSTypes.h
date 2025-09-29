@@ -62,6 +62,8 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
+		glm::vec3 previousScale{};
+
 		glm::mat4 transform{};
 	};
 
@@ -119,7 +121,7 @@ namespace SliceEngine
 
 		struct BoxData
 		{
-			JPH::Vec3 halfExtend{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
