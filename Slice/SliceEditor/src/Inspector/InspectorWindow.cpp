@@ -89,7 +89,7 @@ namespace SliceEditor
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
-			DragVec3InputHeader("Translation", "##t", tr.position);
+			DragVec3InputHeader("Position", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
 			DragVec3InputHeader("Scale", "##s", tr.scale);
 
