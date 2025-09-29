@@ -178,9 +178,9 @@ namespace SliceEngine
 			{
 				const auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
 				JPH::Vec3 newHalf(
-					boxData.scale.GetX() * transform.scale.x,
-					boxData.scale.GetY() * transform.scale.y,
-					boxData.scale.GetZ() * transform.scale.z
+					boxData.scale.GetX() * fabs(transform.scale.x),
+					boxData.scale.GetY() * fabs(transform.scale.y),
+					boxData.scale.GetZ() * fabs(transform.scale.z)
 				);
 
 				JPH::BoxShapeSettings settings(newHalf);
