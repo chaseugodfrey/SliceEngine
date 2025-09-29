@@ -2,7 +2,7 @@
 #define AUDIO_MANAGER_H
 //#include "../ThirdParty/fmod/include/fmod.hpp"
 #include <fmod.hpp>
-#include "Systems/SoundSystem.h"
+#include "ECS/ECSTypes.h"
 #include <vector>
 #include <unordered_map>
 

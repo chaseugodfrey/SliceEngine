@@ -3,6 +3,7 @@
 
 #include <pch.h>
 #include "ECS/BaseSystem.h"
+#include "ECS/ECSTypes.h"
 #include "../Core/Core.h"
 #include <iostream>
 #include <string>
