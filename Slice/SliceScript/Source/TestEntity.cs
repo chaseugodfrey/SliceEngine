@@ -22,7 +22,9 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
-                Console.WriteLine("TestEntity Update called with dt: " + dt);
+                //Vector3 pos = Position;
+                Position += direction * speed * dt;
+                //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
         }
 
