@@ -3,7 +3,7 @@
 
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
-#include "../SelectionSystem/ISelectionService.h"
+#include "../SelectionSystem/ISelectionListener.h"
 
 namespace SliceEngine
 {
@@ -14,7 +14,7 @@ namespace SliceEditor
 {
 	class Registry;
 
-	class SceneViewManager : public IBaseManager, public ICreateWindow, public ISelectionListener
+	class SceneViewManager : public IBaseManager, public ICreateWindow
 	{
 
 	public:
@@ -25,11 +25,6 @@ namespace SliceEditor
 		void Init() override;
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
-
-
-		// Inherited via ISelectionListener
-		void OnUpdateSelected(std::unordered_set<entt::entity>&) override;
-
 	};
 }
 #endif

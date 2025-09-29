@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "Registry.h"
+#include "SelectionSystem/ISelectionListener.h"
 #include "SceneView/SceneViewManager.h"
 #include "Hierachy/HierarchyManager.h"
 #include "Inspector/InspectorManager.h"
@@ -18,6 +19,11 @@ namespace SliceEditor
 
 		for (auto& [name, manager] : mManagers)
 		{
+			if (auto listener = dynamic_cast<ISelectionListener*>(manager.get()))
+			{
+				selectionSystem.RegisterListener(listener);
+			}
+
 			manager->Init();
 		}
 	}
