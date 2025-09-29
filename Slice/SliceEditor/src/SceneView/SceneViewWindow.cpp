@@ -19,32 +19,39 @@ namespace SliceEditor
 		tex_id = texture_id;
 	}
 
-	void SceneViewWindow::Draw()
+	void SceneViewWindow::Draw() 
 	{
 		ImGui::Begin("Scene");
 
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		if (ImGui::IsKeyDown(ImGuiKey_W))
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
+		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
+
+		if (ImGui::IsWindowFocused())
 		{
-			
+			if (ImGui::IsKeyDown(ImGuiKey_W))
+			{
+
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_S))
+			{
+
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_A))
+			{
+
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_D))
+			{
+
+			}
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_S))
-		{
-			
-		}
-
-		if (ImGui::IsKeyDown(ImGuiKey_A))
-		{
-			
-		}
-
-		if (ImGui::IsKeyDown(ImGuiKey_D))
-		{
-			
-		}
 
 		ImGui::GetWindowDrawList()->AddImage(
 			//(void*)editorState.renderManager->GetTexture(), // Placeholder texture ID

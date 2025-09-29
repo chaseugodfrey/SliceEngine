@@ -134,6 +134,12 @@ namespace SliceEditor
 		}
 	}
 
+	TestNode& HierarchyManager::GetSceneRootNode()
+	{
+		auto entity = SliceEngine::FactoryInstance.GetRootEntity();
+		return mHierarchy[entity];
+	}
+
 	void HierarchyManager::AddGameObject()
 	{
 		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
@@ -150,6 +156,22 @@ namespace SliceEditor
 		ParentGameObject(node.entity, rootEntity);
 
 		//isDirty = true;
+	}
+
+	void HierarchyManager::RemoveGameObject(entt::entity target)
+	{
+		auto parent_entity = mHierarchy[target].parent;
+
+		// remove from parent's children list
+		auto& children = parent_entity->children;
+		auto it = std::find(std::begin(children), std::end(children), target);
+		children.erase(it);
+
+		// remove from node structure
+		mHierarchy.erase(target);
+
+		// remove from core registry
+		SliceEngine::FactoryInstance.Destroy(target);
 	}
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)
@@ -176,20 +198,13 @@ namespace SliceEditor
 		parent_node.children.push_back(child_node.entity);
 	}
 
-	void HierarchyManager::RemoveGameObject(entt::entity target)
+	void HierarchyManager::Unparent(entt::entity child, entt::entity parent)
 	{
-		auto parent_entity = mHierarchy[target].parent;
-
-		// remove from parent's children list
-		auto& children = parent_entity->children;
-		auto it = std::find(std::begin(children), std::end(children), target);
-		children.erase(it);
-
-		// remove from node structure
-		mHierarchy.erase(target);
-
-		// remove from core registry
-		SliceEngine::FactoryInstance.Destroy(target);
+		auto& childNode = mHierarchy[child];
+		auto& parentNode = mHierarchy[parent];
+		auto& grandParentNode = mHierarchy[parentNode.parent->entity];
+		
+		ParentGameObject(childNode.entity, grandParentNode.entity);
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()
@@ -197,5 +212,29 @@ namespace SliceEditor
 		auto& selectionSystem = registry.GetSelectionSystem();
 		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
 		return window;
+	}
+
+	void HierarchyManager::OnUpdateSelected(std::unordered_set<entt::entity>& selected_entities)
+	{
+		for (auto entity : selected_entities)
+		{
+			auto it = mHierarchy.find(entity);
+			if (it != std::end(mHierarchy))
+			{
+				it->second.isSelected = true;
+			}
+		}
+	}
+
+	void HierarchyManager::OnUpdateDeselected(std::unordered_set<entt::entity>& deselected_entities)
+	{
+		for (auto entity : deselected_entities)
+		{
+			auto it = mHierarchy.find(entity);
+			if (it != std::end(mHierarchy))
+			{
+				it->second.isSelected = false;
+			}
+		}
 	}
 }

@@ -28,6 +28,8 @@ namespace SliceEditor
 			return;
 		}
 
+		DisplayEntityData();
+
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
 		{
@@ -66,24 +68,46 @@ namespace SliceEditor
 	
 	void InspectorWindow::DisplayEntityData()
 	{
-		static bool is_active = false;
-		ImGui::Checkbox("#is_active", &is_active);
-		ImGui::SameLine();
+		//static bool is_active = false;
+		//ImGui::Checkbox("##is_active", &is_active);
+		//ImGui::SameLine();
 
-		std::string name = "name";
-		ImGui::InputText("##name", &name);
+		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).GetName();
+		std::string editable_name = original_name;
+		ImGui::InputText("##name", &editable_name);
+
+		if (editable_name != original_name)
+			SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
+
+		ImGui::Separator();
 
 	}
 
 	void InspectorWindow::DisplayTransform()
 	{
-		if (ImGui::TreeNodeEx("Transform"))
+		if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
 			DragVec3InputHeader("Translation", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
 			DragVec3InputHeader("Scale", "##s", tr.scale);
+
+			// for testing purposes
+			ImGui::BeginDisabled();
+			ImGui::Text("Parent: ");
+			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(selected_entity.value());
+			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+			std::string name{ "--" };
+
+			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
+			{
+				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
+				name = go.GetName();
+			}
+
+			ImGui::Text(name.c_str());
+			ImGui::EndDisabled();
 
 			ImGui::TreePop();
 		}
@@ -98,7 +122,7 @@ namespace SliceEditor
 	{
 		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Rigidbody"))
+		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::DragFloat("Friction", &rb.friction);
 
@@ -110,7 +134,7 @@ namespace SliceEditor
 	{
 		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Collider3D"))
+		if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
 
