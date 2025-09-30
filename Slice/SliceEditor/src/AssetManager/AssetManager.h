@@ -15,17 +15,22 @@ namespace SliceEditor
 		AssetManager() = default;
 		~AssetManager() = default;
 
-		bool CreateMetaDataFile(const std::string& assetPath, MetaData& metaData);
+		bool CreateMetaDataFile(MetaData& metaData);
 
 		void WriteMetaDataFile(const std::string& metaFilePath, MetaData& metaData);
 
-		void Init(std::filesystem::path);
+		void Init();
+
+		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
 
 
 	private:
 		
-		std::filesystem::path mAssetDirectory;
+		std::filesystem::path mAssetDirectory = "../SliceEditor/Assets";
+		std::filesystem::path mDescriptorDirectory = "../SliceEditor/Descriptor";
+		std::filesystem::path mResourcesDirectory = "../SliceEditor/Resources";
+		std::unordered_map <std::string, SliceEngine::GUID> mDescriptorMap; // Maps files to GUIDs
 	};
 
 }

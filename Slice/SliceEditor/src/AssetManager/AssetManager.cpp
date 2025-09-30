@@ -4,17 +4,17 @@
 
 namespace SliceEditor
 {
-	bool AssetManager::CreateMetaDataFile(const std::string& assetPath, MetaData& metaData)
+	bool AssetManager::CreateMetaDataFile(MetaData& metaData)
 	{
-		std::ifstream fileCheck(assetPath + ".meta");
+		std::ifstream fileCheck(mDescriptorDirectory.string() + ".meta");
 		if (fileCheck.good())
 		{
-			SLICE_LOG_WARNING("Meta file already exists for asset: " + assetPath);
+			SLICE_LOG_WARNING("Meta file already exists for asset: ");
 			return false;
 		}
 		fileCheck.close();
 
-		metaData.path = assetPath;
+		//metaData.path = assetPath;
 
 		metaData.guid = SliceEngine::GUID::Generate();
 
@@ -25,7 +25,7 @@ namespace SliceEditor
 		//For Resource File that is relevent:
 		metaData.resourcePath.push_back(std::string("NIL")); // Set this to the actual resource path when applicable
 
-		WriteMetaDataFile(assetPath + ".meta", metaData);
+		//WriteMetaDataFile(assetPath + ".meta", metaData);
 		return true;
 	}
 	void AssetManager::WriteMetaDataFile(const std::string& metaFilePath, MetaData& metaData)
@@ -51,26 +51,49 @@ namespace SliceEditor
 		}
 	}
 
-	void AssetManager::Init(std::filesystem::path)
+	void AssetManager::Init()
 	{
-		for(auto & dirEntry : std::filesystem::recursive_directory_iterator("../SliceEditor/Assets"))
+
+		//Searching Descriptor and Assigning to "Assets"
+		for(auto & dirEntry : std::filesystem::recursive_directory_iterator(mDescriptorDirectory))
 		{
+			nlohmann::json metaData;
+
 			if (dirEntry.is_regular_file())
 			{
 				std::filesystem::path filePath = dirEntry.path();
-				if (filePath.extension() != ".meta")
+				if (filePath.extension() == ".meta")
 				{
-					std::ifstream fileCheck(filePath.string() + ".meta");
-					if (!fileCheck.good())
+					SliceEngine::GUID guid = ReadGUIDFromDescriptor(filePath);
+					std::string fileName;
+
+					std::ifstream inFile(filePath);
+					if (inFile.is_open())
 					{
-						MetaData metaData;
-						CreateMetaDataFile(filePath.string(), metaData);
-						//WriteMetaDataFile(filePath.string() + ".meta", metaData);
+						if (metaData.contains("fileName"))
+						{
+							fileName = metaData["fileName"];
+						}
 					}
-					fileCheck.close();
+					inFile.close();
+
+					mDescriptorMap[fileName] = guid;
 				}
 			}
 		}
+
+		//Looping through Assets to see who does not have a descriptor file (very sad. nobody is describing it.)
+		for (auto& dirEntry : std::filesystem::recursive_directory_iterator(mAssetDirectory))
+		{
+
+		}
 		SLICE_LOG("Asset Manager Initialized");
+	}
+
+	SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path)
+	{
+		auto guid = path.stem();
+		
+		return SliceEngine::GUID::FromString(guid.string());
 	}
 }
