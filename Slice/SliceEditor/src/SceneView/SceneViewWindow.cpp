@@ -19,37 +19,95 @@ namespace SliceEditor
 		tex_id = texture_id;
 	}
 
-	void SceneViewWindow::Draw()
+	void SceneViewWindow::Draw() 
 	{
 		ImGui::Begin("Scene");
 
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		//auto& transform = mManager.mRenderManager.GetMainCameraTransform();
-		//glm::vec3 forward, right, up;
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
+		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
 		
-		//mManager.mRenderManager.GetMainCameraAxis(forward, right, up);
+		glm::vec3 forward{}, right{}, up{};
+		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
-		if (ImGui::IsKeyDown(ImGuiKey_W))
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
+
+		if (ImGui::IsWindowFocused())
 		{
-			//transform.position += forward * 0.1f;
+			if (ImGui::IsKeyDown(ImGuiKey_W))
+			{
+				cam_tr.position += forward * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_S))
+			{
+				cam_tr.position -= forward * mManager.GetCameraSpeed();
+			}
+			
+			if (ImGui::IsKeyDown(ImGuiKey_A))
+			{
+				cam_tr.position -= right * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_D))
+			{
+				cam_tr.position += right * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_Q))
+			{
+				cam_tr.position -= up * mManager.GetCameraSpeed();
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_E))
+			{
+				cam_tr.position += up * mManager.GetCameraSpeed();
+			}
+
+			//Camera Speed Change
+			ImGuiIO& io = ImGui::GetIO();
+			if (io.MouseWheel > 0.0f)
+			{
+				mManager.ChangeCameraSpeed(0.01f);
+			}
+			else if (io.MouseWheel < 0.0f)
+			{
+				mManager.ChangeCameraSpeed(-0.01f);
+			}
+
+			static ImVec2 pos{};
+			static bool isRotating = false;
+			static ImVec2 init_rot{};
+
+			if (ImGui::IsWindowHovered())
+			{
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+				{
+					init_rot.x = cam_tr.rotation.y;
+					init_rot.y = cam_tr.rotation.z;
+					pos = ImGui::GetMousePos();
+					isRotating = true;
+				}
+
+				if (ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+				{
+					isRotating = false;
+				}
+			}
+
+			if (isRotating)
+			{
+				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+				{
+					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
+					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
+					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
+				}
+			}
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_S))
-		{
-			//transform.position -= forward * 0.1f;
-		}
-
-		if (ImGui::IsKeyDown(ImGuiKey_A))
-		{
-			//transform.position -= right * 0.1f;
-		}
-
-		if (ImGui::IsKeyDown(ImGuiKey_D))
-		{
-			//transform.position += right * 0.1f;
-		}
 
 		// Btw for rotation
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
@@ -58,7 +116,7 @@ namespace SliceEditor
 
 		ImGui::GetWindowDrawList()->AddImage(
 			//(void*)editorState.renderManager->GetTexture(), // Placeholder texture ID
-			(void*)tex_id,
+			(void*)cam.textureID,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 			ImVec2(0, 1),

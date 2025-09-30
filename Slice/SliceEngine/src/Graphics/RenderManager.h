@@ -26,8 +26,9 @@ namespace SliceEngine
 		void CreateDeferredTextures();
 		// Camera related functions
 		GameObject& CreateCamera();
-		Entity& GetMainCamera();
-		void GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		void SetMainGameCamera(GameObject cam);
+		std::optional<GameObject>& GetGameCamera();
+		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void IDPick(const int& mouseX, const int& mouseY);
 		// Rendering functions
@@ -54,7 +55,7 @@ namespace SliceEngine
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 
-		std::optional<Entity> mainCam;
+		std::optional<GameObject> mainCam;
 
 		Handle<SliceEngineTypes::Shader> mCurrShader;
 		Handle<SliceEngineTypes::Shader> mInstanceShader;

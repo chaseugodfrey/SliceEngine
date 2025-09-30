@@ -31,7 +31,13 @@ x64/
 *.vcxproj
 *.vspscc
 *.vssscc
+*.cache
+*.nupkg
 .builds
+
+# Automatically generated files
+*.Generated.cs
+*.AssemblyAttributes.cs
 
 # Visual C++ cache files
 ipch/

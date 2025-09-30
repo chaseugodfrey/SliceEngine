@@ -2,6 +2,7 @@
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 
 namespace SliceEditor
 {
@@ -28,6 +29,8 @@ namespace SliceEditor
 			return;
 		}
 
+		DisplayEntityData();
+
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
 		{
@@ -42,6 +45,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
+			{
+				DisplayMeshRenderer();
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
 			{
@@ -49,6 +58,18 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
+			{
+				DisplayAudioSource();
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
+			{
+				DisplaySliceScript();
+				ImGui::Separator();
+			}
 
 			AddComponentButton();
 		}
@@ -66,31 +87,128 @@ namespace SliceEditor
 	
 	void InspectorWindow::DisplayEntityData()
 	{
-		static bool is_active = false;
-		ImGui::Checkbox("#is_active", &is_active);
-		ImGui::SameLine();
+		//static bool is_active = false;
+		//ImGui::Checkbox("##is_active", &is_active);
+		//ImGui::SameLine();
 
-		std::string name = "name";
-		ImGui::InputText("##name", &name);
+		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).GetName();
+		std::string editable_name = original_name;
+		ImGui::InputText("##name", &editable_name);
+
+		if (editable_name != original_name)
+			SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
+
+		ImGui::Separator();
 
 	}
 
+	//void InspectorWindow::DisplayComponentHeader(bool closeable)
+	//{
+	//}
+
 	void InspectorWindow::DisplayTransform()
 	{
-		if (ImGui::TreeNodeEx("Transform"))
+		if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
-			DragVec3InputHeader("Translation", "##t", tr.position);
+			DisplayComponentHeader<SliceEngine::Transform>(false);
+
+			DragVec3InputHeader("Position", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
 			DragVec3InputHeader("Scale", "##s", tr.scale);
+
+			// for testing purposes
+			ImGui::BeginDisabled();
+			ImGui::Text("Parent: ");
+			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(selected_entity.value());
+			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+			std::string name{ "--" };
+
+			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
+			{
+				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
+				name = go.GetName();
+			}
+
+			ImGui::Text(name.c_str());
+			ImGui::EndDisabled();
 
 			ImGui::TreePop();
 		}
 	}
 
+	void InspectorWindow::DisplayAudioSource()
+	{
+		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
+
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
+
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
+			if (ImGui::TreeNodeEx("AudioSource"))
+			{
+				DisplayComponentHeader<SliceEngine::AudioSource>();
+
+				ImGui::Text("Audio Clip");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Volume");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				float volume = as.currentVolume;
+				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
+					as.currentVolume = volume; // mark dirty via patch
+
+				ImGui::Text("Is Loop");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool loop = as.isLoop;
+				if (ImGui::Checkbox("##isloop", &loop))
+					as.isLoop = loop;
+
+				ImGui::Text("Is 3D");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool is3D = as.is3D;
+				if (ImGui::Checkbox("##is3d", &is3D))
+					as.is3D = is3D;
+
+				ImGui::Text("Is Paused");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool paused = as.isPaused;
+				if (ImGui::Checkbox("##ispaused", &paused))
+					as.isPaused = paused;
+
+				ImGui::TreePop();
+			}
+			});
+
+	}
+
 	void InspectorWindow::DisplayMeshRenderer()
 	{
+		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(selected_entity.value());
+
+		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::Renderer>();
+
+			ImGui::Text("Mesh");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##mesh", &rend.model, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Text("Texture");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##texture", &rend.texture, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::TreePop();
+		}
 
 	}
 
@@ -98,9 +216,14 @@ namespace SliceEditor
 	{
 		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Rigidbody"))
+		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::DragFloat("Friction", &rb.friction);
+			DisplayComponentHeader<SliceEngine::RigidBody>();
+
+			ImGui::Text("Friction");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::DragFloat("##friction", &rb.friction);
 
 			ImGui::TreePop();
 		}
@@ -110,9 +233,101 @@ namespace SliceEditor
 	{
 		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Collider3D"))
+		if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::Checkbox("Is Trigger", &col3d.isTrigger);
+			DisplayComponentHeader<SliceEngine::ColliderShape>();
+
+			ImGui::Text("Trigger");
+			ImGui::SameLine(150.0f);
+			ImGui::Checkbox("##trigger", &col3d.isTrigger);
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySliceScript()
+	{
+		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(selected_entity.value());
+
+		if (ImGui::TreeNodeEx("Script", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::Script>();
+
+			std::string script_name = script.scriptName;
+			if (script_name.empty())
+				script_name = "(Empty)";
+
+			// Script Name
+
+			ImGui::Text("Script Class: ");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Separator();
+
+			if (script.scriptName.empty())
+			{
+				if (ImGui::Button("Add Script"))
+				{
+					ImGui::OpenPopup("script_list_popup");
+				}
+
+				if (ImGui::BeginPopupContextItem("script_list_popup"))
+				{					
+					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
+
+					std::vector<const char*> script_list{};
+
+					static int list_index = 1;
+
+					for (auto& [key, value] : script_map)
+					{
+						script_list.push_back(value->mClassName.c_str());
+					}
+
+					//std::string selected_script_class{};
+
+					if (ImGui::BeginListBox("##script_list"))
+					{
+						for (size_t i = 0; i < script_list.size(); i++)
+						{
+							if (ImGui::Selectable(script_list[i]))
+							{
+								script.scriptName = "SliceEngine.";
+								script.scriptName += script_list[i];
+								ImGui::CloseCurrentPopup();
+							}
+						}
+
+						ImGui::EndListBox();
+					}
+
+					ImGui::EndPopup();
+				}
+			}
+
+			// Script Variables
+
+			else
+			{
+				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
+				auto& script_class = script_map.at(script.scriptName);
+				auto& script_vars = script_class->mFields;
+
+				for (auto& var : script_vars)
+				{
+					ImGui::Text(var.first.c_str());
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					std::string temp{ 0 };
+					if (ImGui::InputText(("##" + var.first).c_str(), &temp))
+					{
+
+					}
+				}
+
+			}
 
 			ImGui::TreePop();
 		}
@@ -139,14 +354,26 @@ namespace SliceEditor
 
 		if (ImGui::BeginPopupContextItem("##add_component_list"))
 		{
+			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			
 			if (ImGui::Selectable("Add Rigidbody"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::RigidBody>(selected_entity.value());
+				reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
 			}
 
 			if (ImGui::Selectable("Add Collider3D"))
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ColliderShape>(selected_entity.value());
+				reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
+			}
+			
+			if (ImGui::Selectable("Add Script Container"))
+			{
+				reg.emplace<SliceEngine::Script>(selected_entity.value());
+			}
+
+			if (ImGui::Selectable("Add AudioSource"))
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();

@@ -28,6 +28,11 @@ namespace SliceEditor
 
 		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup("entity_popup");
+		}
+
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
@@ -63,24 +68,18 @@ namespace SliceEditor
 
 				else
 				{
-					node.isSelected = true;
-					set.insert(&node);
+					mSelection.UpdateSelected(node.entity);
 				}
 			}
 
 			else
 			{
-				std::for_each(set.begin(), set.end(), [](auto* item) {item->isSelected = false; });
-				set.clear();
-				node.isSelected = true;
-				set.insert(&node);
+				mSelection.ClearSelection();
+				mSelection.UpdateSelected(node.entity);
 			}
 		}
 
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-		{
-			ImGui::OpenPopup("entity_popup");
-		}
+		EntityContextPopUp(node);
 
 		if (isOpen)
 		{
@@ -92,23 +91,6 @@ namespace SliceEditor
 
 			ImGui::TreePop();
 		}
-
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-		{
-			ImGui::OpenPopup("entity_popup");
-		}
-
-		//if (ImGui::TreeNodeEx(node.name.c_str(), flags))
-		//{
-		//	for (size_t i = 0; i < node.children.size(); i++)
-		//	{
-		//		DrawNode(node.children[i]);
-		//	}
-
-		//	ImGui::TreePop();
-		//}
-
-		EntityContextPopUp(node);
 	}
 
 	void HierarchyWindow::DrawSceneNode(TestNode& node)
@@ -131,12 +113,25 @@ namespace SliceEditor
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
+		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
+
 		if (ImGui::BeginPopupContextItem("entity_popup"))
 		{
-			if (ImGui::Selectable("Add Component"))
-			{
+			if (!hasParent)
+				ImGui::BeginDisabled();
 
+			if (ImGui::Selectable("Unparent"))
+			{
+				mManager.Unparent(node.entity, node.parent->entity);
 			}
+
+			if (!hasParent)
+				ImGui::EndDisabled();
+
+			//if (ImGui::Selectable("Add Component"))
+			//{
+
+			//}
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
@@ -157,7 +152,12 @@ namespace SliceEditor
 		ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
 		ImGui::EndGroup();
 
-		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		if (ImGui::IsItemClicked())
+		{
+			mSelection.ClearSelection();
+		}
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
 			ImGui::OpenPopup("window_popup");
 		}
@@ -174,17 +174,6 @@ namespace SliceEditor
 
 		ImGui::End();
 
-
-		// to do: don't update this interaction every frame.
-		std::unordered_set<entt::entity> entities{};
-
-		for (TestNode* node : set)
-		{
-			entities.insert(node->entity);
-		}
-
-		mSelection.UpdateSelection(entities);
-		
 		mManager.CheckDirty();
 	}
 }

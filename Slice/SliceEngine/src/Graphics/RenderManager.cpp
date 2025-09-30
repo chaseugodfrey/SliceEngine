@@ -116,10 +116,9 @@ namespace SliceEngine
 		transform.position = glm::vec3(-2.f, 1.f, 0.f);
 		transform.rotation = glm::vec3(0.f, 0.f, -10.f);
 		newCam.AddComponent<Camera>();
-
+		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-		if (!mainCam.has_value())
-			mainCam = newCam.GetEntity();
+
 		return newCam;
 	}
 	Entity& RenderManager::GetMainCamera()
@@ -173,6 +172,11 @@ namespace SliceEngine
 		//return;
 	}
 
+	void RenderManager::SetMainGameCamera(GameObject cam)
+	{
+		mainCam.emplace(cam);
+	}
+
 	void RenderManager::Render()
 	{
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
@@ -198,8 +202,9 @@ namespace SliceEngine
 
 			glUniform1i(uniformLoc, 1);
 			DeferredRender();
-
-			RenderDebug(cam);
+			
+			if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
+				RenderDebug(cam);
 		}
 
 		LinkFrameBufferSettings(FBOSetting::UNBIND);
@@ -210,6 +215,7 @@ namespace SliceEngine
 		glDisable(GL_DEPTH_TEST);
 
 		// Draw other cameras' frustrum
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
 			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
@@ -270,6 +276,7 @@ namespace SliceEngine
 		}
 		
 		// Draw Instance Debug Box
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
 		{
 			mCurrShader = mInstanceShader;
 			glUseProgram(mCurrShader.get()->s);
@@ -291,6 +298,7 @@ namespace SliceEngine
 		}
 
 		// Draw Debug Line
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_GRID_TAG)
 		{
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
@@ -457,5 +465,54 @@ namespace SliceEngine
 
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
+	}
+	std::optional<GameObject>& RenderManager::GetGameCamera()
+	{
+		return mainCam;
+	}
+	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	{
+		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
+		auto& camTrans = cam.GetComponent<Transform>();
+		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		forward = rot * f;
+		right = rot * r;
+		up = rot * u;
+	}
+	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
+	{
+		//// if out of bounds
+		//if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
+		//{
+		//	mIDHovered = std::numeric_limits<unsigned int>().max();
+		//	return;
+		//}
+
+		//GLint prevBinding{};
+		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
+
+		//glBindFramebuffer(GL_FRAMEBUFFER, mScene.FBO);
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
+
+		//glNamedFramebufferReadBuffer(mScene.FBO, GL_COLOR_ATTACHMENT1);
+		//glReadPixels(mouseX, mouseY, 1, 1,
+		//	GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
+		//GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+		//if (src)
+		//{
+		//	mIDHovered = *src;
+		//	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+		//}
+		////if (RenderHelper::GetInstance()->mEditorWindowActive)
+		////	RenderHelper::GetInstance()->mSelectedID = goID;
+		//if (mIDHovered >= std::numeric_limits<unsigned int>().max())
+		//	mIDHovered = 0;
+
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		//glReadBuffer(GL_NONE);
+		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
+		//return;
 	}
 }

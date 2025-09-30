@@ -62,6 +62,8 @@ namespace SliceEngine
 		glm::vec3 rotation{};
 		glm::vec3 scale{};
 
+		glm::vec3 previousScale{};
+
 		glm::mat4 transform{};
 	};
 
@@ -74,7 +76,9 @@ namespace SliceEngine
 
 	enum RENDER_TAG : unsigned char
 	{
-		DEBUG_TAG = 0x01
+		DEBUG_OBJ_TAG		= 0x01,
+		DEBUG_FRUSTRUM_TAG	= 0x02,
+		DEBUG_GRID_TAG		= 0x04
 	};
 
 	struct Renderer
@@ -119,7 +123,7 @@ namespace SliceEngine
 
 		struct BoxData
 		{
-			JPH::Vec3 halfExtend{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
@@ -136,6 +140,18 @@ namespace SliceEngine
 		bool isTrigger = false;									// leaving thjis here in case we need trniggers
 
 	};
+
+	struct AudioSource
+	{
+		std::string soundName;
+		float currentVolume;
+		bool isLoop;
+		bool isPaused;
+		bool is3D;
+	};
+
+
+
 }
 
 #endif

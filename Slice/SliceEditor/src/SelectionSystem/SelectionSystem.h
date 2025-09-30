@@ -1,7 +1,7 @@
 #ifndef SELECTION_SYSTEM_H
 #define SELECTION_SYSTEM_H
 
-#include "ISelectionService.h"
+#include "ISelectionListener.h"
 
 namespace SliceEditor
 {
@@ -18,7 +18,11 @@ namespace SliceEditor
 		~SelectionSystem() = default;
 
 		void RegisterListener(ISelectionListener* listener);
-		void UpdateSelection(std::unordered_set<entt::entity>& entities);
+		void UpdateSelected(entt::entity entity);
+		void UpdateDeslected(entt::entity entity);
+		void UpdateSelected(std::unordered_set<entt::entity>& entities);
+		void UpdateDeslected(std::unordered_set<entt::entity>& entities);
+		void ClearSelection();
 
 		// replace this with listener pattern
 		std::unordered_set<entt::entity>& GetSelectedEntities();
