@@ -21,7 +21,8 @@ namespace SliceEngine
 	}
 	void WorldSpaceGraphicsSystem::Render(Entity cam)
 	{
-		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
+		//glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
+		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_CULL_FACE);

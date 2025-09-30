@@ -33,10 +33,11 @@ layout (binding = 2) uniform sampler2D 	uNomTex;
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
 vec3 BlinnPhong(vec3 pos, vec3 nom, Light light, Material mat, mat4 view){
-	vec3 color = light.La * mat.Ka; // ambient
+	vec3 color = vec3(0.f, 0.f, 0.f);
 
-	if(any(notEqual(nom, vec3(0.0f))))
+	if(any(notEqual(nom, vec3(0.0f))))// Not Background
 	{
+		color = light.La * mat.Ka; // ambient
 		vec3 lightPosView = vec3(view * vec4(light.position, 1.0f));
 		vec3 toLight = lightPosView - pos;
 		if(length(toLight) > 0.f)
@@ -75,7 +76,6 @@ void Pass0(){
 void Pass1(){
 	vec3 pos = vec3(texture(uPosTex, vTexCoord));
 	vec3 nom = vec3(texture(uNomTex, vTexCoord));
-
 	fFragColor = vec4(BlinnPhong(pos, nom, uLight[0], uMat, V), 1.0f);
 }
 

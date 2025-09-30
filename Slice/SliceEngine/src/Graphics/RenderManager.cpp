@@ -20,6 +20,7 @@
 
 namespace SliceEngine
 {
+#pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
 		CreateFramebuffer();
@@ -97,17 +98,20 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
+		// Pos
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[0]);
 		glTextureStorage2D(mColAttachment[0], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
 		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+		// Nom
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[1]);
-		glTextureStorage2D(mColAttachment[1], 1, GL_RG16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureStorage2D(mColAttachment[1], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
 		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
-	
+#pragma endregion
+
+#pragma region Camera
 	GameObject& RenderManager::CreateCamera()
 	{
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
@@ -121,62 +125,28 @@ namespace SliceEngine
 
 		return newCam;
 	}
-	Entity& RenderManager::GetMainCamera()
+	
+	void RenderManager::SetMainGameCamera(GameObject cam)
 	{
-		return mainCam.value();
+		mainCam.emplace(cam);
 	}
-	void RenderManager::GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	std::optional<GameObject>& RenderManager::GetGameCamera()
+	{
+		return mainCam;
+	}
+
+	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		auto& camTrans = cam.GetComponent<Transform>();
 		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;
 		up = rot * u;
 	}
-	
-	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
-	{
-		//// if out of bounds
-		//if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
-		//{
-		//	mIDHovered = std::numeric_limits<unsigned int>().max();
-		//	return;
-		//}
+#pragma endregion
 
-		//GLint prevBinding{};
-		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
-
-		//glBindFramebuffer(GL_FRAMEBUFFER, mScene.FBO);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
-
-		//glNamedFramebufferReadBuffer(mScene.FBO, GL_COLOR_ATTACHMENT1);
-		//glReadPixels(mouseX, mouseY, 1, 1,
-		//	GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
-		//GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-		//if (src)
-		//{
-		//	mIDHovered = *src;
-		//	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-		//}
-		////if (RenderHelper::GetInstance()->mEditorWindowActive)
-		////	RenderHelper::GetInstance()->mSelectedID = goID;
-		//if (mIDHovered >= std::numeric_limits<unsigned int>().max())
-		//	mIDHovered = 0;
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		//glReadBuffer(GL_NONE);
-		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
-		//return;
-	}
-
-	void RenderManager::SetMainGameCamera(GameObject cam)
-	{
-		mainCam.emplace(cam);
-	}
-
+#pragma region Render
 	void RenderManager::Render()
 	{
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
@@ -200,7 +170,6 @@ namespace SliceEngine
 				glUniform1i(uniformLoc, 0);
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(cam);
 
-			glUniform1i(uniformLoc, 1);
 			DeferredRender();
 			
 			if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
@@ -315,47 +284,55 @@ namespace SliceEngine
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, ((mMaxInstance - 2) / 4) * 4 + 2);
 		}
 	}
-
 	void RenderManager::DeferredRender()
 	{
+		glDisable(GL_DEPTH_TEST);
+
 		glm::mat4 idx{ 1.f };
+
 		GLint uniformLoc;
+		if (UniformExists("uPass", uniformLoc))
+			glUniform1i(uniformLoc, 1);
 		if (UniformExists("V", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
-		if (UniformExists("M", uniformLoc))
+		if (UniformExists("P", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
 		idx = glm::scale(idx, glm::vec3(2.f, 2.f, 2.f));
-		if (UniformExists("P", uniformLoc))
+		if (UniformExists("M", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
 
 		if (UniformExists("uLight[0].position", uniformLoc))
-		glUniform3f(uniformLoc, 5, 1.f, 5.f);
+		glUniform3f(uniformLoc, 5.f, 1.f, 5.f);
 		if (UniformExists("uLight[0].La", uniformLoc))
-		glUniform3f(uniformLoc, 0.2f, 0.2f, 0.2f);
+		glUniform3f(uniformLoc, 0.4f, 0.4f, 0.4f);
 		if (UniformExists("uLight[0].Ld", uniformLoc))
-		glUniform3f(uniformLoc, 0.5f, 0.5f, 0.5f);
+		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
 		if (UniformExists("uLight[0].Ls", uniformLoc))
 		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
 
 		if (UniformExists("uMat.Ka", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
 		if (UniformExists("uMat.Kd", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
 		if (UniformExists("uMat.Ks", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		glUniform3f(uniformLoc, 0.8f, 0.8f, 0.8f);
 		if (UniformExists("uMat.shininess", uniformLoc))
-		glUniform1f(uniformLoc, 1.f);
+		glUniform1f(uniformLoc, 100.f);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[0]);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Quad.txt");
 		glBindVertexArray(mdl.get()->vao);
 		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 	}
+#pragma endregion
 
+#pragma region Rendering Helpers
 	void RenderManager::CalculateVP(Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -385,7 +362,6 @@ namespace SliceEngine
 
 		glViewport(0, 0, camera.width, camera.height);
 	}
-
 	bool RenderManager::UniformExists(const char* str, GLint& ref)
 	{
 		ref = glGetUniformLocation(mCurrShader.get()->s, str);
@@ -397,6 +373,9 @@ namespace SliceEngine
 		SLICE_LOG_WARNING(ss.str());
 		return false;
 	}
+#pragma endregion
+
+#pragma region Linking
 	void RenderManager::LinkFrameBufferSettings(FBOSetting settings)
 	{
 		switch (settings)
@@ -466,19 +445,8 @@ namespace SliceEngine
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
 	}
-	std::optional<GameObject>& RenderManager::GetGameCamera()
-	{
-		return mainCam;
-	}
-	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
-	{
-		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = cam.GetComponent<Transform>();
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
-		forward = rot * f;
-		right = rot * r;
-		up = rot * u;
-	}
+#pragma endregion
+
 	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
 	{
 		//// if out of bounds
