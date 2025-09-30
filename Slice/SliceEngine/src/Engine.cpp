@@ -93,8 +93,8 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
-		//Core::GetInstance()->mFactory.TestLoop();
+		JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
+		Core::GetInstance()->mFactory.TestLoop();
 	}
 
 	void Engine::Update()

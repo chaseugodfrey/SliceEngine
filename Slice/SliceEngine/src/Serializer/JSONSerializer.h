@@ -26,8 +26,10 @@ namespace SliceEngine
 	{
 		void Serialize(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
+		json SerializeScene();
 		json Deserialize(std::filesystem::path const& filePath);
 		void DeserializeGameObjects(json const& input);
+		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 		namespace Tests
 		{
@@ -36,6 +38,7 @@ namespace SliceEngine
 				TEST1 = 1,
 				TEST2 = 2,
 				TEST3 = 3,
+				TEST4 = 4,
 				ALLTESTS = 0
 			};
 
