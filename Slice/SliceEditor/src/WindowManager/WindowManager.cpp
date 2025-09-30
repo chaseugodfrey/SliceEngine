@@ -270,7 +270,7 @@ namespace SliceEditor
 			std::string display = "Current IP: ";
 			if (netw->data.IP.empty())
 			{
-				display += "Bind first";
+				display += "Bind First";
 			}
 			else
 			{
@@ -281,7 +281,7 @@ namespace SliceEditor
 			display = "Current Port: ";
 			if (netw->data.port.empty())
 			{
-				display += "Bind first";
+				display += "Bind First";
 			}
 			else
 			{

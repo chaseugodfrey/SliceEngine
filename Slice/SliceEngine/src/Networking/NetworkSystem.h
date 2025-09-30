@@ -128,7 +128,7 @@ namespace SliceEngine
         void ReceiveThread(SOCKET serverSock);
         void SendThread(SOCKET serverSock);
         void SendTo(const SOCKET& Sock, const Packet& pkt, sockaddr_in pAddr);
-        int RecvFrom(const SOCKET& Sock, char (&pkt)[MAX_STR_LEN] , sockaddr_in& pAddr, int& size);
+        int RecvFrom(const SOCKET& Sock, Packet& pkt, sockaddr_in& pAddr, int& size);
     }
 
 

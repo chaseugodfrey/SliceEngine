@@ -193,21 +193,27 @@ namespace SliceEngine
         }
     }
 
-    int NetworkingThread::RecvFrom(const SOCKET& soc, char(&pkt)[MAX_STR_LEN], sockaddr_in& pAddr, int& size)
+    int NetworkingThread::RecvFrom(const SOCKET& soc, Packet& pkt, sockaddr_in& pAddr, int& size)
     {
-        return recvfrom(soc, pkt, sizeof(pkt), 0, reinterpret_cast<sockaddr*> (&pAddr), &size);
+        char buffer[MAX_STR_LEN];
+        int bytes =  recvfrom(soc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&pAddr), &size);
+        pkt.msg.insert(pkt.msg.end(), buffer, buffer + std::strlen(buffer));
+
+        return bytes;
     }
 
     void NetworkingThread::ReceiveThread(SOCKET otherPlayerSoc)
 	{
-        char buffer[MAX_STR_LEN];
+        //char buffer[MAX_STR_LEN];
         sockaddr_in client_addr{};
         int client_addr_len = sizeof(client_addr);
 
         while (keep_running)
         {
+            Packet recvPkt{};
+            recvPkt.msg.reserve(MAX_STR_LEN);
             //int bytes_received = recvfrom(otherPlayerSoc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&client_addr), &client_addr_len);
-            int bytes_received = RecvFrom(otherPlayerSoc, buffer, client_addr, client_addr_len);
+            int bytes_received = RecvFrom(otherPlayerSoc, recvPkt, client_addr, client_addr_len);
 
             if (bytes_received == SOCKET_ERROR) 
             {
@@ -234,60 +240,22 @@ namespace SliceEngine
             char client_ip[INET_ADDRSTRLEN];
             inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
 
-            std::string IpPort = client_ip;
-            IpPort += ":";
-            IpPort += std::to_string(ntohs(client_addr.sin_port));
+            uint8_t inID{};
+            recvPkt >> inID;
 
-            if (buffer[0] == cmdIDs.GetID("N_REQ_CONNECT"))
+            //std::string IpPort = client_ip;
+            //IpPort += ":";
+            //IpPort += std::to_string(ntohs(client_addr.sin_port));
+
+            if (inID == cmdIDs.GetID("N_REQ_CONNECT"))
             {
                 std::cout << "REQ received....\n";
                 Packet pkt{};
                 pkt << cmdIDs.GetID("N_RSP_CONNECT");
-
-                //int bytes = { sendto(otherPlayerSoc,  reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr)) };
                 SendTo(otherPlayerSoc, pkt, client_addr);
-                
-                // commented reference
-                {
-                    //cmdIDs.ProcessFunc("N_REQ_CONNECT", otherPlayerSoc, client_addr);
-
-                    //if (clients.size() < TOTAL_PLAYERS)
-                    //{
-                        /*std::pair<std::string, int> newIndex{};
-
-                        {
-                            std::lock_guard<std::mutex> lock(_eventMutex);
-                            newIndex = std::pair<std::string, int>(IpPort, (int)clients.size());
-                            playersIndex.insert(newIndex);
-
-                            std::pair<std::string, sockaddr_in> newClient(IpPort, client_addr);
-                            clients.insert(newClient);
-                        }*/
-
-                        //std::string message{};
-                        //message += cmdIDs.GetID("N_RSP_CONNECT");
-
-                        /*int tmp = htonl(newIndex.second);
-                        message.append((char*)(&tmp), (char*)(&tmp) + 4);*/
-
-                        //sendto(otherPlayerSoc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr));
-
-                        //if (clients.size() == TOTAL_PLAYERS)
-                        //{
-                            //gameStart = true;
-                            //appTime = 0;
-
-                            // send all clients
-                          /*  for (auto& client : clients)
-                            {
-                                sendto(serverSock, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client.second), sizeof(client.second));
-                            }*/
-                            //}
-                        //}
-                }
             }
 
-            if (buffer[0] == cmdIDs.GetID("N_RSP_CONNECT"))
+            if (inID == cmdIDs.GetID("N_RSP_CONNECT"))
             {
 
                 std::cout << "connected " << std::endl;
@@ -295,7 +263,7 @@ namespace SliceEngine
             }
 
             // Player fire
-            if (buffer[0] == cmdIDs.GetID("N_REQ_FIRE"))
+            if (inID == cmdIDs.GetID("N_REQ_FIRE"))
             {
                 //int tmpId{};
                 //// find player ID who sent
@@ -312,7 +280,7 @@ namespace SliceEngine
                 //}
 
 
-                float timestamp = ntohf(*(uint32_t*)(buffer + 1));
+                float timestamp = ntohf(*(uint32_t*)(inID + 1));
 
                 std::string message{};
                 message += cmdIDs.GetID("N_RSP_FIRE");
@@ -334,7 +302,7 @@ namespace SliceEngine
 
             // State update from client
             // id - 1b, timestamp - 4b, pos - 8b, scale - 8b, rot - 4b, vel - 8b
-            if (buffer[0] == cmdIDs.GetID("N_STATE_UPDATE"))
+            if (inID == cmdIDs.GetID("N_STATE_UPDATE"))
             {
                 //int tmpId{};
                 //// find player ID who sent
@@ -349,7 +317,7 @@ namespace SliceEngine
                 //    }
                 //}
 
-                latestTimeStamp = ntohf(*(uint32_t*)(buffer + 1));
+                latestTimeStamp = ntohf(*(uint32_t*)(inID + 1));
 
                 {
                     std::lock_guard<std::mutex> lock(_eventMutex);
@@ -364,18 +332,18 @@ namespace SliceEngine
                 }
 
                 Vector2 pos{0.f,0.f};
-                pos.x = ntohf(*(uint32_t*)(buffer + 5));
-                pos.y = ntohf(*(uint32_t*)(buffer + 9));
+                pos.x = ntohf(*(uint32_t*)(inID + 5));
+                pos.y = ntohf(*(uint32_t*)(inID + 9));
 
                 Vector2 scale{ 0.f,0.f };
-                scale.x = ntohf(*(uint32_t*)(buffer + 13));
-                scale.y = ntohf(*(uint32_t*)(buffer + 17));
+                scale.x = ntohf(*(uint32_t*)(inID + 13));
+                scale.y = ntohf(*(uint32_t*)(inID + 17));
 
-                float rot = ntohf(*(uint32_t*)(buffer + 21));
+                float rot = ntohf(*(uint32_t*)(inID + 21));
 
                 Vector2 vel{ 0.f,0.f };
-                vel.x = ntohf(*(uint32_t*)(buffer + 25));
-                vel.y = ntohf(*(uint32_t*)(buffer + 29));
+                vel.x = ntohf(*(uint32_t*)(inID + 25));
+                vel.y = ntohf(*(uint32_t*)(inID + 29));
 
                 {
                     std::lock_guard<std::mutex> lock(_eventMutex);
@@ -496,6 +464,11 @@ namespace SliceEngine
 
     void NetworkSystem::BindSocket(const NetworkBindPortEvent& event)
     {
+        if (event.port.empty())
+        {
+            return;
+        }
+
         sockaddr_in cAddr{};
 
         // Initialize Winsock
@@ -549,7 +522,8 @@ namespace SliceEngine
             std::cerr << "Bind failed: " << WSAGetLastError() << std::endl;
             closesocket(soc);
             WSACleanup();
-            throw std::runtime_error("Bind failed");
+            //throw std::runtime_error("Bind failed");
+            std::cerr << "Bind Failed" << std::endl;
         }
 
         u_long enable = 1;
