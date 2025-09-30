@@ -1,4 +1,5 @@
 #include <pch.h>
+#include "Serializer/JSONSerializer.h"
 #include "SceneSystem.h"
 
 namespace SliceEngine

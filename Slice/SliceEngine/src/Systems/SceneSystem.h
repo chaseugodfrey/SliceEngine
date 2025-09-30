@@ -1,8 +1,6 @@
 #ifndef SCENE_SYSTEM_H
 #define SCENE_SYSTEM_H
 
-#include <Serializer/JSONSerializer.h>
-
 namespace SliceEngine
 {
 	class SceneSystem : BaseEngineSystem

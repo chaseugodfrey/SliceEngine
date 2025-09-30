@@ -7,6 +7,7 @@
 //#include "Graphics/RenderManager.h"
 //#include "Graphics/CameraSystem.h"
 #include "ECS/BaseSystem.h"
+#include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
