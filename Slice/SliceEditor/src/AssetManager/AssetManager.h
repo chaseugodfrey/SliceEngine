@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include "json.hpp"
+#include "AssetTypes.h"
 
 namespace SliceEditor
 {
