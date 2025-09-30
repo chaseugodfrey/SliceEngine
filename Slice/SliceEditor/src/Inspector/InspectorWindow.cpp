@@ -199,9 +199,9 @@ namespace SliceEditor
 	{
 		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			DisplayComponentHeader<SliceEngine::RigidBody>();
+			DisplayComponentHeader<SliceEngine::Renderer>();
 
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
@@ -300,7 +300,8 @@ namespace SliceEditor
 						{
 							if (ImGui::Selectable(script_list[i]))
 							{
-								script.scriptName = script_list[i];
+								script.scriptName = "SliceEngine.";
+								script.scriptName += script_list[i];
 								ImGui::CloseCurrentPopup();
 							}
 						}
@@ -317,7 +318,7 @@ namespace SliceEditor
 			else
 			{
 				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-				auto& script_class = script_map.at("SliceEngine." + script.scriptName);
+				auto& script_class = script_map.at(script.scriptName);
 				auto& script_vars = script_class->mFields;
 
 				for (auto& var : script_vars)

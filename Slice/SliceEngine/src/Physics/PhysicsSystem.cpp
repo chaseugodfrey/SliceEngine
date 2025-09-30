@@ -18,7 +18,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(float fixedDt, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize(float fixedDt, size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -50,7 +50,7 @@ namespace SliceEngine
 			JPH::Factory::sInstance = new JPH::Factory;
 			JPH::RegisterTypes();
 
-			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(10 * 1024 * 1024); //temporary use 10mb
+			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(tempAllocatorSize);
 
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
@@ -152,7 +152,9 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
 	{
-
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Static, JPH::EActivation::DontActivate);
@@ -410,16 +412,16 @@ namespace SliceEngine
 		// Get the EventManager instance and subscribe our member functions.
 		auto* eventManager = EventManager::GetInstance();
 
-		// Subscribe to the PlayerJumpedEvent
+		// Subscribe to the ColliderShapeAddedEvent
 		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
 
-		// Subscribe to the EnemyDefeatedEvent
+		// Subscribe to the ColliderShapeRemovedEvent
 		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
 
-		// Subscribe to the PlayerJumpedEvent
+		// Subscribe to the RigidBodyAddedEvent
 		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
 
-		// Subscribe to the EnemyDefeatedEvent
+		// Subscribe to the RigidBodyRemovedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 	}
 

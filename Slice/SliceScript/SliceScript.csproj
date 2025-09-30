@@ -42,6 +42,7 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Core\Component.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\Input.cs" />
     <Compile Include="Source\Core\Keys.cs" />

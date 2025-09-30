@@ -139,6 +139,7 @@
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
+    <ClInclude Include="src\Systems\GameStateManager.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
     <ClInclude Include="src\Vectors\Vector2.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
+    <ClCompile Include="src\Systems\GameStateManager.cpp" />
     <ClCompile Include="src\Systems\SoundSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
