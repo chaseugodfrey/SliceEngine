@@ -1,6 +1,8 @@
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
+#include "../../SliceEngine/src/Resource/GUID.h"
+
 namespace SliceEditor
 {
 
@@ -52,6 +54,14 @@ namespace SliceEditor
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
+	};
+
+	struct MetaData
+	{
+		SliceEngine::GUID guid;
+		std::string assetType;
+		std::string path;
+		std::vector<std::string> resourcePath;
 	};
 
 	struct Command

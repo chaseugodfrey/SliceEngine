@@ -88,6 +88,11 @@ namespace SliceEngine
 			.property("ShapeData", &ColliderShape::shapeData)
 			.property("offSet", &ColliderShape::offSet)
 			.property("isTrigger", &ColliderShape::isTrigger);
+
+		rttr::registration::class_<GUID>("GUID")
+			.constructor<>()
+			.constructor<uint64_t>()
+			.property_readonly("Value", &GUID::GetGUID);
 	}
 
 }

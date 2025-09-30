@@ -3,8 +3,6 @@
 
 #include "../WindowManager/EditorWindow.h"
 
-
-
 namespace SliceEditor
 {
 	class SceneViewManager;

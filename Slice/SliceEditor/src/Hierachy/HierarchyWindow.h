@@ -23,6 +23,8 @@ namespace SliceEditor
 		void EntityContextPopUp(TestNode& node);
 
 		std::unordered_set<TestNode*> set;
+		std::unordered_set<entt::entity> selected;
+		std::unordered_set<entt::entity> deselected;
 
 	public:
 

@@ -152,7 +152,9 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyRemove(const RigidBodyRemovedEvent& event)
 	{
-
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Static, JPH::EActivation::DontActivate);

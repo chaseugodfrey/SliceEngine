@@ -1,6 +1,10 @@
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
+#include "../../src/Input/InputSystem.h"
+#include "../Core/Registry.h"
+#include "../Hierachy/HierarchyManager.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 
 namespace SliceEditor
 {
@@ -8,21 +12,26 @@ namespace SliceEditor
 	void WindowManager::Init()
 	{
 		SLICE_LOG("Initializing WindowManager.");
+		SLICE_LOG("Registering Systems to WindowManager.");
 
+		auto& managers = registry.GetManagers();
+
+		for (const auto& [key, value] : managers)
+		{
+			if (auto other = dynamic_cast<ICreateWindow*>(value.get()))
+			{
+				RegisterInterface(key, other);
+			}
+		}
+
+		// Create windows
+		// to do: maybe read from imgui ini file and load accordingly
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
 		AddWindow("SceneView");
 		AddWindow("Hierarchy");
 		AddWindow("Inspector");
-		//AddWindow<ContentBrowserWindow>();
-		//AddWindow<SceneViewWindow>();
-		//AddWindow<GameView>(editorState);
-		//AddWindow<Hierarchy>(editorState);
-		//AddWindow<Inspector>(editorState);
-		//AddWindow<Console>();
-		//AddWindow<Animator>();
-		//AddWindow<Profiler>();
-		//AddWindow<Animation>();
+		AddWindow("GameView");
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -62,6 +71,8 @@ namespace SliceEditor
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.0f, 10.0f));
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
+
+		auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -142,6 +153,19 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
+		if (ImGui::BeginMenu("GameObject"))
+		{
+			if (ImGui::MenuItem("Camera"))
+			{
+				auto go = core->mFactory.CreateGO("Camera");
+				go.AddComponent<SliceEngine::Camera>();
+				core->mFactory.SetParent(go.GetEntity());
+				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
+			}
+
+			ImGui::EndMenu();
+		}
+
 		ImGui::EndMainMenuBar();
 		ImGui::PopStyleVar();
 
@@ -174,8 +198,32 @@ namespace SliceEditor
 			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
 			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking);
 
-		if (ImGui::Button("Play", ImVec2{ 60, 35 }));
-		ImGui::SameLine();
+        ImGuiIO& io = ImGui::GetIO();
+		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
+
+        static bool isPlaying = false;
+
+		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
+        {
+         isPlaying = !isPlaying;
+
+			if (isPlaying) // if its play, enable game input
+			{
+				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+				inputs->SetEnabled(true);
+				SliceEngine::gScriptSystem->OnStart();
+				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+			}
+			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+			{
+				//inputs->UnbindCallbacks();
+				inputs->SetMode(SliceEngine::InputMode::Editor);
+				inputs->SetEnabled(false);
+			}   
+        }
+
+        ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
 
 		ImGui::End();

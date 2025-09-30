@@ -46,13 +46,17 @@ namespace SliceEditor
 
 				ImGui::EndPopup();
 			}
+
+			ImGui::Separator();
 		}
 
 		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
+		void DisplayAudioSource();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody();
 		void DisplayCollider3D();
+		void DisplaySliceScript();
 		void AddComponentButton();
 
 		void R();
