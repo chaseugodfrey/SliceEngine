@@ -35,6 +35,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #undef CreateWindowW
 #undef CreateWindow
 #undef ERROR
+#undef PlaySoundW
+#undef PlaySound
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
