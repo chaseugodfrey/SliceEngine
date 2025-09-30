@@ -33,7 +33,7 @@ namespace SliceEngine
 			ofs.close();
 		}
 
-		json SerializeScene()
+		void SerializeScene(std::filesystem::path const& filePath)
 		{
 			json output;
 
@@ -45,7 +45,7 @@ namespace SliceEngine
 				output += SerializeGameObject(entity, registry);
 			}
 
-			return output;
+			Serialize(output, filePath);
 		}
 
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)
@@ -128,7 +128,15 @@ namespace SliceEngine
 						const auto& vec = propVal.get_value<std::array<Entity, 4>>();
 						for (size_t i{}; i < 4; ++i)
 						{
-							output[name][storage.type().name()][propName][i] = vec[i];
+							Entity e = vec[i];
+							if (e == entt::null)
+							{
+								output[name][storage.type().name()][propName][i] = 0;
+							}
+							else
+							{
+								output[name][storage.type().name()][propName][i] = static_cast<uint32_t>(e);
+							}
 						}
 					}
 					else if (propVal.is_type<std::string>())
@@ -183,8 +191,9 @@ namespace SliceEngine
 			return output;
 		}
 
-		void DeserializeGameObjects(json const& input)
+		void DeserializeScene(std::filesystem::path const& filePath)
 		{
+			json input = Deserialize(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
@@ -259,7 +268,19 @@ namespace SliceEngine
 						else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
 						{
 							std::array<Entity, 4> arr;
-							arr = value;
+							for (size_t i = 0; i < arr.size(); ++i)
+							{
+								auto v = value[i];
+
+								if (v == 0)
+								{
+									arr[i] = entt::null;
+								}
+								else
+								{
+									arr[i] = v;
+								}
+							}
 							prop.set_value(componentInstance, arr);
 						}
 						else
@@ -277,7 +298,7 @@ namespace SliceEngine
 						}
 					}
 
-					AddComponentFromVariant(node, componentInstance, componentName);										
+					AddComponentFromVariant(node, componentInstance, componentName);
 				}
 			}
 		}
@@ -362,7 +383,7 @@ namespace SliceEngine
 
 				factory.Destroy(omnia_victrum);
 
-				DeserializeGameObjects(Deserialize(testPath + std::string("JSONTest2.json")));
+				DeserializeScene(Deserialize(testPath + std::string("JSONTest2.json")));
 				if (cleanOutput)
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
@@ -399,13 +420,12 @@ namespace SliceEngine
 
 				factory.SetParent(child.GetEntity(),parent.GetEntity());				
 
-				json output = SerializeScene();
-				Serialize(output, testPath + std::string("JSONTest3.json"));
+				SerializeScene(testPath + std::string("JSONTest3.json"));
 
 				factory.Destroy(parent);
 				factory.Destroy(child);
 
-				DeserializeGameObjects(Deserialize(testPath + std::string("JSONTest3.json")));
+				DeserializeScene(testPath + std::string("JSONTest3.json"));
 				if (cleanOutput)
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest3.json"));

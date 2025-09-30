@@ -26,9 +26,9 @@ namespace SliceEngine
 	{
 		void Serialize(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
-		json SerializeScene();
+		void SerializeScene(std::filesystem::path const& filePath);
 		json Deserialize(std::filesystem::path const& filePath);
-		void DeserializeGameObjects(json const& input);
+		void DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 		namespace Tests
