@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClInclude Include="src\AudioManager.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
+    <ClInclude Include="src\Core\ComponentModified.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EventManager.h" />
     <ClInclude Include="src\Core\Events.h" />
@@ -150,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="src\AudioManager.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
+    <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
     <ClCompile Include="src\ECS\GOFactory.cpp" />

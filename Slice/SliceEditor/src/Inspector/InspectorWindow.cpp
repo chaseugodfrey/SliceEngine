@@ -79,12 +79,12 @@ namespace SliceEditor
 
 	void R()
 	{
-		
+
 	}
 
 	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
 
-	
+
 	void InspectorWindow::DisplayEntityData()
 	{
 		//static bool is_active = false;
@@ -214,35 +214,46 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayRigidbody()
 	{
-		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
 
-		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			DisplayComponentHeader<SliceEngine::RigidBody>();
+		reg.patch<SliceEngine::RigidBody>(entity, [&](auto& rb)
+			{
 
-			ImGui::Text("Friction");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::DragFloat("##friction", &rb.friction);
+				if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					DisplayComponentHeader<SliceEngine::RigidBody>();
 
-			ImGui::TreePop();
-		}
+					ImGui::Text("Friction");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##friction", &rb.friction);
+
+					ImGui::TreePop();
+				}
+			});
+
+
 	}
 
 	void InspectorWindow::DisplayCollider3D()
 	{
-		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
 
-		if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			DisplayComponentHeader<SliceEngine::ColliderShape>();
+		reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& col3d)
+			{
+				if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					DisplayComponentHeader<SliceEngine::ColliderShape>();
 
-			ImGui::Text("Trigger");
-			ImGui::SameLine(150.0f);
-			ImGui::Checkbox("##trigger", &col3d.isTrigger);
+					ImGui::Text("Trigger");
+					ImGui::SameLine(150.0f);
+					ImGui::Checkbox("##trigger", &col3d.isTrigger);
 
-			ImGui::TreePop();
-		}
+					ImGui::TreePop();
+				}
+			});
 	}
 
 	void InspectorWindow::DisplaySliceScript()
@@ -274,7 +285,7 @@ namespace SliceEditor
 				}
 
 				if (ImGui::BeginPopupContextItem("script_list_popup"))
-				{					
+				{
 					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
 
 					std::vector<const char*> script_list{};
@@ -355,7 +366,7 @@ namespace SliceEditor
 		if (ImGui::BeginPopupContextItem("##add_component_list"))
 		{
 			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			
+
 			if (ImGui::Selectable("Add Rigidbody"))
 			{
 				reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
@@ -365,7 +376,7 @@ namespace SliceEditor
 			{
 				reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
 			}
-			
+
 			if (ImGui::Selectable("Add Script Container"))
 			{
 				reg.emplace<SliceEngine::Script>(selected_entity.value());

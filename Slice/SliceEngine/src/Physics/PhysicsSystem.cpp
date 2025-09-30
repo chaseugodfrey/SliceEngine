@@ -1,4 +1,3 @@
-
 #include <pch.h>
 #include "../Core/Core.h"
 #include "PhysicsSystem.h"
@@ -6,11 +5,13 @@
 #include "../Graphics/TransformHelper.h"
 #include "../Core/EventManager.h"
 #include "../ECS/GOFactory.h"
+#include "../Core/ComponentModified.h"
 
 #define EPSILON 0.0001f
 
 namespace SliceEngine
 {
+
 
 	PhysicsSystem::~PhysicsSystem()
 	{
@@ -63,6 +64,10 @@ namespace SliceEngine
 				*broadphaseLayerInterface,
 				*objectVsBroadphaseLayerFilter,
 				*objectLayerPairFilter);
+
+			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
+			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
+			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
 
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
@@ -167,6 +172,17 @@ namespace SliceEngine
 
 	}
 
+	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
+	{
+		std::cout << "Collider modified\n";
+	}
+
+	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)
+	{
+
+		std::cout << (int)event.entity <<"Rigidbody modified\n";
+	}
+
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
 	{
 		auto& transform = mRegistry->get<Transform>(entity);
@@ -222,7 +238,7 @@ namespace SliceEngine
 				}
 			}
 
-			transform.previousScale = transform.scale;	
+			transform.previousScale = transform.scale;
 
 	}
 
@@ -423,6 +439,11 @@ namespace SliceEngine
 
 		// Subscribe to the RigidBodyRemovedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
+
+		eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
+
+		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
+
 	}
 
 	void PhysicsSystem::SetLinearVelocity(Entity entity,JPH::Vec3 vel)

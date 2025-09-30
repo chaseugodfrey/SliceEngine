@@ -11,6 +11,8 @@ void EventManager::SetupEventManager()
 	RegisterEvent<ColliderShapeRemovedEvent>();
 	RegisterEvent<RigidBodyAddedEvent>();
 	RegisterEvent<RigidBodyRemovedEvent>();
+	RegisterEvent<ColliderShapeModifiedEvent>();
+	RegisterEvent<RigidBodyModifiedEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

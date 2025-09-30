@@ -46,6 +46,10 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
+		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+
+		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
+
 		void UpdateShapeFromTransform(Entity entity);
 
 		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
