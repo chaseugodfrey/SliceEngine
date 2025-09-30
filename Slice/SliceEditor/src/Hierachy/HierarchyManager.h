@@ -3,6 +3,7 @@
 
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
+#include "../SelectionSystem/ISelectionListener.h"
 
 namespace SliceEditor
 {
@@ -12,15 +13,23 @@ namespace SliceEditor
 		entt::entity entity;
 		std::string name;
 		bool isSelected;
-		std::vector<TestNode> children;
+		std::vector<entt::entity> children;
+
+		bool operator==(TestNode& rhs)
+		{
+			return entity == rhs.entity;
+		}
 	};
 
 	class Registry;
 
-	class HierarchyManager : public IBaseManager, public ICreateWindow
+	class HierarchyManager : public IBaseManager, public ICreateWindow, public ISelectionListener
 	{
-		// TO DO: replace this with proper scene graph
-		std::vector<TestNode> mRootNodes;
+		std::map<entt::entity, TestNode> mHierarchy;
+
+		bool isDirty;
+
+		void BuildHierarchy();
 
 	public:
 
@@ -29,12 +38,23 @@ namespace SliceEditor
 
 		void Test();
 		void Init() override;
-		void BuildHierarchy();
+		void SetDirty();
+		void CheckDirty();
+		void AddEntityDirectly(entt::entity entity);
+
+		TestNode& GetSceneRootNode();
 		void AddGameObject();
+		void RemoveGameObject(entt::entity target);
+		void ParentGameObject(entt::entity child, entt::entity parent);
+		void Unparent(entt::entity child, entt::entity parent);
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
 
-		std::vector<TestNode>& GetNodes() { return mRootNodes; }
+		std::map<entt::entity, TestNode>& GetHierarchy() { return mHierarchy; }
+
+		// Inherited via ISelectionListener
+		void OnUpdateSelected(std::unordered_set<entt::entity>& selected) override;
+		void OnUpdateDeselected(std::unordered_set<entt::entity>& selected) override;
 	};
 }
 

@@ -39,13 +39,13 @@ namespace SliceEngine
 		uint64_t mValue;
 	};
 
-	RTTR_REGISTRATION
-	{
-		rttr::registration::class_<GUID>("GUID")
-			.constructor<>()
-			.constructor<uint64_t>()
-			.property_readonly("Value", &GUID::GetGUID);
-	}
+	//RTTR_REGISTRATION
+	//{
+	//	rttr::registration::class_<GUID>("GUID")
+	//		.constructor<>()
+	//		.constructor<uint64_t>()
+	//		.property_readonly("Value", &GUID::GetGUID);
+	//}
 }
 
 template<>

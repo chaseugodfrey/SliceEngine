@@ -2,9 +2,10 @@
 #define ECS_TYPES
 
 #include <entt.hpp>
-#include <gtc/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glfw3.h>
 #include <variant>
+#include "../Physics/CollisionLayer.h"
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
@@ -69,8 +70,11 @@ namespace SliceEngine
 	{
 		glm::vec3 position{};
 		glm::vec3 rotation{};
-		glm::vec3 scale{};
+		glm::vec3 scale{1};
 
+		glm::vec3 previousScale{};
+
+		glm::mat4 transform_local{};
 		glm::mat4 transform{};
 	};
 
@@ -81,11 +85,19 @@ namespace SliceEngine
 
 	//XPROPERTY_REG(Transform);
 
+	enum RENDER_TAG : unsigned char
+	{
+		DEBUG_OBJ_TAG		= 0x01,
+		DEBUG_FRUSTRUM_TAG	= 0x02,
+		DEBUG_GRID_TAG		= 0x04
+	};
+
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
 		std::string model;
 		std::string texture;
+		unsigned char renderTag;
 	};
 
 	struct Camera
@@ -93,6 +105,7 @@ namespace SliceEngine
 		int width, height;
 		float pov, near, far;// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
+		unsigned char renderTag;
 	};
 
 	struct RigidBody
@@ -121,7 +134,7 @@ namespace SliceEngine
 
 		struct BoxData
 		{
-			JPH::Vec3 halfExtend{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
@@ -130,7 +143,7 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
-		JPH::ObjectLayer layer;									// Collision layer
+		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer
 		ColliderType type = ColliderType::Box;					// Set Box Collider as default
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes
 		JPH::ShapeRefC shape;									// Jolt shape ref
@@ -138,6 +151,18 @@ namespace SliceEngine
 		bool isTrigger = false;									// leaving thjis here in case we need trniggers
 
 	};
+
+	struct AudioSource
+	{
+		std::string soundName;
+		float currentVolume;
+		bool isLoop;
+		bool isPaused;
+		bool is3D;
+	};
+
+
+
 }
 
 #endif

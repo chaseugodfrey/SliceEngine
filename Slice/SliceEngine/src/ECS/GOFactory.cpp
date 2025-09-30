@@ -1,13 +1,17 @@
 #include <pch.h>
-
 #include "GOFactory.h"
+#include "ECS/ECSTypes.h"
+#include "../Core/ComponentEventHandler.h"
 
 
 namespace SliceEngine
 {
 	GOFactory::GOFactory()
 	{
-
+		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
+		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
+		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
 	}
 
 	GOFactory::~GOFactory()
@@ -61,7 +65,7 @@ namespace SliceEngine
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
 		go.AddComponent<SceneGraph>();
-
+		SetParent(go.GetEntity());
 		return go;
 	}
 
@@ -136,9 +140,15 @@ namespace SliceEngine
 		mDeleteList.insert(go.GetEntity());
 	}
 
+	void GOFactory::Destroy(entt::entity entity)
+	{
+		mDeleteList.insert(entity);
+	}
+
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
+		auto& tr = mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
@@ -404,16 +414,16 @@ namespace SliceEngine
 	/// </summary>
 	void GOFactory::UpdateDestroyed()
 	{
-		for (auto& Entity : mDeleteList)
+		for (auto Entity : mDeleteList)
 		{
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
+			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
 			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO.erase(Entity);
 
-			mEntityToGO[Entity].Destroy();
 
 			//mRegistry.destroy(Entity);
 		}

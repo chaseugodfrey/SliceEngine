@@ -126,23 +126,23 @@ namespace SliceEngine
 		// These are the other functions that every other script that inherits Entity will have
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
-		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
-		mOnClick = scClass->GetMethod("OnClick", 0);
+		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		//mOnClick = scClass->GetMethod("OnClick", 0);
 
-		// Collision functions
-		mOnCollide = scClass->GetMethod("OnCollide", 1);
-		mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
-		mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
-		mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
+		//// Collision functions
+		//mOnCollide = scClass->GetMethod("OnCollide", 1);
+		//mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
+		//mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
+		//mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
 
-		// Mouse functions
-		mOnMouseEnter = scClass->GetMethod("OnMouseEnter", 0);
-		mOnMouseExit = scClass->GetMethod("OnMouseExit", 0);
-		mOnMouseHover = scClass->GetMethod("OnMouseHover", 0);
+		//// Mouse functions
+		//mOnMouseEnter = scClass->GetMethod("OnMouseEnter", 0);
+		//mOnMouseExit = scClass->GetMethod("OnMouseExit", 0);
+		//mOnMouseHover = scClass->GetMethod("OnMouseHover", 0);
 
-		mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
-		mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
-		mOnStateExit = scClass->GetMethod("OnStateExit", 1);
+		//mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
+		//mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
+		//mOnStateExit = scClass->GetMethod("OnStateExit", 1);
 
 		mHandle = mono_gchandle_new(mMonoInstance, true);
 	}

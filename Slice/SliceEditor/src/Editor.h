@@ -8,6 +8,7 @@ struct GLFWwindow;
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
 #include "SelectionSystem/SelectionSystem.h"
+#include "AssetManager/AssetManager.h"
 
 namespace SliceEditor
 {
@@ -17,7 +18,7 @@ namespace SliceEditor
 		Registry registry;
 
 		HistoryManager history;
-		WindowManager windowManager;
+		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
@@ -31,6 +32,8 @@ namespace SliceEditor
 
 		void Init();
 		static void DropCallback(GLFWwindow* window, int count, const char** paths);
+		static void MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+		static void MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 		void Run();
 		void Exit();
 	};
