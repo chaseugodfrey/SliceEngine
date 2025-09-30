@@ -183,6 +183,12 @@ namespace SliceEditor
 				if (ImGui::Checkbox("##ispaused", &paused))
 					as.isPaused = paused;
 
+				ImGui::Text("Play Preview");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+					as.playPreview = !as.playPreview;
+
 				ImGui::TreePop();
 			}
 			});

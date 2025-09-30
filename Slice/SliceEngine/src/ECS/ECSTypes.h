@@ -148,6 +148,7 @@ namespace SliceEngine
 		bool isLoop;
 		bool isPaused;
 		bool is3D;
+		bool playPreview;
 	};
 
 
