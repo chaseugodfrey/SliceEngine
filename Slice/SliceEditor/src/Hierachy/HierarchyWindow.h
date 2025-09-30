@@ -15,7 +15,6 @@ namespace SliceEditor
 		HierarchyManager& mManager;
 		// temporary solution todo: remove this and call from registry/event bus
 		SelectionSystem& mSelection;
-		bool isDirty;
 
 		void DrawNode(TestNode& node);
 		void DrawSceneNode(TestNode& node);
@@ -24,6 +23,8 @@ namespace SliceEditor
 		void EntityContextPopUp(TestNode& node);
 
 		std::unordered_set<TestNode*> set;
+		std::unordered_set<entt::entity> selected;
+		std::unordered_set<entt::entity> deselected;
 
 	public:
 

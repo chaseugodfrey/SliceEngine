@@ -1,0 +1,51 @@
+﻿using SliceEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SliceEngine
+{
+    public abstract class Component
+    {
+        public SliceBehaviour Entity { get; internal set; }
+    }
+
+    public class Transform : Component
+    {
+        //public Vector2 Scale
+        //{
+        //    //get
+        //    //{
+        //    //    FunctionCalls.Transform_GetScale(Entity.mID, out Vector2 scale);
+        //    //    return scale;
+        //    //}
+        //    //set
+        //    //{
+        //    //    FunctionCalls.Transform_SetScale(Entity.mID, ref value);
+        //    //}
+        //}
+
+        public Vector3 Position
+        {
+            get
+            {
+                //Console.WriteLine($"Entity ID:{Entity.mID}");
+                FunctionCalls.Transform_GetPosition(Entity.mID, out Vector3 position);
+                return position;
+            }
+            set
+            {
+                //Console.WriteLine($"Entity ID:{Entity.mID}");
+
+                FunctionCalls.Transform_SetPosition(Entity.mID, ref value);
+            }
+        }
+
+
+    }
+
+
+}
+

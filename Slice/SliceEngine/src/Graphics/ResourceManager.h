@@ -1,11 +1,11 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
-#include "vec3.hpp"
-#include "mat4x4.hpp"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 
 namespace SliceEngine
-{
+{/*
 	struct Shader
 	{
 		GLuint s;
@@ -28,12 +28,13 @@ namespace SliceEngine
 		void LoadShader(const std::string& vertFile, const std::string& fragFile);
 		void LoadModel(const std::string& file);
 
-		Shader& GetShader();
-		Model& GetModel();
+		Shader& GetShader(const std::string& name);
+		Model& GetModel(const std::string& name);
 	private:
-		Shader mOnlyShader;
-		Model mOnlyModel;
+		std::unordered_map<std::string, Shader> mShaders;
+		std::unordered_map<std::string, Model> mModels;
 	};
+*/
 }
 
 

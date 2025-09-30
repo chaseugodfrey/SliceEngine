@@ -28,6 +28,11 @@ namespace SliceEditor
 
 		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+		{
+			ImGui::OpenPopup("entity_popup");
+		}
+
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
@@ -39,12 +44,13 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
-				entt::entity entity = *(static_cast<entt::entity*>(payload->Data));
+				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
 
 				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
-				auto go = factory.GetGOByEntity(entity);
-				factory.SetParent(entity, node.entity);
-
+				auto go = factory.GetGOByEntity(child_entity);
+				factory.SetParent(child_entity, node.entity);
+				mManager.ParentGameObject(child_entity, node.entity);
+				//mManager.SetDirty();
 			}
 
 			ImGui::EndDragDropTarget();
@@ -62,72 +68,78 @@ namespace SliceEditor
 
 				else
 				{
-					node.isSelected = true;
-					set.insert(&node);
+					mSelection.UpdateSelected(node.entity);
 				}
 			}
 
 			else
 			{
-				std::for_each(set.begin(), set.end(), [](auto* item) {item->isSelected = false; });
-				set.clear();
-				node.isSelected = true;
-				set.insert(&node);
+				mSelection.ClearSelection();
+				mSelection.UpdateSelected(node.entity);
 			}
 		}
+
+		EntityContextPopUp(node);
 
 		if (isOpen)
 		{
 			for (size_t i = 0; i < node.children.size(); i++)
 			{
-				DrawNode(node.children[i]);
+				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+				DrawNode(child_node);
 			}
 
 			ImGui::TreePop();
 		}
-
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-		{
-			ImGui::OpenPopup("entity_pop_up");
-		}
-
-		EntityContextPopUp(node);
 	}
 
 	void HierarchyWindow::DrawSceneNode(TestNode& node)
 	{
 		for (size_t i = 0; i < node.children.size(); i++)
 		{
-			DrawNode(node.children[i]);
+			auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+			DrawNode(child_node);
 		}
 	}
 
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-
-		auto& rootNodes = mManager.GetNodes();
-
-		for (size_t i = 0; i < rootNodes.size(); i++)
-		{
-			DrawSceneNode(rootNodes[i]);
-		}
-
+		auto root_entity = SliceEngine::Core::GetInstance()->mFactory.GetRootEntity();
+		auto& hierarchy = mManager.GetHierarchy();
+		DrawSceneNode(hierarchy[root_entity]);
 		ImGui::EndGroup();
 	}
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
-		if (ImGui::BeginPopupContextItem("entity_pop_up"))
-		{
-			if (ImGui::Selectable("Add Component"))
-			{
+		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
 
+		if (ImGui::BeginPopupContextItem("entity_popup"))
+		{
+			if (!hasParent)
+				ImGui::BeginDisabled();
+
+			if (ImGui::Selectable("Unparent"))
+			{
+				mManager.Unparent(node.entity, node.parent->entity);
+			}
+
+			if (!hasParent)
+				ImGui::EndDisabled();
+
+			//if (ImGui::Selectable("Add Component"))
+			//{
+
+			//}
+
+			if (ImGui::Selectable("Remove GameObject"))
+			{
+				mManager.RemoveGameObject(node.entity);
 			}
 
 			ImGui::EndPopup();
 		}
-
 	}
 
 	void HierarchyWindow::Draw()
@@ -140,14 +152,19 @@ namespace SliceEditor
 		ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
 		ImGui::EndGroup();
 
-		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		if (ImGui::IsItemClicked())
 		{
-			ImGui::OpenPopup("right click");
+			mSelection.ClearSelection();
 		}
 
-		if (ImGui::BeginPopupContextItem("right click"))
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			if (ImGui::MenuItem("Add GameObject"))
+			ImGui::OpenPopup("window_popup");
+		}
+
+		if (ImGui::BeginPopupContextItem("window_popup"))
+		{
+			if (ImGui::Selectable("Add GameObject"))
 			{
 				mManager.AddGameObject();
 			}
@@ -157,14 +174,6 @@ namespace SliceEditor
 
 		ImGui::End();
 
-		// to do: don't update this interaction every frame.
-		std::unordered_set<entt::entity> entities{};
-
-		for (TestNode* node : set)
-		{
-			entities.insert(node->entity);
-		}
-
-		mSelection.UpdateSelection(entities);
+		mManager.CheckDirty();
 	}
 }

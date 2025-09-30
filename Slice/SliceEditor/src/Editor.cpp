@@ -1,20 +1,68 @@
 #include <pch.h>
 #include "Editor.h"
+#include "../../src/Input/InputSystem.h"
 
 namespace SliceEditor
 {
+	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+
+		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
+		{
+			if (action == GLFW_PRESS)
+			{
+				// update that particular key to pressed state
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESS);
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASE);
+			}
+		}
+	}
+	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	{
+		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+
+		// 2. Check if ImGui wants to capture the mouse
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse)
+		{
+			return; // Stop processing, ImGui has it
+		}
+
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (action == GLFW_PRESS)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+		}
+	}
+
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
 		engine.Init();
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
+
+		// todo: calling this here first to put this when loading scene + 
+		// reminder to change scene root to a list in case we want to have multiple scenes
+		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
+
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
-		//InitEditorState();
 		SLICE_LOG("Initializing Editor Systems.");
-		//sceneViewManager = std::make_unique<SceneViewManager>(engine.mRender.get());
-		//contentBrowserManager.Init();
-		//profilerManager.Init();
+
 		InitManagers();
+		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
 		InitWindowManager();
+
+		inputSys->SetMode(SliceEngine::InputMode::Editor);
 	}
 
 	void Editor::Run()
@@ -34,8 +82,14 @@ namespace SliceEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
 
-		windowManager.Render();
-		
+		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
+		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
+		ImGuiIO& io = ImGui::GetIO();
+		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
+
+		registry.GetManager<WindowManager>("Windows")->Render();
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		ImGui::UpdatePlatformWindows();
@@ -70,7 +124,8 @@ namespace SliceEditor
 		ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
 		ImGui_ImplOpenGL3_Init("#version 450");
 		glfwSetWindowUserPointer(window, this);
-		glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+		glfwSetKeyCallback(window, MasterKeyCallback);
+		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
 	}
 
@@ -89,22 +144,7 @@ namespace SliceEditor
 
 	void Editor::InitWindowManager()
 	{
-		SLICE_LOG("Registering Systems to WindowManager.");
 
-		auto& managers = registry.GetManagers();
-
-		for (const auto& [key, value] : managers)
-		{
-			if (auto other = dynamic_cast<ICreateWindow*>(value.get()))
-			{
-				SLICE_LOG(key);
-				windowManager.RegisterInterface(key, other);
-			}
-		}
-
-		//windowManager.RegisterInterface("Profiler", &profilerManager);
-
-		windowManager.Init();
 	}
 
 	void Editor::DropCallback(GLFWwindow* window, int count, const char** paths)

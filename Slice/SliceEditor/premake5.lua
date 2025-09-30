@@ -21,6 +21,7 @@ project "SliceEditor"
         IncludeDir.EnTT,
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
+        ThirdParty.MONO_INC,
         "thirdparty/imgui/include"
         
     }
@@ -30,7 +31,8 @@ project "SliceEditor"
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB
+        ThirdParty.JOLT_LIB,
+        ThirdParty.MONO_LIB
     }
 
     links { 
@@ -39,6 +41,8 @@ project "SliceEditor"
         "opengl32",
         "glfw3",
         "fmod_vc",
+        "mono-2.0-sgen.lib",
+        "MonoPosixHelper.lib"
         --"rttr_core"
          }
 
@@ -91,7 +95,7 @@ project "SliceEditor"
  
     prebuildcommands {
         '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}"'
+        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
@@ -101,7 +105,8 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"'
+        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"',
+        '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"'
 
     }
 

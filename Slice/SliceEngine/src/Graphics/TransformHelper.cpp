@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "TransformHelper.h"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "gtx/euler_angles.hpp"
+#include "glm/gtx/euler_angles.hpp"
 #define M_PI 3.14159265358979323846264338327950288
 
 
