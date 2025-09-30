@@ -5,7 +5,7 @@
 
 namespace SliceEngine
 {
-	class SceneSystem
+	class SceneSystem : BaseEngineSystem
 	{
 	public:
 		void LoadScene(std::filesystem::path const& filePath);

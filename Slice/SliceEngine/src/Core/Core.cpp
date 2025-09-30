@@ -7,6 +7,7 @@
 #include "Systems/FramerateManager.h"
 #include "../AudioManager.h"
 #include "Input/InputSystem.h"
+#include "Systems/SceneSystem.h"
 namespace SliceEngine
 {
 	Core::Core()
@@ -36,6 +37,7 @@ namespace SliceEngine
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
+		mScenePtr = std::make_unique <SceneSystem>();
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 	}
@@ -59,6 +61,11 @@ namespace SliceEngine
 	InputSystem* Core::GetInputSystem()
 	{
 		return mInputPtr.get();
+	}
+
+	SceneSystem* Core::GetSceneSystem()
+	{
+		return mScenePtr.get();
 	}
 
 	ResourceManager* Core::GetResourceManager()

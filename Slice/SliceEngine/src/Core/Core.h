@@ -65,6 +65,8 @@ namespace SliceEngine
 		}
 		InputSystem* GetInputSystem();
 
+		SceneSystem* GetSceneSystem();
+
 		ResourceManager* GetResourceManager();
 
 		RenderManager* GetRenderManager();
@@ -86,11 +88,11 @@ namespace SliceEngine
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
 		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
+		std::unique_ptr<SceneSystem> mScenePtr;
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
-
 	};
 
 #define CoreInstance Core::GetInstance()
@@ -98,7 +100,7 @@ namespace SliceEngine
 #define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
 #define RenderManagerInstance Core::GetInstance()->GetRenderManager()
 #define FactoryInstance Core::GetInstance()->mFactory
-#define FramerateManagerInstance Core::Getnstance()->GetFraterateManager()
+#define FramerateManagerInstance Core::GetInstance()->GetFramerateManager()
 
 }
 
