@@ -75,6 +75,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
+		.property("entity_id", &SceneGraph::entity_id)
 		.property("neighbours", &SceneGraph::neighbours);
 
 	rttr::registration::class_<EntityID>("EntityID")
