@@ -14,7 +14,7 @@ namespace SliceEngine
 {
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;

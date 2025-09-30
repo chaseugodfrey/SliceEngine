@@ -6,8 +6,6 @@
 #define RENDER_MANAGER_H
 
 #include <memory>
-#include "WorldSpaceGraphicsSystem.h"
-#include "CameraSystem.h"
 #include "../ECS/ECSTypes.h"
 #include "../ECS/GameObject.h"
 
@@ -16,7 +14,6 @@
 
 namespace SliceEngine
 {
-	class ResourceManager;
 	class RenderManager
 	{
 	public:
@@ -24,14 +21,13 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 		// One-time setup functions
-		void CreateInstancingParams();
 		void CreateFramebuffer();
+		void CreateInstancingParams();
+		void CreateDeferredTextures();
 		// Camera related functions
 		GameObject& CreateCamera();
 		Entity& GetMainCamera();
 		void GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
-
-		void LinkInstancing(const std::string& mdlName);
 
 		void IDPick(const int& mouseX, const int& mouseY);
 		// Rendering functions
@@ -40,6 +36,7 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity& cam);
+		void DeferredRender();
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(const std::string& mdlName);
@@ -54,6 +51,8 @@ namespace SliceEngine
 
 	private:
 		const int mMaxInstance = 100;
+		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
+		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 
 		std::optional<Entity> mainCam;
 
@@ -61,10 +60,17 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
 		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
+		GLuint mColAttachment[2];
 		glm::mat4 V, P;
 
-		//std::shared_ptr<WorldSpaceGraphicsSystem> mWorldSpaceGraphics;
-		//std::shared_ptr<CameraSystem> mCameraSys;
+		enum class FBOSetting : unsigned char
+		{
+			UNBIND,
+			BIND,
+			COLOR_ONLY,
+			COLOR_POS_NOM
+		};
+		void LinkFrameBufferSettings(FBOSetting setting);
 	};
 }
 

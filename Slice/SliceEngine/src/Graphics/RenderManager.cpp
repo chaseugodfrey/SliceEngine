@@ -9,6 +9,9 @@
 
 #include "Core/Core.h"
 
+#include "WorldSpaceGraphicsSystem.h"
+#include "CameraSystem.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -26,8 +29,85 @@ namespace SliceEngine
 		glDeleteFramebuffers(1, &mFBO);
 		glDeleteBuffers(1, &mIVBO);
 		glDeleteBuffers(1, &mDebugLineVBO);
+
+		glDeleteTextures(1, &mColAttachment[0]);
+		glDeleteTextures(1, &mColAttachment[1]);
+
 		//glDeleteBuffers(2, pboIds);
 	}
+	void RenderManager::CreateFramebuffer()
+	{
+		glGenFramebuffers(1, &mFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+
+		//glGenRenderbuffers(1, &mScenes[i].RBO);
+		//glBindRenderbuffer(GL_RENDERBUFFER, mScenes[i].RBO);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mScenes[i].RBO);
+
+		// Note: Framebuffer is always going to be incomplete this way due to not attaching a texture to it
+		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		//{
+		//	SLICE_LOG_WARNING("Framebuffer not complete");
+		//}
+
+		//glGenBuffers(2, pboIds);
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
+		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
+		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
+		//pboIdx[0] = 0;
+		//pboIdx[1] = 1;
+
+
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		LinkFrameBufferSettings(FBOSetting::UNBIND);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	}
+	void RenderManager::CreateInstancingParams()
+	{
+		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
+		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
+		mInstanceVtx.resize(mMaxInstance);
+		glCreateBuffers(1, &mIVBO);
+		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
+		LinkTransformInstancing("CubeWireframe");
+
+		// Make Debug Line VBO
+		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/debugLine.txt");
+		std::vector<glm::vec3> mDebugLines;
+		mDebugLines.reserve(mMaxInstance);
+		// offset, scale, if rotate
+		float lineScale = mMaxInstance / 2.f;
+		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 0.f));
+		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 1.f));
+		int counter{2};
+		for (int i{}; counter + 4 < mMaxInstance; ++i)
+		{
+			mDebugLines.emplace_back(glm::vec3(i, lineScale, 0.f));
+			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 0.f));
+			mDebugLines.emplace_back(glm::vec3(i, lineScale, 1.f));
+			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 1.f));
+			counter += 4;
+		}
+		glCreateBuffers(1, &mDebugLineVBO);
+		glNamedBufferStorage(mDebugLineVBO, mDebugLines.size() * sizeof(glm::vec3), mDebugLines.data(), GL_MAP_WRITE_BIT);
+		LinkDebugLineInstancing("Line");
+	}
+	void RenderManager::CreateDeferredTextures()
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[0]);
+		glTextureStorage2D(mColAttachment[0], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[1]);
+		glTextureStorage2D(mColAttachment[1], 1, GL_RG16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+	
 	GameObject& RenderManager::CreateCamera()
 	{
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
@@ -42,12 +122,62 @@ namespace SliceEngine
 			mainCam = newCam.GetEntity();
 		return newCam;
 	}
+	Entity& RenderManager::GetMainCamera()
+	{
+		return mainCam.value();
+	}
+	void RenderManager::GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	{
+		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
+		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		forward = rot * f;
+		right = rot * r;
+		up = rot * u;
+	}
+	
+	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
+	{
+		//// if out of bounds
+		//if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
+		//{
+		//	mIDHovered = std::numeric_limits<unsigned int>().max();
+		//	return;
+		//}
+
+		//GLint prevBinding{};
+		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
+
+		//glBindFramebuffer(GL_FRAMEBUFFER, mScene.FBO);
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
+
+		//glNamedFramebufferReadBuffer(mScene.FBO, GL_COLOR_ATTACHMENT1);
+		//glReadPixels(mouseX, mouseY, 1, 1,
+		//	GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
+		//GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+		//if (src)
+		//{
+		//	mIDHovered = *src;
+		//	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+		//}
+		////if (RenderHelper::GetInstance()->mEditorWindowActive)
+		////	RenderHelper::GetInstance()->mSelectedID = goID;
+		//if (mIDHovered >= std::numeric_limits<unsigned int>().max())
+		//	mIDHovered = 0;
+
+		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		//glReadBuffer(GL_NONE);
+		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
+		//return;
+	}
 
 	void RenderManager::Render()
 	{
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+		LinkFrameBufferSettings(FBOSetting::BIND);
 		//IDPick(mousePosX, mousePosY);
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
@@ -57,15 +187,24 @@ namespace SliceEngine
 
 			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
 			UpdateCamGPU(cam);
+			LinkFrameBufferSettings(FBOSetting::COLOR_POS_NOM);
+			glClearBufferfv(GL_COLOR, 1, zeroFiller);
+			glClearBufferfv(GL_COLOR, 2, zeroFiller);
 
+			GLint uniformLoc;
+			if (UniformExists("uPass", uniformLoc))
+				glUniform1i(uniformLoc, 0);
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(cam);
+
+			glUniform1i(uniformLoc, 1);
+			DeferredRender();
+
 			RenderDebug(cam);
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		LinkFrameBufferSettings(FBOSetting::UNBIND);
 		//std::swap(pboIdx[0], pboIdx[1]);
 	}
-
 	void RenderManager::RenderDebug(Entity& cam)
 	{
 		glDisable(GL_DEPTH_TEST);
@@ -169,6 +308,46 @@ namespace SliceEngine
 		}
 	}
 
+	void RenderManager::DeferredRender()
+	{
+		glm::mat4 idx{ 1.f };
+		GLint uniformLoc;
+		if (UniformExists("V", uniformLoc))
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
+		if (UniformExists("M", uniformLoc))
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
+		idx = glm::scale(idx, glm::vec3(2.f, 2.f, 2.f));
+		if (UniformExists("P", uniformLoc))
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
+
+		if (UniformExists("uLight[0].position", uniformLoc))
+		glUniform3f(uniformLoc, 5, 1.f, 5.f);
+		if (UniformExists("uLight[0].La", uniformLoc))
+		glUniform3f(uniformLoc, 0.2f, 0.2f, 0.2f);
+		if (UniformExists("uLight[0].Ld", uniformLoc))
+		glUniform3f(uniformLoc, 0.5f, 0.5f, 0.5f);
+		if (UniformExists("uLight[0].Ls", uniformLoc))
+		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+
+		if (UniformExists("uMat.Ka", uniformLoc))
+		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		if (UniformExists("uMat.Kd", uniformLoc))
+		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		if (UniformExists("uMat.Ks", uniformLoc))
+		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
+		if (UniformExists("uMat.shininess", uniformLoc))
+		glUniform1f(uniformLoc, 1.f);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, mColAttachment[0]);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
+
+		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Quad.txt");
+		glBindVertexArray(mdl.get()->vao);
+		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+	}
+
 	void RenderManager::CalculateVP(Entity& cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -210,71 +389,39 @@ namespace SliceEngine
 		SLICE_LOG_WARNING(ss.str());
 		return false;
 	}
-	void RenderManager::CreateFramebuffer()
+	void RenderManager::LinkFrameBufferSettings(FBOSetting settings)
 	{
-		glGenFramebuffers(1, &mFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-
-		//glGenRenderbuffers(1, &mScenes[i].RBO);
-		//glBindRenderbuffer(GL_RENDERBUFFER, mScenes[i].RBO);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mScenes[i].RBO);
-
-		unsigned int drawBuffers[] = {
-			GL_COLOR_ATTACHMENT0
-			//,GL_COLOR_ATTACHMENT1
-		};
-		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
-
-		// Note: Framebuffer is always going to be incomplete this way due to not attaching a texture to it
-		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		//{
-		//	SLICE_LOG_WARNING("Framebuffer not complete");
-		//}
-
-		//glGenBuffers(2, pboIds);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
-		//pboIdx[0] = 0;
-		//pboIdx[1] = 1;
-
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	}
-	void RenderManager::CreateInstancingParams()
-	{
-		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
-		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
-		mInstanceVtx.resize(mMaxInstance);
-		glCreateBuffers(1, &mIVBO);
-		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		LinkTransformInstancing("CubeWireframe");
-
-		// Make Debug Line VBO
-		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/debugLine.txt");
-		std::vector<glm::vec3> mDebugLines;
-		mDebugLines.reserve(mMaxInstance);
-		// offset, scale, if rotate
-		float lineScale = mMaxInstance / 2.f;
-		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 0.f));
-		mDebugLines.emplace_back(glm::vec3(0.f, lineScale, 1.f));
-		int counter{2};
-		for (int i{}; counter + 4 < mMaxInstance; ++i)
+		switch (settings)
 		{
-			mDebugLines.emplace_back(glm::vec3(i, lineScale, 0.f));
-			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 0.f));
-			mDebugLines.emplace_back(glm::vec3(i, lineScale, 1.f));
-			mDebugLines.emplace_back(glm::vec3(-i, lineScale, 1.f));
-			counter += 4;
+		case FBOSetting::UNBIND:
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			break;
 		}
-		glCreateBuffers(1, &mDebugLineVBO);
-		glNamedBufferStorage(mDebugLineVBO, mDebugLines.size() * sizeof(glm::vec3), mDebugLines.data(), GL_MAP_WRITE_BIT);
-		LinkDebugLineInstancing("Line");
+		case FBOSetting::BIND:
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+			break;
+		}
+		case FBOSetting::COLOR_ONLY:
+		{
+			unsigned int drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+			break;
+		}
+		case FBOSetting::COLOR_POS_NOM:
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
+			unsigned int drawBuffers[] = {
+				GL_COLOR_ATTACHMENT0
+				,GL_COLOR_ATTACHMENT1
+				,GL_COLOR_ATTACHMENT2
+			};
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+			break;
+		}
+		}
 	}
 	void RenderManager::LinkTransformInstancing(const std::string& mdlName)
 	{
@@ -310,54 +457,5 @@ namespace SliceEngine
 
 		glVertexAttribDivisor(idx, 1);
 		glBindVertexArray(0);
-	}
-	Entity& RenderManager::GetMainCamera()
-	{
-		return mainCam.value();
-	}
-	void RenderManager::GetCameraAxis(const Entity& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
-	{
-		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
-		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
-		forward = rot * f;
-		right = rot * r;
-		up = rot * u;
-	}
-	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
-	{
-		//// if out of bounds
-		//if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
-		//{
-		//	mIDHovered = std::numeric_limits<unsigned int>().max();
-		//	return;
-		//}
-
-		//GLint prevBinding{};
-		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
-
-		//glBindFramebuffer(GL_FRAMEBUFFER, mScene.FBO);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
-
-		//glNamedFramebufferReadBuffer(mScene.FBO, GL_COLOR_ATTACHMENT1);
-		//glReadPixels(mouseX, mouseY, 1, 1,
-		//	GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
-		//GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-		//if (src)
-		//{
-		//	mIDHovered = *src;
-		//	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-		//}
-		////if (RenderHelper::GetInstance()->mEditorWindowActive)
-		////	RenderHelper::GetInstance()->mSelectedID = goID;
-		//if (mIDHovered >= std::numeric_limits<unsigned int>().max())
-		//	mIDHovered = 0;
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		//glReadBuffer(GL_NONE);
-		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
-		//return;
 	}
 }
