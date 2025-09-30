@@ -1,5 +1,8 @@
 #include <pch.h>
 #include "ProfilerWindow.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
+//#include <entt.hpp>
+#include "../../SliceEngine/src/Networking/NetworkSystem.h"
 
 namespace SliceEditor
 {
@@ -51,7 +54,66 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawLoggerTab()
 	{
-		
+		if (ImGui::Button("Bind"))
+		{
+			ImGui::OpenPopup("host_req");
+		}
+		if (ImGui::Button("Connect"))
+		{
+			ImGui::OpenPopup("connect_req");
+			
+		}
+		if (ImGui::BeginPopup("host_req"))
+		{
+			static std::string bindport;
+			if (ImGui::InputText("port_in", &bindport))
+			{
+			}
+
+			if (ImGui::Button("Bind"))
+			{
+				SliceEngine::OnNetworkBindPort(bindport);
+				ImGui::CloseCurrentPopup();
+			}
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopup("connect_req"))
+		{
+			SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
+
+			std::string display = "IP: ";
+			display += netw->data.IP;
+			ImGui::Text(display.c_str());
+
+			display = "Port: ";
+			display += netw->data.port;
+			ImGui::Text(display.c_str());
+
+			static std::string ip;
+			if (ImGui::InputText("ip_in", &ip)) 
+			{
+				// changed
+			}
+
+			static std::string port;
+			if (ImGui::InputText("port_in", &port))
+			{
+				// changed
+			}
+
+			if (ImGui::Button("Connect"))
+			{
+				SliceEngine::OnNetworkClientConnect(ip, port);
+				ImGui::CloseCurrentPopup();
+			}
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
 
 		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
 

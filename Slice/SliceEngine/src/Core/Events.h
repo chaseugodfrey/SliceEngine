@@ -28,6 +28,15 @@ struct RigidBodyRemovedEvent {
 	Entity entity;
 };
 
+struct NetworkClientConnectEvent {
+	//Entity entity;
+	std::string ip;
+	std::string port;
+}; 
+struct NetworkBindPortEvent {
+	std::string port;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")
@@ -50,6 +59,15 @@ RTTR_REGISTRATION
 	rttr::registration::class_<RigidBodyRemovedEvent>("RigidBodyRemoved")
 	.constructor<>()
 	.property("entity", &RigidBodyRemovedEvent::entity);
+
+	rttr::registration::class_<NetworkClientConnectEvent>("NetworkClientAdded")
+	.constructor<>()
+	.property("ip", &NetworkClientConnectEvent::ip)
+	.property("port", &NetworkClientConnectEvent::port);
+
+	rttr::registration::class_<NetworkBindPortEvent>("NetworkPortBinded")
+	.constructor<>()
+	.property("port", &NetworkBindPortEvent::port);
 }
 
 

@@ -8,6 +8,8 @@ namespace SliceEngine
 	void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity);
 	void OnRigidBodyAdded(entt::registry& reg, entt::entity entity);
 	void OnRigidBodyRemoved(entt::registry& reg, entt::entity entity);
+	void OnNetworkClientConnect(std::string ip, std::string port);
+	void OnNetworkBindPort(std::string port);
 }
 
 

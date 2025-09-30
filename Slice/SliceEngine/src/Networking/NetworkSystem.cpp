@@ -1,6 +1,10 @@
 #include <pch.h>
 #include "NetworkSystem.h"
 #include <fstream>
+#include "../Core/EventManager.h"
+#include "../Core/Core.h"
+#include "../Systems/FramerateManager.h"
+#include "../ECS/GOFactory.h"
 
 namespace SliceEngine
 {
@@ -12,6 +16,9 @@ namespace SliceEngine
         std::mutex _eventMutex{};
         std::queue<float> event_queue{};
         float latest_server_update{};
+
+        bool hasConnected = false;
+        float timer = TIME_SYNC;
 
         bool gameStart = false;
         float appTime{};
@@ -25,9 +32,12 @@ namespace SliceEngine
 
 	void NetworkCommandID::Register(const std::string& cmdName)
 	{
-        uint8_t value = nextId++;
-		//CmdObj obj{ func,value };
-		cmdMap[cmdName] = value;
+        // name doesnt exist
+        if (cmdMap.find(cmdName) == cmdMap.end())
+        {
+            uint8_t value = nextId++;
+            cmdMap[cmdName] = value;
+        }
 	}
 
     uint8_t NetworkCommandID::GetID(const std::string& cmdName)
@@ -169,18 +179,18 @@ namespace SliceEngine
             pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
             //int bytes = { sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&player1Dest), sizeof(player1Dest)) };
-            int bytes = SendTo(soc, pkt, player1Dest);
-            if (bytes == SOCKET_ERROR || bytes == 0)
-            {
-                std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
-                //closesocket(pSocket);
-            }
+            SendTo(soc, pkt, player1Dest);
         }
     }
 
-    int NetworkingThread::SendTo(const SOCKET& soc, const Packet& pkt, sockaddr_in pAddr)
+    void NetworkingThread::SendTo(const SOCKET& soc, const Packet& pkt, sockaddr_in pAddr)
     {
-        return sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&pAddr), sizeof(pAddr));
+        int bytes = sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&pAddr), sizeof(pAddr));
+        if (bytes == SOCKET_ERROR || bytes == 0)
+        {
+            std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
+            //closesocket(pSocket);
+        }
     }
 
     int NetworkingThread::RecvFrom(const SOCKET& soc, char(&pkt)[MAX_STR_LEN], sockaddr_in& pAddr, int& size)
@@ -235,12 +245,7 @@ namespace SliceEngine
                 pkt << cmdIDs.GetID("N_RSP_CONNECT");
 
                 //int bytes = { sendto(otherPlayerSoc,  reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr)) };
-                int bytes = SendTo(otherPlayerSoc, pkt, client_addr);
-                if (bytes == SOCKET_ERROR || bytes == 0)
-                {
-                    std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
-                    //closesocket(pSocket);
-                }
+                SendTo(otherPlayerSoc, pkt, client_addr);
                 
                 // commented reference
                 {
@@ -284,21 +289,9 @@ namespace SliceEngine
 
             if (buffer[0] == cmdIDs.GetID("N_RSP_CONNECT"))
             {
-                // send time update 
-                // 1b - id, 4b - time
-                Packet pkt{};
-                pkt << cmdIDs.GetID("N_TIME_UPDATE");
-                
-
-                int bytes = SendTo(otherPlayerSoc, pkt, client_addr);
-                if (bytes == SOCKET_ERROR || bytes == 0)
-                {
-                    std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
-                    //closesocket(pSocket);
-                }
 
                 std::cout << "connected " << std::endl;
-                keep_running = false;
+                hasConnected = true;
             }
 
             // Player fire
@@ -408,41 +401,101 @@ namespace SliceEngine
 
     void NetworkingThread::SendThread(SOCKET serverSocket)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_RATE));
+        while (keep_running)
+        {
+            if (hasConnected)
+            {
+                if (timer <= 0.0f)
+                {
+                    timer = TIME_SYNC;
+                }
 
-        Packet pkt{};
-        pkt << cmdIDs.GetID("N_TIME_UPDATE");
+                auto dt = Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+                auto& reg = Core::GetInstance()->GetRegistry();
+                auto& GOfact = Core::GetInstance()->mFactory;
 
-        // timestamp
-        uint32_t tmp = htonf(appTime);
-        pkt << tmp;
+                timer -= dt;
+
+                auto entityView = reg.view<SliceEntity>();
+                for (auto entity : entityView)
+                {
+                    //std::cout << mEntityToGO[entity].GetName() << std::endl;
+                    Packet pkt{};
+                    pkt << cmdIDs.GetID("N_TIME_UPDATE");
+
+                    GameObject tmpGO = GOfact.GetGOByEntity(entity);
+                    if (tmpGO.HasComponent<Transform>())
+                    {
+                        Transform trf = tmpGO.GetComponent<Transform>();
+                        pkt << trf.position.x;
+                        pkt << trf.position.y;
+                        pkt << trf.position.z;
+                    }
+
+                    //SendTo(serverSocket,pkt,)
+                }
+            }
+            else
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_RATE));
+            }
+        }
+        
+        
     }
 
-	void NetworkSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
-	{
+  	//void NetworkSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
+	//{
+    //       keep_running = false;
+	//}
+	//void NetworkSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+	//{
+
+	//}
+
+
+    void NetworkSystem::SubscribeToAllNetworkEvents()
+    {
+        // Get the EventManager instance and subscribe our member functions.
+        auto* eventManager = EventManager::GetInstance();
+
+        // Subscribe to the connect event
+        eventManager->Subscribe<NetworkClientConnectEvent, &NetworkSystem::OnConnectReq>(this);
+
+        // Subcribe to bind event
+        eventManager->Subscribe<NetworkBindPortEvent, &NetworkSystem::BindSocket>(this);
+    }
+
+    void NetworkSystem::Init()
+    {
+
+        //std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
+
+
+        // REGISTER ID HERE
+        cmdIDs.Register("N_REQ_CONNECT");
+        cmdIDs.Register("N_RSP_CONNECT");
+        cmdIDs.Register("N_TIME_UPDATE");
+
+
         keep_running = true;
 
-        std::string clientNumber{};
-        std::string portNumber{};
-        std::ifstream ifile("Assets/client.txt");
-        if (!ifile)
-        {
-            std::cerr << "cannot open client file" << std::endl;
-        }
-        std::getline(ifile, clientNumber);
-        ifile.close();
+        
 
-        if (std::stoi(clientNumber) == 0)
+        /*if (player2)
         {
-            portNumber = "12345";
-        }
+            data.client = true;
+        }*/
 
-        if (std::stoi(clientNumber) == 1)
-        {
-            portNumber = "12346";
-            player2 = true;
-        }
+        SubscribeToAllNetworkEvents();
 
+        // split the threads
+        //std::thread recv_thread(NetworkingThread::ReceiveThread, soc);
+        //recv_thread.detach();
+    }
+
+    void NetworkSystem::BindSocket(const NetworkBindPortEvent& event)
+    {
         sockaddr_in cAddr{};
 
         // Initialize Winsock
@@ -477,7 +530,7 @@ namespace SliceEngine
         gethostname(host, MAX_STR_LEN);
 
         addrinfo* info = nullptr;
-        errorCode = getaddrinfo(host, portNumber.c_str(), &hints, &info);
+        errorCode = getaddrinfo(host, event.port.c_str(), &hints, &info);
         if ((errorCode) || (info == nullptr))
         {
             std::cerr << "getaddrinfo() failed." << std::endl;
@@ -488,7 +541,7 @@ namespace SliceEngine
         // Set up server address
         cAddr.sin_family = AF_INET;
         cAddr.sin_addr.s_addr = INADDR_ANY;
-        cAddr.sin_port = htons(std::stoi(portNumber));
+        cAddr.sin_port = htons(std::stoi(event.port));
 
         // Bind the socket
         if (bind(soc, reinterpret_cast<sockaddr*>(&cAddr), sizeof(cAddr)) != NO_ERROR)
@@ -506,20 +559,41 @@ namespace SliceEngine
         inet_ntop(AF_INET, &(cAddr.sin_addr), serverIPAddr, INET_ADDRSTRLEN);
         getnameinfo(info->ai_addr, static_cast <socklen_t> (info->ai_addrlen), serverIPAddr, sizeof(serverIPAddr), nullptr, 0, NI_NUMERICHOST);
 
-        //std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
+        data.soc = soc;
+        data.IP = serverIPAddr;
+        data.port = event.port;
         
-        //NetworkCommandID cmds{};
+        std::cout << "Server is listening on port " << event.port << " ip " << serverIPAddr << " Player: " << " ...\n";
 
-        auto& networkEnt = reg.get<NetworkObj>(entity);
-        networkEnt.port = portNumber;
-        networkEnt.IP = serverIPAddr;
-	}
-	void NetworkSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
-	{
-        keep_running = false;
-	}
-	void NetworkSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
-	{
+        // split the threads
+        std::thread recv_thread(NetworkingThread::ReceiveThread, soc);
+        recv_thread.detach();
+    }
 
-	}
+    void NetworkSystem::UpdateObjects()
+    {
+        //
+    }
+
+
+    void NetworkSystem::OnConnectReq(const NetworkClientConnectEvent& event)
+    {
+        
+
+        //auto GO = FactoryInstance.GetGOByEntity(event.entity);
+        //auto& networkComponent = GO.GetComponent<NetworkObj>();
+        
+        sockaddr_in player1Dest{};
+        player1Dest.sin_family = AF_INET;		//ipv4
+        player1Dest.sin_port = htons((u_short)std::stoi(event.port.c_str()));
+        inet_pton(AF_INET, event.ip.c_str(), &player1Dest.sin_addr);
+
+        Packet pkt{};
+        pkt << cmdIDs.GetID("N_REQ_CONNECT");
+
+        NetworkingThread::SendTo(data.soc, pkt, player1Dest);
+        data.client = true;
+        
+        hasConnected = true;
+    }
 }

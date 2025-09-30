@@ -32,10 +32,14 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #undef far
 #undef near
+#undef CreateWindowW
+#undef CreateWindow
+#undef ERROR
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/GameObject.h"
+#include "../Core/Events.h"
 
 #define WINSOCK_VERSION     2
 #define WINSOCK_SUBVERSION  2
@@ -44,7 +48,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #define MAX_PLAYERS         2
 #define TOTAL_PLAYERS       2
 #define UPDATE_RATE         50
-#define TIME_SYNC           5
+#define TIME_SYNC           2
 #define TOTAL_TIME          60
 
 namespace SliceEngine
@@ -55,7 +59,8 @@ namespace SliceEngine
 
 	struct NetworkObj 
     {
-
+        bool client = false;
+        SOCKET soc;
         std::string port;
         std::string IP;
     };
@@ -114,21 +119,31 @@ namespace SliceEngine
 
     namespace NetworkingThread 
     {
-
+        //std::unordered_map<uint32_t, uint32_t>netToEntID;
+        //std::unordered_map<uint32_t, uint32_t> entToNetID;
 
         void printAddr();
         void ReceiveThread(SOCKET serverSock);
         void SendThread(SOCKET serverSock);
-        int SendTo(const SOCKET& Sock, const Packet& pkt, sockaddr_in pAddr);
+        void SendTo(const SOCKET& Sock, const Packet& pkt, sockaddr_in pAddr);
         int RecvFrom(const SOCKET& Sock, char (&pkt)[MAX_STR_LEN] , sockaddr_in& pAddr, int& size);
     }
 
 
-	struct NetworkSystem : BaseSystem<NetworkEntity, NetworkObj>
+	struct NetworkSystem //: BaseSystem<NetworkEntity, NetworkObj>
 	{
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+        NetworkObj data{};
+
+        //entt::entity currEntity;
+
+		//void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
+		//void EntityOnExit(entt::registry& reg, entt::entity entity) override;
+		//void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+        void Init();// or some shit;
+        void BindSocket(const NetworkBindPortEvent& event);
+        void UpdateObjects();
+        void SubscribeToAllNetworkEvents();
+        void OnConnectReq(const NetworkClientConnectEvent& event);
 	};
 
     // general template

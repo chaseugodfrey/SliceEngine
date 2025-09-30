@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <rttr/variant.h>
 #include "Events.h"
+#include "ComponentEventHandler.h"
 
 namespace SliceEngine
 {
@@ -40,6 +41,23 @@ namespace SliceEngine
 
         EventManager::GetInstance()->Publish<RigidBodyRemovedEvent>(event);
 
+    }
+
+    void OnNetworkClientConnect(std::string ip, std::string port)
+    {
+        NetworkClientConnectEvent event;
+        event.ip = ip;
+        event.port = port;
+
+        EventManager::GetInstance()->Publish<NetworkClientConnectEvent>(event);
+    }
+
+    void OnNetworkBindPort(std::string port)
+    {
+        NetworkBindPortEvent event;
+        event.port = port;
+
+        EventManager::GetInstance()->Publish<NetworkBindPortEvent>(event);
     }
 
 }

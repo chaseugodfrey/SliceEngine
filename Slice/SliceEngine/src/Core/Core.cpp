@@ -3,6 +3,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
+
 namespace SliceEngine
 {
 	Core::Core()
@@ -27,6 +28,7 @@ namespace SliceEngine
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
+		mNetwork = std::make_unique<NetworkSystem>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 
 		mFactory.RegisterComponent<Transform>();
@@ -69,5 +71,10 @@ namespace SliceEngine
 	{
 		
 		return mWindowManager.GetWindow();
+	}
+
+	NetworkSystem* Core::GetNetwork()
+	{
+		return mNetwork.get();
 	}
 }

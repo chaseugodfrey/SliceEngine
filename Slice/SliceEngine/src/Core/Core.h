@@ -11,6 +11,7 @@
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
 #include "../GLFWWindowManager.h"
+#include "Networking/NetworkSystem.h"
 
 namespace SliceEngine
 {
@@ -75,6 +76,8 @@ namespace SliceEngine
 
 		GOFactory mFactory;
 
+		NetworkSystem* GetNetwork();
+
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
@@ -82,7 +85,7 @@ namespace SliceEngine
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<FramerateManager> mFramerateManager;
-
+		std::unique_ptr<NetworkSystem> mNetwork;
 	};
 
 #define CoreInstance Core::GetInstance()

@@ -69,7 +69,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
-		Core::GetInstance()->InitSystem<NetworkSystem>();
+		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -94,8 +94,9 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-
-		NetworkingThread::printAddr();
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Init();
+		//NetworkingThread::printAddr();
 
 		//test();
 
