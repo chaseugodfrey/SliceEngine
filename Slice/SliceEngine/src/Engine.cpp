@@ -15,7 +15,6 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
