@@ -201,6 +201,10 @@ namespace SliceEngine
 			frm.EndSystem("Physics");
 		}
 
+		frm.StartSystem("Transform");
+		Core::GetInstance()->GetSystem<TransformSystem>().Update(frm.getFixedDeltaTime());
+		frm.EndSystem("Transform");
+
 		frm.StartSystem("Graphics");
 		mRender->Render();
 		frm.EndSystem("Graphics");
