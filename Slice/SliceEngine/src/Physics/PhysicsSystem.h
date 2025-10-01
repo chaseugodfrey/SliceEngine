@@ -77,7 +77,7 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void SubscribeToCollisionEvents();
+		void SubscribeToEvents();
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
 

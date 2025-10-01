@@ -85,7 +85,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);

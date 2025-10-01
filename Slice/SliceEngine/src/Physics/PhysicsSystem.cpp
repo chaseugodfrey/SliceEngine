@@ -423,7 +423,7 @@ namespace SliceEngine
 		SyncPhysicsToECS(transform, colliderShape);
 	}
 
-	void PhysicsSystem::SubscribeToCollisionEvents()
+	void PhysicsSystem::SubscribeToEvents()
 	{
 		// Get the EventManager instance and subscribe our member functions.
 		auto* eventManager = EventManager::GetInstance();

@@ -146,7 +146,6 @@
     <ClInclude Include="src\Vectors\Vector2.h" />
     <ClInclude Include="src\Vectors\Vector3.h" />
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\test.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioManager.cpp" />
@@ -184,7 +183,6 @@
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
