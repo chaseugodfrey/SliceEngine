@@ -54,7 +54,7 @@ namespace SliceEditor
 		void DisplayTransform();
 		void DisplayAudioSource();
 		void DisplayMeshRenderer();
-		void DisplayRigidbody();
+		void DisplayRigidbody(); 
 		void DisplayCollider3D();
 		void DisplaySliceScript();
 		void AddComponentButton();
