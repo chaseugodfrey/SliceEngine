@@ -14,9 +14,19 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct EntityID
+	{
+		uint32_t value;
+
+		EntityID() : value(0) {}
+		EntityID(uint32_t v) : value(v) {}
+
+		operator uint32_t() const { return value; }
+	};
+
 	struct SceneGraph
 	{
-		uint32_t entity_id;
+		EntityID entity_id{};
 
 		enum Direction {
 			UP = 0,
@@ -60,10 +70,11 @@ namespace SliceEngine
 	{
 		glm::vec3 position{};
 		glm::vec3 rotation{};
-		glm::vec3 scale{};
+		glm::vec3 scale{1};
 
 		glm::vec3 previousScale{};
 
+		glm::mat4 transform_local{};
 		glm::mat4 transform{};
 	};
 
