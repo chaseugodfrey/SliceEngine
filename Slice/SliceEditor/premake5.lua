@@ -6,7 +6,11 @@ project "SliceEditor"
     targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
 
-    files { "src/**", "thirdparty/imgui/include/**" }
+    files { "src/**", "thirdparty/imgui/include/**",
+    "thirdparty/recast/Recast/Source/**.cpp",
+    "thirdparty/recast/Detour/Source/**.cpp",
+    "thirdparty/recast/DetourCrowd/Source/**.cpp",
+    "thirdparty/recast/DetourTileCache/Source/**.cpp" }
 
     --rtti "On"
 

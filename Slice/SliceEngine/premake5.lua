@@ -7,7 +7,7 @@ project "SliceEngine"
     targetdir ("")
     -- objdir ("bin-int/%{cfg.buildcfg}")
 
-    files { "src/**" }
+    files { "src/**","thirdparty/recast/Detour/Source/**.cpp" }
 
     includedirs {
         "src",
