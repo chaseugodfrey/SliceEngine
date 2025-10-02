@@ -209,8 +209,6 @@ namespace SliceEngine
 		mRender->Render();
 		frm.EndSystem("Graphics");
 
-
-
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
 	}

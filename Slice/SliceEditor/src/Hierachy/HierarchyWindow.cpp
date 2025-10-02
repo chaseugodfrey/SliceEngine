@@ -128,9 +128,9 @@ namespace SliceEditor
 			if (!hasParent)
 				ImGui::EndDisabled();
 
-			//if (ImGui::Selectable("Add Component"))
+			//if (ImGui::Selectable("Add Transform Component"))
 			//{
-
+				//gCoordinate->mObjectFactory->AddComponent<Transform>(entity_id);
 			//}
 
 			if (ImGui::Selectable("Remove GameObject"))
