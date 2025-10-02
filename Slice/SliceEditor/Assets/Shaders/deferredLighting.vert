@@ -7,8 +7,10 @@ layout (location=2)	in vec2	aTex;
 layout (location=0) out vec3 vPos;
 layout (location=1) out vec3 vNom;
 layout (location=2) out vec2 vTexCoord;
+layout (location=3) out flat uint vGID;
 
 uniform int	 uPass;
+uniform uint aGID;
 uniform mat4 M; // model transform matrix
 uniform mat4 V; // View transform matrix
 uniform mat4 P; // Perspective transform matrix
@@ -24,6 +26,8 @@ void Pass0(void){
 
 	vPos = posInView.xyz;
 	vNom = normalize(N * aNom);
+	vTexCoord	= aTex;
+	vGID = aGID;
 	gl_Position	= P * posInView;
 }
 
@@ -32,7 +36,7 @@ void Pass0(void){
 *****************************************************/
 void Pass1(void){
 	vTexCoord	= aTex;
-	gl_Position	= P * V * M * vec4(aVertexPosition, 1.0);
+	gl_Position	= vec4(aVertexPosition * 2.f, 1.0);
 }
 
 void main(void){

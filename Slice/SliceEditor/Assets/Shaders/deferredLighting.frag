@@ -17,10 +17,12 @@ struct Material{
 layout (location=0) in vec3 vPos; // In MV Space
 layout (location=1) in vec3 vNom; // In MV Space
 layout (location=2) in vec2 vTexCoord;
+layout (location=3) in flat uint vGID;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
-layout (location=1) out vec3 fPositionData;
-layout (location=2) out vec3 fNormalData;
+layout (location=1) out uint fGID;
+layout (location=2) out vec3 fPositionData;
+layout (location=3) out vec3 fNormalData;
 
 uniform int uPass;
 uniform Material uMat;
@@ -32,19 +34,19 @@ layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
-vec3 BlinnPhong(vec3 pos, vec3 nom, Light light, Material mat, mat4 view){
+vec3 BlinnPhong(vec3 pos, vec3 nom, Light light, Material mat){
 	vec3 color = vec3(0.f, 0.f, 0.f);
 
 	if(any(notEqual(nom, vec3(0.0f))))// Not Background
 	{
 		color = light.La * mat.Ka; // ambient
-		vec3 lightPosView = vec3(view * vec4(light.position, 1.0f));
+		vec3 lightPosView = vec3(V * vec4(light.position, 1.0f));
 		vec3 toLight = lightPosView - pos;
 		if(length(toLight) > 0.f)
 		{
 			toLight = normalize(toLight);
 
-			float cosTheta = max(dot(nom, toLight), 0.0f);
+			float cosTheta = max(dot(toLight, nom), 0.0f);
 			vec3 diffuse = light.Ld * mat.Kd * cosTheta;
 
 			vec3 specular = vec3(0.0f);
@@ -53,7 +55,7 @@ vec3 BlinnPhong(vec3 pos, vec3 nom, Light light, Material mat, mat4 view){
 			{
 				pos = normalize(-pos);
 				vec3 h = normalize(pos + toLight);
-				float cosPhi = max(dot(nom, h), 0.0f);
+				float cosPhi = max(dot(h, nom), 0.0f);
 				specular = light.Ls * mat.Ks * pow(cosPhi, mat.shininess);
 			}
 			color += diffuse + specular;
@@ -68,6 +70,7 @@ vec3 BlinnPhong(vec3 pos, vec3 nom, Light light, Material mat, mat4 view){
 void Pass0(){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
+	fGID = vGID;
 }
 
 /***************************************************
@@ -76,7 +79,10 @@ void Pass0(){
 void Pass1(){
 	vec3 pos = vec3(texture(uPosTex, vTexCoord));
 	vec3 nom = vec3(texture(uNomTex, vTexCoord));
-	fFragColor = vec4(BlinnPhong(pos, nom, uLight[0], uMat, V), 1.0f);
+	if(any(notEqual(nom, vec3(0.0f))))
+		fFragColor = vec4(BlinnPhong(pos, nom, uLight[0], uMat), 1.0f);
+	else
+		fFragColor = vec4(0.75294f, 1.0f, 0.93333f, 1.0f);
 }
 
 void main(void){

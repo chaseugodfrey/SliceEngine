@@ -30,7 +30,9 @@ namespace SliceEngine
 		std::optional<GameObject>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
-		void IDPick(const int& mouseX, const int& mouseY);
+		void SelectCamIDPick(Entity cam);
+		unsigned int IDPick(int mouseX, int mouseY);
+		unsigned int GetPickedID();
 		// Rendering functions
 		void CalculateVP(Entity& cam);
 		void UpdateCamGPU(Entity& cam);
@@ -43,25 +45,28 @@ namespace SliceEngine
 		void LinkTransformInstancing(const std::string& mdlName);
 		void LinkDebugLineInstancing(const std::string& mdlName);
 
-		GLuint mFBO;	// For drawing the scene onto a texture
-		GLuint mIVBO;
-		GLuint mDebugLineVBO;
-		//GLuint pboIds[2];	// For Object Picking
-		//GLuint pboIdx[2];
-		unsigned int mIDHovered;
-
 	private:
 		const int mMaxInstance = 100;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 
+
+		GLuint mFBO;	// For drawing the scene onto a texture
+		GLuint mIVBO;
+		GLuint mDebugLineVBO;
+		//GLuint mRBO;
+		GLuint pboIds[2];	// For Object Picking
+		GLuint pboIdx[2];
+		Entity mCurrentCamIDHover;
+		unsigned int mIDHovered;
+		
 		std::optional<GameObject> mainCam;
 
 		Handle<SliceEngineTypes::Shader> mCurrShader;
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
 		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
-		GLuint mColAttachment[2];
+		GLuint mColAttachment[3];
 		glm::mat4 V, P;
 
 		enum class FBOSetting : unsigned char
@@ -69,9 +74,22 @@ namespace SliceEngine
 			UNBIND,
 			BIND,
 			COLOR_ONLY,
-			COLOR_POS_NOM
+			POS_NOM,
+			ID,
+			ID_POS_NOM
+		};
+		enum class GPUSetting : unsigned char
+		{
+			DEFAULT
+		};
+		enum class BufferClearSetting : unsigned char
+		{
+			DEFAULT,
+			ALL
 		};
 		void LinkFrameBufferSettings(FBOSetting setting);
+		void LoadSettings(GPUSetting setting);
+		void ClearBuffer(BufferClearSetting setting);
 	};
 }
 

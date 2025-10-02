@@ -24,6 +24,7 @@ namespace SliceEngine
 	RenderManager::RenderManager()
 	{
 		CreateFramebuffer();
+		mCurrentCamIDHover = static_cast<Entity>(1); // TODO: Don't hardset this
 	}
 	RenderManager::~RenderManager()
 	{
@@ -33,18 +34,28 @@ namespace SliceEngine
 
 		glDeleteTextures(1, &mColAttachment[0]);
 		glDeleteTextures(1, &mColAttachment[1]);
+		glDeleteTextures(1, &mColAttachment[2]);
 
-		//glDeleteBuffers(2, pboIds);
+		glDeleteBuffers(2, pboIds);
 	}
 	void RenderManager::CreateFramebuffer()
 	{
 		glGenFramebuffers(1, &mFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 
-		//glGenRenderbuffers(1, &mScenes[i].RBO);
-		//glBindRenderbuffer(GL_RENDERBUFFER, mScenes[i].RBO);
-		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mScenes[i].RBO);
+		unsigned int drawBuffers[] = {
+			GL_COLOR_ATTACHMENT0
+			,GL_COLOR_ATTACHMENT1
+			,GL_COLOR_ATTACHMENT2
+			,GL_COLOR_ATTACHMENT3
+		};
+		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+
+
+		//glGenRenderbuffers(1, &mRBO);
+		//glBindRenderbuffer(GL_RENDERBUFFER, mRBO);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mRBO);
 
 		// Note: Framebuffer is always going to be incomplete this way due to not attaching a texture to it
 		//if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -52,16 +63,16 @@ namespace SliceEngine
 		//	SLICE_LOG_WARNING("Framebuffer not complete");
 		//}
 
-		//glGenBuffers(2, pboIds);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
-		//glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
-		//pboIdx[0] = 0;
-		//pboIdx[1] = 1;
+		glGenBuffers(2, pboIds);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
+		glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
+		glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
+		pboIdx[0] = 0;
+		pboIdx[1] = 1;
 
 
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		LinkFrameBufferSettings(FBOSetting::UNBIND);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -98,16 +109,21 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
-		// Pos
+		// Entity ID
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[0]);
-		glTextureStorage2D(mColAttachment[0], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		// Nom
+		glTextureStorage2D(mColAttachment[0], 1, GL_R32UI, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// Pos
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[1]);
 		glTextureStorage2D(mColAttachment[1], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
 		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Nom
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[2]);
+		glTextureStorage2D(mColAttachment[2], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 #pragma endregion
 
@@ -160,10 +176,13 @@ namespace SliceEngine
 			CalculateVP(cam);
 
 			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
+			if(cam == mCurrentCamIDHover)
+				LinkFrameBufferSettings(FBOSetting::ID_POS_NOM);
+			else
+				LinkFrameBufferSettings(FBOSetting::POS_NOM);
+			LoadSettings(GPUSetting::DEFAULT);
 			UpdateCamGPU(cam);
-			LinkFrameBufferSettings(FBOSetting::COLOR_POS_NOM);
-			glClearBufferfv(GL_COLOR, 1, zeroFiller);
-			glClearBufferfv(GL_COLOR, 2, zeroFiller);
+			ClearBuffer(BufferClearSetting::ALL);
 
 			GLint uniformLoc;
 			if (UniformExists("uPass", uniformLoc))
@@ -177,11 +196,11 @@ namespace SliceEngine
 		}
 
 		LinkFrameBufferSettings(FBOSetting::UNBIND);
-		//std::swap(pboIdx[0], pboIdx[1]);
+		std::swap(pboIdx[0], pboIdx[1]);
 	}
 	void RenderManager::RenderDebug(Entity& cam)
 	{
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 
 		// Draw other cameras' frustrum
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
@@ -288,18 +307,9 @@ namespace SliceEngine
 	{
 		glDisable(GL_DEPTH_TEST);
 
-		glm::mat4 idx{ 1.f };
-
 		GLint uniformLoc;
 		if (UniformExists("uPass", uniformLoc))
 			glUniform1i(uniformLoc, 1);
-		if (UniformExists("V", uniformLoc))
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
-		if (UniformExists("P", uniformLoc))
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
-		idx = glm::scale(idx, glm::vec3(2.f, 2.f, 2.f));
-		if (UniformExists("M", uniformLoc))
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &idx[0][0]);
 
 		if (UniformExists("uLight[0].position", uniformLoc))
 		glUniform3f(uniformLoc, 5.f, 1.f, 5.f);
@@ -320,11 +330,11 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, 100.f);
 
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, mColAttachment[0]);
-		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, mColAttachment[2]);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Quad.txt");
 		glBindVertexArray(mdl.get()->vao);
@@ -392,20 +402,70 @@ namespace SliceEngine
 		}
 		case FBOSetting::COLOR_ONLY:
 		{
-			unsigned int drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
 			break;
 		}
-		case FBOSetting::COLOR_POS_NOM:
+		case FBOSetting::ID:
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
+			break;
+		}
+		case FBOSetting::POS_NOM:
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
+			break;
+		}
+		case FBOSetting::ID_POS_NOM:
 		{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
-			unsigned int drawBuffers[] = {
-				GL_COLOR_ATTACHMENT0
-				,GL_COLOR_ATTACHMENT1
-				,GL_COLOR_ATTACHMENT2
-			};
-			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
+			break;
+		}
+		}
+	}
+	void RenderManager::LoadSettings(GPUSetting setting)
+	{
+		switch (setting)
+		{
+		case GPUSetting::DEFAULT:
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
+
+			//glEnable(GL_BLEND);
+			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			break;
+		}
+		}
+	}
+	void RenderManager::ClearBuffer(BufferClearSetting setting)
+	{
+		switch (setting)
+		{
+		case BufferClearSetting::ALL:
+		{
+			glClearBufferfv(GL_COLOR, 0, zeroFiller);
+			glClearBufferfv(GL_COLOR, 1, zeroFiller);
+			glClearBufferfv(GL_COLOR, 2, zeroFiller);
+			glClearBufferfv(GL_COLOR, 3, zeroFiller);
+			glClearBufferfv(GL_DEPTH, 0, oneFiller);
+			__fallthrough;
+		}
+		case BufferClearSetting::DEFAULT:
+		{
+			//glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			break;
 		}
 		}
@@ -447,40 +507,49 @@ namespace SliceEngine
 	}
 #pragma endregion
 
-	void RenderManager::IDPick(const int& mouseX, const int& mouseY)
+	void RenderManager::SelectCamIDPick(Entity cam)
 	{
-		//// if out of bounds
-		//if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
-		//{
-		//	mIDHovered = std::numeric_limits<unsigned int>().max();
-		//	return;
-		//}
+		mCurrentCamIDHover = cam;
+	}
+	unsigned int RenderManager::IDPick(int mouseX, int mouseY)
+	{
+		// if out of bounds
+		if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
+		{
+			mIDHovered = std::numeric_limits<unsigned int>().max();
+			return 0;
+		}
 
-		//GLint prevBinding{};
-		//glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
-
-		//glBindFramebuffer(GL_FRAMEBUFFER, mScene.FBO);
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
-
-		//glNamedFramebufferReadBuffer(mScene.FBO, GL_COLOR_ATTACHMENT1);
-		//glReadPixels(mouseX, mouseY, 1, 1,
-		//	GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
-		//GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-		//if (src)
-		//{
-		//	mIDHovered = *src;
-		//	glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-		//}
-		////if (RenderHelper::GetInstance()->mEditorWindowActive)
-		////	RenderHelper::GetInstance()->mSelectedID = goID;
-		//if (mIDHovered >= std::numeric_limits<unsigned int>().max())
-		//	mIDHovered = 0;
-
-		//glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		//glReadBuffer(GL_NONE);
-		//glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
-		//return;
+		GLint prevBinding{};
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
+		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+		glActiveTexture(GL_TEXTURE1);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
+		
+		glNamedFramebufferReadBuffer(mFBO, GL_COLOR_ATTACHMENT1);
+		glReadPixels(mouseX, mouseY, 1, 1,
+			GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
+		
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
+		GLuint* src = (GLuint*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+		if (src)
+		{
+			mIDHovered = *src;
+			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+		}
+		//if (RenderHelper::GetInstance()->mEditorWindowActive)
+		//	RenderHelper::GetInstance()->mSelectedID = goID;
+		if (mIDHovered >= std::numeric_limits<unsigned int>().max())
+			mIDHovered = 0;
+		
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
+		return mIDHovered;
+	}
+	unsigned int RenderManager::GetPickedID()
+	{
+		return mIDHovered;
 	}
 }
