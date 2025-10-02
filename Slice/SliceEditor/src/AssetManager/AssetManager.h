@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem>
 #include "json.hpp"
+#include "AssetTypes.h"
 
 namespace SliceEditor
 {
@@ -15,17 +16,20 @@ namespace SliceEditor
 		AssetManager() = default;
 		~AssetManager() = default;
 
-		bool CreateMetaDataFile(const std::string& assetPath, MetaData& metaData);
+		void Init();
 
-		void WriteMetaDataFile(const std::string& metaFilePath, MetaData& metaData);
+		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
-		void Init(std::filesystem::path);
+		void CreateDescriptorFile(const std::filesystem::path filePath);
 
 
 
 	private:
 		
-		std::filesystem::path mAssetDirectory;
+		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
+		std::filesystem::path mDescriptorDirectory = std::filesystem::path("../SliceEditor/Descriptor");
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("../SliceEditor/Resources");
+		std::unordered_map <std::string, SliceEngine::GUID> mDescriptorMap; // Maps files to GUIDs
 	};
 
 }

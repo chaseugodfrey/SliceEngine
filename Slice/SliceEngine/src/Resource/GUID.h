@@ -32,6 +32,10 @@ namespace SliceEngine
 			return GUID(dist(rng) | (1ULL << 63)); // Ensure first bit is 1
 		}
 
+		static GUID FromString(std::string str)
+		{
+			return GUID(static_cast<uint64_t>(std::stoull(str)));
+		}
 
 		uint64_t GetGUID() const { return mValue; }
 

@@ -59,7 +59,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
+		assetManager.Init();
 		InitWindowManager();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
