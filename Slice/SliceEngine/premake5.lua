@@ -20,6 +20,7 @@ project "SliceEngine"
         "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",
         "thirdparty/nlohmann/include",
+        ThirdParty.DETOUR_INC,
         ThirdParty.RTTR_INC,
         ThirdParty.MONO_INC
     }

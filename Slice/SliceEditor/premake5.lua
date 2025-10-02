@@ -22,6 +22,8 @@ project "SliceEditor"
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
         ThirdParty.MONO_INC,
+        ThirdParty.DETOUR_INC,
+        ThirdParty.RECAST_INC,
         "thirdparty/imgui/include"
         
     }
