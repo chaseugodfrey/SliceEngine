@@ -418,13 +418,7 @@ namespace SliceEngine
 		{
 			if (mEntityToGO[Entity].HasComponent<SceneGraph>())
 			{
-				auto& sceneGraph = mEntityToGO[Entity].GetComponent<SceneGraph>();
-				// If they have a sibling on the left or right
-				if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
-				{
-					auto& siblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
-
-				}
+				SceneGraphDelete(Entity);
 			}
 
 			// idk if its okay to destroy EnTT entity before clearing from map
@@ -440,6 +434,49 @@ namespace SliceEngine
 		}
 
 		mDeleteList.clear();
+	}
+
+	void GOFactory::SceneGraphDelete(Entity entity)
+	{
+		auto& sceneGraph = mEntityToGO[entity].GetComponent<SceneGraph>();
+		//Check for siblings
+		if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null && sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
+		{
+			if(mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			{
+				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
+				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
+
+				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				rightSiblingGraph.neighbours[SceneGraph::LEFT] = sceneGraph.neighbours[SceneGraph::LEFT];
+			}
+		}
+		else if(sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
+		{
+			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
+			{
+				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
+				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+			}
+		}
+		else if (sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
+		{
+			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			{
+				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
+				rightSiblingGraph.neighbours[SceneGraph::LEFT] = entt::null;
+			}
+		}
+
+		//Re-set parent down if needed
+		if (sceneGraph.neighbours[SceneGraph::UP] != entt::null)
+		{
+			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
+			{
+				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
+				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
 	}
 
 	std::string GOFactory::CreateName(std::string name)
