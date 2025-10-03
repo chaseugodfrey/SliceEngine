@@ -10,7 +10,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Profiler Data.");
 	}
 
-	std::unique_ptr<EditorWindow> ProfilerManager::CreateWindow()
+	std::unique_ptr<EditorWindow> ProfilerManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Profiler Window.");
 		auto window = std::make_unique<ProfilerWindow>(*this);

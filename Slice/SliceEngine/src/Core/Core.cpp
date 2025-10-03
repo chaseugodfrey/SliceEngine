@@ -26,7 +26,7 @@ namespace SliceEngine
 
 	void Core::InitCore()
 	{
-		mWindowManager.CreateWindow(); // This has to be first
+		mWindowManager.CreateGLFWWindow(); // This has to be first
 
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();

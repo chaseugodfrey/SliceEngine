@@ -48,7 +48,7 @@ namespace SliceEditor
 		void ParentGameObject(entt::entity child, entt::entity parent);
 		void Unparent(entt::entity child, entt::entity parent);
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		std::map<entt::entity, TestNode>& GetHierarchy() { return mHierarchy; }
 

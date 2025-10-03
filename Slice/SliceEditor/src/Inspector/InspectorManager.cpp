@@ -15,7 +15,7 @@ namespace SliceEditor
 		return registry.GetSelectionSystem().GetSelectedEntities();
 	}
 
-	std::unique_ptr<EditorWindow> InspectorManager::CreateWindow()
+	std::unique_ptr<EditorWindow> InspectorManager::CreateEditorWindow()
 	{
 		auto window = std::make_unique<InspectorWindow>(*this);
 		return window;

@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #define SCRIPT_SYSTEM_H
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
+
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
 #include "ScriptObject.h"

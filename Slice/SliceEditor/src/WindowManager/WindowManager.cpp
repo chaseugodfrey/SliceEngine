@@ -44,7 +44,7 @@ namespace SliceEditor
 		auto it = windowFactoryMap.find(name);
 		if (it != windowFactoryMap.end())
 		{
-			auto window = it->second->CreateWindow();
+			auto window = it->second->CreateEditorWindow();
 			list.push_back(std::move(window));
 		}
 		else

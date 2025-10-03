@@ -175,7 +175,7 @@ namespace SliceEditor
 		ParentGameObject(childNode.entity, grandParentNode.entity);
 	}
 
-	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()
+	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()
 	{
 		auto& selectionSystem = registry.GetSelectionSystem();
 		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
