@@ -31,7 +31,7 @@ namespace SliceEngine
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void SelectCamIDPick(Entity cam);
-		unsigned int IDPick(int mouseX, int mouseY);
+		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
 		// Rendering functions
 		void CalculateVP(Entity& cam);
@@ -57,6 +57,8 @@ namespace SliceEngine
 		//GLuint mRBO;
 		GLuint pboIds[2];	// For Object Picking
 		GLuint pboIdx[2];
+		unsigned int mObjPickX{}, mObjPickY{};
+		bool mObjPickedThisFrame{ false };
 		Entity mCurrentCamIDHover;
 		unsigned int mIDHovered;
 		
@@ -90,6 +92,8 @@ namespace SliceEngine
 		void LinkFrameBufferSettings(FBOSetting setting);
 		void LoadSettings(GPUSetting setting);
 		void ClearBuffer(BufferClearSetting setting);
+
+		void IDPick();
 	};
 }
 

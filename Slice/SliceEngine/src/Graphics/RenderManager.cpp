@@ -168,7 +168,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 
 		LinkFrameBufferSettings(FBOSetting::BIND);
-		//IDPick(mousePosX, mousePosY);
+		IDPick();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
@@ -195,6 +195,7 @@ namespace SliceEngine
 				RenderDebug(cam);
 		}
 
+		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FBOSetting::UNBIND);
 		std::swap(pboIdx[0], pboIdx[1]);
 	}
@@ -511,14 +512,22 @@ namespace SliceEngine
 	{
 		mCurrentCamIDHover = cam;
 	}
-	unsigned int RenderManager::IDPick(int mouseX, int mouseY)
+	unsigned int RenderManager::ObjectPick(int mouseX, int mouseY)
+	{
+		mObjPickX = mouseX;
+		mObjPickY = mouseY;
+		IDPick();
+		return GetPickedID();
+	}
+	void RenderManager::IDPick()
 	{
 		// if out of bounds
-		if (mouseX > 1920 || mouseX < 0 || mouseY > 1080 || mouseY < 0)
+		if (mObjPickX > Core::GetInstance()->GetSystem<CameraSystem>().maxWidth || mObjPickX < 0 || mObjPickY > Core::GetInstance()->GetSystem<CameraSystem>().maxHeight || mObjPickY < 0)
 		{
 			mIDHovered = std::numeric_limits<unsigned int>().max();
-			return 0;
+			return;
 		}
+		mObjPickedThisFrame = true;
 
 		GLint prevBinding{};
 		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
@@ -528,7 +537,7 @@ namespace SliceEngine
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
 		
 		glNamedFramebufferReadBuffer(mFBO, GL_COLOR_ATTACHMENT1);
-		glReadPixels(mouseX, mouseY, 1, 1,
+		glReadPixels(mObjPickX, mObjPickY, 1, 1,
 			GL_RED_INTEGER, GL_UNSIGNED_INT, 0);
 		
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[1]]);
@@ -546,7 +555,7 @@ namespace SliceEngine
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
-		return mIDHovered;
+		return;
 	}
 	unsigned int RenderManager::GetPickedID()
 	{
