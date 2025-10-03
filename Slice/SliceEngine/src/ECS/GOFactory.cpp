@@ -416,6 +416,17 @@ namespace SliceEngine
 	{
 		for (auto Entity : mDeleteList)
 		{
+			if (mEntityToGO[Entity].HasComponent<SceneGraph>())
+			{
+				auto& sceneGraph = mEntityToGO[Entity].GetComponent<SceneGraph>();
+				// If they have a sibling on the left or right
+				if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
+				{
+					auto& siblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
+
+				}
+			}
+
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mEntityToGO[Entity].Destroy();
