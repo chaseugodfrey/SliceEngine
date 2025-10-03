@@ -138,6 +138,14 @@ namespace SliceEditor
 		// remove from node structure
 		mHierarchy.erase(target);
 
+		//Remove from SelectionSystem
+		auto& selectionSystem = registry.GetSelectionSystem().GetSelectedEntities();
+		auto selectedIt = selectionSystem.find(target);
+		if(selectedIt != selectionSystem.end())
+		{
+			selectionSystem.erase(selectedIt);
+		}
+
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
 	}
