@@ -90,10 +90,10 @@ namespace SliceEngine
 			}
 			// cause idk whether i should remove mGUIDToPath since some uses it
 			// but eventually all should change to mGUIDToResource
-			else if (mGUIDToPath.count(guid))
-			{
-				path = mGUIDToPath.at(guid);
-			}
+			//else if (mGUIDToPath.count(guid))
+			//{
+			//	path = mGUIDToPath.at(guid);
+			//}
 
 
 
@@ -134,7 +134,7 @@ namespace SliceEngine
 		//template<typename T>
 		void RegisterFileAsset(const std::string& path)
 		{
-			mGUIDToPath[GUID(FNVHash::fnv1a(path))] = path;
+			mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
 		}
 		/*
 		* ----------------END OF HACK---------------
