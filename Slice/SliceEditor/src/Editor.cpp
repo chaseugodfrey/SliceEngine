@@ -81,6 +81,7 @@ namespace SliceEditor
 		ImGui_ImplGlfw_NewFrame();
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 
 		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
 		// editor tells inputsystem each frame whether imgui is using keyboard/mouse

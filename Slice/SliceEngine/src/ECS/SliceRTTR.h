@@ -8,6 +8,20 @@
 #include <rttr/registration.h>
 namespace SliceEngine
 {
+	template<typename T, std::size_t N>
+	void register_std_array(const std::string& name)
+	{
+		using Arr = std::array<T, N>;
+
+		rttr::registration::class_<Arr>(name)
+			.constructor<>()
+			.method("size", &Arr::size)
+			.method("at", static_cast<T & (Arr::*)(std::size_t)>(&Arr::at))
+			.method("fill", &Arr::fill)
+			.method("front", static_cast<T & (Arr::*)()>(&Arr::front))
+			.method("back", static_cast<T & (Arr::*)()>(&Arr::back));
+	}
+
 	RTTR_REGISTRATION
 	{
 		// Register the interface for base system
@@ -37,14 +51,9 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
-	rttr::registration::class_<std::array<uint32_t, 4>>("Array4UInt32")
-		.constructor<>()
-		.method("size", &std::array<uint32_t, 4>::size)
-		.method("at", static_cast<uint32_t& (std::array<uint32_t, 4>::*)(size_t)>(&std::array<uint32_t, 4>::at))
-		.method("fill", &std::array<uint32_t, 4>::fill)
-		.method("front", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::front))
-		.method("back", static_cast<uint32_t& (std::array<uint32_t, 4>::*)()>(&std::array<uint32_t, 4>::back));
-	
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	register_std_array<Entity, 4>("Array4Entity");
+
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
 		.constructor<>()
@@ -67,8 +76,14 @@ namespace SliceEngine
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
+		.property("entity_id", &SceneGraph::entity_id)
 		.property("neighbours", &SceneGraph::neighbours);
 
+	rttr::registration::class_<EntityID>("EntityID")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.constructor<uint32_t>()
+		.property("value", &EntityID::value);
+		
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
 		.property("mName", &SliceEntity::mName);

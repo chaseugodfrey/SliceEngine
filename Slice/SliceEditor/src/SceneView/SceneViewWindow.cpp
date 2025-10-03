@@ -3,12 +3,69 @@
 #include "SceneViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include "Core/Registry.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace SliceEditor
 {
+	// Convert Euler angles (in degrees) to quaternion
+	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
+		glm::vec3 euler_radians = glm::radians(euler_degrees);
+		return glm::quat(euler_radians);
+	}
+
+	// Convert quaternion to Euler angles (in degrees)
+	glm::vec3 QuaternionToEuler(const glm::quat& q) {
+		glm::vec3 euler_radians = glm::eulerAngles(q);
+		return glm::degrees(euler_radians);
+	}
+
+	glm::vec3 ExtractEulerXYZ(const glm::mat4& transform) {
+		glm::vec3 euler;
+
+		// Extract rotation part
+		glm::mat3 rotMtx(transform);
+
+		// Assuming XYZ intrinsic rotation order
+		euler.y = glm::degrees(asin(glm::clamp(rotMtx[0][2], -1.0f, 1.0f)));
+
+		if (cos(glm::radians(euler.y)) > 0.0001f) {
+			euler.x = glm::degrees(atan2(-rotMtx[1][2], rotMtx[2][2]));
+			euler.z = glm::degrees(atan2(-rotMtx[0][1], rotMtx[0][0]));
+		}
+		else {
+			euler.x = glm::degrees(atan2(rotMtx[2][1], rotMtx[1][1]));
+			euler.z = 0.0f;
+		}
+
+		return euler;
+	}
+
+	void GlmHelper_FloatPtrToVec3(glm::vec3& vec, const float* arr)
+	{
+		vec.x = arr[0];
+		vec.y = arr[1];
+		vec.z = arr[2];
+	}
+
+	glm::vec3 NormalizeEulerAngles(const glm::vec3& euler)
+	{
+		glm::vec3 result = euler;
+		for (int i = 0; i < 3; i++)
+		{
+			// wrap to -180..180
+			while (result[i] > 180.f) result[i] -= 360.f;
+			while (result[i] < -180.f) result[i] += 360.f;
+
+			// optional: zero very small values
+			if (fabs(result[i]) < 0.0001f) result[i] = 0.f;
+		}
+		return result;
+	}
 
 	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : mManager(manager), camObj(cam)
 	{
@@ -19,16 +76,24 @@ namespace SliceEditor
 		tex_id = texture_id;
 	}
 
-	void SceneViewWindow::Draw() 
+	void SceneViewWindow::Draw()
 	{
 		ImGui::Begin("Scene");
+
+		// Draw Utility Bar
+
+		ImGui::BeginGroup();
+		ImGui::Text("Speed:");
+		ImGui::SameLine();
+		ImGui::Text("%.3f", mManager.GetCameraSpeed());
+		ImGui::EndGroup();
 
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
 		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
-		
+
 		glm::vec3 forward{}, right{}, up{};
 		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
@@ -36,46 +101,66 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowFocused())
 		{
+			auto& io = ImGui::GetIO();
+			if (io.KeyShift)
+			{
+				if (ImGui::IsKeyDown(ImGuiKey_W))
+				{
+					cam_tr.position += forward * mManager.GetCameraSpeed();
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_S))
+				{
+					cam_tr.position -= forward * mManager.GetCameraSpeed();
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_A))
+				{
+					cam_tr.position -= right * mManager.GetCameraSpeed();
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_D))
+				{
+					cam_tr.position += right * mManager.GetCameraSpeed();
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_Q))
+				{
+					cam_tr.position -= up * mManager.GetCameraSpeed();
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_E))
+				{
+					cam_tr.position += up * mManager.GetCameraSpeed();
+				}
+
+				//Camera Speed Change
+				if (io.MouseWheel > 0.0f)
+				{
+					mManager.ChangeCameraSpeed(0.01f);
+				}
+				else if (io.MouseWheel < 0.0f)
+				{
+					mManager.ChangeCameraSpeed(-0.01f);
+				}
+			}
+
 			if (ImGui::IsKeyDown(ImGuiKey_W))
 			{
-				cam_tr.position += forward * mManager.GetCameraSpeed();
-			}
-
-			if (ImGui::IsKeyDown(ImGuiKey_S))
-			{
-				cam_tr.position -= forward * mManager.GetCameraSpeed();
-			}
-			
-			if (ImGui::IsKeyDown(ImGuiKey_A))
-			{
-				cam_tr.position -= right * mManager.GetCameraSpeed();
-			}
-
-			if (ImGui::IsKeyDown(ImGuiKey_D))
-			{
-				cam_tr.position += right * mManager.GetCameraSpeed();
-			}
-
-			if (ImGui::IsKeyDown(ImGuiKey_Q))
-			{
-				cam_tr.position -= up * mManager.GetCameraSpeed();
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_E))
 			{
-				cam_tr.position += up * mManager.GetCameraSpeed();
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::ROTATE);
 			}
 
-			//Camera Speed Change
-			ImGuiIO& io = ImGui::GetIO();
-			if (io.MouseWheel > 0.0f)
+			if (ImGui::IsKeyDown(ImGuiKey_R))
 			{
-				mManager.ChangeCameraSpeed(0.01f);
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
 			}
-			else if (io.MouseWheel < 0.0f)
-			{
-				mManager.ChangeCameraSpeed(-0.01f);
-			}
+
+
 
 			static ImVec2 pos{};
 			static bool isRotating = false;
@@ -108,14 +193,13 @@ namespace SliceEditor
 			}
 		}
 
-
 		// Btw for rotation
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
 
+		// Drawing cam texture
 		ImGui::GetWindowDrawList()->AddImage(
-			//(void*)editorState.renderManager->GetTexture(), // Placeholder texture ID
 			(void*)cam.textureID,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
@@ -123,48 +207,83 @@ namespace SliceEditor
 			ImVec2(1, 0)
 		);
 
-		auto* drawlist = ImGui::GetForegroundDrawList();
+		// ======= IMGUIZMO =======
+		auto* drawlist = ImGui::GetWindowDrawList();
 
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
-		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 
-		
+		auto& set = mManager.GetRegistry().GetSelectionSystem().GetSelectedEntities();
 
-		// need to pass in cam and store as reference member
-		// need to get selected entity
+		if (set.size() == 0)
+		{
+			ImGui::End();
+			return;
+		}
 
-		//auto& camera = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
-		//auto& camTrans = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
+		// get cam view & perspective
+		glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
+		glm::mat4 P = glm::perspective(glm::radians(cam.pov), static_cast<float>(cam.width) / static_cast<float>(cam.height), cam.near, cam.far);
 
-		//glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
-		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
-		//glm::mat4 V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
-		//glm::mat4 P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
+		// get entities & transform components
+		auto entt = *set.begin();
+		auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
-		//entt::entity tmp{ 2 };
+		// set gizmo limits to window
+		ImVec2 window_pos = ImGui::GetWindowPos();
+		ImGuizmo::SetRect(window_pos.x, window_pos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
+		// get transforms
+		glm::mat4 world_tr = tmp_tr.transform; // already computed as parent * local
+		glm::mat4 new_world_tr = world_tr;
 
-		//if (SliceEngine::Core::GetInstance()->GetRegistry().valid(tmp))
-		//{
-		//	auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(tmp);
+		if (ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P),
+			mManager.GetGizmoOperation(), mManager.GetGizmoMode(),
+			glm::value_ptr(new_world_tr), NULL))
+		{
+			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto operation = mManager.GetGizmoOperation();
 
-		//	//float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-		//	//ImGuizmo::DecomposeMatrixToComponents(&tr.transform[0][0], matrixTranslation, matrixRotation, matrixScale);
-		//	//ImGui::InputFloat3("Tr", matrixTranslation);
-		//	//ImGui::InputFloat3("Rt", matrixRotation);
-		//	//ImGui::InputFloat3("Sc", matrixScale);
-		//	//ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, &tr.transform[0][0]);
+			// Convert world transform to local if we have a parent
+			glm::mat4 new_local_tr;
+			if (auto scene_graph = reg.try_get<SliceEngine::SceneGraph>(entt)) {
+				auto parent_entity = scene_graph->neighbours[SliceEngine::SceneGraph::UP];
+				if (parent_entity != entt::null && parent_entity != entt::entity{ 0 }) {
+					auto& parent_tr = reg.get<SliceEngine::Transform>(parent_entity);
+					glm::mat4 parent_world = parent_tr.transform;
+					new_local_tr = glm::inverse(parent_world) * new_world_tr;
+				}
+				else {
+					new_local_tr = new_world_tr; // root entity
+				}
+			}
+			else {
+				new_local_tr = new_world_tr;
+			}
 
-		//	//ImGuiIO& io = ImGui::GetIO();
-		//	ImGuizmo::SetRect(0, 0, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-		//	ImGuizmo::Manipulate(&V[0][0], &P[0][0], mCurrentGizmoOperation, mCurrentGizmoMode, &tr.transform[0][0], NULL);
+			// Extract all components from local transform
+			glm::vec3 translation, rotation_radians, scale;
+			glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
+			translation = glm::vec3(new_local_tr[3]);
+			scale.x = glm::length(glm::vec3(new_local_tr[0]));
+			scale.y = glm::length(glm::vec3(new_local_tr[1]));
+			scale.z = glm::length(glm::vec3(new_local_tr[2]));
 
+			// Only update what changed
+			if (operation == ImGuizmo::TRANSLATE) {
+				tmp_tr.position = translation;
+			}
+			else if (operation == ImGuizmo::ROTATE) {
+				tmp_tr.rotation = glm::degrees(rotation_radians);
+			}
+			else if (operation == ImGuizmo::SCALE) {
+				tmp_tr.scale = scale;
+			}
 
-		//}
+			// Don't touch the matrices - let transform system rebuild them
+		}
 
 		ImGui::End();
-	}
 
+	}
 }
