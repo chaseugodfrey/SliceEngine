@@ -79,7 +79,28 @@ namespace SliceEditor
 		// Generate a new GUID for the asset
 		SliceEngine::GUID newGUID = SliceEngine::GUID::Generate();
 		// Create metadata
-		
+		// Write metadata to the descriptor file
+		nlohmann::json metaData;
+		metaData["GUID"] = std::to_string(newGUID.GetGUID());
+		metaData["fileName"] = filePath.filename().string();
+		metaData["fileType"] = filePath.extension().string();
+		metaData["importSettings"] = "Import Settings"; // Placeholder for import settings
+
+
+		// Determine the path for the descriptor file
+		std::filesystem::path descriptorPath = mDescriptorDirectory / (std::to_string(newGUID.GetGUID()) + ".meta");
+		// Write metadata to the descriptor file
+		std::ofstream outFile(descriptorPath);
+		if (outFile.is_open())
+		{
+			outFile << metaData.dump(4); // Pretty print with 4 spaces indentation
+			outFile.close();
+			SLICE_LOG("Created descriptor for asset: " + filePath.string());
+		}
+		else
+		{
+			SLICE_LOG("Failed to create descriptor for asset: " + filePath.string());
+		}
 		// Update the descriptor map
 		mDescriptorMap[filePath.filename().string()] = newGUID;
 	}
