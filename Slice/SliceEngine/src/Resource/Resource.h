@@ -12,6 +12,7 @@ namespace SliceEngine
 		class Model;
 		class Shader;
 		class Sound;
+		class Scene;
 	}
 
 	namespace FNVHash
@@ -42,6 +43,7 @@ namespace SliceEngine
 		constexpr uint64_t SHADER = FNVHash::fnv1a("Shader");
 		constexpr uint64_t MODEL = FNVHash::fnv1a("Model");
 		constexpr uint64_t SOUND = FNVHash::fnv1a("Sound");
+		constexpr uint64_t SCENE = FNVHash::fnv1a("Scene");
 	}
 
 	template <>
@@ -86,6 +88,15 @@ namespace SliceEngine
 	struct Type<SliceEngineTypes::Sound>
 	{
 
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Scene>
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
+		// for now load with file name directly
+		static SliceEngineTypes::Scene* Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr);
 	};
 }
 

@@ -111,16 +111,16 @@ namespace SliceEngine
 	struct RigidBody
 	{
 		
-		bool isKinematic = false;		// Set to Kinematic
-		float gravityFactor = 1.0f;		// Gravity multiplier
-		JPH::EMotionQuality CollisionDetection = JPH::EMotionQuality::Discrete; // Motion quality(Discrete or Continuous)
+		bool isKinematic = false;		// Set to Kinematic :D
+		float gravityFactor = 1.0f;		// Gravity multiplier:D
+		JPH::EMotionQuality CollisionDetection = JPH::EMotionQuality::Discrete; // Motion quality(Discrete or Continuous) :D
 
 		// Physics properties
-		float mass = 1.0f;
+		float mass = 1.0f; //:D
 		float friction = 0.5f;
 		float restitution = 0.0f;						   // Bounciness
-		float linearDamping = 0.05f;    
-		float angularDamping = 0.05f;
+		float linearDamping = 0.05f;    //:D
+		float angularDamping = 0.05f;	//:D
 
 	};
 
@@ -143,12 +143,12 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer
-		ColliderType type = ColliderType::Box;					// Set Box Collider as default
-		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes
+		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
+		ColliderType type = ColliderType::Box;					// Set Box Collider as default :D
+		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
-		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform
-		bool isTrigger = false;									// leaving thjis here in case we need trniggers
+		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
+		bool isTrigger = false;									// leaving thjis here in case we need trniggers :D
 
 	};
 
