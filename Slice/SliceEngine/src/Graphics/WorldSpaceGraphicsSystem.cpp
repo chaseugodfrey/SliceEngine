@@ -45,15 +45,15 @@ namespace SliceEngine
 	void WorldSpaceGraphicsSystem::EntityOnUpdate(entt::registry& reg, Entity entity, float dt)
 	{
 		auto& transform = reg.get<Transform>(entity);
-		// -------------------------------------------------------------
-		// Calc the Transformation Matrix
-		// -------------------------------------------------------------
-		glm::mat4x4 M(1.f);
-		M = glm::translate(M, transform.position);
-		M *= glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
-		M = glm::scale(M, transform.scale);
+		//// -------------------------------------------------------------
+		//// Calc the Transformation Matrix
+		//// -------------------------------------------------------------
+		//glm::mat4x4 M(1.f);
+		//M = glm::translate(M, transform.position);
+		//M *= glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
+		//M = glm::scale(M, transform.scale);
 
-		transform.transform = M;
+		//transform.transform = M;
 		// Transformation code for child - continuing from parent
 		//M = glm::translate(M, glm::vec3(2.f, -2.f, 2.f));
 		//glm::mat4x4 M2 = glm::eulerAngleXYZ(glm::radians(45.f), glm::radians(0.f), glm::radians(0.f));

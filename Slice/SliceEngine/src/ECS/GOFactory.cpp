@@ -148,6 +148,7 @@ namespace SliceEngine
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
+		auto& tr = mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
@@ -332,7 +333,11 @@ namespace SliceEngine
 				rttr::variant componentData = it->second(mRegistry, entity);
 
 				if (!componentData.is_valid())
+				{
+					SLICE_LOG_ERROR(std::string(componentType.get_name().to_string() + " componentData is invalid "));
 					continue;
+				}
+					
 
 				for (const auto& property : componentType.get_properties())
 				{
@@ -348,12 +353,18 @@ namespace SliceEngine
 						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
 					else if (value.is_type<double>())
 						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
-					else if (value.is_type<std::array<uint32_t, 4>>())
+					else if (value.get_type() == rttr::type::get<EntityID>() ||
+						value.get_type().is_derived_from(rttr::type::get<EntityID>()))
 					{
-						auto arr = value.get_value<std::array<uint32_t, 4>>();
+						EntityID eid = value.get_value<EntityID>();
+						std::cout << property.get_name() << " = " << eid.value << std::endl;
+					}
+					else if (value.is_type<std::array<Entity, 4>>())
+					{
+						auto arr = value.get_value<std::array<Entity, 4>>();
 						std::cout << property.get_name() << " = [";
 						for (size_t i = 0; i < arr.size(); ++i)
-							std::cout << arr[i] << (i + 1 < arr.size() ? ", " : "");
+							std::cout << static_cast<uint32_t>(arr[i]) << (i + 1 < arr.size() ? ", " : "");
 						std::cout << "]" << std::endl;
 					}
 					else if (value.is_type<glm::vec3>())
@@ -361,6 +372,18 @@ namespace SliceEngine
 						glm::vec3 v = value.get_value<glm::vec3>();
 						std::cout << property.get_name() << " = ("
 							<< v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
+					}
+					else if (value.get_type() == rttr::type::get<uint32_t>() ||
+						value.get_type().is_derived_from(rttr::type::get<uint32_t>()))
+					{
+						uint32_t u = value.get_value<uint32_t>();
+						std::cout << property.get_name() << " = " << u << std::endl;
+					}
+					else if (value.is_type<std::string>() ||
+						value.get_type().is_derived_from(rttr::type::get<std::string>()))
+					{
+						std::string str = value.get_value<std::string>();
+						std::cout << property.get_name() << " = \"" << str << "\"" << std::endl;
 					}
 					else
 					{
