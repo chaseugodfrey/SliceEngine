@@ -14,6 +14,12 @@ namespace SliceEngine
 		JSONSerializer::DeserializeScene(filePath);
 	}
 
+	void SceneSystem::LoadScene(uint32_t const index)
+	{
+		current_scene = sceneMap[index];
+		JSONSerializer::DeserializeScene(sceneMap[index]);
+	}
+
 	void SceneSystem::SaveScene(std::filesystem::path const& filePath)
 	{
 		current_scene = filePath.string();
@@ -25,12 +31,13 @@ namespace SliceEngine
 		// saves to temp scene
 		// TODO: Create a global config that has a file path to asset folder
 		JSONSerializer::SerializeScene("Assets/Temp/temp.scene");
+		//upon exit of application need to delete the temp scene(?)
 	}
 
 	// For play then unplay, should call this one to reload scene as per last save instead of using current information
 	void SceneSystem::ReloadScene()
 	{
-		// need function to clear everything on the scene
+		// need function to clear everything on the scene from engine side
 
 		// reloads the scene
 		JSONSerializer::DeserializeScene(current_scene);

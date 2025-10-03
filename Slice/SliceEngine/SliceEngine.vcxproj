@@ -131,6 +131,7 @@
     <ClInclude Include="src\Resource\Model.h" />
     <ClInclude Include="src\Resource\Resource.h" />
     <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Scene.h" />
     <ClInclude Include="src\Resource\Shader.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
@@ -169,6 +170,7 @@
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
