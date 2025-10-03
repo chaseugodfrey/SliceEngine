@@ -43,4 +43,24 @@ namespace SliceEditor
 
 		//SLICE_LOG_VALUES("New Camera Speed: ", mCameraSpeed);
 	}
+
+	void SceneViewManager::SetGizmoOperation(ImGuizmo::OPERATION op)
+	{
+		mGuizmoOperation = op;
+	}
+
+	void SceneViewManager::SetGizmoMode(ImGuizmo::MODE mode)
+	{
+		mGuizmoMode = mode;
+	}
+
+	ImGuizmo::OPERATION SceneViewManager::GetGizmoOperation() const
+	{
+		return mGuizmoOperation;
+	}
+
+	ImGuizmo::MODE SceneViewManager::GetGizmoMode() const
+	{
+		return mGuizmoMode;
+	}
 }

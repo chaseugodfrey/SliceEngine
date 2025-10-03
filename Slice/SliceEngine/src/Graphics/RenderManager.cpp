@@ -254,6 +254,7 @@ namespace SliceEngine
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
+
 	void RenderManager::CreateInstancingParams()
 	{
 		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
