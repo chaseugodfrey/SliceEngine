@@ -16,6 +16,7 @@ namespace SliceEngine
 		cam.pov = 60.f;
 		cam.width = maxWidth;
 		cam.height = maxHeight;
+		cam.renderTag = 0;
 		//glfwGetWindowSize(Core::GetInstance()->GetWindow(), &cam.width, &cam.height);
 
 		// Create Textures
