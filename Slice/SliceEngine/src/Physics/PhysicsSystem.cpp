@@ -174,13 +174,53 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
-		std::cout << "Collider modified\n";
+		//auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+		//if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer);
+		//{
+		//	physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+		//}
+
+		//std::cout << "Collider modified\n";
 	}
 
 	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)
 	{
+		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
-		std::cout << (int)event.entity <<"Rigidbody modified\n";
+		JPH::EMotionType motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+		if (rigidBody.isKinematic && motionType != JPH::EMotionType::Kinematic)
+		{
+			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Kinematic, JPH::EActivation::Activate);
+		}
+		else if (!rigidBody.isKinematic && motionType != JPH::EMotionType::Dynamic)
+		{
+			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
+		}
+
+		if (physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID) != rigidBody.gravityFactor)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
+		}
+
+		if (physicsSystem->GetBodyInterface().GetMotionQuality(colliderShape.bodyID) != rigidBody.CollisionDetection)
+		{
+			physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
+		}
+
+		JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+		if (lock.Succeeded())
+		{
+			JPH::Body& body = lock.GetBody();
+			JPH::MotionProperties* mp = body.GetMotionProperties();
+
+			mp->ScaleToMass(rigidBody.mass);
+			mp->SetLinearDamping(rigidBody.linearDamping);
+			mp->SetAngularDamping(rigidBody.angularDamping);
+		}
+		
+		//std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
