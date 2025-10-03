@@ -123,7 +123,6 @@ namespace SliceEngine
 		mRender->CreateCamera();
 		
 
-
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -207,8 +206,6 @@ namespace SliceEngine
 		frm.StartSystem("Graphics");
 		mRender->Render();
 		frm.EndSystem("Graphics");
-
-
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();

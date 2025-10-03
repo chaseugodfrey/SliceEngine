@@ -14,9 +14,19 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct EntityID
+	{
+		uint32_t value;
+
+		EntityID() : value(0) {}
+		EntityID(uint32_t v) : value(v) {}
+
+		operator uint32_t() const { return value; }
+	};
+
 	struct SceneGraph
 	{
-		uint32_t entity_id;
+		EntityID entity_id{};
 
 		enum Direction {
 			UP = 0,

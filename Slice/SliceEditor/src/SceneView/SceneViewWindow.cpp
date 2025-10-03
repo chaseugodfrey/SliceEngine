@@ -8,14 +8,63 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace SliceEditor
 {
+	// Convert Euler angles (in degrees) to quaternion
+	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
+		glm::vec3 euler_radians = glm::radians(euler_degrees);
+		return glm::quat(euler_radians);
+	}
+
+	// Convert quaternion to Euler angles (in degrees)
+	glm::vec3 QuaternionToEuler(const glm::quat& q) {
+		glm::vec3 euler_radians = glm::eulerAngles(q);
+		return glm::degrees(euler_radians);
+	}
+
+	glm::vec3 ExtractEulerXYZ(const glm::mat4& transform) {
+		glm::vec3 euler;
+
+		// Extract rotation part
+		glm::mat3 rotMtx(transform);
+
+		// Assuming XYZ intrinsic rotation order
+		euler.y = glm::degrees(asin(glm::clamp(rotMtx[0][2], -1.0f, 1.0f)));
+
+		if (cos(glm::radians(euler.y)) > 0.0001f) {
+			euler.x = glm::degrees(atan2(-rotMtx[1][2], rotMtx[2][2]));
+			euler.z = glm::degrees(atan2(-rotMtx[0][1], rotMtx[0][0]));
+		}
+		else {
+			euler.x = glm::degrees(atan2(rotMtx[2][1], rotMtx[1][1]));
+			euler.z = 0.0f;
+		}
+
+		return euler;
+	}
+
 	void GlmHelper_FloatPtrToVec3(glm::vec3& vec, const float* arr)
 	{
 		vec.x = arr[0];
 		vec.y = arr[1];
 		vec.z = arr[2];
+	}
+
+	glm::vec3 NormalizeEulerAngles(const glm::vec3& euler)
+	{
+		glm::vec3 result = euler;
+		for (int i = 0; i < 3; i++)
+		{
+			// wrap to -180..180
+			while (result[i] > 180.f) result[i] -= 360.f;
+			while (result[i] < -180.f) result[i] += 360.f;
+
+			// optional: zero very small values
+			if (fabs(result[i]) < 0.0001f) result[i] = 0.f;
+		}
+		return result;
 	}
 
 	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : mManager(manager), camObj(cam)
@@ -96,6 +145,23 @@ namespace SliceEditor
 				}
 			}
 
+			if (ImGui::IsKeyDown(ImGuiKey_W))
+			{
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_E))
+			{
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::ROTATE);
+			}
+
+			if (ImGui::IsKeyDown(ImGuiKey_R))
+			{
+				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
+			}
+
+
+
 			static ImVec2 pos{};
 			static bool isRotating = false;
 			static ImVec2 init_rot{};
@@ -147,9 +213,6 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-		static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
-
 		auto& set = mManager.GetRegistry().GetSelectionSystem().GetSelectedEntities();
 
 		if (set.size() == 0)
@@ -175,34 +238,49 @@ namespace SliceEditor
 		glm::mat4 new_world_tr = world_tr;
 
 		if (ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P),
-			mCurrentGizmoOperation, mCurrentGizmoMode,
+			mManager.GetGizmoOperation(), mManager.GetGizmoMode(),
 			glm::value_ptr(new_world_tr), NULL))
 		{
 			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto operation = mManager.GetGizmoOperation();
 
-			// Convert back to local if we have a parent
+			// Convert world transform to local if we have a parent
+			glm::mat4 new_local_tr;
 			if (auto scene_graph = reg.try_get<SliceEngine::SceneGraph>(entt)) {
 				auto parent_entity = scene_graph->neighbours[SliceEngine::SceneGraph::UP];
-				if (parent_entity != entt::null && parent_entity != entt::entity{0}) {
+				if (parent_entity != entt::null && parent_entity != entt::entity{ 0 }) {
 					auto& parent_tr = reg.get<SliceEngine::Transform>(parent_entity);
 					glm::mat4 parent_world = parent_tr.transform;
-					tmp_tr.transform_local = glm::inverse(parent_world) * new_world_tr;
+					new_local_tr = glm::inverse(parent_world) * new_world_tr;
 				}
 				else {
-					tmp_tr.transform_local = new_world_tr; // root entity
+					new_local_tr = new_world_tr; // root entity
 				}
 			}
 			else {
-				tmp_tr.transform_local = new_world_tr;
+				new_local_tr = new_world_tr;
 			}
 
-			// Decompose new local transform into position/rotation/scale
-			float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-			ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(tmp_tr.transform_local),
-				matrixTranslation, matrixRotation, matrixScale);
-			GlmHelper_FloatPtrToVec3(tmp_tr.position, matrixTranslation);
-			GlmHelper_FloatPtrToVec3(tmp_tr.rotation, matrixRotation);
-			GlmHelper_FloatPtrToVec3(tmp_tr.scale, matrixScale);
+			// Extract all components from local transform
+			glm::vec3 translation, rotation_radians, scale;
+			glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
+			translation = glm::vec3(new_local_tr[3]);
+			scale.x = glm::length(glm::vec3(new_local_tr[0]));
+			scale.y = glm::length(glm::vec3(new_local_tr[1]));
+			scale.z = glm::length(glm::vec3(new_local_tr[2]));
+
+			// Only update what changed
+			if (operation == ImGuizmo::TRANSLATE) {
+				tmp_tr.position = translation;
+			}
+			else if (operation == ImGuizmo::ROTATE) {
+				tmp_tr.rotation = glm::degrees(rotation_radians);
+			}
+			else if (operation == ImGuizmo::SCALE) {
+				tmp_tr.scale = scale;
+			}
+
+			// Don't touch the matrices - let transform system rebuild them
 		}
 
 		ImGui::End();
