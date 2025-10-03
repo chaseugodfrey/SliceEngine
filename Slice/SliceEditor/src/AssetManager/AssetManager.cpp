@@ -21,8 +21,20 @@ namespace SliceEditor
 
 		//Searching Descriptor Folder and Assigning to "Assets"
 		//Looping through Assets to see who does not have a descriptor file (very sad. nobody is describing it.)
-		for (auto& dirEntry : std::filesystem::recursive_directory_iterator(mAssetDirectory))
+		for (auto it = std::filesystem::recursive_directory_iterator(mAssetDirectory);
+			it != std::filesystem::recursive_directory_iterator();
+			++it)
 		{
+			auto& dirEntry = *it;
+
+			// TODO: Resource folder shouldn't be in asset folder
+			// but fornow we just skip #gonext
+			if (dirEntry.is_directory() && dirEntry.path().filename() == "Resources")
+			{
+				it.disable_recursion_pending();
+				continue;
+			}
+
 			std::string fileName = dirEntry.path().filename().string();
 
 			// Since this isn't unity style where meta files are alongside assets
@@ -73,7 +85,7 @@ namespace SliceEditor
 				metaData = std::make_unique<TextureData>();
 				break;
 			case AssetType::Model:
-				//metaData = std::make_unique<ModelData>();
+				metaData = std::make_unique<ModelData>();
 				break;
 			case AssetType::Audio:
 				//metaData = std::make_unique<AudioData>();
@@ -83,32 +95,37 @@ namespace SliceEditor
 		if (metaData)
 		{
 			metaData->guid = SliceEngine::GUID::Generate();
-			metaData->assetName = filePath.filename().string();
+			metaData->assetName = filePath.stem().string();
 			metaData->assetType = filePath.extension().string();
 			metaData->assetPath = filePath.string();
 			// meta files are gonna be named after guid + meta
 			//metaData->resourcePath = std::to_string(metaData->guid.GetGUID()) + ".meta"; nvm this isnt resource
 
+			// used only for cube testing			
+			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 
-			// serialize the meta file 
-			metaData->Serialize(mResourcesDirectory);
-
-			// compile the asset here??
+			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
 			{
 			case AssetType::Texture:
 
 				break;
 			case AssetType::Model:
-				
+				std::filesystem::copy(filePath, tempPath);
 				break;
 			case AssetType::Audio:
-				
+
 				break;
 			}
 
-			// register into resource manager
 
+			// serialize the meta file 
+			metaData->Serialize(mResourcesDirectory);
+
+
+			// register into resource manager
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
 
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid;

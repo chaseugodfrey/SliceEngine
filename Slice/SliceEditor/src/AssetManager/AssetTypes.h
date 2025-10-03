@@ -72,6 +72,38 @@ namespace SliceEditor
 		}
 	};
 
+	// blank for now cause we're using a default 36 vertice cube for testing
+	// will implement later when we have a model format
+	struct ModelData : public MetaData
+	{
+		void Serialize(const std::filesystem::path & desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+
+			nlohmann::json metaJson;
+
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to model goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+		}
+		void Deserialize(const std::filesystem::path & desc_path) override
+		{
+		}
+	};
+
 }
 
 

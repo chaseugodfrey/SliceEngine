@@ -20,10 +20,12 @@ namespace SliceEngine
 						nlohmann::json metaData;
 						inFile >> metaData;
 						std::string assetName = metaData["assetName"].get<std::string>();
-						uint64_t guid = metaData["assetGUID"].get<uint64_t>();
+						uint64_t guid = metaData["guid"].get<uint64_t>();
 						std::string assetPath = metaData["assetPath"].get<std::string>();
+						std::string resourcePath = metaData["resourcePath"].get<std::string>();
 						// idk what the otehr two things are meant to be
 						mGUIDToPath[GUID(guid)] = assetPath;
+						mGUIDToResource[GUID(guid)] = resourcePath;
 						mFileNameToGUID[assetName] = GUID(guid);
 					}
 					catch (nlohmann::json::parse_error& e)
