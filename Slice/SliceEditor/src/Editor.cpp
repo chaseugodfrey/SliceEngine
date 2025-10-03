@@ -75,6 +75,17 @@ namespace SliceEditor
 		}
 	}
 
+	void Editor::CheckInputs()
+	{
+		if (ImGui::GetIO().KeyCtrl)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_S))
+			{
+				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveScene();
+			}
+		}
+	}
+
 	void Editor::Render()
 	{
 		glfwMakeContextCurrent(SliceEngine::Core::GetInstance()->GetWindow());
