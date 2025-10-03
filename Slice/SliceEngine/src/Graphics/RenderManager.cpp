@@ -548,10 +548,8 @@ namespace SliceEngine
 			mIDHovered = *src;
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 		}
-		//if (RenderHelper::GetInstance()->mEditorWindowActive)
-		//	RenderHelper::GetInstance()->mSelectedID = goID;
-		if (mIDHovered >= std::numeric_limits<unsigned int>().max())
-			mIDHovered = 0;
+		if (mIDHovered == 0)
+			mIDHovered = std::numeric_limits<unsigned int>().max();
 		
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		glReadBuffer(GL_NONE);
