@@ -444,6 +444,8 @@ namespace SliceEngine
         cmdIDs.Register("N_REQ_CONNECT");
         cmdIDs.Register("N_RSP_CONNECT");
         cmdIDs.Register("N_TIME_UPDATE");
+        cmdIDs.Register("N_REQ_CREATE_GO");
+        cmdIDs.Register("N_RSP_CREATE_GO");
 
 
         keep_running = true;

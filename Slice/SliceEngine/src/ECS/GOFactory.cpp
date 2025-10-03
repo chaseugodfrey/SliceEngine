@@ -86,6 +86,11 @@ namespace SliceEngine
 		//mRegistry.emplace<SliceEntity>(go);
 		go.AddComponent<SliceEntity>();
 
+		// Networking stuff
+
+
+
+
 		return go;
 
 	}
