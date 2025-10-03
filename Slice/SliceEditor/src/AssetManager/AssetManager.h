@@ -4,7 +4,6 @@
 #include <fstream>
 #include <filesystem>
 #include "json.hpp"
-#include "AssetTypes.h"
 
 namespace SliceEditor
 {
@@ -22,13 +21,12 @@ namespace SliceEditor
 
 		void CreateDescriptorFile(const std::filesystem::path filePath);
 
-
-
 	private:
 		
 		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 		std::filesystem::path mDescriptorDirectory = std::filesystem::path("../SliceEditor/Descriptor");
-		std::filesystem::path mResourcesDirectory = std::filesystem::path("../SliceEditor/Resources");
+		// TODO: Change this to be configurable
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
 		std::unordered_map <std::string, SliceEngine::GUID> mDescriptorMap; // Maps files to GUIDs
 	};
 

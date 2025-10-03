@@ -70,13 +70,7 @@ namespace SliceEngine
 			}
 		}
 
-		//template<typename T>
-		//Handle<T> get(const std::string& path)
-		//{
-		//	uint64_t typeID = Type<T>::typeUUID;
-
-		//}
-
+		void InitResourceManager();
 
 		template<typename T>
 		Handle<T> get(const GUID& guid)
@@ -138,6 +132,9 @@ namespace SliceEngine
 		* ----------------END OF HACK---------------
 		*/
 
+		
+		std::unordered_map<std::string, GUID> mFileNameToGUID;
+
 	private:
 		template<typename T> friend class Handle;
 
@@ -157,6 +154,8 @@ namespace SliceEngine
 		std::unordered_map<GUID, detail::Instance> mInstances;
 		std::unordered_map<GUID, std::string> mGUIDToPath;
 
+		// TODO: Change this to be configurable
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
 	};
 
 	// handle for assets
