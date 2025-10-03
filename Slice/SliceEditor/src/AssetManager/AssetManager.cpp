@@ -22,7 +22,8 @@ namespace SliceEditor
 			std::filesystem::create_directory(mResourcesDirectory);
 		}
 
-		//Searching Descriptor and Assigning to "Assets"
+		//Searching Descriptor Folder and Assigning to "Assets"
+		//Note: Not Sure if we want to sort the descriptors into subfolders based on type as well. Currently all in the same folder.
 		for(auto & dirEntry : std::filesystem::recursive_directory_iterator(mDescriptorDirectory))
 		{
 			nlohmann::json metaData;
@@ -73,28 +74,12 @@ namespace SliceEditor
 
 	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
+		//Find out the type of asset:
+		filePath.extension().string();
 		// Generate a new GUID for the asset
 		SliceEngine::GUID newGUID = SliceEngine::GUID::Generate();
 		// Create metadata
-		nlohmann::json metaData;
-		metaData["GUID"] = std::to_string(newGUID.GetGUID());
-		metaData["fileName"] = filePath.filename().string();
-		metaData["fileType"] = filePath.extension().string();
-		metaData["importSettings"] = "Import Settings"; // Placeholder for import settings
-		// Determine the path for the descriptor file
-		std::filesystem::path descriptorPath = mDescriptorDirectory / (std::to_string(newGUID.GetGUID()) + ".meta");
-		// Write metadata to the descriptor file
-		std::ofstream outFile(descriptorPath);
-		if (outFile.is_open())
-		{
-			outFile << metaData.dump(4); // Pretty print with 4 spaces indentation
-			outFile.close();
-			SLICE_LOG("Created descriptor for asset: " + filePath.string());
-		}
-		else
-		{
-			SLICE_LOG("Failed to create descriptor for asset: " + filePath.string());
-		}
+		
 		// Update the descriptor map
 		mDescriptorMap[filePath.filename().string()] = newGUID;
 	}
