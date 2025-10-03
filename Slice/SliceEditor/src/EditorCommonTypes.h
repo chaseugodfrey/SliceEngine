@@ -56,14 +56,6 @@ namespace SliceEditor
 		std::map<std::string, DirectoryNode> children;
 	};
 
-	struct MetaData
-	{
-		SliceEngine::GUID guid;
-		std::string assetType;
-		std::string path;
-		std::vector<std::string> resourcePath;
-	};
-
 	struct Command
 	{
 		virtual void Execute() = 0;
