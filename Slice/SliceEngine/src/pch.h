@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 
@@ -74,5 +75,7 @@
 
 // nlohmann json
 #include <json.hpp>
+
+#include "Configuration/ProjectSettings.h"
 
 #endif 

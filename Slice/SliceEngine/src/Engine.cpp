@@ -21,6 +21,7 @@
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
+#include "Configuration/ProjectSettings.h"
 
 //using namespace rttr;
 
@@ -37,6 +38,7 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
+
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
@@ -144,23 +146,18 @@ namespace SliceEngine
 		testing.AddComponent<AudioSource>();*/
 
 		Core::GetInstance()->mFactory.TestLoop();
+		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		//floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		//floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		//floor.AddComponent<ColliderShape>();
-		//floor.AddComponent<Renderer>();
 
-		//GameObject GO = Core::GetInstance()->mFactory.CreateGO("GO");
-		//GO.GetComponent<Transform>().position = glm::vec3(0.f, 1.8f, 0.f);
-		//GO.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 1.f);
-		//GO.AddComponent<ColliderShape>();
-		//GO.AddComponent<Renderer>();
-		JSONSerializer::DeserializeScene("Assets/Scenes/TestScene.scene");
 
-		//JSONSerializer::SerializeScene("Assets/Scenes/TestScene.scene");
+		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		floor.AddComponent<ColliderShape>();
+		floor.AddComponent<Renderer>();
+        //		JSONSerializer::DeserializeScene("Assets/Scenes/TestScene.scene");
 	}
 
 	void Engine::Update()
@@ -244,6 +241,49 @@ namespace SliceEngine
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
+	}
+
+	void Engine::LoadProjectSettings()
+	{
+		std::filesystem::path proj = "projectSettings.json";
+
+		ProjectSettings s;
+		if (!std::filesystem::exists(proj)) {
+			// Safe defaults if file missing
+			s.scenes = {};
+			s.startupScene.clear();
+		}
+
+		else
+		{
+			std::ifstream in(proj);
+			nlohmann::json j; in >> j;
+
+			if (j.contains("product") && j["product"].contains("name"))
+				s.productName = j["product"]["name"].get<std::string>();
+			if (j.contains("render")) {
+				s.width = j["render"].value("width", s.width);
+				s.height = j["render"].value("height", s.height);
+				s.vsync = j["render"].value("vsync", s.vsync);
+			}
+			if (j.contains("scenes")) s.scenes = j["scenes"].get<std::vector<std::string>>();
+			s.startupScene = j.value("startupScene", s.startupScene);
+
+			// Fallback: if startupScene empty, use first scene
+			std::string sceneToLoad = !s.startupScene.empty()
+				? s.startupScene
+				: (s.scenes.empty() ? "" : s.scenes.front());
+
+			if (sceneToLoad.empty()) {
+				// Nothing to load�show blank/editor splash or exit gracefully
+				// log: "No scenes configured."
+			}
+
+			else
+			{
+				Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+			}
+		}
 	}
 
 }
