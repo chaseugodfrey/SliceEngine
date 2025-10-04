@@ -143,11 +143,20 @@ namespace SliceEngine
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		floor.AddComponent<ColliderShape>();
-		floor.AddComponent<Renderer>();
+		//GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		//floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		//floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		//floor.AddComponent<ColliderShape>();
+		//floor.AddComponent<Renderer>();
+
+		//GameObject GO = Core::GetInstance()->mFactory.CreateGO("GO");
+		//GO.GetComponent<Transform>().position = glm::vec3(0.f, 1.8f, 0.f);
+		//GO.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 1.f);
+		//GO.AddComponent<ColliderShape>();
+		//GO.AddComponent<Renderer>();
+		JSONSerializer::DeserializeScene("Assets/Scenes/TestScene.scene");
+
+		//JSONSerializer::SerializeScene("Assets/Scenes/TestScene.scene");
 	}
 
 	void Engine::Update()
