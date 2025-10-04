@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "ProfilerManager.h"
 #include "ProfilerWindow.h"
+#include "../Core/Registry.h"
 
 
 namespace SliceEditor
@@ -13,7 +14,8 @@ namespace SliceEditor
 	std::unique_ptr<EditorWindow> ProfilerManager::CreateWindow()
 	{
 		SLICE_LOG("Creating Profiler Window.");
-		auto window = std::make_unique<ProfilerWindow>(*this);
+		auto& selectionSystem = registry.GetSelectionSystem();
+		auto window = std::make_unique<ProfilerWindow>(*this, selectionSystem);
 
 		return window;
 	}

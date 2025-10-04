@@ -144,6 +144,7 @@ namespace SliceEngine
 		void Destroy(entt::entity entity);
 		void TestLoop();
 		void UpdateDestroyed();
+		void SceneGraphDelete(Entity entity);
 		void VisitComponents(Entity entity, ComponentVisitor visitor);
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);

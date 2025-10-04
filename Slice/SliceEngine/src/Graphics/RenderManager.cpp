@@ -334,6 +334,7 @@ namespace SliceEngine
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[2]);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
 
@@ -547,10 +548,8 @@ namespace SliceEngine
 			mIDHovered = *src;
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 		}
-		//if (RenderHelper::GetInstance()->mEditorWindowActive)
-		//	RenderHelper::GetInstance()->mSelectedID = goID;
-		if (mIDHovered >= std::numeric_limits<unsigned int>().max())
-			mIDHovered = 0;
+		if (mIDHovered == 0)
+			mIDHovered = std::numeric_limits<unsigned int>().max();
 		
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		glReadBuffer(GL_NONE);
