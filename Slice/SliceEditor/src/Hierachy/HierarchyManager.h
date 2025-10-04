@@ -29,7 +29,6 @@ namespace SliceEditor
 
 		bool isDirty;
 
-		void BuildHierarchy();
 
 	public:
 
@@ -38,6 +37,7 @@ namespace SliceEditor
 
 		void Test();
 		void Init() override;
+		void BuildHierarchy();
 		void SetDirty();
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);

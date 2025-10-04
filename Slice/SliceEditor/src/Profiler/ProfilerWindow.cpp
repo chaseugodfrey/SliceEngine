@@ -128,7 +128,7 @@ namespace SliceEditor
 			for(auto& entity: selectedEntities)
 			{
 				DrawSceneGraphComponent(entity);
-				ImGui::Separator();
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,5.0f);
 			}
 			ImGui::EndChild();
 		}
@@ -257,7 +257,6 @@ namespace SliceEditor
 			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
 			ImGui::Text("Entity: %s", go.GetName().c_str());
 			ImGui::Text("Entity ID: %d", (uint32_t)entity);
-			ImGui::Separator();
 			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
 			{
 				if(sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())

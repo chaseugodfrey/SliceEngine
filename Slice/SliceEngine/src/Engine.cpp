@@ -152,6 +152,12 @@ namespace SliceEngine
 		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
 		floor.AddComponent<ColliderShape>();
 		floor.AddComponent<Renderer>();
+
+		GameObject GO = Core::GetInstance()->mFactory.CreateGO("GO");
+		GO.GetComponent<Transform>().position = glm::vec3(5.f, 1.0f, 0.f);
+		GO.GetComponent<Transform>().scale = glm::vec3(1.f, 1.f, 1.f);
+		GO.AddComponent<ColliderShape>();
+		GO.AddComponent<Renderer>();
 	}
 
 	void Engine::Update()
