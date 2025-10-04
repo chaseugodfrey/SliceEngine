@@ -36,11 +36,11 @@ namespace SliceEditor
 		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
 		~HierarchyManager() = default;
 
-		void Test();
 		void Init() override;
 		void SetDirty();
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);
+		void Reset();
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();

@@ -38,6 +38,9 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+		mScenePtr = std::make_unique<SceneSystem>();
+
+		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
 	}
 
 	void Core::ExitCore()
@@ -59,6 +62,11 @@ namespace SliceEngine
 	InputSystem* Core::GetInputSystem()
 	{
 		return mInputPtr.get();
+	}
+
+	SceneSystem* Core::GetSceneSystem()
+	{
+		return mScenePtr.get();
 	}
 
 	ResourceManager* Core::GetResourceManager()
@@ -85,5 +93,10 @@ namespace SliceEngine
 	{
 
 		return mWindowManager.GetWindow();
+	}
+
+	ProjectSettingsService* Core::GetProjectSettingsService()
+	{
+		return mProjectSettingsService.get();
 	}
 }

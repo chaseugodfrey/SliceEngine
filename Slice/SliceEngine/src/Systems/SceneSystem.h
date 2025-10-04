@@ -6,8 +6,11 @@ namespace SliceEngine
 	class SceneSystem : BaseEngineSystem
 	{
 	public:
+		void Init();
+
 		void LoadScene(std::filesystem::path const& filePath);
 		void SaveScene(std::filesystem::path const& filePath);
+		void SaveCurrentScene();
 
 		void ReloadScene();		
 		
@@ -15,9 +18,11 @@ namespace SliceEngine
 		void Pause();
 		void Stop();
 
+		std::filesystem::path GetCurrentScenePath();
+
 	private:
 		//can change to other identifier
-		std::string current_scene;
+		std::filesystem::path mCurrentScene{};
 	};
 }
 
