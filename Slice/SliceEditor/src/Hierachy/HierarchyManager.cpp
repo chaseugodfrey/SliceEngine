@@ -190,6 +190,9 @@ namespace SliceEditor
 		auto& parentNode = mHierarchy[parent];
 		auto& grandParentNode = mHierarchy[parentNode.parent->entity];
 		
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.GetGOByEntity(childNode.entity);
+		factory.SetParent(childNode.entity, grandParentNode.entity);
 		ParentGameObject(childNode.entity, grandParentNode.entity);
 	}
 

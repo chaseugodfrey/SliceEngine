@@ -30,8 +30,10 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("entity_popup");
+			ImGui::OpenPopup(name.c_str());
 		}
+
+		EntityContextPopUp(node);
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -79,7 +81,6 @@ namespace SliceEditor
 			}
 		}
 
-		EntityContextPopUp(node);
 
 		if (isOpen)
 		{
@@ -115,7 +116,7 @@ namespace SliceEditor
 	{
 		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
 
-		if (ImGui::BeginPopupContextItem("entity_popup"))
+		if (ImGui::BeginPopupContextItem())
 		{
 			if (!hasParent)
 				ImGui::BeginDisabled();
