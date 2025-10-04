@@ -38,6 +38,9 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+
+		// initialize all the resource files here
+		mResource->InitResourceManager();
 	}
 
 	void Core::ExitCore()

@@ -24,7 +24,7 @@ namespace SliceEngine
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID::FromString("11576672170007205522"));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{

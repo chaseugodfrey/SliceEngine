@@ -70,13 +70,7 @@ namespace SliceEngine
 			}
 		}
 
-		//template<typename T>
-		//Handle<T> get(const std::string& path)
-		//{
-		//	uint64_t typeID = Type<T>::typeUUID;
-
-		//}
-
+		void InitResourceManager();
 
 		template<typename T>
 		Handle<T> get(const GUID& guid)
@@ -90,10 +84,18 @@ namespace SliceEngine
 
 			// Asset not loaded, so load the asset
 			std::string path = "";
-			if (mGUIDToPath.count(guid))
+			if (mGUIDToResource.count(guid))
 			{
-				path = mGUIDToPath.at(guid);
+				path = mGUIDToResource.at(guid);
 			}
+			// cause idk whether i should remove mGUIDToPath since some uses it
+			// but eventually all should change to mGUIDToResource
+			//else if (mGUIDToPath.count(guid))
+			//{
+			//	path = mGUIDToPath.at(guid);
+			//}
+
+
 
 			T* data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
@@ -132,11 +134,18 @@ namespace SliceEngine
 		//template<typename T>
 		void RegisterFileAsset(const std::string& path)
 		{
-			mGUIDToPath[GUID(FNVHash::fnv1a(path))] = path;
+			mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
 		}
 		/*
 		* ----------------END OF HACK---------------
 		*/
+
+		void RegisterResourceAsset(const GUID& guid, const std::string& path)
+		{
+			mGUIDToResource[guid] = path;
+		}
+		
+		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
 	private:
 		template<typename T> friend class Handle;
@@ -156,7 +165,10 @@ namespace SliceEngine
 
 		std::unordered_map<GUID, detail::Instance> mInstances;
 		std::unordered_map<GUID, std::string> mGUIDToPath;
+		std::unordered_map<GUID, std::string> mGUIDToResource;
 
+		// TODO: Change this to be configurable
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
 	};
 
 	// handle for assets
