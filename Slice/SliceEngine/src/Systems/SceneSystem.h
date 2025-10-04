@@ -7,6 +7,7 @@ namespace SliceEngine
 	{
 	public:
 		void LoadScene(std::filesystem::path const& filePath);
+		void LoadScene(uint32_t const index);
 		void SaveScene(std::filesystem::path const& filePath);
 		void SaveTempScene();
 		void ReloadScene();		

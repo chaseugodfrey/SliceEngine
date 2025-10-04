@@ -98,6 +98,10 @@ namespace SliceEngine
 					{
 						output[name][storage.type().name()][propName] = propVal.get_value<int>();
 					}
+					else if (propVal.is_type<unsigned int>())
+					{
+						output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
+					}
 					else if (propVal.is_type<float>())
 					{
 						output[name][storage.type().name()][propName] = propVal.get_value<float>();
@@ -105,6 +109,10 @@ namespace SliceEngine
 					else if (propVal.is_type<double>())
 					{
 						output[name][storage.type().name()][propName] = propVal.get_value<double>();
+					}
+					else if (propVal.is_type<bool>())
+					{
+						output[name][storage.type().name()][propName] = propVal.get_value<bool>();
 					}
 					else if (propVal.is_type<uint32_t>())
 					{
@@ -151,11 +159,20 @@ namespace SliceEngine
 							output[name][storage.type().name()][propName].push_back(elem);
 						}
 					}
-
+					else if (propVal.is_type<glm::vec2>())
+					{
+						auto v = propVal.get_value<glm::vec2>();
+						output[name][storage.type().name()][propName] = { v.x, v.y};
+					}
 					else if (propVal.is_type<glm::vec3>())
 					{
 						auto v = propVal.get_value<glm::vec3>();
 						output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
+					}
+					else if (propVal.is_type<glm::vec4>())
+					{
+						auto v = propVal.get_value<glm::vec4>();
+						output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
 					}
 					else
 					{
@@ -202,103 +219,121 @@ namespace SliceEngine
 				// Temprorary until have createGO without transform
 				//node.RemoveComponent<Transform>();
 
-				for (auto& [componentName, props] : components.items())
+				for (auto& [objName, objProps] : components.items())
 				{
-					rttr::type compType = rttr::type::get_by_name(componentName);
-					if (!compType)
+					for (auto& [componentName, props] : objProps.items())
 					{
-						SLICE_LOG_ERROR(componentName + " not registered");
-						continue;
-					}
-
-					rttr::variant componentInstance = compType.create();
-					if (!componentInstance.is_valid())
-					{
-						SLICE_LOG_ERROR("Failed to create instance of " + componentName);
-						continue;
-					}
-
-					// Note for hafiz and me: I moved the mName to sliceentity component
-					// technically there should never be an instance of two objects with the same name serialized
-					// since factory checks for that
-					// So i shouldn't have to check for duplicate names when deserializing
-					// but keep a note incase it dies next time
-
-					for (auto& [propName, value] : props.items())
-					{
-						rttr::property prop = compType.get_property(propName);
-						if (!prop.is_valid())
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							SLICE_LOG_ERROR(componentName + " not registered");
 							continue;
+						}
 
-						if (prop.get_type() == rttr::type::get<int>())
-							prop.set_value(componentInstance, value.get<int>());
-						else if (prop.get_type() == rttr::type::get<float>())
-							prop.set_value(componentInstance, value.get<float>());
-						else if (prop.get_type() == rttr::type::get<double>())
-							prop.set_value(componentInstance, value.get<double>());
-						else if (prop.get_type() == rttr::type::get<uint32_t>())
-							prop.set_value(componentInstance, value.get<uint32_t>());
-						else if (prop.get_type() == rttr::type::get<std::string>())
-							prop.set_value(componentInstance, value.get<std::string>());
-						else if (prop.get_type() == rttr::type::get<std::vector<uint32_t>>())
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
 						{
-							std::vector<uint32_t> vec;
-							for (auto& v : value)
+							SLICE_LOG_ERROR("Failed to create instance of " + componentName);
+							continue;
+						}
+
+						// Note for hafiz and me: I moved the mName to sliceentity component
+						// technically there should never be an instance of two objects with the same name serialized
+						// since factory checks for that
+						// So i shouldn't have to check for duplicate names when deserializing
+						// but keep a note incase it dies next time
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+							if (!prop.is_valid())
+								continue;
+
+							if (prop.get_type() == rttr::type::get<int>())
+								prop.set_value(componentInstance, value.get<int>());
+							else if (prop.get_type() == rttr::type::get<unsigned int>())
+								prop.set_value(componentInstance, value.get<unsigned int>());
+							else if (prop.get_type() == rttr::type::get<float>())
+								prop.set_value(componentInstance, value.get<float>());
+							else if (prop.get_type() == rttr::type::get<double>())
+								prop.set_value(componentInstance, value.get<double>());
+							else if (prop.get_type() == rttr::type::get<bool>())
+								prop.set_value(componentInstance, value.get<bool>());
+							else if (prop.get_type() == rttr::type::get<uint32_t>())
+								prop.set_value(componentInstance, value.get<uint32_t>());
+							else if (prop.get_type() == rttr::type::get<std::string>())
+								prop.set_value(componentInstance, value.get<std::string>());
+							else if (prop.get_type() == rttr::type::get<std::vector<uint32_t>>())
 							{
-								vec.push_back(v.get<uint32_t>());
+								std::vector<uint32_t> vec;
+								for (auto& v : value)
+								{
+									vec.push_back(v.get<uint32_t>());
+								}
+								prop.set_value(componentInstance, vec);
 							}
-							prop.set_value(componentInstance, vec);
-						}
-						else if (prop.get_type() == rttr::type::get<EntityID>())
-						{
-							uint32_t rawID = value.get<uint32_t>();
-							prop.set_value(componentInstance, EntityID{ rawID });
-						}
-						else if (prop.get_type() == rttr::type::get<glm::vec3>())
-						{
-							glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
-							prop.set_value(componentInstance, vec);
-						}
-						else if (prop.get_type() == rttr::type::get<std::array<uint32_t, 4>>())
-						{
-							std::array<uint32_t, 4> arr;
-							arr = value;
-							prop.set_value(componentInstance, arr);
-						}
-						else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
-						{
-							std::array<Entity, 4> arr;
-							for (size_t i = 0; i < arr.size(); ++i)
+							else if (prop.get_type() == rttr::type::get<EntityID>())
 							{
-								auto v = value[i];
-
-								if (v == 0)
-								{
-									arr[i] = entt::null;
-								}
-								else
-								{
-									arr[i] = v;
-								}
+								uint32_t rawID = value.get<uint32_t>();
+								prop.set_value(componentInstance, EntityID{ rawID });
 							}
-							prop.set_value(componentInstance, arr);
-						}
-						else
-						{
-							// fallback: try string
-							prop.set_value(componentInstance, value.get<std::string>());
+							else if (prop.get_type() == rttr::type::get<std::array<uint32_t, 4>>())
+							{
+								std::array<uint32_t, 4> arr;
+								arr = value;
+								prop.set_value(componentInstance, arr);
+							}
+							else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
+							{
+								std::array<Entity, 4> arr;
+								for (size_t i = 0; i < arr.size(); ++i)
+								{
+									auto v = value[i];
+
+									if (v == 0)
+									{
+										arr[i] = entt::null;
+									}
+									else
+									{
+										arr[i] = v;
+									}
+								}
+								prop.set_value(componentInstance, arr);
+							}
+							else if (prop.get_type() == rttr::type::get<glm::vec2>())
+							{
+								glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
+								prop.set_value(componentInstance, vec);
+							}
+							else if (prop.get_type() == rttr::type::get<glm::vec3>())
+							{
+								glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
+								prop.set_value(componentInstance, vec);
+							}
+							else if (prop.get_type() == rttr::type::get<glm::vec4>())
+							{
+								glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
+								prop.set_value(componentInstance, vec);
+							}
+							else
+							{
+								// fallback: try string
+								prop.set_value(componentInstance, value.get<std::string>());
+							}
+
+							if (compType == rttr::type::get<SceneGraph>())
+							{
+								auto& sg = componentInstance.get_value<SceneGraph>();
+
+								sceneGraphMap[sg.entity_id.value] = entt::to_integral(node.GetEntity());
+								SLICE_LOG("Old ID " + std::to_string(sg.entity_id.value) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
+							}
 						}
 
-						if (compType == rttr::type::get<SceneGraph>())
-						{
-							auto& sg = componentInstance.get_value<SceneGraph>();
-
-							sceneGraphMap[sg.entity_id.value] = entt::to_integral(node.GetEntity());
-							SLICE_LOG("Old ID " + std::to_string(sg.entity_id.value) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
-						}
+						AddComponentFromVariant(node, componentInstance, componentName);
 					}
 
-					AddComponentFromVariant(node, componentInstance, componentName);
 				}
 			}
 		}

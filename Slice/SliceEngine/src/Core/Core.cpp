@@ -38,9 +38,39 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+		mFactory.RegisterComponent<Renderer>();
+		mFactory.RegisterComponent<Camera>();
+		mFactory.RegisterComponent<SliceEntity>();
+		mFactory.RegisterComponent<Script>();
+		mFactory.RegisterComponent<RigidBody>();
+		mFactory.RegisterComponent<ColliderShape>();
+		mFactory.RegisterComponent< AudioSource>();
 
-		// initialize all the resource files here
-		mResource->InitResourceManager();
+        mResource->InitResourceManager();
+	}
+
+	RTTR_REGISTRATION
+	{
+        // Shifting here because SLICE_RTTR is becoming too big of an obj file
+	rttr::registration::class_<Renderer>(typeid(Renderer).name())
+		.constructor<>()
+		.property("model", &Renderer::model)
+		.property("texture", &Renderer::texture)
+		.property("renderTag", &Renderer::renderTag);
+	rttr::registration::class_<Camera>(typeid(Camera).name())
+		.constructor<>()
+		.property("width", &Camera::width)
+		.property("height", &Camera::height)
+		.property("pov", &Camera::pov)
+		.property("near", &Camera::near)
+		.property("far", &Camera::far)
+		.property("textureID", &Camera::textureID)
+		.property("depthTex", &Camera::depthTex)
+		.property("renderTag", &Camera::renderTag);
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.constructor<>()
+		.property("scriptName", &Script::scriptName);
+
 	}
 
 	void Core::ExitCore()
