@@ -128,7 +128,17 @@ namespace SliceEditor
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
-		auto parent_entity = mHierarchy[target].parent;
+		//Check for children and remove them first
+		auto& targetNode = mHierarchy[target];
+		if(targetNode.children.size() > 0)
+		{
+			for (auto child : targetNode.children)
+			{
+				RemoveGameObject(child);
+			}
+		}
+
+		auto& parent_entity = mHierarchy[target].parent;
 
 		// remove from parent's children list
 		auto& children = parent_entity->children;
@@ -139,11 +149,11 @@ namespace SliceEditor
 		mHierarchy.erase(target);
 
 		//Remove from SelectionSystem
-		auto& selectionSystem = registry.GetSelectionSystem().GetSelectedEntities();
-		auto selectedIt = selectionSystem.find(target);
-		if(selectedIt != selectionSystem.end())
+		auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
+		auto selectedIt = selectedEntities.find(target);
+		if(selectedIt != selectedEntities.end())
 		{
-			selectionSystem.erase(selectedIt);
+			selectedEntities.erase(selectedIt);
 		}
 
 		// remove from core registry
