@@ -69,8 +69,8 @@ namespace SliceEngine
 
         // internal gate
         // if enabled and in game mode, allow input if imgui is not consuming it
-        inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game && !imguiWantsKeyboard; }
-        inline bool allowGameMouse() const { return enabled && mode == InputMode::Game && !imguiWantsMouse; }
+        inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game; }
+        inline bool allowGameMouse() const { return enabled && mode == InputMode::Game; }
 
         // installation state for callbacks
         bool callbacksBound = false; // to prevent double-binding

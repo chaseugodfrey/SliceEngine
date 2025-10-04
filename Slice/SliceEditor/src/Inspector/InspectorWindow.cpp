@@ -58,6 +58,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
+			{
+				DisplayAudioSource();
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
@@ -106,6 +112,8 @@ namespace SliceEditor
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
+			DisplayComponentHeader<SliceEngine::Transform>(false);
+
 			DragVec3InputHeader("Position", "##t", tr.position);
 			DragVec3InputHeader("Rotation", "##r", tr.rotation);
 			DragVec3InputHeader("Scale", "##s", tr.scale);
@@ -130,13 +138,64 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayAudioSource()
+	{
+		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
+
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
+
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
+			if (ImGui::TreeNodeEx("AudioSource"))
+			{
+				DisplayComponentHeader<SliceEngine::AudioSource>();
+
+				ImGui::Text("Audio Clip");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Volume");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				float volume = as.currentVolume;
+				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
+					as.currentVolume = volume; // mark dirty via patch
+
+				ImGui::Text("Is Loop");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool loop = as.isLoop;
+				if (ImGui::Checkbox("##isloop", &loop))
+					as.isLoop = loop;
+
+				ImGui::Text("Is 3D");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool is3D = as.is3D;
+				if (ImGui::Checkbox("##is3d", &is3D))
+					as.is3D = is3D;
+
+				ImGui::Text("Is Paused");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				bool paused = as.isPaused;
+				if (ImGui::Checkbox("##ispaused", &paused))
+					as.isPaused = paused;
+
+				ImGui::TreePop();
+			}
+			});
+
+	}
+
 	void InspectorWindow::DisplayMeshRenderer()
 	{
 		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(selected_entity.value());
 
-		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			DisplayComponentHeader<SliceEngine::RigidBody>();
+			DisplayComponentHeader<SliceEngine::Renderer>();
 
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
@@ -235,7 +294,8 @@ namespace SliceEditor
 						{
 							if (ImGui::Selectable(script_list[i]))
 							{
-								script.scriptName = script_list[i];
+								script.scriptName = "SliceEngine.";
+								script.scriptName += script_list[i];
 								ImGui::CloseCurrentPopup();
 							}
 						}
@@ -252,7 +312,7 @@ namespace SliceEditor
 			else
 			{
 				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-				auto& script_class = script_map.at("SliceEngine." + script.scriptName);
+				auto& script_class = script_map.at(script.scriptName);
 				auto& script_vars = script_class->mFields;
 
 				for (auto& var : script_vars)
@@ -309,6 +369,11 @@ namespace SliceEditor
 			if (ImGui::Selectable("Add Script Container"))
 			{
 				reg.emplace<SliceEngine::Script>(selected_entity.value());
+			}
+
+			if (ImGui::Selectable("Add AudioSource"))
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
 			}
 
 			ImGui::EndPopup();

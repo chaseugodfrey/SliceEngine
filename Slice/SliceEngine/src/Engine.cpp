@@ -11,6 +11,7 @@
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
 
+#include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -62,13 +63,25 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-
 		auto window = Core::GetInstance()->GetWindow();
 
 
 		audio = std::make_unique<AudioManager>();
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
+
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
+		mAudioManager->Init();
+		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
+		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
+		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
+		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
+
+		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
+		
+		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -77,21 +90,23 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
-		audio->Init();
-		audio->LoadSound("BGMTest", "Assets/Audio/BGM_MainMenu_Mix1.wav", false, false);
-		//audio->PlaySound("BGMTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, 0.5f);
+		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
+		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
 		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
 		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
 		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
 		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
 		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
 		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
 		mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		mResource->RegisterFileAsset("Assets/Models/Quad.txt");
 		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 		
 		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
@@ -111,13 +126,26 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<CameraSystem>();
 		
 		mRender->CreateInstancingParams();
+		mRender->CreateDeferredTextures();
 		mRender->CreateCamera();
-
+		
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 
+		//test();
+
+		
+		//JSONSerializer::Test2();
+		//JSONSerializer::Tests::RunTests(false);
+		//JSONSerializer::Tests::RunTests(false);
+		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
+
+		testing.AddComponent<Renderer>();
+		testing.AddComponent<AudioSource>();*/
+
+		Core::GetInstance()->mFactory.TestLoop();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
@@ -137,6 +165,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
 
 		frm.StartSystem("GLFW Poll Events");
@@ -148,33 +177,44 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-		gScriptSystem->UpdateScripts();
-		gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 
 		frm.StartSystem("Input");
-		 if (inputs->IsKeyPressed(KEY_W))
-		 {
-		 	std::cout << " test " << std::endl;
-		 }
-		inputs->Update();
+		//inputs->Update();
+		inputs->UpdatePrevInput();
 		frm.EndSystem("Input");
-		frm.StartSystem("Physics");
+
+        frm.StartSystem("Audio");
+		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
+		mAudioManager->Update();
+        frm.EndSystem("Audio");
+        
+		frm.StartSystem("Script");
+		gScriptSystem->UpdateScripts();
+		if (inputs->GetMode() == InputMode::Game)
+		{
+			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+		}
+		frm.EndSystem("Script");
+
+		// TODO: Shouldn't be using input get mode to split play and editor mode
+
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
-
-			Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
-			
+			frm.StartSystem("Physics");
+			if (inputs->GetMode() == InputMode::Game)
+			{
+				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+			}
+			frm.EndSystem("Physics");
 		}
-		frm.EndSystem("Physics");
-		// framerateManager->CapFPS(60);
 
-		////
+		frm.StartSystem("Transform");
+		Core::GetInstance()->GetSystem<TransformSystem>().Update(frm.getFixedDeltaTime());
+		frm.EndSystem("Transform");
 
 		frm.StartSystem("Graphics");
 		mRender->Render();
 		frm.EndSystem("Graphics");
-
-
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
@@ -187,7 +227,7 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-
+		auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 

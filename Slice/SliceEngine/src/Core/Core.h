@@ -7,6 +7,7 @@
 //#include "Graphics/RenderManager.h"
 //#include "Graphics/CameraSystem.h"
 #include "ECS/BaseSystem.h"
+#include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
@@ -16,6 +17,7 @@ namespace SliceEngine
 {
 	class RenderManager;
 	class ResourceManager;
+	class AudioManager;
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
@@ -65,9 +67,13 @@ namespace SliceEngine
 		}
 		InputSystem* GetInputSystem();
 
+		SceneSystem* GetSceneSystem();
+
 		ResourceManager* GetResourceManager();
 
 		RenderManager* GetRenderManager();
+
+		AudioManager* GetAudioManager();
 
 		FramerateManager* GetFramerateManager();
 
@@ -86,8 +92,10 @@ namespace SliceEngine
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
 		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
+		std::unique_ptr<SceneSystem> mScenePtr;
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
+		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
 		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
 	};
@@ -97,7 +105,7 @@ namespace SliceEngine
 #define ResourceManagerInstance Core::GetInstance()->GetResourceManager()
 #define RenderManagerInstance Core::GetInstance()->GetRenderManager()
 #define FactoryInstance Core::GetInstance()->mFactory
-#define FramerateManagerInstance Core::Getnstance()->GetFraterateManager()
+#define FramerateManagerInstance Core::GetInstance()->GetFramerateManager()
 
 }
 

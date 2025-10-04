@@ -16,6 +16,9 @@ namespace SliceEditor
 
 	class SceneViewManager : public IBaseManager, public ICreateWindow
 	{
+		float mCameraSpeed = 0.01f;
+		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
+		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
 	public:
 
@@ -25,6 +28,19 @@ namespace SliceEditor
 		void Init() override;
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;
+
+		float GetCameraSpeed();
+
+		void ChangeCameraSpeed(float speed);
+
+		void SetGizmoOperation(ImGuizmo::OPERATION op);
+		void SetGizmoMode(ImGuizmo::MODE mode);
+
+		void SelectObject(entt::entity);
+		void ClearObject();
+
+		ImGuizmo::OPERATION GetGizmoOperation() const;
+		ImGuizmo::MODE GetGizmoMode() const;
 	};
 }
 #endif

@@ -14,22 +14,13 @@ namespace SliceEngine
 {
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;
 	}
 	void WorldSpaceGraphicsSystem::Render(Entity cam)
 	{
-		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
@@ -54,15 +45,15 @@ namespace SliceEngine
 	void WorldSpaceGraphicsSystem::EntityOnUpdate(entt::registry& reg, Entity entity, float dt)
 	{
 		auto& transform = reg.get<Transform>(entity);
-		// -------------------------------------------------------------
-		// Calc the Transformation Matrix
-		// -------------------------------------------------------------
-		glm::mat4x4 M(1.f);
-		M = glm::translate(M, transform.position);
-		M *= glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
-		M = glm::scale(M, transform.scale);
+		//// -------------------------------------------------------------
+		//// Calc the Transformation Matrix
+		//// -------------------------------------------------------------
+		//glm::mat4x4 M(1.f);
+		//M = glm::translate(M, transform.position);
+		//M *= glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y), glm::radians(transform.rotation.z));
+		//M = glm::scale(M, transform.scale);
 
-		transform.transform = M;
+		//transform.transform = M;
 		// Transformation code for child - continuing from parent
 		//M = glm::translate(M, glm::vec3(2.f, -2.f, 2.f));
 		//glm::mat4x4 M2 = glm::eulerAngleXYZ(glm::radians(45.f), glm::radians(0.f), glm::radians(0.f));
@@ -95,17 +86,17 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(/*tempModel.vao*/
-		tempModel.get()->vao);
+		glBindVertexArray(tempModel.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
+		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
-		glDrawArrays(/*tempModel.drawMode, 0, tempModel.drawCnt*/
-			tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
+		glDrawArrays(tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

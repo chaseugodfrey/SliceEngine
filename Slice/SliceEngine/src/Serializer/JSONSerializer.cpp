@@ -5,6 +5,8 @@ namespace SliceEngine
 {
 	namespace JSONSerializer
 	{
+		std::unordered_map<uint32_t, uint32_t> sceneGraphMap;
+
 		constexpr auto testPath("Assets/Tests/");
 
 		bool AddComponentFromVariant(GameObject& node, rttr::variant const& componentInstance, std::string const& componentName)
@@ -31,12 +33,24 @@ namespace SliceEngine
 			ofs.close();
 		}
 
-		json SerializeGameObject(GameObject& node)
+		void SerializeScene(std::filesystem::path const& filePath)
 		{
 			json output;
 
 			auto& registry = Core::GetInstance()->GetRegistry();
-			entt::entity entity = node.GetEntity();
+
+			auto entityView = registry.view<SliceEntity>();
+			for (auto entity : entityView)
+			{
+				output += SerializeGameObject(entity, registry);
+			}
+
+			Serialize(output, filePath);
+		}
+
+		json SerializeGameObject(entt::entity entity, entt::registry& registry)
+		{
+			json output;
 
 			// Go through every registered component
 			for (auto&& [type_id, storage] : registry.storage())
@@ -73,6 +87,8 @@ namespace SliceEngine
 
 					rttr::variant propVal = property.get_value(componentData);
 
+					std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
 					if (!propVal.is_valid())
 					{
 						continue;
@@ -80,55 +96,84 @@ namespace SliceEngine
 
 					if (propVal.is_type<int>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<int>();
+						output[name][storage.type().name()][propName] = propVal.get_value<int>();
 					}
 					else if (propVal.is_type<float>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<float>();
+						output[name][storage.type().name()][propName] = propVal.get_value<float>();
 					}
 					else if (propVal.is_type<double>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<double>();
+						output[name][storage.type().name()][propName] = propVal.get_value<double>();
 					}
 					else if (propVal.is_type<uint32_t>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<uint32_t>();
+						output[name][storage.type().name()][propName] = propVal.get_value<uint32_t>();
+					}
+					else if (propVal.is_type<EntityID>())
+					{
+						EntityID eid = propVal.get_value<EntityID>();
+						output[name][storage.type().name()][propName] = eid.value;
 					}
 					else if (propVal.is_type<std::array<uint32_t, 4>>())
 					{
 						const auto& vec = propVal.get_value<std::array<uint32_t, 4>>();
 						for (size_t i{}; i < 4; ++i)
 						{
-							output[node.GetName()][storage.type().name()][propName][i] = vec[i];
+							output[name][storage.type().name()][propName][i] = vec[i];
+						}
+					}
+					else if (propVal.is_type<std::array<Entity, 4>>())
+					{
+						const auto& vec = propVal.get_value<std::array<Entity, 4>>();
+						for (size_t i{}; i < 4; ++i)
+						{
+							Entity e = vec[i];
+							if (e == entt::null)
+							{
+								output[name][storage.type().name()][propName][i] = 0;
+							}
+							else
+							{
+								output[name][storage.type().name()][propName][i] = static_cast<uint32_t>(e);
+							}
 						}
 					}
 					else if (propVal.is_type<std::string>())
 					{
-						output[node.GetName()][storage.type().name()][propName] = propVal.get_value<std::string>();
+						output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
 					}
 					else if (propVal.is_type<std::vector<uint32_t>>())
 					{
 						const auto& vec = propVal.get_value<std::vector<uint32_t>>();
 						for (const auto& elem : vec)
 						{
-							output[node.GetName()][storage.type().name()][propName].push_back(elem);
+							output[name][storage.type().name()][propName].push_back(elem);
 						}
 					}
 
 					else if (propVal.is_type<glm::vec3>())
 					{
 						auto v = propVal.get_value<glm::vec3>();
-						output[node.GetName()][storage.type().name()][propName] = { v.x, v.y, v.z };
+						output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
 					}
 					else
 					{
 						// fallback
-						output[node.GetName()][storage.type().name()][propName] = propVal.to_string();
+						output[name][storage.type().name()][propName] = propVal.to_string();
 					}
 				}
 			}
 
 			return output;
+		}
+
+		json SerializeGameObject(GameObject& node)
+		{
+			auto& registry = Core::GetInstance()->GetRegistry();
+			entt::entity entity = node.GetEntity();
+
+			return SerializeGameObject(entity, registry);
 		}
 
 		//Loads JSON (the file) and returns it as a json (the data structure) that can be accessed and edited
@@ -146,8 +191,9 @@ namespace SliceEngine
 			return output;
 		}
 
-		void DeserializeGameObjects(json const& input)
+		void DeserializeScene(std::filesystem::path const& filePath)
 		{
+			json input = Deserialize(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
@@ -172,7 +218,7 @@ namespace SliceEngine
 						continue;
 					}
 
-					//Note for hafiz and me: I moved the mName to sliceentity component
+					// Note for hafiz and me: I moved the mName to sliceentity component
 					// technically there should never be an instance of two objects with the same name serialized
 					// since factory checks for that
 					// So i shouldn't have to check for duplicate names when deserializing
@@ -203,6 +249,11 @@ namespace SliceEngine
 							}
 							prop.set_value(componentInstance, vec);
 						}
+						else if (prop.get_type() == rttr::type::get<EntityID>())
+						{
+							uint32_t rawID = value.get<uint32_t>();
+							prop.set_value(componentInstance, EntityID{ rawID });
+						}
 						else if (prop.get_type() == rttr::type::get<glm::vec3>())
 						{
 							glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
@@ -214,47 +265,40 @@ namespace SliceEngine
 							arr = value;
 							prop.set_value(componentInstance, arr);
 						}
+						else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
+						{
+							std::array<Entity, 4> arr;
+							for (size_t i = 0; i < arr.size(); ++i)
+							{
+								auto v = value[i];
+
+								if (v == 0)
+								{
+									arr[i] = entt::null;
+								}
+								else
+								{
+									arr[i] = v;
+								}
+							}
+							prop.set_value(componentInstance, arr);
+						}
 						else
 						{
 							// fallback: try string
 							prop.set_value(componentInstance, value.get<std::string>());
 						}
 
-						
+						if (compType == rttr::type::get<SceneGraph>())
+						{
+							auto& sg = componentInstance.get_value<SceneGraph>();
+
+							sceneGraphMap[sg.entity_id.value] = entt::to_integral(node.GetEntity());
+							SLICE_LOG("Old ID " + std::to_string(sg.entity_id.value) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
+						}
 					}
 
 					AddComponentFromVariant(node, componentInstance, componentName);
-
-					//Most definitely cooked here
-					//for (auto&& [type_id, storage] : Core::GetInstance()->GetRegistry().storage())
-					//{
-					//	if (storage.contains(node.GetEntity()))
-					//	{
-					//		// each component will be here
-					//		std::cout << storage.type().name() << std::endl;
-
-					//	}
-					//	std::string componentName(storage.type().name());
-
-					//	rttr::type componentType = rttr::type::get_by_name(componentName);
-					//	if (!componentType)
-					//	{
-					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
-					//		continue;
-					//	}
-
-					//	auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
-					//	if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
-					//	{
-					//		SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
-					//		// assert?
-
-					//		continue;
-					//	}
-
-					//	it->second(Core::GetInstance()->GetRegistry(), node.GetEntity()) = componentInstance;
-					//}
-										
 				}
 			}
 		}
@@ -316,7 +360,7 @@ namespace SliceEngine
 			void Test2(bool cleanOutput)
 			{
 				SLICE_LOG("Test 2 Beginning...");
-				auto& factory = Core::GetInstance()->mFactory;
+				auto& factory = FactoryInstance;
 
 				GameObject omnia_victrum = factory.CreateGO("Omnia_Victrum");
 
@@ -327,16 +371,19 @@ namespace SliceEngine
 				transform.scale = glm::vec3(7, 8, 9);
 
 				omnia_victrum.AddComponent<SceneGraph>();
-
 				auto& scenegraph = omnia_victrum.GetComponent<SceneGraph>();
+				scenegraph.entity_id = entt::to_integral(omnia_victrum.GetEntity());
 				for (size_t i{}; i < SceneGraph::Direction::DIRECTIONS; ++i)
 				{
 					scenegraph.neighbours[i] = static_cast<Entity>(i);
 				}
 
 				// Serialize the object
-				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));				
-				DeserializeGameObjects(Deserialize(testPath + std::string("JSONTest2.json")));
+				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));
+
+				factory.Destroy(omnia_victrum);
+
+				DeserializeScene(Deserialize(testPath + std::string("JSONTest2.json")));
 				if (cleanOutput)
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
@@ -344,11 +391,77 @@ namespace SliceEngine
 				SLICE_LOG("Test 2 Ended.");
 			}
 
-			void RunTests(bool cleanOutput)
+			void Test3(bool cleanOutput)
 			{
-				Test1(cleanOutput);
-				Test2(cleanOutput);
-				SLICE_LOG("Tests Completed, Examine Console Log for Errors");
+				SLICE_LOG("Test 3 Beginning...");
+				auto& factory = FactoryInstance;
+
+				GameObject parent = factory.CreateGO("Bing_Bong_Parent");
+				GameObject child = factory.CreateGO("Bing_Bong_Child");
+
+				// Set up transform via the component system
+				auto& parentTransform = parent.GetComponent<Transform>();
+				parentTransform.position = glm::vec3(10, 11, 12);
+				parentTransform.rotation = glm::vec3(13, 14, 15);
+				parentTransform.scale = glm::vec3(16, 17, 18);
+
+				auto& childTransform = parent.GetComponent<Transform>();
+				childTransform.position = glm::vec3(10, 11, 12);
+				childTransform.rotation = glm::vec3(13, 14, 15);
+				childTransform.scale = glm::vec3(16, 17, 18);
+
+				parent.AddComponent<SceneGraph>();
+				auto& parentScenegraph = parent.GetComponent<SceneGraph>();
+				parentScenegraph.entity_id = entt::to_integral(parent.GetEntity());
+
+				child.AddComponent<SceneGraph>();
+				auto& childScenegraph = child.GetComponent<SceneGraph>();
+				childScenegraph.entity_id = entt::to_integral(child.GetEntity());
+
+				factory.SetParent(child.GetEntity(),parent.GetEntity());				
+
+				SerializeScene(testPath + std::string("JSONTest3.json"));
+
+				factory.Destroy(parent);
+				factory.Destroy(child);
+
+				DeserializeScene(testPath + std::string("JSONTest3.json"));
+				if (cleanOutput)
+				{
+					std::filesystem::remove(testPath + std::string("JSONTest3.json"));
+				}
+				SLICE_LOG("Test 3 Ended.");
+			}
+
+			void Test4(bool cleanOutput)
+			{
+
+			}
+
+			void RunTests(TestNum testNum, bool cleanOutput)
+			{
+				switch (testNum)
+				{
+				case TEST1:
+					Test1(cleanOutput);
+					break;
+
+				case TEST2:
+					Test2(cleanOutput);
+					break;
+				case TEST3:
+					Test3(cleanOutput);
+					break;
+				case TEST4:
+					Test4(cleanOutput);
+					break;
+				default:
+					Test1(cleanOutput);
+					Test2(cleanOutput);
+					Test3(cleanOutput);
+					break;
+				}
+				SLICE_LOG("Test(s) Completed, Examine Console Log for Errors");
 			}
 		}
 	}
