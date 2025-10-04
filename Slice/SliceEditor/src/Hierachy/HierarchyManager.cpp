@@ -6,34 +6,14 @@
 namespace SliceEditor
 {
 
-	void HierarchyManager::Test()
-	{
-		//TestNode mTestRootNode{};
-		//mTestRootNode.parent = nullptr;
-
-		//for (size_t i = 0; i < 3; i++)
-		//{
-		//	TestNode mNode{};
-		//	mNode.parent = &mTestRootNode;
-		//	mNode.name = std::to_string(i);
-
-		//	for (size_t j = 0; j < 2; j++)
-		//	{
-		//		TestNode mNode2{};
-		//		mNode2.parent = &mNode;
-		//		mNode2.name = std::to_string(i) + "-" + std::to_string(j);
-		//		mNode.children.push_back(mNode2);
-		//	}
-
-		//	mTestRootNode.children.push_back(mNode);
-		//}
-
-		//mRootNodes.push_back(mTestRootNode);
-	}
-
 	void HierarchyManager::Init()
 	{
-		Test();
+		BuildHierarchy();
+	}
+
+	void HierarchyManager::Reset()
+	{
+		registry.GetSelectionSystem().ClearSelection();
 		BuildHierarchy();
 	}
 
@@ -74,6 +54,7 @@ namespace SliceEditor
 
 		TestNode rootNode{};
 		rootNode.entity = root_entity;
+		rootNode.name = core->GetSceneSystem()->GetCurrentScenePath().filename().stem().string();
 		mHierarchy.emplace(root_entity, rootNode);
 
 		auto hierarchy = reg.view<SliceEngine::SliceEntity>();

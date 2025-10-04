@@ -87,7 +87,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
 			ImGui::Separator();
@@ -224,7 +224,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
         {
-         isPlaying = !isPlaying;
+			isPlaying = !isPlaying;
 
 			if (isPlaying) // if its play, enable game input
 			{
@@ -263,7 +263,6 @@ namespace SliceEditor
 			int w = s.width, h = s.height;
 			if (ImGui::InputInt("Width", &w)) { s.width = std::max(16, w); changed = true; }
 			if (ImGui::InputInt("Height", &h)) { s.height = std::max(16, h); changed = true; }
-			if (ImGui::Checkbox("VSync", &s.vsync)) { changed = true; }
 
 			// Scenes list (very basic)
 			for (size_t i = 0;i < s.scenes.size();++i) {

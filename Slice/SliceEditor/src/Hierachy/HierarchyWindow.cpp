@@ -95,10 +95,17 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawSceneNode(TestNode& node)
 	{
-		for (size_t i = 0; i < node.children.size(); i++)
+		if (ImGui::TreeNodeEx(node.name.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-			DrawNode(child_node);
+			ImGui::Separator();
+
+			for (size_t i = 0; i < node.children.size(); i++)
+			{
+				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+				DrawNode(child_node);
+			}
+
+			ImGui::TreePop();
 		}
 	}
 

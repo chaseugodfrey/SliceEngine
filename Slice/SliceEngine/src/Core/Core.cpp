@@ -38,6 +38,7 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+		mScenePtr = std::make_unique<SceneSystem>();
 
 		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
 	}

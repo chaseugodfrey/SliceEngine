@@ -3,13 +3,6 @@
 
 namespace SliceEngine
 {
-	// todo: transfer this to a scene asset/read this from a scene asset
-	struct Scene
-	{
-		std::wstring name;
-		std::wstring path;
-	};
-
 	class SceneSystem : BaseEngineSystem
 	{
 	public:
@@ -17,6 +10,7 @@ namespace SliceEngine
 
 		void LoadScene(std::filesystem::path const& filePath);
 		void SaveScene(std::filesystem::path const& filePath);
+		void SaveCurrentScene();
 
 		void ReloadScene();		
 		
@@ -24,10 +18,11 @@ namespace SliceEngine
 		void Pause();
 		void Stop();
 
+		std::filesystem::path GetCurrentScenePath();
+
 	private:
 		//can change to other identifier
-		std::string mCurrentScene;
-		std::map<int, Scene> mScenes;
+		std::filesystem::path mCurrentScene{};
 	};
 }
 

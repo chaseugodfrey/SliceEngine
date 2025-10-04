@@ -146,6 +146,7 @@ namespace SliceEngine
 		testing.AddComponent<AudioSource>();*/
 
 		Core::GetInstance()->mFactory.TestLoop();
+		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
@@ -266,21 +267,21 @@ namespace SliceEngine
 			}
 			if (j.contains("scenes")) s.scenes = j["scenes"].get<std::vector<std::string>>();
 			s.startupScene = j.value("startupScene", s.startupScene);
-		}
 
-		// Fallback: if startupScene empty, use first scene
-		std::string sceneToLoad = !s.startupScene.empty()
-			? s.startupScene
-			: (s.scenes.empty() ? "" : s.scenes.front());
+			// Fallback: if startupScene empty, use first scene
+			std::string sceneToLoad = !s.startupScene.empty()
+				? s.startupScene
+				: (s.scenes.empty() ? "" : s.scenes.front());
 
-		if (sceneToLoad.empty()) {
-			// Nothing to load—show blank/editor splash or exit gracefully
-			// log: "No scenes configured."
-		}
+			if (sceneToLoad.empty()) {
+				// Nothing to load—show blank/editor splash or exit gracefully
+				// log: "No scenes configured."
+			}
 
-		else 
-		{
-			Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+			else
+			{
+				Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+			}
 		}
 	}
 

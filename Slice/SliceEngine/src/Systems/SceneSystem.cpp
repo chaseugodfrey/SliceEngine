@@ -14,7 +14,7 @@ namespace SliceEngine
 			return;
 		}
 
-		mCurrentScene = filePath.string();
+		mCurrentScene = filePath;
 
 		SLICE_LOG("Loading scene...");
 
@@ -27,7 +27,11 @@ namespace SliceEngine
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());
 
-		mCurrentScene = filePath.string();
+		if (!std::filesystem::exists(filePath))
+		{
+			SLICE_LOG_ERROR("Filepath not found. Saving scene unsuccessful.");
+			return;
+		}
 
 		SLICE_LOG("Saving scene...");
 
@@ -35,6 +39,11 @@ namespace SliceEngine
 
 		SLICE_LOG("Scene saved successfully.");
 
+	}
+
+	void SceneSystem::SaveCurrentScene()
+	{
+		SaveScene(mCurrentScene);
 	}
 
 	// For play then unplay, should call this one to reload scene as per last save instead of using current information
@@ -59,5 +68,10 @@ namespace SliceEngine
 	void SceneSystem::Stop()
 	{
 		//
+	}
+
+	std::filesystem::path SceneSystem::GetCurrentScenePath()
+	{
+		return mCurrentScene;
 	}
 }
