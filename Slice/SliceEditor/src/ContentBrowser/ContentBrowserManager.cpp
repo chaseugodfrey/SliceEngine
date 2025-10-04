@@ -1,7 +1,8 @@
 #include <pch.h>
 #include "ContentBrowserManager.h"
 #include "ContentBrowserWindow.h"
-
+#include "Core/Registry.h"
+#include "Hierachy/HierarchyManager.h"
 
 namespace SliceEditor
 {
@@ -110,9 +111,19 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserManager::OpenFile()
+	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
-		SLICE_LOG("Open this file WIP!");
+		if (entry.path.extension() == ".scene")
+		{
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadScene(entry.path);
+			registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
+		}
+		
+		else
+		{
+			SLICE_LOG("Open this file WIP!");
+
+		}
 	}
 
 	void ContentBrowserManager::DeleteFile(DirectoryNode& entry)

@@ -5,6 +5,7 @@
 #include "../Core/Registry.h"
 #include "../Hierachy/HierarchyManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 
 namespace SliceEditor
 {
@@ -25,7 +26,7 @@ namespace SliceEditor
 		}
 
 		// Create windows
-		// to do: maybe read from imgui ini file and load accordingly
+		// todo: maybe read from imgui ini file and load accordingly
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
 		AddWindow("SceneView");
@@ -58,11 +59,14 @@ namespace SliceEditor
 		DrawMainMenu();
 		DrawPlayState();
 		DrawDockspace();
+		DrawProjectSettings();
 		
 		for (auto& window : list)
 		{
 			window->Draw();
 		}
+
+
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -83,10 +87,15 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
 			ImGui::Separator();
+
+			if (ImGui::MenuItem("Project Settings"))
+			{
+				projectSettingsPopupOpen = true;
+			}
 
 			if (ImGui::MenuItem("Preferences"))
 			{
@@ -166,9 +175,18 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
+#pragma region Custom Title Bar (Disabled for now)
+		//// todo : custom title bar!!!
+		//ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 30);
+		//if (ImGui::ButtonEx("X##close", ImVec2{ 30,30 }, ImGuiButtonFlags_PressedOnRelease))
+		//{
+		//	// todo : create engine window functionality for this
+		//	glfwSetWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow(), true);
+		//}
+#pragma endregion
+
 		ImGui::EndMainMenuBar();
 		ImGui::PopStyleVar();
-
 	}
 
 	void WindowManager::DrawDockspace()
@@ -206,7 +224,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
         {
-         isPlaying = !isPlaying;
+			isPlaying = !isPlaying;
 
 			if (isPlaying) // if its play, enable game input
 			{
@@ -227,6 +245,76 @@ namespace SliceEditor
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
 
 		ImGui::End();
+	}
+
+	void WindowManager::DrawProjectSettings()
+	{
+		if (!projectSettingsPopupOpen)
+			return;
+
+		bool isOpen;
+		if (ImGui::Begin("project_settings_window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize ))
+		{
+			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+			auto& s = gSettings->Edit(); // we�ll set dirty only if something changes
+
+			bool changed = false;
+			if (ImGui::InputText("Product Name", &s.productName)) { changed = true; }
+			int w = s.width, h = s.height;
+			if (ImGui::InputInt("Width", &w)) { s.width = std::max(16, w); changed = true; }
+			if (ImGui::InputInt("Height", &h)) { s.height = std::max(16, h); changed = true; }
+
+			// Scenes list (very basic)
+			for (size_t i = 0;i < s.scenes.size();++i) {
+				ImGui::PushID((int)i);
+				ImGui::InputText("Scene Path", &s.scenes[i]); // path string edit
+				if (ImGui::SmallButton("Up") && i > 0) { std::swap(s.scenes[i], s.scenes[i - 1]); changed = true; }
+				ImGui::SameLine();
+				if (ImGui::SmallButton("Down") && i + 1 < s.scenes.size()) { std::swap(s.scenes[i], s.scenes[i + 1]); changed = true; }
+				ImGui::SameLine();
+				if (ImGui::SmallButton("X")) { s.scenes.erase(s.scenes.begin() + i); changed = true; ImGui::PopID(); break; }
+				ImGui::PopID();
+			}
+			if (ImGui::Button("+ Add Scene")) { s.scenes.emplace_back("Assets/Scenes/New.scene"); changed = true; }
+
+			// Startup scene combo
+			if (!s.scenes.empty()) {
+				int current = 0;
+				for (int i = 0;i < (int)s.scenes.size();++i) if (s.scenes[i] == s.startupScene) current = i;
+				if (ImGui::BeginCombo("Startup Scene", s.scenes[current].c_str())) {
+					for (int i = 0;i < (int)s.scenes.size();++i) {
+						bool sel = (i == current);
+						if (ImGui::Selectable(s.scenes[i].c_str(), sel)) { s.startupScene = s.scenes[i]; changed = true; }
+					}
+					ImGui::EndCombo();
+				}
+			}
+
+			// Save/Reload row
+			if (ImGui::Button("Save")) gSettings->Save();
+			ImGui::SameLine();
+			if (ImGui::Button("Reload")) { gSettings->Load(); }
+
+			// Set dirty timing + optional autosave
+			if (changed) {
+				// touching Edit() already marked dirty; reset the debounce timer by re-setting the change time
+				// simplest: mark as dirty again; DebouncedAutosave accumulates time each frame
+			}
+
+			gSettings->DebouncedAutosave(1.0f/60.0f, /*delay*/0.75);
+
+			// External change detection (prompt)
+			if (gSettings->DetectExternalChange()) {
+				ImGui::TextDisabled("ProjectSettings.json changed on disk.");
+				ImGui::SameLine();
+				if (ImGui::Button("Reload from Disk")) gSettings->Load();
+			}
+
+			ImGui::End();
+		}
+
+		projectSettingsPopupOpen = isOpen;
+
 	}
 
 }

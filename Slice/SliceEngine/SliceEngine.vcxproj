@@ -64,6 +64,7 @@
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -104,6 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\AudioManager.h" />
+    <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EventManager.h" />
@@ -131,6 +133,7 @@
     <ClInclude Include="src\Resource\Model.h" />
     <ClInclude Include="src\Resource\Resource.h" />
     <ClInclude Include="src\Resource\ResourceManager.h" />
+    <ClInclude Include="src\Resource\Scene.h" />
     <ClInclude Include="src\Resource\Shader.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
@@ -150,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioManager.cpp" />
+    <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
@@ -169,6 +173,7 @@
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
