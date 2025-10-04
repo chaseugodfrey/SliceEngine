@@ -2,6 +2,8 @@
 #define ASSET_TYPES_H
 
 #include <filesystem>
+#include "../../SliceEngine/src/Resource/ResourceManager.h"
+
 namespace SliceEditor
 {
 	enum class AssetType
@@ -35,6 +37,16 @@ namespace SliceEditor
 		INTENSITY
 	};
 
+	// type UUIDs 
+	namespace ResourceTypeIDs
+	{
+		constexpr uint64_t TEXTURE = SliceEngine::FNVHash::fnv1a("Texture");
+		constexpr uint64_t SHADER = SliceEngine::FNVHash::fnv1a("Shader");
+		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
+		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
+		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
+	}
+
 	class MetaData
 	{
 	public:
@@ -50,6 +62,8 @@ namespace SliceEditor
 
 	struct TextureData : public MetaData
 	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
+
 		CompressionFormat cmp_format{ CompressionFormat::RGBA_BC3 };
 		MipMapFilter mip_filter{ MipMapFilter::NONE };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
@@ -77,6 +91,8 @@ namespace SliceEditor
 	// will implement later when we have a model format
 	struct ModelData : public MetaData
 	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
+
 		void Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
@@ -107,6 +123,8 @@ namespace SliceEditor
 
 	struct SceneData : public MetaData
 	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
+
 		void Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path

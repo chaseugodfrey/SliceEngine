@@ -1,6 +1,5 @@
 #include <pch.h>
 #include "AssetManager.h"
-#include "../../SliceEngine/src/Resource/ResourceManager.h"
 #include "AssetTypes.h"
 namespace SliceEditor
 {
@@ -78,27 +77,30 @@ namespace SliceEditor
 		std::unique_ptr<MetaData> metaData;
 
 		// I think can compile assets somewhere around here
-
+		uint64_t typeID = 0;
 		switch (assetType)
 		{
 			case AssetType::Texture:
 				metaData = std::make_unique<TextureData>();
+				typeID = ResourceTypeIDs::TEXTURE;
 				break;
 			case AssetType::Model:
 				metaData = std::make_unique<ModelData>();
+				typeID = ResourceTypeIDs::MODEL;
 				break;
 			case AssetType::Audio:
 				//metaData = std::make_unique<AudioData>();
 				break;
 			case AssetType::Scene:
 				metaData = std::make_unique<SceneData>();
+				typeID = ResourceTypeIDs::SCENE;
 				break;
 		}
 
 		if (metaData)
 		{
-			metaData->guid = SliceEngine::GUID::Generate();
 			metaData->assetName = filePath.stem().string();
+			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
 			metaData->assetType = filePath.extension().string();
 			metaData->assetPath = filePath.string();
 			// meta files are gonna be named after guid + meta
