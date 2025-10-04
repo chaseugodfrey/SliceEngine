@@ -35,7 +35,7 @@ namespace SliceEditor
 				continue;
 			}
 
-			std::string fileName = dirEntry.path().filename().string();
+			std::string fileName = dirEntry.path().filename().stem().string();
 
 			// Since this isn't unity style where meta files are alongside assets
 			// we need to compare wit hthe file name to GUID from the resource manager
@@ -61,14 +61,14 @@ namespace SliceEditor
 	{
 		//Find out the type of asset:
 		filePath.extension().string();
-		static const std::map<std::string, AssetType> extensionMap = {
-			{".png", AssetType::Texture}, {".jpg", AssetType::Texture}, {".tga", AssetType::Texture},
-			{".fbx", AssetType::Model},   {".obj", AssetType::Model},
-			{".wav", AssetType::Audio},   {".mp3", AssetType::Audio}
-		};
+		//static const std::map<std::string, AssetType> extensionMap = {
+		//	{".png", AssetType::Texture}, {".jpg", AssetType::Texture}, {".tga", AssetType::Texture},
+		//	{".fbx", AssetType::Model},   {".obj", AssetType::Model},
+		//	{".wav", AssetType::Audio},   {".mp3", AssetType::Audio}
+		//};
 
-		auto it = extensionMap.find(filePath.extension().string());
-		if (it == extensionMap.end())
+		auto it = mSupportedAssetTypes.find(filePath.extension().string());
+		if (it == mSupportedAssetTypes.end())
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
 			return; // Unsupported asset type
@@ -90,6 +90,9 @@ namespace SliceEditor
 			case AssetType::Audio:
 				//metaData = std::make_unique<AudioData>();
 				break;
+			case AssetType::Scene:
+				metaData = std::make_unique<SceneData>();
+				break;
 		}
 
 		if (metaData)
@@ -101,7 +104,7 @@ namespace SliceEditor
 			// meta files are gonna be named after guid + meta
 			//metaData->resourcePath = std::to_string(metaData->guid.GetGUID()) + ".meta"; nvm this isnt resource
 
-			// used only for cube testing			
+			// used only for cube testing and scenes
 			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 
 			// compile the asset here?? or before creating the meta file?
@@ -116,6 +119,9 @@ namespace SliceEditor
 			case AssetType::Audio:
 
 				break;
+			case AssetType::Scene:
+				std::filesystem::copy(filePath, tempPath);
+				break;
 			}
 
 
@@ -126,6 +132,8 @@ namespace SliceEditor
 			// register into resource manager
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
+			mAssets[assetType].push_back(metaData->assetName);
 
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid;

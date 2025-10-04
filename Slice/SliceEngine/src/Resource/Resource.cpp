@@ -62,5 +62,15 @@ namespace SliceEngine
 		resource.DestroyModel();	//calls glDeleteBuffer, glDeleteVertexArray
 	}
 
+	SliceEngineTypes::Scene* Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto* scene = SliceEngineTypes::Scene::Load(path);
+		return scene;
+	}
 
+	void Type<SliceEngineTypes::Scene>::Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr)
+	{
+		// scene got nth to destroy that resource manager doesn't do for it
+		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
+	}
 }
