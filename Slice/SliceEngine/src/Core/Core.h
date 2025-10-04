@@ -18,6 +18,7 @@ namespace SliceEngine
 	class ResourceManager;
 	class FramerateManager;
 	class InputSystem;
+	class ProjectSettingsService;
 
 	class Core : public Singleton<Core>
 	{
@@ -72,6 +73,8 @@ namespace SliceEngine
 
 		GLFWwindow* GetWindow();
 
+		ProjectSettingsService* GetProjectSettingsService();
+
 		Registry& GetRegistry();
 
 		void UnbindSystems();
@@ -86,7 +89,7 @@ namespace SliceEngine
 		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<FramerateManager> mFramerateManager;
-
+		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
 	};
 
 #define CoreInstance Core::GetInstance()

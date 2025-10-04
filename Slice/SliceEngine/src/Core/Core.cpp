@@ -36,6 +36,8 @@ namespace SliceEngine
 
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+
+		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
 	}
 
 	void Core::ExitCore()
@@ -59,6 +61,11 @@ namespace SliceEngine
 		return mInputPtr.get();
 	}
 
+	SceneSystem* Core::GetSceneSystem()
+	{
+		return mScenePtr.get();
+	}
+
 	ResourceManager* Core::GetResourceManager()
 	{
 		return mResource.get();
@@ -78,5 +85,10 @@ namespace SliceEngine
 	{
 
 		return mWindowManager.GetWindow();
+	}
+
+	ProjectSettingsService* Core::GetProjectSettingsService()
+	{
+		return mProjectSettingsService.get();
 	}
 }

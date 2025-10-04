@@ -135,6 +135,9 @@ namespace SliceEditor
 		auto it = std::find(std::begin(children), std::end(children), target);
 		children.erase(it);
 
+		// remove from selection system
+		registry.GetSelectionSystem().UpdateDeslected({ target });
+
 		// remove from node structure
 		mHierarchy.erase(target);
 

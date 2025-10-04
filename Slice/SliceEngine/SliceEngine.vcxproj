@@ -64,6 +64,7 @@
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -104,6 +105,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\AudioManager.h" />
+    <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EventManager.h" />
@@ -148,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AudioManager.cpp" />
+    <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
