@@ -7,7 +7,7 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-
+#include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
 
@@ -38,7 +38,14 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
 
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
@@ -56,6 +63,8 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
+		EnableMemoryLeakChecking(98916);
+
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
 

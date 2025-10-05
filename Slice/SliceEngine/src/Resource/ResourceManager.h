@@ -130,7 +130,10 @@ namespace SliceEngine
 
 			auto& instance = mInstances[assetGUID];
 			instance.filePath = path;
-			auto deleter = [](void* ptr) { delete static_cast<T*>(ptr); };
+			auto deleter = [](void* ptr) 
+			{ 
+				delete static_cast<T*>(ptr); 
+			};
 			instance.data = std::unique_ptr<void, void(*)(void*)>(data.release(), deleter);
 
 			instance.reload = [](ResourceManager& mgr, const std::string& path) {
