@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <rttr/variant.h>
 #include "Events.h"
+#include "ComponentEventHandler.h"
 
 namespace SliceEngine
 {

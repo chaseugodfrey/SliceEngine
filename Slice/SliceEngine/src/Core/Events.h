@@ -28,6 +28,16 @@ struct RigidBodyRemovedEvent {
 	Entity entity;
 };
 
+struct ColliderShapeModifiedEvent
+{
+	Entity entity;
+};
+
+struct RigidBodyModifiedEvent
+{
+	Entity entity;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")
@@ -35,21 +45,6 @@ RTTR_REGISTRATION
 	.property("firstEntity", &EntityCollide::firstEntity)
 	.property("secondEntity", &EntityCollide::secondEntity);
 
-	rttr::registration::class_<ColliderShapeAddedEvent>("ColliderShapeAdded")
-	.constructor<>()
-	.property("entity", &ColliderShapeAddedEvent::entity);
-
-	rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
-	.constructor<>()
-	.property("entity", &ColliderShapeRemovedEvent::entity);
-
-	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
-	.constructor<>()
-	.property("entity", &RigidBodyAddedEvent::entity);
-
-	rttr::registration::class_<RigidBodyRemovedEvent>("RigidBodyRemoved")
-	.constructor<>()
-	.property("entity", &RigidBodyRemovedEvent::entity);
 }
 
 
