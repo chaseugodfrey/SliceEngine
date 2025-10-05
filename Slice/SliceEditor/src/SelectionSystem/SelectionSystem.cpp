@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SelectionSystem.cpp
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the SelectionSystem class, which manages the selection of entities in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include "pch.h"
 #include "SelectionSystem.h"
 

@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        EditorCommonTypes.h
+
+ author:	  Chase Rodrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines common types used across the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 

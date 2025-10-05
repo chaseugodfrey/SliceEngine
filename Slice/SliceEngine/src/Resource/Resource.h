@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Resource.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Loads resources
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef RESOURCE_H
 #define RESOURCE_H
 //#include "ResourceManager.h"
@@ -23,7 +33,7 @@ namespace SliceEngine
 		// for now load with file name directly
 		constexpr static inline uint64_t defaultResourceGUID = 18349208178533231704;
 
-		static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, const std::string& path);
+		static std::unique_ptr<SliceEngineTypes::Texture> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr);
 
@@ -35,7 +45,7 @@ namespace SliceEngine
 		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 
 		// for now load with file name directly
-		static SliceEngineTypes::Shader* Load(ResourceManager& resourceMgr, const std::string& path);
+		static std::unique_ptr<SliceEngineTypes::Shader> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr);
 
@@ -48,7 +58,7 @@ namespace SliceEngine
 		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 
 		// for now load with file name directly
-		static SliceEngineTypes::Model* Load(ResourceManager& resourceMgr, const std::string& path);
+		static std::unique_ptr<SliceEngineTypes::Model> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Model& resource, ResourceManager& resourceMgr);
 
@@ -66,7 +76,7 @@ namespace SliceEngine
 		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 		// for now load with file name directly
-		static SliceEngineTypes::Scene* Load(ResourceManager& resourceMgr, const std::string& path);
+		static std::unique_ptr<SliceEngineTypes::Scene> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr);
 	};
 }

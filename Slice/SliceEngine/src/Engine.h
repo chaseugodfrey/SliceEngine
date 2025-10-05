@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Engine.h
+ author:
+ email:
+ brief:			Main Engine
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef ENGINE_H
 #define ENGINE_H
 //
@@ -26,8 +36,8 @@ namespace SliceEngine
 
 		// Gonna try to grp these tgt with the other systems in core.h
 		//GLFWwindow* window;
-		std::unique_ptr<InputSystem> inputs;
-		std::unique_ptr<AudioManager> audio;
+		/*std::unique_ptr<InputSystem> inputs;
+		std::unique_ptr<AudioManager> audio;*/
 		//std::unique_ptr<ResourceManager> mResource;
 		//std::unique_ptr<RenderManager> mRender;
 
