@@ -16,7 +16,7 @@ namespace SliceEditor
 		// temporary solution todo: remove this and call from registry/event bus
 		SelectionSystem& mSelection;
 
-		void DrawNode(TestNode& node);
+		void DrawNode(entt::entity entity, SliceEngine::SceneGraph& graph);
 		void DrawSceneNode(TestNode& node);
 		void DrawNodeGraph();
 

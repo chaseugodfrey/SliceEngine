@@ -139,7 +139,7 @@ namespace SliceEngine
 							Entity e = vec[i];
 							if (e == entt::null)
 							{
-								output[name][storage.type().name()][propName][i] = 0;
+								output[name][storage.type().name()][propName][i] = nullptr;
 							}
 							else
 							{
@@ -226,7 +226,7 @@ namespace SliceEngine
 						rttr::type compType = rttr::type::get_by_name(componentName);
 						if (!compType)
 						{
-							SLICE_LOG_ERROR(componentName + " not registered");
+							//SLICE_LOG_ERROR(componentName + " not registered");
 							continue;
 						}
 
@@ -289,7 +289,15 @@ namespace SliceEngine
 								for (size_t i = 0; i < arr.size(); ++i)
 								{
 									auto v = value[i];
-									arr[i] = v;
+
+									if (v.is_null())
+									{
+										arr[i] = entt::null;
+									}
+									else
+									{
+										arr[i] = static_cast<Entity>(v.get<uint32_t>());
+									}
 								}
 								prop.set_value(componentInstance, arr);
 							}

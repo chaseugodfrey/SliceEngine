@@ -37,6 +37,8 @@ namespace SliceEditor
 			auto entity = selected_entity.value();
 			DisplayTransform();
 			ImGui::Separator();
+			DisplaySceneGraph();
+			ImGui::Separator();
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
@@ -93,11 +95,14 @@ namespace SliceEditor
 
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).GetName();
 		std::string editable_name = original_name;
-		ImGui::InputText("##name", &editable_name);
-
-		if (editable_name != original_name)
-			SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
-
+		if (ImGui::InputText("##name", &editable_name))
+		{
+			if (editable_name != original_name)
+				SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
+		}
+		
+		ImGui::SameLine();
+		ImGui::Text(std::to_string((uint64_t)selected_entity.value()).c_str());
 		ImGui::Separator();
 
 	}
@@ -136,6 +141,32 @@ namespace SliceEditor
 
 			ImGui::TreePop();
 		}
+	}
+
+	void InspectorWindow::DisplaySceneGraph()
+	{
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(selected_entity.value());
+
+		entt::entity ent_display{};
+		ImGui::Text("Parent:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Child:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Previous Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Next Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 	}
 
 	void InspectorWindow::DisplayAudioSource()
@@ -182,6 +213,12 @@ namespace SliceEditor
 				bool paused = as.isPaused;
 				if (ImGui::Checkbox("##ispaused", &paused))
 					as.isPaused = paused;
+
+				ImGui::Text("Play Preview");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+					as.playPreview = !as.playPreview;
 
 				ImGui::TreePop();
 			}

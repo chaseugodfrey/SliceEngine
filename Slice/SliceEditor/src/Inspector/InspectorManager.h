@@ -12,7 +12,7 @@ namespace SliceEditor
 		InspectorManager(Registry& reg) : IBaseManager(reg) {};
 		~InspectorManager() = default;
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void Init() override;
 

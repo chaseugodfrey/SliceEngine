@@ -3,7 +3,7 @@
 
 namespace SliceEngine
 {
-	GLFWwindow* GLFWWindowManager::CreateWindow()
+	GLFWwindow* GLFWWindowManager::CreateGLFWWindow()
 	{
 		SLICE_LOG("Creating Main Window.");
 

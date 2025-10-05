@@ -12,7 +12,7 @@ namespace SliceEditor
 		BuildTree();
 	}
 
-	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateWindow()
+	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Content Browser Window.");
 		auto window = std::make_unique<ContentBrowserWindow>(*this);

@@ -10,7 +10,7 @@ namespace SliceEditor
 
 	}
 
-	std::unique_ptr<EditorWindow> GameViewManager::CreateWindow()
+	std::unique_ptr<EditorWindow> GameViewManager::CreateEditorWindow()
 	{
 		auto window = std::make_unique<GameViewWindow>(*this);
 

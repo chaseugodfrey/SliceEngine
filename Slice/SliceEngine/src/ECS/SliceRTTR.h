@@ -79,7 +79,6 @@ namespace SliceEngine
 
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.property("layer", &ColliderShape::layer)
-		.property("ColliderType", &ColliderShape::type)
 		.property("ShapeData", &ColliderShape::shapeData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger);

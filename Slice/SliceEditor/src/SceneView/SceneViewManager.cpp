@@ -12,7 +12,7 @@ namespace SliceEditor
 		mCameraSpeed = 0.01f;
 	}
 
-	std::unique_ptr<EditorWindow> SceneViewManager::CreateWindow()
+	std::unique_ptr<EditorWindow> SceneViewManager::CreateEditorWindow()
 	{
 		// TO DO: replace this with camera creation + attaching to window
 		auto mRenderManager = SliceEngine::RenderManagerInstance;

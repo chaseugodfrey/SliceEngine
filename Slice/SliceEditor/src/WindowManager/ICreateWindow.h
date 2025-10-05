@@ -9,7 +9,7 @@ namespace SliceEditor
 	{
 	public:
 		virtual ~ICreateWindow() = default;
-		virtual std::unique_ptr<EditorWindow> CreateWindow() = 0;
+		virtual std::unique_ptr<EditorWindow> CreateEditorWindow() = 0;
 	};
 }
 #endif
