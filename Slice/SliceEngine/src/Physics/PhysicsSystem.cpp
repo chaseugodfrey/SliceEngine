@@ -246,6 +246,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
