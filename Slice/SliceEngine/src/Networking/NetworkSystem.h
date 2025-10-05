@@ -26,8 +26,8 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "ECS/GameObject.h"
 #include "../Core/Events.h"
 
-
-#define WINSOCK_VERSION     2
+#undef WINSOCK_VERSION
+#define WINSOCKK_VERSION     2
 #define WINSOCK_SUBVERSION  2
 #define MAX_STR_LEN         1000
 
@@ -126,7 +126,8 @@ namespace SliceEngine
 		//void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		//void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		//void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-        void Init();// or some shit;
+        void Init();
+        void Exit();
         void BindSocket(const NetworkBindPortEvent& event);
         void UpdateObjects();
         void SubscribeToAllNetworkEvents();

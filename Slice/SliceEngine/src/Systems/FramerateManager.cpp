@@ -17,10 +17,10 @@ written consent of DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(glfwGetTime()),
+	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(static_cast<float>(glfwGetTime())),
 		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) 
 	{
-		fixedDeltaTime = 1.0 / targetfps;
+		fixedDeltaTime = 1.0f / targetfps;
 	}
 
 	FramerateManager &FramerateManager::getInstance()
@@ -41,7 +41,7 @@ namespace SliceEngine
 	void FramerateManager::updateDeltaTime()
 	{
 		currentNumberOfSteps = 0;
-		double curr_time = glfwGetTime();       // Get the current time
+		float curr_time =static_cast<float>(glfwGetTime());       // Get the current time
 		deltaTime = curr_time - prevTime;	    // Calculate delta time
 		prevTime = curr_time;                  // Update prev_time to the current time
 
@@ -77,7 +77,7 @@ namespace SliceEngine
 
 	void FramerateManager::setAccumulatedTime(double t)
 	{
-		accumulatedTime = t;
+		accumulatedTime = static_cast<float>(t);
 	}
 
 	void FramerateManager::setCurrentNumberOfSteps(int steps)
