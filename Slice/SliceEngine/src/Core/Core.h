@@ -12,7 +12,8 @@
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
 #include "../GLFWWindowManager.h"
-#include "Networking/NetworkSystem.h"
+//
+// #include "Networking/NetworkSystem.h"
 
 namespace SliceEngine
 {
@@ -22,6 +23,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
+	class NetworkSystem;
 
 	class Core : public Singleton<Core>
 	{

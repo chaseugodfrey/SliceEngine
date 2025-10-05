@@ -21,16 +21,17 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include <ctime>
 #include <random>
 
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"		// Entire Win32 API...
+#include "winsock2.h"	// ...or Winsock alone
+#include "ws2tcpip.h"		// getaddrinfo()
+
 // Tell the Visual Studio linker to include the following library in linking.
 // Alternatively, we could add this file to the linker command-line parameters,
 // but including it in the source code simplifies the configuration.
 #pragma comment(lib, "ws2_32.lib")
-
-#include "winsock2.h"	// ...or Winsock alone
-#include "ws2tcpip.h"		// getaddrinfo()
-#include "Windows.h"		// Entire Win32 API...
-
 #undef far
+#undef FAR
 #undef near
 #undef CreateWindowW
 #undef CreateWindow
@@ -39,7 +40,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #undef PlaySound
 #undef min
 #undef max
-
+#undef name
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/GameObject.h"

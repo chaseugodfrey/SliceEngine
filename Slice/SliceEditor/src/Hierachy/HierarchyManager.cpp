@@ -2,7 +2,6 @@
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
-#include "../../SliceEngine/src/Networking/NetworkSystem.h"
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor

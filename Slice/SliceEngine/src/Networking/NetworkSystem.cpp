@@ -1,11 +1,10 @@
 #include <pch.h>
-#include "NetworkSystem.h"
 #include <fstream>
 #include "../Core/EventManager.h"
 #include "../Core/Core.h"
 #include "../Systems/FramerateManager.h"
 #include "../ECS/GOFactory.h"
-
+#include "NetworkSystem.h"
 namespace SliceEngine
 {
     namespace
