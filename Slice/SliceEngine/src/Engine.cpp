@@ -7,7 +7,7 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-
+#include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
 
@@ -37,7 +37,14 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
 
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
@@ -55,6 +62,8 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
+		EnableMemoryLeakChecking(-1);
+
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
 
@@ -98,7 +107,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
-
+		//mResource->RegisterResourceAsset((GUID)1001, "Assets/Models/player_mdl.mdl");	//testing loading model
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
@@ -181,7 +190,7 @@ namespace SliceEngine
 		frm.EndSystem("Input");
 
         frm.StartSystem("Audio");
-		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
+		Core::GetInstance()->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
 		mAudioManager->Update();
         frm.EndSystem("Audio");
         

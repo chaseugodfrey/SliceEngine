@@ -81,6 +81,7 @@ namespace SliceEngine
 	{
 		mWindowManager.CloseWindow();
 		UnbindSystems();
+		glfwTerminate();
 	}
 
 	void Core::UnbindSystems()

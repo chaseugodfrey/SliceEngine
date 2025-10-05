@@ -18,12 +18,12 @@ namespace SliceEngine
 	//}
 
 	//Texture
-	SliceEngineTypes::Texture* Type<SliceEngineTypes::Texture>::Load(ResourceManager& resourceMgr, const std::string& path)
+	std::unique_ptr<SliceEngineTypes::Texture> Type<SliceEngineTypes::Texture>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{/*
 		unsigned int texture_id = SliceEngineTypes::Texture::LoadTexture(path);
 		*/
 		
-		return new SliceEngineTypes::Texture{ SliceEngineTypes::Texture::LoadTexture(path) };
+		return  std::make_unique<SliceEngineTypes::Texture>(SliceEngineTypes::Texture::LoadTexture(path));
 	}
 
 	void Type<SliceEngineTypes::Texture>::Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr)
@@ -32,12 +32,12 @@ namespace SliceEngine
 	}
 
 	//Shader
-	SliceEngineTypes::Shader* Type<SliceEngineTypes::Shader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	std::unique_ptr<SliceEngineTypes::Shader> Type<SliceEngineTypes::Shader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		//unsigned int texture_id = SliceEngineTypes::Texture::LoadTexture(path);
 
 
-		return new SliceEngineTypes::Shader{ SliceEngineTypes::Shader::LoadShader(path) };
+		return std::make_unique<SliceEngineTypes::Shader>( SliceEngineTypes::Shader::LoadShader(path));
 	}
 
 	void Type<SliceEngineTypes::Shader>::Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr)
@@ -46,12 +46,21 @@ namespace SliceEngine
 	}
 
 	//Model
-	SliceEngineTypes::Model* Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
+	std::unique_ptr<SliceEngineTypes::Model> Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		auto* m = new SliceEngineTypes::Model();
-		if (!m->LoadModel(path)) {
-			delete m;
-			return nullptr;
+		auto m = std::make_unique<SliceEngineTypes::Model>();
+		std::filesystem::path file(path);
+		if (file.extension() == ".mdl") {
+			if (!m->LoadModelResource(path)) {
+				//delete m;
+				return nullptr;
+			}
+		}
+		else {
+			if (!m->LoadModel(path)) {
+				//delete m;
+				return nullptr;
+			}
 		}
 		//return new SliceEngineTypes::Model{SliceEngineTypes::Model::LoadModel(path)};
 		return m;
@@ -62,9 +71,9 @@ namespace SliceEngine
 		resource.DestroyModel();	//calls glDeleteBuffer, glDeleteVertexArray
 	}
 
-	SliceEngineTypes::Scene* Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
+	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		auto* scene = SliceEngineTypes::Scene::Load(path);
+		auto scene = std::make_unique<SliceEngineTypes::Scene>(path);
 		return scene;
 	}
 
