@@ -251,6 +251,7 @@ namespace SliceEditor
 		ImGui::Text("Total Frame Time: %.4f", SliceEngine::FramerateManager::getInstance().GetFrameTime());
 	}
 
+	//Move this function to Inspector in future/Keep it here but restructure.
 	void ProfilerWindow::DrawSceneGraphComponent(entt::entity entity)
 	{
 		if (entity == SliceEngine::FactoryInstance.GetRootEntity())
