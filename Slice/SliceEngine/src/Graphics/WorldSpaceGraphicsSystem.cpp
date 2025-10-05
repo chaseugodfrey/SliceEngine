@@ -12,9 +12,11 @@
 
 namespace SliceEngine
 {
+	constexpr static inline uint64_t deferredLightingShader = 12204516898033894501;
+
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;

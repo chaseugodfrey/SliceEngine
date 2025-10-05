@@ -98,16 +98,16 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
-		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
-		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
-		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
-		mResource->RegisterFileAsset("Assets/Models/Line.txt");
-		mResource->RegisterFileAsset("Assets/Models/Quad.txt");
-		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		//mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		//mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Quad.txt");
+		//mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 		
 		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");*/
@@ -152,11 +152,11 @@ namespace SliceEngine
 
 
 
-		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		floor.AddComponent<ColliderShape>();
-		floor.AddComponent<Renderer>();
+		//GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
+		//floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
+		//floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
+		//floor.AddComponent<ColliderShape>();
+		//floor.AddComponent<Renderer>();
         //		JSONSerializer::DeserializeScene("Assets/Scenes/TestScene.scene");
 	}
 

@@ -16,10 +16,20 @@
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
+
+
 // My Comments to (Ctrl + f): TODO: MAYDO:
 
 namespace SliceEngine
 {
+	constexpr static inline uint64_t basicShaderGUID = 18310719961107313904;
+	constexpr static inline uint64_t instancedShaderGUID = 17697828682138082227;
+	constexpr static inline uint64_t debugLineShaderGUID = 13567802095736790143;
+	constexpr static inline uint64_t cubeWireframeModelGUID = 9586117521374277245;
+	constexpr static inline uint64_t frustumFakeGUID = 17160263359745331613;
+	constexpr static inline uint64_t lineModelGUID = 17945640445057155522;
+	constexpr static inline uint64_t quadModelGUID = 11832448866642764607;
+
 #pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
@@ -79,15 +89,15 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateInstancingParams()
 	{
-		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/instanced.txt");
+		mInstanceShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)instancedShaderGUID);
 		//mInstanceShader = Core::GetInstance()->GetResourceManager()->GetShader("instanced");
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		LinkTransformInstancing("CubeWireframe");
+		LinkTransformInstancing((GUID)cubeWireframeModelGUID);
 
 		// Make Debug Line VBO
-		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/debugLine.txt");
+		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)debugLineShaderGUID);
 		std::vector<glm::vec3> mDebugLines;
 		mDebugLines.reserve(mMaxInstance);
 		// offset, scale, if rotate
@@ -105,7 +115,7 @@ namespace SliceEngine
 		}
 		glCreateBuffers(1, &mDebugLineVBO);
 		glNamedBufferStorage(mDebugLineVBO, mDebugLines.size() * sizeof(glm::vec3), mDebugLines.data(), GL_MAP_WRITE_BIT);
-		LinkDebugLineInstancing("Line");
+		LinkDebugLineInstancing((GUID)lineModelGUID);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -206,7 +216,7 @@ namespace SliceEngine
 		// Draw other cameras' frustrum
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
-			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/FrustrumFake.txt").get();
+			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
 			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 			for (auto& entity : cams)
@@ -281,7 +291,7 @@ namespace SliceEngine
 			}
 			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
 			//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/CubeWireframe.txt").get();
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
 			glBindVertexArray(mdl.vao);
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
 		}
@@ -292,7 +302,7 @@ namespace SliceEngine
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Line.txt").get();
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)17945640445057155522).get();
 			
 			GLint uniformLoc;
 			if(UniformExists("uPosOffset", uniformLoc))
@@ -338,7 +348,7 @@ namespace SliceEngine
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
 
-		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Quad.txt");
+		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
 		glBindVertexArray(mdl.get()->vao);
 		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 	}
@@ -472,10 +482,10 @@ namespace SliceEngine
 		}
 		}
 	}
-	void RenderManager::LinkTransformInstancing(const std::string& mdlName)
+	void RenderManager::LinkTransformInstancing(GUID guid)
 	{
-		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
+		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
 		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 
 		// Link drawing models with instancing vbo
@@ -492,10 +502,10 @@ namespace SliceEngine
 		}
 		glBindVertexArray(0);
 	}
-	void RenderManager::LinkDebugLineInstancing(const std::string& mdlName)
+	void RenderManager::LinkDebugLineInstancing(GUID guid)
 	{
-		std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(tempFilePath).get();
+		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
 
 		glBindVertexArray(mdl.vao);
 		int idx = 15;

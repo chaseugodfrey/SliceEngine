@@ -98,14 +98,6 @@ namespace SliceEngine
 				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", guid.GetGUID());
 				return Handle<T>();
 			}
-			// cause idk whether i should remove mGUIDToPath since some uses it
-			// but eventually all should change to mGUIDToResource
-			//else if (mGUIDToPath.count(guid))
-			//{
-			//	path = mGUIDToPath.at(guid);
-			//}
-
-
 
 			T* data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
@@ -137,15 +129,15 @@ namespace SliceEngine
 		* Handle<T> get(string)
 		* RegisterFileAsset(string)
 		*/
-		template<typename T>
-		Handle<T> get(std::string const& path) {
-			return get<T>(GUID(FNVHash::fnv1a(path)));
-		}
 		//template<typename T>
-		void RegisterFileAsset(const std::string& path)
-		{
-			mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
-		}
+		//Handle<T> get(std::string const& path) {
+		//	return get<T>(GUID(FNVHash::fnv1a(path)));
+		//}
+		////template<typename T>
+		//void RegisterFileAsset(const std::string& path)
+		//{
+		//	mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
+		//}
 		/*
 		* ----------------END OF HACK---------------
 		*/

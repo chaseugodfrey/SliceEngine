@@ -42,8 +42,8 @@ namespace SliceEngine
 		void DeferredRender();
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
-		void LinkTransformInstancing(const std::string& mdlName);
-		void LinkDebugLineInstancing(const std::string& mdlName);
+		void LinkTransformInstancing(GUID guid);
+		void LinkDebugLineInstancing(GUID guid);
 
 	private:
 		const int mMaxInstance = 100;
