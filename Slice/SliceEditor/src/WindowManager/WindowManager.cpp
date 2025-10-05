@@ -9,6 +9,8 @@
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 
+#include "../../SliceEngine/src/Networking/NetworkSystem.h"
+
 namespace SliceEditor
 {
 
@@ -295,10 +297,10 @@ namespace SliceEditor
 
 		if (ImGui::BeginPopup("connect_req"))
 		{
-			//SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
+			SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
 
 			std::string display = "Current IP: ";
-		/*	if (netw->data.IP.empty())
+			if (netw->data.IP.empty())
 			{
 				display += "Bind First";
 			}
@@ -316,7 +318,7 @@ namespace SliceEditor
 			else
 			{
 				display += netw->data.port;
-			}*/
+			}
 			ImGui::Text(display.c_str());
 
 
