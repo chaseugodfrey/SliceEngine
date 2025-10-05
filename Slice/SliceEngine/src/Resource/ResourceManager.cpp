@@ -40,7 +40,8 @@ namespace SliceEngine
 					}
 					catch (nlohmann::json::parse_error& e)
 					{
-						SLICE_LOG_ERROR("Failed to parse .meta file: {}", e.what());
+						const char* errorMessageCStr = e.what();
+						SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 					}
 					/*std::string pathString = filePath.string();
 					RegisterFileAsset(pathString);*/
