@@ -163,13 +163,25 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+
 		if (ImGui::BeginMenu("GameObject"))
 		{
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					auto go = factory.CreateGO_Box();
+					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
+
+				}
+
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = core->mFactory.CreateGO("Camera");
-				go.AddComponent<SliceEngine::Camera>();
-				core->mFactory.SetParent(go.GetEntity());
+				auto go = factory.CreateGO_Cam();
 				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 

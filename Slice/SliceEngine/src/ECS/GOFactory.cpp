@@ -404,6 +404,23 @@ namespace SliceEngine
 		}
 	}
 
+	GameObject GOFactory::CreateGO_Box()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.AddComponent<ColliderShape>();
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Cam()
+	{
+		auto go = CreateGO("Camera");
+		go.AddComponent<Camera>();
+		return go;
+	}
+
 	void GOFactory::TestLoop()
 	{
 		auto entityView = mRegistry.view<SliceEntity>();
