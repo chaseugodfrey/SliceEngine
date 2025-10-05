@@ -87,8 +87,12 @@ namespace SliceEngine
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
 		auto core = Core::GetInstance();
-		auto rm = core->GetResourceManager();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
+
+		//if (rc.model == GUID::null())
+		//	return;
+
+		auto rm = core->GetResourceManager();
 		auto handle = rm->get<SliceEngineTypes::Model>(rc.model);
 
 		glBindVertexArray(handle.get()->vao);
