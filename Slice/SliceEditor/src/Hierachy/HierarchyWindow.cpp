@@ -15,11 +15,14 @@ namespace SliceEditor
 
 	}
 
-	void HierarchyWindow::DrawNode(TestNode& node)
+	void HierarchyWindow::DrawNode(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		bool hasChildren = node.children.size() > 0;
+		auto core = SliceEngine::Core::GetInstance();
+		bool hasChildren = scene_graph.child_count > 0;
+		auto& node = mManager.GetHierarchy()[entity];
+
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
-		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
+		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
@@ -93,13 +96,15 @@ namespace SliceEditor
 			}
 		}
 
-
 		if (isNodeOpen)
 		{
-			for (size_t i = 0; i < node.children.size(); i++)
+			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (child_entity != entt::null)
 			{
-				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-				DrawNode(child_node);
+				auto& child_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(child_entity, child_scene_graph);
+				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
 			ImGui::TreePop();
@@ -112,11 +117,17 @@ namespace SliceEditor
 		{
 			ImGui::Separator();
 
-			for (size_t i = 0; i < node.children.size(); i++)
+			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(node.entity);
+			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (child_entity != entt::null)
 			{
-				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-				DrawNode(child_node);
+				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(child_entity, child_scene_graph);
+				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
+
 
 			ImGui::TreePop();
 		}
@@ -133,7 +144,8 @@ namespace SliceEditor
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
-		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
+		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(node.entity);
+		bool hasParent = scene_graph.neighbours[SliceEngine::SceneGraph::UP] != SliceEngine::FactoryInstance.GetRootEntity();
 
 		if (ImGui::BeginPopupContextItem())
 		{
@@ -142,7 +154,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Unparent"))
 			{
-				mManager.Unparent(node.entity, node.parent->entity);
+				mManager.Unparent(node.entity);
 			}
 
 			if (!hasParent)

@@ -152,9 +152,10 @@ namespace SliceEngine
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
-		void SetParent(Entity baseEntity, Entity parentEntity = entt::null);
-		void SetSiblingIndex(Entity targetEntity, int pos);
-		void SetNewLocation(Entity targetEntity, Entity destEntity);
+		void Unparent(Entity entity);
+		void SetParent(Entity entity, Entity parentEntity = entt::null);
+		void SetSiblingIndex(Entity entity, int pos);
+		void BuildSceneGraph();
 
 		Registry mRegistry;
 

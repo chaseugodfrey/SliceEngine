@@ -9,11 +9,9 @@ namespace SliceEditor
 {
 	struct TestNode
 	{
-		TestNode* parent;
 		entt::entity entity;
 		std::string name;
 		bool isSelected;
-		std::vector<entt::entity> children;
 
 		bool operator==(TestNode& rhs)
 		{
@@ -45,9 +43,9 @@ namespace SliceEditor
 		TestNode& GetSceneRootNode();
 		void AddGameObject();
 		void RemoveGameObject(entt::entity target);
-		void ParentGameObject(entt::entity child, entt::entity parent);
-		void Unparent(entt::entity child, entt::entity parent);
-		void SetSiblingIndex(entt::entity target, int pos);
+		void ParentGameObject(entt::entity child, entt::entity parent = entt::null);
+		void Unparent(entt::entity child);
+		void SetSiblingIndex(entt::entity target, entt::entity destination);
 		void SetNewLocation(entt::entity target, entt::entity destination);
 
 		std::unique_ptr<EditorWindow> CreateWindow() override;

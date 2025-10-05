@@ -21,6 +21,8 @@ namespace SliceEngine
 		JSONSerializer::DeserializeScene(filePath);
 
 		SLICE_LOG("Scene loaded successfully.");
+
+		Core::GetInstance()->mFactory.BuildSceneGraph();
 	}
 
 	void SceneSystem::SaveScene(std::filesystem::path const& filePath)
