@@ -70,7 +70,7 @@ project "SliceEngine"
             "rttr_core_d",
             "Jolt_d.lib"
             }
-
+        linkoptions { "/IGNORE:4204" }
          postbuildcommands {
                 '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
             }
