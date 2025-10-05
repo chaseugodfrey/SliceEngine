@@ -37,19 +37,22 @@ namespace SliceEditor
 			auto entity = selected_entity.value();
 			DisplayTransform();
 			ImGui::Separator();
-			DisplaySceneGraph();
-			ImGui::Separator();
+			//DisplaySceneGraph();
+			//ImGui::Separator();
+
+			// to do: use component view
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
+			{
+				DisplayMeshRenderer();
+				ImGui::Separator();
+			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
 			{
 				DisplayCollider3D();
-				ImGui::Separator();
-			}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
-			{
-				DisplayMeshRenderer();
 				ImGui::Separator();
 			}
 
@@ -60,6 +63,7 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
 				DisplayAudioSource();
@@ -261,7 +265,6 @@ namespace SliceEditor
 		auto entity = selected_entity.value();
 
 		const char* arr[2] = { "Discrete", "Continuous" };
-		int index = 0;
 
 		reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
 			{
@@ -334,7 +337,6 @@ namespace SliceEditor
 		auto entity = selected_entity.value();
 
 		const char* arr[2] = { "Moving", "Non-Moving" };
-		int index = 0;
 
 		reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
 			{

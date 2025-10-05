@@ -157,6 +157,10 @@ namespace SliceEngine
 		void SetSiblingIndex(Entity entity, int pos);
 		void BuildSceneGraph();
 
+		// todo : bring to prefab factory
+		GameObject CreateGO_Box();
+		GameObject CreateGO_Cam();
+
 		Registry mRegistry;
 
 		// NOTE: I'm putting this in public for now to test serialization.
