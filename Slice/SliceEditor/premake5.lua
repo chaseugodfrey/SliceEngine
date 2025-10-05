@@ -121,7 +121,8 @@ project "SliceEditor"
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"',
-        '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"'
+        '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/imgui.ini" "%{cfg.targetdir}"'
 
     }
 
