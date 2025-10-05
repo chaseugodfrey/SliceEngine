@@ -104,13 +104,17 @@ project "SliceEditor"
  
     prebuildcommands {
         '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}/../SliceScript"'
+        '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
-        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
+        '{COPYDIR} "%{assets_build_path}" "%{cfg.targetdir}/Assets"',
+        '{COPYDIR} "%{resource_asset_path}" "%{cfg.targetdir}/Resources"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/projectSettings.json" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/FBX_Compile.exe" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/TextureCompile.exe" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',

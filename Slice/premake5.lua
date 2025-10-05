@@ -6,8 +6,9 @@ workspace "Slice"
     warnings "Extra"
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
-script_lib_path = "%{wks.location}/SliceScript/SliceScript.dll"
+script_dev_path = "%{wks.location}/SliceScript"
 assets_build_path = "%{wks.location}/SliceEditor/Assets"
+resource_asset_path = "%{wks.location}/SliceEditor/Resources"
 assets_dev_path = "%{wks.location}/SliceEditor/DevAssets"
 
 IncludeDir = {}
