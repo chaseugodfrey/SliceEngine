@@ -98,7 +98,7 @@ namespace SliceEditor
 		static int time = 0;
 		time += 1;
 
-		if (time % 10 == 0) //Change this later
+		if (time % 30 == 0) //Change this later
 		{
 			time = 0;
 			mManager.UpdateDebugStatistics();
