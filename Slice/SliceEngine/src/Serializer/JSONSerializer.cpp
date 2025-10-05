@@ -289,15 +289,7 @@ namespace SliceEngine
 								for (size_t i = 0; i < arr.size(); ++i)
 								{
 									auto v = value[i];
-
-									if (v == 0)
-									{
-										arr[i] = entt::null;
-									}
-									else
-									{
-										arr[i] = v;
-									}
+									arr[i] = v;
 								}
 								prop.set_value(componentInstance, arr);
 							}

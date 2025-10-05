@@ -8,6 +8,7 @@ namespace SliceEditor
 
 	void HierarchyManager::Init()
 	{
+		//Test();
 		BuildHierarchy();
 	}
 
@@ -63,9 +64,11 @@ namespace SliceEditor
 		{
 			TestNode node{};
 			node.entity = entity;
+			SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
 			mHierarchy.emplace(entity, node);
 		}
 
+		// Set parent and children pointers
 		for (auto& [entity, node] : mHierarchy)
 		{
 			auto& scene_graph = reg.get<SliceEngine::SceneGraph>(entity);
@@ -73,13 +76,18 @@ namespace SliceEditor
 			auto child = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
 
 			if (parent != entt::null)
+			{
 				node.parent = &mHierarchy[parent];
+				auto parentNode = &mHierarchy[parent];
+				parentNode->children.push_back(entity);
+			}
 
-			while (child != entt::null)
+			//Does not account for other children
+			/*while (child != entt::null)
 			{
 				node.children.push_back(child);
 				child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
-			}
+			}*/
 		}
 	}
 

@@ -88,14 +88,16 @@ namespace SliceEngine
 			{
 				path = mGUIDToResource.at(guid);
 			}
-			// cause idk whether i should remove mGUIDToPath since some uses it
-			// but eventually all should change to mGUIDToResource
-			//else if (mGUIDToPath.count(guid))
-			//{
-			//	path = mGUIDToPath.at(guid);
-			//}
-
-
+			else if (mGUIDToResource.count((GUID)Type<T>::defaultResourceGUID))
+			{
+				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
+				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource.", guid.GetGUID());
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", guid.GetGUID());
+				return Handle<T>();
+			}
 
 			T* data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
@@ -116,29 +118,6 @@ namespace SliceEngine
 
 			return Handle<T>(*this, data, guid);
 		}
-
-
-		/*
-		* ----------------PLEASE READ---------------
-		* THIS IS A HACK TO QUICKLY LINK FILE PATHS TO RESOURCES FOR NOW
-		* TO PREVENT BREAKING AS MUCH CODE AS POSSIBLE
-		* MUST BE REMOVED EVENTUALLY(please)
-		* Following functions:
-		* Handle<T> get(string)
-		* RegisterFileAsset(string)
-		*/
-		template<typename T>
-		Handle<T> get(std::string const& path) {
-			return get<T>(GUID(FNVHash::fnv1a(path)));
-		}
-		//template<typename T>
-		void RegisterFileAsset(const std::string& path)
-		{
-			mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
-		}
-		/*
-		* ----------------END OF HACK---------------
-		*/
 
 		void RegisterResourceAsset(const GUID& guid, const std::string& path)
 		{
@@ -168,7 +147,7 @@ namespace SliceEngine
 		std::unordered_map<GUID, std::string> mGUIDToResource;
 
 		// TODO: Change this to be configurable
-		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 	};
 
 	// handle for assets

@@ -120,7 +120,6 @@
     <ClInclude Include="src\GLFWWindowManager.h" />
     <ClInclude Include="src\Graphics\CameraSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
-    <ClInclude Include="src\Graphics\ResourceManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
@@ -163,7 +162,6 @@
     <ClCompile Include="src\GLFWWindowManager.cpp" />
     <ClCompile Include="src\Graphics\CameraSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
-    <ClCompile Include="src\Graphics\ResourceManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
@@ -173,6 +171,9 @@
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
+    <ClCompile Include="src\Resource\ResourceManager.cpp">
+      <ObjectFileName>$(IntDir)\ResourceManager1.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />

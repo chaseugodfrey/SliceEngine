@@ -25,9 +25,8 @@ namespace SliceEditor
 	private:
 		
 		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
-		std::filesystem::path mDescriptorDirectory = std::filesystem::path("../SliceEditor/Descriptor");
 		// TODO: Change this to be configurable
-		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 		std::unordered_map <std::string, SliceEngine::GUID> mDescriptorMap; // Maps files to GUIDs
 		
 		// Gives editor a vector of all asset files by name for displaying in inspector
@@ -39,7 +38,7 @@ namespace SliceEditor
 			{".png", AssetType::Texture},
 			{".jpg", AssetType::Texture},
 			{".jpeg", AssetType::Texture},
-			{".bmp", AssetType::Texture},
+			{".dds", AssetType::Texture},
 			{".tga", AssetType::Texture},
 			{".gif", AssetType::Texture},
 			{".obj", AssetType::Model},
@@ -47,7 +46,10 @@ namespace SliceEditor
 			//{".wav", AssetType::Audio},
 			//{".mp3", AssetType::Audio},
 			//{".ogg", AssetType::Audio},
-			{".scene", AssetType::Scene}
+			{".scene", AssetType::Scene},
+			{".shader", AssetType::Shader},
+			//{".vert", AssetType::Shader},
+			//{".frag", AssetType::Shader}
 		};
 	};
 

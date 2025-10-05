@@ -45,6 +45,11 @@ namespace SliceEngine
 			return GUID(static_cast<uint64_t>(std::stoull(str)));
 		}
 
+		static GUID null()
+		{
+			return GUID(0);
+		}
+
 		uint64_t GetGUID() const { return mValue; }
 
 	private:
