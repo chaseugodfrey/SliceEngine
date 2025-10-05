@@ -1,17 +1,17 @@
-/******************************************************************************/
-/*!
-\group  	CtrlAlt
-\file		EditorProperties.h
-\author 	Chase Rodrigues
-\par    	rodrigues.i@digipen.edu
-\date   	14th February 2025
-\brief
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ComponentPropertiesGUI.h
 
-Editor class that wraps ImGui functions and editor commands to create displayable properties to allow for
-editing, undoing and redoing.
+ author:	  Chase Rodrigues
 
- */
- /******************************************************************************/
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the ComponentPropertiesGUI class, which wraps ImGui functions to create displayable
+		  properties to allow for editing, undoing and redoing.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #ifndef COMPONENT_PROPERPTIES_H
 #define COMPONENT_PROPERPTIES_H
