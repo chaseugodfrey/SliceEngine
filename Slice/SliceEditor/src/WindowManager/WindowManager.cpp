@@ -276,16 +276,26 @@ namespace SliceEditor
 		if (ImGui::BeginPopup("host_req"))
 		{
 
-			ImGui::Text("Input Port: ");
+			/*ImGui::Text("Input Port: ");
 			ImGui::SameLine();
 			static std::string bindport;
 			if (ImGui::InputText("##port_in", &bindport))
 			{
-			}
+			}*/
 
 			if (ImGui::Button("Bind"))
 			{
-				SliceEngine::OnNetworkBindPort(bindport);
+				std::string portNumber{};
+
+				std::ifstream pfile("Assets/port.txt");
+				if (!pfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(pfile, portNumber);
+
+				pfile.close();
+				SliceEngine::OnNetworkBindPort(portNumber);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();
@@ -322,25 +332,35 @@ namespace SliceEditor
 			ImGui::Text(display.c_str());
 
 
-			ImGui::Text("Input IP: ");
-			ImGui::SameLine();
-			static std::string ip;
-			if (ImGui::InputText("##ip_in", &ip))
-			{
-				// changed
-			}
+			//ImGui::Text("Input IP: ");
+			//ImGui::SameLine();
+			//static std::string ip;
+			//if (ImGui::InputText("##ip_in", &ip))
+			//{
+			//	// changed
+			//}
 
-			ImGui::Text("Input Port: ");
-			ImGui::SameLine();
-			static std::string port;
-			if (ImGui::InputText("##port_in", &port))
-			{
-				// changed
-			}
+			//ImGui::Text("Input Port: ");
+			//ImGui::SameLine();
+			//static std::string port;
+			//if (ImGui::InputText("##new_port_in", &port))
+			//{
+			//	// changed
+			//}
 
 			if (ImGui::Button("Connect"))
 			{
-				SliceEngine::OnNetworkClientConnect(ip, port);
+				std::pair<std::string, std::string> clientNumber{};
+				std::ifstream cfile("Assets/client.txt");
+				if (!cfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(cfile, clientNumber.first);
+				std::getline(cfile, clientNumber.second);
+
+				cfile.close();
+				SliceEngine::OnNetworkClientConnect(clientNumber.first, clientNumber.second);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();

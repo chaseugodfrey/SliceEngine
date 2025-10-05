@@ -229,6 +229,7 @@ namespace SliceEngine
 
         while (keep_running)
         {
+            client_addr_len = sizeof(client_addr);
             Packet recvPkt{};
             recvPkt.msg.reserve(MAX_STR_LEN);
             //int bytes_received = recvfrom(otherPlayerSoc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&client_addr), &client_addr_len);
@@ -446,7 +447,7 @@ namespace SliceEngine
 
         while (keep_running)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(TIME_SYNC));
+            std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_RATE));
             if (hasConnected)
             {
                 /*if (timer <= 0.0f)
@@ -594,7 +595,7 @@ namespace SliceEngine
         SecureZeroMemory(&hints, sizeof(hints));
         hints.ai_family = AF_INET;			// IPv4
         // For UDP use SOCK_DGRAM instead of SOCK_STREAM.
-        hints.ai_socktype = SOCK_STREAM;	// Reliable delivery
+        hints.ai_socktype = SOCK_DGRAM;	// Reliable delivery
         // Could be 0 for autodetect, but reliable delivery over IPv4 is always TCP.
         hints.ai_protocol = IPPROTO_UDP;	// UDP
         // Create a passive socket that is suitable for bind() and listen().
@@ -646,6 +647,7 @@ namespace SliceEngine
         data.IP = serverIPAddr;
         data.port = event.port;
         
+
         std::cout << "Server is listening on port " << event.port << " ip " << serverIPAddr << " Player: " << " ...\n";
 
         // split the threads
@@ -673,6 +675,9 @@ namespace SliceEngine
         Packet pkt{};
         pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
+        std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
+        std::cout << "sending to " << event.ip << " " << event.port << std::endl;
+
         NetworkingThread::SendTo(data.soc, pkt, player1Dest);
         data.client = true;
         
@@ -692,6 +697,8 @@ namespace SliceEngine
                 Packet pkt{};
                 if (data.client)
                 {
+                    auto& GOfact = Core::GetInstance()->mFactory;
+                    GOfact.Destroy(event.entity);
                     pkt << cmdIDs.GetID("N_REQ_CREATE_GO");
                     NetworkingThread::SendTo(data.soc, pkt, data.otherPlayer);
                     return;
