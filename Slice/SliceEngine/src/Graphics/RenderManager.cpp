@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			RenderManager.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles the Rendering pipeline, and related things
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
@@ -16,9 +26,7 @@
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
-
-
-// My Comments to (Ctrl + f): TODO: MAYDO:
+// My Comments to (Ctrl + f): -TODO- MAYDO:
 
 namespace SliceEngine
 {
@@ -34,7 +42,6 @@ namespace SliceEngine
 	RenderManager::RenderManager()
 	{
 		CreateFramebuffer();
-		mCurrentCamIDHover = static_cast<Entity>(1); // TODO: Don't hardset this
 	}
 	RenderManager::~RenderManager()
 	{
@@ -61,7 +68,7 @@ namespace SliceEngine
 			,GL_COLOR_ATTACHMENT3
 			,GL_COLOR_ATTACHMENT4
 		};
-		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 
 
 		//glGenRenderbuffers(1, &mRBO);

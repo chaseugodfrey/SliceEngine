@@ -1,8 +1,15 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			WorldSpaceGraphicsSystem.h
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles draw calls, and maybe spatial partioning of all renderEntities
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef WORLD_SPACE_GRAPHICS_SYSTEM_H
 #define WORLD_SPACE_GRAPHICS_SYSTEM_H
-
-//#include "ResourceManager.h"
-#include "Resource/ResourceManager.h"
 
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
