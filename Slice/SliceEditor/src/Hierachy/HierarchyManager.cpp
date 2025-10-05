@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
 #include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
 {

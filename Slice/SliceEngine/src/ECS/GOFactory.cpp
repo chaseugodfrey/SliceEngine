@@ -413,9 +413,14 @@ namespace SliceEngine
 		{
 			if (entity == scene_root_entity)
 				continue;
-
 			auto& graph = mRegistry.get<SceneGraph>(entity);
-			SetParent(entity, graph.neighbours[SceneGraph::UP]);
+			
+			if (graph.neighbours[SceneGraph::UP] == scene_root_entity && graph.neighbours[SceneGraph::LEFT] == entt::null)
+			{
+				auto& rootSC = mRegistry.get<SceneGraph>(scene_root_entity);
+				rootSC.neighbours[SceneGraph::DOWN] = entity;
+				break;
+			}
 		}
 	}
 
@@ -585,10 +590,10 @@ namespace SliceEngine
 			SLICE_LOG_VALUES("deleting: ", (unsigned int)Entity);
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
+			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
-			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO.erase(Entity);
 
 			//mRegistry.destroy(Entity);

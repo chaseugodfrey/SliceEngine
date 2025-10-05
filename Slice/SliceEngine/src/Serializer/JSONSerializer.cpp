@@ -130,8 +130,8 @@ namespace SliceEngine
 					}
 					else if (propVal.is_type<EntityID>())
 					{
-						EntityID eid = propVal.get_value<EntityID>();
-						output[name][storage.type().name()][propName] = eid.value;
+						//EntityID eid();//propVal.get_value<EntityID>();
+						output[name][storage.type().name()][propName] = entity;
 					}
 					else if (propVal.is_type<std::array<uint64_t, 4>>())
 					{
@@ -286,6 +286,14 @@ namespace SliceEngine
 							{
 								uint64_t rawID = value.get<uint64_t>();
 								prop.set_value(componentInstance, EntityID{ rawID });
+
+								if (compType == rttr::type::get<SceneGraph>())
+								{
+									/*auto& sg = componentInstance.get_value<SceneGraph>();*/
+
+									sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
+									SLICE_LOG("Old ID " + std::to_string(rawID) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
+								}
 							}
 							else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
 							{
@@ -332,13 +340,7 @@ namespace SliceEngine
 								prop.set_value(componentInstance, value.get<std::string>());
 							}
 
-							if (compType == rttr::type::get<SceneGraph>())
-							{
-								auto& sg = componentInstance.get_value<SceneGraph>();
-
-								sceneGraphMap[sg.entity_id.value] = entt::to_integral(node.GetEntity());
-								SLICE_LOG("Old ID " + std::to_string(sg.entity_id.value) + " Mapped to new ID " + std::to_string(entt::to_integral(node.GetEntity())));
-							}
+							
 						}
 
 						AddComponentFromVariant(node, componentInstance, componentName);
