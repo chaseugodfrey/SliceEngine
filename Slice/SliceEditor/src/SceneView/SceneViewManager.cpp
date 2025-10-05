@@ -3,6 +3,7 @@
 #include "SceneViewWindow.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/ECS/ECSTypes.h"
+#include "../Core/Registry.h"
 
 namespace SliceEditor
 {
@@ -52,6 +53,16 @@ namespace SliceEditor
 	void SceneViewManager::SetGizmoMode(ImGuizmo::MODE mode)
 	{
 		mGuizmoMode = mode;
+	}
+
+	void SceneViewManager::SelectObject(entt::entity entity)
+	{
+		registry.GetSelectionSystem().UpdateSelected(entity);
+	}
+
+	void SceneViewManager::ClearObject()
+	{
+		registry.GetSelectionSystem().ClearSelection();
 	}
 
 	ImGuizmo::OPERATION SceneViewManager::GetGizmoOperation() const

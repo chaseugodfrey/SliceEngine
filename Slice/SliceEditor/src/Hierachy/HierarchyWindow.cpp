@@ -30,8 +30,10 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
-			ImGui::OpenPopup("entity_popup");
+			ImGui::OpenPopup(name.c_str());
 		}
+
+		EntityContextPopUp(node);
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -79,7 +81,6 @@ namespace SliceEditor
 			}
 		}
 
-		EntityContextPopUp(node);
 
 		if (isOpen)
 		{
@@ -95,10 +96,17 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawSceneNode(TestNode& node)
 	{
-		for (size_t i = 0; i < node.children.size(); i++)
+		if (ImGui::TreeNodeEx(node.name.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-			DrawNode(child_node);
+			ImGui::Separator();
+
+			for (size_t i = 0; i < node.children.size(); i++)
+			{
+				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
+				DrawNode(child_node);
+			}
+
+			ImGui::TreePop();
 		}
 	}
 
@@ -115,7 +123,7 @@ namespace SliceEditor
 	{
 		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
 
-		if (ImGui::BeginPopupContextItem("entity_popup"))
+		if (ImGui::BeginPopupContextItem())
 		{
 			if (!hasParent)
 				ImGui::BeginDisabled();

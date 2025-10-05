@@ -60,7 +60,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
+		assetManager.Init();
 		InitWindowManager();
 
 		//SliceEditor::InitFileWatcher();
@@ -75,6 +75,17 @@ namespace SliceEditor
 			engine.Update();
 			Render();
 			engine.EndFrame();
+		}
+	}
+
+	void Editor::CheckInputs()
+	{
+		if (ImGui::GetIO().KeyCtrl)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_S))
+			{
+				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveScene();
+			}
 		}
 	}
 

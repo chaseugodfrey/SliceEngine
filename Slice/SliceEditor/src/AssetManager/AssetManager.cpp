@@ -1,76 +1,144 @@
 #include <pch.h>
 #include "AssetManager.h"
-
-
+#include "AssetTypes.h"
 namespace SliceEditor
 {
-	bool AssetManager::CreateMetaDataFile(const std::string& assetPath, MetaData& metaData)
+	void AssetManager::Init()
 	{
-		std::ifstream fileCheck(assetPath + ".meta");
-		if (fileCheck.good())
+		//Sanity Checks for the Directories
+		if(!std::filesystem::exists(mAssetDirectory))
 		{
-			SLICE_LOG_WARNING("Meta file already exists for asset: " + assetPath);
-			return false;
+			std::filesystem::create_directory(mAssetDirectory);
+		}	
+
+		if(!std::filesystem::exists(mDescriptorDirectory))
+		{
+			std::filesystem::create_directory(mDescriptorDirectory);
 		}
-		fileCheck.close();
 
-		metaData.path = assetPath;
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-		metaData.guid = SliceEngine::GUID::Generate();
-
-		//Section for Switch Case for Asset Types
-
-		metaData.assetType = ".txt";
-
-		//For Resource File that is relevent:
-		metaData.resourcePath.push_back(std::string("NIL")); // Set this to the actual resource path when applicable
-
-		WriteMetaDataFile(assetPath + ".meta", metaData);
-		return true;
-	}
-	void AssetManager::WriteMetaDataFile(const std::string& metaFilePath, MetaData& metaData)
-	{
-		nlohmann::json j;
-		j["assetPath"] = metaData.path;
-		j["assetGUID"] = metaData.guid.GetGUID();
-		j["assetType"] = metaData.assetType;
-		for (int i = 0; i < metaData.resourcePath.size(); i++)
+		//Searching Descriptor Folder and Assigning to "Assets"
+		//Looping through Assets to see who does not have a descriptor file (very sad. nobody is describing it.)
+		for (auto it = std::filesystem::recursive_directory_iterator(mAssetDirectory);
+			it != std::filesystem::recursive_directory_iterator();
+			++it)
 		{
-			j["resourcePath"].push_back(metaData.resourcePath[i]);
-		}
-		std::ofstream outFile(metaFilePath);
-		if (outFile.is_open())
-		{
-			outFile << j.dump(4); // Pretty print with 4 spaces indentation
-			outFile.close();
-			SLICE_LOG("Meta file written: " + metaFilePath);
-		}
-		else
-		{
-			SLICE_LOG_ERROR("Failed to write meta file: " + metaFilePath);
-		}
-	}
+			auto& dirEntry = *it;
 
-	void AssetManager::Init(std::filesystem::path)
-	{
-		for(auto & dirEntry : std::filesystem::recursive_directory_iterator("../SliceEditor/Assets"))
-		{
-			if (dirEntry.is_regular_file())
+			// TODO: Resource folder shouldn't be in asset folder
+			// but fornow we just skip #gonext
+			if (dirEntry.is_directory() && dirEntry.path().filename() == "Resources")
 			{
-				std::filesystem::path filePath = dirEntry.path();
-				if (filePath.extension() != ".meta")
-				{
-					std::ifstream fileCheck(filePath.string() + ".meta");
-					if (!fileCheck.good())
-					{
-						MetaData metaData;
-						CreateMetaDataFile(filePath.string(), metaData);
-						//WriteMetaDataFile(filePath.string() + ".meta", metaData);
-					}
-					fileCheck.close();
-				}
+				it.disable_recursion_pending();
+				continue;
+			}
+
+			std::string fileName = dirEntry.path().filename().stem().string();
+
+			// Since this isn't unity style where meta files are alongside assets
+			// we need to compare wit hthe file name to GUID from the resource manager
+			// which holds the map of names to GUIDs to resource paths
+			if (resourceMgr->mFileNameToGUID.find(fileName) == resourceMgr->mFileNameToGUID.end())
+			{
+				// this file does not have a meta/descriptor file
+				// make one ig?
+				CreateDescriptorFile(dirEntry.path());
 			}
 		}
 		SLICE_LOG("Asset Manager Initialized");
+	}
+
+	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
+	{
+		auto guid = path.stem();
+		
+		return SliceEngine::GUID::FromString(guid.string());
+	}
+
+	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	{
+		//Find out the type of asset:
+		filePath.extension().string();
+		//static const std::map<std::string, AssetType> extensionMap = {
+		//	{".png", AssetType::Texture}, {".jpg", AssetType::Texture}, {".tga", AssetType::Texture},
+		//	{".fbx", AssetType::Model},   {".obj", AssetType::Model},
+		//	{".wav", AssetType::Audio},   {".mp3", AssetType::Audio}
+		//};
+
+		auto it = mSupportedAssetTypes.find(filePath.extension().string());
+		if (it == mSupportedAssetTypes.end())
+		{
+			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
+			return; // Unsupported asset type
+		}
+
+		AssetType assetType = it->second;
+		std::unique_ptr<MetaData> metaData;
+
+		// I think can compile assets somewhere around here
+		uint64_t typeID = 0;
+		switch (assetType)
+		{
+			case AssetType::Texture:
+				metaData = std::make_unique<TextureData>();
+				typeID = ResourceTypeIDs::TEXTURE;
+				break;
+			case AssetType::Model:
+				metaData = std::make_unique<ModelData>();
+				typeID = ResourceTypeIDs::MODEL;
+				break;
+			case AssetType::Audio:
+				//metaData = std::make_unique<AudioData>();
+				break;
+			case AssetType::Scene:
+				metaData = std::make_unique<SceneData>();
+				typeID = ResourceTypeIDs::SCENE;
+				break;
+		}
+
+		if (metaData)
+		{
+			metaData->assetName = filePath.stem().string();
+			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
+			metaData->assetType = filePath.extension().string();
+			metaData->assetPath = filePath.string();
+			// meta files are gonna be named after guid + meta
+			//metaData->resourcePath = std::to_string(metaData->guid.GetGUID()) + ".meta"; nvm this isnt resource
+
+			// used only for cube testing and scenes
+			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+
+			// compile the asset here?? or before creating the meta file?
+			switch (assetType)
+			{
+			case AssetType::Texture:
+
+				break;
+			case AssetType::Model:
+				std::filesystem::copy(filePath, tempPath);
+				break;
+			case AssetType::Audio:
+
+				break;
+			case AssetType::Scene:
+				std::filesystem::copy(filePath, tempPath);
+				break;
+			}
+
+
+			// serialize the meta file 
+			metaData->Serialize(mResourcesDirectory);
+
+
+			// register into resource manager
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
+			mAssets[assetType].push_back(metaData->assetName);
+
+			// Update the descriptor map
+			mDescriptorMap[filePath.filename().string()] = metaData->guid;
+		}
 	}
 }

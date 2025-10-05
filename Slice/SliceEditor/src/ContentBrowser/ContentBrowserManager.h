@@ -37,7 +37,7 @@ namespace SliceEditor
 
 		void RenameFile(DirectoryNode& entry, char* newName);
 
-		void OpenFile();
+		void OpenFile(DirectoryNode& entry);
 
 		void DeleteFile(DirectoryNode& entry);
 		

@@ -12,6 +12,7 @@ namespace SliceEngine
 		class Model;
 		class Shader;
 		class Sound;
+		class Scene;
 	}
 
 	namespace FNVHash
@@ -35,19 +36,21 @@ namespace SliceEngine
 		}*/
 	}
 
-	// type UUIDs 
-	namespace ResourceTypeIDs
-	{
-		constexpr uint64_t TEXTURE = FNVHash::fnv1a("Texture");
-		constexpr uint64_t SHADER = FNVHash::fnv1a("Shader");
-		constexpr uint64_t MODEL = FNVHash::fnv1a("Model");
-		constexpr uint64_t SOUND = FNVHash::fnv1a("Sound");
-	}
+	// type UUIDs
+	// shift to asset manager in editor
+	//namespace ResourceTypeIDs
+	//{
+	//	constexpr uint64_t TEXTURE = FNVHash::fnv1a("Texture");
+	//	constexpr uint64_t SHADER = FNVHash::fnv1a("Shader");
+	//	constexpr uint64_t MODEL = FNVHash::fnv1a("Model");
+	//	constexpr uint64_t SOUND = FNVHash::fnv1a("Sound");
+	//	constexpr uint64_t SCENE = FNVHash::fnv1a("Scene");
+	//}
 
 	template <>
 	struct Type<SliceEngineTypes::Texture>
 	{
-		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
+		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
 		// for when we implement meta data files
 		//static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, uint64_t resourceID);
@@ -61,7 +64,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Shader>
 	{
-		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
+		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
 
 		// for now load with file name directly
 		static SliceEngineTypes::Shader* Load(ResourceManager& resourceMgr, const std::string& path);
@@ -73,7 +76,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Model>
 	{
-		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
+		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
 		// for now load with file name directly
 		static SliceEngineTypes::Model* Load(ResourceManager& resourceMgr, const std::string& path);
@@ -86,6 +89,15 @@ namespace SliceEngine
 	struct Type<SliceEngineTypes::Sound>
 	{
 
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Scene>
+	{
+		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
+		// for now load with file name directly
+		static SliceEngineTypes::Scene* Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr);
 	};
 }
 

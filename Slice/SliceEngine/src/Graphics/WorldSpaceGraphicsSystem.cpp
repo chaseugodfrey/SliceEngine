@@ -14,26 +14,17 @@ namespace SliceEngine
 {
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/basic.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;
 	}
 	void WorldSpaceGraphicsSystem::Render(Entity cam)
 	{
-		glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
@@ -95,17 +86,17 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(/*tempModel.vao*/
-		tempModel.get()->vao);
+		glBindVertexArray(tempModel.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
+		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
-		glDrawArrays(/*tempModel.drawMode, 0, tempModel.drawCnt*/
-			tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
+		glDrawArrays(tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

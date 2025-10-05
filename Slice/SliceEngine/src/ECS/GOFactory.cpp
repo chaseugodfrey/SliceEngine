@@ -199,6 +199,9 @@ namespace SliceEngine
 			// there is left
 			if (leftSibling != entt::null)
 			{
+				//Set itself's left to null
+				baseEntitySceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
+
 				auto& leftSiblingSceneGraph = mRegistry.get<SceneGraph>(leftSibling);
 				// if there is a right then the right will be this entity's new right sibling
 				if (rightSibling != entt::null)
@@ -214,6 +217,9 @@ namespace SliceEngine
 
 			if (rightSibling != entt::null)
 			{
+				//Set itself's right to null
+				baseEntitySceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+
 				auto& rightSiblingSceneGraph = mRegistry.get<SceneGraph>(rightSibling);
 				
 				// if there is a left sibling
@@ -269,7 +275,7 @@ namespace SliceEngine
 			Entity childEntity = parentSceneGraph.neighbours[SceneGraph::DOWN];
 
 			// if its not the first child in the parent scene graph then look through the children
-			while (mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT] != entt::null)
+				while (mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT] != entt::null)
 			{
 				childEntity = mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT];
 			}
@@ -416,6 +422,11 @@ namespace SliceEngine
 	{
 		for (auto Entity : mDeleteList)
 		{
+			if (mEntityToGO[Entity].HasComponent<SceneGraph>())
+			{
+				SceneGraphDelete(Entity);
+			}
+
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mEntityToGO[Entity].Destroy();
@@ -429,6 +440,55 @@ namespace SliceEngine
 		}
 
 		mDeleteList.clear();
+	}
+
+	void GOFactory::SceneGraphDelete(Entity entity)
+	{
+		auto& sceneGraph = mEntityToGO[entity].GetComponent<SceneGraph>();
+		//Check for siblings
+		if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null && sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
+		{
+			if(mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			{
+				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
+				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
+
+				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				rightSiblingGraph.neighbours[SceneGraph::LEFT] = sceneGraph.neighbours[SceneGraph::LEFT];
+			}
+		}
+		else if(sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
+		{
+			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
+			{
+				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
+				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+			}
+		}
+		else if (sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
+		{
+			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			{
+				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
+				rightSiblingGraph.neighbours[SceneGraph::LEFT] = entt::null;
+			}
+		}
+
+		//Re-set parent down if needed
+		if (sceneGraph.neighbours[SceneGraph::UP] != entt::null)
+		{
+			if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity)
+			{
+				auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
+				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
+			{
+				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
+				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
 	}
 
 	std::string GOFactory::CreateName(std::string name)

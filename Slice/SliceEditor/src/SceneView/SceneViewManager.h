@@ -35,6 +35,10 @@ namespace SliceEditor
 
 		void SetGizmoOperation(ImGuizmo::OPERATION op);
 		void SetGizmoMode(ImGuizmo::MODE mode);
+
+		void SelectObject(entt::entity);
+		void ClearObject();
+
 		ImGuizmo::OPERATION GetGizmoOperation() const;
 		ImGuizmo::MODE GetGizmoMode() const;
 	};

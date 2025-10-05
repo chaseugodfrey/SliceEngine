@@ -4,9 +4,14 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Model.h"
+#include "Scene.h"
 
 namespace SliceEngine
 {
+	//SliceEngineTypes::Scene* Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
+	//{
+	//	return 
+	//}
 	//SliceEngineTypes::Texture* Type<SliceEngineTypes::Texture>::Load(ResourceManager& resourceMgr, uint64_t resourceID)
 	//{
 
@@ -55,5 +60,17 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Model>::Destroy(SliceEngineTypes::Model& resource, ResourceManager& resourceMgr)
 	{
 		resource.DestroyModel();	//calls glDeleteBuffer, glDeleteVertexArray
+	}
+
+	SliceEngineTypes::Scene* Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto* scene = SliceEngineTypes::Scene::Load(path);
+		return scene;
+	}
+
+	void Type<SliceEngineTypes::Scene>::Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr)
+	{
+		// scene got nth to destroy that resource manager doesn't do for it
+		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
 	}
 }
