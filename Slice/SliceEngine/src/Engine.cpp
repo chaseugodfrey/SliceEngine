@@ -176,7 +176,7 @@ namespace SliceEngine
 		frm.EndSystem("Input");
 
         frm.StartSystem("Audio");
-		Core::GetInstance()->GetSystem<SoundSystem>().Update(frm.getDeltaTime());
+		Core::GetInstance()->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
 		mAudioManager->Update();
         frm.EndSystem("Audio");
         

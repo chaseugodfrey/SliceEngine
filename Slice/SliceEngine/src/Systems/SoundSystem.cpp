@@ -1,3 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SoundSystem.cpp
+
+ author:	  Lee Yong Yee
+
+ email:       l.yongyee@digipen.edu
+
+ brief:		  Defines the AudioManager class and related audio structures for handling sound playback
+			  within the engine using the FMOD sound library. This system manages loading, playing,
+			  and updating 2D and 3D sounds, maintaining category-based volume control, and handling
+			  sound states such as pause, looping, and positional audio.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "SoundSystem.h"
 #include "AudioManager.h"
@@ -13,9 +29,8 @@ namespace SliceEngine
 
 	void SoundSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-		auto& transform = reg.get<Transform>(entity);
+		
 		
 		if (audioComp.soundName == "")
 		{
@@ -54,7 +69,6 @@ namespace SliceEngine
 	void SoundSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 
 		audioManager->SetSound3DPosition(entity, transform.position);

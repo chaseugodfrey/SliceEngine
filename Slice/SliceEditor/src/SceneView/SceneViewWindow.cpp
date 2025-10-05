@@ -110,11 +110,11 @@ namespace SliceEditor
 		ImVec2 scene_window_pos = ImGui::GetCursorScreenPos();
 		ImVec2 scene_window_size = { window_size.x, window_size.y - (scene_window_pos.y - window_pos.y) };
 
-		int mouse_relative_x = io.MousePos.x - scene_window_pos.x;
-		int mouse_relative_y = io.MousePos.y - scene_window_pos.y;
+		float mouse_relative_x = io.MousePos.x - scene_window_pos.x;
+		float mouse_relative_y = io.MousePos.y - scene_window_pos.y;
 
-		int mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
-		int mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
+		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
+		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
 		mouse_scaled_y = cam.height - mouse_scaled_y;
 
 #pragma endregion
@@ -317,7 +317,7 @@ namespace SliceEditor
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
 				renderer->SelectCamIDPick(camObj.GetEntity());
-				unsigned int entt_id = renderer->ObjectPick(mouse_scaled_x, mouse_scaled_y);
+				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(mouse_scaled_x), static_cast<int>(mouse_scaled_y));
 				entt::entity selected_entity{ entt_id };
 
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))

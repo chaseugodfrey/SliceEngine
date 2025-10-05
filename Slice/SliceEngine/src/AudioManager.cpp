@@ -1,3 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        AudioManager.cpp
+
+ author:	  Lee Yong Yee
+
+ email:       l.yongyee@digipen.edu
+
+ brief:		  Defines the AudioManager class and related audio structures for handling sound playback
+			  within the engine using the FMOD sound library. This system manages loading, playing,
+			  and updating 2D and 3D sounds, maintaining category-based volume control, and handling
+			  sound states such as pause, looping, and positional audio.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "AudioManager.h"
 #include "../src/Core/Core.h"
@@ -157,6 +173,8 @@ namespace SliceEngine
 			return true;
 
 		}
+
+		return false;
 	}
 
 	void AudioManager::SetMasterVolume(float volume)
@@ -195,7 +213,6 @@ namespace SliceEngine
 
 	float AudioManager::CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const
 	{
-		float catVolume = GetCategoryVolume(category);
 
 		return track->currentSoundVolume * GetCategoryVolume(category) * mMasterVolume;
 	}
@@ -221,6 +238,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return 0.0f;
 	}
 
 	bool AudioManager::IsChannelNull(Entity& entity)
@@ -347,6 +366,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return FMODVec3ToVec3(FMOD_VECTOR{0.f,0.f,0.f});
 	}
 
 	void AudioManager::UpdatePauseSound(Entity& id, bool isPaused)
@@ -377,6 +398,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	bool AudioManager::IsFMOD3D(Entity& id)
@@ -391,6 +414,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	void AudioManager::UpdateFMODMode(Entity& id, bool is3D)
