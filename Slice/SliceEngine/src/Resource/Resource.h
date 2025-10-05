@@ -21,6 +21,8 @@ namespace SliceEngine
 		// for when we implement meta data files
 		//static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, uint64_t resourceID);
 		// for now load with file name directly
+		constexpr static inline uint64_t defaultResourceGUID = 5271507727521808385;
+
 		static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr);
