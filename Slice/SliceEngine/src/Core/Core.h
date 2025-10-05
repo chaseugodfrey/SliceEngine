@@ -77,7 +77,10 @@ namespace SliceEngine
 
 			// should never reach here
 			assert("System does not exist!");
+			T temp{};
+			return temp;
 		}
+
 		InputSystem* GetInputSystem();
 
 		SceneSystem* GetSceneSystem();
