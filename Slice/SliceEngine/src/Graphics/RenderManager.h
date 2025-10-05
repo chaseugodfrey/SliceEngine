@@ -68,7 +68,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
 		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
-		GLuint mColAttachment[3];
+		GLuint mColAttachment[4];
 		glm::mat4 V, P;
 
 		enum class FBOSetting : unsigned char
@@ -77,8 +77,10 @@ namespace SliceEngine
 			BIND,
 			COLOR_ONLY,
 			POS_NOM,
+			POS_NOM_TEX,
 			ID,
-			ID_POS_NOM
+			ID_POS_NOM,
+			ID_POS_NOM_TEX
 		};
 		enum class GPUSetting : unsigned char
 		{

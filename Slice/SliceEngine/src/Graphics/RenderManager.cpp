@@ -45,6 +45,7 @@ namespace SliceEngine
 		glDeleteTextures(1, &mColAttachment[0]);
 		glDeleteTextures(1, &mColAttachment[1]);
 		glDeleteTextures(1, &mColAttachment[2]);
+		glDeleteTextures(1, &mColAttachment[3]);
 
 		glDeleteBuffers(2, pboIds);
 	}
@@ -58,6 +59,7 @@ namespace SliceEngine
 			,GL_COLOR_ATTACHMENT1
 			,GL_COLOR_ATTACHMENT2
 			,GL_COLOR_ATTACHMENT3
+			,GL_COLOR_ATTACHMENT4
 		};
 		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
 
@@ -134,6 +136,11 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[2], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
 		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Nom
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[3]);
+		glTextureStorage2D(mColAttachment[3], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 #pragma endregion
 
@@ -187,9 +194,9 @@ namespace SliceEngine
 
 			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
 			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FBOSetting::ID_POS_NOM);
+				LinkFrameBufferSettings(FBOSetting::ID_POS_NOM_TEX);
 			else
-				LinkFrameBufferSettings(FBOSetting::POS_NOM);
+				LinkFrameBufferSettings(FBOSetting::POS_NOM_TEX);
 			LoadSettings(GPUSetting::DEFAULT);
 			UpdateCamGPU(cam);
 			ClearBuffer(BufferClearSetting::ALL);
@@ -340,6 +347,8 @@ namespace SliceEngine
 		if (UniformExists("uMat.shininess", uniformLoc))
 		glUniform1f(uniformLoc, 100.f);
 
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, mColAttachment[3]);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
 		glActiveTexture(GL_TEXTURE2);
@@ -347,6 +356,7 @@ namespace SliceEngine
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, 0, 0);
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
 		glBindVertexArray(mdl.get()->vao);
@@ -433,11 +443,27 @@ namespace SliceEngine
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
 			break;
 		}
+		case FBOSetting::POS_NOM_TEX:
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, mColAttachment[3], 0);
+			break;
+		}
 		case FBOSetting::ID_POS_NOM:
 		{
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
+			break;
+		}
+		case FBOSetting::ID_POS_NOM_TEX:
+		{
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, mColAttachment[3], 0);
 			break;
 		}
 		}
@@ -470,6 +496,7 @@ namespace SliceEngine
 			glClearBufferfv(GL_COLOR, 1, zeroFiller);
 			glClearBufferfv(GL_COLOR, 2, zeroFiller);
 			glClearBufferfv(GL_COLOR, 3, zeroFiller);
+			glClearBufferfv(GL_COLOR, 4, zeroFiller);
 			glClearBufferfv(GL_DEPTH, 0, oneFiller);
 			__fallthrough;
 		}
