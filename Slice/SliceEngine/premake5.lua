@@ -33,7 +33,8 @@ project "SliceEngine"
         "thirdparty/glfw/lib-vc2022",
         "thirdparty/fmod/lib",
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
         ThirdParty.MONO_LIB
         }
 
@@ -66,7 +67,11 @@ project "SliceEngine"
         
          links {
             "rttr_core_d",
-            "Jolt_d"
+            "Jolt_d.lib"
+            }
+
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
             }
 
          --defines { "JPH_ENABLE_ASSERTS" }
@@ -85,7 +90,10 @@ project "SliceEngine"
         
          links {
             "rttr_core",
-            "Jolt_r"
+            "Jolt_r.lib"
+            }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
             }
 
         -- includedirs

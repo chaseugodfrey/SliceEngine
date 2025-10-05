@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			WorldSpaceGraphicsSystem.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles draw calls, and maybe spatial partioning of all renderEntities
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 
 #include "Resource/ResourceManager.h"
@@ -77,14 +87,14 @@ namespace SliceEngine
 		// Since: 10 ~ 19.999 / 10 = 1
 		// And 0 ~ 9.999 /10 = 0
 		// Therefore, [0, 20) --> [-10,10) + 10 offset -> [0,20) Div Grid Size --> [0,1]
-		const float gridExtreme = (static_cast<float>(gridNum / 2) + (gridNum % 2) * 0.5f) * gridSize;
-
-		int xPos{ static_cast<int>(transform.position.x + gridExtreme) / gridNum },
-			zPos{ static_cast<int>(transform.position.z + gridExtreme) / gridNum };
-		if (xPos < gridNum && xPos > -1 && zPos < gridNum && zPos > -1)
-			spatialData[xPos * gridNum + zPos].push_back(entity);
-		else
-			outerSpatial.push_back(entity);
+		//const float gridExtreme = (static_cast<float>(gridNum / 2) + (gridNum % 2) * 0.5f) * gridSize;
+		//
+		//int xPos{ static_cast<int>(transform.position.x + gridExtreme) / gridNum },
+		//	zPos{ static_cast<int>(transform.position.z + gridExtreme) / gridNum };
+		//if (xPos < gridNum && xPos > -1 && zPos < gridNum && zPos > -1)
+		//	spatialData[xPos * gridNum + zPos].push_back(entity);
+		//else
+		//	outerSpatial.push_back(entity);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
@@ -118,9 +128,9 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
 	{
-		for (auto& i : spatialData)
-			i.clear();
-		outerSpatial.clear();
+		//for (auto& i : spatialData)
+		//	i.clear();
+		//outerSpatial.clear();
 
 		BaseSystem::Update(dt);
 	}

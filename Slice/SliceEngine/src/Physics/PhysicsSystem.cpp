@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			PhysicsSystem.cpp
+ author:		Aloysius Teo
+ email:			teo.k@digipen.edu
+ brief:			Handles all physics
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "../Core/Core.h"
 #include "PhysicsSystem.h"
@@ -228,7 +238,7 @@ namespace SliceEngine
 
 
 
-		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer);
+		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
 		{
 			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
 		}
@@ -246,6 +256,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& rigidBody = mRegistry->get<RigidBody>(event.entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
@@ -418,7 +432,6 @@ namespace SliceEngine
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (checkEntity.HasComponent<RigidBody>())
 		{
-			auto& rigidBody = reg.get<RigidBody>(entity);
 			isRigibody = true;
 		}
 

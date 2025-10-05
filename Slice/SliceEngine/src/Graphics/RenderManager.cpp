@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			RenderManager.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles the Rendering pipeline, and related things
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
@@ -16,9 +26,7 @@
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
-
-
-// My Comments to (Ctrl + f): TODO: MAYDO:
+// My Comments to (Ctrl + f): -TODO- MAYDO:
 
 namespace SliceEngine
 {
@@ -34,7 +42,6 @@ namespace SliceEngine
 	RenderManager::RenderManager()
 	{
 		CreateFramebuffer();
-		mCurrentCamIDHover = static_cast<Entity>(1); // TODO: Don't hardset this
 	}
 	RenderManager::~RenderManager()
 	{
@@ -61,7 +68,7 @@ namespace SliceEngine
 			,GL_COLOR_ATTACHMENT3
 			,GL_COLOR_ATTACHMENT4
 		};
-		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 
 
 		//glGenRenderbuffers(1, &mRBO);
@@ -145,7 +152,7 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Camera
-	GameObject& RenderManager::CreateCamera()
+	GameObject RenderManager::CreateCamera()
 	{
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
@@ -359,6 +366,9 @@ namespace SliceEngine
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
 		glBindVertexArray(mdl.get()->vao);
 		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)1001);
+		//glBindVertexArray(mdl.get()->vao);
+		//glDrawElements(GL_TRIANGLES, mdl.get()->drawCnt, GL_UNSIGNED_INT, 0);
 	}
 #pragma endregion
 
@@ -558,7 +568,8 @@ namespace SliceEngine
 	void RenderManager::IDPick()
 	{
 		// if out of bounds
-		if (mObjPickX > Core::GetInstance()->GetSystem<CameraSystem>().maxWidth || mObjPickX < 0 || mObjPickY > Core::GetInstance()->GetSystem<CameraSystem>().maxHeight || mObjPickY < 0)
+		if (mObjPickX > static_cast<unsigned int>(Core::GetInstance()->GetSystem<CameraSystem>().maxWidth) || mObjPickX < 0 ||
+			mObjPickY >  static_cast<unsigned int>(Core::GetInstance()->GetSystem<CameraSystem>().maxHeight) || mObjPickY < 0)
 		{
 			mIDHovered = std::numeric_limits<unsigned int>().max();
 			return;

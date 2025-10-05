@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GOFactory.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles things related to GameObjects
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef GO_FACTORY_H
 #define GO_FACTORY_H
 #include "ECSTypes.h"
@@ -156,6 +166,10 @@ namespace SliceEngine
 		void SetParent(Entity entity, Entity parentEntity = entt::null);
 		void SetSiblingIndex(Entity entity, int pos);
 		void BuildSceneGraph();
+
+		// todo : bring to prefab factory
+		GameObject CreateGO_Box();
+		GameObject CreateGO_Cam();
 
 		Registry mRegistry;
 
