@@ -243,7 +243,10 @@ namespace SliceEditor
         }
 
         ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		{
+
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
