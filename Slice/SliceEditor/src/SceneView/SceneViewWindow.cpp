@@ -236,9 +236,12 @@ namespace SliceEditor
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
+
+		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+
 		// Drawing cam texture
 		ImGui::GetWindowDrawList()->AddImage(
-			(void*)cam.textureID,
+			tex,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 			ImVec2(0, 1),

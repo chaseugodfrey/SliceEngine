@@ -97,9 +97,9 @@ namespace SliceEditor
 
 	float ProfilerManager::LuminanceCalculation(ImU32 color)
 	{
-		float r = (color & 0xFF0000) >> 16;
-		float g = (color & 0x00FF00) >> 8;
-		float b = color & 0x0000FF;
+		float r = static_cast<float>((color & 0xFF0000) >> 16);
+		float g = static_cast<float>((color & 0x00FF00) >> 8);
+		float b = static_cast<float>(color & 0x0000FF);
 
 		r /= 255.0f;
 		g /= 255.0f;

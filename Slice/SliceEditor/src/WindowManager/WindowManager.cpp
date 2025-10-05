@@ -94,7 +94,7 @@ namespace SliceEditor
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
 
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -272,7 +272,10 @@ namespace SliceEditor
         }
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		{
+
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))

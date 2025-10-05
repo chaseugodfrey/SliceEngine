@@ -45,7 +45,7 @@ namespace SliceEditor
 
 	public:
 
-		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
+		HierarchyManager(Registry& reg) : IBaseManager(reg), isDirty(true) {};
 		~HierarchyManager() = default;
 
 		void Init() override;

@@ -50,8 +50,8 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
-				entt::entity entity = *static_cast<entt::entity*>(payload->Data);
-				mManager.SetNewLocation(entity, node.entity);
+				entt::entity dropped = *static_cast<entt::entity*>(payload->Data);
+				mManager.SetNewLocation(dropped, node.entity);
 			}
 
 			ImGui::EndDragDropTarget();

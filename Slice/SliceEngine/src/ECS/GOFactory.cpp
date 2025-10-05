@@ -182,7 +182,7 @@ namespace SliceEngine
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
-		auto& tr = mRegistry.emplace<Transform>(mRootEntity);
+		//auto& tr = mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
