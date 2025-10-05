@@ -49,7 +49,7 @@ namespace SliceEngine
 		void IncrementNumberOfSteps();
 
 		//Getter of TargetFps
-		double getFixedDeltaTime() const;
+		float getFixedDeltaTime() const;
 
 
 		using Clock = std::chrono::high_resolution_clock;

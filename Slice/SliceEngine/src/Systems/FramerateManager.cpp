@@ -70,7 +70,7 @@ namespace SliceEngine
 		return currentNumberOfSteps;
 	}
 
-	double FramerateManager::getFixedDeltaTime() const
+	float FramerateManager::getFixedDeltaTime() const
 	{
 		return fixedDeltaTime;
 	}

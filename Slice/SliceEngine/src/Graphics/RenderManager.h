@@ -25,7 +25,7 @@ namespace SliceEngine
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		// Camera related functions
-		GameObject& CreateCamera();
+		GameObject CreateCamera();
 		void SetMainGameCamera(GameObject cam);
 		std::optional<GameObject>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
