@@ -252,24 +252,47 @@ namespace SliceEditor
 
         static bool isPlaying = false;
 
-		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
-        {
-			isPlaying = !isPlaying;
+		if(!isPlaying)
+		{
+			if (ImGui::Button("Play", ImVec2{ 60, 35 }))
+			{
+				isPlaying = !isPlaying;
 
-			if (isPlaying) // if its play, enable game input
-			{
-				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-				inputs->SetEnabled(true);
-				SliceEngine::gScriptSystem->OnStart();
-				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
 			}
-			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+		}
+		else
+		{
+			if(ImGui::Button("Stop", ImVec2{ 60, 35 }))
 			{
-				//inputs->UnbindCallbacks();
-				inputs->SetMode(SliceEngine::InputMode::Editor);
-				inputs->SetEnabled(false);
-			}   
-        }
+				isPlaying = !isPlaying;
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
+			}
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
