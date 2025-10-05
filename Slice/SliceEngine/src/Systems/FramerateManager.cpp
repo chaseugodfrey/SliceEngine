@@ -72,7 +72,7 @@ namespace SliceEngine
 
 	float FramerateManager::getFixedDeltaTime() const
 	{
-		return fixedDeltaTime;
+		return static_cast<float>(fixedDeltaTime);
 	}
 
 	void FramerateManager::setAccumulatedTime(double t)
