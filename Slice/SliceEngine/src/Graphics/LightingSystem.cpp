@@ -1,5 +1,4 @@
 #include <pch.h>
-#include "ResourceManager.h"
 #include "LightingSystem.h"
 
 #include "../Core/Core.h"
