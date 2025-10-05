@@ -177,11 +177,6 @@ namespace SliceEngine
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		floor.AddComponent<ColliderShape>();
-		floor.AddComponent<Renderer>();
 		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
 		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
 		light.AddComponent<Light>();

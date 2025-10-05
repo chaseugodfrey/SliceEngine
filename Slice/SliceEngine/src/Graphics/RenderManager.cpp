@@ -105,6 +105,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
 		LinkTransformInstancing((GUID)cubeWireframeModelGUID);
+		LinkTransformInstancing((GUID)frustumFakeGUID);
 
 		// Make Debug Line VBO
 		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)debugLineShaderGUID);
@@ -231,7 +232,11 @@ namespace SliceEngine
 		// Draw other cameras' frustrum
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
-			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
+			mCurrShader = mInstanceShader;
+			glUseProgram(mCurrShader.get()->s);
+			UpdateCamGPU(cam);
+
+			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)frustumFakeGUID).get();
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
 			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 			for (auto& entity : cams)
@@ -280,12 +285,10 @@ namespace SliceEngine
 				// Frustrum Rendering
 				glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
 
-				GLint uniformLoc;
-				if (UniformExists("M", uniformLoc))
-					glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
 
 				glBindVertexArray(frustrum.vao);
-				glDrawArrays(frustrum.drawMode, 0, frustrum.drawCnt);
+				glDrawArraysInstanced(frustrum.drawMode, 0, frustrum.drawCnt, 1);
 			}
 		}
 		
@@ -296,18 +299,24 @@ namespace SliceEngine
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
 
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)cubeWireframeModelGUID).get();
+			glBindVertexArray(mdl.vao);
+
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
-			int num{};
+			int num{}, offset{};
 			for (auto entity : view)
 			{
 				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 				mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
 				num++;
+				if (num == mMaxInstance)
+				{
+					glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+					glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+					offset += num;
+				}
 			}
-			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
-			//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
-			glBindVertexArray(mdl.vao);
+			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
 		}
 
@@ -317,7 +326,7 @@ namespace SliceEngine
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)17945640445057155522).get();
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)lineModelGUID).get();
 			
 			GLint uniformLoc;
 			if(UniformExists("uPosOffset", uniformLoc))
@@ -348,7 +357,7 @@ namespace SliceEngine
 		glBindTextureUnit(2, mColAttachment[2]);
 
 
-		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
+		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)quadModelGUID);
 		glBindVertexArray(mdl.get()->vao);
 		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)1001);
