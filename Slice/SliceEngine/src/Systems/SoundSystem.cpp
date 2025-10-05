@@ -13,9 +13,8 @@ namespace SliceEngine
 
 	void SoundSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-		auto& transform = reg.get<Transform>(entity);
+		
 		
 		if (audioComp.soundName == "")
 		{
@@ -54,7 +53,6 @@ namespace SliceEngine
 	void SoundSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 
 		audioManager->SetSound3DPosition(entity, transform.position);

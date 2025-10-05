@@ -157,6 +157,8 @@ namespace SliceEngine
 			return true;
 
 		}
+
+		return false;
 	}
 
 	void AudioManager::SetMasterVolume(float volume)
@@ -195,7 +197,6 @@ namespace SliceEngine
 
 	float AudioManager::CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const
 	{
-		float catVolume = GetCategoryVolume(category);
 
 		return track->currentSoundVolume * GetCategoryVolume(category) * mMasterVolume;
 	}
@@ -221,6 +222,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return 0.0f;
 	}
 
 	bool AudioManager::IsChannelNull(Entity& entity)
@@ -347,6 +350,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return FMODVec3ToVec3(FMOD_VECTOR{0.f,0.f,0.f});
 	}
 
 	void AudioManager::UpdatePauseSound(Entity& id, bool isPaused)
@@ -377,6 +382,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	bool AudioManager::IsFMOD3D(Entity& id)
@@ -391,6 +398,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	void AudioManager::UpdateFMODMode(Entity& id, bool is3D)
