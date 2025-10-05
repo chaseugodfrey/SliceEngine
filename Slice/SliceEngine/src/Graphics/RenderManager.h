@@ -1,6 +1,15 @@
-/*
-*	Functions here assumes CreateCamera is called once, and therefore mainCam has value
-*/
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			RenderManager.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles the Rendering pipeline, and related things
+
+				Functions here assumes CreateCamera is called once, and therefore mainCam has value
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
