@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 #include "../SelectionSystem/ISelectionListener.h"
+#include "../../SliceEngine/src/Core/Events.h"
 
 namespace SliceEditor
 {
@@ -54,6 +55,8 @@ namespace SliceEditor
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);
 		void Reset();
+		void OnSceneLoad(OnSceneLoadedEvent& event);
+		void SubscribeToSceneLoading();
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();

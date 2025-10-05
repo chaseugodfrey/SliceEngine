@@ -82,7 +82,7 @@ namespace SliceEditor
 		return result;
 	}
 
-	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : mManager(manager), camObj(cam)
+	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : camObj(cam), mManager(manager), tex_id(0)
 	{
 	}
 
@@ -199,7 +199,7 @@ namespace SliceEditor
 				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
 			}
 
-			static ImVec2 pos{};
+			static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
 			static ImVec2 init_rot{};
 
@@ -209,7 +209,7 @@ namespace SliceEditor
 				{
 					init_rot.x = cam_tr.rotation.y;
 					init_rot.y = cam_tr.rotation.z;
-					pos = ImGui::GetMousePos();
+					rotate_anchor = ImGui::GetMousePos();
 					isRotating = true;
 				}
 
@@ -223,7 +223,7 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
-					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
+					ImVec2 mouse_diff = ImGui::GetMousePos() - rotate_anchor;
 					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
 					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
 				}

@@ -83,7 +83,7 @@ namespace SliceEngine
                 std::istringstream iss(cur_line);
                 std::string word;
 
-                bool first = true;
+                //bool first = true;
                 while (std::getline(iss, word, ','))
                 {
                     result.col_keys.push_back(word);

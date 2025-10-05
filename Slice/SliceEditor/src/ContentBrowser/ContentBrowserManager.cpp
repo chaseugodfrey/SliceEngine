@@ -129,8 +129,8 @@ namespace SliceEditor
 	{
 		if (entry.path.extension() == ".scene")
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadScene(entry.path);
-			registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
 		
 		else
