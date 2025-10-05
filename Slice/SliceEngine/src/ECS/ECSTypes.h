@@ -6,6 +6,7 @@
 #include <glfw3.h>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
+
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
@@ -95,8 +96,8 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		std::string model;
-		std::string texture;
+		GUID model;
+		GUID texture;
 		unsigned char renderTag;
 	};
 
@@ -161,8 +162,69 @@ namespace SliceEngine
 		bool is3D;
 	};
 
+	// placeholder particle system component structure for reference
+	struct Particle
+	{
+		bool active{ false };
 
+		float lifetime{};        // how long this particle has left
+		float speed{};           // current speed
+		float angle{};           // direction (in radians or degrees)
 
+		// optional transform-like data
+		glm::vec3 position{};
+		glm::vec3 velocity{};    // derived from speed + angle
+		glm::vec3 color{};       // if you want per-particle tint
+
+		// flags
+		bool has_rigidbody{ false };
+	};
+	class ParticleSystem
+	{
+		// ---- System-wide settings ----
+		Transform* parent_transform{};     // emitter transform (spawn reference)
+
+		float internal_timer{};            // tracker for emission interval
+		float lifetime_timer{};            // system’s overall lifetime
+		float duration{};                  // how long the system lasts
+
+		float emission_rate{ 1.f };        // particles/sec
+		float emitter_angle_degrees{ 0.0f };
+		float emitter_angle_radians{ 0.0f }; // cache
+		float arc{ 360.f };                // emission spread
+
+		bool is_repeating{ false };
+		bool is_ending{ false };
+
+		uint32_t oldest_particle_index{ 0u };
+
+		float max_particle_lifetime{};
+		float particle_speed{};
+
+		glm::vec3 min_random_spawn_pos_relative_to_parent{};
+		glm::vec3 max_random_spawn_pos_relative_to_parent{};
+
+		bool fade_over_lifetime{ false };
+
+		uint32_t max_particles{ 50 }; // pool size
+
+		uint32_t internal_current_index{};
+
+		// ---- Particle storage ----
+		std::vector<Particle> particles;
+
+	public:
+		//ParticleSystem(uint32_t maxCount = 50)
+		//	: max_particles(maxCount)
+		//{
+		//	particles.resize(max_particles);
+		//}
+
+		//void Init(Transform* _parent) { parent_transform = _parent; }
+		//void Update(float dt);
+		//void ResetParticle(uint32_t idx);
+		//void DisableParticle(uint32_t idx);
+	};
 }
 
 #endif

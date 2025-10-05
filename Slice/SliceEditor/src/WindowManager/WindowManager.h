@@ -18,6 +18,9 @@ namespace SliceEditor
 		void DrawDockspace();
 		void DrawPlayState();
 		void DrawPreferenceWindow();
+		void DrawProjectSettings();
+
+		bool projectSettingsPopupOpen{ false };
 
 	public:
 		

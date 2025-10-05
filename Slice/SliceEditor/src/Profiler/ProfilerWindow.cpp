@@ -1,9 +1,11 @@
 #include <pch.h>
 #include "ProfilerWindow.h"
+#include "ProfilerManager.h"
+#include "../SelectionSystem/SelectionSystem.h"
 
 namespace SliceEditor
 {
-	ProfilerWindow::ProfilerWindow(ProfilerManager& man) : mManager(man)
+	ProfilerWindow::ProfilerWindow(ProfilerManager& man, SelectionSystem& selection) : mManager(man), mSelection(selection)
 	{
 	}
 
@@ -23,6 +25,12 @@ namespace SliceEditor
 		if (ImGui::BeginTabItem("Profiler"))
 		{
 			DrawPerformanceTab();
+			ImGui::EndTabItem();
+		}
+
+		if (ImGui::BeginTabItem("SceneGraphView"))
+		{
+			DrawSceneGraphTab();
 			ImGui::EndTabItem();
 		}
 
@@ -111,6 +119,20 @@ namespace SliceEditor
 
 	}
 
+	void ProfilerWindow::DrawSceneGraphTab()
+	{
+		ImGui::Text("Scene Graph View");
+		ImGui::BeginChild("SceneGraph", ImVec2(0, 0), true);
+		{
+			auto& selectedEntities = mSelection.GetSelectedEntities();
+			for(auto& entity: selectedEntities)
+			{
+				DrawSceneGraphComponent(entity);
+				ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,5.0f);
+			}
+			ImGui::EndChild();
+		}
+	}
 
 	void ProfilerWindow::DrawSystemTimeline()
 	{
@@ -225,5 +247,62 @@ namespace SliceEditor
 		ImGui::EndChild();
 
 		ImGui::Text("Total Frame Time: %.4f", SliceEngine::FramerateManager::getInstance().GetFrameTime());
+	}
+
+	void ProfilerWindow::DrawSceneGraphComponent(entt::entity entity)
+	{
+		auto go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+			ImGui::Text("Entity: %s", go.GetName().c_str());
+			ImGui::Text("Entity ID: %d", (uint32_t)entity);
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
+			{
+				if(sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					ImGui::Text("Parent: Root Entity");
+				}
+				else
+				{
+					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
+					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+				}
+			}
+			else
+			{
+				ImGui::Text("Parent: --");
+			}
+
+			if(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT] != entt::null)
+			{
+				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Left: --");
+			}
+
+			if(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT] != entt::null)
+			{
+				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
+				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Right: --");
+			}
+			//Scene Graph Down is first child
+			if(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null)
+			{
+				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
+				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("First Child: --");
+			}
+		}
 	}
 }

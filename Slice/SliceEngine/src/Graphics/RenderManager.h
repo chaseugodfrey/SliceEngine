@@ -42,8 +42,8 @@ namespace SliceEngine
 		void DeferredRender();
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
-		void LinkTransformInstancing(const std::string& mdlName);
-		void LinkDebugLineInstancing(const std::string& mdlName);
+		void LinkTransformInstancing(GUID guid);
+		void LinkDebugLineInstancing(GUID guid);
 
 	private:
 		const int mMaxInstance = 100;
@@ -68,7 +68,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
 		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
-		GLuint mColAttachment[3];
+		GLuint mColAttachment[4];
 		glm::mat4 V, P;
 
 		enum class FBOSetting : unsigned char
@@ -77,8 +77,10 @@ namespace SliceEngine
 			BIND,
 			COLOR_ONLY,
 			POS_NOM,
+			POS_NOM_TEX,
 			ID,
-			ID_POS_NOM
+			ID_POS_NOM,
+			ID_POS_NOM_TEX
 		};
 		enum class GPUSetting : unsigned char
 		{
