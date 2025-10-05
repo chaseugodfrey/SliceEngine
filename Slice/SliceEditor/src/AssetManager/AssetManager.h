@@ -38,7 +38,7 @@ namespace SliceEditor
 			{".png", AssetType::Texture},
 			{".jpg", AssetType::Texture},
 			{".jpeg", AssetType::Texture},
-			{".bmp", AssetType::Texture},
+			{".dds", AssetType::Texture},
 			{".tga", AssetType::Texture},
 			{".gif", AssetType::Texture},
 			{".obj", AssetType::Model},

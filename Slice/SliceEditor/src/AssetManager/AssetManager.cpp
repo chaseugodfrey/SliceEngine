@@ -11,11 +11,6 @@ namespace SliceEditor
 			std::filesystem::create_directory(mAssetDirectory);
 		}	
 
-		if(!std::filesystem::exists(mDescriptorDirectory))
-		{
-			std::filesystem::create_directory(mDescriptorDirectory);
-		}
-
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
 		//Searching Descriptor Folder and Assigning to "Assets"
@@ -59,14 +54,9 @@ namespace SliceEditor
 	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
 		//Find out the type of asset:
-		filePath.extension().string();
-		//static const std::map<std::string, AssetType> extensionMap = {
-		//	{".png", AssetType::Texture}, {".jpg", AssetType::Texture}, {".tga", AssetType::Texture},
-		//	{".fbx", AssetType::Model},   {".obj", AssetType::Model},
-		//	{".wav", AssetType::Audio},   {".mp3", AssetType::Audio}
-		//};
+		std::string ext = filePath.extension().string();
 
-		auto it = mSupportedAssetTypes.find(filePath.extension().string());
+		auto it = mSupportedAssetTypes.find(ext);
 		if (it == mSupportedAssetTypes.end())
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
@@ -117,7 +107,17 @@ namespace SliceEditor
 			switch (assetType)
 			{
 			case AssetType::Texture:
-
+				if (ext == ".dds")
+				{
+					// if its a dds then just copy over
+					// if its not then we need to convert it to dds
+					std::filesystem::copy(filePath, tempPath);
+				}
+				else
+				{
+					// TODO: Add the call to exe to convert to dds
+					return;
+				}
 				break;
 			case AssetType::Model:
 				std::filesystem::copy(filePath, tempPath);

@@ -119,29 +119,6 @@ namespace SliceEngine
 			return Handle<T>(*this, data, guid);
 		}
 
-
-		/*
-		* ----------------PLEASE READ---------------
-		* THIS IS A HACK TO QUICKLY LINK FILE PATHS TO RESOURCES FOR NOW
-		* TO PREVENT BREAKING AS MUCH CODE AS POSSIBLE
-		* MUST BE REMOVED EVENTUALLY(please)
-		* Following functions:
-		* Handle<T> get(string)
-		* RegisterFileAsset(string)
-		*/
-		//template<typename T>
-		//Handle<T> get(std::string const& path) {
-		//	return get<T>(GUID(FNVHash::fnv1a(path)));
-		//}
-		////template<typename T>
-		//void RegisterFileAsset(const std::string& path)
-		//{
-		//	mGUIDToResource[GUID(FNVHash::fnv1a(path))] = path;
-		//}
-		/*
-		* ----------------END OF HACK---------------
-		*/
-
 		void RegisterResourceAsset(const GUID& guid, const std::string& path)
 		{
 			mGUIDToResource[guid] = path;
