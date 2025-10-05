@@ -108,9 +108,10 @@ namespace SliceEngine
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
 		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
-		uniformLoc = glGetUniformLocation(mShader.get()->s, "uTex");
-		glUniform1i(uniformLoc, texHandle.get()->texture_id);
 
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);
+		glBindTextureUnit(0, texHandle.get()->texture_id);
 
 		glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
 	}

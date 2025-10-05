@@ -35,7 +35,6 @@ void Pass0(void){
 * Out: aTex
 *****************************************************/
 void Pass1(void){
-	vTexCoord	= aTex;
 	gl_Position	= vec4(aVertexPosition * 2.f, 1.0);
 }
 
