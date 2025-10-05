@@ -77,8 +77,7 @@ namespace SliceEngine
 
 			// should never reach here
 			assert("System does not exist!");
-			T temp{};
-			return temp;
+			throw std::runtime_error("System does not exist: " + systemName);
 		}
 
 		InputSystem* GetInputSystem();

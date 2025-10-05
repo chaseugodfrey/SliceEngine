@@ -42,7 +42,8 @@ namespace SliceEngine
 
 		GLenum err = glewInit();
 		if (err != GLEW_OK) {
-			SLICE_LOG("GLEW initialization failed: %s", glewGetErrorString(err));
+			std::string error = reinterpret_cast<const char*>(glewGetErrorString(err));
+			SLICE_LOG("GLEW initialization failed: " + error);
 			return nullptr;
 		}
 
