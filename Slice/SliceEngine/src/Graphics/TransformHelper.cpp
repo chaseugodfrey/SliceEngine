@@ -21,17 +21,17 @@ namespace SliceEngine
         // roll (x-axis rotation)
         double sinr_cosp = 2.f * (q.w * q.x + q.y * q.z);
         double cosr_cosp = 1.f - 2.f * (q.x * q.x + q.y * q.y);
-        result.x = std::atan2(sinr_cosp, cosr_cosp);
+        result.x = static_cast<float>(std::atan2(sinr_cosp, cosr_cosp));
 
         // pitch (y-axis rotation)
         double sinp = std::sqrt(1.f + 2.f * (q.w * q.y - q.x * q.z));
         double cosp = std::sqrt(1.f - 2.f * (q.w * q.y - q.x * q.z));
-        result.y = 2.f * std::atan2(sinp, cosp) - M_PI / 2.f;
+        result.y = static_cast<float>(2.0 * std::atan2(sinp, cosp) - M_PI / 2.0);
 
         // yaw (z-axis rotation)
         double siny_cosp = 2.f * (q.w * q.z + q.x * q.y);
         double cosy_cosp = 1.f - 2.f * (q.y * q.y + q.z * q.z);
-        result.z = std::atan2(siny_cosp, cosy_cosp);
+        result.z = static_cast<float>(std::atan2(siny_cosp, cosy_cosp));
 
         return glm::degrees(-result);
     }

@@ -145,7 +145,7 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Camera
-	GameObject& RenderManager::CreateCamera()
+	GameObject RenderManager::CreateCamera()
 	{
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
@@ -558,7 +558,8 @@ namespace SliceEngine
 	void RenderManager::IDPick()
 	{
 		// if out of bounds
-		if (mObjPickX > Core::GetInstance()->GetSystem<CameraSystem>().maxWidth || mObjPickX < 0 || mObjPickY > Core::GetInstance()->GetSystem<CameraSystem>().maxHeight || mObjPickY < 0)
+		if (mObjPickX > static_cast<unsigned int>(Core::GetInstance()->GetSystem<CameraSystem>().maxWidth) || mObjPickX < 0 ||
+			mObjPickY >  static_cast<unsigned int>(Core::GetInstance()->GetSystem<CameraSystem>().maxHeight) || mObjPickY < 0)
 		{
 			mIDHovered = std::numeric_limits<unsigned int>().max();
 			return;
