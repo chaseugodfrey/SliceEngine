@@ -29,18 +29,18 @@ namespace SliceEditor
 
 		bool isDirty;
 
-		void BuildHierarchy();
 
 	public:
 
 		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
 		~HierarchyManager() = default;
 
-		void Test();
 		void Init() override;
+		void BuildHierarchy();
 		void SetDirty();
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);
+		void Reset();
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();
@@ -48,7 +48,7 @@ namespace SliceEditor
 		void ParentGameObject(entt::entity child, entt::entity parent);
 		void Unparent(entt::entity child, entt::entity parent);
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		std::map<entt::entity, TestNode>& GetHierarchy() { return mHierarchy; }
 

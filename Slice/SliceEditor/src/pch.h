@@ -56,6 +56,12 @@
 #include <imgui_stdlib.h>
 #include <ImGuizmo.h>
 
+// filewatcher
+#include <../thirdparty/filewatch/FileWatcher.h>
+#undef near
+#undef far
+#undef ERROR
+
 // jolt
  #include <Jolt/Jolt.h>
  #include <Jolt/RegisterTypes.h>

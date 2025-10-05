@@ -27,7 +27,7 @@ namespace SliceEditor
 
 		void Init() override;
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		float GetCameraSpeed();
 
@@ -35,6 +35,10 @@ namespace SliceEditor
 
 		void SetGizmoOperation(ImGuizmo::OPERATION op);
 		void SetGizmoMode(ImGuizmo::MODE mode);
+
+		void SelectObject(entt::entity);
+		void ClearObject();
+
 		ImGuizmo::OPERATION GetGizmoOperation() const;
 		ImGuizmo::MODE GetGizmoMode() const;
 	};

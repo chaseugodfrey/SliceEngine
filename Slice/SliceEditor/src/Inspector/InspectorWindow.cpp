@@ -79,12 +79,12 @@ namespace SliceEditor
 
 	void R()
 	{
-
+		
 	}
 
 	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
 
-
+	
 	void InspectorWindow::DisplayEntityData()
 	{
 		//static bool is_active = false;
@@ -183,6 +183,12 @@ namespace SliceEditor
 				if (ImGui::Checkbox("##ispaused", &paused))
 					as.isPaused = paused;
 
+				ImGui::Text("Play Preview");
+				ImGui::SameLine(150);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+					as.playPreview = !as.playPreview;
+
 				ImGui::TreePop();
 			}
 			});
@@ -200,12 +206,20 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##mesh", &rend.model, ImGuiInputTextFlags_ReadOnly);
+			std::string model_guid_string = std::to_string(rend.model.GetGUID());
+			if (ImGui::InputText("##mesh", &model_guid_string, ImGuiInputTextFlags_ReadOnly))
+			{
+				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
 
 			ImGui::Text("Texture");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##texture", &rend.texture, ImGuiInputTextFlags_ReadOnly);
+			std::string texture_guid_string = std::to_string(rend.model.GetGUID());
+			if (ImGui::InputText("##texture", &texture_guid_string, ImGuiInputTextFlags_ReadOnly))
+			{
+				rend.model = SliceEngine::GUID(std::stoll(texture_guid_string));
+			}
 
 			ImGui::TreePop();
 		}
@@ -214,46 +228,35 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayRigidbody()
 	{
-		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-		auto entity = selected_entity.value();
+		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
 
-		reg.patch<SliceEngine::RigidBody>(entity, [&](auto& rb)
-			{
+		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::RigidBody>();
 
-				if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					DisplayComponentHeader<SliceEngine::RigidBody>();
+			ImGui::Text("Friction");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::DragFloat("##friction", &rb.friction);
 
-					ImGui::Text("Friction");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##friction", &rb.friction);
-
-					ImGui::TreePop();
-				}
-			});
-
-
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplayCollider3D()
 	{
-		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-		auto entity = selected_entity.value();
+		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
 
-		reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& col3d)
-			{
-				if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					DisplayComponentHeader<SliceEngine::ColliderShape>();
+		if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DisplayComponentHeader<SliceEngine::ColliderShape>();
 
-					ImGui::Text("Trigger");
-					ImGui::SameLine(150.0f);
-					ImGui::Checkbox("##trigger", &col3d.isTrigger);
+			ImGui::Text("Trigger");
+			ImGui::SameLine(150.0f);
+			ImGui::Checkbox("##trigger", &col3d.isTrigger);
 
-					ImGui::TreePop();
-				}
-			});
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplaySliceScript()
@@ -285,7 +288,7 @@ namespace SliceEditor
 				}
 
 				if (ImGui::BeginPopupContextItem("script_list_popup"))
-				{
+				{					
 					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
 
 					std::vector<const char*> script_list{};
@@ -346,17 +349,6 @@ namespace SliceEditor
 
 	void InspectorWindow::AddComponentButton()
 	{
-		const char* arr[5] =
-		{
-			"a",
-			"b",
-			"c",
-			"d",
-			"e"
-		};
-
-		static int index = 0;
-		static bool selected = false;
 
 		if (ImGui::Button("Add Component"))
 		{
@@ -366,25 +358,46 @@ namespace SliceEditor
 		if (ImGui::BeginPopupContextItem("##add_component_list"))
 		{
 			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto selectedGO = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value());
 
-			if (ImGui::Selectable("Add Rigidbody"))
+			if(!selectedGO.HasComponent<SliceEngine::Renderer>())
 			{
-				reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
+				if (ImGui::Selectable("Add Renderer"))
+				{
+					reg.emplace<SliceEngine::Renderer>(selected_entity.value());
+				}
 			}
 
-			if (ImGui::Selectable("Add Collider3D"))
+			if (!selectedGO.HasComponent<SliceEngine::RigidBody>())
 			{
-				reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
+				if (ImGui::Selectable("Add Rigidbody"))
+				{
+					reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
+				}
 			}
 
-			if (ImGui::Selectable("Add Script Container"))
+			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
-				reg.emplace<SliceEngine::Script>(selected_entity.value());
+				if (ImGui::Selectable("Add Collider3D"))
+				{
+					reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
+				}
+			}
+			
+			if(!selectedGO.HasComponent<SliceEngine::Script>())
+			{
+				if (ImGui::Selectable("Add Script Container"))
+				{
+					reg.emplace<SliceEngine::Script>(selected_entity.value());
+				}
 			}
 
-			if (ImGui::Selectable("Add AudioSource"))
+			if(!selectedGO.HasComponent<SliceEngine::AudioSource>())
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
+				if (ImGui::Selectable("Add AudioSource"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
+				}
 			}
 
 			ImGui::EndPopup();

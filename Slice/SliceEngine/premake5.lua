@@ -61,6 +61,7 @@ project "SliceEngine"
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
+       buildoptions { "/bigobj" }
         symbols "On"
         
          links {

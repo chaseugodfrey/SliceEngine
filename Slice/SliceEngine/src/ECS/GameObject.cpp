@@ -42,6 +42,7 @@ namespace SliceEngine
 
 	void GameObject::Destroy()
 	{
+
 		mRegistry.destroy(mEntity);
 
 		//mRegistry.eac

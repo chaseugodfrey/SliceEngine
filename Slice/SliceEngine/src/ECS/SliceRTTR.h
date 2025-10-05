@@ -24,30 +24,10 @@ namespace SliceEngine
 
 	RTTR_REGISTRATION
 	{
-		// Register the interface for base system
-		//rttr::registration::class_<IBaseSystem>("IBaseSystem")
-		//.method("Bind", &IBaseSystem::Bind)
-		//.method("Unbind", &IBaseSystem::Unbind);
-		//rttr::registration::class_<WorldSpaceGraphicsSystem>("WorldSpaceGraphicsSystem")
-		//	.constructor<>()
-		//	.method("EntityOnEnter", &WorldSpaceGraphicsSystem::EntityOnEnter)
-		//	.method("EntityOnExit", &WorldSpaceGraphicsSystem::EntityOnExit)
-		//	.method("EntityOnUpdate", &WorldSpaceGraphicsSystem::EntityOnUpdate);
-		//rttr::registration::class_<TransformSystem>("TransformSystem")
-		//	.constructor<>()
-		//	.method("EntityOnEnter", &TransformSystem::EntityOnEnter)
-		//	.method("EntityOnExit", &TransformSystem::EntityOnExit)
-		//	.method("EntityOnUpdate", &TransformSystem::EntityOnUpdate);
-		//rttr::registration::class_<SoundSystem>("SoundSystem")
-		//	.constructor<>()
-		//	.method("EntityOnEnter", &SoundSystem::EntityOnEnter)
-		//	.method("EntityOnExit", &SoundSystem::EntityOnExit)
-		//	.method("EntityOnUpdate", &SoundSystem::EntityOnUpdate);
-
 	rttr::registration::class_<std::vector<uint32_t>>("VectorUInt32")
 		.constructor<>()
 		.method("size", &std::vector<uint32_t>::size)
-		.method("at", static_cast<uint32_t& (std::vector<uint32_t>::*)(size_t)>(&std::vector<uint32_t>::at))
+		.method("at", static_cast<uint32_t & (std::vector<uint32_t>::*)(size_t)>(&std::vector<uint32_t>::at))
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
@@ -83,32 +63,31 @@ namespace SliceEngine
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.constructor<uint32_t>()
 		.property("value", &EntityID::value);
-		
+
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
 		.property("mName", &SliceEntity::mName);
-        		rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
-			.property("isKinematic", &RigidBody::isKinematic)
-			.property("gravityFactor", &RigidBody::gravityFactor)
-			.property("CollisionDetection", &RigidBody::CollisionDetection)
-			.property("mass", &RigidBody::mass)
-			.property("friction", &RigidBody::friction)
-			.property("restituition", &RigidBody::restitution)
-			.property("linearDamping", &RigidBody::linearDamping)
-			.property("angularDamping", &RigidBody::angularDamping);
+	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+		.property("isKinematic", &RigidBody::isKinematic)
+		.property("gravityFactor", &RigidBody::gravityFactor)
+		.property("CollisionDetection", &RigidBody::CollisionDetection)
+		.property("mass", &RigidBody::mass)
+		.property("friction", &RigidBody::friction)
+		.property("restituition", &RigidBody::restitution)
+		.property("linearDamping", &RigidBody::linearDamping)
+		.property("angularDamping", &RigidBody::angularDamping);
 
-		rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
-			.property("layer", &ColliderShape::layer)
-			.property("ColliderType", &ColliderShape::type)
-			.property("ShapeData", &ColliderShape::shapeData)
-			.property("offSet", &ColliderShape::offSet)
-			.property("isTrigger", &ColliderShape::isTrigger);
+	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+		.property("layer", &ColliderShape::layer)
+		.property("ColliderType", &ColliderShape::type)
+		.property("ShapeData", &ColliderShape::shapeData)
+		.property("offSet", &ColliderShape::offSet)
+		.property("isTrigger", &ColliderShape::isTrigger);
 
-		rttr::registration::class_<GUID>("GUID")
-			.constructor<>()
-			.constructor<uint64_t>()
-			.property_readonly("Value", &GUID::GetGUID);
+	rttr::registration::class_<GUID>("GUID")
+		.constructor<>()
+		.constructor<uint64_t>()
+		.property_readonly("Value", &GUID::GetGUID);
 	}
-
 }
 #endif
