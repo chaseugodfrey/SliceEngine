@@ -1,19 +1,20 @@
-#ifndef CAMERA_SYSTEM_H
-#define CAMERA_SYSTEM_H
+#ifndef LIGHTING_SYSTEM_H
+#define LIGHTING_SYSTEM_H
 
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
 
 namespace SliceEngine
 {
-	struct cameraEntity {};
+	struct lightingEntity {};
 
-	struct CameraSystem : BaseSystem<cameraEntity, Transform, Camera>
+	struct LightingSystem : BaseSystem<lightingEntity, Transform, Light>
 	{
+		void SetLightingParams(GLuint shader);
+
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-		const int maxHeight{ 1080 }, maxWidth{ 1920 };
 	};
 }
 

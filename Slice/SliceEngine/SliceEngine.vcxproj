@@ -90,6 +90,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -120,6 +121,7 @@
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\GLFWWindowManager.h" />
     <ClInclude Include="src\Graphics\CameraSystem.h" />
+    <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
@@ -162,6 +164,7 @@
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\GLFWWindowManager.cpp" />
     <ClCompile Include="src\Graphics\CameraSystem.cpp" />
+    <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
