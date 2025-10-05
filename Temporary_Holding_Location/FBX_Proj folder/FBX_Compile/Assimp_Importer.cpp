@@ -101,7 +101,7 @@ namespace Geometry {
         for (int i = 0; i < node->mNumMeshes; ++i) {
             auto* m = scene->mMeshes[node->mMeshes[i]];
             meshes.emplace_back(process_mesh(m, scene));
-            meshes.back().transform = AssimpMatToGLM(node->mTransformation);
+            meshes.back().transform = glm_tform;
             meshes.back().name = m->mName.C_Str();
         }
         for (int i = 0; i < node->mNumChildren; ++i) {
@@ -293,7 +293,7 @@ namespace Geometry {
         }
 
         glm::mat4 s = glm::scale(glm::mat4(1.f), { 1.f, 1.f, 1.f });
-        //s = s * transform;
+        s = s * transform;
         GLuint uniform = shader.GetUniformLoc("M");
         glUniformMatrix4fv(uniform, 1, false, glm::value_ptr(s));
 

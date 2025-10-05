@@ -42,7 +42,7 @@ void main(){
         }
 
         bone_tform += finalBonesMatrices[bone_id] * v_weights[i];
-        norm_tform += finalBonesMatrices[bone_id];
+        //norm_tform += finalBonesMatrices[bone_id];
     }
     
     final_pos = bone_tform * vec4(v_position, 1.0f);

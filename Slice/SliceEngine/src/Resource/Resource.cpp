@@ -49,9 +49,18 @@ namespace SliceEngine
 	SliceEngineTypes::Model* Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		auto* m = new SliceEngineTypes::Model();
-		if (!m->LoadModel(path)) {
-			delete m;
-			return nullptr;
+		std::filesystem::path file(path);
+		if (file.extension() == ".mdl") {
+			if (!m->LoadModelResource(path)) {
+				delete m;
+				return nullptr;
+			}
+		}
+		else {
+			if (!m->LoadModel(path)) {
+				delete m;
+				return nullptr;
+			}
 		}
 		//return new SliceEngineTypes::Model{SliceEngineTypes::Model::LoadModel(path)};
 		return m;

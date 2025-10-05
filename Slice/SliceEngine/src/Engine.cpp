@@ -97,7 +97,7 @@ namespace SliceEngine
 
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
-
+		mResource->RegisterResourceAsset((GUID)1001, "Assets/");	//testing loading model
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");

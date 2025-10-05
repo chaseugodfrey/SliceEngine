@@ -80,12 +80,12 @@ void OpenGL_Starter::Init() {
     mdl.Init(model_path);
     anim.Init(model_path, mdl);
     animator.PlayAnimation(&anim);
-    /*mdl.SaveModelToFile("../Asset/player_data.mdl");
+    mdl.SaveModelToFile("../Asset/player_data.mdl");
 
     if (mdl_clone.LoadModelFromFile("../Asset/player_data.mdl")) {
         mdl_clone.InitLoadedModel();
         mdl_clone.SaveModelToFile("../Asset/player_data_clone.mdl");
-    }*/
+    }
 
     //Shaders
     const char* vert_name = "DefaultShader.vert";
@@ -120,7 +120,7 @@ void OpenGL_Starter::Update() {
             time = curr;
         }
 
-        animator.UpdateAnimation(0);
+        animator.UpdateAnimation(dt);
 
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

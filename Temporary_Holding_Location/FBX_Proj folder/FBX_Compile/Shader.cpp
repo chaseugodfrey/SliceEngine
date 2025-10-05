@@ -1,5 +1,6 @@
 
 #include "Shader.h"
+#include "Assimp_Importer.h"
 #if !COMPILE_ONLY
 
 #include <iostream>
