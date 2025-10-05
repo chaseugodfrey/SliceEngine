@@ -110,4 +110,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Resource/Model.h>
 #include "Configuration/ProjectSettings.h"
 
+#include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/Events.h"
+
 #endif 
