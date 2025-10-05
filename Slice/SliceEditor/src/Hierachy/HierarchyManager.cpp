@@ -108,7 +108,7 @@ namespace SliceEditor
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
 		//Check for children and remove them first
-		auto& targetNode = mHierarchy[target];
+		//auto& targetNode = mHierarchy[target];
 
 		// remove everything from selection system(temp fix)
 		registry.GetSelectionSystem().ClearSelection();

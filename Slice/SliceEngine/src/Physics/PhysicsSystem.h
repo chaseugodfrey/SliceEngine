@@ -41,7 +41,7 @@ namespace SliceEngine
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
-		int collisionSteps;
+		int collisionSteps{};
 
 	private:
 		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;

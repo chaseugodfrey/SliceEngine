@@ -94,7 +94,7 @@ namespace SliceEditor
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
 
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -272,14 +272,24 @@ namespace SliceEditor
         }
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		{
+
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
 		{
 			ImGui::OpenPopup("host_req");
 		}
-
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 		ImGui::SameLine();
 		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
 		{
@@ -362,13 +372,7 @@ namespace SliceEditor
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
-		{
-			if (SliceEngine::gScriptSystem)
-			{
-				SliceEngine::gScriptSystem->ReloadAssembly();
-			}
-		}
+		
 
 		ImGui::End();
 	}

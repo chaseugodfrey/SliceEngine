@@ -53,8 +53,10 @@ namespace SliceEditor
 		{
 			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
 
+			ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+
 			ImGui::GetWindowDrawList()->AddImage(
-				(void*)cam.textureID,
+				tex,
 				ImVec2(pos.x, pos.y),
 				ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 				ImVec2(0, 1),

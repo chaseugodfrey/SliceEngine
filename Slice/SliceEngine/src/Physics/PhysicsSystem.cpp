@@ -85,7 +85,7 @@ namespace SliceEngine
 		}
 		catch (const std::exception& e)
 		{
-			SLICE_LOG_ERROR("Physic System failed to initalize");
+			SLICE_LOG_ERROR("Physic System failed to initalize: %s", e.what());
 			return false;
 		}
 	}
