@@ -178,7 +178,7 @@ namespace SliceEngine
 		std::unordered_map<GUID, std::string> mGUIDToResource;
 
 		// TODO: Change this to be configurable
-		std::filesystem::path mResourcesDirectory = std::filesystem::path("Assets/Resources");
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 	};
 
 	// handle for assets
