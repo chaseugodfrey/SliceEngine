@@ -200,12 +200,20 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##mesh", &rend.model, ImGuiInputTextFlags_ReadOnly);
+			std::string model_guid_string = std::to_string(rend.model.GetGUID());
+			if (ImGui::InputText("##mesh", &model_guid_string, ImGuiInputTextFlags_ReadOnly))
+			{
+				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
 
 			ImGui::Text("Texture");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##texture", &rend.texture, ImGuiInputTextFlags_ReadOnly);
+			std::string texture_guid_string = std::to_string(rend.model.GetGUID());
+			if (ImGui::InputText("##texture", &texture_guid_string, ImGuiInputTextFlags_ReadOnly))
+			{
+				rend.model = SliceEngine::GUID(std::stoll(texture_guid_string));
+			}
 
 			ImGui::TreePop();
 		}

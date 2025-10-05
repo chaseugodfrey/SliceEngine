@@ -76,6 +76,8 @@
 // nlohmann json
 #include <json.hpp>
 
+#include <Resource/GUID.h>
+#include <Resource/Model.h>
 #include "Configuration/ProjectSettings.h"
 
 #endif 

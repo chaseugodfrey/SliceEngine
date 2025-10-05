@@ -1,6 +1,6 @@
 #include <pch.h>
 
-//#include "ResourceManager.h"
+#include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
@@ -24,7 +24,7 @@ namespace SliceEngine
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		//tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
@@ -86,7 +86,12 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(tempModel.get()->vao);
+		auto core = Core::GetInstance();
+		auto rm = core->GetResourceManager();
+		auto& rc = core->GetRegistry().get<Renderer>(entity);
+		auto handle = rm->get<SliceEngineTypes::Model>(rc.model);
+
+		glBindVertexArray(handle.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
@@ -96,7 +101,7 @@ namespace SliceEngine
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
 		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
-		glDrawArrays(tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
+		glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
