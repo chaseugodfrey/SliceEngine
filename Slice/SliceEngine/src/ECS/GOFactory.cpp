@@ -86,6 +86,11 @@ namespace SliceEngine
 		//mRegistry.emplace<SliceEntity>(go);
 		go.AddComponent<SliceEntity>();
 
+		// Networking stuff
+
+
+
+
 		return go;
 
 	}
@@ -137,11 +142,30 @@ namespace SliceEngine
 
 	void GOFactory::Destroy(GameObject& go)
 	{
-		mDeleteList.insert(go.GetEntity());
+		Destroy(go.GetEntity());
 	}
 
 	void GOFactory::Destroy(entt::entity entity)
 	{
+		auto go = GetGOByEntity(entity);
+
+		//Check children and destroy them too
+		if(go.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SceneGraph>();
+			Entity child = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (child != entt::null)
+			{
+				auto& childSceneGraph = mRegistry.get<SceneGraph>(child);
+				Entity nextSibling = childSceneGraph.neighbours[SceneGraph::RIGHT];
+				Destroy(child);
+				child = nextSibling;
+			}
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
+		}
 		mDeleteList.insert(entity);
 	}
 
@@ -385,6 +409,23 @@ namespace SliceEngine
 		}
 	}
 
+	GameObject GOFactory::CreateGO_Box()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.AddComponent<ColliderShape>();
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Cam()
+	{
+		auto go = CreateGO("Camera");
+		go.AddComponent<Camera>();
+		return go;
+	}
+
 	void GOFactory::TestLoop()
 	{
 		auto entityView = mRegistry.view<SliceEntity>();
@@ -569,7 +610,11 @@ namespace SliceEngine
 			if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity)
 			{
 				auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
-				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				{
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				}
+				//parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 
 			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())

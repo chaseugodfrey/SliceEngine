@@ -2,6 +2,7 @@
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
 {
@@ -80,6 +81,13 @@ namespace SliceEditor
 		TestNode node{};
 		node.entity = go.GetEntity();
 		mHierarchy.emplace(node.entity, node);
+
+
+		auto rootEntity = factory.GetRootEntity();
+		ParentGameObject(node.entity, rootEntity);
+
+		//isDirty = true;
+		SliceEngine::OnGONetworkEvent(go.GetEntity(),true);
 	}
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
@@ -87,22 +95,23 @@ namespace SliceEditor
 		//Check for children and remove them first
 		auto& targetNode = mHierarchy[target];
 
-		// remove from selection system
-		registry.GetSelectionSystem().UpdateDeslected({ target });
+		// remove everything from selection system(temp fix)
+		registry.GetSelectionSystem().ClearSelection();
 
-		// remove from node structure
-		mHierarchy.erase(target);
+		// remove from node structure (including children)
+		//mHierarchy.erase(target);
 
-		//Remove from SelectionSystem
-		auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
+		//Remove from SelectionSystem FIX THIS LTR
+		/*auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
 		auto selectedIt = selectedEntities.find(target);
 		if(selectedIt != selectedEntities.end())
 		{
 			selectedEntities.erase(selectedIt);
-		}
+		}*/
 
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
+		SetDirty();
 	}
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)

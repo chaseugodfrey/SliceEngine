@@ -6,6 +6,7 @@
 #include "../Core/Registry.h"
 #include "../Hierachy/HierarchyManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 
 namespace SliceEditor
@@ -163,13 +164,25 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+
 		if (ImGui::BeginMenu("GameObject"))
 		{
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					auto go = factory.CreateGO_Box();
+					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
+
+				}
+
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = core->mFactory.CreateGO("Camera");
-				go.AddComponent<SliceEngine::Camera>();
-				core->mFactory.SetParent(go.GetEntity());
+				auto go = factory.CreateGO_Cam();
 				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
@@ -242,10 +255,97 @@ namespace SliceEditor
 			}   
         }
 
-        ImGui::SameLine();
+		ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
 
 		ImGui::SameLine();
+		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
+		{
+			ImGui::OpenPopup("host_req");
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
+		{
+			ImGui::OpenPopup("connect_req");
+
+		}
+
+		if (ImGui::BeginPopup("host_req"))
+		{
+
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string bindport;
+			if (ImGui::InputText("##port_in", &bindport))
+			{
+			}
+
+			if (ImGui::Button("Bind"))
+			{
+				SliceEngine::OnNetworkBindPort(bindport);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopup("connect_req"))
+		{
+			//SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
+
+			std::string display = "Current IP: ";
+		/*	if (netw->data.IP.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.IP;
+			}
+			ImGui::Text(display.c_str());
+
+			display = "Current Port: ";
+			if (netw->data.port.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.port;
+			}*/
+			ImGui::Text(display.c_str());
+
+
+			ImGui::Text("Input IP: ");
+			ImGui::SameLine();
+			static std::string ip;
+			if (ImGui::InputText("##ip_in", &ip))
+			{
+				// changed
+			}
+
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string port;
+			if (ImGui::InputText("##port_in", &port))
+			{
+				// changed
+			}
+
+			if (ImGui::Button("Connect"))
+			{
+				SliceEngine::OnNetworkClientConnect(ip, port);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
 		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
 		{
 			if (SliceEngine::gScriptSystem)

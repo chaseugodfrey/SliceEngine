@@ -43,4 +43,29 @@ namespace SliceEngine
 
     }
 
+    void OnNetworkClientConnect(std::string ip, std::string port)
+    {
+        NetworkClientConnectEvent event;
+        event.ip = ip;
+        event.port = port;
+
+        EventManager::GetInstance()->Publish<NetworkClientConnectEvent>(event);
+    }
+
+    void OnNetworkBindPort(std::string port)
+    {
+        NetworkBindPortEvent event;
+        event.port = port;
+
+        EventManager::GetInstance()->Publish<NetworkBindPortEvent>(event);
+    }
+
+    void OnGONetworkEvent(Entity entity, bool create)
+    {
+        GONetworkEvent event;
+        event.entity = entity;
+        event.create = create;
+
+        EventManager::GetInstance()->Publish<GONetworkEvent>(event);
+    }
 }

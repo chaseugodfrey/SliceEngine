@@ -21,7 +21,7 @@
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Configuration/ProjectSettings.h"
-
+#include "Networking/NetworkSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -94,6 +94,8 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		//Core::GetInstance()->InitSystem<NetworkSystem>();
+		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
@@ -141,6 +143,9 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Init();
+		//NetworkingThread::printAddr();
 
 		//test();
 

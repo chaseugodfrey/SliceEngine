@@ -2,7 +2,7 @@
 #include "Core.h"
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
-
+#include "Networking/NetworkSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
 #include "../AudioManager.h"
@@ -32,11 +32,12 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 		mAudioManager = std::make_unique<AudioManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
+		mNetwork = std::make_unique<NetworkSystem>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
-        mScenePtr = std::make_unique<SceneSystem>();
+		mScenePtr = std::make_unique<SceneSystem>();
 
 		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
 		mFactory.RegisterComponent<Transform>();
@@ -49,12 +50,12 @@ namespace SliceEngine
 		mFactory.RegisterComponent<ColliderShape>();
 		mFactory.RegisterComponent< AudioSource>();
 
-        mResource->InitResourceManager();
+		mResource->InitResourceManager();
 	}
 
 	RTTR_REGISTRATION
 	{
-        // Shifting here because SLICE_RTTR is becoming too big of an obj file
+		// Shifting here because SLICE_RTTR is becoming too big of an obj file
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
 		.property("model", &Renderer::model)
@@ -76,7 +77,7 @@ namespace SliceEngine
 
 	}
 
-	void Core::ExitCore()
+		void Core::ExitCore()
 	{
 		mWindowManager.CloseWindow();
 		UnbindSystems();
@@ -127,6 +128,11 @@ namespace SliceEngine
 	{
 
 		return mWindowManager.GetWindow();
+	}
+
+	NetworkSystem* Core::GetNetwork()
+	{
+		return mNetwork.get();
 	}
 
 	ProjectSettingsService* Core::GetProjectSettingsService()

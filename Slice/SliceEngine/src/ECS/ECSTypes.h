@@ -147,7 +147,7 @@ namespace SliceEngine
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
-		bool isTrigger = false;									// leaving thjis here in case we need trniggers :D
+		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
 	};
 

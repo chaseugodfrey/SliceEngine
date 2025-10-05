@@ -11,6 +11,9 @@ void EventManager::SetupEventManager()
 	RegisterEvent<ColliderShapeRemovedEvent>();
 	RegisterEvent<RigidBodyAddedEvent>();
 	RegisterEvent<RigidBodyRemovedEvent>();
+	RegisterEvent<NetworkClientConnectEvent>();
+	RegisterEvent<NetworkBindPortEvent>();
+	RegisterEvent<GONetworkEvent>();
 	RegisterEvent<ColliderShapeModifiedEvent>();
 	RegisterEvent<RigidBodyModifiedEvent>();
 }
