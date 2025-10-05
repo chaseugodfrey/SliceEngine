@@ -116,8 +116,8 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width, height;
-		float pov, near, far;// Pov is the angle of y of the screen
+		int width{}, height{};
+		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		unsigned char renderTag;
 	};
