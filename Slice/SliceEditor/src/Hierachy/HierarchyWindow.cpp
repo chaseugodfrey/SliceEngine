@@ -154,6 +154,11 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Hierarchy");
 
+		if (ImGui::Button("Reload Hierarchy"))
+		{
+			mManager.BuildHierarchy();
+		}
+
 		DrawNodeGraph();
 
 		ImGui::BeginGroup();

@@ -343,17 +343,6 @@ namespace SliceEditor
 
 	void InspectorWindow::AddComponentButton()
 	{
-		const char* arr[5] =
-		{
-			"a",
-			"b",
-			"c",
-			"d",
-			"e"
-		};
-
-		static int index = 0;
-		static bool selected = false;
 
 		if (ImGui::Button("Add Component"))
 		{
@@ -363,25 +352,46 @@ namespace SliceEditor
 		if (ImGui::BeginPopupContextItem("##add_component_list"))
 		{
 			auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			
-			if (ImGui::Selectable("Add Rigidbody"))
+			auto selectedGO = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value());
+
+			if(!selectedGO.HasComponent<SliceEngine::Renderer>())
 			{
-				reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
+				if (ImGui::Selectable("Add Renderer"))
+				{
+					reg.emplace<SliceEngine::Renderer>(selected_entity.value());
+				}
 			}
 
-			if (ImGui::Selectable("Add Collider3D"))
+			if (!selectedGO.HasComponent<SliceEngine::RigidBody>())
 			{
-				reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
-			}
-			
-			if (ImGui::Selectable("Add Script Container"))
-			{
-				reg.emplace<SliceEngine::Script>(selected_entity.value());
+				if (ImGui::Selectable("Add Rigidbody"))
+				{
+					reg.emplace<SliceEngine::RigidBody>(selected_entity.value());
+				}
 			}
 
-			if (ImGui::Selectable("Add AudioSource"))
+			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
+				if (ImGui::Selectable("Add Collider3D"))
+				{
+					reg.emplace<SliceEngine::ColliderShape>(selected_entity.value());
+				}
+			}
+			
+			if(!selectedGO.HasComponent<SliceEngine::Script>())
+			{
+				if (ImGui::Selectable("Add Script Container"))
+				{
+					reg.emplace<SliceEngine::Script>(selected_entity.value());
+				}
+			}
+
+			if(!selectedGO.HasComponent<SliceEngine::AudioSource>())
+			{
+				if (ImGui::Selectable("Add AudioSource"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(selected_entity.value());
+				}
 			}
 
 			ImGui::EndPopup();
