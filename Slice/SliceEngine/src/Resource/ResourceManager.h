@@ -88,6 +88,16 @@ namespace SliceEngine
 			{
 				path = mGUIDToResource.at(guid);
 			}
+			else if (mGUIDToResource.count((GUID)Type<T>::defaultResourceGUID))
+			{
+				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
+				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource.", guid.GetGUID());
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", guid.GetGUID());
+				return Handle<T>();
+			}
 			// cause idk whether i should remove mGUIDToPath since some uses it
 			// but eventually all should change to mGUIDToResource
 			//else if (mGUIDToPath.count(guid))

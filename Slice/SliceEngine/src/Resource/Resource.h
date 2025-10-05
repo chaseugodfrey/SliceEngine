@@ -11,7 +11,7 @@ namespace SliceEngine
 		class Texture;
 		class Model;
 		class Shader;
-		class Sound;
+		//class Sound;
 		class Scene;
 	}
 
@@ -65,6 +65,7 @@ namespace SliceEngine
 	struct Type<SliceEngineTypes::Shader>
 	{
 		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
+		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 
 		// for now load with file name directly
 		static SliceEngineTypes::Shader* Load(ResourceManager& resourceMgr, const std::string& path);
@@ -77,6 +78,7 @@ namespace SliceEngine
 	struct Type<SliceEngineTypes::Model>
 	{
 		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
+		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 
 		// for now load with file name directly
 		static SliceEngineTypes::Model* Load(ResourceManager& resourceMgr, const std::string& path);
@@ -85,15 +87,16 @@ namespace SliceEngine
 
 	};
 
-	template <>
-	struct Type<SliceEngineTypes::Sound>
-	{
+	//template <>
+	//struct Type<SliceEngineTypes::Sound>
+	//{
 
-	};
+	//};
 
 	template <>
 	struct Type<SliceEngineTypes::Scene>
 	{
+		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 		// for now load with file name directly
 		static SliceEngineTypes::Scene* Load(ResourceManager& resourceMgr, const std::string& path);
