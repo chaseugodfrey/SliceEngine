@@ -108,6 +108,19 @@ namespace SliceEngine
 		unsigned char renderTag;
 	};
 
+	struct Light // TODO: Default 1 directional light for now
+	{
+		//enum class LightType
+		//{
+		//	Directional,
+		//	Point,
+		//	Spot
+		//};
+		//LightType type = LightType::Directional;
+		glm::vec3 color{1.0f, 1.0f, 1.0f};
+		float intensity = 1.0f;
+	};
+
 	struct RigidBody
 	{
 		

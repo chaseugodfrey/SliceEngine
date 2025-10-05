@@ -57,6 +57,7 @@ project "SliceEngine"
     pchheader "pch.h"
     pchsource "src/pch.cpp"
 
+    buildoptions { "/bigobj" }
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }

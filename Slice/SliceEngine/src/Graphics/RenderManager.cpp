@@ -11,6 +11,7 @@
 
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
+#include "LightingSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -312,23 +313,7 @@ namespace SliceEngine
 		if (UniformExists("uPass", uniformLoc))
 			glUniform1i(uniformLoc, 1);
 
-		if (UniformExists("uLight[0].position", uniformLoc))
-		glUniform3f(uniformLoc, 5.f, 1.f, 5.f);
-		if (UniformExists("uLight[0].La", uniformLoc))
-		glUniform3f(uniformLoc, 0.4f, 0.4f, 0.4f);
-		if (UniformExists("uLight[0].Ld", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
-		if (UniformExists("uLight[0].Ls", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
-
-		if (UniformExists("uMat.Ka", uniformLoc))
-		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
-		if (UniformExists("uMat.Kd", uniformLoc))
-		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
-		if (UniformExists("uMat.Ks", uniformLoc))
-		glUniform3f(uniformLoc, 0.8f, 0.8f, 0.8f);
-		if (UniformExists("uMat.shininess", uniformLoc))
-		glUniform1f(uniformLoc, 100.f);
+		Core::GetInstance()->GetSystem<LightingSystem>().SetLightingParams(mCurrShader->s);
 
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);

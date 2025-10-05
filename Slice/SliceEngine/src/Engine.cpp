@@ -13,6 +13,7 @@
 
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Graphics/LightingSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -83,6 +84,7 @@ namespace SliceEngine
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
+		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -152,6 +154,9 @@ namespace SliceEngine
 		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
 		floor.AddComponent<ColliderShape>();
 		floor.AddComponent<Renderer>();
+		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
+		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		light.AddComponent<Light>();
 	}
 
 	void Engine::Update()
