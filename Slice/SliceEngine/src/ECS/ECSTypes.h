@@ -154,11 +154,11 @@ namespace SliceEngine
 	struct AudioSource
 	{
 		std::string soundName;
-		float currentVolume;
-		bool isLoop;
-		bool isPaused;
-		bool is3D;
-		bool playPreview;
+		float currentVolume = 0.3f;
+		bool isLoop = false;
+		bool isPaused = true;
+		bool is3D = true;
+		bool playPreview = false;
 	};
 
 	// placeholder particle system component structure for reference

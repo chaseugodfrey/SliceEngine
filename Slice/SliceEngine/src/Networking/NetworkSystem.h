@@ -21,29 +21,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include <ctime>
 #include <random>
 
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX 
-
-#include "winsock2.h"	// ...or Winsock alone
-#include "ws2tcpip.h"		// getaddrinfo()
-#include "Windows.h"		// Entire Win32 API...
-
-// Tell the Visual Studio linker to include the following library in linking.
-// Alternatively, we could add this file to the linker command-line parameters,
-// but including it in the source code simplifies the configuration.
-#pragma comment(lib, "ws2_32.lib")
-#undef far
-#undef FAR
-#undef near
-#undef CreateWindowW
-#undef CreateWindow
-#undef ERROR
-#undef PlaySoundW
-#undef PlaySound
-#undef min
-#undef max
-#undef name
-
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/GameObject.h"

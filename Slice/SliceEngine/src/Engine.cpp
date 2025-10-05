@@ -71,10 +71,11 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-		auto window = Core::GetInstance()->GetWindow();
+		//auto window = Core::GetInstance()->GetWindow();
+		Core::GetInstance()->GetWindow();
 
 
-		audio = std::make_unique<AudioManager>();
+		
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
 
@@ -98,14 +99,15 @@ namespace SliceEngine
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm.getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
+		Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		//mResource->RegisterResourceAsset((GUID)1001, "Assets/Models/player_mdl.mdl");	//testing loading model
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
@@ -169,7 +171,7 @@ namespace SliceEngine
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
@@ -209,13 +211,13 @@ namespace SliceEngine
 			frm.StartSystem("Physics");
 			if (inputs->GetMode() == InputMode::Game)
 			{
-				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
 			frm.EndSystem("Physics");
 		}
 
 		frm.StartSystem("Transform");
-		Core::GetInstance()->GetSystem<TransformSystem>().Update(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Graphics");
@@ -233,15 +235,16 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-		auto inputs = Core::GetInstance()->GetInputSystem();
+		//auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()
 	{
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		audio->Exit();
+		mAudioManager->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");

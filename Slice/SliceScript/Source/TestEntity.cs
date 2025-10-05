@@ -14,8 +14,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             Console.WriteLine("TestEntity Created with ID: " + mID);
-            Console.WriteLine("Wow");
-            Console.WriteLine("mow");
+            
             
         }
 

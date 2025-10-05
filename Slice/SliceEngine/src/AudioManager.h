@@ -284,10 +284,10 @@ namespace SliceEngine
 		void StopAllSound(InternalSound SoundCategory);
 
 		/** @brief Removes any stopped or invalid sounds from memory. */
-		void CleanUpStoppedSounds();
+		//void CleanUpStoppedSounds();
 
 		/** @brief Switches sound context (e.g., between menu and gameplay). */
-		void SwitchSound();
+		//void SwitchSound();
 
 	private:
 
