@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Core/EventManager.h"
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
@@ -25,13 +26,27 @@ namespace SliceEditor
 	void HierarchyManager::Init()
 	{
 		//Test();
-		BuildHierarchy();
+		SubscribeToSceneLoading();
+		Reset();
 	}
 
 	void HierarchyManager::Reset()
 	{
 		registry.GetSelectionSystem().ClearSelection();
 		BuildHierarchy();
+	}
+
+	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
+	{
+		if (event.isSceneLoaded)
+		{
+			Reset();
+		}
+	}
+
+	void HierarchyManager::SubscribeToSceneLoading()
+	{
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 	}
 
 	void HierarchyManager::SetDirty()
