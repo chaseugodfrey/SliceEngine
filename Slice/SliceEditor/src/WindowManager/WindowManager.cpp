@@ -300,16 +300,16 @@ namespace SliceEditor
 		if (ImGui::BeginPopup("host_req"))
 		{
 
-			/*ImGui::Text("Input Port: ");
+			ImGui::Text("Input Port: ");
 			ImGui::SameLine();
 			static std::string bindport;
 			if (ImGui::InputText("##port_in", &bindport))
 			{
-			}*/
+			}
 
 			if (ImGui::Button("Bind"))
 			{
-				std::string portNumber{};
+				/*std::string portNumber{};
 
 				std::ifstream pfile("Assets/port.txt");
 				if (!pfile)
@@ -318,8 +318,8 @@ namespace SliceEditor
 				}
 				std::getline(pfile, portNumber);
 
-				pfile.close();
-				SliceEngine::OnNetworkBindPort(portNumber);
+				pfile.close();*/
+				SliceEngine::OnNetworkBindPort(bindport);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();
@@ -356,25 +356,25 @@ namespace SliceEditor
 			ImGui::Text(display.c_str());
 
 
-			//ImGui::Text("Input IP: ");
-			//ImGui::SameLine();
-			//static std::string ip;
-			//if (ImGui::InputText("##ip_in", &ip))
-			//{
-			//	// changed
-			//}
+			ImGui::Text("Input IP: ");
+			ImGui::SameLine();
+			static std::string ip;
+			if (ImGui::InputText("##ip_in", &ip))
+			{
+				// changed
+			}
 
-			//ImGui::Text("Input Port: ");
-			//ImGui::SameLine();
-			//static std::string port;
-			//if (ImGui::InputText("##new_port_in", &port))
-			//{
-			//	// changed
-			//}
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string port;
+			if (ImGui::InputText("##new_port_in", &port))
+			{
+				// changed
+			}
 
 			if (ImGui::Button("Connect"))
 			{
-				std::pair<std::string, std::string> clientNumber{};
+				/*std::pair<std::string, std::string> clientNumber{};
 				std::ifstream cfile("Assets/client.txt");
 				if (!cfile)
 				{
@@ -383,8 +383,8 @@ namespace SliceEditor
 				std::getline(cfile, clientNumber.first);
 				std::getline(cfile, clientNumber.second);
 
-				cfile.close();
-				SliceEngine::OnNetworkClientConnect(clientNumber.first, clientNumber.second);
+				cfile.close();*/
+				SliceEngine::OnNetworkClientConnect(ip, port);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();

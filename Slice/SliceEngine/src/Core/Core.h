@@ -33,7 +33,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
-	class NetworkSystem;
+	struct NetworkSystem;
 
 	class Core : public Singleton<Core>
 	{

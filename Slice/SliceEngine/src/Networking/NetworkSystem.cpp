@@ -14,6 +14,9 @@ namespace SliceEngine
         std::mutex _gameObjectMutex{};
         std::mutex _stdoutMutex{};
         std::mutex _eventMutex{};
+
+        std::thread recv_thread, send_thread;
+
         std::queue<float> event_queue{};
         float latest_server_update{};
 
@@ -60,9 +63,11 @@ namespace SliceEngine
 		}
 		else 
 		{
+            std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
 			std::cout << "No function registered for ID: " << cmdName << std::endl;
 		}
 		
+        return 0;
 	}
 
 	/*void NetworkCommandID::ProcessFunc(const std::string& cmdName, SOCKET pSocket, sockaddr_in pAddr)
@@ -104,7 +109,7 @@ namespace SliceEngine
 
         // Initialize Winsock
         WSADATA wsaData{};
-        int errorCode = WSAStartup(MAKEWORD(WINSOCK_VERSION, WINSOCK_SUBVERSION), &wsaData);
+        int errorCode = WSAStartup(MAKEWORD(WINSOCKK_VERSION, WINSOCK_SUBVERSION), &wsaData);
         if (errorCode != NO_ERROR)
         {
             std::cerr << "WSAStartup() failed." << std::endl;
@@ -145,7 +150,7 @@ namespace SliceEngine
         // Set up server address
         cAddr.sin_family = AF_INET;
         cAddr.sin_addr.s_addr = INADDR_ANY;
-        cAddr.sin_port = htons(std::stoi(portNumber));
+        cAddr.sin_port = htons(static_cast<u_short>(std::stoi(portNumber)));
 
         // Bind the socket
         if (bind(soc, reinterpret_cast<sockaddr*>(&cAddr), sizeof(cAddr)) != NO_ERROR)
@@ -175,8 +180,8 @@ namespace SliceEngine
         keep_running = true;
 
         // split the threads
-        std::thread recv_thread(ReceiveThread, soc);
-        recv_thread.detach();
+        //std::thread recv_thread(ReceiveThread, soc);
+        //recv_thread.detach();
          
         if (player2)
         {
@@ -200,6 +205,7 @@ namespace SliceEngine
         int bytes = sendto(soc, reinterpret_cast<const char*>(pkt.msg.data()), (int)pkt.msg.size(), 0, reinterpret_cast<sockaddr*>(&pAddr), sizeof(pAddr));
         if (bytes == SOCKET_ERROR || bytes == 0)
         {
+            std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
             std::cerr << "UDP send fail: " << WSAGetLastError() << std::endl;
             //closesocket(pSocket);
         }
@@ -285,8 +291,10 @@ namespace SliceEngine
                 hasConnected = true;
                 Core::GetInstance()->GetNetwork()->data.otherPlayer = client_addr;
                 
-                std::thread send_thread(SendThread, soc, false, client_addr);
-                send_thread.detach();
+                //std::thread send_thread(SendThread, soc, false, client_addr);
+                //send_thread.detach();
+
+                send_thread = std::thread(SendThread,soc, false, client_addr);
             }
 
             if (inID == cmdIDs.GetID("N_RSP_CONNECT"))
@@ -439,9 +447,9 @@ namespace SliceEngine
         }
 	}
 
-    void NetworkingThread::SendThread(SOCKET serverSocket,bool client, sockaddr_in otherPlayer)
+    void NetworkingThread::SendThread(SOCKET serverSocket,bool client, sockaddr_in _otherPlayer)
     {
-        auto dt = Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+        //auto dt = Core::GetInstance()->GetFramerateManager()->getDeltaTime();
         auto& reg = Core::GetInstance()->GetRegistry();
         auto& GOfact = Core::GetInstance()->mFactory;
 
@@ -458,8 +466,8 @@ namespace SliceEngine
                 timer -= dt;*/
 
                 auto entityView = reg.view<SliceEntity>();
-                std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-                std::cout << " entities size: " << entityView.size() << std::endl;
+                //std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
+                //std::cout << " entities size: " << entityView.size() << std::endl;
                 for (auto entity : entityView)
                 {
                     //std::cout << mEntityToGO[entity].GetName() << std::endl;
@@ -503,7 +511,7 @@ namespace SliceEngine
                         pkt << tmpGO.GetComponent<Transform>().position.z;
                     }
 
-                    SendTo(serverSocket, pkt, otherPlayer);
+                    SendTo(serverSocket, pkt, _otherPlayer);
                 }
             }
             else
@@ -572,6 +580,17 @@ namespace SliceEngine
         //recv_thread.detach();
     }
 
+    void NetworkSystem::Exit()
+    {
+        if (data.soc != INVALID_SOCKET) ::shutdown(data.soc, SD_BOTH);
+        keep_running = false;
+
+        if (recv_thread.joinable())
+            recv_thread.join();
+        if (send_thread.joinable())
+            send_thread.join();
+    }
+
     void NetworkSystem::BindSocket(const NetworkBindPortEvent& event)
     {
         if (event.port.empty())
@@ -583,7 +602,7 @@ namespace SliceEngine
 
         // Initialize Winsock
         WSADATA wsaData{};
-        int errorCode = WSAStartup(MAKEWORD(WINSOCK_VERSION, WINSOCK_SUBVERSION), &wsaData);
+        int errorCode = WSAStartup(MAKEWORD(WINSOCKK_VERSION, WINSOCK_SUBVERSION), &wsaData);
         if (errorCode != NO_ERROR)
         {
             std::cerr << "WSAStartup() failed." << std::endl;
@@ -624,7 +643,7 @@ namespace SliceEngine
         // Set up server address
         cAddr.sin_family = AF_INET;
         cAddr.sin_addr.s_addr = INADDR_ANY;
-        cAddr.sin_port = htons(std::stoi(event.port));
+        cAddr.sin_port = htons(static_cast<u_short>(std::stoi(event.port)));
 
         // Bind the socket
         if (bind(soc, reinterpret_cast<sockaddr*>(&cAddr), sizeof(cAddr)) != NO_ERROR)
@@ -651,8 +670,10 @@ namespace SliceEngine
         std::cout << "Server is listening on port " << event.port << " ip " << serverIPAddr << " Player: " << " ...\n";
 
         // split the threads
-        std::thread recv_thread(NetworkingThread::ReceiveThread, soc);
-        recv_thread.detach();
+        //std::thread recv_thread(NetworkingThread::ReceiveThread, soc);
+        //recv_thread.detach();
+
+        recv_thread = std::thread(NetworkingThread::ReceiveThread, soc);
     }
 
     void NetworkSystem::UpdateObjects()
@@ -684,8 +705,9 @@ namespace SliceEngine
         //hasConnected = true;
 
         // split the threads
-        std::thread send_thread(NetworkingThread::SendThread, data.soc,data.client, player1Dest);
-        send_thread.detach();
+        //std::thread send_thread(NetworkingThread::SendThread, data.soc,data.client, player1Dest);
+        //send_thread.detach();
+        send_thread = std::thread(NetworkingThread::SendThread, data.soc, data.client, player1Dest);
     }
 
     void NetworkSystem::OnGONetworkEvent(const GONetworkEvent& event)
