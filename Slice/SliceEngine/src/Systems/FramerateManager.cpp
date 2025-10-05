@@ -20,7 +20,7 @@ namespace SliceEngine
 	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(static_cast<float>(glfwGetTime())),
 		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) 
 	{
-		fixedDeltaTime = 1.0 / targetfps;
+		fixedDeltaTime = 1.0f / targetfps;
 	}
 
 	FramerateManager &FramerateManager::getInstance()
@@ -77,7 +77,7 @@ namespace SliceEngine
 
 	void FramerateManager::setAccumulatedTime(double t)
 	{
-		accumulatedTime = t;
+		accumulatedTime = static_cast<float>(t);
 	}
 
 	void FramerateManager::setCurrentNumberOfSteps(int steps)
