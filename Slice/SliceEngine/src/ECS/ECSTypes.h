@@ -6,6 +6,7 @@
 #include <glfw3.h>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
+
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
 
@@ -95,8 +96,8 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		std::string model;
-		std::string texture;
+		GUID model;
+		GUID texture;
 		unsigned char renderTag;
 	};
 
