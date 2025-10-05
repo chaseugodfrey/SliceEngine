@@ -126,6 +126,8 @@ namespace SliceEditor
 		{
 			DrawSceneGraphComponent(SliceEngine::FactoryInstance.GetRootEntity());
 
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
+
 			auto& selectedEntities = mSelection.GetSelectedEntities();
 			for(auto& entity: selectedEntities)
 			{
