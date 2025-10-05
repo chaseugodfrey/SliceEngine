@@ -5,7 +5,7 @@ namespace SliceEngine
 {
 	namespace JSONSerializer
 	{
-		std::unordered_map<uint32_t, uint32_t> sceneGraphMap;
+		std::unordered_map<uint64_t, uint64_t> sceneGraphMap;
 
 		constexpr auto testPath("Assets/Tests/");
 
@@ -114,18 +114,18 @@ namespace SliceEngine
 					{
 						output[name][storage.type().name()][propName] = propVal.get_value<bool>();
 					}
-					else if (propVal.is_type<uint32_t>())
+					else if (propVal.is_type<uint64_t>())
 					{
-						output[name][storage.type().name()][propName] = propVal.get_value<uint32_t>();
+						output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
 					}
 					else if (propVal.is_type<EntityID>())
 					{
 						EntityID eid = propVal.get_value<EntityID>();
 						output[name][storage.type().name()][propName] = eid.value;
 					}
-					else if (propVal.is_type<std::array<uint32_t, 4>>())
+					else if (propVal.is_type<std::array<uint64_t, 4>>())
 					{
-						const auto& vec = propVal.get_value<std::array<uint32_t, 4>>();
+						const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
 						for (size_t i{}; i < 4; ++i)
 						{
 							output[name][storage.type().name()][propName][i] = vec[i];
@@ -143,7 +143,7 @@ namespace SliceEngine
 							}
 							else
 							{
-								output[name][storage.type().name()][propName][i] = static_cast<uint32_t>(e);
+								output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
 							}
 						}
 					}
@@ -151,9 +151,9 @@ namespace SliceEngine
 					{
 						output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
 					}
-					else if (propVal.is_type<std::vector<uint32_t>>())
+					else if (propVal.is_type<std::vector<uint64_t>>())
 					{
-						const auto& vec = propVal.get_value<std::vector<uint32_t>>();
+						const auto& vec = propVal.get_value<std::vector<uint64_t>>();
 						for (const auto& elem : vec)
 						{
 							output[name][storage.type().name()][propName].push_back(elem);
@@ -259,27 +259,27 @@ namespace SliceEngine
 								prop.set_value(componentInstance, value.get<double>());
 							else if (prop.get_type() == rttr::type::get<bool>())
 								prop.set_value(componentInstance, value.get<bool>());
-							else if (prop.get_type() == rttr::type::get<uint32_t>())
-								prop.set_value(componentInstance, value.get<uint32_t>());
+							else if (prop.get_type() == rttr::type::get<uint64_t>())
+								prop.set_value(componentInstance, value.get<uint64_t>());
 							else if (prop.get_type() == rttr::type::get<std::string>())
 								prop.set_value(componentInstance, value.get<std::string>());
-							else if (prop.get_type() == rttr::type::get<std::vector<uint32_t>>())
+							else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
 							{
-								std::vector<uint32_t> vec;
+								std::vector<uint64_t> vec;
 								for (auto& v : value)
 								{
-									vec.push_back(v.get<uint32_t>());
+									vec.push_back(v.get<uint64_t>());
 								}
 								prop.set_value(componentInstance, vec);
 							}
 							else if (prop.get_type() == rttr::type::get<EntityID>())
 							{
-								uint32_t rawID = value.get<uint32_t>();
+								uint64_t rawID = value.get<uint64_t>();
 								prop.set_value(componentInstance, EntityID{ rawID });
 							}
-							else if (prop.get_type() == rttr::type::get<std::array<uint32_t, 4>>())
+							else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
 							{
-								std::array<uint32_t, 4> arr;
+								std::array<uint64_t, 4> arr;
 								arr = value;
 								prop.set_value(componentInstance, arr);
 							}
@@ -296,7 +296,7 @@ namespace SliceEngine
 									}
 									else
 									{
-										arr[i] = static_cast<Entity>(v.get<uint32_t>());
+										arr[i] = static_cast<Entity>(v.get<uint64_t>());
 									}
 								}
 								prop.set_value(componentInstance, arr);

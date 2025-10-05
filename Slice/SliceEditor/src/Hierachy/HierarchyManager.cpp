@@ -2,6 +2,7 @@
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Core/EventManager.h"
 
 namespace SliceEditor
 {
@@ -10,12 +11,26 @@ namespace SliceEditor
 	{
 		//Test();
 		BuildHierarchy();
+		SubscribeToSceneLoading();
 	}
 
 	void HierarchyManager::Reset()
 	{
 		registry.GetSelectionSystem().ClearSelection();
 		BuildHierarchy();
+	}
+
+	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
+	{
+		if (event.isSceneLoaded)
+		{
+			BuildHierarchy();
+		}
+	}
+
+	void HierarchyManager::SubscribeToSceneLoading()
+	{
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 	}
 
 	void HierarchyManager::SetDirty()

@@ -17,12 +17,12 @@ namespace SliceEngine
 {
 	struct EntityID
 	{
-		uint32_t value;
+		uint64_t value;
 
 		EntityID() : value(0) {}
-		EntityID(uint32_t v) : value(v) {}
+		EntityID(uint64_t v) : value(v) {}
 
-		operator uint32_t() const { return value; }
+		operator uint64_t() const { return value; }
 	};
 
 	struct SceneGraph

@@ -404,6 +404,21 @@ namespace SliceEngine
 		}
 	}
 
+	void GOFactory::ClearGameObjects()
+	{
+		auto view = mRegistry.view<SliceEntity>();
+
+		for (auto entity : view)
+		{
+			Destroy(entity);
+		}
+
+		//mDeleteList.clear(); // skip deferred destruction
+		//mNameToEntity.clear();
+		//mEntityToGO.clear();
+		//mRegistry.clear();
+	}
+
 	GameObject GOFactory::CreateGO_Box()
 	{
 		auto go = CreateGO("GameObject");
@@ -552,6 +567,7 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
+			SLICE_LOG_VALUES("deleting: ", (unsigned int)Entity);
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mEntityToGO[Entity].Destroy();
@@ -559,7 +575,6 @@ namespace SliceEngine
 			// erase from the maps
 			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO.erase(Entity);
-
 
 			//mRegistry.destroy(Entity);
 		}

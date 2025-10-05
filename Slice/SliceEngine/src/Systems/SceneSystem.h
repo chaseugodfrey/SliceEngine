@@ -8,21 +8,27 @@ namespace SliceEngine
 	public:
 		void Init();
 
-		void LoadScene(std::filesystem::path const& filePath);
+		void LoadSceneIntoQueue(std::filesystem::path const filePath);
+		void LoadScene(std::filesystem::path const filePath);
 		void LoadScene(uint32_t const index);
-		void SaveScene(std::filesystem::path const& filePath);
+		void LoadNextScene();
+		void SaveScene(std::filesystem::path const filePath);
 		void SaveCurrentScene();
-
+		void UnloadCurrentScene();
 		void ReloadScene();		
 		
 		void Play();
 		void Pause();
 		void Stop();
+		bool IsSceneUnloaded();
+		bool CheckQueueEmpty();
 
 		std::filesystem::path GetCurrentScenePath();
+		bool isSceneUnloaded{};
 
 	private:
 		//can change to other identifier
+		std::queue<std::filesystem::path> mSceneQueue;
 		std::filesystem::path mCurrentScene{};
 	};
 }

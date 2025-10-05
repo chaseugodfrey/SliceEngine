@@ -79,7 +79,7 @@ namespace SliceEngine
 			if (assetGUID == (GUID)0)
 			{
 				assetGUID = (GUID)Type<T>::defaultResourceGUID;
-				SLICE_LOG_WARNING("Attempted to get resource with null GUID.");
+				//SLICE_LOG_WARNING("Attempted to get resource with null GUID.");
 				//return Handle<T>();
 			}
 

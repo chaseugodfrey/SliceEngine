@@ -108,7 +108,7 @@ namespace SliceEngine
 				{
 					reg.emplace_or_replace<Component>(entity, *componentPtr);
 					//std::string msg = "Successfully emplaced new component (smart ptr): " + typeName;
-					SLICE_LOG_VALUES("Successfuly emplaced new component: " + typeName);
+					//SLICE_LOG_VALUES("Successfuly emplaced new component: " + typeName);
 				}
 				else
 				{
@@ -156,6 +156,7 @@ namespace SliceEngine
 		void SetParent(Entity entity, Entity parentEntity = entt::null);
 		void SetSiblingIndex(Entity entity, int pos);
 		void BuildSceneGraph();
+		void ClearGameObjects();
 
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();

@@ -66,6 +66,7 @@ namespace SliceEditor
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		
 	}
 
 	void Editor::Run()
@@ -84,7 +85,7 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_S))
 			{
-				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveScene();
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 		}
 	}

@@ -13,6 +13,7 @@ void EventManager::SetupEventManager()
 	RegisterEvent<RigidBodyRemovedEvent>();
 	RegisterEvent<ColliderShapeModifiedEvent>();
 	RegisterEvent<RigidBodyModifiedEvent>();
+	RegisterEvent<OnSceneLoadedEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)
