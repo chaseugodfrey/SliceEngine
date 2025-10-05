@@ -66,7 +66,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetWindow();
 
 
-		audio = std::make_unique<AudioManager>();
+		
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
 
@@ -157,7 +157,7 @@ namespace SliceEngine
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
@@ -221,15 +221,16 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-		auto inputs = Core::GetInstance()->GetInputSystem();
+		//auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()
 	{
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		audio->Exit();
+		mAudioManager->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
