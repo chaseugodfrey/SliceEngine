@@ -216,9 +216,6 @@ namespace SliceEngine
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
 
-				// Temprorary until have createGO without transform
-				//node.RemoveComponent<Transform>();
-
 				for (auto& [objName, objProps] : components.items())
 				{
 					for (auto& [componentName, props] : objProps.items())
@@ -414,11 +411,11 @@ namespace SliceEngine
 				}
 
 				// Serialize the object
-				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));
+				SerializeScene(testPath + std::string("JSONTest2.json"));
 
 				factory.Destroy(omnia_victrum);
 
-				DeserializeScene(Deserialize(testPath + std::string("JSONTest2.json")));
+				DeserializeScene(testPath + std::string("JSONTest2.json"));
 				if (cleanOutput)
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
@@ -430,7 +427,6 @@ namespace SliceEngine
 			{
 				SLICE_LOG("Test 3 Beginning...");
 				auto& factory = FactoryInstance;
-
 				GameObject parent = factory.CreateGO("Bing_Bong_Parent");
 				GameObject child = factory.CreateGO("Bing_Bong_Child");
 
