@@ -22,9 +22,11 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include <random>
 
 #define WIN32_LEAN_AND_MEAN
-#include "Windows.h"		// Entire Win32 API...
+#define NOMINMAX 
+
 #include "winsock2.h"	// ...or Winsock alone
 #include "ws2tcpip.h"		// getaddrinfo()
+#include "Windows.h"		// Entire Win32 API...
 
 // Tell the Visual Studio linker to include the following library in linking.
 // Alternatively, we could add this file to the linker command-line parameters,
@@ -41,6 +43,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #undef min
 #undef max
 #undef name
+
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/GameObject.h"
@@ -146,7 +149,7 @@ namespace SliceEngine
 		//void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		//void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		//void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-        void Init();// or some shit;
+        void Init();
         void BindSocket(const NetworkBindPortEvent& event);
         void UpdateObjects();
         void SubscribeToAllNetworkEvents();
