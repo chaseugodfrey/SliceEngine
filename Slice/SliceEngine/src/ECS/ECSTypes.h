@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ECSTypes.h
+ author:		
+ email:			
+ brief:			Structs for the different components
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef ECS_TYPES
 #define ECS_TYPES
 
@@ -106,10 +116,23 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width, height;
-		float pov, near, far;// Pov is the angle of y of the screen
+		int width{}, height{};
+		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		unsigned char renderTag;
+	};
+
+	struct Light // TODO: Default 1 directional light for now
+	{
+		//enum class LightType
+		//{
+		//	Directional,
+		//	Point,
+		//	Spot
+		//};
+		//LightType type = LightType::Directional;
+		glm::vec3 color{1.0f, 1.0f, 1.0f};
+		float intensity = 1.0f;
 	};
 
 	struct RigidBody

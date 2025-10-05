@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyManager.h
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the HierarchyManager class, which is responsible for managing the hierarchy of game objects in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef HIERARCHY_MANAGER_H
 #define HIERARCHY_MANAGER_H
 
@@ -30,7 +45,7 @@ namespace SliceEditor
 
 	public:
 
-		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
+		HierarchyManager(Registry& reg) : IBaseManager(reg), isDirty(true) {};
 		~HierarchyManager() = default;
 
 		void Init() override;

@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			CollisionLayer.h
+ author:		Aloysius Teo
+ email:			teo.k@digipen.edu
+ brief:			Determines collision layer checks
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef COLLISION_LAYER_H
 #define COLLISION_LAYER_H
 

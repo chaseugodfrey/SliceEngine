@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyManager.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the HierarchyManager class, which is responsible for managing the hierarchy of game objects in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
@@ -93,7 +108,7 @@ namespace SliceEditor
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
 		//Check for children and remove them first
-		auto& targetNode = mHierarchy[target];
+		//auto& targetNode = mHierarchy[target];
 
 		// remove everything from selection system(temp fix)
 		registry.GetSelectionSystem().ClearSelection();

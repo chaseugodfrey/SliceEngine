@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ProfilerWindow.cpp
+
+ author:	  Nic Lai
+
+ email:       n.lai@digipen.edu
+
+ brief:		  Defines the ProfilerWindow class, which is the window that draws the profiler data of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+
 #include <pch.h>
 #include "ProfilerWindow.h"
 #include "ProfilerManager.h"

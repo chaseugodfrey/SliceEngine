@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			RenderManager.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles the Rendering pipeline, and related things
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "RenderManager.h"
 #define PI05F 1.57079632679f
@@ -11,14 +21,13 @@
 
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
+#include "LightingSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
-
-
-// My Comments to (Ctrl + f): TODO: MAYDO:
+// My Comments to (Ctrl + f): -TODO- MAYDO:
 
 namespace SliceEngine
 {
@@ -34,7 +43,6 @@ namespace SliceEngine
 	RenderManager::RenderManager()
 	{
 		CreateFramebuffer();
-		mCurrentCamIDHover = static_cast<Entity>(1); // TODO: Don't hardset this
 	}
 	RenderManager::~RenderManager()
 	{
@@ -61,7 +69,7 @@ namespace SliceEngine
 			,GL_COLOR_ATTACHMENT3
 			,GL_COLOR_ATTACHMENT4
 		};
-		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // TODO: Check if this part links the frame buffer or texture
+		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 
 
 		//glGenRenderbuffers(1, &mRBO);
@@ -97,6 +105,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
 		LinkTransformInstancing((GUID)cubeWireframeModelGUID);
+		LinkTransformInstancing((GUID)frustumFakeGUID);
 
 		// Make Debug Line VBO
 		mDebugLineShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)debugLineShaderGUID);
@@ -223,7 +232,11 @@ namespace SliceEngine
 		// Draw other cameras' frustrum
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
-			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
+			mCurrShader = mInstanceShader;
+			glUseProgram(mCurrShader.get()->s);
+			UpdateCamGPU(cam);
+
+			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)frustumFakeGUID).get();
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
 			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 			for (auto& entity : cams)
@@ -272,12 +285,10 @@ namespace SliceEngine
 				// Frustrum Rendering
 				glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
 
-				GLint uniformLoc;
-				if (UniformExists("M", uniformLoc))
-					glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
 
 				glBindVertexArray(frustrum.vao);
-				glDrawArrays(frustrum.drawMode, 0, frustrum.drawCnt);
+				glDrawArraysInstanced(frustrum.drawMode, 0, frustrum.drawCnt, 1);
 			}
 		}
 		
@@ -288,18 +299,24 @@ namespace SliceEngine
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
 
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)cubeWireframeModelGUID).get();
+			glBindVertexArray(mdl.vao);
+
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
-			int num{};
+			int num{}, offset{};
 			for (auto entity : view)
 			{
 				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 				mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
 				num++;
+				if (num == mMaxInstance)
+				{
+					glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+					glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+					offset += num;
+				}
 			}
-			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data());
-			//auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel("CubeWireframe");
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)9586117521374277245).get();
-			glBindVertexArray(mdl.vao);
+			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
 		}
 
@@ -309,7 +326,7 @@ namespace SliceEngine
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)17945640445057155522).get();
+			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)lineModelGUID).get();
 			
 			GLint uniformLoc;
 			if(UniformExists("uPosOffset", uniformLoc))
@@ -329,23 +346,7 @@ namespace SliceEngine
 		if (UniformExists("uPass", uniformLoc))
 			glUniform1i(uniformLoc, 1);
 
-		if (UniformExists("uLight[0].position", uniformLoc))
-		glUniform3f(uniformLoc, 5.f, 1.f, 5.f);
-		if (UniformExists("uLight[0].La", uniformLoc))
-		glUniform3f(uniformLoc, 0.4f, 0.4f, 0.4f);
-		if (UniformExists("uLight[0].Ld", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
-		if (UniformExists("uLight[0].Ls", uniformLoc))
-		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
-		
-		if (UniformExists("uMat.Ka", uniformLoc))
-		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
-		if (UniformExists("uMat.Kd", uniformLoc))
-		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
-		if (UniformExists("uMat.Ks", uniformLoc))
-		glUniform3f(uniformLoc, 0.8f, 0.8f, 0.8f);
-		if (UniformExists("uMat.shininess", uniformLoc))
-		glUniform1f(uniformLoc, 100.f);
+		Core::GetInstance()->GetSystem<LightingSystem>().SetLightingParams(mCurrShader->s);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
@@ -356,7 +357,7 @@ namespace SliceEngine
 		glBindTextureUnit(2, mColAttachment[2]);
 
 
-		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
+		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)quadModelGUID);
 		glBindVertexArray(mdl.get()->vao);
 		glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)1001);

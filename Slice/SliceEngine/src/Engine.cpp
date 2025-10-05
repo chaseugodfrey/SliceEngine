@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Engine.cpp
+ author:		
+ email:			
+ brief:			Main Engine
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
@@ -13,6 +23,7 @@
 
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Graphics/LightingSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -94,6 +105,7 @@ namespace SliceEngine
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
+		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		
@@ -164,6 +176,10 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
+		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		light.AddComponent<Light>();
 	}
 
 	void Engine::Update()
