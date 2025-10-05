@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Logger.h
+ author:		Chase Roderigues
+ email:			roderigues.i@digipen.edu
+ brief:			Handles internal logging of data
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef LOGGER_H
 #define LOGGER_H
 #include <string>

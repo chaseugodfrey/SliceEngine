@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GameObject.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Wrapper for entities
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef GAMEOBJECT_H
 #define GAMEOBJECT_H
 

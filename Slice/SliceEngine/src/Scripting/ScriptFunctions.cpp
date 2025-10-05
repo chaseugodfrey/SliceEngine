@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ScriptFunctions.cpp
+
+ author:   Gideon Francis
+
+ email:       g.francis@digipen.edu
+
+ brief:       Contains the static functions that are meant to be linked to mono c# so that c# scripts can call. Function Names have to match
+				the C# equivalent so that it can bind
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "ScriptFunctions.h"
 #include <mono/metadata/object.h>
