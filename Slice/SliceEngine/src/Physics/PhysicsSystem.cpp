@@ -103,6 +103,7 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
 	{
+		physicsSystem->OptimizeBroadPhase();
 	}
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
@@ -174,14 +175,73 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
-		//auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+		std::variant<ColliderShape::BoxData, ColliderShape::SphereData> shapeData = colliderShape.shapeData;
 
-		//if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer);
-		//{
-		//	physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
-		//}
+		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
+		{
+			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
+			if(boxData.prevScale != boxData.scale)
+			{
+				JPH::BoxShapeSettings settings(boxData.scale);
+				auto result = settings.Create();
+				if (result.HasError())
+				{
+					SLICE_LOG_ERROR("Failed to rebuild scaled box: " + std::string(result.GetError()));
+					return;
+				}
+				colliderShape.shape = result.Get();
+				boxData.prevScale = boxData.scale;
+				// Replace shape on body if it already exists
+				if (!colliderShape.bodyID.IsInvalid())
+				{
+					// Update shape; true => update mass properties (you can pass false then re-apply custom mass if needed)
+					physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+					// If you have overridden mass, re-apply:
+					if (mRegistry->any_of<RigidBody>(event.entity))
+					{
+						auto& rb = mRegistry->get<RigidBody>(event.entity);
+						if (!rb.isKinematic)
+						{
+							JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+							if (lock.Succeeded())
+							{
+								JPH::Body& body = lock.GetBody();
+								if (auto* mp = body.GetMotionProperties())
+								{
+									mp->ScaleToMass(rb.mass);
+									mp->SetLinearDamping(rb.linearDamping);
+									mp->SetAngularDamping(rb.angularDamping);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+		}
+		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
+		{
+			//if we add sphereData
+		}
 
-		//std::cout << "Collider modified\n";
+
+
+
+		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer);
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+		}
+
+		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, true);
+		}
+		else if(!colliderShape.isTrigger && physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, false);
+		}
+
 	}
 
 	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)

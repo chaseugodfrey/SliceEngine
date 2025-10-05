@@ -130,11 +130,13 @@ namespace SliceEngine
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 prevScale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
 		{
 			float radius{ 1.0f };
+			float prevRadius{ 1.0f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
