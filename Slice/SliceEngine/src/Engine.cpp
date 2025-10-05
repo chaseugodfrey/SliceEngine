@@ -62,10 +62,10 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-		auto window = Core::GetInstance()->GetWindow();
+		//auto window = Core::GetInstance()->GetWindow();
 
 
-		audio = std::make_unique<AudioManager>();
+		
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
 
@@ -94,7 +94,7 @@ namespace SliceEngine
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
@@ -155,7 +155,7 @@ namespace SliceEngine
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
@@ -219,15 +219,16 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-		auto inputs = Core::GetInstance()->GetInputSystem();
+		//auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()
 	{
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		audio->Exit();
+		mAudioManager->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
