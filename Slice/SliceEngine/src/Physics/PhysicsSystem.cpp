@@ -238,7 +238,7 @@ namespace SliceEngine
 
 
 
-		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer);
+		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
 		{
 			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
 		}
@@ -432,7 +432,6 @@ namespace SliceEngine
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (checkEntity.HasComponent<RigidBody>())
 		{
-			auto& rigidBody = reg.get<RigidBody>(entity);
 			isRigibody = true;
 		}
 

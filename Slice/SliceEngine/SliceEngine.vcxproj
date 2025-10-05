@@ -74,8 +74,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;mono-2.0-sgen.lib;MonoPosixHelper.lib;rttr_core_d.lib;Jolt_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Debug\Jolt.pdb" "."</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <ClCompile>
@@ -100,8 +103,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;mono-2.0-sgen.lib;MonoPosixHelper.lib;rttr_core.lib;Jolt_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
+    <PostBuildEvent>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release\Jolt.pdb" "."</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\AudioManager.h" />

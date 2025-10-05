@@ -32,7 +32,8 @@ project "SliceEditor"
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
         ThirdParty.MONO_LIB
     }
 
@@ -68,12 +69,15 @@ project "SliceEditor"
         
         links {
             "rttr_core_d",
-            "Jolt_d"
+            "Jolt_d.lib"
              }
         -- includedirs
         -- {
         --     ThirdParty.RTTR_INC
         -- }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
+            }
     
     filter "configurations:EditorRelease"
         --defines { "RELEASE_MODE " }
@@ -83,8 +87,12 @@ project "SliceEditor"
         
          links {
             "rttr_core",
-            "Jolt_r"
+            "Jolt_r.lib"
             }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
+            }
+    
 
         -- includedirs
         -- {

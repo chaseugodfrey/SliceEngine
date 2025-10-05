@@ -32,7 +32,10 @@ ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
 ThirdParty.JSON_INC = "%{wks.location}/SliceEngine/thirdparty/nlohmann/include"
 
 ThirdParty.JOLT_INC = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics"
-ThirdParty.JOLT_LIB = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib"
+ThirdParty.JOLT_LIB_D = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Debug"
+ThirdParty.JOLT_LIB_R = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Release"
+ThirdParty.JOLT_PDB_D = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Debug/Jolt.pdb"
+ThirdParty.JOLT_PDB_R = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Release/Jolt.pdb"
 
 ThirdParty.RTTR_INC = "%{wks.location}/SliceEngine/thirdparty/rttr/include"
 ThirdParty.RTTR_LIB = "%{wks.location}/SliceEngine/thirdparty/rttr/lib"
