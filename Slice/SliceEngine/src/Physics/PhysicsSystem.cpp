@@ -227,14 +227,15 @@ namespace SliceEngine
 	{
 		auto& transform = mRegistry->get<Transform>(entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		std::variant<ColliderShape::BoxData, ColliderShape::SphereData> shapeData = colliderShape.shapeData;
 
 			if (transform.scale == transform.previousScale)
 				return;
 
 			// Rebuild only if Box (sphere generally uses radius; you could scale radius by max component if desired)
-			if (colliderShape.type == ColliderShape::ColliderType::Box)
+			if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 			{
-				const auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
+				auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
 				JPH::Vec3 newHalf(
 					boxData.scale.GetX() * fabs(transform.scale.x),
 					boxData.scale.GetY() * fabs(transform.scale.y),
@@ -284,10 +285,9 @@ namespace SliceEngine
 
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider) const
 	{
-		switch (collider.type)
-		{
+		std::variant<ColliderShape::BoxData, ColliderShape::SphereData> shapeData = collider.shapeData;
 
-		case ColliderShape::ColliderType::Box:
+		if(std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
 			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
 			JPH::BoxShapeSettings shapeSetting(boxData.scale);
@@ -302,7 +302,7 @@ namespace SliceEngine
 
 			return result.Get();
 		}
-		case ColliderShape::ColliderType::Sphere:
+		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
 			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
 			JPH::SphereShapeSettings shapeSetting(sphereData.radius);
@@ -317,11 +317,11 @@ namespace SliceEngine
 
 			return result.Get();
 		}
-		default:
+
 			SLICE_LOG_ERROR("Unsupported Collider Shape");
 			return nullptr;
 
-		}
+
 	}
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const

@@ -127,12 +127,6 @@ namespace SliceEngine
 
 	struct ColliderShape
 	{
-		enum class ColliderType
-		{
-			Box,
-			Sphere
-		};
-
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
@@ -145,7 +139,6 @@ namespace SliceEngine
 
 		JPH::BodyID bodyID;										// Jolt body reference
 		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		ColliderType type = ColliderType::Box;					// Set Box Collider as default :D
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
