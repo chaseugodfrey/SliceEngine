@@ -39,7 +39,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Logger/Logger.h"
 
 // Common Types
-#include "Vectors/Vector2.h"
+//#include "Vectors/Vector2.h"
 //#include "../Vectors/Vector3.h"
 
 #define WIN32_LEAN_AND_MEAN
