@@ -32,7 +32,8 @@ project "SliceEditor"
         ThirdParty.GLFW_LIB,
         ThirdParty.FMOD_LIB,
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
         ThirdParty.MONO_LIB
     }
 
@@ -68,12 +69,15 @@ project "SliceEditor"
         
         links {
             "rttr_core_d",
-            "Jolt_d"
+            "Jolt_d.lib"
              }
         -- includedirs
         -- {
         --     ThirdParty.RTTR_INC
         -- }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
+            }
     
     filter "configurations:EditorRelease"
         --defines { "RELEASE_MODE " }
@@ -83,8 +87,12 @@ project "SliceEditor"
         
          links {
             "rttr_core",
-            "Jolt_r"
+            "Jolt_r.lib"
             }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
+            }
+    
 
         -- includedirs
         -- {
@@ -96,13 +104,17 @@ project "SliceEditor"
  
     prebuildcommands {
         '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYFILE}  "%{script_lib_path}" "%{cfg.targetdir}/../SliceScript"'
+        '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
-        '{COPYDIR} "%{assets_folder_path}" "%{cfg.targetdir}/Assets"',
+        '{COPYDIR} "%{assets_build_path}" "%{cfg.targetdir}/Assets"',
+        '{COPYDIR} "%{resource_asset_path}" "%{cfg.targetdir}/Resources"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/projectSettings.json" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/FBX_Compile.exe" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/TextureCompile.exe" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',

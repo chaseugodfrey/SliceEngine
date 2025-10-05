@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ProfilerManager.cpp
+
+ author:	  Nic Lai
+
+ email:       n.lai@digipen.edu
+
+ brief:		  Defines the ProfilerManager class, which manages the data of the profiler window of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "ProfilerManager.h"
 #include "ProfilerWindow.h"
