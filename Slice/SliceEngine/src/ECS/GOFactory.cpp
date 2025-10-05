@@ -404,22 +404,39 @@ namespace SliceEngine
 
 	}
 
-	void GOFactory::BuildSceneGraph()
+	void GOFactory::BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map)
 	{
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
 
 		for (auto entity : view)
 		{
+			auto& scene_graph = mRegistry.get<SceneGraph>(entity);
+
 			if (entity == scene_root_entity)
 				continue;
-			auto& graph = mRegistry.get<SceneGraph>(entity);
-			
-			if (graph.neighbours[SceneGraph::UP] == scene_root_entity && graph.neighbours[SceneGraph::LEFT] == entt::null)
+
+			if (scene_graph.neighbours[SceneGraph::UP] == scene_root_entity &&
+				scene_graph.neighbours[SceneGraph::LEFT] == entt::null)
 			{
-				auto& rootSC = mRegistry.get<SceneGraph>(scene_root_entity);
-				rootSC.neighbours[SceneGraph::DOWN] = entity;
-				break;
+				mRegistry.get<SceneGraph>(scene_root_entity).neighbours[SceneGraph::DOWN] = entity;
+			}
+
+			for (size_t i = 0; i < scene_graph.DIRECTIONS; i++)
+			{
+				entt::entity key_entity = scene_graph.neighbours[i];
+				if (key_entity == entt::null)
+					continue;
+
+				uint64_t key = entt::to_integral(key_entity);
+				auto it = map.find(key);
+
+				if (it != map.end())
+				{
+					entt::entity ent = static_cast<entt::entity>(it->second);
+
+					scene_graph.neighbours[i] = ent;
+				}
 			}
 		}
 	}

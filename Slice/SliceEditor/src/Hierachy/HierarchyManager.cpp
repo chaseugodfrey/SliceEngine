@@ -26,8 +26,8 @@ namespace SliceEditor
 	void HierarchyManager::Init()
 	{
 		//Test();
-		BuildHierarchy();
 		SubscribeToSceneLoading();
+		Reset();
 	}
 
 	void HierarchyManager::Reset()
@@ -40,7 +40,7 @@ namespace SliceEditor
 	{
 		if (event.isSceneLoaded)
 		{
-			BuildHierarchy();
+			Reset();
 		}
 	}
 

@@ -100,7 +100,6 @@ namespace SliceEngine
 
 		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
-		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
