@@ -95,6 +95,10 @@ namespace SliceEditor
 				metaData = std::make_unique<SceneData>();
 				typeID = ResourceTypeIDs::SCENE;
 				break;
+			case AssetType::Shader:
+				metaData = std::make_unique<ShaderData>();
+				typeID = ResourceTypeIDs::SHADER;
+				break;
 		}
 
 		if (metaData)
@@ -106,7 +110,7 @@ namespace SliceEditor
 			// meta files are gonna be named after guid + meta
 			//metaData->resourcePath = std::to_string(metaData->guid.GetGUID()) + ".meta"; nvm this isnt resource
 
-			// used only for cube testing and scenes
+			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
 			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 
 			// compile the asset here?? or before creating the meta file?
@@ -123,6 +127,23 @@ namespace SliceEditor
 				break;
 			case AssetType::Scene:
 				std::filesystem::copy(filePath, tempPath);
+				break;
+			case AssetType::Shader:
+				std::string fileName = filePath.stem().string();
+				std::filesystem::path parentPath = filePath.parent_path();
+				std::filesystem::path vertPath = parentPath / (fileName + ".vert");
+				std::filesystem::path fragPath = parentPath / (fileName + ".frag");
+				std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
+				std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
+
+				// copy the 3 files over to resources
+				// cause loading shaders now come in 3s
+				// but they have the same name so their guid would end up being the same
+				// so only the main .shader file is used for guid generation
+				std::filesystem::copy(filePath, tempPath);
+				std::filesystem::copy(vertPath, tempVertPath);
+				std::filesystem::copy(fragPath, tempFragPath);
+
 				break;
 			}
 

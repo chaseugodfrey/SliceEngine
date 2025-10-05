@@ -98,16 +98,16 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
-		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
-		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
-		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
-		mResource->RegisterFileAsset("Assets/Models/Line.txt");
-		mResource->RegisterFileAsset("Assets/Models/Quad.txt");
-		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		//mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		//mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Quad.txt");
+		//mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 		
 		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");*/

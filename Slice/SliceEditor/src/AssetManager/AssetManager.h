@@ -47,7 +47,10 @@ namespace SliceEditor
 			//{".wav", AssetType::Audio},
 			//{".mp3", AssetType::Audio},
 			//{".ogg", AssetType::Audio},
-			{".scene", AssetType::Scene}
+			{".scene", AssetType::Scene},
+			{".shader", AssetType::Shader},
+			//{".vert", AssetType::Shader},
+			//{".frag", AssetType::Shader}
 		};
 	};
 
