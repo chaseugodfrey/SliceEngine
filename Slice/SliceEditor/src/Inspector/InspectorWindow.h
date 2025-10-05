@@ -52,6 +52,7 @@ namespace SliceEditor
 
 		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
+		void DisplaySceneGraph();
 		void DisplayAudioSource();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody(); 

@@ -83,11 +83,11 @@ namespace SliceEditor
 			}
 
 			//Does not account for other children
-			/*while (child != entt::null)
-			{
-				node.children.push_back(child);
-				child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
-			}*/
+			//while (child != entt::null)
+			//{
+			//	node.children.push_back(child);
+			//	child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			//}
 		}
 	}
 
@@ -154,6 +154,12 @@ namespace SliceEditor
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)
 	{
+		// set parent in engine
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.GetGOByEntity(child_entity);
+		factory.SetParent(child_entity, parent_entity);
+
+		// set parent in editor
 		auto& child_node = mHierarchy.at(child_entity);
 		auto& parent_node = mHierarchy.at(parent_entity);
 		// detach from previous parent
@@ -186,6 +192,48 @@ namespace SliceEditor
 		auto go = factory.GetGOByEntity(childNode.entity);
 		factory.SetParent(childNode.entity, grandParentNode.entity);
 		ParentGameObject(childNode.entity, grandParentNode.entity);
+	}
+
+	void HierarchyManager::SetSiblingIndex(entt::entity target, int pos)
+	{
+
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.GetGOByEntity(target);
+		factory.SetSiblingIndex(target, pos);
+
+		auto& node = mHierarchy[target];
+		auto parent_node = node.parent;
+
+		auto& children = parent_node->children;
+		int size = (int)children.size();
+
+		pos = std::min(pos, size - 1);
+
+		auto it = std::find(std::begin(children), std::end(children), node.entity);
+		std::swap(*it, children[pos]);
+	}
+
+	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
+	{
+		if (destination == entt::null)
+			ParentGameObject(target, entt::null);
+
+		else
+		{
+			auto& target_node = mHierarchy[target];
+			auto& dest_node = mHierarchy[destination];
+
+			if (target_node.parent->entity != dest_node.parent->entity)
+			{
+				ParentGameObject(target, dest_node.parent->entity);
+			}
+
+			auto& children = dest_node.parent->children;
+			auto it = std::find(std::begin(children), std::end(children), dest_node.entity);
+			int dist = (int)std::distance(children.begin(), it);
+		
+			SetSiblingIndex(target, dist);
+		}
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()

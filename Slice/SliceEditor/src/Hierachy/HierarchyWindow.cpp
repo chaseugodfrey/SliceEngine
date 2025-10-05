@@ -26,7 +26,24 @@ namespace SliceEditor
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
 
-		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 1));
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity entity = *static_cast<entt::entity*>(payload->Data);
+				mManager.SetNewLocation(entity, node.entity);
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		// tree node creation
+
+		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+
+		// check inputs
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
@@ -38,7 +55,7 @@ namespace SliceEditor
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
-			ImGui::Text(node.name.c_str());
+			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
 
@@ -47,12 +64,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-
-				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
-				auto go = factory.GetGOByEntity(child_entity);
-				factory.SetParent(child_entity, node.entity);
 				mManager.ParentGameObject(child_entity, node.entity);
-				//mManager.SetDirty();
 			}
 
 			ImGui::EndDragDropTarget();
@@ -82,7 +94,7 @@ namespace SliceEditor
 		}
 
 
-		if (isOpen)
+		if (isNodeOpen)
 		{
 			for (size_t i = 0; i < node.children.size(); i++)
 			{

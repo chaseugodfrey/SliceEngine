@@ -153,6 +153,8 @@ namespace SliceEngine
 		std::string CreateName(std::string name);
 		void InitRootEntity();
 		void SetParent(Entity baseEntity, Entity parentEntity = entt::null);
+		void SetSiblingIndex(Entity targetEntity, int pos);
+		void SetNewLocation(Entity targetEntity, Entity destEntity);
 
 		Registry mRegistry;
 

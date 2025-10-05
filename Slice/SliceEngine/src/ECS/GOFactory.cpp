@@ -275,7 +275,7 @@ namespace SliceEngine
 			Entity childEntity = parentSceneGraph.neighbours[SceneGraph::DOWN];
 
 			// if its not the first child in the parent scene graph then look through the children
-				while (mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT] != entt::null)
+			while (mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT] != entt::null)
 			{
 				childEntity = mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT];
 			}
@@ -294,6 +294,74 @@ namespace SliceEngine
 
 		}
 
+	}
+
+	void GOFactory::SetSiblingIndex(Entity targetEntity, int pos)
+	{
+		auto& target_scene_graph = mRegistry.get<SceneGraph>(targetEntity);
+
+		auto parent_entity = target_scene_graph.neighbours[SceneGraph::UP];
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent_entity);
+
+		auto child_entity = parent_scene_graph.neighbours[SceneGraph::DOWN];
+
+		int count{};
+		auto destination_entity = entt::entity{ child_entity };
+		// check how many children there are
+		// todo : maybe move this to scenegraph variable called child count
+		while (child_entity != entt::null)
+		{
+			if (pos == count)
+				destination_entity = child_entity;
+
+			++count;
+			child_entity = mRegistry.get<SceneGraph>(targetEntity).neighbours[SceneGraph::RIGHT];
+		}
+
+		// if too little children, exit immediately
+		if (count <= 1)
+			return;
+
+		// get which is lower so that pos doesnt go out of bounds
+		pos = std::min(count - 1, pos);
+
+		// attach loose ends first
+		// get left and right of target entity
+		auto sibling_before_left = target_scene_graph.neighbours[SceneGraph::LEFT];
+		auto sibling_before_right = target_scene_graph.neighbours[SceneGraph::RIGHT];
+
+		if (sibling_before_left != entt::null)
+		{
+			auto& bl_scene_graph = mRegistry.get<SceneGraph>(sibling_before_left);
+			bl_scene_graph.neighbours[SceneGraph::RIGHT] = sibling_before_right;
+
+			if (sibling_before_right != entt::null)
+			{
+				auto& br_scene_graph = mRegistry.get<SceneGraph>(sibling_before_right);
+				br_scene_graph.neighbours[SceneGraph::LEFT] = sibling_before_left;
+			}
+		}
+
+		// attach new siblings
+		auto& destination_scene_graph = mRegistry.get<SceneGraph>(destination_entity);
+		auto sibling_after_left = destination_scene_graph.neighbours[SceneGraph::LEFT];
+		auto sibling_after_right = destination_scene_graph.neighbours[SceneGraph::RIGHT];
+
+		// if null, then will be first 
+		if (sibling_after_left != entt::null)
+		{
+			auto& al_scene_graph = mRegistry.get<SceneGraph>(sibling_after_left);
+			al_scene_graph.neighbours[SceneGraph::RIGHT] = targetEntity;
+
+			if (sibling_after_right != entt::null)
+			{
+				auto& ar_scene_graph = mRegistry.get<SceneGraph>(sibling_after_right);
+				ar_scene_graph.neighbours[SceneGraph::LEFT] = targetEntity;
+			}
+		}
+
+		else
+			parent_scene_graph.neighbours[SceneGraph::DOWN] = targetEntity;
 	}
 
 	void GOFactory::TestLoop()
