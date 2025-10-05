@@ -113,4 +113,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Core/EventManager.h"
 #include "../../SliceEngine/src/Core/Events.h"
 
+
+#define UNUSED(x) (void)(x)
+
 #endif 

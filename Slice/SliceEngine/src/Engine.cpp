@@ -271,6 +271,9 @@ namespace SliceEngine
 		Core::GetInstance()->ExitCore();
 		mAudioManager->Exit();
 
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Exit();
+
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
 	}

@@ -71,6 +71,8 @@ project "SliceEditor"
             "rttr_core_d",
             "Jolt_d.lib"
              }
+        
+        linkoptions { "/IGNORE:4204" }
         -- includedirs
         -- {
         --     ThirdParty.RTTR_INC
