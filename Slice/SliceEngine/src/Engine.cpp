@@ -101,7 +101,6 @@ namespace SliceEngine
 
 		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
-		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
@@ -184,6 +183,15 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+		if (!sceneSystem->CheckQueueEmpty())
+		{
+			if (sceneSystem->isSceneUnloaded)
+			{
+				sceneSystem->LoadNextScene();
+			}
+		}
+
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
@@ -247,6 +255,7 @@ namespace SliceEngine
 	void Engine::EndFrame()
 	{
 		Core::FactoryInstance.UpdateDestroyed();
+		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))

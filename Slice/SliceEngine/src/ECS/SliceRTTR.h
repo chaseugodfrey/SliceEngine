@@ -71,7 +71,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<EntityID>("EntityID")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<uint32_t>()
+		.constructor<uint64_t>()
 		.property("value", &EntityID::value);
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())

@@ -63,6 +63,11 @@ struct RigidBodyModifiedEvent
 	Entity entity;
 };
 
+struct OnSceneLoadedEvent
+{
+	bool isSceneLoaded;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")
