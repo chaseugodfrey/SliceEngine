@@ -36,6 +36,9 @@ namespace SliceEngine
 			RIGHT,
 			DIRECTIONS
 		};
+
+		uint8_t child_count{};
+
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
 		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
@@ -127,29 +130,24 @@ namespace SliceEngine
 
 	struct ColliderShape
 	{
-		enum class ColliderType
-		{
-			Box,
-			Sphere
-		};
-
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
+			JPH::Vec3 prevScale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
 		{
 			float radius{ 1.0f };
+			float prevRadius{ 1.0f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
 		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		ColliderType type = ColliderType::Box;					// Set Box Collider as default :D
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
-		bool isTrigger = false;									// leaving thjis here in case we need trniggers :D
+		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
 	};
 

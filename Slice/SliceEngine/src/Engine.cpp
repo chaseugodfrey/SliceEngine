@@ -16,7 +16,6 @@
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
-#include "test.h"
 #include "Serializer/JSONSerializer.h"
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
@@ -89,7 +88,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -149,15 +148,6 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
-
-
-
-		//GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		//floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		//floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		//floor.AddComponent<ColliderShape>();
-		//floor.AddComponent<Renderer>();
-        //		JSONSerializer::DeserializeScene("Assets/Scenes/TestScene.scene");
 	}
 
 	void Engine::Update()

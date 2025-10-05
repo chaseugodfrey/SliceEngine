@@ -37,6 +37,8 @@ namespace SliceEditor
 			auto entity = selected_entity.value();
 			DisplayTransform();
 			ImGui::Separator();
+			DisplaySceneGraph();
+			ImGui::Separator();
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
@@ -93,11 +95,14 @@ namespace SliceEditor
 
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).GetName();
 		std::string editable_name = original_name;
-		ImGui::InputText("##name", &editable_name);
-
-		if (editable_name != original_name)
-			SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
-
+		if (ImGui::InputText("##name", &editable_name))
+		{
+			if (editable_name != original_name)
+				SliceEngine::FactoryInstance.GetGOByEntity(selected_entity.value()).SetName(editable_name);
+		}
+		
+		ImGui::SameLine();
+		ImGui::Text(std::to_string((uint64_t)selected_entity.value()).c_str());
 		ImGui::Separator();
 
 	}
@@ -138,10 +143,34 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplaySceneGraph()
+	{
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(selected_entity.value());
+
+		entt::entity ent_display{};
+		ImGui::Text("Parent:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Child:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Previous Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Next Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+	}
+
 	void InspectorWindow::DisplayAudioSource()
 	{
-		auto& as = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(selected_entity.value());
-
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto entity = selected_entity.value();
 
@@ -228,35 +257,145 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayRigidbody()
 	{
-		auto& rb = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RigidBody>(selected_entity.value());
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
 
-		if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			DisplayComponentHeader<SliceEngine::RigidBody>();
+		const char* arr[2] = { "Discrete", "Continuous" };
+		int index = 0;
 
-			ImGui::Text("Friction");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::DragFloat("##friction", &rb.friction);
+		reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
+			{
+				if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					DisplayComponentHeader<SliceEngine::RigidBody>();
 
-			ImGui::TreePop();
-		}
+					ImGui::Text("Mass");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##mass", &rb.mass);
+
+					ImGui::Text("Gravity");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##gravity", &rb.gravityFactor);
+
+					ImGui::Text("Is Kinematic");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::Checkbox("##isKinematic", &rb.isKinematic);
+
+					ImGui::Text("Linear Damping");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##linearDamp", &rb.linearDamping);
+
+					ImGui::Text("Angular Damping");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
+
+					static JPH::EMotionQuality currmode = rb.CollisionDetection;
+					const char* currentLabel = arr[(int)currmode];
+
+					ImGui::Text("Collision Detection");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					if (ImGui::BeginCombo("##detection", currentLabel))
+					{
+						for (int i = 0; i < 2; i++)
+						{
+							bool isSelected = (currmode == (JPH::EMotionQuality)i);
+							if (ImGui::Selectable(arr[i], isSelected))
+							{
+								currmode = (JPH::EMotionQuality)i;
+							}
+
+							// Highlight current item
+							if (isSelected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+
+					ImGui::Text("Friction");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::DragFloat("##friction", &rb.friction);
+
+					ImGui::TreePop();
+				}
+			});
+
 	}
 
 	void InspectorWindow::DisplayCollider3D()
 	{
-		auto& col3d = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ColliderShape>(selected_entity.value());
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto entity = selected_entity.value();
 
-		if (ImGui::TreeNodeEx("Collider3D", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			DisplayComponentHeader<SliceEngine::ColliderShape>();
+		const char* arr[2] = { "Moving", "Non-Moving" };
+		int index = 0;
 
-			ImGui::Text("Trigger");
-			ImGui::SameLine(150.0f);
-			ImGui::Checkbox("##trigger", &col3d.isTrigger);
+		reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
+			{
+				if (ImGui::TreeNodeEx("Box Collider", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					DisplayComponentHeader<SliceEngine::RigidBody>();
 
-			ImGui::TreePop();
-		}
+					ImGui::Text("Is Trigger");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::Checkbox("##isTrigger", &col.isTrigger);
+
+					ImGui::Text("Offset");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x/3.0f);
+					float buffer = col.offSet.GetX();
+					if (ImGui::DragFloat("##offset_x", &buffer))
+					{
+						col.offSet.SetX(buffer);
+					}
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x / 2.0f);
+					buffer = col.offSet.GetY();
+					if (ImGui::DragFloat("##offset_y", &buffer))
+					{
+						col.offSet.SetY(buffer);
+					}
+					ImGui::SameLine();
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					buffer = col.offSet.GetZ();
+					if (ImGui::DragFloat("##offset_z", &buffer))
+					{
+						col.offSet.SetZ(buffer);
+					}
+
+					static JPH::ObjectLayer currmode = col.layer;
+					const char* currentLabel = arr[(int)currmode];
+
+					ImGui::Text("Collision Layer");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					if (ImGui::BeginCombo("##detection", currentLabel))
+					{
+						for (int i = 0; i < 2; i++)
+						{
+							bool isSelected = (currmode == (JPH::ObjectLayer)i);
+							if (ImGui::Selectable(arr[i], isSelected))
+							{
+								currmode = (JPH::ObjectLayer)i;
+							}
+
+							// Highlight current item
+							if (isSelected)
+								ImGui::SetItemDefaultFocus();
+						}
+						ImGui::EndCombo();
+					}
+
+					ImGui::TreePop();
+				}
+			});
 	}
 
 	void InspectorWindow::DisplaySliceScript()
