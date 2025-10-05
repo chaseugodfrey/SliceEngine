@@ -49,36 +49,6 @@ namespace SliceEngine
 		}
 	};
 
-	//struct for 2D sounds
-	struct SoundTrack2D : public SoundTrack
-	{
-		void ApplySettings() override
-		{
-			SoundTrack::ApplySettings();
-		}
-	};
-
-	//struct for 3D sounds
-	struct SoundTrack3D : public SoundTrack
-	{
-		/*FMOD_VECTOR position{ 0.0f,0.0f,0.0f };
-		FMOD_VECTOR velocity{ 0.0f,0.0f,0.0f };
-
-		void ApplySettings() override
-		{
-			SoundTrack::ApplySettings();
-			if (channel)
-			{
-				channel->set3DAttributes(&position, &velocity);
-				channel->set3DMinMaxDistance(0.1f, 0.6f);
-			}
-		}*/
-		void ApplySettings() override
-		{
-			SoundTrack::ApplySettings();
-		}
-	};
-
 	
 
 	class AudioManager
@@ -89,10 +59,6 @@ namespace SliceEngine
 		FMOD::System* mSoundSystem;
 		const int MAX_CHANNELS = 256;
 
-
-
-		std::unordered_map<std::string, std::unique_ptr<SoundTrack2D>> mLoadedSounds2D;
-		std::unordered_map<std::string, std::unique_ptr<SoundTrack3D>> mLoadedSounds3D;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 
@@ -116,8 +82,6 @@ namespace SliceEngine
 		};
 
 	private:
-		std::vector<std::unique_ptr<SoundTrack2D>> mSound2D[SOUND_MAX_SOUNDS];
-		std::vector<std::unique_ptr<SoundTrack3D>> mSound3D[SOUND_MAX_SOUNDS];
 		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
 		float mMasterVolume = 1.0f;
 
