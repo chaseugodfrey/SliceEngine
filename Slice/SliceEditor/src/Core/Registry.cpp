@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Registry.cpp
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the Registry class, which holds all the managers of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "Registry.h"
 #include "SelectionSystem/ISelectionListener.h"

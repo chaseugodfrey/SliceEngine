@@ -1,3 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        AssetManager.h
+
+ author:	  Gideon Nicholas Francis
+ co-author:   Nic Lai
+
+ email:       g.francis@digipen.edu
+
+ brief:		  Declares the AssetManager class which handles all asset related operations on the editor side.
+			  Creates and manages asset descriptor files, GUIDs, and asset listings.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef ASSET_MANAGER_H
 #define ASSET_MANAGER_H
 

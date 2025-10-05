@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyWindow.h
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the HierarchyWindow class, which is responsible for rendering the hierarchy window in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef HIERARCHY_WINDOW_H
 #define HIERARCHY_WINDOW_H
 
