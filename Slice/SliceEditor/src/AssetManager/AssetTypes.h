@@ -79,7 +79,26 @@ namespace SliceEditor
 
 		void Serialize(const std::filesystem::path & desc_path) override
 		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
 
+			nlohmann::json metaJson;
+
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to texture goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
 		}
 
 		void Deserialize(const std::filesystem::path & desc_path) override
