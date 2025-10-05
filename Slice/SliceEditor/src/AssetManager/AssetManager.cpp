@@ -6,10 +6,10 @@ namespace SliceEditor
 	void AssetManager::Init()
 	{
 		//Sanity Checks for the Directories
-		if(!std::filesystem::exists(mAssetDirectory))
+		if (!std::filesystem::exists(mAssetDirectory))
 		{
 			std::filesystem::create_directory(mAssetDirectory);
-		}	
+		}
 
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
@@ -47,7 +47,7 @@ namespace SliceEditor
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
 	{
 		auto guid = path.stem();
-		
+
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
@@ -70,25 +70,25 @@ namespace SliceEditor
 		uint64_t typeID = 0;
 		switch (assetType)
 		{
-			case AssetType::Texture:
-				metaData = std::make_unique<TextureData>();
-				typeID = ResourceTypeIDs::TEXTURE;
-				break;
-			case AssetType::Model:
-				metaData = std::make_unique<ModelData>();
-				typeID = ResourceTypeIDs::MODEL;
-				break;
-			case AssetType::Audio:
-				//metaData = std::make_unique<AudioData>();
-				break;
-			case AssetType::Scene:
-				metaData = std::make_unique<SceneData>();
-				typeID = ResourceTypeIDs::SCENE;
-				break;
-			case AssetType::Shader:
-				metaData = std::make_unique<ShaderData>();
-				typeID = ResourceTypeIDs::SHADER;
-				break;
+		case AssetType::Texture:
+			metaData = std::make_unique<TextureData>();
+			typeID = ResourceTypeIDs::TEXTURE;
+			break;
+		case AssetType::Model:
+			metaData = std::make_unique<ModelData>();
+			typeID = ResourceTypeIDs::MODEL;
+			break;
+		case AssetType::Audio:
+			//metaData = std::make_unique<AudioData>();
+			break;
+		case AssetType::Scene:
+			metaData = std::make_unique<SceneData>();
+			typeID = ResourceTypeIDs::SCENE;
+			break;
+		case AssetType::Shader:
+			metaData = std::make_unique<ShaderData>();
+			typeID = ResourceTypeIDs::SHADER;
+			break;
 		}
 
 		if (metaData)
@@ -97,11 +97,15 @@ namespace SliceEditor
 			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
 			metaData->assetType = filePath.extension().string();
 			metaData->assetPath = filePath.string();
+
+			
+			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			// meta files are gonna be named after guid + meta
 			//metaData->resourcePath = std::to_string(metaData->guid.GetGUID()) + ".meta"; nvm this isnt resource
 
 			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
 			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			
 
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
@@ -115,7 +119,7 @@ namespace SliceEditor
 					{
 						std::filesystem::copy(filePath, tempPath);
 					}
-					catch(std::filesystem::filesystem_error& e)
+					catch (std::filesystem::filesystem_error& e)
 					{
 						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
 						//return;
@@ -126,16 +130,49 @@ namespace SliceEditor
 					// TODO: Add the call to exe to convert to dds
 					return;
 				}
+
+				metaData->Serialize(mResourcesDirectory);
 				break;
 			case AssetType::Model:
-				try
+				if (ext == ".mdl")
 				{
-					std::filesystem::copy(filePath, tempPath);
+					metaData->Serialize(mResourcesDirectory);
+
+
+					try
+					{
+						std::filesystem::copy(filePath, tempPath);
+					}
+					catch (std::filesystem::filesystem_error& e)
+					{
+						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+						//return;
+					}
 				}
-				catch (std::filesystem::filesystem_error& e)
+				else
 				{
-					SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
-					//return;
+					// Note:: This really has to be reworked cause the sequence of
+					// compiler run and asset load is no way at all properly synchronized and planned
+					// cause of how last min i got the compile function i have to duck tape for submission
+
+					metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".mdl";
+					metaData->Serialize(mResourcesDirectory);
+
+					std::filesystem::path m = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".meta";
+					CompileFBXAsset(m);
+					//TODO: Should pass in the resource directory into compileFBX and the guid and it should create the file there
+					// instead of this round about way to move it there
+					std::filesystem::path oldCompiledFile = filePath;
+					std::string newFileName = oldCompiledFile.filename().stem().string();
+					newFileName += "_mdl.mdl";
+					std::filesystem::path compiledFile = oldCompiledFile.replace_filename(newFileName);
+
+					std::filesystem::path newPath = tempPath;
+					newPath.replace_extension(".mdl");
+
+					std::filesystem::path finalDestination = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".mdl";
+
+					std::filesystem::rename(compiledFile, finalDestination);
 				}
 				break;
 			case AssetType::Audio:
@@ -151,6 +188,8 @@ namespace SliceEditor
 					SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
 					//return;
 				}
+
+				metaData->Serialize(mResourcesDirectory);
 				break;
 			case AssetType::Shader:
 				std::string fileName = filePath.stem().string();
@@ -176,12 +215,12 @@ namespace SliceEditor
 					//return;
 				}
 
+				metaData->Serialize(mResourcesDirectory);
 				break;
 			}
 
 
 			// serialize the meta file 
-			metaData->Serialize(mResourcesDirectory);
 
 
 			// register into resource manager
@@ -194,4 +233,80 @@ namespace SliceEditor
 			mDescriptorMap[filePath.filename().string()] = metaData->guid;
 		}
 	}
+
+	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		//std::filesystem::path rel_Path = std::filesystem::relative(desc_file, compiler_dir);
+
+		std::wstring cmd = desc_file.wstring();
+		std::filesystem::path compiler = "TextureCompile.exe";
+		// Start the child process. 
+		if (!CreateProcess(compiler.wstring().c_str(),   // No module name (use command line)
+			cmd.data(),        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			return;
+		}
+
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+
+	void AssetManager::CompileFBXAsset(std::filesystem::path const& desc_file)
+	{
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		//std::filesystem::path rel_Path = std::filesystem::relative(desc_file, compiler_dir);
+
+		std::wstring cmd = desc_file.wstring();
+		std::filesystem::path compiler = "TextureCompile.exe";
+		// Start the child process. 
+		if (!CreateProcess(compiler.wstring().c_str(),   // No module name (use command line)
+			cmd.data(),        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			return;
+		}
+
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+
 }

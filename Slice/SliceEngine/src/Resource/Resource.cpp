@@ -52,13 +52,13 @@ namespace SliceEngine
 		std::filesystem::path file(path);
 		if (file.extension() == ".mdl") {
 			if (!m->LoadModelResource(path)) {
-				delete m;
+				//delete m;
 				return nullptr;
 			}
 		}
 		else {
 			if (!m->LoadModel(path)) {
-				delete m;
+				//delete m;
 				return nullptr;
 			}
 		}

@@ -62,7 +62,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		EnableMemoryLeakChecking(98916);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
