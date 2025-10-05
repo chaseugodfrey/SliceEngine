@@ -241,7 +241,38 @@ namespace SliceEngine
             SLICE_LOG_ERROR("Unable to load core assembly image");
             assert("Unable to load");
         }
+
+        AssemblyReloadPending = false;
     }
+
+    void ScriptSystem::ReloadAssembly()
+    {
+        for (auto [entity, instance] : mEntityInstances)
+        {
+            entityAdded.push_back(entity);
+        }
+
+        mEntityInstances.clear();
+        mono_domain_set(mono_get_root_domain(), false);
+
+        if (mAppDomain)
+        {
+            mono_domain_unload(mAppDomain);
+            mAppDomain = nullptr;
+        }
+
+        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+
+        //ScriptFunctions::RegisterFunctions();
+        LoadEntityClasses();
+
+        ScriptFunctions::RegisterComponents();
+
+        mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
+
+        //PrintAssemblyTypes(mCoreAssembly);
+    }
+
 
     MonoAssembly* ScriptSystem::LoadCSharpAssembly(const std::string& assemblyPath)
     {

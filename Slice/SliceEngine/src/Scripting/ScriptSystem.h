@@ -69,6 +69,11 @@ namespace SliceEngine
 		/// <param name="assemblyPath">Path to the assembly </param>
 		void LoadMonoAssembly(const std::string& assemblyPath);
 		/// <summary>
+		/// Reloads main app domain
+		/// </summary>
+		/// <param name="assemblyPath">Path to the assembly </param>
+		void ReloadAssembly();
+		/// <summary>
 		/// Used for debugging. Prints out all teh assembly types
 		/// </summary>
 		/// <param name="assembly">Assembly reference after loading</param>
@@ -123,6 +128,8 @@ namespace SliceEngine
 		MonoDomain* mAppDomain;
 		MonoAssembly* mCoreAssembly;
 		MonoImage* mCoreAssemblyImage;
+
+		bool AssemblyReloadPending = false;
 
 		// Hold a reference to Entity class as it contains the constructor that all entity scripts runs to store mID
 		ScriptClass mEntityClass;

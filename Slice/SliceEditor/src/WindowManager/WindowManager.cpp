@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
+#include "Scripting/ScriptEditor.h"
 #include "../../src/Input/InputSystem.h"
 #include "../Core/Registry.h"
 #include "../Hierachy/HierarchyManager.h"
@@ -225,6 +226,15 @@ namespace SliceEditor
 
         ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 
 		ImGui::End();
 	}
