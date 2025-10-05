@@ -93,8 +93,8 @@ namespace SliceEngine
 			//get total vtx and idx cnt
 			int vtx_cnt{}, idx_cnt{};
 			for (auto const& m : meshes) {
-				vtx_cnt += m.vertices.size();
-				idx_cnt += m.indices.size();
+				vtx_cnt += static_cast<int>(m.vertices.size());
+				idx_cnt += static_cast<int>(m.indices.size());
 			}
 			final_vertices.reserve(vtx_cnt);
 			final_indices.reserve(idx_cnt);
@@ -104,11 +104,11 @@ namespace SliceEngine
 					final_indices.emplace_back(i + idx_offset);
 				}
 				final_vertices.insert(final_vertices.end(), m.vertices.begin(), m.vertices.end());
-				idx_offset = final_vertices.size();
+				idx_offset = static_cast<int>(final_vertices.size());
 			}
 
 			//finally, setup the vbo, vao, ebo
-			drawCnt = final_indices.size();
+			drawCnt = static_cast<int>(final_indices.size());
 			drawMode = GL_TRIANGLES;
 
 			//vbo

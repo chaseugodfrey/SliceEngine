@@ -57,7 +57,7 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityOnUpdate(entt::registry& reg, Entity entity, float dt)
 	{
-		auto& transform = reg.get<Transform>(entity);
+		//auto& transform = reg.get<Transform>(entity);
 		//// -------------------------------------------------------------
 		//// Calc the Transformation Matrix
 		//// -------------------------------------------------------------

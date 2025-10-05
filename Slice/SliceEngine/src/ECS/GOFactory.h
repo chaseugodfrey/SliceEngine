@@ -108,7 +108,7 @@ namespace SliceEngine
 			mCESmartPtr[smartPtrType] = [](Registry& reg, Entity entity, const rttr::variant& var)
 			{
 				// convert variant to our component type 
-				bool converted;
+				//bool converted;
 				//Component component = var.convert<Component>(&converted);
 				auto componentPtr = var.convert<std::shared_ptr<Component>>();
 				rttr::type type = rttr::type::get<Component>();
