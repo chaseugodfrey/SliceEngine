@@ -111,7 +111,15 @@ namespace SliceEditor
 				{
 					// if its a dds then just copy over
 					// if its not then we need to convert it to dds
-					std::filesystem::copy(filePath, tempPath);
+					try
+					{
+						std::filesystem::copy(filePath, tempPath);
+					}
+					catch(std::filesystem::filesystem_error& e)
+					{
+						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+						//return;
+					}
 				}
 				else
 				{
@@ -120,13 +128,29 @@ namespace SliceEditor
 				}
 				break;
 			case AssetType::Model:
-				std::filesystem::copy(filePath, tempPath);
+				try
+				{
+					std::filesystem::copy(filePath, tempPath);
+				}
+				catch (std::filesystem::filesystem_error& e)
+				{
+					SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+					//return;
+				}
 				break;
 			case AssetType::Audio:
 
 				break;
 			case AssetType::Scene:
-				std::filesystem::copy(filePath, tempPath);
+				try
+				{
+					std::filesystem::copy(filePath, tempPath);
+				}
+				catch (std::filesystem::filesystem_error& e)
+				{
+					SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+					//return;
+				}
 				break;
 			case AssetType::Shader:
 				std::string fileName = filePath.stem().string();
@@ -140,9 +164,17 @@ namespace SliceEditor
 				// cause loading shaders now come in 3s
 				// but they have the same name so their guid would end up being the same
 				// so only the main .shader file is used for guid generation
-				std::filesystem::copy(filePath, tempPath);
-				std::filesystem::copy(vertPath, tempVertPath);
-				std::filesystem::copy(fragPath, tempFragPath);
+				try
+				{
+					std::filesystem::copy(filePath, tempPath);
+					std::filesystem::copy(vertPath, tempVertPath);
+					std::filesystem::copy(fragPath, tempFragPath);
+				}
+				catch (std::filesystem::filesystem_error& e)
+				{
+					SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+					//return;
+				}
 
 				break;
 			}
