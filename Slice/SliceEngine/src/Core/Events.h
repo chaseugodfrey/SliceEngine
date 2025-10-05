@@ -2,6 +2,8 @@
 #define EVENTS_H
 #include "ECS/ECSTypes.h"
 #include <rttr/registration.h>
+
+
 /*
 	Define any events here
 */
@@ -37,6 +39,11 @@ struct NetworkBindPortEvent {
 	std::string port;
 };
 
+struct GONetworkEvent {
+	Entity entity;
+	bool create;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")
@@ -68,6 +75,11 @@ RTTR_REGISTRATION
 	rttr::registration::class_<NetworkBindPortEvent>("NetworkPortBinded")
 	.constructor<>()
 	.property("port", &NetworkBindPortEvent::port);
+
+	rttr::registration::class_<GONetworkEvent>("GONetworked")
+	.constructor<>()
+	.property("entity", &GONetworkEvent::entity)
+	.property("create", &GONetworkEvent::create);
 }
 
 

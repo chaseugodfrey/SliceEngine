@@ -13,6 +13,7 @@ void EventManager::SetupEventManager()
 	RegisterEvent<RigidBodyRemovedEvent>();
 	RegisterEvent<NetworkClientConnectEvent>();
 	RegisterEvent<NetworkBindPortEvent>();
+	RegisterEvent<GONetworkEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

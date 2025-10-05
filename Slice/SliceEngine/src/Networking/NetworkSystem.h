@@ -37,11 +37,14 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #undef ERROR
 #undef PlaySoundW
 #undef PlaySound
+#undef min
+#undef max
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "ECS/GameObject.h"
 #include "../Core/Events.h"
+
 
 #define WINSOCK_VERSION     2
 #define WINSOCK_SUBVERSION  2
@@ -65,6 +68,7 @@ namespace SliceEngine
         SOCKET soc;
         std::string port;
         std::string IP;
+        sockaddr_in otherPlayer;
     };
 
 
@@ -121,12 +125,12 @@ namespace SliceEngine
 
     namespace NetworkingThread 
     {
-        //std::unordered_map<uint32_t, uint32_t>netToEntID;
-        //std::unordered_map<uint32_t, uint32_t> entToNetID;
+        extern std::unordered_map<uint32_t, uint32_t> HtoCID;
+        extern std::unordered_map<uint32_t, uint32_t> CtoHID;
 
         void printAddr();
         void ReceiveThread(SOCKET serverSock);
-        void SendThread(SOCKET serverSock);
+        void SendThread(SOCKET serverSock,bool client, sockaddr_in otherPlayer);
         void SendTo(const SOCKET& Sock, const Packet& pkt, sockaddr_in pAddr);
         int RecvFrom(const SOCKET& Sock, Packet& pkt, sockaddr_in& pAddr, int& size);
     }
@@ -146,6 +150,7 @@ namespace SliceEngine
         void UpdateObjects();
         void SubscribeToAllNetworkEvents();
         void OnConnectReq(const NetworkClientConnectEvent& event);
+        void OnGONetworkEvent(const GONetworkEvent& event);
 	};
 
     // general template
@@ -241,7 +246,7 @@ namespace SliceEngine
     template<>
     inline Packet& operator>>(Packet& pkt, uint16_t& data)
     {
-        int16_t tmp{};
+        uint16_t tmp{};
         std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
         pkt.offset += sizeof(tmp);
         data = ntohs(tmp);
@@ -285,7 +290,7 @@ namespace SliceEngine
     template<>
     inline Packet& operator>>(Packet& pkt, uint32_t& data)
     {
-        int32_t tmp{};
+        uint32_t tmp{};
         std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
         pkt.offset += sizeof(tmp);
         data = ntohl(tmp);
@@ -296,7 +301,10 @@ namespace SliceEngine
     template<>
     inline Packet& operator<<(Packet& pkt, const float& data)
     {
-        float tmp = htonf(data);
+        //float tmp = htonf(data);
+        uint32_t tmp{};
+        std::memcpy(&tmp, &data, 4);
+        tmp = htonl(tmp);
 
         auto ptr = reinterpret_cast<const uint8_t*>(&tmp);
         pkt.msg.insert(pkt.msg.end(), ptr, ptr + sizeof(tmp));
@@ -307,10 +315,14 @@ namespace SliceEngine
     template<>
     inline Packet& operator>>(Packet& pkt, float& data)
     {
-        float tmp{};
+        //float tmp{};
+        uint32_t tmp{};
         std::memcpy(&tmp, pkt.msg.data() + pkt.offset, sizeof(tmp));
         pkt.offset += sizeof(tmp);
-        data = static_cast<float>(ntohf(tmp));
+        //data = static_cast<float>(ntohf(tmp));
+
+        uint32_t bits_host = ntohl(tmp);
+        std::memcpy(&data, &bits_host, 4);
         return pkt;
     }
 

@@ -10,6 +10,7 @@ namespace SliceEngine
 	void OnRigidBodyRemoved(entt::registry& reg, entt::entity entity);
 	void OnNetworkClientConnect(std::string ip, std::string port);
 	void OnNetworkBindPort(std::string port);
+	void OnGONetworkEvent(Entity entity, bool create);
 }
 
 

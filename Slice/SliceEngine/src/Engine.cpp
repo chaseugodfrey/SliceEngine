@@ -85,7 +85,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
-		Core::GetInstance()->InitSystem<NetworkSystem>();
+		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();

@@ -18,7 +18,7 @@ namespace SliceEngine
         float latest_server_update{};
 
         bool hasConnected = false;
-        float timer = TIME_SYNC;
+        float timer = UPDATE_RATE;
 
         bool gameStart = false;
         float appTime{};
@@ -28,6 +28,18 @@ namespace SliceEngine
         bool player2 = false;
 
         NetworkCommandID cmdIDs{};
+
+        // COMPONENTS --------------------------
+        // transform
+        uint8_t TRF_COMPONENTMASK = 0;
+        // render
+        uint8_t REN_COMPONENTMASK = 1;
+    }
+
+    namespace NetworkingThread
+    {
+        std::unordered_map<uint32_t, uint32_t> HtoCID{};
+        std::unordered_map<uint32_t, uint32_t> CtoHID{};
     }
 
 	void NetworkCommandID::Register(const std::string& cmdName)
@@ -197,23 +209,30 @@ namespace SliceEngine
     {
         char buffer[MAX_STR_LEN];
         int bytes =  recvfrom(soc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&pAddr), &size);
-        pkt.msg.insert(pkt.msg.end(), buffer, buffer + std::strlen(buffer));
+        if(bytes > 0)
+        {
+            pkt.msg.clear();
+            pkt.msg.insert(pkt.msg.end(), buffer, buffer + bytes);
+        }
 
         return bytes;
     }
 
-    void NetworkingThread::ReceiveThread(SOCKET otherPlayerSoc)
+    void NetworkingThread::ReceiveThread(SOCKET soc)
 	{
         //char buffer[MAX_STR_LEN];
         sockaddr_in client_addr{};
         int client_addr_len = sizeof(client_addr);
+        auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+        auto& reg = Core::GetInstance()->GetRegistry();
+        auto entityView = reg.view<SliceEntity>();
 
         while (keep_running)
         {
             Packet recvPkt{};
             recvPkt.msg.reserve(MAX_STR_LEN);
             //int bytes_received = recvfrom(otherPlayerSoc, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr*> (&client_addr), &client_addr_len);
-            int bytes_received = RecvFrom(otherPlayerSoc, recvPkt, client_addr, client_addr_len);
+            int bytes_received = RecvFrom(soc, recvPkt, client_addr, client_addr_len);
 
             if (bytes_received == SOCKET_ERROR) 
             {
@@ -249,112 +268,269 @@ namespace SliceEngine
 
             if (inID == cmdIDs.GetID("N_REQ_CONNECT"))
             {
+                std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
                 std::cout << "REQ received....\n";
                 Packet pkt{};
                 pkt << cmdIDs.GetID("N_RSP_CONNECT");
-                SendTo(otherPlayerSoc, pkt, client_addr);
+                pkt << static_cast<uint64_t>(entityView.size());
+
+                for (auto entity : entityView)
+                {
+                    GameObject tmpGO = factory.GetGOByEntity(entity);
+                    pkt << static_cast<uint32_t>(entity);
+                }
+
+                SendTo(soc, pkt, client_addr);
+                hasConnected = true;
+                Core::GetInstance()->GetNetwork()->data.otherPlayer = client_addr;
+                
+                std::thread send_thread(SendThread, soc, false, client_addr);
+                send_thread.detach();
             }
 
             if (inID == cmdIDs.GetID("N_RSP_CONNECT"))
             {
-
+                std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
                 std::cout << "connected " << std::endl;
+                uint64_t numOfGOs{};
+                recvPkt >> numOfGOs;
+
+                if (static_cast<uint64_t>(entityView.size()) == numOfGOs)
+                {
+                    for (auto entity : entityView)
+                    {
+                        GameObject tmpGO = factory.GetGOByEntity(entity);
+                        uint32_t hostEntID{};
+                        recvPkt >> hostEntID;
+
+                        NetworkingThread::CtoHID[static_cast<uint32_t>(entity)] = hostEntID;
+                        NetworkingThread::HtoCID[hostEntID] = static_cast<uint32_t>(entity);
+                    }
+                }
+
+
                 hasConnected = true;
             }
 
-            // Player fire
-            if (inID == cmdIDs.GetID("N_REQ_FIRE"))
+            // Format for sending GO
+            // ID - 1b, HtoCID - 4b, ComponentMask - 2b, transform(scale, rotate, pos) - 3x4b, - 3x4b, - 3x4b
+            if (inID == cmdIDs.GetID("N_REQ_CREATE_GO"))
             {
-                //int tmpId{};
-                //// find player ID who sent
+                auto go = factory.CreateGO();
+                go.AddComponent<SliceEngine::Renderer>();
 
-                //{
-                //    std::lock_guard<std::mutex> lock(_eventMutex);
-                //    for (auto& player : playersIndex)
-                //    {
-                //        if (player.first == IpPort)
-                //        {
-                //            tmpId = player.second;
-                //        }
-                //    }
-                //}
-
-
-                float timestamp = ntohf(*(uint32_t*)(inID + 1));
-
-                std::string message{};
-                message += cmdIDs.GetID("N_RSP_FIRE");
-
-                unsigned int tmp = htonf(appTime);
-                message.append((char*)(&tmp), (char*)(&tmp) + 4);
-
-                /*tmp = htonl(tmpId);
-                message.append((char*)(&tmp), (char*)(&tmp) + 4);*/
-
-                // Send to all that player ID fire
-                //for (auto& ips : clients)
+                Packet pkt{};
+                // just testing render, transform
+                uint16_t componentMask{};
+                if (go.HasComponent<Transform>())
                 {
-                    sendto(otherPlayerSoc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr));
+                    componentMask = static_cast<uint16_t>(componentMask | (1u << TRF_COMPONENTMASK));
+                }
+                if (go.HasComponent<Renderer>())
+                {
+                    componentMask = static_cast<uint16_t>(componentMask | (1u << REN_COMPONENTMASK));
                 }
 
-                //Shoot(playersInfo[tmpId].go.t.pos, playersInfo[tmpId].go.t.rot, tmpId);
+                pkt << cmdIDs.GetID("N_RSP_CREATE_GO");
+                pkt << static_cast<uint32_t>(go.GetEntity());
+                pkt << componentMask;
+                pkt << go.GetComponent<Transform>().scale.x;
+                pkt << go.GetComponent<Transform>().scale.y;
+                pkt << go.GetComponent<Transform>().scale.z;
+                pkt << go.GetComponent<Transform>().rotation.x;
+                pkt << go.GetComponent<Transform>().rotation.y;
+                pkt << go.GetComponent<Transform>().rotation.z;
+                pkt << go.GetComponent<Transform>().position.x;
+                pkt << go.GetComponent<Transform>().position.y;
+                pkt << go.GetComponent<Transform>().position.z;
+
+
+                NetworkingThread::SendTo(soc, pkt, client_addr);
+
             }
 
-            // State update from client
-            // id - 1b, timestamp - 4b, pos - 8b, scale - 8b, rot - 4b, vel - 8b
-            if (inID == cmdIDs.GetID("N_STATE_UPDATE"))
+            if (inID == cmdIDs.GetID("N_RSP_CREATE_GO"))
             {
-                //int tmpId{};
-                //// find player ID who sent
+                auto go = factory.CreateGO();
+
+                uint32_t hostEntID{};
+                recvPkt >> hostEntID;
+                
+                NetworkingThread::CtoHID[static_cast<uint32_t>(go.GetEntity())] = hostEntID;
+                NetworkingThread::HtoCID[hostEntID] = static_cast<uint32_t>(go.GetEntity());
+
+                uint16_t cmpmask{};
+                recvPkt >> cmpmask;
+
+                // check for trf and reder
+                if (static_cast<uint16_t>((cmpmask >> TRF_COMPONENTMASK) & 1u))
+                {
+                    float tmpUnpack{};
+
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().scale.x = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().scale.y = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().scale.z = tmpUnpack;
+
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().rotation.x = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().rotation.y = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().rotation.z = tmpUnpack;
+
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().position.x = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().position.y = tmpUnpack;
+                    recvPkt >> tmpUnpack;
+                    go.GetComponent<Transform>().position.z = tmpUnpack;
+                }
+
+                if (static_cast<uint16_t>((cmpmask >> REN_COMPONENTMASK) & 1u))
+                {
+                    go.AddComponent<Renderer>();
+                }
+
+            }
+
+            if (inID == cmdIDs.GetID("N_TIME_UPDATE"))
+            {
+                uint8_t client = 0;
+                recvPkt >> client;
+                uint32_t hID;
+                recvPkt >> hID;
+                if (!client)
+                {
+                    for (auto entity : entityView)
+                    {
+                        GameObject tmpGO = factory.GetGOByEntity(entity);
+                        if (static_cast<uint32_t>(entity) == HtoCID[hID])
+                        {
+                            float tmpUnpack{};
+
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().scale.x = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().scale.y = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().scale.z = tmpUnpack;
+
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().rotation.x = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().rotation.y = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().rotation.z = tmpUnpack;
+
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().position.x = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().position.y = tmpUnpack;
+                            recvPkt >> tmpUnpack;
+                            tmpGO.GetComponent<Transform>().position.z = tmpUnpack;
+                        }
+                    }
+                }
+            }
+
+            {
+                // Player fire
+                //if (inID == cmdIDs.GetID("N_REQ_FIRE"))
                 //{
-                //    std::lock_guard<std::mutex> lock(_eventMutex);
-                //    for (auto& player : playersIndex)
+                //    int tmpId{};
+                //    // find player ID who sent
+
                 //    {
-                //        if (player.first == IpPort)
+                //        std::lock_guard<std::mutex> lock(_eventMutex);
+                //        for (auto& player : playersIndex)
                 //        {
-                //            tmpId = player.second;
+                //            if (player.first == IpPort)
+                //            {
+                //                tmpId = player.second;
+                //            }
                 //        }
                 //    }
+
+
+                //    float timestamp = ntohf(*(uint32_t*)(inID + 1));
+
+                //    std::string message{};
+                //    message += cmdIDs.GetID("N_RSP_FIRE");
+
+                //    unsigned int tmp = htonf(appTime);
+                //    message.append((char*)(&tmp), (char*)(&tmp) + 4);
+
+                //    tmp = htonl(tmpId);
+                //    message.append((char*)(&tmp), (char*)(&tmp) + 4);
+
+                //    // Send to all that player ID fire
+                //    for (auto& ips : clients)
+                //    {
+                //        sendto(soc, message.c_str(), (int)message.length(), 0, reinterpret_cast<sockaddr*>(&client_addr), sizeof(client_addr));
+                //    }
+
+                //    Shoot(playersInfo[tmpId].go.t.pos, playersInfo[tmpId].go.t.rot, tmpId);
                 //}
 
-                latestTimeStamp = ntohf(*(uint32_t*)(inID + 1));
+                // State update from client
+                // id - 1b, timestamp - 4b, pos - 8b, scale - 8b, rot - 4b, vel - 8b
+                //if (inID == cmdIDs.GetID("N_STATE_UPDATE"))
+                //{
+                    //int tmpId{};
+                    //// find player ID who sent
+                    //{
+                    //    std::lock_guard<std::mutex> lock(_eventMutex);
+                    //    for (auto& player : playersIndex)
+                    //    {
+                    //        if (player.first == IpPort)
+                    //        {
+                    //            tmpId = player.second;
+                    //        }
+                    //    }
+                    //}
 
-                {
-                    std::lock_guard<std::mutex> lock(_eventMutex);
-                    if (latestTimeStamp > otherPlayer.timestamp)
-                    {
-                        otherPlayer.timestamp = latestTimeStamp;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
+                    //latestTimeStamp = ntohf(*(uint32_t*)(inID + 1));
 
-                Vector2 pos{0.f,0.f};
-                pos.x = ntohf(*(uint32_t*)(inID + 5));
-                pos.y = ntohf(*(uint32_t*)(inID + 9));
+                    //{
+                    //    std::lock_guard<std::mutex> lock(_eventMutex);
+                    //    if (latestTimeStamp > otherPlayer.timestamp)
+                    //    {
+                    //        otherPlayer.timestamp = latestTimeStamp;
+                    //    }
+                    //    else
+                    //    {
+                    //        continue;
+                    //    }
+                    //}
 
-                Vector2 scale{ 0.f,0.f };
-                scale.x = ntohf(*(uint32_t*)(inID + 13));
-                scale.y = ntohf(*(uint32_t*)(inID + 17));
+                    //Vector2 pos{0.f,0.f};
+                    //pos.x = ntohf(*(uint32_t*)(inID + 5));
+                    //pos.y = ntohf(*(uint32_t*)(inID + 9));
 
-                float rot = ntohf(*(uint32_t*)(inID + 21));
+                    //Vector2 scale{ 0.f,0.f };
+                    //scale.x = ntohf(*(uint32_t*)(inID + 13));
+                    //scale.y = ntohf(*(uint32_t*)(inID + 17));
 
-                Vector2 vel{ 0.f,0.f };
-                vel.x = ntohf(*(uint32_t*)(inID + 25));
-                vel.y = ntohf(*(uint32_t*)(inID + 29));
+                    //float rot = ntohf(*(uint32_t*)(inID + 21));
 
-                {
-                    std::lock_guard<std::mutex> lock(_eventMutex);
-                    otherPlayer.go.position = glm::vec3{}; // = pos;
-                    otherPlayer.go.scale = glm::vec3{}; //scale;
-                    otherPlayer.go.rotation = glm::vec3{}; //rot;
-                    //playersInfo[tmpId].go.vel = vel;
+                    //Vector2 vel{ 0.f,0.f };
+                    //vel.x = ntohf(*(uint32_t*)(inID + 25));
+                    //vel.y = ntohf(*(uint32_t*)(inID + 29));
 
-                    // interpolate
-                    //InterpolateGameobject(playersInfo[tmpId].go, latest_timestamp);
-                }
+                    //{
+                    //    std::lock_guard<std::mutex> lock(_eventMutex);
+                    //    otherPlayer.go.position = glm::vec3{}; // = pos;
+                    //    otherPlayer.go.scale = glm::vec3{}; //scale;
+                    //    otherPlayer.go.rotation = glm::vec3{}; //rot;
+                    //    //playersInfo[tmpId].go.vel = vel;
+
+                    //    // interpolate
+                    //    //InterpolateGameobject(playersInfo[tmpId].go, latest_timestamp);
+                    //}
+                //}
             }
 
 
@@ -364,48 +540,81 @@ namespace SliceEngine
 
                 //std::cout << "Received from " << IpPort << std::endl;
             }
+
+            
         }
 	}
 
-    void NetworkingThread::SendThread(SOCKET serverSocket)
+    void NetworkingThread::SendThread(SOCKET serverSocket,bool client, sockaddr_in otherPlayer)
     {
+        auto dt = Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+        auto& reg = Core::GetInstance()->GetRegistry();
+        auto& GOfact = Core::GetInstance()->mFactory;
+
         while (keep_running)
         {
+            std::this_thread::sleep_for(std::chrono::seconds(TIME_SYNC));
             if (hasConnected)
             {
-                if (timer <= 0.0f)
+                /*if (timer <= 0.0f)
                 {
-                    timer = TIME_SYNC;
+                    timer = UPDATE_RATE;
                 }
 
-                auto dt = Core::GetInstance()->GetFramerateManager()->getDeltaTime();
-                auto& reg = Core::GetInstance()->GetRegistry();
-                auto& GOfact = Core::GetInstance()->mFactory;
-
-                timer -= dt;
+                timer -= dt;*/
 
                 auto entityView = reg.view<SliceEntity>();
+                std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
+                std::cout << " entities size: " << entityView.size() << std::endl;
                 for (auto entity : entityView)
                 {
                     //std::cout << mEntityToGO[entity].GetName() << std::endl;
                     Packet pkt{};
                     pkt << cmdIDs.GetID("N_TIME_UPDATE");
+                    pkt << static_cast<uint8_t>(client);
 
                     GameObject tmpGO = GOfact.GetGOByEntity(entity);
+
+                    // just testing render, transform
+                    uint16_t componentMask{};
                     if (tmpGO.HasComponent<Transform>())
                     {
-                        Transform trf = tmpGO.GetComponent<Transform>();
-                        pkt << trf.position.x;
-                        pkt << trf.position.y;
-                        pkt << trf.position.z;
+                        componentMask = static_cast<uint16_t>(componentMask | (1u << TRF_COMPONENTMASK));
+                    }
+                    if (tmpGO.HasComponent<Renderer>())
+                    {
+                        componentMask = static_cast<uint16_t>(componentMask | (1u << REN_COMPONENTMASK));
                     }
 
-                    //SendTo(serverSocket,pkt,)
+                    if (client)
+                    {
+                        pkt << CtoHID[static_cast<uint32_t>(entity)];
+                    }
+                    else
+                    {
+                        pkt << static_cast<uint32_t>(entity);
+                    }
+
+                    if (tmpGO.HasComponent<Transform>())
+                    {
+                        pkt << tmpGO.GetComponent<Transform>().scale.x;
+                        pkt << tmpGO.GetComponent<Transform>().scale.y;
+                        pkt << tmpGO.GetComponent<Transform>().scale.z;
+                        pkt << tmpGO.GetComponent<Transform>().rotation.x;
+                        pkt << tmpGO.GetComponent<Transform>().rotation.y;
+                        pkt << tmpGO.GetComponent<Transform>().rotation.z;
+                        pkt << tmpGO.GetComponent<Transform>().position.x;
+                        float tmpF = tmpGO.GetComponent<Transform>().position.y;
+                        pkt << tmpF;
+                        pkt << tmpGO.GetComponent<Transform>().position.z;
+                    }
+
+                    SendTo(serverSocket, pkt, otherPlayer);
                 }
             }
             else
             {
-                std::this_thread::sleep_for(std::chrono::milliseconds(UPDATE_RATE));
+                std::this_thread::sleep_for(std::chrono::seconds(TIME_SYNC));
             }
         }
         
@@ -432,6 +641,9 @@ namespace SliceEngine
 
         // Subcribe to bind event
         eventManager->Subscribe<NetworkBindPortEvent, &NetworkSystem::BindSocket>(this);
+
+        // Subscribe to GO event
+        eventManager->Subscribe<GONetworkEvent, &NetworkSystem::OnGONetworkEvent>(this);
     }
 
     void NetworkSystem::Init()
@@ -446,6 +658,8 @@ namespace SliceEngine
         cmdIDs.Register("N_TIME_UPDATE");
         cmdIDs.Register("N_REQ_CREATE_GO");
         cmdIDs.Register("N_RSP_CREATE_GO");
+        cmdIDs.Register("N_REQ_DESTROY_GO");
+        cmdIDs.Register("N_RSP_DESTROY_GO");
 
 
         keep_running = true;
@@ -551,11 +765,8 @@ namespace SliceEngine
         //
     }
 
-
     void NetworkSystem::OnConnectReq(const NetworkClientConnectEvent& event)
     {
-        
-
         //auto GO = FactoryInstance.GetGOByEntity(event.entity);
         //auto& networkComponent = GO.GetComponent<NetworkObj>();
         
@@ -564,12 +775,74 @@ namespace SliceEngine
         player1Dest.sin_port = htons((u_short)std::stoi(event.port.c_str()));
         inet_pton(AF_INET, event.ip.c_str(), &player1Dest.sin_addr);
 
+        data.otherPlayer = player1Dest;
+
         Packet pkt{};
         pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
         NetworkingThread::SendTo(data.soc, pkt, player1Dest);
         data.client = true;
         
-        hasConnected = true;
+        //hasConnected = true;
+
+        // split the threads
+        std::thread send_thread(NetworkingThread::SendThread, data.soc,data.client, player1Dest);
+        send_thread.detach();
+    }
+
+    void NetworkSystem::OnGONetworkEvent(const GONetworkEvent& event)
+    {
+        if (hasConnected)
+        {
+            if(event.create)
+            {
+                Packet pkt{};
+                if (data.client)
+                {
+                    pkt << cmdIDs.GetID("N_REQ_CREATE_GO");
+                    NetworkingThread::SendTo(data.soc, pkt, data.otherPlayer);
+                    return;
+                }
+
+                // Format for sending GO
+                // ID - 1b, ComponentMask - 2b, transform(scale, rotate, pos) - 3x4b, - 3x4b, - 3x4b
+                else
+                {
+                    auto& GOfact = Core::GetInstance()->mFactory;
+                    GameObject tmpGO = GOfact.GetGOByEntity(event.entity);
+
+                    // just testing render, transform
+                    uint16_t componentMask{};
+                    if (tmpGO.HasComponent<Transform>())
+                    {
+                        componentMask = static_cast<uint16_t>(componentMask | (1u << TRF_COMPONENTMASK));
+                    }
+                    if (tmpGO.HasComponent<Renderer>())
+                    {
+                        componentMask = static_cast<uint16_t>(componentMask | (1u << REN_COMPONENTMASK));
+                    }
+
+                    pkt << cmdIDs.GetID("N_RSP_CREATE_GO");
+                    pkt << static_cast<uint32_t>(event.entity);
+                    pkt << componentMask;
+                    pkt << tmpGO.GetComponent<Transform>().scale.x;
+                    pkt << tmpGO.GetComponent<Transform>().scale.y;
+                    pkt << tmpGO.GetComponent<Transform>().scale.z;
+                    pkt << tmpGO.GetComponent<Transform>().rotation.x;
+                    pkt << tmpGO.GetComponent<Transform>().rotation.y;
+                    pkt << tmpGO.GetComponent<Transform>().rotation.z;
+                    pkt << tmpGO.GetComponent<Transform>().position.x;
+                    pkt << tmpGO.GetComponent<Transform>().position.y;
+                    pkt << tmpGO.GetComponent<Transform>().position.z;
+
+
+                    NetworkingThread::SendTo(data.soc, pkt, data.otherPlayer);
+                }
+            }
+            else
+            {
+
+            }
+        }
     }
 }

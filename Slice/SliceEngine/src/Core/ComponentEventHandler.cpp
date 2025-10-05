@@ -60,4 +60,12 @@ namespace SliceEngine
         EventManager::GetInstance()->Publish<NetworkBindPortEvent>(event);
     }
 
+    void OnGONetworkEvent(Entity entity, bool create)
+    {
+        GONetworkEvent event;
+        event.entity = entity;
+        event.create = create;
+
+        EventManager::GetInstance()->Publish<GONetworkEvent>(event);
+    }
 }
