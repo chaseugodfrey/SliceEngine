@@ -129,18 +129,18 @@ namespace SliceEngine
 		// Pos
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[1]);
 		glTextureStorage2D(mColAttachment[1], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// Nom
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[2]);
 		glTextureStorage2D(mColAttachment[2], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// Nom
 		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[3]);
 		glTextureStorage2D(mColAttachment[3], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 #pragma endregion
 
@@ -337,7 +337,7 @@ namespace SliceEngine
 		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
 		if (UniformExists("uLight[0].Ls", uniformLoc))
 		glUniform3f(uniformLoc, 1.f, 1.f, 1.f);
-
+		
 		if (UniformExists("uMat.Ka", uniformLoc))
 		glUniform3f(uniformLoc, 0.3f, 0.5f, 0.9f);
 		if (UniformExists("uMat.Kd", uniformLoc))
@@ -347,16 +347,14 @@ namespace SliceEngine
 		if (UniformExists("uMat.shininess", uniformLoc))
 		glUniform1f(uniformLoc, 100.f);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, mColAttachment[3]);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, mColAttachment[1]);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, mColAttachment[2]);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, 0, 0);
+		glBindTextureUnit(0, mColAttachment[3]);
+		glBindTextureUnit(1, mColAttachment[1]);
+		glBindTextureUnit(2, mColAttachment[2]);
+
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)11832448866642764607);
 		glBindVertexArray(mdl.get()->vao);

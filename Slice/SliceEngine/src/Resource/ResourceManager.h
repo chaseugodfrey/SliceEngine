@@ -75,27 +75,35 @@ namespace SliceEngine
 		template<typename T>
 		Handle<T> get(const GUID& guid)
 		{
-			auto it = mInstances.find(guid);
+			GUID assetGUID = guid;
+			if (assetGUID == (GUID)0)
+			{
+				assetGUID = (GUID)Type<T>::defaultResourceGUID;
+				SLICE_LOG_WARNING("Attempted to get resource with null GUID.");
+				//return Handle<T>();
+			}
+
+			auto it = mInstances.find(assetGUID);
 			if (it != mInstances.end())
 			{
 				it->second.refCount++;
-				return Handle<T>(*this, static_cast<T*>(it->second.data), guid);
+				return Handle<T>(*this, static_cast<T*>(it->second.data), assetGUID);
 			}
 
 			// Asset not loaded, so load the asset
 			std::string path = "";
-			if (mGUIDToResource.count(guid))
+			if (mGUIDToResource.count(assetGUID))
 			{
-				path = mGUIDToResource.at(guid);
+				path = mGUIDToResource.at(assetGUID);
 			}
 			else if (mGUIDToResource.count((GUID)Type<T>::defaultResourceGUID))
 			{
 				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
-				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource.", guid.GetGUID());
+				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource.", assetGUID.GetGUID());
 			}
 			else
 			{
-				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", guid.GetGUID());
+				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", assetGUID.GetGUID());
 				return Handle<T>();
 			}
 
@@ -106,7 +114,7 @@ namespace SliceEngine
 				return Handle<T>();
 			}
 
-			mInstances[guid] =
+			mInstances[assetGUID] =
 			{
 				data,
 				1,
@@ -116,7 +124,7 @@ namespace SliceEngine
 				}
 			};
 
-			return Handle<T>(*this, data, guid);
+			return Handle<T>(*this, data, assetGUID);
 		}
 
 		void RegisterResourceAsset(const GUID& guid, const std::string& path)

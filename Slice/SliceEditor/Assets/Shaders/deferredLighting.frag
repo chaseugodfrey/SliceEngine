@@ -79,14 +79,15 @@ void Pass0(){
 * Out: fFragColor
 *****************************************************/
 void Pass1(){
-	vec3 pos = vec3(texture(uPosTex, vTexCoord));
-	vec3 nom = vec3(texture(uNomTex, vTexCoord));
-	vec3 col = vec3(texture(uTex, vTexCoord));
+	ivec2 p = ivec2(gl_FragCoord.xy);
+	vec3 pos = texelFetch(uPosTex, p, 0).xyz;
+	vec3 nom = texelFetch(uNomTex, p, 0).xyz;
+	vec4 col = texelFetch(uTex, p, 0);
 	if(any(notEqual(nom, vec3(0.0f))))
-		fFragColor = vec4(BlinnPhong(pos, nom, uLight[0], uMat), 1.0f);
+		fFragColor = col * vec4(BlinnPhong(pos, nom, uLight[0], uMat), 1.0f);
 	else
 		fFragColor = vec4(0.75294f, 1.0f, 0.93333f, 1.0f);
-	fFragColor.rgb = pow(fFragColor.rgb, vec3(1.0f/2.2f))
+	fFragColor.rgb = pow(fFragColor.rgb, vec3(1.0f/2.2f));
 }
 
 void main(void){
