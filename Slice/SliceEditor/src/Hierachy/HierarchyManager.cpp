@@ -36,12 +36,6 @@ namespace SliceEditor
 	{
 		TestNode node{};
 		node.entity = entity;
-
-		auto& scene_graph_comp = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-		auto parent_entity = scene_graph_comp.neighbours[SliceEngine::SceneGraph::UP];
-
-		node.parent = &mHierarchy.at(parent_entity);
-		node.parent->children.push_back(entity);
 		mHierarchy.emplace(entity, node);
 	}
 
@@ -67,28 +61,6 @@ namespace SliceEditor
 			SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
 			mHierarchy.emplace(entity, node);
 		}
-
-		// Set parent and children pointers
-		for (auto& [entity, node] : mHierarchy)
-		{
-			auto& scene_graph = reg.get<SliceEngine::SceneGraph>(entity);
-			auto parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			auto child = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
-
-			if (parent != entt::null)
-			{
-				node.parent = &mHierarchy[parent];
-				auto parentNode = &mHierarchy[parent];
-				parentNode->children.push_back(entity);
-			}
-
-			//Does not account for other children
-			/*while (child != entt::null)
-			{
-				node.children.push_back(child);
-				child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
-			}*/
-		}
 	}
 
 	TestNode& HierarchyManager::GetSceneRootNode()
@@ -108,31 +80,12 @@ namespace SliceEditor
 		TestNode node{};
 		node.entity = go.GetEntity();
 		mHierarchy.emplace(node.entity, node);
-
-		auto rootEntity = factory.GetRootEntity();
-		ParentGameObject(node.entity, rootEntity);
-
-		//isDirty = true;
 	}
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
 		//Check for children and remove them first
 		auto& targetNode = mHierarchy[target];
-		if(targetNode.children.size() > 0)
-		{
-			for (auto child : targetNode.children)
-			{
-				RemoveGameObject(child);
-			}
-		}
-
-		auto& parent_entity = mHierarchy[target].parent;
-
-		// remove from parent's children list
-		auto& children = parent_entity->children;
-		auto it = std::find(std::begin(children), std::end(children), target);
-		children.erase(it);
 
 		// remove from selection system
 		registry.GetSelectionSystem().UpdateDeslected({ target });
@@ -154,38 +107,63 @@ namespace SliceEditor
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)
 	{
-		auto& child_node = mHierarchy.at(child_entity);
-		auto& parent_node = mHierarchy.at(parent_entity);
-		// detach from previous parent
-		// skip if node was just created
-		if (child_node.parent != nullptr)
-		{
-			auto& children_list = child_node.parent->children;
-
-			auto it = std::find(std::begin(children_list), std::end(children_list), child_node.entity);
-			if (it != children_list.end())
-			{
-				children_list.erase(it);
-			}
-		}
-
-		// add new parent
-		child_node.parent = &parent_node;
-
-		// attach to new parent
-		parent_node.children.push_back(child_node.entity);
+		// set parent in engine
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.GetGOByEntity(child_entity);
+		factory.SetParent(child_entity, parent_entity);
 	}
 
-	void HierarchyManager::Unparent(entt::entity child, entt::entity parent)
+	void HierarchyManager::Unparent(entt::entity child)
 	{
-		auto& childNode = mHierarchy[child];
-		auto& parentNode = mHierarchy[parent];
-		auto& grandParentNode = mHierarchy[parentNode.parent->entity];
-		
 		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
-		auto go = factory.GetGOByEntity(childNode.entity);
-		factory.SetParent(childNode.entity, grandParentNode.entity);
-		ParentGameObject(childNode.entity, grandParentNode.entity);
+		factory.Unparent(child);
+	}
+
+	void HierarchyManager::SetSiblingIndex(entt::entity target, entt::entity destination)
+	{
+		auto core = SliceEngine::Core::GetInstance();
+		auto& factory = core->mFactory;
+		auto go = factory.GetGOByEntity(target);
+
+		auto& dest_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(destination);
+		auto& parent_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(dest_scene_graph.neighbours[SliceEngine::SceneGraph::UP]);
+
+		auto child_entity = parent_scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+		int index{};
+		while (child_entity != entt::null)
+		{
+			if (child_entity == destination)
+				break;
+
+			auto& sg = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
+			child_entity = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+			++index;
+		}
+
+		factory.SetSiblingIndex(target, index);
+	}
+
+	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
+	{
+		if (destination == entt::null)
+			ParentGameObject(target);
+
+		else
+		{
+			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& target_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(target);
+			auto& dest_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(destination);
+			auto target_parent = target_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
+			auto dest_parent = dest_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
+
+			if (target_parent != dest_parent)
+			{
+				ParentGameObject(target, dest_parent);
+			}
+
+			SetSiblingIndex(target, destination);
+		}
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()

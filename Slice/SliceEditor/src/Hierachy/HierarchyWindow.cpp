@@ -15,18 +15,38 @@ namespace SliceEditor
 
 	}
 
-	void HierarchyWindow::DrawNode(TestNode& node)
+	void HierarchyWindow::DrawNode(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		bool hasChildren = node.children.size() > 0;
+		auto core = SliceEngine::Core::GetInstance();
+		bool hasChildren = scene_graph.child_count > 0;
+		auto& node = mManager.GetHierarchy()[entity];
+
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
-		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
+		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
 		if (node.isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
 
-		bool isOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 1));
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity entity = *static_cast<entt::entity*>(payload->Data);
+				mManager.SetNewLocation(entity, node.entity);
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		// tree node creation
+
+		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+
+		// check inputs
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 		{
@@ -38,7 +58,7 @@ namespace SliceEditor
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
-			ImGui::Text(node.name.c_str());
+			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
 
@@ -47,12 +67,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-
-				auto& factory = SliceEngine::Core::GetInstance()->mFactory;
-				auto go = factory.GetGOByEntity(child_entity);
-				factory.SetParent(child_entity, node.entity);
 				mManager.ParentGameObject(child_entity, node.entity);
-				//mManager.SetDirty();
 			}
 
 			ImGui::EndDragDropTarget();
@@ -81,13 +96,15 @@ namespace SliceEditor
 			}
 		}
 
-
-		if (isOpen)
+		if (isNodeOpen)
 		{
-			for (size_t i = 0; i < node.children.size(); i++)
+			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (child_entity != entt::null)
 			{
-				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-				DrawNode(child_node);
+				auto& child_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(child_entity, child_scene_graph);
+				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
 			ImGui::TreePop();
@@ -100,11 +117,17 @@ namespace SliceEditor
 		{
 			ImGui::Separator();
 
-			for (size_t i = 0; i < node.children.size(); i++)
+			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(node.entity);
+			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (child_entity != entt::null)
 			{
-				auto& child_node = mManager.GetHierarchy().at(node.children[i]);
-				DrawNode(child_node);
+				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(child_entity, child_scene_graph);
+				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
+
 
 			ImGui::TreePop();
 		}
@@ -121,7 +144,8 @@ namespace SliceEditor
 
 	void HierarchyWindow::EntityContextPopUp(TestNode& node)
 	{
-		bool hasParent = node.parent->entity != SliceEngine::FactoryInstance.GetRootEntity();
+		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(node.entity);
+		bool hasParent = scene_graph.neighbours[SliceEngine::SceneGraph::UP] != SliceEngine::FactoryInstance.GetRootEntity();
 
 		if (ImGui::BeginPopupContextItem())
 		{
@@ -130,7 +154,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Unparent"))
 			{
-				mManager.Unparent(node.entity, node.parent->entity);
+				mManager.Unparent(node.entity);
 			}
 
 			if (!hasParent)

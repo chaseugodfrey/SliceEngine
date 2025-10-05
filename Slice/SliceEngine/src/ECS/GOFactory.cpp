@@ -152,89 +152,104 @@ namespace SliceEngine
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
-	void GOFactory::SetParent(Entity baseEntity, Entity parentEntity)
+	void GOFactory::Unparent(Entity entity)
 	{
-		auto& baseEntitySceneGraph = mRegistry.get<SceneGraph>(baseEntity);
+		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
+		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
+		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
+
+		if (prev_parent_entity == entt::null)
+			return;
+
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(prev_parent_entity);
+		auto grandparent_entity = parent_scene_graph.neighbours[SceneGraph::UP];
+
+		SetParent(entity, grandparent_entity);
+	}
+
+	void GOFactory::SetParent(Entity entity, Entity parentEntity)
+	{
+		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
+		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
 		// if the base entity has a parent, then we want to unattach it from its current chain
-		if (baseEntitySceneGraph.neighbours[SceneGraph::UP] != entt::null)
+		if (prev_parent_entity != entt::null)
 		{
-			auto& parentSceneGraph = mRegistry.get<SceneGraph>(baseEntitySceneGraph.neighbours[SceneGraph::UP]);
+			auto& prev_parent_scene_graph = mRegistry.get<SceneGraph>(prev_parent_entity);
 
 			// get the left and right sibling
-			Entity leftSibling = entt::null;
-			Entity rightSibling = entt::null;
+			Entity left_entity = entt::null;
+			Entity right_entity = entt::null;
 
 			// if there is a siblin on the left
-			if (baseEntitySceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
+			if (scene_graph.neighbours[SceneGraph::LEFT] != entt::null)
 			{
 				// then we wanna remove this entity from it's right
-				leftSibling = baseEntitySceneGraph.neighbours[SceneGraph::LEFT];
+				left_entity = scene_graph.neighbours[SceneGraph::LEFT];
 			}
 
 			// if there is a siblin on the right
-			if (baseEntitySceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
+			if (scene_graph.neighbours[SceneGraph::RIGHT] != entt::null)
 			{
-				rightSibling = baseEntitySceneGraph.neighbours[SceneGraph::RIGHT];
+				right_entity = scene_graph.neighbours[SceneGraph::RIGHT];
 			}
 
 			// I ALMOST FORGOT
 			// check if the current entity that is being re-parented is the direct DOWN child of it's current parent
 			// if it is then it's right sibling would be the new down child since the left most child in the link list is the direct child of the parent
-			if (parentSceneGraph.neighbours[SceneGraph::DOWN] == baseEntity)
+			if (prev_parent_scene_graph.neighbours[SceneGraph::DOWN] == entity)
 			{
-				if (rightSibling != entt::null)
+				if (right_entity != entt::null)
 				{
 					// set the right sibling to the new down
-					parentSceneGraph.neighbours[SceneGraph::DOWN] = rightSibling;
+					prev_parent_scene_graph.neighbours[SceneGraph::DOWN] = right_entity;
 				}
 				else
 				{
 					// if theres no right sibling mean the parent entity will no longer have a child
-					parentSceneGraph.neighbours[SceneGraph::DOWN] = entt::null;
+					prev_parent_scene_graph.neighbours[SceneGraph::DOWN] = entt::null;
 				}
-				
+
 			}
 
 			// there is left
-			if (leftSibling != entt::null)
+			if (left_entity != entt::null)
 			{
 				//Set itself's left to null
-				baseEntitySceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
+				scene_graph.neighbours[SceneGraph::LEFT] = entt::null;
 
-				auto& leftSiblingSceneGraph = mRegistry.get<SceneGraph>(leftSibling);
+				auto& left_scene_graph = mRegistry.get<SceneGraph>(left_entity);
 				// if there is a right then the right will be this entity's new right sibling
-				if (rightSibling != entt::null)
+				if (right_entity != entt::null)
 				{
-					leftSiblingSceneGraph.neighbours[SceneGraph::RIGHT] = rightSibling;
+					left_scene_graph.neighbours[SceneGraph::RIGHT] = right_entity;
 				}
 				else
 				{
 					// else then right sibling becomes null 
-					leftSiblingSceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+					left_scene_graph.neighbours[SceneGraph::RIGHT] = entt::null;
 				}
 			}
 
-			if (rightSibling != entt::null)
+			if (right_entity != entt::null)
 			{
 				//Set itself's right to null
-				baseEntitySceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+				scene_graph.neighbours[SceneGraph::RIGHT] = entt::null;
 
-				auto& rightSiblingSceneGraph = mRegistry.get<SceneGraph>(rightSibling);
-				
+				auto& right_scene_graph = mRegistry.get<SceneGraph>(right_entity);
+
 				// if there is a left sibling
-				if (leftSibling != entt::null)
+				if (left_entity != entt::null)
 				{
-					rightSiblingSceneGraph.neighbours[SceneGraph::LEFT] = leftSibling;
+					right_scene_graph.neighbours[SceneGraph::LEFT] = left_entity;
 				}
 				else
 				{
-					rightSiblingSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
+					right_scene_graph.neighbours[SceneGraph::LEFT] = entt::null;
 				}
 			}
-		
-			// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
-			baseEntitySceneGraph.neighbours[SceneGraph::UP] = entt::null;
+
+			--prev_parent_scene_graph.child_count;
 		}
 
 		// if it has no parent / after we unattach it from it's current sibling list
@@ -260,40 +275,114 @@ namespace SliceEngine
 			parent = parentEntity;
 		}
 
-		auto& parentSceneGraph = mRegistry.get<SceneGraph>(parent);
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent);
 		// if its the first entity being added to this scene graph as a child
-		if (parentSceneGraph.neighbours[SceneGraph::DOWN] == entt::null)
+		if (parent_scene_graph.neighbours[SceneGraph::DOWN] == entt::null)
 		{
 			// set the parent's down entity to the new entity
-			parentSceneGraph.neighbours[SceneGraph::DOWN] = baseEntity;
+			parent_scene_graph.neighbours[SceneGraph::DOWN] = entity;
 
 			// set the new entity's up to the parent
-			baseEntitySceneGraph.neighbours[SceneGraph::UP] = parent;
+			scene_graph.neighbours[SceneGraph::UP] = parent;
 		}
 		else
 		{
-			Entity childEntity = parentSceneGraph.neighbours[SceneGraph::DOWN];
+			Entity child_entity = parent_scene_graph.neighbours[SceneGraph::DOWN];
 
 			// if its not the first child in the parent scene graph then look through the children
-				while (mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT] != entt::null)
+			while (mRegistry.get<SceneGraph>(child_entity).neighbours[SceneGraph::RIGHT] != entt::null)
 			{
-				childEntity = mRegistry.get<SceneGraph>(childEntity).neighbours[SceneGraph::RIGHT];
+				child_entity = mRegistry.get<SceneGraph>(child_entity).neighbours[SceneGraph::RIGHT];
 			}
 
 			// set the last child's right to the new entity
-			auto& lastChildSceneGraph = mRegistry.get<SceneGraph>(childEntity);
-			lastChildSceneGraph.neighbours[SceneGraph::RIGHT] = baseEntity;
+			auto& last_child_scene_graph = mRegistry.get<SceneGraph>(child_entity);
+			last_child_scene_graph.neighbours[SceneGraph::RIGHT] = entity;
 
 			// Set the left of the new entity to the last child so its a double linked list
 			// its right will remain as a null entt
-			baseEntitySceneGraph.neighbours[SceneGraph::LEFT] = childEntity;
-
-			//NOTE: I dont know if i should also set the UP to the parent entity. I'll do it for now
-			// TODO: Check w chase
-			baseEntitySceneGraph.neighbours[SceneGraph::UP] = parent;
-
+			scene_graph.neighbours[SceneGraph::LEFT] = child_entity;
 		}
 
+		++parent_scene_graph.child_count;
+		scene_graph.neighbours[SceneGraph::UP] = parent;
+
+	}
+
+	void GOFactory::SetSiblingIndex(Entity targetEntity, int pos)
+	{
+		auto& target_scene_graph = mRegistry.get<SceneGraph>(targetEntity);
+
+		auto parent_entity = target_scene_graph.neighbours[SceneGraph::UP];
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent_entity);
+
+		auto child_entity = parent_scene_graph.neighbours[SceneGraph::DOWN];
+
+		if (child_entity == entt::null)
+			return;
+
+		// get which is lower so that pos doesnt go out of bounds
+		pos = std::min((int)parent_scene_graph.child_count, pos);
+
+		for (int i = 0; i < pos; i++)
+		{
+			auto& child_scene_graph = mRegistry.get<SceneGraph>(child_entity);
+			child_entity = child_scene_graph.neighbours[SceneGraph::RIGHT];
+		}
+
+		// attach loose ends first
+		// get left and right of target entity
+		auto sibling_before_left = target_scene_graph.neighbours[SceneGraph::LEFT];
+		auto sibling_before_right = target_scene_graph.neighbours[SceneGraph::RIGHT];
+
+		if (sibling_before_left != entt::null)
+		{
+			auto& bl_scene_graph = mRegistry.get<SceneGraph>(sibling_before_left);
+			bl_scene_graph.neighbours[SceneGraph::RIGHT] = sibling_before_right;
+
+			if (sibling_before_right != entt::null)
+			{
+				auto& br_scene_graph = mRegistry.get<SceneGraph>(sibling_before_right);
+				br_scene_graph.neighbours[SceneGraph::LEFT] = sibling_before_left;
+			}
+		}
+
+		// attach new siblings
+		auto& destination_scene_graph = mRegistry.get<SceneGraph>(child_entity);
+		auto sibling_after_left = destination_scene_graph.neighbours[SceneGraph::LEFT];
+
+		// if null, then will be first 
+		if (sibling_after_left != entt::null)
+		{
+			auto& al_scene_graph = mRegistry.get<SceneGraph>(sibling_after_left);
+			al_scene_graph.neighbours[SceneGraph::RIGHT] = targetEntity;
+			target_scene_graph.neighbours[SceneGraph::LEFT] = sibling_after_left;
+			target_scene_graph.neighbours[SceneGraph::RIGHT] = child_entity;
+		}
+
+		else
+		{
+			parent_scene_graph.neighbours[SceneGraph::DOWN] = targetEntity;
+			target_scene_graph.neighbours[SceneGraph::RIGHT] = child_entity;
+		}
+
+		destination_scene_graph.neighbours[SceneGraph::LEFT] = targetEntity;
+
+	}
+
+	void GOFactory::BuildSceneGraph()
+	{
+		auto view = mRegistry.view<SceneGraph>();
+		auto scene_root_entity = entt::entity{ 0 };
+
+		for (auto entity : view)
+		{
+			if (entity == scene_root_entity)
+				continue;
+
+			auto& graph = mRegistry.get<SceneGraph>(entity);
+			SetParent(entity, graph.neighbours[SceneGraph::UP]);
+		}
 	}
 
 	void GOFactory::TestLoop()
