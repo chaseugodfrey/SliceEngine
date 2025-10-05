@@ -32,35 +32,35 @@ namespace SliceEngine
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 
-		//failed attempt at genericising serialization types :((((((
-		//template<typename T>
-		//void SerializeValue(json& output, std::string const& name, std::string const& propName, entt::sparse_set& storage, rttr::variant& PropVal)
-		//{
-		//	output[name][storage.type().name()][propName] = propVal.get_value<T>();
-		//}
+		//genericising serialization types of maps?????? if SerializeValue is of container type, might explode		
+		template<typename t>
+		void SerializeValue(json& output, std::string const& name, std::string const& propname, entt::sparse_set& storage, rttr::variant& propval)
+		{
+			output[name][storage.type().name()][propname] = propval.get_value<t>();
+		}
 
-		//template<typename K, typename V>
-		//void SerializeMap(const std::map<K, V>& m, json& output)
-		//{
-		//	for (const auto& [key, value] : m)
-		//	{
-		//		std::string keyStr = key_to_string(key);
-		//		output[keyStr] = serialize_value(value);
-		//	}
-		//}
+		template<typename k, typename v>
+		void SerializeMap(const std::unordered_map<k, v>& m, json& output)
+		{
+			for (const auto& [key, value] : m)
+			{
+				std::string keystr = key_to_string(key);
+				output[keystr] = serialize_value(value);
+			}
+		}
 
-		//template<typename K, typename V>
-		//std::map<K, V> DeserializeMap(const json& input)
-		//{
-		//	std::map<K, V> result;
-		//	for (auto& [keyStr, val] : input.items())
-		//	{
-		//		K key = string_to_key<K>(keyStr);
-		//		V value = deserialize_value<V>(val);
-		//		result.emplace(key, value);
-		//	}
-		//	return result;
-		//}
+		template<typename k, typename v>
+		std::unordered_map<k, v> DeserializeMap(const json& input)
+		{
+			std::map<k, v> result;
+			for (auto& [keystr, val] : input.items())
+			{
+				k key = string_to_key<k>(keystr);
+				v value = deserialize_value<v>(val);
+				result.emplace(key, value);
+			}
+			return result;
+		}
 
 		namespace Tests
 		{
