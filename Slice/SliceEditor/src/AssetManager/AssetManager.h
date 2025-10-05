@@ -37,7 +37,8 @@ namespace SliceEditor
 		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
 		void CreateDescriptorFile(const std::filesystem::path filePath);
-
+		void CompileTextureAsset(std::filesystem::path const& desc_file);
+		void CompileFBXAsset(std::filesystem::path const& desc_file);
 	private:
 		
 		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");

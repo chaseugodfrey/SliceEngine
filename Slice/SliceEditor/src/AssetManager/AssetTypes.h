@@ -131,7 +131,7 @@ namespace SliceEditor
 		void Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			//resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
 
 			nlohmann::json metaJson;
 

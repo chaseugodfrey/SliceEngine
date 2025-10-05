@@ -74,8 +74,6 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawLoggerTab()
 	{
-		
-
 		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
 
 		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);

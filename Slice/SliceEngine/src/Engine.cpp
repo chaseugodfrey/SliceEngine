@@ -7,7 +7,7 @@
 #include "Input/InputSystem.h"
 #include "AudioManager.h"
 #include "Systems/TransformSystem.h"
-
+#include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
 
@@ -21,7 +21,7 @@
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Configuration/ProjectSettings.h"
-
+#include "Networking/NetworkSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -37,7 +37,14 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
 
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
@@ -55,6 +62,8 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
+		EnableMemoryLeakChecking(-1);
+
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
 
@@ -66,7 +75,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetWindow();
 
 
-		audio = std::make_unique<AudioManager>();
+		
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
 
@@ -86,6 +95,8 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		//Core::GetInstance()->InitSystem<NetworkSystem>();
+		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm.getFixedDeltaTime()));
@@ -98,7 +109,7 @@ namespace SliceEngine
 		//auto mResource = Core::GetInstance()->GetResourceManager();
 		Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
-
+		//mResource->RegisterResourceAsset((GUID)1001, "Assets/Models/player_mdl.mdl");	//testing loading model
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
 		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
@@ -134,6 +145,9 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Init();
+		//NetworkingThread::printAddr();
 
 		//test();
 
@@ -157,7 +171,7 @@ namespace SliceEngine
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
@@ -221,15 +235,16 @@ namespace SliceEngine
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-		auto inputs = Core::GetInstance()->GetInputSystem();
+		//auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()
 	{
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		audio->Exit();
+		mAudioManager->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");

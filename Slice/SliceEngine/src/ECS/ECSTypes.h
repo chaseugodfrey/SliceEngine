@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ECSTypes.h
+ author:		
+ email:			
+ brief:			Structs for the different components
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef ECS_TYPES
 #define ECS_TYPES
 
@@ -154,11 +164,11 @@ namespace SliceEngine
 	struct AudioSource
 	{
 		std::string soundName;
-		float currentVolume;
-		bool isLoop;
-		bool isPaused;
-		bool is3D;
-		bool playPreview;
+		float currentVolume = 0.3f;
+		bool isLoop = false;
+		bool isPaused = true;
+		bool is3D = true;
+		bool playPreview = false;
 	};
 
 	// placeholder particle system component structure for reference

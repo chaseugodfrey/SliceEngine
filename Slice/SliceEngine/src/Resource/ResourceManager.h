@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ResourceManager.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles all resources
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 #include <string>
@@ -19,7 +29,7 @@ namespace SliceEngine
 		// Each specialization MUST provide:
 		// constexpr static inline uint64_t typeUUID = YOUR_UNIQUE_ID;
 		// constexpr static inline uint64_t defaultResourceGUID = YOUR_DEFAULT_ID;
-		 static ResourceType* Load(ResourceManager&, /*uint64_t guid,*/ const std::string& path);
+		 static std::unique_ptr<ResourceType> Load(ResourceManager&, /*uint64_t guid,*/ const std::string& path);
 		// static void Destroy(ResourceType&, ResourceManager&);
 	};
 
@@ -27,9 +37,10 @@ namespace SliceEngine
 	{
 		struct Instance
 		{
-			void* data = nullptr;
+			std::unique_ptr<void, void(*)(void*)> data = { nullptr, nullptr };
 			int refCount = 1;
-			void (*destroyer)(void*, ResourceManager&) = nullptr;
+			std::string filePath;
+			std::function<std::unique_ptr<void, void(*)(void*)>(ResourceManager&, const std::string&)> reload;
 		};
 	}
 
@@ -64,9 +75,22 @@ namespace SliceEngine
 		* Hack number 2 i dont actually know why this is like this
 		*/
 		~ResourceManager() {
-			for (auto& i : mInstances) {
-				i.second.destroyer(i.second.data, *this);
-				delete i.second.data;	//not sure but 50% sure this is supposed to be here
+			//for (auto& i : mInstances) {
+			//	i.second.destroyer(i.second.data, *this);
+			//	delete i.second.data;	//not sure but 50% sure this is supposed to be here
+			//}
+		}
+
+		inline void ReleaseResource(const GUID& guid)
+		{
+			auto it = mInstances.find(guid);
+			if (it != mInstances.end())
+			{
+				it->second.refCount--;
+				if (it->second.refCount <= 0)
+				{
+					mInstances.erase(it);
+				}
 			}
 		}
 
@@ -79,15 +103,15 @@ namespace SliceEngine
 			if (assetGUID == (GUID)0)
 			{
 				assetGUID = (GUID)Type<T>::defaultResourceGUID;
-				SLICE_LOG_WARNING("Attempted to get resource with null GUID.");
+				//SLICE_LOG_WARNING("Attempted to get resource with null GUID.");
 				//return Handle<T>();
 			}
 
 			auto it = mInstances.find(assetGUID);
 			if (it != mInstances.end())
 			{
-				it->second.refCount++;
-				return Handle<T>(*this, static_cast<T*>(it->second.data), assetGUID);
+				//it->second.refCount++;
+				return Handle<T>(*this, &it->second, assetGUID);
 			}
 
 			// Asset not loaded, so load the asset
@@ -107,24 +131,29 @@ namespace SliceEngine
 				return Handle<T>();
 			}
 
-			T* data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
+			std::unique_ptr<T> data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
 			{
 				SLICE_LOG_ERROR("Unable to load resource");
 				return Handle<T>();
 			}
 
-			mInstances[assetGUID] =
-			{
-				data,
-				1,
-				[](void* d, ResourceManager& resourceMgr)
-				{
-					Type<T>::Destroy(*static_cast<T*>(d), resourceMgr);
-				}
+			auto& instance = mInstances[assetGUID];
+			instance.filePath = path;
+			auto deleter = [](void* ptr) 
+			{ 
+				delete static_cast<T*>(ptr); 
 			};
+			instance.data = std::unique_ptr<void, void(*)(void*)>(data.release(), deleter);
 
-			return Handle<T>(*this, data, assetGUID);
+			instance.reload = [](ResourceManager& mgr, const std::string& path) {
+				std::unique_ptr<T> newData = Type<T>::Load(mgr, path);
+				auto deleter = [](void* ptr) { delete static_cast<T*>(ptr); };
+				return std::unique_ptr<void, void(*)(void*)>(newData.release(), deleter);
+			};
+			
+
+			return Handle<T>(*this, &instance, assetGUID);
 		}
 
 		void RegisterResourceAsset(const GUID& guid, const std::string& path)
@@ -164,16 +193,19 @@ namespace SliceEngine
 	{
 	public:
 		// TODO: Move all into cpp file
-		Handle() : mManager(nullptr), mPtr(nullptr) {}
+		Handle() : mManager(nullptr), mInstance(nullptr) {}
 		
-		Handle(ResourceManager& resourceMgr, T* ptr, GUID guid) : mManager(&resourceMgr), mPtr(ptr), mGUID(guid) {}
+		Handle(ResourceManager& resourceMgr, detail::Instance* ptr, GUID guid) : mManager(&resourceMgr), mInstance(ptr), mGUID(guid) 
+		{
+			AddRef();
+		}
 		
 		~Handle() 
 		{ 
 			//Release(); //not sure but im like 90% sure this is not supposed to be here
 		}
 
-		Handle(const Handle& other) : mManager(&other.mManager), mPtr(other.mPtr), mGUID(other.mGUID)
+		Handle(const Handle& other) : mManager(&other.mManager), mInstance(other.mInstance), mGUID(other.mGUID)
 		{
 			AddRef();
 		}
@@ -184,7 +216,7 @@ namespace SliceEngine
 			{
 				Release();
 				mManager = other.mManager;
-				mPtr = other.mPtr;
+				mInstance = other.mInstance;
 				mGUID = other.mGUID;
 				AddRef();
 			}
@@ -192,10 +224,10 @@ namespace SliceEngine
 			return *this;
 		}
 
-		Handle(Handle&& other) noexcept : mManager(other.mManager), mPtr(other.mPtr), mGUID(other.mGUID)
+		Handle(Handle&& other) noexcept : mManager(other.mManager), mInstance(other.mInstance), mGUID(other.mGUID)
 		{
 			other.mManager = nullptr;
-			other.mPtr = nullptr;
+			other.mInstance = nullptr;
 		}
 
 		Handle& operator=(Handle&& other) noexcept
@@ -204,10 +236,10 @@ namespace SliceEngine
 			{
 				Release();
 				mManager = other.mManager;
-				mPtr = other.mPtr;
+				mInstance = other.mInstance;
 				mGUID = other.mGUID;
 				other.mManager = nullptr;
-				other.mPtr = nullptr;
+				other.mInstance = nullptr;
 			}
 
 			return *this;
@@ -215,59 +247,62 @@ namespace SliceEngine
 
 		T* operator->()
 		{
-			return mPtr;
+			return get();
 		}
 
 		const T* operator->() const
 		{
-			return mPtr;
+			return get();
 		}
 
 		T* get()
 		{
-			return mPtr;
+			return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
 		}
 
 		const T* get() const
 		{
-			return mPtr;
+			return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
 		}
 
 		bool IsValid() const
 		{
-			return mPtr != nullptr;
+			return mInstance != nullptr && mInstance->data != nullptr;
 		}
 
 	private:
 		void AddRef()
 		{
-			if (mManager && mPtr)
+			if (mInstance)
 			{
-				mManager->mInstances[mGUID].refCount++;
+				mInstance->refCount++;
 			}
 		}
 
 		void Release()
 		{
-			if (mManager && mPtr)
+			if (mManager && mInstance)
 			{
-				auto& instances = mManager->mInstances;
-				auto it = instances.find(mGUID);
-				if (it != instances.end())
-				{
-					it->second.refCount--;
-					if (it->second.refCount <= 0)
-					{
-						it->second.destroyer(it->second.data, *mManager);
-						instances.erase(it);
-					}
-				}
+				mManager->ReleaseResource(mGUID);
+				//auto& instances = mManager->mInstances;
+				//auto it = instances.find(mGUID);
+				//if (it != instances.end())
+				//{
+				//	it->second.refCount--;
+				//	if (it->second.refCount <= 0)
+				//	{
+				//		it->second.destroyer(it->second.data, *mManager);
+				//		instances.erase(it);
+				//	}
+				//}
 			}
+			mManager = nullptr;
+			mInstance = nullptr;
 		}
 
 		// 24 bytes 
 		ResourceManager* mManager;
-		T* mPtr;
+		detail::Instance* mInstance;
 		GUID mGUID;
 	};
 

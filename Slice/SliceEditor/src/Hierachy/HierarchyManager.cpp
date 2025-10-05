@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
 {
@@ -95,6 +96,13 @@ namespace SliceEditor
 		TestNode node{};
 		node.entity = go.GetEntity();
 		mHierarchy.emplace(node.entity, node);
+
+
+		auto rootEntity = factory.GetRootEntity();
+		ParentGameObject(node.entity, rootEntity);
+
+		//isDirty = true;
+		SliceEngine::OnGONetworkEvent(go.GetEntity(),true);
 	}
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
