@@ -46,6 +46,10 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
+		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+
+		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
+
 		void UpdateShapeFromTransform(Entity entity);
 
 		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
@@ -73,7 +77,7 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void SubscribeToCollisionEvents();
+		void SubscribeToEvents();
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
 

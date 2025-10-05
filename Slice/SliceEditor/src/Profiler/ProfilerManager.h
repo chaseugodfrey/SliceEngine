@@ -42,7 +42,7 @@ namespace SliceEditor
 
 		ImVec4 LogLevelToImVec4(Logger::LogLevel level);
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void UpdateDebugStatistics();
 

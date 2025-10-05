@@ -27,7 +27,7 @@ namespace SliceEditor
 
 		void Init() override;
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		float GetCameraSpeed();
 

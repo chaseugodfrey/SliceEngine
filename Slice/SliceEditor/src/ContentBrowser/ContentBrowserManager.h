@@ -37,11 +37,11 @@ namespace SliceEditor
 
 		void RenameFile(DirectoryNode& entry, char* newName);
 
-		void OpenFile();
+		void OpenFile(DirectoryNode& entry);
 
 		void DeleteFile(DirectoryNode& entry);
 		
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 	};
 }
 

@@ -43,6 +43,15 @@ struct GONetworkEvent {
 	Entity entity;
 	bool create;
 };
+struct ColliderShapeModifiedEvent
+{
+	Entity entity;
+};
+
+struct RigidBodyModifiedEvent
+{
+	Entity entity;
+};
 
 RTTR_REGISTRATION
 {

@@ -174,7 +174,7 @@ namespace SliceEditor
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 					{
-						mManager.OpenFile();
+						mManager.OpenFile(entry);
 					}
 
 					if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
@@ -183,7 +183,7 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Open File"))
 						{
-							mManager.OpenFile();
+							mManager.OpenFile(entry);
 						}
 						if (ImGui::MenuItem("Rename File"))
 						{

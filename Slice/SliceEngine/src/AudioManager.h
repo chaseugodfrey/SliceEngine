@@ -22,6 +22,7 @@ namespace SliceEngine
 	{
 		FMOD::Sound* sound = nullptr;
 		FMOD::Channel* channel = nullptr;
+		FMOD::Channel* previewChannel = nullptr;
 		float defaultSoundVolume = 1.0f;
 		float currentSoundVolume = 1.0f;
 		FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
@@ -138,6 +139,7 @@ namespace SliceEngine
 
 		void LoadSound(const std::string& soundFile);
 		bool PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
+		bool PlayEditorPreview(const std::string soundName, bool is3D, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
 
 		void SetListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
 
@@ -151,6 +153,10 @@ namespace SliceEngine
 		void UpdateSoundVolume(Entity& id, float volume);
 		float GetCurrentTrackVolume(Entity& id);
 
+		bool IsChannelNull(Entity& entity);
+		bool IsChannelPlaying(Entity& entity);
+		bool IsPreviewChannelPlaying(Entity& entity);
+
 		bool IsFMOD3D(Entity& id);
 		void UpdateFMODMode(Entity& id, bool is3D);
 
@@ -158,6 +164,7 @@ namespace SliceEngine
 		bool GetPauseState(Entity& id);
 
 		void StopSound(Entity& id);
+		void StopEditorPreview(Entity& id);
 		void StopAllSound(InternalSound SoundCategory);
 
 		void CleanUpStoppedSounds();

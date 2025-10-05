@@ -14,6 +14,8 @@ void EventManager::SetupEventManager()
 	RegisterEvent<NetworkClientConnectEvent>();
 	RegisterEvent<NetworkBindPortEvent>();
 	RegisterEvent<GONetworkEvent>();
+	RegisterEvent<ColliderShapeModifiedEvent>();
+	RegisterEvent<RigidBodyModifiedEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

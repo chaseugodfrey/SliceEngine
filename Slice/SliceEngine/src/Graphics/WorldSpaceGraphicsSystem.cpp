@@ -1,8 +1,9 @@
 #include <pch.h>
 
-//#include "ResourceManager.h"
+#include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
+#include "Resource/Texture.h"
 
 #include "WorldSpaceGraphicsSystem.h"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -12,9 +13,11 @@
 
 namespace SliceEngine
 {
+	constexpr static inline uint64_t deferredLightingShader = 12204516898033894501;
+
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;
@@ -24,7 +27,7 @@ namespace SliceEngine
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		//tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
@@ -86,7 +89,17 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(tempModel.get()->vao);
+		auto core = Core::GetInstance();
+		auto& rc = core->GetRegistry().get<Renderer>(entity);
+
+		//if (rc.model == GUID::null())
+		//	return;
+
+		auto rm = core->GetResourceManager();
+		auto handle = rm->get<SliceEngineTypes::Model>(rc.model);
+		auto texHandle = rm->get<SliceEngineTypes::Texture>(rc.texture);
+
+		glBindVertexArray(handle.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
@@ -96,7 +109,11 @@ namespace SliceEngine
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
 		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
-		glDrawArrays(tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);
+		glBindTextureUnit(0, texHandle.get()->texture_id);
+
+		glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

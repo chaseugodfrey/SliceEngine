@@ -22,6 +22,7 @@
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
+#include "Configuration/ProjectSettings.h"
 
 //using namespace rttr;
 
@@ -38,6 +39,7 @@
 namespace SliceEngine
 {
 	//Time class for physics simulation or any other system that uses fixeddt
+
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
@@ -90,7 +92,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToCollisionEvents();
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -99,16 +101,16 @@ namespace SliceEngine
 		auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 
-		mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
-		mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
-		mResource->RegisterFileAsset("Assets/Models/Cube.txt");
-		mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
-		mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
-		mResource->RegisterFileAsset("Assets/Models/Line.txt");
-		mResource->RegisterFileAsset("Assets/Models/Quad.txt");
-		mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
+		//mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Cube.txt");
+		//mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
+		//mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Line.txt");
+		//mResource->RegisterFileAsset("Assets/Models/Quad.txt");
+		//mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
 		
 		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
 		mResource->LoadModel("Assets/Models/Cube.txt");*/
@@ -150,14 +152,9 @@ namespace SliceEngine
 		testing.AddComponent<AudioSource>();*/
 
 		Core::GetInstance()->mFactory.TestLoop();
+		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
-
-		GameObject floor = Core::GetInstance()->mFactory.CreateGO("floor");
-		floor.GetComponent<Transform>().position = glm::vec3(0.f, -1.8f, 0.f);
-		floor.GetComponent<Transform>().scale = glm::vec3(10.f, 1.f, 10.f);
-		floor.AddComponent<ColliderShape>();
-		floor.AddComponent<Renderer>();
 	}
 
 	void Engine::Update()
@@ -241,6 +238,49 @@ namespace SliceEngine
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
+	}
+
+	void Engine::LoadProjectSettings()
+	{
+		std::filesystem::path proj = "projectSettings.json";
+
+		ProjectSettings s;
+		if (!std::filesystem::exists(proj)) {
+			// Safe defaults if file missing
+			s.scenes = {};
+			s.startupScene.clear();
+		}
+
+		else
+		{
+			std::ifstream in(proj);
+			nlohmann::json j; in >> j;
+
+			if (j.contains("product") && j["product"].contains("name"))
+				s.productName = j["product"]["name"].get<std::string>();
+			if (j.contains("render")) {
+				s.width = j["render"].value("width", s.width);
+				s.height = j["render"].value("height", s.height);
+				s.vsync = j["render"].value("vsync", s.vsync);
+			}
+			if (j.contains("scenes")) s.scenes = j["scenes"].get<std::vector<std::string>>();
+			s.startupScene = j.value("startupScene", s.startupScene);
+
+			// Fallback: if startupScene empty, use first scene
+			std::string sceneToLoad = !s.startupScene.empty()
+				? s.startupScene
+				: (s.scenes.empty() ? "" : s.scenes.front());
+
+			if (sceneToLoad.empty()) {
+				// Nothing to load�show blank/editor splash or exit gracefully
+				// log: "No scenes configured."
+			}
+
+			else
+			{
+				Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+			}
+		}
 	}
 
 }

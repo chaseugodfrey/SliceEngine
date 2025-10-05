@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "Editor.h"
+#include "Scripting/ScriptEditor.h"
 #include "../../src/Input/InputSystem.h"
 
 namespace SliceEditor
@@ -59,8 +60,10 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
+		assetManager.Init();
 		InitWindowManager();
+
+		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 	}

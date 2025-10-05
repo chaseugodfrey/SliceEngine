@@ -9,11 +9,9 @@ namespace SliceEditor
 {
 	struct TestNode
 	{
-		TestNode* parent;
 		entt::entity entity;
 		std::string name;
 		bool isSelected;
-		std::vector<entt::entity> children;
 
 		bool operator==(TestNode& rhs)
 		{
@@ -29,26 +27,28 @@ namespace SliceEditor
 
 		bool isDirty;
 
-		void BuildHierarchy();
 
 	public:
 
 		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
 		~HierarchyManager() = default;
 
-		void Test();
 		void Init() override;
+		void BuildHierarchy();
 		void SetDirty();
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);
+		void Reset();
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();
 		void RemoveGameObject(entt::entity target);
-		void ParentGameObject(entt::entity child, entt::entity parent);
-		void Unparent(entt::entity child, entt::entity parent);
+		void ParentGameObject(entt::entity child, entt::entity parent = entt::null);
+		void Unparent(entt::entity child);
+		void SetSiblingIndex(entt::entity target, entt::entity destination);
+		void SetNewLocation(entt::entity target, entt::entity destination);
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		std::map<entt::entity, TestNode>& GetHierarchy() { return mHierarchy; }
 

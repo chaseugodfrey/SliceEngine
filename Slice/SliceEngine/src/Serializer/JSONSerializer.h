@@ -31,6 +31,37 @@ namespace SliceEngine
 		void DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+
+		//failed attempt at genericising serialization types :((((((
+		//template<typename T>
+		//void SerializeValue(json& output, std::string const& name, std::string const& propName, entt::sparse_set& storage, rttr::variant& PropVal)
+		//{
+		//	output[name][storage.type().name()][propName] = propVal.get_value<T>();
+		//}
+
+		//template<typename K, typename V>
+		//void SerializeMap(const std::map<K, V>& m, json& output)
+		//{
+		//	for (const auto& [key, value] : m)
+		//	{
+		//		std::string keyStr = key_to_string(key);
+		//		output[keyStr] = serialize_value(value);
+		//	}
+		//}
+
+		//template<typename K, typename V>
+		//std::map<K, V> DeserializeMap(const json& input)
+		//{
+		//	std::map<K, V> result;
+		//	for (auto& [keyStr, val] : input.items())
+		//	{
+		//		K key = string_to_key<K>(keyStr);
+		//		V value = deserialize_value<V>(val);
+		//		result.emplace(key, value);
+		//	}
+		//	return result;
+		//}
+
 		namespace Tests
 		{
 			enum TestNum
