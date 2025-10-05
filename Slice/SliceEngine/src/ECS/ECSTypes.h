@@ -119,7 +119,7 @@ namespace SliceEngine
 		int width{}, height{};
 		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag;
+		unsigned char renderTag{};
 	};
 
 	struct Light // TODO: Default 1 directional light for now
