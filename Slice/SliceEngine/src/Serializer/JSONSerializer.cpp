@@ -103,7 +103,9 @@ namespace SliceEngine
 						continue;
 					}
 
-					// To make it easy to see and add what types are supported
+					// To make it easy to see and add what types are supported. If added
+					// but the output is wrong, might need to create a specialized variant
+					// of Serialize(...) in the header file
 					SerializeProp
 					<
 						int, 
@@ -280,6 +282,32 @@ namespace SliceEngine
 							if (!prop.is_valid())
 								continue;
 
+							//DeserializeProp
+							//	<
+							//	int,
+							//	unsigned int,
+							//	float,
+							//	double,
+							//	bool,
+							//	uint64_t,
+							//	EntityID,
+							//	std::array<uint64_t, 4>,
+							//	std::array<Entity, 4>,
+							//	std::vector<uint64_t>,
+							//	glm::vec2,
+							//	glm::vec3,
+							//	glm::vec4,
+							//	std::string
+							//	>
+							//	(componentInstance, prop, value);
+
+							////scene graph map stuff
+							//if (prop.get_type() == rttr::type::get<EntityID>())
+							//{
+							//	uint64_t rawID = value.get<uint64_t>();
+							//	sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
+							//}
+
 							if (prop.get_type() == rttr::type::get<int>())
 								prop.set_value(componentInstance, value.get<int>());
 							else if (prop.get_type() == rttr::type::get<unsigned int>())
@@ -305,7 +333,7 @@ namespace SliceEngine
 							}
 							else if (prop.get_type() == rttr::type::get<EntityID>())
 							{
-								uint64_t rawID = value.get<uint64_t>();
+								uint64_t rawID = value.get<uint64_t>();								
 								prop.set_value(componentInstance, EntityID{ rawID });
 								sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
 							}
@@ -348,12 +376,16 @@ namespace SliceEngine
 								glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
 								prop.set_value(componentInstance, vec);
 							}
-							else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
+							//else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
+							//{
+							//	
+							//}
+
+							else 
 							{
 								// fallback: try string
 								prop.set_value(componentInstance, value.get<std::string>());
 							}
-
 							
 						}
 
