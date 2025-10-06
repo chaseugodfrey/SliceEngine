@@ -299,7 +299,7 @@ namespace SliceEditor
 		//std::filesystem::path rel_Path = std::filesystem::relative(desc_file, compiler_dir);
 
 		std::wstring cmd = desc_file.wstring();
-		std::filesystem::path compiler = "TextureCompile.exe";
+		std::filesystem::path compiler = "FBX_Compile.exe";
 		// Start the child process. 
 		if (!CreateProcess(compiler.wstring().c_str(),   // No module name (use command line)
 			cmd.data(),        // Command line
