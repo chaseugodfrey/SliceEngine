@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ECSTypes.h
+ author:		
+ email:			
+ brief:			Structs for the different components
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef ECS_TYPES
 #define ECS_TYPES
 
@@ -17,12 +27,12 @@ namespace SliceEngine
 {
 	struct EntityID
 	{
-		uint32_t value;
+		uint64_t value;
 
 		EntityID() : value(0) {}
-		EntityID(uint32_t v) : value(v) {}
+		EntityID(uint64_t v) : value(v) {}
 
-		operator uint32_t() const { return value; }
+		operator uint64_t() const { return value; }
 	};
 
 	struct SceneGraph
@@ -106,10 +116,23 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width, height;
-		float pov, near, far;// Pov is the angle of y of the screen
+		int width{}, height{};
+		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag;
+		unsigned char renderTag{};
+	};
+
+	struct Light // TODO: Default 1 directional light for now
+	{
+		//enum class LightType
+		//{
+		//	Directional,
+		//	Point,
+		//	Spot
+		//};
+		//LightType type = LightType::Directional;
+		glm::vec3 color{1.0f, 1.0f, 1.0f};
+		float intensity = 1.0f;
 	};
 
 	struct RigidBody
@@ -147,18 +170,18 @@ namespace SliceEngine
 		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
-		bool isTrigger = false;									// leaving thjis here in case we need trniggers :D
+		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
 	};
 
 	struct AudioSource
 	{
 		std::string soundName;
-		float currentVolume;
-		bool isLoop;
-		bool isPaused;
-		bool is3D;
-		bool playPreview;
+		float currentVolume = 0.3f;
+		bool isLoop = false;
+		bool isPaused = true;
+		bool is3D = true;
+		bool playPreview = false;
 	};
 
 	// placeholder particle system component structure for reference

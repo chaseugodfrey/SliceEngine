@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Core.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Singleton for accessing systems, and data
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef CORE_H
 #define CORE_H
 //#include "Input/InputSystem.h"
@@ -12,6 +22,8 @@
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
 #include "../GLFWWindowManager.h"
+//
+// #include "Networking/NetworkSystem.h"
 
 namespace SliceEngine
 {
@@ -21,6 +33,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
+	struct NetworkSystem;
 
 	class Core : public Singleton<Core>
 	{
@@ -64,7 +77,9 @@ namespace SliceEngine
 
 			// should never reach here
 			assert("System does not exist!");
+			throw std::runtime_error("System does not exist: " + systemName);
 		}
+
 		InputSystem* GetInputSystem();
 
 		SceneSystem* GetSceneSystem();
@@ -87,6 +102,8 @@ namespace SliceEngine
 
 		GOFactory mFactory;
 
+		NetworkSystem* GetNetwork();
+
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
@@ -97,6 +114,7 @@ namespace SliceEngine
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
+		std::unique_ptr<NetworkSystem> mNetwork;
 		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
 	};
 

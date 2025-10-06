@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			SliceRTTR.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			RTTR
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef SLICE_RTTR_H
 #define SLICE_RTTR_H
 
@@ -61,7 +71,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<EntityID>("EntityID")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<uint32_t>()
+		.constructor<uint64_t>()
 		.property("value", &EntityID::value);
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())

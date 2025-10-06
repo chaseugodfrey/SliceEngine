@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SceneViewWindow.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the SceneViewWindow class, which is responsible for drawing the Scene View window and its contents.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "SceneViewWindow.h"
 #include "SceneViewManager.h"
@@ -67,7 +82,7 @@ namespace SliceEditor
 		return result;
 	}
 
-	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : mManager(manager), camObj(cam)
+	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : camObj(cam), mManager(manager), tex_id(0)
 	{
 	}
 
@@ -110,17 +125,17 @@ namespace SliceEditor
 		ImVec2 scene_window_pos = ImGui::GetCursorScreenPos();
 		ImVec2 scene_window_size = { window_size.x, window_size.y - (scene_window_pos.y - window_pos.y) };
 
-		int mouse_relative_x = io.MousePos.x - scene_window_pos.x;
-		int mouse_relative_y = io.MousePos.y - scene_window_pos.y;
+		float mouse_relative_x = io.MousePos.x - scene_window_pos.x;
+		float mouse_relative_y = io.MousePos.y - scene_window_pos.y;
 
-		int mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
-		int mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
+		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
+		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
 		mouse_scaled_y = cam.height - mouse_scaled_y;
 
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		cam.renderTag = 0;// = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
+		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
 
@@ -184,7 +199,7 @@ namespace SliceEditor
 				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
 			}
 
-			static ImVec2 pos{};
+			static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
 			static ImVec2 init_rot{};
 
@@ -194,7 +209,7 @@ namespace SliceEditor
 				{
 					init_rot.x = cam_tr.rotation.y;
 					init_rot.y = cam_tr.rotation.z;
-					pos = ImGui::GetMousePos();
+					rotate_anchor = ImGui::GetMousePos();
 					isRotating = true;
 				}
 
@@ -208,7 +223,7 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
-					ImVec2 mouse_diff = ImGui::GetMousePos() - pos;
+					ImVec2 mouse_diff = ImGui::GetMousePos() - rotate_anchor;
 					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
 					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
 				}
@@ -221,9 +236,12 @@ namespace SliceEditor
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
+
+		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+
 		// Drawing cam texture
 		ImGui::GetWindowDrawList()->AddImage(
-			(void*)cam.textureID,
+			tex,
 			ImVec2(pos.x, pos.y),
 			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
 			ImVec2(0, 1),
@@ -317,7 +335,7 @@ namespace SliceEditor
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
 				renderer->SelectCamIDPick(camObj.GetEntity());
-				unsigned int entt_id = renderer->ObjectPick(mouse_scaled_x, mouse_scaled_y);
+				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(mouse_scaled_x), static_cast<int>(mouse_scaled_y));
 				entt::entity selected_entity{ entt_id };
 
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))

@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GOFactory.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles things related to GameObjects
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
@@ -86,6 +96,11 @@ namespace SliceEngine
 		//mRegistry.emplace<SliceEntity>(go);
 		go.AddComponent<SliceEntity>();
 
+		// Networking stuff
+
+
+
+
 		return go;
 
 	}
@@ -137,18 +152,37 @@ namespace SliceEngine
 
 	void GOFactory::Destroy(GameObject& go)
 	{
-		mDeleteList.insert(go.GetEntity());
+		Destroy(go.GetEntity());
 	}
 
 	void GOFactory::Destroy(entt::entity entity)
 	{
+		auto go = GetGOByEntity(entity);
+
+		//Check children and destroy them too
+		if(go.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SceneGraph>();
+			Entity child = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (child != entt::null)
+			{
+				auto& childSceneGraph = mRegistry.get<SceneGraph>(child);
+				Entity nextSibling = childSceneGraph.neighbours[SceneGraph::RIGHT];
+				Destroy(child);
+				child = nextSibling;
+			}
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
+		}
 		mDeleteList.insert(entity);
 	}
 
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
-		auto& tr = mRegistry.emplace<Transform>(mRootEntity);
+		//auto& tr = mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
@@ -370,19 +404,73 @@ namespace SliceEngine
 
 	}
 
-	void GOFactory::BuildSceneGraph()
+	void GOFactory::BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map)
 	{
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
 
 		for (auto entity : view)
 		{
+			auto& scene_graph = mRegistry.get<SceneGraph>(entity);
+
 			if (entity == scene_root_entity)
 				continue;
 
-			auto& graph = mRegistry.get<SceneGraph>(entity);
-			SetParent(entity, graph.neighbours[SceneGraph::UP]);
+			if (scene_graph.neighbours[SceneGraph::UP] == scene_root_entity &&
+				scene_graph.neighbours[SceneGraph::LEFT] == entt::null)
+			{
+				mRegistry.get<SceneGraph>(scene_root_entity).neighbours[SceneGraph::DOWN] = entity;
+			}
+
+			for (size_t i = 0; i < scene_graph.DIRECTIONS; i++)
+			{
+				entt::entity key_entity = scene_graph.neighbours[i];
+				if (key_entity == entt::null)
+					continue;
+
+				uint64_t key = entt::to_integral(key_entity);
+				auto it = map.find(key);
+
+				if (it != map.end())
+				{
+					entt::entity ent = static_cast<entt::entity>(it->second);
+
+					scene_graph.neighbours[i] = ent;
+				}
+			}
 		}
+	}
+
+	void GOFactory::ClearGameObjects()
+	{
+		auto view = mRegistry.view<SliceEntity>();
+
+		for (auto entity : view)
+		{
+			Destroy(entity);
+		}
+
+		//mDeleteList.clear(); // skip deferred destruction
+		//mNameToEntity.clear();
+		//mEntityToGO.clear();
+		//mRegistry.clear();
+	}
+
+	GameObject GOFactory::CreateGO_Box()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.AddComponent<ColliderShape>();
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Cam()
+	{
+		auto go = CreateGO("Camera");
+		go.AddComponent<Camera>();
+		return go;
 	}
 
 	void GOFactory::TestLoop()
@@ -516,14 +604,14 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
+			SLICE_LOG_VALUES("deleting: ", (unsigned int)Entity);
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
+			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
-			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO.erase(Entity);
-
 
 			//mRegistry.destroy(Entity);
 		}
@@ -569,7 +657,11 @@ namespace SliceEngine
 			if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity)
 			{
 				auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
-				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				{
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				}
+				//parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 
 			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())

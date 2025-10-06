@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GLFWWindowManager.cpp
+ author:		Chase Roderigues
+ email:			roderigues.i@digipen.edu
+ brief:			Handles GLFW Window
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "GLFWWindowManager.h"
 
@@ -32,7 +42,8 @@ namespace SliceEngine
 
 		GLenum err = glewInit();
 		if (err != GLEW_OK) {
-			SLICE_LOG("GLEW initialization failed: %s", glewGetErrorString(err));
+			std::string error = reinterpret_cast<const char*>(glewGetErrorString(err));
+			SLICE_LOG("GLEW initialization failed: " + error);
 			return nullptr;
 		}
 

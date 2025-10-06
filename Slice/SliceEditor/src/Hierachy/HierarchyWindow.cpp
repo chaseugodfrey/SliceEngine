@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyWindow.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the HierarchyWindow class, which is responsible for rendering the hierarchy window in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
@@ -35,8 +50,8 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
-				entt::entity entity = *static_cast<entt::entity*>(payload->Data);
-				mManager.SetNewLocation(entity, node.entity);
+				entt::entity dropped = *static_cast<entt::entity*>(payload->Data);
+				mManager.SetNewLocation(dropped, node.entity);
 			}
 
 			ImGui::EndDragDropTarget();
@@ -178,10 +193,10 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Hierarchy");
 
-		if (ImGui::Button("Reload Hierarchy"))
-		{
-			mManager.BuildHierarchy();
-		}
+		//if (ImGui::Button("Reload Hierarchy"))
+		//{
+		//	mManager.BuildHierarchy();
+		//}
 
 		DrawNodeGraph();
 

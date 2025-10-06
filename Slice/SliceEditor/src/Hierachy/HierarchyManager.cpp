@@ -1,7 +1,24 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyManager.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the HierarchyManager class, which is responsible for managing the hierarchy of game objects in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
 {
@@ -9,13 +26,27 @@ namespace SliceEditor
 	void HierarchyManager::Init()
 	{
 		//Test();
-		BuildHierarchy();
+		SubscribeToSceneLoading();
+		Reset();
 	}
 
 	void HierarchyManager::Reset()
 	{
 		registry.GetSelectionSystem().ClearSelection();
 		BuildHierarchy();
+	}
+
+	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
+	{
+		if (event.isSceneLoaded)
+		{
+			Reset();
+		}
+	}
+
+	void HierarchyManager::SubscribeToSceneLoading()
+	{
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 	}
 
 	void HierarchyManager::SetDirty()
@@ -80,29 +111,37 @@ namespace SliceEditor
 		TestNode node{};
 		node.entity = go.GetEntity();
 		mHierarchy.emplace(node.entity, node);
+
+
+		auto rootEntity = factory.GetRootEntity();
+		ParentGameObject(node.entity, rootEntity);
+
+		//isDirty = true;
+		SliceEngine::OnGONetworkEvent(go.GetEntity(),true);
 	}
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
 		//Check for children and remove them first
-		auto& targetNode = mHierarchy[target];
+		//auto& targetNode = mHierarchy[target];
 
-		// remove from selection system
-		registry.GetSelectionSystem().UpdateDeslected({ target });
+		// remove everything from selection system(temp fix)
+		registry.GetSelectionSystem().ClearSelection();
 
-		// remove from node structure
-		mHierarchy.erase(target);
+		// remove from node structure (including children)
+		//mHierarchy.erase(target);
 
-		//Remove from SelectionSystem
-		auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
+		//Remove from SelectionSystem FIX THIS LTR
+		/*auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
 		auto selectedIt = selectedEntities.find(target);
 		if(selectedIt != selectedEntities.end())
 		{
 			selectedEntities.erase(selectedIt);
-		}
+		}*/
 
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
+		SetDirty();
 	}
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)

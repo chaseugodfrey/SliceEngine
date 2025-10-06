@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ResourceManager.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles all resources
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "ResourceManager.h"
 #include <fstream>
@@ -30,7 +40,8 @@ namespace SliceEngine
 					}
 					catch (nlohmann::json::parse_error& e)
 					{
-						SLICE_LOG_ERROR("Failed to parse .meta file: {}", e.what());
+						const char* errorMessageCStr = e.what();
+						SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 					}
 					/*std::string pathString = filePath.string();
 					RegisterFileAsset(pathString);*/

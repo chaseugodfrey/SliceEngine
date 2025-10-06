@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			JSONSerializer.h
+ author:		Hafiz
+ email:			b.muhammadhafiz@digipen.edu
+ brief:			Serialize and Deserialize JSON data
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef JSONSERIALIZER_H
 #define JSONSERIALIZER_H
 
@@ -28,7 +38,7 @@ namespace SliceEngine
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
 		json Deserialize(std::filesystem::path const& filePath);
-		void DeserializeScene(std::filesystem::path const& filePath);
+		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 

@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Engine.cpp
+ author:		
+ email:			
+ brief:			Main Engine
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "Engine.h"
 #include "ECS/ECSTypes.h"
@@ -13,6 +23,7 @@
 
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Graphics/LightingSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -21,7 +32,7 @@
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Configuration/ProjectSettings.h"
-
+#include "Networking/NetworkSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -62,7 +73,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		EnableMemoryLeakChecking(98916);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -71,10 +82,11 @@ namespace SliceEngine
 		//Core::GetInstance()->InitFactory();
 		// Set up Engine Systems
 		isRunning = true;
-		auto window = Core::GetInstance()->GetWindow();
+		//auto window = Core::GetInstance()->GetWindow();
+		Core::GetInstance()->GetWindow();
 
 
-		audio = std::make_unique<AudioManager>();
+		
 		// mResource = std::make_unique<ResourceManager>();
 		frm.Init();
 
@@ -89,21 +101,24 @@ namespace SliceEngine
 
 		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
-		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
+		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		//Core::GetInstance()->InitSystem<NetworkSystem>();
+		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm.getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
+		Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		//mResource->RegisterResourceAsset((GUID)1001, "Assets/Models/player_mdl.mdl");	//testing loading model
 		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
@@ -141,6 +156,9 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Init();
+		//NetworkingThread::printAddr();
 
 		//test();
 
@@ -157,14 +175,27 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
+		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		light.AddComponent<Light>();
 	}
 
 	void Engine::Update()
 	{
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+		if (!sceneSystem->CheckQueueEmpty())
+		{
+			if (sceneSystem->isSceneUnloaded)
+			{
+				sceneSystem->LoadNextScene();
+			}
+		}
+
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
-		auto mResource = Core::GetInstance()->GetResourceManager();
+		//auto mResource = Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		auto inputs = Core::GetInstance()->GetInputSystem();
@@ -204,13 +235,13 @@ namespace SliceEngine
 			frm.StartSystem("Physics");
 			if (inputs->GetMode() == InputMode::Game)
 			{
-				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(frm.getFixedDeltaTime());
+				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
 			frm.EndSystem("Physics");
 		}
 
 		frm.StartSystem("Transform");
-		Core::GetInstance()->GetSystem<TransformSystem>().Update(frm.getFixedDeltaTime());
+		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Graphics");
@@ -224,19 +255,24 @@ namespace SliceEngine
 	void Engine::EndFrame()
 	{
 		Core::FactoryInstance.UpdateDestroyed();
+		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
-		auto inputs = Core::GetInstance()->GetInputSystem();
+		//auto inputs = Core::GetInstance()->GetInputSystem();
 		glfwSwapBuffers(window);
 	}
 
 	void Engine::Exit()
 	{
+		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		audio->Exit();
+		mAudioManager->Exit();
+
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");

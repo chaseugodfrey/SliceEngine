@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        AssetTypes.h
+
+ author:	  Gideon Nicholas Francis
+ co-author:   Nic Lai
+
+ email:       g.francis@digipen.edu
+
+ brief:		  Defines the Asset types and their meta data structure
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef ASSET_TYPES_H
 #define ASSET_TYPES_H
 
@@ -116,7 +131,7 @@ namespace SliceEditor
 		void Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			//resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
 
 			nlohmann::json metaJson;
 

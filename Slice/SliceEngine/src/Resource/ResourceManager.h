@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ResourceManager.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles all resources
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 #include <string>
@@ -113,11 +123,11 @@ namespace SliceEngine
 			else if (mGUIDToResource.count((GUID)Type<T>::defaultResourceGUID))
 			{
 				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
-				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource.", assetGUID.GetGUID());
+				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource." + std::to_string(assetGUID.GetGUID()));
 			}
 			else
 			{
-				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available.", assetGUID.GetGUID());
+				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
 				return Handle<T>();
 			}
 

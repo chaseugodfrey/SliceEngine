@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        WindowManager.cpp
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the WindowManager which is responsible for creating and managing all editor windows.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
@@ -6,7 +20,10 @@
 #include "../Core/Registry.h"
 #include "../Hierachy/HierarchyManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+
+#include "../../SliceEngine/src/Networking/NetworkSystem.h"
 
 namespace SliceEditor
 {
@@ -77,7 +94,7 @@ namespace SliceEditor
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
 
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -163,13 +180,25 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+
 		if (ImGui::BeginMenu("GameObject"))
 		{
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					auto go = factory.CreateGO_Box();
+					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
+
+				}
+
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = core->mFactory.CreateGO("Camera");
-				go.AddComponent<SliceEngine::Camera>();
-				core->mFactory.SetParent(go.GetEntity());
+				auto go = factory.CreateGO_Cam();
 				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
@@ -223,36 +252,170 @@ namespace SliceEditor
 
         static bool isPlaying = false;
 
-		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
-        {
-			isPlaying = !isPlaying;
-
-			if (isPlaying) // if its play, enable game input
+		if(!isPlaying)
+		{
+			if (ImGui::Button("Play", ImVec2{ 60, 35 }))
 			{
-				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-				inputs->SetEnabled(true);
-				SliceEngine::gScriptSystem->OnStart();
-				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				isPlaying = !isPlaying;
+
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
 			}
-			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+		}
+		else
+		{
+			if(ImGui::Button("Stop", ImVec2{ 60, 35 }))
 			{
-				//inputs->UnbindCallbacks();
-				inputs->SetMode(SliceEngine::InputMode::Editor);
-				inputs->SetEnabled(false);
-			}   
-        }
-
-        ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+				isPlaying = !isPlaying;
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
+			}
+		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
+		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		{
+
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
+		{
+			ImGui::OpenPopup("host_req");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
 		{
 			if (SliceEngine::gScriptSystem)
 			{
 				SliceEngine::gScriptSystem->ReloadAssembly();
 			}
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
+		{
+			ImGui::OpenPopup("connect_req");
+
+		}
+
+		if (ImGui::BeginPopup("host_req"))
+		{
+
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string bindport;
+			if (ImGui::InputText("##port_in", &bindport))
+			{
+			}
+
+			if (ImGui::Button("Bind"))
+			{
+				/*std::string portNumber{};
+
+				std::ifstream pfile("Assets/port.txt");
+				if (!pfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(pfile, portNumber);
+
+				pfile.close();*/
+				SliceEngine::OnNetworkBindPort(bindport);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopup("connect_req"))
+		{
+			SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
+
+			std::string display = "Current IP: ";
+			if (netw->data.IP.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.IP;
+			}
+			ImGui::Text(display.c_str());
+
+			display = "Current Port: ";
+			if (netw->data.port.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.port;
+			}
+			ImGui::Text(display.c_str());
+
+
+			ImGui::Text("Input IP: ");
+			ImGui::SameLine();
+			static std::string ip;
+			if (ImGui::InputText("##ip_in", &ip))
+			{
+				// changed
+			}
+
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string port;
+			if (ImGui::InputText("##new_port_in", &port))
+			{
+				// changed
+			}
+
+			if (ImGui::Button("Connect"))
+			{
+				/*std::pair<std::string, std::string> clientNumber{};
+				std::ifstream cfile("Assets/client.txt");
+				if (!cfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(cfile, clientNumber.first);
+				std::getline(cfile, clientNumber.second);
+
+				cfile.close();*/
+				SliceEngine::OnNetworkClientConnect(ip, port);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
+		
 
 		ImGui::End();
 	}

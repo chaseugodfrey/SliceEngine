@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Editor.h
+
+ author:	  Chase Rodrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the Editor class, which is the main class of the editor application.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef EDITOR_H
 #define EDITOR_H
 
@@ -30,6 +45,9 @@ namespace SliceEditor
 		void Render();
 
 	public:
+
+		// todo : push this to event manager
+		bool isNewSceneLoaded{};
 
 		void Init();
 		static void DropCallback(GLFWwindow* window, int count, const char** paths);

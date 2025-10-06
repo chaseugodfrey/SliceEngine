@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Resource.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Loads resources
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "ResourceManager.h"
 
@@ -52,13 +62,13 @@ namespace SliceEngine
 		std::filesystem::path file(path);
 		if (file.extension() == ".mdl") {
 			if (!m->LoadModelResource(path)) {
-				delete m;
+				//delete m;
 				return nullptr;
 			}
 		}
 		else {
 			if (!m->LoadModel(path)) {
-				delete m;
+				//delete m;
 				return nullptr;
 			}
 		}
