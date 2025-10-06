@@ -162,7 +162,7 @@ namespace SliceEngine
 
 		//test();
 
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3);
+		JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
 
 		testing.AddComponent<Renderer>();

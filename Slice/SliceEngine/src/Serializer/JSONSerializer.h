@@ -34,42 +34,100 @@ namespace SliceEngine
 
 	namespace JSONSerializer
 	{
-		void Serialize(json const& input, std::filesystem::path const& filePath);
+		void SerializeFile(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
-		json Deserialize(std::filesystem::path const& filePath);
+		json DeserializeFile(std::filesystem::path const& filePath);
 		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
-
-		//genericising serialization types of maps?????? if SerializeValue is of container type, might explode		
-		template<typename t>
-		void SerializeValue(json& output, std::string const& name, std::string const& propname, entt::sparse_set& storage, rttr::variant& propval)
+		template <typename T>
+		void Serialize(json& output, const std::string& name, const std::string& typeName,
+			const std::string& propName, const T& value)
 		{
-			output[name][storage.type().name()][propname] = propval.get_value<t>();
+			output[name][typeName][propName] = value;
 		}
 
-		template<typename k, typename v>
-		void SerializeMap(const std::unordered_map<k, v>& m, json& output)
+		template <typename T>
+		void Serialize(json& output, const std::string& name, const std::string& typeName,
+			const std::string& propName, const std::vector<T>& vec)
 		{
-			for (const auto& [key, value] : m)
+			for (size_t i = 0; i < vec.size(); ++i)
+				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i]);
+		}
+
+		template <typename T, size_t N>
+		void Serialize(json& output, const std::string& name,
+			const std::string& typeName, const std::string& propName,
+			const std::array<T, N>& value)
+		{
+			for (size_t i = 0; i < N; ++i)
+				output[name][typeName][propName][i] = value[i];
+		}
+		template <>
+		inline void Serialize<std::array<Entity, 4>>(json& output, const std::string& name,
+			const std::string& typeName, const std::string& propName,
+			const std::array<Entity, 4>& value)
+		{
+			for (size_t i = 0; i < 4; ++i)
 			{
-				std::string keystr = key_to_string(key);
-				output[keystr] = serialize_value(value);
+				Entity e = value[i];
+				if (e == entt::null)
+					output[name][typeName][propName][i] = nullptr;
+				else
+					output[name][typeName][propName][i] = static_cast<uint64_t>(e);
 			}
 		}
 
-		template<typename k, typename v>
-		std::unordered_map<k, v> DeserializeMap(const json& input)
+		inline void Serialize(json& output, const std::string& name, const std::string& typeName,
+			const std::string& propName, const glm::vec2& v)
 		{
-			std::map<k, v> result;
-			for (auto& [keystr, val] : input.items())
+			output[name][typeName][propName] = { v.x, v.y };
+		}
+
+		inline void Serialize(json& output, const std::string& name, const std::string& typeName,
+			const std::string& propName, const glm::vec3& v)
+		{
+			output[name][typeName][propName] = { v.x, v.y, v.z };
+		}
+
+		inline void Serialize(json& output, const std::string& name, const std::string& typeName,
+			const std::string& propName, const glm::vec4& v)
+		{
+			output[name][typeName][propName] = { v.x, v.y, v.z, v.w };
+		}
+
+		template <typename T>
+		bool TrySerializeType(json& output, const std::string& name,
+			const std::string& typeName, const std::string& propName,
+			const rttr::variant& propVal)
+		{
+			//for cases that dont need the get value
+			if (propVal.is_type<EntityID>())
 			{
-				k key = string_to_key<k>(keystr);
-				v value = deserialize_value<v>(val);
-				result.emplace(key, value);
+				Serialize(output, name, typeName, propName, propVal.get_value<T>());
+				return true;
 			}
-			return result;
+			else if (propVal.is_type<T>())
+			{
+				Serialize(output, name, typeName, propName, propVal.get_value<T>());
+				return true;
+			}
+			return false;
+		}
+		template <typename... Types>
+		void SerializeProp(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const rttr::variant& propVal)
+		{
+			// stop at first successful serialization
+			bool handled = (TrySerializeType<Types>(output, name, typeName, propName, propVal) || ...);
+
+			if (!handled)
+			{
+				// fallback: convert to string
+				output[name][typeName][propName] = propVal.to_string();
+			}
 		}
 
 		namespace Tests

@@ -30,7 +30,7 @@ namespace SliceEngine
 		}
 
 		//Save json (the data structure) to JSON (the file) Note: This replaces the file in the filepath with data in the given json
-		void Serialize(json const& input, std::filesystem::path const& filePath)
+		void SerializeFile(json const& input, std::filesystem::path const& filePath)
 		{
 			std::ofstream ofs(filePath);
 			if (!ofs.is_open())
@@ -54,7 +54,7 @@ namespace SliceEngine
 				output += SerializeGameObject(entity, registry);
 			}
 
-			Serialize(output, filePath);
+			SerializeFile(output, filePath);
 		}
 
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)
@@ -102,6 +102,25 @@ namespace SliceEngine
 					{
 						continue;
 					}
+
+					//SerializeProp
+					//<
+					//	int, 
+					//	unsigned int, 
+					//	float, 
+					//	double, 
+					//	bool, 
+					//	uint64_t,
+					//	EntityID,
+					//	std::string, 
+					//	std::array<uint64_t, 4>, 
+					//	std::array<Entity, 4>,
+					//	std::vector<uint64_t>, 
+					//	glm::vec2, 
+					//	glm::vec3, 
+					//	glm::vec4
+					//>
+					//	(output, name, storage.type().name(), propName, propVal);
 
 					if (propVal.is_type<int>())
 					{
@@ -203,7 +222,7 @@ namespace SliceEngine
 		}
 
 		//Loads JSON (the file) and returns it as a json (the data structure) that can be accessed and edited
-		json Deserialize(std::filesystem::path const& filePath)
+		json DeserializeFile(std::filesystem::path const& filePath)
 		{
 			std::ifstream ifs(filePath);
 			if (!ifs.is_open())
@@ -221,7 +240,7 @@ namespace SliceEngine
 		{
 			std::unordered_map<uint64_t, uint64_t> sceneGraphMap{};
 
-			json input = Deserialize(filePath);
+			json input = DeserializeFile(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
@@ -325,7 +344,7 @@ namespace SliceEngine
 								glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
 								prop.set_value(componentInstance, vec);
 							}
-							else
+							else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
 							{
 								// fallback: try string
 								prop.set_value(componentInstance, value.get<std::string>());
@@ -383,9 +402,9 @@ namespace SliceEngine
 					input[root][i]["Transform"]["Scale"] = { 1.0f, 2.0f, 3.0f };
 				}
 
-				Serialize(input, testPath + std::string("JSONTest1.scene"));
+				SerializeFile(input, testPath + std::string("JSONTest1.scene"));
 
-				json output = Deserialize(testPath + std::string("JSONTest1.scene"));
+				json output = DeserializeFile(testPath + std::string("JSONTest1.scene"));
 				if (output == json())
 				{
 					SLICE_LOG_ERROR(testPath + std::string("JSONTest1.scene") + " is empty");
