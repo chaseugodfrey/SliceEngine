@@ -94,7 +94,7 @@ namespace SliceEditor
 		ImGui::SetNextWindowSize({ 0, 30 });
 		ImGui::BeginMainMenuBar();
 
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		if (ImGui::BeginMenu("File"))
 		{
@@ -252,34 +252,67 @@ namespace SliceEditor
 
         static bool isPlaying = false;
 
-		if (ImGui::Button("Play", ImVec2{ 60, 35 }))
-        {
-			isPlaying = !isPlaying;
+		if(!isPlaying)
+		{
+			if (ImGui::Button("Play", ImVec2{ 60, 35 }))
+			{
+				isPlaying = !isPlaying;
 
-			if (isPlaying) // if its play, enable game input
-			{
-				inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-				inputs->SetEnabled(true);
-				SliceEngine::gScriptSystem->OnStart();
-				//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
 			}
-			else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+		}
+		else
+		{
+			if(ImGui::Button("Stop", ImVec2{ 60, 35 }))
 			{
-				//inputs->UnbindCallbacks();
-				inputs->SetMode(SliceEngine::InputMode::Editor);
-				inputs->SetEnabled(false);
-			}   
-        }
+				isPlaying = !isPlaying;
+				if (isPlaying) // if its play, enable game input
+				{
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
+			}
+		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }));
+		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		{
+
+		}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
 		{
 			ImGui::OpenPopup("host_req");
 		}
-
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 		ImGui::SameLine();
 		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
 		{
@@ -299,6 +332,16 @@ namespace SliceEditor
 
 			if (ImGui::Button("Bind"))
 			{
+				/*std::string portNumber{};
+
+				std::ifstream pfile("Assets/port.txt");
+				if (!pfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(pfile, portNumber);
+
+				pfile.close();*/
 				SliceEngine::OnNetworkBindPort(bindport);
 				ImGui::CloseCurrentPopup();
 			}
@@ -347,13 +390,23 @@ namespace SliceEditor
 			ImGui::Text("Input Port: ");
 			ImGui::SameLine();
 			static std::string port;
-			if (ImGui::InputText("##port_in", &port))
+			if (ImGui::InputText("##new_port_in", &port))
 			{
 				// changed
 			}
 
 			if (ImGui::Button("Connect"))
 			{
+				/*std::pair<std::string, std::string> clientNumber{};
+				std::ifstream cfile("Assets/client.txt");
+				if (!cfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(cfile, clientNumber.first);
+				std::getline(cfile, clientNumber.second);
+
+				cfile.close();*/
 				SliceEngine::OnNetworkClientConnect(ip, port);
 				ImGui::CloseCurrentPopup();
 			}
@@ -362,13 +415,7 @@ namespace SliceEditor
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-		if (ImGui::Button("Reload Scripts", ImVec2{60,35}))
-		{
-			if (SliceEngine::gScriptSystem)
-			{
-				SliceEngine::gScriptSystem->ReloadAssembly();
-			}
-		}
+		
 
 		ImGui::End();
 	}

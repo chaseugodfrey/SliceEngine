@@ -58,6 +58,7 @@ project "SliceEngine"
     pchheader "pch.h"
     pchsource "src/pch.cpp"
 
+    buildoptions { "/bigobj" }
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
@@ -69,7 +70,7 @@ project "SliceEngine"
             "rttr_core_d",
             "Jolt_d.lib"
             }
-
+        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
          postbuildcommands {
                 '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
             }

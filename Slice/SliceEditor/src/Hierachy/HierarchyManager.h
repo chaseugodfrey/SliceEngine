@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 #include "../SelectionSystem/ISelectionListener.h"
+#include "../../SliceEngine/src/Core/Events.h"
 
 namespace SliceEditor
 {
@@ -45,7 +46,7 @@ namespace SliceEditor
 
 	public:
 
-		HierarchyManager(Registry& reg) : IBaseManager(reg) {};
+		HierarchyManager(Registry& reg) : IBaseManager(reg), isDirty(true) {};
 		~HierarchyManager() = default;
 
 		void Init() override;
@@ -54,6 +55,8 @@ namespace SliceEditor
 		void CheckDirty();
 		void AddEntityDirectly(entt::entity entity);
 		void Reset();
+		void OnSceneLoad(OnSceneLoadedEvent& event);
+		void SubscribeToSceneLoading();
 
 		TestNode& GetSceneRootNode();
 		void AddGameObject();

@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Graphics/LightingSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -100,10 +101,10 @@ namespace SliceEngine
 
 		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
-		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<SoundSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
+		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		
@@ -171,10 +172,23 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
+
+		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
+		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		light.AddComponent<Light>();
 	}
 
 	void Engine::Update()
 	{
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+		if (!sceneSystem->CheckQueueEmpty())
+		{
+			if (sceneSystem->isSceneUnloaded)
+			{
+				sceneSystem->LoadNextScene();
+			}
+		}
+
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
@@ -238,6 +252,7 @@ namespace SliceEngine
 	void Engine::EndFrame()
 	{
 		Core::FactoryInstance.UpdateDestroyed();
+		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
@@ -252,6 +267,9 @@ namespace SliceEngine
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
 		mAudioManager->Exit();
+
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");

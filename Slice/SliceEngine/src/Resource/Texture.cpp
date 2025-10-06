@@ -69,7 +69,7 @@ namespace SliceEngine {
                     for (std::size_t Level = 0; Level < Texture.levels(); ++Level)
                     {
                         GLsizei const LayerGL = static_cast<GLsizei>(Layer);
-                        glm::tvec3<GLsizei> Extent(Texture.extent(Level));
+                        glm::tvec3<GLsizei> Extents(Texture.extent(Level));
                         Target = gli::is_target_cube(Texture.target())
                             ? static_cast<GLenum>(GL_TEXTURE_CUBE_MAP_POSITIVE_X + Face)
                             : Target;
@@ -79,12 +79,12 @@ namespace SliceEngine {
                         case gli::TARGET_1D:
                             if (gli::is_compressed(Texture.format()))
                                 glCompressedTexSubImage1D(
-                                    Target, static_cast<GLint>(Level), 0, Extent.x,
+                                    Target, static_cast<GLint>(Level), 0, Extents.x,
                                     Format.Internal, static_cast<GLsizei>(Texture.size(Level)),
                                     Texture.data(Layer, Face, Level));
                             else
                                 glTexSubImage1D(
-                                    Target, static_cast<GLint>(Level), 0, Extent.x,
+                                    Target, static_cast<GLint>(Level), 0, Extents.x,
                                     Format.External, Format.Type,
                                     Texture.data(Layer, Face, Level));
                             break;
@@ -95,16 +95,16 @@ namespace SliceEngine {
                                 glCompressedTexSubImage2D(
                                     Target, static_cast<GLint>(Level),
                                     0, 0,
-                                    Extent.x,
-                                    Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extent.y,
+                                    Extents.x,
+                                    Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extents.y,
                                     Format.Internal, static_cast<GLsizei>(Texture.size(Level)),
                                     Texture.data(Layer, Face, Level));
                             else
                                 glTexSubImage2D(
                                     Target, static_cast<GLint>(Level),
                                     0, 0,
-                                    Extent.x,
-                                    Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extent.y,
+                                    Extents.x,
+                                    Texture.target() == gli::TARGET_1D_ARRAY ? LayerGL : Extents.y,
                                     Format.External, Format.Type,
                                     Texture.data(Layer, Face, Level));
                             break;
@@ -115,16 +115,16 @@ namespace SliceEngine {
                                 glCompressedTexSubImage3D(
                                     Target, static_cast<GLint>(Level),
                                     0, 0, 0,
-                                    Extent.x, Extent.y,
-                                    Texture.target() == gli::TARGET_3D ? Extent.z : LayerGL,
+                                    Extents.x, Extents.y,
+                                    Texture.target() == gli::TARGET_3D ? Extents.z : LayerGL,
                                     Format.Internal, static_cast<GLsizei>(Texture.size(Level)),
                                     Texture.data(Layer, Face, Level));
                             else
                                 glTexSubImage3D(
                                     Target, static_cast<GLint>(Level),
                                     0, 0, 0,
-                                    Extent.x, Extent.y,
-                                    Texture.target() == gli::TARGET_3D ? Extent.z : LayerGL,
+                                    Extents.x, Extents.y,
+                                    Texture.target() == gli::TARGET_3D ? Extents.z : LayerGL,
                                     Format.External, Format.Type,
                                     Texture.data(Layer, Face, Level));
                             break;

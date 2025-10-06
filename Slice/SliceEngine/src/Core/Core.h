@@ -33,7 +33,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
-	class NetworkSystem;
+	struct NetworkSystem;
 
 	class Core : public Singleton<Core>
 	{
@@ -77,7 +77,9 @@ namespace SliceEngine
 
 			// should never reach here
 			assert("System does not exist!");
+			throw std::runtime_error("System does not exist: " + systemName);
 		}
+
 		InputSystem* GetInputSystem();
 
 		SceneSystem* GetSceneSystem();

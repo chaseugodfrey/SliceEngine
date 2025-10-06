@@ -296,9 +296,10 @@ namespace SliceEditor
 		{
 			if (ImGui::IsWindowAppearing()) //First-time copying the name of the file for ImGui to register it
 			{
-				std::memset(newName, 0, sizeof(newName));
+				std::snprintf(newName, sizeof(newName), "%s", entry.fileName.c_str());
+				/*std::memset(newName, 0, sizeof(newName));
 				std::strncpy(newName, entry.fileName.c_str(), sizeof(newName) - 1);
-				newName[sizeof(newName) - 1] = '\0';
+				newName[sizeof(newName) - 1] = '\0';*/
 			}
 			ImGui::Text("New Filename : ");
 			ImGui::SameLine();

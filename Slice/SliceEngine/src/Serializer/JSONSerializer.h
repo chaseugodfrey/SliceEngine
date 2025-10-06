@@ -38,7 +38,7 @@ namespace SliceEngine
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
 		json Deserialize(std::filesystem::path const& filePath);
-		void DeserializeScene(std::filesystem::path const& filePath);
+		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 

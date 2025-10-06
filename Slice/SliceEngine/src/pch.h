@@ -39,7 +39,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Logger/Logger.h"
 
 // Common Types
-#include "Vectors/Vector2.h"
+//#include "Vectors/Vector2.h"
 //#include "../Vectors/Vector3.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -109,5 +109,11 @@ DigiPen Institute of Technology is prohibited.
 #include <Resource/GUID.h>
 #include <Resource/Model.h>
 #include "Configuration/ProjectSettings.h"
+
+#include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/Events.h"
+
+
+#define UNUSED(x) (void)(x)
 
 #endif 

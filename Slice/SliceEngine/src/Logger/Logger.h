@@ -50,6 +50,7 @@ namespace Logger
 		Log(function_name, ss.str(), LogLevel::DEBUG);
 		ss.clear();
 	}
+
 }
 
 #endif

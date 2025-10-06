@@ -46,6 +46,9 @@ namespace SliceEditor
 
 	public:
 
+		// todo : push this to event manager
+		bool isNewSceneLoaded{};
+
 		void Init();
 		static void DropCallback(GLFWwindow* window, int count, const char** paths);
 		static void MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);

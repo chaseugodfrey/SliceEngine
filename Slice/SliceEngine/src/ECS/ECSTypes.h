@@ -27,12 +27,12 @@ namespace SliceEngine
 {
 	struct EntityID
 	{
-		uint32_t value;
+		uint64_t value;
 
 		EntityID() : value(0) {}
-		EntityID(uint32_t v) : value(v) {}
+		EntityID(uint64_t v) : value(v) {}
 
-		operator uint32_t() const { return value; }
+		operator uint64_t() const { return value; }
 	};
 
 	struct SceneGraph
@@ -116,10 +116,23 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width, height;
-		float pov, near, far;// Pov is the angle of y of the screen
+		int width{}, height{};
+		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag;
+		unsigned char renderTag{};
+	};
+
+	struct Light // TODO: Default 1 directional light for now
+	{
+		//enum class LightType
+		//{
+		//	Directional,
+		//	Point,
+		//	Spot
+		//};
+		//LightType type = LightType::Directional;
+		glm::vec3 color{1.0f, 1.0f, 1.0f};
+		float intensity = 1.0f;
 	};
 
 	struct RigidBody
