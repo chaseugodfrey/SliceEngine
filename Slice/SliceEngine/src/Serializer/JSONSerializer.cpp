@@ -103,110 +103,114 @@ namespace SliceEngine
 						continue;
 					}
 
-					//SerializeProp
-					//<
-					//	int, 
-					//	unsigned int, 
-					//	float, 
-					//	double, 
-					//	bool, 
-					//	uint64_t,
-					//	EntityID,
-					//	std::string, 
-					//	std::array<uint64_t, 4>, 
-					//	std::array<Entity, 4>,
-					//	std::vector<uint64_t>, 
-					//	glm::vec2, 
-					//	glm::vec3, 
-					//	glm::vec4
-					//>
-					//	(output, name, storage.type().name(), propName, propVal);
+					// To make it easy to see and add what types are supported
+					SerializeProp
+					<
+						int, 
+						unsigned int, 
+						float, 
+						double, 
+						bool, 
+						uint64_t,
+						EntityID,						 
+						std::array<uint64_t, 4>, 
+						std::array<Entity, 4>,
+						std::vector<uint64_t>, 
+						glm::vec2, 
+						glm::vec3, 
+						glm::vec4,
+						std::string
+					>
+						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 
-					if (propVal.is_type<int>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<int>();
-					}
-					else if (propVal.is_type<unsigned int>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
-					}
-					else if (propVal.is_type<float>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<float>();
-					}
-					else if (propVal.is_type<double>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<double>();
-					}
-					else if (propVal.is_type<bool>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<bool>();
-					}
-					else if (propVal.is_type<uint64_t>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
-					}
-					else if (propVal.is_type<EntityID>())
-					{
-						//EntityID eid();//propVal.get_value<EntityID>();
-						output[name][storage.type().name()][propName] = entity;
-					}
-					else if (propVal.is_type<std::array<uint64_t, 4>>())
-					{
-						const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
-						for (size_t i{}; i < 4; ++i)
-						{
-							output[name][storage.type().name()][propName][i] = vec[i];
-						}
-					}
-					else if (propVal.is_type<std::array<Entity, 4>>())
-					{
-						const auto& vec = propVal.get_value<std::array<Entity, 4>>();
-						for (size_t i{}; i < 4; ++i)
-						{
-							Entity e = vec[i];
-							if (e == entt::null)
-							{
-								output[name][storage.type().name()][propName][i] = nullptr;
-							}
-							else
-							{
-								output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
-							}
-						}
-					}
-					else if (propVal.is_type<std::string>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
-					}
-					else if (propVal.is_type<std::vector<uint64_t>>())
-					{
-						const auto& vec = propVal.get_value<std::vector<uint64_t>>();
-						for (const auto& elem : vec)
-						{
-							output[name][storage.type().name()][propName].push_back(elem);
-						}
-					}
-					else if (propVal.is_type<glm::vec2>())
-					{
-						auto v = propVal.get_value<glm::vec2>();
-						output[name][storage.type().name()][propName] = { v.x, v.y};
-					}
-					else if (propVal.is_type<glm::vec3>())
-					{
-						auto v = propVal.get_value<glm::vec3>();
-						output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
-					}
-					else if (propVal.is_type<glm::vec4>())
-					{
-						auto v = propVal.get_value<glm::vec4>();
-						output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
-					}
-					else
-					{
-						// fallback
-						output[name][storage.type().name()][propName] = propVal.to_string();
-					}
+#pragma region Old Serialization Backup
+					//if (propVal.is_type<int>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<int>();
+					//}
+					//else if (propVal.is_type<unsigned int>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
+					//}
+					//else if (propVal.is_type<float>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<float>();
+					//}
+					//else if (propVal.is_type<double>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<double>();
+					//}
+					//else if (propVal.is_type<bool>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<bool>();
+					//}
+					//else if (propVal.is_type<uint64_t>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
+					//}
+					//else if (propVal.is_type<EntityID>())
+					//{
+					//	//EntityID eid();//propVal.get_value<EntityID>();
+					//	output[name][storage.type().name()][propName] = entity;
+					//}
+					//else if (propVal.is_type<std::array<uint64_t, 4>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
+					//	for (size_t i{}; i < 4; ++i)
+					//	{
+					//		output[name][storage.type().name()][propName][i] = vec[i];
+					//	}
+					//}
+					//else if (propVal.is_type<std::array<Entity, 4>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::array<Entity, 4>>();
+					//	for (size_t i{}; i < 4; ++i)
+					//	{
+					//		Entity e = vec[i];
+					//		if (e == entt::null)
+					//		{
+					//			output[name][storage.type().name()][propName][i] = nullptr;
+					//		}
+					//		else
+					//		{
+					//			output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
+					//		}
+					//	}
+					//}
+					//else if (propVal.is_type<std::string>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
+					//}
+					//else if (propVal.is_type<std::vector<uint64_t>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::vector<uint64_t>>();
+					//	for (const auto& elem : vec)
+					//	{
+					//		output[name][storage.type().name()][propName].push_back(elem);
+					//	}
+					//}
+					//else if (propVal.is_type<glm::vec2>())
+					//{
+					//	auto v = propVal.get_value<glm::vec2>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y};
+					//}
+					//else if (propVal.is_type<glm::vec3>())
+					//{
+					//	auto v = propVal.get_value<glm::vec3>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
+					//}
+					//else if (propVal.is_type<glm::vec4>())
+					//{
+					//	auto v = propVal.get_value<glm::vec4>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
+					//}
+					//else
+					//{
+					//	// fallback
+					//	output[name][storage.type().name()][propName] = propVal.to_string();
+					//}
+#pragma endregion
+
 				}
 			}
 
