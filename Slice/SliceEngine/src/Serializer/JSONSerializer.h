@@ -222,8 +222,13 @@ namespace SliceEngine
 			//param cleanOutput = false to keep logs to assist in debugging. By default its true if console error logs are enough
 			void RunTests(TestNum testNum = ALLTESTS, bool cleanOutput = true);
 		}
-	}
+	}	
+}
 
+// If .get<T> giving errors, add more support for your containers here
+#pragma region json.hpp .get<T> Additional Type Support
+namespace SliceEngine
+{
 	inline void from_json(const json& j, EntityID& e) {
 		e.value = j.get<uint64_t>();
 	}
@@ -266,5 +271,6 @@ namespace entt {
 		j = static_cast<uint64_t>(e);
 	}
 }
+#pragma endregion
 
 #endif
