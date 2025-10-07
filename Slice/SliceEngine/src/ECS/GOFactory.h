@@ -164,7 +164,7 @@ namespace SliceEngine
 		void InitRootEntity();
 		void Unparent(Entity entity);
 		void SetParent(Entity entity, Entity parentEntity = entt::null);
-		void SetSiblingIndex(Entity entity, int pos);
+		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
 		void BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map);
 		void ClearGameObjects();
 
