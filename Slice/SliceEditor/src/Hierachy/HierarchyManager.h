@@ -64,7 +64,6 @@ namespace SliceEditor
 		void RemoveGameObject(entt::entity target);
 		void ParentGameObject(entt::entity child, entt::entity parent = entt::null);
 		void Unparent(entt::entity child);
-		void SetSiblingIndex(entt::entity target, entt::entity destination);
 		void SetNewLocation(entt::entity target, entt::entity destination);
 
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;

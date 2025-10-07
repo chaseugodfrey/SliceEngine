@@ -158,61 +158,23 @@ namespace SliceEditor
 		factory.Unparent(child);
 	}
 
-	void HierarchyManager::SetSiblingIndex(entt::entity target, entt::entity destination)
-	{
-		auto core = SliceEngine::Core::GetInstance();
-		auto& factory = core->mFactory;
-		auto go = factory.GetGOByEntity(target);
-
-		auto& dest_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(destination);
-		auto& parent_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(dest_scene_graph.neighbours[SliceEngine::SceneGraph::UP]);
-
-		auto child_entity = parent_scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
-
-		int index{};
-		while (child_entity != entt::null)
-		{
-			if (child_entity == destination)
-				break;
-
-			auto& sg = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-			child_entity = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-			++index;
-		}
-
-		factory.SetSiblingIndex(target, index);
-	}
-
 	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
 	{
 		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
 		//If its the same entity, do nothing
 		if(destination == target)
 		{
+			SLICE_LOG_DEBUG("Trying to set new location to same entity, doing nothing");
 			return;
 		}
 		//It be moving somewhere else
 		else
 		{
-			//Check if they have the same parent
-			auto& engineReg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto& targetSceneGraph = engineReg.get<SliceEngine::SceneGraph>(target);
-			auto& destSceneGraph = engineReg.get<SliceEngine::SceneGraph>(destination);
-
-			if(targetSceneGraph.neighbours[SliceEngine::SceneGraph::UP] == destSceneGraph.neighbours[SliceEngine::SceneGraph::UP])
-			{
-				//Same parent, just change sibling index
-				SetSiblingIndex(target, destination);
-				return;
-			}
-
-			if (target_parent != dest_parent)
-			{
-				ParentGameObject(target, dest_parent);
-			}
-
-			SetSiblingIndex(target, destination);
+			auto& destSceneGraph = factory.GetGOByEntity(destination).GetComponent<SliceEngine::SceneGraph>();
+			factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 		}
+
+		SetDirty();
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()
