@@ -283,7 +283,7 @@ namespace SliceEngine
 				}
 			}
 
-			--prev_parent_scene_graph.child_count;
+			//--prev_parent_scene_graph.child_count;
 		}
 
 		// if it has no parent / after we unattach it from it's current sibling list
@@ -338,7 +338,7 @@ namespace SliceEngine
 			scene_graph.neighbours[SceneGraph::LEFT] = child_entity;
 		}
 
-		++parent_scene_graph.child_count;
+		//++parent_scene_graph.child_count;
 		scene_graph.neighbours[SceneGraph::UP] = parent;
 
 	}

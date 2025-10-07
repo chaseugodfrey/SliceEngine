@@ -33,7 +33,7 @@ namespace SliceEditor
 	void HierarchyWindow::DrawNode(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
 		auto core = SliceEngine::Core::GetInstance();
-		bool hasChildren = scene_graph.child_count > 0;
+		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 		auto& node = mManager.GetHierarchy()[entity];
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;

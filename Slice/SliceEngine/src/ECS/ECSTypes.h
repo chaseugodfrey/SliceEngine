@@ -47,7 +47,6 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-		uint8_t child_count{};
 
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
