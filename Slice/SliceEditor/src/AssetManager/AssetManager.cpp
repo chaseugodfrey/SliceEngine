@@ -340,9 +340,37 @@ namespace SliceEditor
 						inFile >> metaData;
 						std::string assetName = metaData["assetName"].get<std::string>();
 						uint64_t guid = metaData["guid"].get<uint64_t>();
+						std::string fileType = metaData["assetType"];
 						std::string assetPath = metaData["assetPath"].get<std::string>();
 						std::string resourcePath = metaData["resourcePath"].get<std::string>();
 
+						// if its a shader file just delete that shit
+						// cause we got no file watcher to check if a shader was modified
+						// so we just delete them and recompile everytime its ran
+						if (fileType == ".shader")
+						{
+							inFile.close();
+							// and remove the meta file
+							std::filesystem::remove(filePath);
+
+							if (std::filesystem::exists(resourcePath))
+							{
+								std::filesystem::remove(resourcePath);
+							}
+
+							std::filesystem::path resourceFilePath = resourcePath;
+
+							resourceFilePath.replace_extension(".vert");
+
+							if (std::filesystem::exists(resourceFilePath))
+								std::filesystem::remove(resourceFilePath);
+							resourceFilePath.replace_extension(".frag");
+
+							if (std::filesystem::exists(resourceFilePath))
+								std::filesystem::remove(resourceFilePath);
+
+							return;
+						}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
 						if (!std::filesystem::exists(assetPath) || !std::filesystem::exists(resourcePath))
@@ -365,10 +393,34 @@ namespace SliceEditor
 							// and remove the meta file
 							std::filesystem::remove(filePath);
 
+							return;
 							// note: for shaders since it comes in a set of 3 files
 							// i dont rlly know how to clean that up
 						}
 					
+						// Check if the asset file was modified after meta file creation
+						std::filesystem::file_time_type assetTime = std::filesystem::last_write_time(assetPath);
+						std::filesystem::file_time_type resourceTime = std::filesystem::last_write_time(resourcePath);
+						
+						
+						// compare these two
+						if (resourceTime < assetTime)
+						{
+							// Resource file is older than asset file, so recompile the resource
+							// close the ifstream before removing meta file
+							inFile.close();
+							// and remove the meta file
+							std::filesystem::remove(filePath);
+							if (std::filesystem::exists(resourcePath))
+							{
+								std::filesystem::remove(resourcePath);
+							}
+
+							// idk about shaders
+
+							return;
+						}
+
 						mDescriptorMap.insert_or_assign(assetName, guid);
 					}
 					catch (nlohmann::json::parse_error& e)
@@ -380,4 +432,19 @@ namespace SliceEditor
 			}
 		}
 	}
+
+	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
+	//{
+	//	auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>
+	//		(
+	//		ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()
+	//		);
+	//	std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+	//	std::string time_str = std::ctime(&cftime);
+	//	if (!time_str.empty() && time_str.back() == '\n') 
+	//	{
+	//		time_str.pop_back();
+	//	}
+	//	return time_str;
+	//}
 }

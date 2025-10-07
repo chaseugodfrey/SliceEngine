@@ -49,6 +49,7 @@ namespace SliceEditor
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		//std::string TimeToString(std::filesystem::file_time_type ftime);
 	private:
 		
 		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
