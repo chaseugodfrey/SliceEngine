@@ -59,6 +59,7 @@ namespace SliceEditor
 		void SubscribeToSceneLoading();
 
 		TestNode& GetSceneRootNode();
+
 		void AddGameObject();
 		void RemoveGameObject(entt::entity target);
 		void ParentGameObject(entt::entity child, entt::entity parent = entt::null);

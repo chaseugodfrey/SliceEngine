@@ -185,16 +185,26 @@ namespace SliceEditor
 
 	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
 	{
-		if (destination == entt::null)
-			ParentGameObject(target);
-
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//If its the same entity, do nothing
+		if(destination == target)
+		{
+			return;
+		}
+		//It be moving somewhere else
 		else
 		{
-			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto& target_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(target);
-			auto& dest_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(destination);
-			auto target_parent = target_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
-			auto dest_parent = dest_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
+			//Check if they have the same parent
+			auto& engineReg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& targetSceneGraph = engineReg.get<SliceEngine::SceneGraph>(target);
+			auto& destSceneGraph = engineReg.get<SliceEngine::SceneGraph>(destination);
+
+			if(targetSceneGraph.neighbours[SliceEngine::SceneGraph::UP] == destSceneGraph.neighbours[SliceEngine::SceneGraph::UP])
+			{
+				//Same parent, just change sibling index
+				SetSiblingIndex(target, destination);
+				return;
+			}
 
 			if (target_parent != dest_parent)
 			{
