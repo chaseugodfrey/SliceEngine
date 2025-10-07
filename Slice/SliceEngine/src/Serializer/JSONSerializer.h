@@ -142,6 +142,7 @@ namespace SliceEngine
 #pragma endregion
 
 		// Add more templates in this region should the current templates do not serve your data type well
+		// For deserialization, may need to add more from_json functions in the same namespace as the variable to be getted from
 #pragma region Deserialization Templates
 		// For generic values
 		template <typename T>

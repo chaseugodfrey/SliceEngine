@@ -103,9 +103,11 @@ namespace SliceEngine
 						continue;
 					}
 
+
 					// To make it easy to see and add what types are supported. If added
 					// but the output is wrong, might need to create a specialized variant
 					// of Serialize(...) in the header file
+					// Add supported types here + DeserializeProp below
 					SerializeProp
 					<
 						int, 
@@ -282,6 +284,7 @@ namespace SliceEngine
 							if (!prop.is_valid())
 								continue;
 
+							// Add supported types here
 							DeserializeProp
 								<
 								int,
