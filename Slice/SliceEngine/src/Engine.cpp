@@ -163,17 +163,13 @@ namespace SliceEngine
 		//test();
 
 		
-		//JSONSerializer::Test2();
-		//JSONSerializer::Tests::RunTests(false);
-		//JSONSerializer::Tests::RunTests(false);
 		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-
+		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
-		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
 		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
