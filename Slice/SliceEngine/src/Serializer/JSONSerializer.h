@@ -110,6 +110,14 @@ namespace SliceEngine
 			output[name][typeName][propName] = { v.x, v.y, v.z, v.w };
 		}
 
+		// For unsigned char
+		template <>
+		inline void Serialize<unsigned char>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const unsigned char& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = static_cast<uint64_t>(value);
+		}
+
 		// Main evaluater for serialization
 		template <typename T>
 		bool TrySerializeType(json& output, const std::string& name,
@@ -177,8 +185,8 @@ namespace SliceEngine
 		template <>
 		inline void Deserialize<EntityID>(rttr::variant& componentInstance, rttr::property& prop, const EntityID& value)
 		{
-			uint64_t rawID = value.value;
-			prop.set_value(componentInstance, EntityID{ rawID });
+			uint64_t oldID = value.value;
+			prop.set_value(componentInstance, EntityID{ oldID });
 		}
 		template <typename T>
 		bool TryDeserializeType(rttr::variant& componentInstance,
@@ -200,7 +208,15 @@ namespace SliceEngine
 
 			if (!handled)
 			{
-				SLICE_LOG_ERROR(value.dump() + " is not handled in deserialization process. Fallback to string");
+				std::ostringstream oss;
+				oss << "[DeserializeProp] Unhandled property type during deserialization\n"
+					<< "  • Component: " << componentInstance.get_type().get_name().to_string() << "\n"
+					<< "  • Property:  " << prop.get_name().to_string() << "\n"
+					<< "  • Expected Type: " << prop.get_type().get_name().to_string() << "\n"
+					<< "  • JSON Value: " << value.dump() << "\n"
+					<< "Fallback to string deserialization.";
+
+				SLICE_LOG_ERROR(oss.str());
 				Deserialize<std::string>(componentInstance, prop, value);
 			}
 		}
@@ -227,10 +243,71 @@ namespace SliceEngine
 
 // If .get<T> giving errors, add more support for your containers here
 #pragma region json.hpp .get<T> Additional Type Support
+namespace nlohmann 
+{
+	inline void from_json(const json& j, unsigned char& value)
+	{
+		if (j.is_number_unsigned())
+		{
+			// Direct numeric value
+			uint64_t temp = j.get<uint64_t>();
+			if (temp > 255)
+				throw std::runtime_error("JSON value out of range for unsigned char: " + std::to_string(temp));
+			value = static_cast<unsigned char>(temp);
+		}
+		else if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				value = 0; // Treat empty string as zero
+			}
+			else
+			{
+				uint64_t temp = std::stoull(s);
+				if (temp > 255)
+					throw std::runtime_error("JSON string value out of range for unsigned char: " + s);
+				value = static_cast<unsigned char>(temp);
+			}
+		}
+		else if (j.is_null())
+		{
+			value = 0; // Treat null as zero
+		}
+		else
+		{
+			throw std::runtime_error("Invalid JSON type for unsigned char: " + j.dump());
+		}
+	}
+}
+
 namespace SliceEngine
 {
 	inline void from_json(const json& j, EntityID& e) {
 		e.value = j.get<uint64_t>();
+	}
+
+	// Deserialize GUID
+	inline void from_json(const json& j, GUID& guid)
+	{
+		if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				guid = GUID::null();
+			}
+			else
+			{
+				guid = GUID(static_cast<uint64_t>(std::stoull(s)));
+			}
+		}
+	}
+
+	// Serialize GUID
+	inline void to_json(json& j, const GUID& guid)
+	{
+		j = guid.GetGUID();
 	}
 }
 
@@ -255,7 +332,8 @@ namespace glm
 	}
 }
 
-namespace entt {
+namespace entt 
+{
 	inline void from_json(const json& j, entt::entity& e)
 	{
 		if (j.is_null()) {

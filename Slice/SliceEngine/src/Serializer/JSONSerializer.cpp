@@ -111,12 +111,14 @@ namespace SliceEngine
 					SerializeProp
 					<
 						int, 
-						unsigned int, 
+						unsigned int,
+						unsigned char,
 						float, 
 						double, 
 						bool, 
 						uint64_t,
-						EntityID,						 
+						EntityID,
+						GUID,
 						std::array<uint64_t, 4>, 
 						std::array<Entity, 4>,
 						std::vector<uint64_t>, 
@@ -238,7 +240,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Deserialize", "Unable to find/load JSON in path: " + filePath.string());
 				return json{};
 			}
-
+			
 			json output;
 			ifs >> output;
 			return output;
@@ -284,16 +286,19 @@ namespace SliceEngine
 							if (!prop.is_valid())
 								continue;
 
+							// First Pass
 							// Add supported types here
 							DeserializeProp
 								<
 								int,
 								unsigned int,
+								unsigned char,
 								float,
 								double,
 								bool,
 								uint64_t,
 								EntityID,
+								GUID,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -304,11 +309,12 @@ namespace SliceEngine
 								>
 								(componentInstance, prop, value);
 
-							//scene graph map stuff
+							// Anything that needs a Second Pass
+							// scene graph map stuff
 							if (prop.get_type() == rttr::type::get<EntityID>())
 							{
-								uint64_t rawID = value.get<uint64_t>();
-								sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
+								uint64_t oldID = value.get<uint64_t>();
+								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
 							}
 
 #pragma region Old Deserialization Backup
@@ -400,6 +406,74 @@ namespace SliceEngine
 				}
 			}
 
+			// Remapping Entity IDs after all GOs have been deserialized
+			auto& registry = Core::GetInstance()->GetRegistry();
+			auto entityView = registry.view<SliceEntity>();
+			for (auto entity : entityView)
+			{
+				for (auto&& [type_id, storage] : registry.storage())
+				{
+					if (!storage.contains(entity))
+					{
+						continue; // entity does not have this component
+					}
+
+					std::string componentName(storage.type().name());
+
+					rttr::type componentType = rttr::type::get_by_name(componentName);
+					if (!componentType)
+					{
+						SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+						continue;
+					}
+
+					auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+					if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
+					{
+						SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
+
+						continue;
+					}
+
+					rttr::variant componentData = it->second(registry, entity);
+
+					for (const auto& property : componentType.get_properties())
+					{
+						rttr::variant propVal = property.get_value(componentData);
+
+						if (propVal.is_type<std::array<Entity, 4>>())
+						{
+							auto oldIDs = propVal.get_value<std::array<uint64_t, 4>>();
+							std::array<Entity, SceneGraph::DIRECTIONS> newArray{};
+							for (size_t i = 0; i < SceneGraph::DIRECTIONS; ++i)
+							{
+								// If it's an invalid ID, skip it
+								if (oldIDs[i] == std::numeric_limits<uint64_t>::max())
+								{
+									newArray[i] = entt::null;
+									continue;
+								}
+
+								// Check if this old ID exists in our remap table
+								auto it = sceneGraphMap.find(oldIDs[i]);
+								if (it != sceneGraphMap.end())
+								{
+									// Map old ID to new entity
+									newArray[i] = static_cast<Entity>(it->second);
+								}
+								else
+								{
+									// Not found, default to null
+									newArray[i] = entt::null;
+								}
+							}
+							property.set_value(componentData, newArray);
+
+						}
+					}
+				}
+			}
+			
 			return sceneGraphMap;
 		}
 
