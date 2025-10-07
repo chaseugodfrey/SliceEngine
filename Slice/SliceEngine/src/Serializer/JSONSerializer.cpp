@@ -317,6 +317,12 @@ namespace SliceEngine
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
 							}
 
+							// idk how else to do this
+							if (propName == "mName" && componentName == typeid(SliceEntity).name())
+							{
+								Core::GetInstance()->mFactory.UpdateName(value.get<std::string>(), node.GetEntity());
+							}
+
 #pragma region Old Deserialization Backup
 							//if (prop.get_type() == rttr::type::get<int>())
 							//	prop.set_value(componentInstance, value.get<int>());
