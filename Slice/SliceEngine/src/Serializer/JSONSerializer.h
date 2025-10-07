@@ -170,7 +170,7 @@ namespace SliceEngine
 			{
 				auto v = value[i];
 
-				if (v == std::numeric_limits<entt::entity>::max())
+				if (v == entt::null)
 				{
 					arr[i] = entt::null;
 				}
