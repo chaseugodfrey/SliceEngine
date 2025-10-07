@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GUID.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles GUID
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef GUID_H
 #define GUID_H
 
@@ -32,20 +42,29 @@ namespace SliceEngine
 			return GUID(dist(rng) | (1ULL << 63)); // Ensure first bit is 1
 		}
 
+		static GUID Generate(std::string const& name, uint64_t typeID)
+		{
+			std::string combined = std::to_string(typeID) + ":" + name;
+			std::hash<std::string> hasher;
+			uint64_t nameHash = hasher(combined);
+			return GUID(nameHash | (1ULL << 63));
+		}
+
+		static GUID FromString(std::string str)
+		{
+			return GUID(static_cast<uint64_t>(std::stoull(str)));
+		}
+
+		static GUID null()
+		{
+			return GUID(0);
+		}
 
 		uint64_t GetGUID() const { return mValue; }
 
 	private:
 		uint64_t mValue;
 	};
-
-	//RTTR_REGISTRATION
-	//{
-	//	rttr::registration::class_<GUID>("GUID")
-	//		.constructor<>()
-	//		.constructor<uint64_t>()
-	//		.property_readonly("Value", &GUID::GetGUID);
-	//}
 }
 
 template<>

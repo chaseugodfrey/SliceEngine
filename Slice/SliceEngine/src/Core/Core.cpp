@@ -1,8 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Core.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Singleton for accessing systems, and data
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include "pch.h"
 #include "Core.h"
 //#include "Graphics/ResourceManager.h"
 #include "Resource/ResourceManager.h"
-
+#include "Networking/NetworkSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
 #include "../AudioManager.h"
@@ -26,24 +36,62 @@ namespace SliceEngine
 
 	void Core::InitCore()
 	{
-		mWindowManager.CreateWindow(); // This has to be first
+		mWindowManager.CreateGLFWWindow(); // This has to be first
 
 		mResource = std::make_unique<ResourceManager>();
 		mRender = std::make_unique<RenderManager>();
 		mAudioManager = std::make_unique<AudioManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
+		mNetwork = std::make_unique<NetworkSystem>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
+		mScenePtr = std::make_unique<SceneSystem>();
+
+		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
+		mFactory.RegisterComponent<Renderer>();
+		mFactory.RegisterComponent<Camera>();
+		mFactory.RegisterComponent<SliceEntity>();
+		mFactory.RegisterComponent<Script>();
+		mFactory.RegisterComponent<RigidBody>();
+		mFactory.RegisterComponent<ColliderShape>();
+		mFactory.RegisterComponent< AudioSource>();
+
+		mResource->InitResourceManager();
 	}
 
-	void Core::ExitCore()
+	RTTR_REGISTRATION
+	{
+		// Shifting here because SLICE_RTTR is becoming too big of an obj file
+	rttr::registration::class_<Renderer>(typeid(Renderer).name())
+		.constructor<>()
+		.property("model", &Renderer::model)
+		.property("texture", &Renderer::texture)
+		.property("renderTag", &Renderer::renderTag);
+	rttr::registration::class_<Camera>(typeid(Camera).name())
+		.constructor<>()
+		.property("width", &Camera::width)
+		.property("height", &Camera::height)
+		.property("pov", &Camera::pov)
+		.property("near", &Camera::near)
+		.property("far", &Camera::far)
+		.property("textureID", &Camera::textureID)
+		.property("depthTex", &Camera::depthTex)
+		.property("renderTag", &Camera::renderTag);
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.constructor<>()
+		.property("scriptName", &Script::scriptName);
+
+	}
+
+		void Core::ExitCore()
 	{
 		mWindowManager.CloseWindow();
 		UnbindSystems();
+		glfwTerminate();
 	}
 
 	void Core::UnbindSystems()
@@ -59,6 +107,11 @@ namespace SliceEngine
 	InputSystem* Core::GetInputSystem()
 	{
 		return mInputPtr.get();
+	}
+
+	SceneSystem* Core::GetSceneSystem()
+	{
+		return mScenePtr.get();
 	}
 
 	ResourceManager* Core::GetResourceManager()
@@ -85,5 +138,15 @@ namespace SliceEngine
 	{
 
 		return mWindowManager.GetWindow();
+	}
+
+	NetworkSystem* Core::GetNetwork()
+	{
+		return mNetwork.get();
+	}
+
+	ProjectSettingsService* Core::GetProjectSettingsService()
+	{
+		return mProjectSettingsService.get();
 	}
 }

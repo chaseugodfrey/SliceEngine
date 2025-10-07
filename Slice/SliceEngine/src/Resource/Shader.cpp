@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Shader.cpp
+ author:		Elton leosantosa
+ email:			leosantosa@digipen.edu
+ brief:			Loads Shaders
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "Shader.h"
 #include <fstream>
@@ -92,30 +102,33 @@ namespace SliceEngine
 		}
 	
 		Shader Shader::LoadShader(std::string const& filepath) {
-			std::ifstream shaderSource(filepath, std::ios::binary);
+			//std::ifstream shaderSource(filepath, std::ios::binary);
 
 
-			if (!shaderSource)
-			{
-				SLICE_LOG_WARNING("Unable to open Shader Resource File");
-				return {};
-			}
+			//if (!shaderSource)
+			//{
+			//	SLICE_LOG_WARNING("Unable to open Shader Resource File");
+			//	return {};
+			//}
 
-			std::stringstream ss{};
-			ss << shaderSource.rdbuf();
-			std::string vert{}, frag{};
+			//std::stringstream ss{};
+			//ss << shaderSource.rdbuf();
+			//std::string vert{}, frag{};
 
-			ss >> vert >> frag;
-			if (vert.empty() || frag.empty()) {
-				SLICE_LOG_WARNING("Unable to read Shader Resource File");
-				return {};
-			}
+			//ss >> vert >> frag;
+			//if (vert.empty() || frag.empty()) {
+			//	SLICE_LOG_WARNING("Unable to read Shader Resource File");
+			//	return {};
+			//}
 
 			std::filesystem::path directory(filepath);
-			auto vert_dir = directory.parent_path() / vert;
-			auto frag_dir = directory.parent_path() / frag;
+			std::string fileName = directory.stem().string();
+			std::filesystem::path parentPath = directory.parent_path();
+			std::filesystem::path vertPath = parentPath / (fileName + ".vert");
+			std::filesystem::path fragPath = parentPath / (fileName + ".frag");
 
-			return { CompileShader(vert_dir.string(), frag_dir.string())};
+
+			return { CompileShader(vertPath.string(), fragPath.string())};
 		}
 
 		void Shader::DestroyShader() {

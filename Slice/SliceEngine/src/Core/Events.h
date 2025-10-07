@@ -1,7 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			Events.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Events that can happen
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef EVENTS_H
 #define EVENTS_H
 #include "ECS/ECSTypes.h"
 #include <rttr/registration.h>
+
+
 /*
 	Define any events here
 */
@@ -28,6 +40,34 @@ struct RigidBodyRemovedEvent {
 	Entity entity;
 };
 
+struct NetworkClientConnectEvent {
+	//Entity entity;
+	std::string ip;
+	std::string port;
+}; 
+struct NetworkBindPortEvent {
+	std::string port;
+};
+
+struct GONetworkEvent {
+	Entity entity;
+	bool create;
+};
+struct ColliderShapeModifiedEvent
+{
+	Entity entity;
+};
+
+struct RigidBodyModifiedEvent
+{
+	Entity entity;
+};
+
+struct OnSceneLoadedEvent
+{
+	bool isSceneLoaded;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")
@@ -50,6 +90,20 @@ RTTR_REGISTRATION
 	rttr::registration::class_<RigidBodyRemovedEvent>("RigidBodyRemoved")
 	.constructor<>()
 	.property("entity", &RigidBodyRemovedEvent::entity);
+
+	rttr::registration::class_<NetworkClientConnectEvent>("NetworkClientAdded")
+	.constructor<>()
+	.property("ip", &NetworkClientConnectEvent::ip)
+	.property("port", &NetworkClientConnectEvent::port);
+
+	rttr::registration::class_<NetworkBindPortEvent>("NetworkPortBinded")
+	.constructor<>()
+	.property("port", &NetworkBindPortEvent::port);
+
+	rttr::registration::class_<GONetworkEvent>("GONetworked")
+	.constructor<>()
+	.property("entity", &GONetworkEvent::entity)
+	.property("create", &GONetworkEvent::create);
 }
 
 

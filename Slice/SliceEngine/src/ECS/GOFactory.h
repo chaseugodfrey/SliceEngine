@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GOFactory.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles things related to GameObjects
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef GO_FACTORY_H
 #define GO_FACTORY_H
 #include "ECSTypes.h"
@@ -98,14 +108,17 @@ namespace SliceEngine
 			mCESmartPtr[smartPtrType] = [](Registry& reg, Entity entity, const rttr::variant& var)
 			{
 				// convert variant to our component type 
-				bool converted;
+				//bool converted;
 				//Component component = var.convert<Component>(&converted);
 				auto componentPtr = var.convert<std::shared_ptr<Component>>();
+				rttr::type type = rttr::type::get<Component>();
+				std::string typeName = type.get_name().to_string();
 
 				if (componentPtr)
 				{
 					reg.emplace_or_replace<Component>(entity, *componentPtr);
-					SLICE_LOG_DEBUG("Successfully emplaced new component");
+					//std::string msg = "Successfully emplaced new component (smart ptr): " + typeName;
+					//SLICE_LOG_VALUES("Successfuly emplaced new component: " + typeName);
 				}
 				else
 				{
@@ -144,11 +157,20 @@ namespace SliceEngine
 		void Destroy(entt::entity entity);
 		void TestLoop();
 		void UpdateDestroyed();
+		void SceneGraphDelete(Entity entity);
 		void VisitComponents(Entity entity, ComponentVisitor visitor);
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
-		void SetParent(Entity baseEntity, Entity parentEntity = entt::null);
+		void Unparent(Entity entity);
+		void SetParent(Entity entity, Entity parentEntity = entt::null);
+		void SetSiblingIndex(Entity entity, int pos);
+		void BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map);
+		void ClearGameObjects();
+
+		// todo : bring to prefab factory
+		GameObject CreateGO_Box();
+		GameObject CreateGO_Cam();
 
 		Registry mRegistry;
 

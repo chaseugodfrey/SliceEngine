@@ -1,3 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        AudioManager.cpp
+
+ author:	  Lee Yong Yee
+
+ email:       l.yongyee@digipen.edu
+
+ brief:		  Defines the AudioManager class and related audio structures for handling sound playback
+			  within the engine using the FMOD sound library. This system manages loading, playing,
+			  and updating 2D and 3D sounds, maintaining category-based volume control, and handling
+			  sound states such as pause, looping, and positional audio.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "AudioManager.h"
 #include "../src/Core/Core.h"
@@ -5,6 +21,9 @@
 
 namespace SliceEngine
 {
+	/*
+	* Init initialises and creates the FMOD System
+	*/
 	void AudioManager::Init()
 	{
 		SLICE_LOG("Initializing FMOD Studio.");
@@ -28,6 +47,9 @@ namespace SliceEngine
 		}
 	}
 
+	/*
+	* LoadSound loads all sounds in 3D because its easier to make set the FMOD mode to 2D from 3D if need to
+	*/
 	void AudioManager::LoadSound(const std::string& soundFile)
 	{
 
@@ -40,20 +62,6 @@ namespace SliceEngine
 
 		if (sound)
 		{
-
-			/*if (is3D)
-			{
-				auto track = std::make_unique<SoundTrack3D>();
-				track->sound = sound;
-				mLoadedSounds3D.try_emplace(soundName, std::move(track));
-			}
-			else
-			{
-				auto track = std::make_unique<SoundTrack2D>();
-				track->sound = sound;
-				mLoadedSounds2D.try_emplace(soundName, std::move(track));
-			}*/
-
 			auto track = std::make_unique<SoundTrack>();
 			track->sound = sound;
 
@@ -123,6 +131,52 @@ namespace SliceEngine
 
 	}
 
+	bool AudioManager::PlayEditorPreview(const std::string soundName, bool is3D, Entity& id, glm::vec3 soundPos)
+	{
+		auto it = mLoadedSounds.find(soundName);
+		if (it == mLoadedSounds.end())
+		{
+			SLICE_LOG("Sound not loaded");
+			return false;
+		}
+
+		auto track = std::make_unique<SoundTrack>();
+
+		if (is3D == false)
+		{
+			track->channel->setMode(FMOD_2D);
+		}
+
+		track->soundPos3D = Vec3ToFMODVec3(soundPos);
+
+		FMOD::Channel* channel = nullptr;
+
+		FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
+
+		if (result != FMOD_OK)
+		{
+			SLICE_LOG_ERROR("Failed to play sound");
+			return false;
+		}
+
+		if (channel)
+		{
+			track->previewChannel = channel;
+			track->category = SoundCategory::Editor;
+			track->currentSoundVolume = 0.3f;
+			track->isLooping = false;
+			track->entityID = id;
+
+			track->ApplySettings();
+
+			mSound[SOUND_EDITOR].emplace_back(std::move(track));
+			return true;
+
+		}
+
+		return false;
+	}
+
 	void AudioManager::SetMasterVolume(float volume)
 	{
 		mMasterVolume = std::clamp(volume, 0.0f, 1.0f);
@@ -159,7 +213,6 @@ namespace SliceEngine
 
 	float AudioManager::CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const
 	{
-		float catVolume = GetCategoryVolume(category);
 
 		return track->currentSoundVolume * GetCategoryVolume(category) * mMasterVolume;
 	}
@@ -185,6 +238,63 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return 0.0f;
+	}
+
+	bool AudioManager::IsChannelNull(Entity& entity)
+	{
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; ++i)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == entity)
+				{
+					return (track->channel == nullptr);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool AudioManager::IsChannelPlaying(Entity& entity)
+	{
+		// Loop through all internal sound categories
+		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; ++i)
+		{
+			for (auto& track : mSound[i])
+			{
+				if (track->entityID == entity && track->channel)
+				{
+					bool isPlaying = false;
+					if (track->channel->isPlaying(&isPlaying) == FMOD_OK)
+					{
+						return isPlaying;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool AudioManager::IsPreviewChannelPlaying(Entity& entity)
+	{
+		// Loop through all internal sound categories
+		
+		for (auto& track : mSound[SOUND_EDITOR])
+		{
+			if (track->entityID == entity && track->previewChannel)
+			{
+				bool isPlaying = false;
+				if (track->previewChannel->isPlaying(&isPlaying) == FMOD_OK)
+				{
+					return isPlaying;
+				}
+			}
+		}
+		
+		return false;
 	}
 
 	void AudioManager::UpdateSoundVolume(Entity& id, float volume)
@@ -256,6 +366,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return FMODVec3ToVec3(FMOD_VECTOR{0.f,0.f,0.f});
 	}
 
 	void AudioManager::UpdatePauseSound(Entity& id, bool isPaused)
@@ -286,6 +398,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	bool AudioManager::IsFMOD3D(Entity& id)
@@ -300,6 +414,8 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		return false;
 	}
 
 	void AudioManager::UpdateFMODMode(Entity& id, bool is3D)
@@ -335,6 +451,19 @@ namespace SliceEngine
 					track->channel->stop();
 					break;
 				}
+			}
+		}
+	}
+
+	void AudioManager::StopEditorPreview(Entity& id)
+	{
+		for (auto& track : mSound[SOUND_EDITOR])
+		{
+			if (track->entityID == id && track->previewChannel)
+			{
+				track->previewChannel->stop();
+				track->previewChannel = nullptr;
+				break;
 			}
 		}
 	}

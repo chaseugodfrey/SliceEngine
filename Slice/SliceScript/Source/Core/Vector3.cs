@@ -68,5 +68,26 @@ namespace SliceEngine
             return (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector3 other)
+            {
+                return x == other.x && y == other.y && z == other.z;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            // A common way to combine hash codes on older frameworks
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                hash = hash * 23 + x.GetHashCode();
+                hash = hash * 23 + y.GetHashCode();
+                hash = hash * 23 + z.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

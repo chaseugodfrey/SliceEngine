@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        InspectorManager.h
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the InspectorManager class, which manages the data of the inspector window of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef INSPECTOR_MANAGER_H
 #define INSPECTOR_MANAGER_H
 
@@ -12,7 +27,7 @@ namespace SliceEditor
 		InspectorManager(Registry& reg) : IBaseManager(reg) {};
 		~InspectorManager() = default;
 
-		std::unique_ptr<EditorWindow> CreateWindow() override;
+		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void Init() override;
 

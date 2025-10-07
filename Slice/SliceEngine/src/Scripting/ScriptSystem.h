@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #define SCRIPT_SYSTEM_H
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
+
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
 #include "ScriptObject.h"
@@ -67,6 +68,11 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="assemblyPath">Path to the assembly </param>
 		void LoadMonoAssembly(const std::string& assemblyPath);
+		/// <summary>
+		/// Reloads main app domain
+		/// </summary>
+		/// <param name="assemblyPath">Path to the assembly </param>
+		void ReloadAssembly();
 		/// <summary>
 		/// Used for debugging. Prints out all teh assembly types
 		/// </summary>
@@ -122,6 +128,8 @@ namespace SliceEngine
 		MonoDomain* mAppDomain;
 		MonoAssembly* mCoreAssembly;
 		MonoImage* mCoreAssemblyImage;
+
+		bool AssemblyReloadPending = false;
 
 		// Hold a reference to Entity class as it contains the constructor that all entity scripts runs to store mID
 		ScriptClass mEntityClass;

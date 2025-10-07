@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			GameObject.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Wrapper for entities
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "GameObject.h"
 #include <utility>
@@ -42,6 +52,7 @@ namespace SliceEngine
 
 	void GameObject::Destroy()
 	{
+
 		mRegistry.destroy(mEntity);
 
 		//mRegistry.eac

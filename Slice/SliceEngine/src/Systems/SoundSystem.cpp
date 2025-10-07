@@ -1,3 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SoundSystem.cpp
+
+ author:	  Lee Yong Yee
+
+ email:       l.yongyee@digipen.edu
+
+ brief:		  Defines the AudioManager class and related audio structures for handling sound playback
+			  within the engine using the FMOD sound library. This system manages loading, playing,
+			  and updating 2D and 3D sounds, maintaining category-based volume control, and handling
+			  sound states such as pause, looping, and positional audio.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "SoundSystem.h"
 #include "AudioManager.h"
@@ -13,20 +29,20 @@ namespace SliceEngine
 
 	void SoundSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-		auto& transform = reg.get<Transform>(entity);
+		
 		
 		if (audioComp.soundName == "")
 		{
 			audioComp.soundName = "3DAudioTest";
 		}
 		audioComp.isPaused = true;
+		audioComp.playPreview = false;
 		audioComp.is3D = true;
 		audioComp.currentVolume = 0.3f;
 
 		
-		audioManager->PlaySound(audioComp.soundName, SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, audioComp.is3D, audioComp.isPaused, audioComp.isLoop, audioComp.currentVolume, entity, transform.position);
+		//audioManager->PlaySound(audioComp.soundName, SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, audioComp.is3D, audioComp.isPaused, audioComp.isLoop, audioComp.currentVolume, entity, transform.position);
 
 		
 
@@ -37,7 +53,15 @@ namespace SliceEngine
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 
-		audioManager->StopSound(entity);
+		if (audioManager->IsChannelPlaying(entity))
+		{
+			audioManager->StopSound(entity);
+
+		}
+		else if (audioManager->IsPreviewChannelPlaying(entity))
+		{
+			audioManager->StopEditorPreview(entity);
+		}
 
 		std::cout << "Entity exiting sound system" << std::endl;
 	}
@@ -45,7 +69,6 @@ namespace SliceEngine
 	void SoundSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 
 		audioManager->SetSound3DPosition(entity, transform.position);
@@ -57,38 +80,57 @@ namespace SliceEngine
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
-
-		if (audioComp.currentVolume != audioManager->GetCurrentTrackVolume(entity))
+		
+		if (!audioManager->IsChannelNull(entity))
 		{
-			audioManager->UpdateSoundVolume(entity, audioComp.currentVolume);
 
-		}
-
-		if (audioComp.isPaused != audioManager->GetPauseState(entity))
-		{
-			audioManager->UpdatePauseSound(entity, audioComp.isPaused);
-		}
-
-		if (audioComp.is3D != audioManager->IsFMOD3D(entity))
-		{
-			audioManager->UpdateFMODMode(entity, audioComp.is3D);
-			if (audioComp.is3D == false)
+			if (audioComp.currentVolume != audioManager->GetCurrentTrackVolume(entity))
 			{
-				audioManager->SetSound3DPosition(entity, glm::vec3{ 0.f, 0.f, 0.f });
+				
+				audioManager->UpdateSoundVolume(entity, audioComp.currentVolume);
+			
 			}
-			else if (audioComp.is3D && audioManager->GetSound3DPosition(entity) == glm::vec3{ 0.f,0.f,0.f })
+
+			if (audioComp.isPaused != audioManager->GetPauseState(entity))
 			{
-				audioManager->SetSound3DPosition(entity, transform.position);
+				audioManager->UpdatePauseSound(entity, audioComp.isPaused);
+			}
+
+			if (audioComp.is3D != audioManager->IsFMOD3D(entity))
+			{
+				audioManager->UpdateFMODMode(entity, audioComp.is3D);
+				if (audioComp.is3D == false)
+				{
+					audioManager->SetSound3DPosition(entity, glm::vec3{ 0.f, 0.f, 0.f });
+				}
+				else if (audioComp.is3D && audioManager->GetSound3DPosition(entity) == glm::vec3{ 0.f,0.f,0.f })
+				{
+					audioManager->SetSound3DPosition(entity, transform.position);
+				}
+			}
+
+		}
+
+
+		if (audioComp.playPreview)
+		{
+			if (audioManager->IsPreviewChannelPlaying(entity) == false)
+			{
+				
+				audioManager->PlayEditorPreview(audioComp.soundName, audioComp.is3D, entity);
+  				
+			}
+
+		}
+		else
+		{
+			if (audioManager->IsPreviewChannelPlaying(entity))
+			{
+				audioManager->StopEditorPreview(entity);
+				
 			}
 		}
+		
 	}
-
-	/*void SoundSystem::onPauseUpdated(entt::registry& reg, entt::entity entity)
-	{
-		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto& audioComp = reg.get<AudioSource>(entity);
-
-		audioManager->UpdatePauseSound(entity, audioComp.isPaused);
-	}*/
 
 }

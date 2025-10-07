@@ -49,7 +49,7 @@ namespace SliceEngine
 		void IncrementNumberOfSteps();
 
 		//Getter of TargetFps
-		double getFixedDeltaTime() const;
+		float getFixedDeltaTime() const;
 
 
 		using Clock = std::chrono::high_resolution_clock;
@@ -72,11 +72,11 @@ namespace SliceEngine
 		std::unordered_map<std::string, float> systemDurations;
 		std::unordered_map<std::string, float> mSystemPercentages;
 		// SliceTime objs
-		double deltaTime;     // Holds the delta time value
-		double prevTime;     // Holds the previous time
-		double targetfps;	//Refresh rate to simulate physics world( normally 60)
-		double fixedDeltaTime;
-		double accumulatedTime;
+		float deltaTime;     // Holds the delta time value
+		float prevTime;     // Holds the previous time
+		float targetfps;	//Refresh rate to simulate physics world( normally 60)
+		float fixedDeltaTime;
+		float accumulatedTime;
 		int currentNumberOfSteps;
 
 

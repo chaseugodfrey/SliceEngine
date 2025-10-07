@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ContentBrowserWindow.cpp
+
+ author:	  Nic Lai
+
+ email:       n.lai@digipen.edu
+
+ brief:		  Defines the Content Browser Window class. It is responsible for rendering the Content Browser window in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "ContentBrowserWindow.h"
 
@@ -174,7 +188,7 @@ namespace SliceEditor
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 					{
-						mManager.OpenFile();
+						mManager.OpenFile(entry);
 					}
 
 					if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
@@ -183,7 +197,7 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Open File"))
 						{
-							mManager.OpenFile();
+							mManager.OpenFile(entry);
 						}
 						if (ImGui::MenuItem("Rename File"))
 						{
@@ -282,9 +296,10 @@ namespace SliceEditor
 		{
 			if (ImGui::IsWindowAppearing()) //First-time copying the name of the file for ImGui to register it
 			{
-				std::memset(newName, 0, sizeof(newName));
+				std::snprintf(newName, sizeof(newName), "%s", entry.fileName.c_str());
+				/*std::memset(newName, 0, sizeof(newName));
 				std::strncpy(newName, entry.fileName.c_str(), sizeof(newName) - 1);
-				newName[sizeof(newName) - 1] = '\0';
+				newName[sizeof(newName) - 1] = '\0';*/
 			}
 			ImGui::Text("New Filename : ");
 			ImGui::SameLine();

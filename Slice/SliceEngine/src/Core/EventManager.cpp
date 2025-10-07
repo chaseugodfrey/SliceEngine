@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			EventManager.cpp
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles all events
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include "pch.h"
 #include "EventManager.h"
 #include "Events.h"
@@ -11,6 +21,12 @@ void EventManager::SetupEventManager()
 	RegisterEvent<ColliderShapeRemovedEvent>();
 	RegisterEvent<RigidBodyAddedEvent>();
 	RegisterEvent<RigidBodyRemovedEvent>();
+	RegisterEvent<NetworkClientConnectEvent>();
+	RegisterEvent<NetworkBindPortEvent>();
+	RegisterEvent<GONetworkEvent>();
+	RegisterEvent<ColliderShapeModifiedEvent>();
+	RegisterEvent<RigidBodyModifiedEvent>();
+	RegisterEvent<OnSceneLoadedEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

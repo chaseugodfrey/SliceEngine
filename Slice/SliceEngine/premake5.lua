@@ -34,7 +34,8 @@ project "SliceEngine"
         "thirdparty/glfw/lib-vc2022",
         "thirdparty/fmod/lib",
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
         ThirdParty.MONO_LIB
         }
 
@@ -58,15 +59,21 @@ project "SliceEngine"
     pchheader "pch.h"
     pchsource "src/pch.cpp"
 
+    buildoptions { "/bigobj" }
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
        -- staticruntime "off" -- Comment this back in to get release to work but debug will break
+       buildoptions { "/bigobj" }
         symbols "On"
         
          links {
             "rttr_core_d",
-            "Jolt_d"
+            "Jolt_d.lib"
+            }
+        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
             }
 
          --defines { "JPH_ENABLE_ASSERTS" }
@@ -85,7 +92,10 @@ project "SliceEngine"
         
          links {
             "rttr_core",
-            "Jolt_r"
+            "Jolt_r.lib"
+            }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
             }
 
         -- includedirs

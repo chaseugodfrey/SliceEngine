@@ -1,5 +1,21 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Editor.cpp
+
+ author:	  Chase Rodrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the Editor class, which is the main class of the editor application.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "Editor.h"
+#include "Scripting/ScriptEditor.h"
 #include "../../src/Input/InputSystem.h"
 
 namespace SliceEditor
@@ -59,10 +75,13 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
+		assetManager.Init();
 		InitWindowManager();
 
+		//SliceEditor::InitFileWatcher();
+
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		
 	}
 
 	void Editor::Run()
@@ -72,6 +91,17 @@ namespace SliceEditor
 			engine.Update();
 			Render();
 			engine.EndFrame();
+		}
+	}
+
+	void Editor::CheckInputs()
+	{
+		if (ImGui::GetIO().KeyCtrl)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_S))
+			{
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+			}
 		}
 	}
 
@@ -99,6 +129,7 @@ namespace SliceEditor
 
 	void Editor::Exit()
 	{
+		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();

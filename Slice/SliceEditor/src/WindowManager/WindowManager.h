@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        WindowManager.h
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the WindowManager which is responsible for creating and managing all editor windows.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef WINDOW_MANAGER_H
 #define WINDOW_MANAGER_H
 
@@ -18,6 +32,9 @@ namespace SliceEditor
 		void DrawDockspace();
 		void DrawPlayState();
 		void DrawPreferenceWindow();
+		void DrawProjectSettings();
+
+		bool projectSettingsPopupOpen{ false };
 
 	public:
 		
