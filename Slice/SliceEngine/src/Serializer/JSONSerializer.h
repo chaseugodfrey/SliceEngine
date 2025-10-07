@@ -49,7 +49,7 @@ namespace SliceEngine
 		{
 			output[name][typeName][propName] = json::array();
 			for (size_t i = 0; i < vec.size(); ++i)
-				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i],entity);
+				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i], entity);
 		}
 
 		// For generic arrays
@@ -145,7 +145,7 @@ namespace SliceEngine
 #pragma region Deserialization Templates
 		// For generic values
 		template <typename T>
-		void Deserialize(rttr::variant& componentInstance, rttr::property& prop, 
+		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
 			const T& value)
 		{
 			prop.set_value(componentInstance, value);
@@ -154,7 +154,7 @@ namespace SliceEngine
 		// For Relationship array (up down left right stuff)
 		template <>
 		inline void Deserialize<std::array<Entity, 4>>(rttr::variant& componentInstance, rttr::property& prop,
-			const std::array<Entity,4>& value)
+			const std::array<Entity, 4>& value)
 		{
 			std::array<Entity, 4> arr;
 			for (size_t i = 0; i < arr.size(); ++i)
@@ -199,7 +199,8 @@ namespace SliceEngine
 
 			if (!handled)
 			{
-				SLICE_LOG_ERROR(value.dump() + " is not handled in deserialization process.");
+				SLICE_LOG_ERROR(value.dump() + " is not handled in deserialization process. Fallback to string");
+				Deserialize<std::string>(componentInstance, prop, value);
 			}
 		}
 
@@ -222,22 +223,25 @@ namespace SliceEngine
 		}
 	}
 
-	inline void from_json(const nlohmann::json& j, EntityID& e) {
-		e.value = j.get<uint64_t>();  // assuming your JSON stores it as a number
+	inline void from_json(const json& j, EntityID& e) {
+		e.value = j.get<uint64_t>();
 	}
+}
 
-	inline void from_json(const nlohmann::json& j, glm::vec2& v) {
+namespace glm
+{
+	inline void from_json(const json& j, glm::vec2& v) {
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 	}
 
-	inline void from_json(const nlohmann::json& j, glm::vec3& v) {
+	inline void from_json(const json& j, glm::vec3& v) {
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
 	}
 
-	inline void from_json(const nlohmann::json& j, glm::vec4& v) {
+	inline void from_json(const json& j, glm::vec4& v) {
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
@@ -245,5 +249,21 @@ namespace SliceEngine
 	}
 }
 
+namespace entt {
+	inline void from_json(const json& j, entt::entity& e)
+	{
+		if (j.is_null()) {
+			e = entt::null;
+		}
+		else {
+			e = static_cast<entt::entity>(j.get<uint64_t>());
+		}
+	}
+
+	inline void to_json(json& j, const entt::entity& e)
+	{
+		j = static_cast<uint64_t>(e);
+	}
+}
 
 #endif

@@ -121,7 +121,7 @@ namespace SliceEngine
 						glm::vec2, 
 						glm::vec3, 
 						glm::vec4,
-						std::string
+						std::string						
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 
@@ -282,110 +282,112 @@ namespace SliceEngine
 							if (!prop.is_valid())
 								continue;
 
-							//DeserializeProp
-							//	<
-							//	int,
-							//	unsigned int,
-							//	float,
-							//	double,
-							//	bool,
-							//	uint64_t,
-							//	EntityID,
-							//	std::array<uint64_t, 4>,
-							//	std::array<Entity, 4>,
-							//	std::vector<uint64_t>,
-							//	glm::vec2,
-							//	glm::vec3,
-							//	glm::vec4,
-							//	std::string
-							//	>
-							//	(componentInstance, prop, value);
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								float,
+								double,
+								bool,
+								uint64_t,
+								EntityID,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								std::string
+								>
+								(componentInstance, prop, value);
 
-							////scene graph map stuff
-							//if (prop.get_type() == rttr::type::get<EntityID>())
-							//{
-							//	uint64_t rawID = value.get<uint64_t>();
-							//	sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
-							//}
-
-							if (prop.get_type() == rttr::type::get<int>())
-								prop.set_value(componentInstance, value.get<int>());
-							else if (prop.get_type() == rttr::type::get<unsigned int>())
-								prop.set_value(componentInstance, value.get<unsigned int>());
-							else if (prop.get_type() == rttr::type::get<float>())
-								prop.set_value(componentInstance, value.get<float>());
-							else if (prop.get_type() == rttr::type::get<double>())
-								prop.set_value(componentInstance, value.get<double>());
-							else if (prop.get_type() == rttr::type::get<bool>())
-								prop.set_value(componentInstance, value.get<bool>());
-							else if (prop.get_type() == rttr::type::get<uint64_t>())
-								prop.set_value(componentInstance, value.get<uint64_t>());
-							else if (prop.get_type() == rttr::type::get<std::string>())
-								prop.set_value(componentInstance, value.get<std::string>());
-							else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
+							//scene graph map stuff
+							if (prop.get_type() == rttr::type::get<EntityID>())
 							{
-								std::vector<uint64_t> vec;
-								for (auto& v : value)
-								{
-									vec.push_back(v.get<uint64_t>());
-								}
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<EntityID>())
-							{
-								uint64_t rawID = value.get<uint64_t>();								
-								prop.set_value(componentInstance, EntityID{ rawID });
+								uint64_t rawID = value.get<uint64_t>();
 								sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
 							}
-							else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
-							{
-								std::array<uint64_t, 4> arr;
-								arr = value;
-								prop.set_value(componentInstance, arr);
-							}
-							else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
-							{
-								std::array<Entity, 4> arr;
-								for (size_t i = 0; i < arr.size(); ++i)
-								{
-									auto v = value[i];
 
-									if (v.is_null())
-									{
-										arr[i] = entt::null;
-									}
-									else
-									{
-										arr[i] = static_cast<Entity>(v.get<uint64_t>());
-									}
-								}
-								prop.set_value(componentInstance, arr);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec2>())
-							{
-								glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec3>())
-							{
-								glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec4>())
-							{
-								glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							//else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
+#pragma region Old Deserialization Backup
+							//if (prop.get_type() == rttr::type::get<int>())
+							//	prop.set_value(componentInstance, value.get<int>());
+							//else if (prop.get_type() == rttr::type::get<unsigned int>())
+							//	prop.set_value(componentInstance, value.get<unsigned int>());
+							//else if (prop.get_type() == rttr::type::get<float>())
+							//	prop.set_value(componentInstance, value.get<float>());
+							//else if (prop.get_type() == rttr::type::get<double>())
+							//	prop.set_value(componentInstance, value.get<double>());
+							//else if (prop.get_type() == rttr::type::get<bool>())
+							//	prop.set_value(componentInstance, value.get<bool>());
+							//else if (prop.get_type() == rttr::type::get<uint64_t>())
+							//	prop.set_value(componentInstance, value.get<uint64_t>());
+							//else if (prop.get_type() == rttr::type::get<std::string>())
+							//	prop.set_value(componentInstance, value.get<std::string>());
+							//else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
 							//{
-							//	
+							//	std::vector<uint64_t> vec;
+							//	for (auto& v : value)
+							//	{
+							//		vec.push_back(v.get<uint64_t>());
+							//	}
+							//	prop.set_value(componentInstance, vec);
 							//}
+							//else if (prop.get_type() == rttr::type::get<EntityID>())
+							//{
+							//	uint64_t rawID = value.get<uint64_t>();								
+							//	prop.set_value(componentInstance, EntityID{ rawID });
+							//	sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
+							//}
+							//else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
+							//{
+							//	std::array<uint64_t, 4> arr;
+							//	arr = value;
+							//	prop.set_value(componentInstance, arr);
+							//}
+							//else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
+							//{
+							//	std::array<Entity, 4> arr;
+							//	for (size_t i = 0; i < arr.size(); ++i)
+							//	{
+							//		auto v = value[i];
 
-							else 
-							{
-								// fallback: try string
-								prop.set_value(componentInstance, value.get<std::string>());
-							}
+							//		if (v.is_null())
+							//		{
+							//			arr[i] = entt::null;
+							//		}
+							//		else
+							//		{
+							//			arr[i] = static_cast<Entity>(v.get<uint64_t>());
+							//		}
+							//	}
+							//	prop.set_value(componentInstance, arr);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec2>())
+							//{
+							//	glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec3>())
+							//{
+							//	glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec4>())
+							//{
+							//	glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							////else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
+							////{
+							////	
+							////}
+
+							//else 
+							//{
+							//	// fallback: try string
+							//	prop.set_value(componentInstance, value.get<std::string>());
+							//}
+#pragma endregion
 							
 						}
 
