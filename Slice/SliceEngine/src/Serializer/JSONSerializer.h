@@ -210,10 +210,10 @@ namespace SliceEngine
 			{
 				std::ostringstream oss;
 				oss << "[DeserializeProp] Unhandled property type during deserialization\n"
-					<< "  • Component: " << componentInstance.get_type().get_name().to_string() << "\n"
-					<< "  • Property:  " << prop.get_name().to_string() << "\n"
-					<< "  • Expected Type: " << prop.get_type().get_name().to_string() << "\n"
-					<< "  • JSON Value: " << value.dump() << "\n"
+					<< " Component: " << componentInstance.get_type().get_name().to_string() << "\n"
+					<< " Property:  " << prop.get_name().to_string() << "\n"
+					<< " Expected Type: " << prop.get_type().get_name().to_string() << "\n"
+					<< " JSON Value: " << value.dump() << "\n"
 					<< "Fallback to string deserialization.";
 
 				SLICE_LOG_ERROR(oss.str());
