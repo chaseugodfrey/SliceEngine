@@ -72,7 +72,7 @@ namespace SliceEditor
 		std::string assetPath;
 		std::string resourcePath;
 
-		virtual void Serialize(const std::filesystem::path & ) = 0;
+		virtual std::filesystem::path Serialize(const std::filesystem::path & ) = 0;
 		virtual void Deserialize(const std::filesystem::path & ) = 0;
 	};
 
@@ -92,7 +92,7 @@ namespace SliceEditor
 		bool hasAlpha{ true };
 		unsigned char alpha_threshold{ 128 };	//used only for non-blending
 
-		void Serialize(const std::filesystem::path & desc_path) override
+		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
 			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
@@ -114,6 +114,8 @@ namespace SliceEditor
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 
 		void Deserialize(const std::filesystem::path & desc_path) override
@@ -128,7 +130,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
-		void Serialize(const std::filesystem::path & desc_path) override
+		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
 			//resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
@@ -150,6 +152,8 @@ namespace SliceEditor
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 		void Deserialize(const std::filesystem::path & desc_path) override
 		{
@@ -160,7 +164,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 
-		void Serialize(const std::filesystem::path& desc_path) override
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
 			// technically this is done in compiling of asset
@@ -180,6 +184,8 @@ namespace SliceEditor
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
@@ -190,7 +196,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
 		
-		void Serialize(const std::filesystem::path& desc_path) override
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
 			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
@@ -208,6 +214,8 @@ namespace SliceEditor
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
