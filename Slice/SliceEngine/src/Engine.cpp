@@ -235,15 +235,15 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 		frm.EndSystem("Transform");
 
-		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		frm.StartSystem("Physics");
+		if (inputs->GetMode() == InputMode::Game)
 		{
-			frm.StartSystem("Physics");
-			if (inputs->GetMode() == InputMode::Game)
+			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
 				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
-			frm.EndSystem("Physics");
 		}
+		frm.EndSystem("Physics");
 
 		frm.StartSystem("Graphics");
 		mRender->Render();
