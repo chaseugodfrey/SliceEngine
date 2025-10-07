@@ -48,7 +48,15 @@ namespace SliceEngine
 			auto parent_entity = scene_graph->neighbours[SceneGraph::UP];
 			if (parent_entity != entt::null && parent_entity != entt::entity{0}) {
 				auto& parent_tr = reg.get<Transform>(parent_entity);
-				tr.transform = parent_tr.transform * tr.transform_local;
+				/*tr.transform = parent_tr.transform * tr.transform_local;*/
+				glm::vec3 parentScale;
+				parentScale.x = glm::length(glm::vec3(parent_tr.transform[0]));
+				parentScale.y = glm::length(glm::vec3(parent_tr.transform[1]));
+				parentScale.z = glm::length(glm::vec3(parent_tr.transform[2]));
+
+				glm::mat4 invParentScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f / parentScale.x, 1.0f / parentScale.y, 1.0f / parentScale.z));
+				glm::mat4 newParentTransform = parent_tr.transform * invParentScaleMat;
+				tr.transform = newParentTransform * tr.transform_local;
 			}
 		}
 	}
