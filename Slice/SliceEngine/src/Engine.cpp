@@ -237,6 +237,11 @@ namespace SliceEngine
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
 
+
+		frm.StartSystem("Transform");
+		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+		frm.EndSystem("Transform");
+
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
 			frm.StartSystem("Physics");
@@ -246,10 +251,6 @@ namespace SliceEngine
 			}
 			frm.EndSystem("Physics");
 		}
-
-		frm.StartSystem("Transform");
-		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
-		frm.EndSystem("Transform");
 
 		frm.StartSystem("Graphics");
 		mRender->Render();

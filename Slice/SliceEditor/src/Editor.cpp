@@ -63,6 +63,12 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
+
+		// Scan the resource folder for any hanging resource files or smth
+		// before engine's resource manager scans it to prevent broken meta files/resource files
+		assetManager.ScanResourceFolder();
+		assetManager.Init();
+
 		engine.Init();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
@@ -75,7 +81,6 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init();
 		InitWindowManager();
 
 		//SliceEditor::InitFileWatcher();
