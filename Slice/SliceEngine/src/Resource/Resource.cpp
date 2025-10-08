@@ -60,14 +60,32 @@ namespace SliceEngine
 	{
 		auto m = std::make_unique<SliceEngineTypes::Model>();
 		std::filesystem::path file(path);
-		if (file.extension() == ".mdl") {
-			if (!m->LoadModelResource(path)) {
-				//delete m;
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case DefaultResourceIDs::CUBE_DEFAULT:
+				m->LoadDefaultCubeModel();
+				break;
+			case DefaultResourceIDs::QUAD_DEFAULT:
+				m->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::LINE_DEFAULT:
+				m->LoadDefaultLineModel();
+				break;
+			case DefaultResourceIDs::FRUSTRUM_DEFAULT:
+				m->LoadDefaultFrustrumModel();
+				break;
+			default:
 				return nullptr;
+				break;
 			}
 		}
-		else {
-			if (!m->LoadModel(path)) {
+		if (file.extension() == ".mdl") {
+			if (!m->LoadModelResource(path)) {
 				//delete m;
 				return nullptr;
 			}

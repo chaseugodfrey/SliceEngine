@@ -123,7 +123,8 @@ namespace SliceEngine
 		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);
 		glBindTextureUnit(0, texHandle.get()->texture_id);
 
-		glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
+		//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
+		glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
