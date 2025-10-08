@@ -124,7 +124,8 @@ namespace SliceEngine
 						glm::vec2, 
 						glm::vec3, 
 						glm::vec4,
-						std::string						
+						glm::quat,
+						std::string
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 
@@ -305,6 +306,7 @@ namespace SliceEngine
 								glm::vec2,
 								glm::vec3,
 								glm::vec4,
+								glm::quat,
 								std::string
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());

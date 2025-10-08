@@ -102,6 +102,14 @@ namespace SliceEngine
 			output[name][typeName][propName] = { v.x, v.y, v.z, v.w };
 		}
 
+		// For glm::quat
+		template<>
+		inline void Serialize<glm::quat>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const glm::quat& q, const Entity& entity)
+		{
+			output[name][typeName][propName] = { q.w, q.x, q.y, q.z };
+		}
+
 		// For unsigned char
 		template <>
 		inline void Serialize<unsigned char>(json& output, const std::string& name, const std::string_view& typeName,
@@ -151,6 +159,36 @@ namespace SliceEngine
 			const Entity& entity)
 		{
 			prop.set_value(componentInstance, value);
+		}
+
+		// For generic vectors
+		template <typename T>
+		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
+			const std::vector<T>& vec, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
+		{
+			std::vector<T> result;
+			result.reserve(vec.size());
+
+			for (size_t i = 0; i < vec.size(); ++i)
+			{
+				const T& elem = vec[i];
+
+				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+				{
+					// Nested vector — recurse
+					std::vector<typename T::value_type> innerResult;
+					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
+					result.push_back(elem);
+				}
+				else
+				{
+					// Base case — just add the element
+					result.push_back(elem);
+				}
+			}
+
+			prop.set_value(componentInstance, result);
 		}
 
 		// For generic strings + special exceptions
@@ -326,6 +364,19 @@ namespace glm
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
 		v.w = j.at(3).get<float>();
+	}
+
+	inline void from_json(const json& j, glm::quat& q)
+	{
+		q.w = j.at(0).get<float>();
+		q.x = j.at(1).get<float>();
+		q.y = j.at(2).get<float>();
+		q.z = j.at(3).get<float>();
+	}
+
+	inline void to_json(json& j, const glm::quat& q)
+	{
+		j = json::array({ q.w, q.x, q.y, q.z });
 	}
 }
 
