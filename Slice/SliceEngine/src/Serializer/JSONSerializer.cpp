@@ -38,7 +38,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Serialize", "Unable to write JSON to path: " + filePath.string());
 				return;
 			}
-			ofs << input;
+			ofs << input.dump(4);
 			ofs.close();
 		}
 
