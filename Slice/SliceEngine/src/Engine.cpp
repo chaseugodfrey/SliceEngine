@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
+#include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
 //using namespace rttr;

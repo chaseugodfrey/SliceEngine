@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "../../SliceEngine/src/Core/EventManager.h"
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
@@ -25,8 +26,7 @@ namespace SliceEditor
 
 	void HierarchyManager::Init()
 	{
-		//Test();
-		SubscribeToSceneLoading();
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 		Reset();
 	}
 
@@ -42,11 +42,6 @@ namespace SliceEditor
 		{
 			Reset();
 		}
-	}
-
-	void HierarchyManager::SubscribeToSceneLoading()
-	{
-		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 	}
 
 	void HierarchyManager::SetDirty()

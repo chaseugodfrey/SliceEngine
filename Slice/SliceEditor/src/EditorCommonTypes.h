@@ -16,8 +16,6 @@ DigiPen Institute of Technology is prohibited.
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
-#include "../../SliceEngine/src/Resource/GUID.h"
-
 namespace SliceEditor
 {
 
@@ -71,19 +69,33 @@ namespace SliceEditor
 		std::map<std::string, DirectoryNode> children;
 	};
 
-	struct Command
+	class Command
 	{
+	public:
 		virtual void Execute() = 0;
 		virtual void Undo() = 0;
 		virtual ~Command() = default;
 	};
 
-	struct SelectionCommand : Command
+	template<typename T>
+	class ValueCommand : public Command
 	{
-		TreeNode* previous, *current;
-		SelectionCommand(TreeNode* prev, TreeNode* curr) : previous(prev), current(curr) {}
-		void Execute() override;
-		void Undo() override;
+		T& ref, oldValue, newValue;
+
+	public:
+
+		ValueCommand(T& r, T oldV, T newV) : ref(r), oldValue(oldV), newValue(newV) {}
+		~ValueCommand() = default;
+
+		void Execute() override 
+		{ 
+			ref = newValue; 
+		}
+
+		void Undo() override 
+		{ 
+			ref = oldValue; 
+		}
 	};
 }
 

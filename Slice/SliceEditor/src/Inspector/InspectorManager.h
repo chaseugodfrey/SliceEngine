@@ -33,8 +33,6 @@ namespace SliceEditor
 
 		// temp, todo: replace this w listener
 		std::unordered_set<entt::entity>& GetSelectedEntities();
-
-
 	};
 }
 

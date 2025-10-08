@@ -15,15 +15,15 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
-#include "Scripting/ScriptEditor.h"
-#include "../../src/Input/InputSystem.h"
 #include "../Core/Registry.h"
+#include "Scripting/ScriptEditor.h"
 #include "../Hierachy/HierarchyManager.h"
-#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
-#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
-#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
-
-#include "../../SliceEngine/src/Networking/NetworkSystem.h"
+#include <Input/InputSystem.h>
+#include <Scripting/ScriptSystem.h>
+#include <Core/ComponentEventHandler.h>
+#include <Configuration/ProjectSettings.h>
+#include <Systems/SceneSystem.h>
+#include <Networking/NetworkSystem.h>
 
 namespace SliceEditor
 {
