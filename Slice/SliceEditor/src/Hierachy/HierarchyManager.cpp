@@ -89,7 +89,7 @@ namespace SliceEditor
 		{
 			TestNode node{};
 			node.entity = entity;
-			SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
+			//SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
 			mHierarchy.emplace(entity, node);
 		}
 	}

@@ -186,6 +186,28 @@ namespace SliceEngine
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
+	bool GOFactory::isDescendant(Entity target, Entity dest)
+	{
+		auto& targetSceneGraph = mRegistry.get<SceneGraph>(target);
+		//Check direct children
+		auto child = targetSceneGraph.neighbours[SceneGraph::DOWN];
+		//Checking the right siblings of the child until null
+		while(child != entt::null)
+		{
+			if(child == dest)
+			{
+				return true;
+			}
+			//Recursively check the child too
+			if(isDescendant(target, child))
+			{
+				return true;
+			}
+			auto& childSceneGraph = mRegistry.get<SceneGraph>(child);
+			child = childSceneGraph.neighbours[SceneGraph::RIGHT];
+		}
+	}
+
 	void GOFactory::Unparent(Entity entity)
 	{
 		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
@@ -203,6 +225,11 @@ namespace SliceEngine
 
 	void GOFactory::SetParent(Entity entity, Entity parentEntity)
 	{
+		if(isDescendant(entity, parentEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return;
+		}
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
@@ -345,6 +372,12 @@ namespace SliceEngine
 
 	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
 	{
+
+		if (isDescendant(targetEntity, rightEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return;
+		}
 		//Remove it from its current position
 		SceneGraphDelete(targetEntity);
 
