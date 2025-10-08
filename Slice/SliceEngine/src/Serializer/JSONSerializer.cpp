@@ -38,7 +38,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Serialize", "Unable to write JSON to path: " + filePath.string());
 				return;
 			}
-			ofs << input;
+			ofs << input.dump(4);
 			ofs.close();
 		}
 
@@ -117,7 +117,6 @@ namespace SliceEngine
 						double, 
 						bool, 
 						uint64_t,
-						EntityID,
 						GUID,
 						std::array<uint64_t, 4>, 
 						std::array<Entity, 4>,
@@ -125,7 +124,8 @@ namespace SliceEngine
 						glm::vec2, 
 						glm::vec3, 
 						glm::vec4,
-						std::string						
+						glm::quat,
+						std::string
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 
@@ -283,7 +283,8 @@ namespace SliceEngine
 
 						for (auto& [propName, value] : props.items())
 						{
-							rttr::property prop = compType.get_property(propName);
+							rttr::property prop = compType.get_property(propName);							
+
 							if (!prop.is_valid())
 								continue;
 
@@ -298,7 +299,6 @@ namespace SliceEngine
 								double,
 								bool,
 								uint64_t,
-								EntityID,
 								GUID,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
@@ -306,22 +306,17 @@ namespace SliceEngine
 								glm::vec2,
 								glm::vec3,
 								glm::vec4,
+								glm::quat,
 								std::string
 								>
-								(componentInstance, prop, value);
+								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
-							// Anything that needs a Second Pass
+							// Anything that needs a second pass
 							// scene graph map stuff
-							if (prop.get_type() == rttr::type::get<EntityID>())
+							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
 							{
 								uint64_t oldID = value.get<uint64_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
-							}
-
-							// idk how else to do this
-							if (propName == "mName" && componentName == typeid(SliceEntity).name())
-							{
-								Core::GetInstance()->mFactory.UpdateName(value.get<std::string>(), node.GetEntity());
 							}
 
 #pragma region Old Deserialization Backup

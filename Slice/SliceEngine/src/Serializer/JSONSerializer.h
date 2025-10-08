@@ -33,7 +33,7 @@ namespace SliceEngine
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 		// Add more templates in this region should the current templates do not serve your data type well
-#pragma region SerializationTemplates
+#pragma region Serialization Templates
 		// For generic values
 		template <typename T>
 		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
@@ -78,14 +78,6 @@ namespace SliceEngine
 			}
 		}
 
-		// For Entity (entt::entity)
-		template<>
-		inline void Serialize(json& output, const std::string& name, const std::string_view& typeName,
-			const std::string& propName, const EntityID& value, const Entity& entity)
-		{
-			output[name][typeName][propName] = entity;
-		}
-
 		// For glm::vec2
 		template<>
 		inline void Serialize<glm::vec2>(json& output, const std::string& name, const std::string_view& typeName,
@@ -108,6 +100,14 @@ namespace SliceEngine
 			const std::string& propName, const glm::vec4& v, const Entity& entity)
 		{
 			output[name][typeName][propName] = { v.x, v.y, v.z, v.w };
+		}
+
+		// For glm::quat
+		template<>
+		inline void Serialize<glm::quat>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const glm::quat& q, const Entity& entity)
+		{
+			output[name][typeName][propName] = { q.w, q.x, q.y, q.z };
 		}
 
 		// For unsigned char
@@ -155,15 +155,61 @@ namespace SliceEngine
 		// For generic values
 		template <typename T>
 		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
-			const T& value)
+			const T& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			prop.set_value(componentInstance, value);
+		}
+
+		// For generic vectors
+		template <typename T>
+		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
+			const std::vector<T>& vec, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
+		{
+			std::vector<T> result;
+			result.reserve(vec.size());
+
+			for (size_t i = 0; i < vec.size(); ++i)
+			{
+				const T& elem = vec[i];
+
+				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
+				{
+					// Nested vector — recurse
+					std::vector<typename T::value_type> innerResult;
+					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
+					result.push_back(elem);
+				}
+				else
+				{
+					// Base case — just add the element
+					result.push_back(elem);
+				}
+			}
+
+			prop.set_value(componentInstance, result);
+		}
+
+		// For generic strings + special exceptions
+		template <>
+		inline void Deserialize<std::string>(rttr::variant& componentInstance, rttr::property& prop,
+			const std::string& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
+		{
+			prop.set_value(componentInstance, value);
+
+			if (propName == "mName" && componentName == typeid(SliceEntity).name())
+			{
+				FactoryInstance.UpdateName(value, entity);
+			}
 		}
 
 		// For Relationship array (up down left right stuff)
 		template <>
 		inline void Deserialize<std::array<Entity, 4>>(rttr::variant& componentInstance, rttr::property& prop,
-			const std::array<Entity, 4>& value)
+			const std::array<Entity, 4>& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			std::array<Entity, 4> arr;
 			for (size_t i = 0; i < arr.size(); ++i)
@@ -181,30 +227,23 @@ namespace SliceEngine
 			}
 			prop.set_value(componentInstance, arr);
 		}
-		// For Entity (entt::entity)
-		template <>
-		inline void Deserialize<EntityID>(rttr::variant& componentInstance, rttr::property& prop, const EntityID& value)
-		{
-			uint64_t oldID = value.value;
-			prop.set_value(componentInstance, EntityID{ oldID });
-		}
 		template <typename T>
-		bool TryDeserializeType(rttr::variant& componentInstance,
-			rttr::property& prop,
-			const json& value)
+		bool TryDeserializeType(rttr::variant& componentInstance, rttr::property& prop, 
+			const json& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			if (prop.get_type() == rttr::type::get<T>()) {
-				Deserialize<T>(componentInstance, prop, value.get<T>());
+				Deserialize<T>(componentInstance, prop, value.get<T>(),propName, componentName, entity);
 				return true;
 			}
 			return false;
 		}
 		template <typename... Types>
-		void DeserializeProp(rttr::variant& componentInstance,
-			rttr::property& prop,
-			const json& value)
+		void DeserializeProp(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
-			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value) || ...);
+			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
 
 			if (!handled)
 			{
@@ -217,7 +256,7 @@ namespace SliceEngine
 					<< "Fallback to string deserialization.";
 
 				SLICE_LOG_ERROR(oss.str());
-				Deserialize<std::string>(componentInstance, prop, value);
+				Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);
 			}
 		}
 
@@ -283,10 +322,6 @@ namespace nlohmann
 
 namespace SliceEngine
 {
-	inline void from_json(const json& j, EntityID& e) {
-		e.value = j.get<uint64_t>();
-	}
-
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{
@@ -329,6 +364,19 @@ namespace glm
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
 		v.w = j.at(3).get<float>();
+	}
+
+	inline void from_json(const json& j, glm::quat& q)
+	{
+		q.w = j.at(0).get<float>();
+		q.x = j.at(1).get<float>();
+		q.y = j.at(2).get<float>();
+		q.z = j.at(3).get<float>();
+	}
+
+	inline void to_json(json& j, const glm::quat& q)
+	{
+		j = json::array({ q.w, q.x, q.y, q.z });
 	}
 }
 
