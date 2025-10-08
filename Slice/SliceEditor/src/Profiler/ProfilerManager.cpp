@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ProfilerManager.h"
 #include "ProfilerWindow.h"
 #include "../Core/Registry.h"
+#include <Systems/FramerateManager.h>
 
 
 namespace SliceEditor

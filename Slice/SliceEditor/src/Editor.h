@@ -32,7 +32,6 @@ namespace SliceEditor
 		SliceEngine::Engine engine;
 		Registry registry;
 
-		HistoryManager history;
 		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);

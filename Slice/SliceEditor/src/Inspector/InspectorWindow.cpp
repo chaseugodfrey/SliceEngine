@@ -322,8 +322,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
 
-					static JPH::EMotionQuality currmode = rb.CollisionDetection;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)rb.CollisionDetection];
 
 					ImGui::Text("Collision Detection");
 					ImGui::SameLine(150.0f);
@@ -332,10 +331,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::EMotionQuality)i);
+							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::EMotionQuality)i;
+								rb.CollisionDetection = (JPH::EMotionQuality)i;
 							}
 
 							// Highlight current item
@@ -397,8 +396,7 @@ namespace SliceEditor
 						col.offSet.SetZ(buffer);
 					}
 
-					static JPH::ObjectLayer currmode = col.layer;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)col.layer];
 
 					ImGui::Text("Collision Layer");
 					ImGui::SameLine(150.0f);
@@ -407,10 +405,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::ObjectLayer)i);
+							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::ObjectLayer)i;
+								col.layer = (JPH::ObjectLayer)i;
 							}
 
 							// Highlight current item

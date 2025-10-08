@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Profiler/ProfilerManager.h"
 #include "GameView/GameViewManager.h"
 #include "WindowManager/WindowManager.h"
+#include "History/HistoryManager.h"
 
 namespace SliceEditor
 {
@@ -34,6 +35,7 @@ namespace SliceEditor
 		CreateManager<ProfilerManager>("Profiler");
 		CreateManager<GameViewManager>("GameView");
 		CreateManager<WindowManager>("Windows");
+		CreateManager<HistoryManager>("History");
 
 		for (auto& [name, manager] : mManagers)
 		{

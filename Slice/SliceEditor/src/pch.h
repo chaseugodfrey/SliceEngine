@@ -16,6 +16,7 @@
 #include <deque>
 #include <queue>
 #include <map>
+#include <variant>
 
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"		// Entire Win32 API...
@@ -49,7 +50,6 @@
 // Logger
 #include "Logger/Logger.h"
 #include "EditorCommonTypes.h"
-#include "../../SliceEngine/src/Systems/FramerateManager.h"
 
 // Common Types
 //#include "Vectors/Vector2.h"
@@ -99,5 +99,11 @@
 
 #include <json.hpp>
 
+// Can't include GUID.h after Core.h 
+#include <Resource/GUID.h>
 #include <Core/Core.h>
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+#include <Core/EditorEvents.h>
+
 #endif 

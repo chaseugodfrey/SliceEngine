@@ -186,6 +186,34 @@ namespace SliceEngine
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
+	bool GOFactory::isDescendant(Entity target, Entity dest)
+	{
+		if(dest == entt::null)
+		{
+			return false;
+		}
+		auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//Check direct children
+		auto parent = destSceneGraph.neighbours[SceneGraph::UP];
+		//Checking the right siblings of the child until null
+		while(parent != entt::null)
+		{
+			if(parent == target)
+			{
+				return true;
+			}
+			//Recursively check the child too (This is wrong)
+			if(isDescendant(target, parent))
+			{
+				return true;
+			}
+			parent = mRegistry.get<SceneGraph>(parent).neighbours[SceneGraph::UP];
+		}
+
+		return false;
+	}
+
 	void GOFactory::Unparent(Entity entity)
 	{
 		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
@@ -203,6 +231,11 @@ namespace SliceEngine
 
 	void GOFactory::SetParent(Entity entity, Entity parentEntity)
 	{
+		if(isDescendant(entity, parentEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return;
+		}
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
@@ -283,7 +316,7 @@ namespace SliceEngine
 				}
 			}
 
-			--prev_parent_scene_graph.child_count;
+			//--prev_parent_scene_graph.child_count;
 		}
 
 		// if it has no parent / after we unattach it from it's current sibling list
@@ -338,13 +371,19 @@ namespace SliceEngine
 			scene_graph.neighbours[SceneGraph::LEFT] = child_entity;
 		}
 
-		++parent_scene_graph.child_count;
+		//++parent_scene_graph.child_count;
 		scene_graph.neighbours[SceneGraph::UP] = parent;
 
 	}
 
 	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
 	{
+
+		if (isDescendant(targetEntity, rightEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return;
+		}
 		//Remove it from its current position
 		SceneGraphDelete(targetEntity);
 
@@ -372,6 +411,7 @@ namespace SliceEngine
 
 			//Update the target entity itself (Remember to update its up too)
 			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 			movedSceneGraph.neighbours[SceneGraph::UP] = destRightGraph.neighbours[SceneGraph::UP];
 		}
 
@@ -669,7 +709,11 @@ namespace SliceEngine
 			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
 			{
 				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
-				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+
+				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				{
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				}
 			}
 		}
 	}
