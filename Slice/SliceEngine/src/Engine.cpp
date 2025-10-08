@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
-#include "AudioManager.h"
+#include "../src/Audio/AudioManager.h"
 #include "Systems/TransformSystem.h"
 #include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"

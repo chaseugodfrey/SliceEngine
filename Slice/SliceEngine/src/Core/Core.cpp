@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Networking/NetworkSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
-#include "../AudioManager.h"
+#include "../Audio/AudioManager.h"
 #include "Input/InputSystem.h"
 namespace SliceEngine
 {

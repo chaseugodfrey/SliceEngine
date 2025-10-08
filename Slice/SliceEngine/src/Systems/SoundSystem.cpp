@@ -16,7 +16,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "SoundSystem.h"
-#include "AudioManager.h"
+#include "../Audio/AudioManager.h"
 
 
 namespace SliceEngine

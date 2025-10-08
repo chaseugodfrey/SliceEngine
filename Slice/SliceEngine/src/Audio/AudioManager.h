@@ -99,6 +99,7 @@ namespace SliceEngine
 
 	private:
 		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
+		std::unordered_map<Entity, std::unique_ptr<SoundTrack>> mSounds[SOUND_MAX_SOUNDS];
 		float mMasterVolume = 1.0f;
 
 
