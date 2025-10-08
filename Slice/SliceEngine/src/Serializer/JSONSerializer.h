@@ -42,6 +42,17 @@ namespace SliceEngine
 			output[name][typeName][propName] = value;
 		}
 
+		//For GUID
+		template <>
+		inline void Serialize<GUID>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const GUID& value, const Entity& entity)
+		{
+			if (value == GUID::null())
+				output[name][typeName][propName] = "";
+			else
+				output[name][typeName][propName] = std::to_string(value.GetGUID());
+		}
+
 		// For generic vectors
 		template <typename T>
 		void Serialize(json& output, const std::string& name, const std::string_view& typeName,

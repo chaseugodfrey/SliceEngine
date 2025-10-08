@@ -120,7 +120,7 @@ namespace SliceEngine
 						GUID,
 						std::array<uint64_t, 4>, 
 						std::array<Entity, 4>,
-						std::vector<uint64_t>, 
+						std::vector<uint64_t>,
 						glm::vec2, 
 						glm::vec3, 
 						glm::vec4,

@@ -37,9 +37,6 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-
-		// rttr doesnt like c style arrays lol
-		//uint32_t neighbours[4];
 		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
 	};
 
