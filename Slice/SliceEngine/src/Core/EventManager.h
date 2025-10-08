@@ -88,6 +88,12 @@ public:
 		mDispatcher.trigger(event);
 	}
 
+	template <typename Event>
+	void Publish(const Event&& event)
+	{
+		mDispatcher.trigger(std::move(event));
+	}
+
 	template <typename Event, typename... Args>
 	void Publish(Args&&... args)
 	{

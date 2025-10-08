@@ -247,6 +247,7 @@ namespace SliceEngine
 
 		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath)
 		{
+			
 			std::unordered_map<uint64_t, uint64_t> sceneGraphMap{};
 
 			json input = DeserializeFile(filePath);

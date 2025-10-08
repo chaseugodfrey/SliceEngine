@@ -17,7 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
 {
@@ -137,10 +139,18 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
+			glm::vec3 eulerAngles = SliceEngine::QuatToVec3(tr.rotation);
+			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
+			//DragVec3InputHeader("Rotation", "##r", eulerAngles);
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(tr.inspectorRot)))
+			{
+				tr.inspectorRot.x = fmod(tr.inspectorRot.x, 360.0f);
+				tr.inspectorRot.y = fmod(tr.inspectorRot.y, 360.0f);
+				tr.inspectorRot.z = fmod(tr.inspectorRot.z, 360.0f);
 
-			DragVec3InputHeader("Position", "##t", tr.position);
-			DragVec3InputHeader("Rotation", "##r", tr.rotation);
-			DragVec3InputHeader("Scale", "##s", tr.scale);
+				tr.rotation = SliceEngine::Vec3ToQuat(tr.inspectorRot);;
+			}
+			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 
 			// for testing purposes
 			ImGui::BeginDisabled();
@@ -312,8 +322,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
 
-					static JPH::EMotionQuality currmode = rb.CollisionDetection;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)rb.CollisionDetection];
 
 					ImGui::Text("Collision Detection");
 					ImGui::SameLine(150.0f);
@@ -322,10 +331,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::EMotionQuality)i);
+							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::EMotionQuality)i;
+								rb.CollisionDetection = (JPH::EMotionQuality)i;
 							}
 
 							// Highlight current item
@@ -387,8 +396,7 @@ namespace SliceEditor
 						col.offSet.SetZ(buffer);
 					}
 
-					static JPH::ObjectLayer currmode = col.layer;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)col.layer];
 
 					ImGui::Text("Collision Layer");
 					ImGui::SameLine(150.0f);
@@ -397,10 +405,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::ObjectLayer)i);
+							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::ObjectLayer)i;
+								col.layer = (JPH::ObjectLayer)i;
 							}
 
 							// Highlight current item

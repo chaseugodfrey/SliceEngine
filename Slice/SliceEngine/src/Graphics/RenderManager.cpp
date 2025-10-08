@@ -160,7 +160,7 @@ namespace SliceEngine
 		
 		auto& transform = newCam.GetComponent<Transform>();
 		transform.position = glm::vec3(-2.f, 1.f, 0.f);
-		transform.rotation = glm::vec3(0.f, 0.f, -10.f);
+		transform.rotation = glm::quat(glm::radians(glm::vec3(0.f, 0.f, -10.f)));
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 		// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
@@ -181,7 +181,8 @@ namespace SliceEngine
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
 		auto& camTrans = cam.GetComponent<Transform>();
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
+		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;
 		up = rot * u;
@@ -248,7 +249,9 @@ namespace SliceEngine
 
 				transform.transform = glm::mat4x4(1.f);
 				transform.transform = glm::translate(transform.transform, transform.position);
-				glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
+				glm::mat4 Rot = glm::mat4_cast(transform.rotation);
+
+				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 				transform.transform *= Rot;
 				transform.transform = glm::scale(transform.transform, transform.scale);
 
@@ -373,9 +376,15 @@ namespace SliceEngine
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 		glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
 
-		V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
+		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::vec3 forward = camTrans.rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
+		V = glm::lookAt(camTrans.position, camTrans.position + forward , upVec);
+
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}
 	void RenderManager::UpdateCamGPU(Entity& cam)

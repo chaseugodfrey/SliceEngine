@@ -37,7 +37,6 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-		uint8_t child_count{};
 
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
@@ -73,7 +72,9 @@ namespace SliceEngine
 	struct Transform
 	{
 		glm::vec3 position{};
-		glm::vec3 rotation{};
+		//glm::vec3 rotation{};
+		glm::quat  rotation{ glm::quat(1.0f, 0.0f, 0.0f, 0.0f) };
+		glm::vec3 inspectorRot{ 0.f };
 		glm::vec3 scale{1};
 
 		glm::vec3 previousScale{};

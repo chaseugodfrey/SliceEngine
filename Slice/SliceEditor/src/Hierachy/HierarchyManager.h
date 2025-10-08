@@ -56,7 +56,6 @@ namespace SliceEditor
 		void AddEntityDirectly(entt::entity entity);
 		void Reset();
 		void OnSceneLoad(OnSceneLoadedEvent& event);
-		void SubscribeToSceneLoading();
 
 		TestNode& GetSceneRootNode();
 

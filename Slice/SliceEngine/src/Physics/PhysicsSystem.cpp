@@ -237,6 +237,7 @@ namespace SliceEngine
 		}
 
 
+		std::cout << "entity<" << (int)event.entity << "> Layer(" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << ")componenet layer {" << colliderShape.layer << "}\n";
 
 
 		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
@@ -402,7 +403,7 @@ namespace SliceEngine
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
 		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = Vec3ToQuat(transform.rotation);
+		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
 
@@ -446,7 +447,7 @@ namespace SliceEngine
 
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = Vec3ToQuat(transform.rotation);
+		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
 		JPH::BodyCreationSettings bodySettings;

@@ -7,7 +7,7 @@ project "SliceEngine"
     targetdir ("")
     -- objdir ("bin-int/%{cfg.buildcfg}")
 
-    files { "src/**" }
+    files { "src/**","thirdparty/recast/Detour/Source/**.cpp" }
 
     includedirs {
         "src",
@@ -20,6 +20,7 @@ project "SliceEngine"
         "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",
         "thirdparty/nlohmann/include",
+        ThirdParty.DETOUR_INC,
         ThirdParty.RTTR_INC,
         ThirdParty.MONO_INC
     }
