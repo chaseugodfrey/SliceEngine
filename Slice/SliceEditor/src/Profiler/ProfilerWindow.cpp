@@ -17,7 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ProfilerWindow.h"
 #include "ProfilerManager.h"
 #include "../SelectionSystem/SelectionSystem.h"
-
+#include <Systems/FramerateManager.h>
 namespace SliceEditor
 {
 	ProfilerWindow::ProfilerWindow(ProfilerManager& man, SelectionSystem& selection) : mManager(man), mSelection(selection)

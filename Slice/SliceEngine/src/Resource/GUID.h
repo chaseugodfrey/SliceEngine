@@ -16,8 +16,6 @@ DigiPen Institute of Technology is prohibited.
 #include <random>
 #include <rttr/registration.h>
 
-
-
 namespace SliceEngine
 {
 	struct GUID

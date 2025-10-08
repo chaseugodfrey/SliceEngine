@@ -18,7 +18,6 @@ DigiPen Institute of Technology is prohibited.
 #include "WindowTypes.h"
 #include "EditorWindow.h"
 #include "../Core/IBaseManager.h"
-//#include "EditorState.h"
 
 namespace SliceEditor
 {

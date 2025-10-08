@@ -138,9 +138,9 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
 
-			DragVec3InputHeader("Position", "##t", tr.position);
-			DragVec3InputHeader("Rotation", "##r", tr.rotation);
-			DragVec3InputHeader("Scale", "##s", tr.scale);
+			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
+			DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", tr.rotation);
+			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 
 			// for testing purposes
 			ImGui::BeginDisabled();
