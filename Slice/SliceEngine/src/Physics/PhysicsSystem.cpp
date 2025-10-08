@@ -237,6 +237,7 @@ namespace SliceEngine
 		}
 
 
+		std::cout << "entity<" << (int)event.entity << "> Layer(" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << ")componenet layer {" << colliderShape.layer << "}\n";
 
 
 		if(physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)

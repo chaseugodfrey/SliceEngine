@@ -1,2 +1,0 @@
-deferredLighting.vert
-deferredLighting.frag
