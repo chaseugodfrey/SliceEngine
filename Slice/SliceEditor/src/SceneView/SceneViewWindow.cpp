@@ -324,6 +324,7 @@ namespace SliceEditor
 						glm::mat4 parent_world = parent_tr.transform;
 
 						glm::vec3 parentScale;
+
 						parentScale.x = glm::length(glm::vec3(parent_tr.transform[0]));
 						parentScale.y = glm::length(glm::vec3(parent_tr.transform[1]));
 						parentScale.z = glm::length(glm::vec3(parent_tr.transform[2]));
@@ -364,7 +365,10 @@ namespace SliceEditor
 				}
 				else if (operation == ImGuizmo::ROTATE) {
 					tmp_tr.rotation = rotationQuat;
-					tmp_tr.inspectorRot = SliceEngine::QuatToVec3(rotationQuat);
+					auto euler = SliceEngine::QuatToVec3(rotationQuat);
+					tmp_tr.euler.x = fmod(euler.x, 360.0f);
+					tmp_tr.euler.y = fmod(euler.y, 360.0f);
+					tmp_tr.euler.z = fmod(euler.z, 360.0f);
 				}
 				else if (operation == ImGuizmo::SCALE) {
 					tmp_tr.scale = scale;

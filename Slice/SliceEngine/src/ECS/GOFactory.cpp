@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
 #include "../Core/ComponentEventHandler.h"
+#include "../Graphics/TransformHelper.h"
 
 
 namespace SliceEngine
@@ -203,6 +204,7 @@ namespace SliceEngine
 			{
 				return true;
 			}
+
 			//Recursively check the child too (This is wrong)
 			if(isDescendant(target, parent))
 			{
@@ -236,6 +238,7 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
 			return;
 		}
+
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
@@ -374,7 +377,19 @@ namespace SliceEngine
 		//++parent_scene_graph.child_count;
 		scene_graph.neighbours[SceneGraph::UP] = parent;
 
+		if (parent != entt::entity(0))
+			UpdateTransformFromParent(entity, parent);
 	}
+
+	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
+	{
+		auto& tr = mRegistry.get<Transform>(entity);
+		auto& tr_par = mRegistry.get<Transform>(parent);
+
+		tr.transform_local = glm::inverse(tr_par.transform) * tr.transform;
+		tr.euler = SliceEngine::QuatToVec3(tr.transform_local);
+	}
+
 
 	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
 	{

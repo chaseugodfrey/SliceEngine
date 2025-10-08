@@ -19,15 +19,19 @@ DigiPen Institute of Technology is prohibited.
 #include <History/HistoryManager.h>
 #include "../EditorCommonTypes.h"
 
+#include <Graphics/TransformHelper.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
+
 using namespace std::string_literals;
 
 namespace SliceEditor
 {
-	void DragFloatInput(Registry& reg, const char* id, float& val, const char* format, std::function<void(float)> setFunc, float min, float max)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, std::function<void(float)> setFunc, float min, float max)
 	{
 		static float oldVal{};
 
-		ImGui::DragFloat(id, &val, 0.1f, min, max, format);
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -40,22 +44,27 @@ namespace SliceEditor
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
+
+		return changed;
 	}
 
-	void DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
+		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(100.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		DragFloatInput(reg, (id + "_x"s).c_str(), val.x, "X: %.3f");
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		DragFloatInput(reg, (id + "_y"s).c_str(), val.y, "Y: %.3f");
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		DragFloatInput(reg, (id + "_z"s).c_str(), val.z, "Z: %.3f");
+		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f") || changed;
+
+		return changed;
 	}
 
 }

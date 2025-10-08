@@ -169,6 +169,7 @@ namespace SliceEngine
 		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
 		void BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map);
 		void ClearGameObjects();
+		void UpdateTransformFromParent(Entity entity, Entity parent);
 
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();

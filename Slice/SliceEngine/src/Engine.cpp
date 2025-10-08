@@ -173,9 +173,9 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
-		light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		light.AddComponent<Light>();
+		//GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
+		//light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//light.AddComponent<Light>();
 	}
 
 	void Engine::Update()
