@@ -1,2 +1,0 @@
-debugLine.vert
-debugLine.frag
