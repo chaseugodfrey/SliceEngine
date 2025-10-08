@@ -140,7 +140,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
 			glm::vec3 eulerAngles = SliceEngine::QuatToVec3(tr.rotation);
-			DragVec3InputHeader("Position", "##t", tr.position);
+			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
 			//DragVec3InputHeader("Rotation", "##r", eulerAngles);
 			if (ImGui::DragFloat3("Rotation", glm::value_ptr(tr.inspectorRot)))
 			{
@@ -150,7 +150,7 @@ namespace SliceEditor
 
 				tr.rotation = SliceEngine::Vec3ToQuat(tr.inspectorRot);;
 			}
-			DragVec3InputHeader("Scale", "##s", tr.scale);
+			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 
 			// for testing purposes
 			ImGui::BeginDisabled();
