@@ -411,6 +411,7 @@ namespace SliceEngine
 
 			//Update the target entity itself (Remember to update its up too)
 			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 			movedSceneGraph.neighbours[SceneGraph::UP] = destRightGraph.neighbours[SceneGraph::UP];
 		}
 
@@ -708,7 +709,11 @@ namespace SliceEngine
 			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
 			{
 				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
-				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+
+				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				{
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				}
 			}
 		}
 	}
