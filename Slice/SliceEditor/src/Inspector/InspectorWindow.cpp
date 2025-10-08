@@ -140,13 +140,10 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
 			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
-			if (DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", tr.euler))
+			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
+			if (DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", euler))
 			{
-				tr.euler.x = fmod(tr.euler.x, 360.0f);
-				tr.euler.y = fmod(tr.euler.y, 360.0f);
-				tr.euler.z = fmod(tr.euler.z, 360.0f);
-
-				tr.rotation = SliceEngine::Vec3ToQuat(tr.euler);
+				tr.rotation = SliceEngine::Vec3ToQuat(euler);
 			}
 			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 

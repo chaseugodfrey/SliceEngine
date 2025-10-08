@@ -180,12 +180,18 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
-		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
-		if (!sceneSystem->CheckQueueEmpty())
+		auto core = Core::GetInstance();
+		auto sTransform = core->GetSystem<TransformSystem>();
+		auto sScene = Core::GetInstance()->GetSceneSystem();
+		auto sRender = core->GetRenderManager();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+
+		if (!sScene->CheckQueueEmpty())
 		{
-			if (sceneSystem->isSceneUnloaded)
+			if (sScene->isSceneUnloaded)
 			{
-				sceneSystem->LoadNextScene();
+				sScene->LoadNextScene();
 			}
 		}
 
@@ -193,12 +199,10 @@ namespace SliceEngine
 		frm.StartFrame();
 
 		//auto mResource = Core::GetInstance()->GetResourceManager();
-		auto mRender = Core::GetInstance()->GetRenderManager();
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		auto inputs = Core::GetInstance()->GetInputSystem();
+
 
 		frm.StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
+		glfwMakeContextCurrent(core->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
@@ -209,17 +213,17 @@ namespace SliceEngine
 
 		frm.StartSystem("Input");
 		//inputs->Update();
-		inputs->UpdatePrevInput();
+		sInputs->UpdatePrevInput();
 		frm.EndSystem("Input");
 
         frm.StartSystem("Audio");
-		Core::GetInstance()->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
-		mAudioManager->Update();
+		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
+		sAudio->Update();
         frm.EndSystem("Audio");
         
 		frm.StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		if (inputs->GetMode() == InputMode::Game)
+		if (sInputs->GetMode() == InputMode::Game)
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
@@ -229,21 +233,22 @@ namespace SliceEngine
 
 
 		frm.StartSystem("Transform");
-		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sTransform.Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sTransform.UpdateWorldTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		frm.EndSystem("Transform");
 
 		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 		{
 			frm.StartSystem("Physics");
-			if (inputs->GetMode() == InputMode::Game)
+			if (sInputs->GetMode() == InputMode::Game)
 			{
-				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
 			frm.EndSystem("Physics");
 		}
 
 		frm.StartSystem("Graphics");
-		mRender->Render();
+		sRender->Render();
 		frm.EndSystem("Graphics");
 
 		frm.EndFrame();

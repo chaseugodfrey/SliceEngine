@@ -43,23 +43,20 @@ namespace SliceEngine
 		M = glm::scale(M, tr.scale);
 
 		tr.transform_local = M;
-		tr.transform = tr.transform_local;
-
-		if (auto scene_graph = reg.try_get<SceneGraph>(entity)) {
-			auto parent_entity = scene_graph->neighbours[SceneGraph::UP];
-			if (parent_entity != entt::null && parent_entity != entt::entity{0}) {
-				auto& parent_tr = reg.get<Transform>(parent_entity);
-				/*tr.transform = parent_tr.transform * tr.transform_local;*/
-				glm::vec3 parentScale;
-				parentScale.x = glm::length(glm::vec3(parent_tr.transform[0]));
-				parentScale.y = glm::length(glm::vec3(parent_tr.transform[1]));
-				parentScale.z = glm::length(glm::vec3(parent_tr.transform[2]));
-
-				glm::mat4 invParentScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f / parentScale.x, 1.0f / parentScale.y, 1.0f / parentScale.z));
-				glm::mat4 newParentTransform = parent_tr.transform * invParentScaleMat;
-				tr.transform = newParentTransform * tr.transform_local;
-			}
-		}
 	}
 
+	void TransformSystem::UpdateWorldTransforms(entt::entity entity, const glm::mat4& parentWorld)
+	{
+		auto& tr = mRegistry->get<Transform>(entity);
+		tr.transform = parentWorld * tr.transform_local;
+		
+	    if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
+	        entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
+	        while (child != entt::null) 
+			{
+	            UpdateWorldTransforms(child, tr.transform);
+	            child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+	        }
+	    }
+	}
 }

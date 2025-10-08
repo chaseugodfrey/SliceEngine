@@ -183,7 +183,7 @@ namespace SliceEngine
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
-		//auto& tr = mRegistry.emplace<Transform>(mRootEntity);
+		mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
@@ -377,8 +377,8 @@ namespace SliceEngine
 		//++parent_scene_graph.child_count;
 		scene_graph.neighbours[SceneGraph::UP] = parent;
 
-		if (parent != entt::entity(0))
-			UpdateTransformFromParent(entity, parent);
+		//if (parent != entt::entity(0))
+		//	UpdateTransformFromParent(entity, parent);
 	}
 
 	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
@@ -387,7 +387,6 @@ namespace SliceEngine
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
 		tr.transform_local = glm::inverse(tr_par.transform) * tr.transform;
-		tr.euler = SliceEngine::QuatToVec3(tr.transform_local);
 	}
 
 
