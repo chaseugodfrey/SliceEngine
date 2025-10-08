@@ -30,9 +30,6 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void Init() override;
-
-		// temp, todo: replace this w listener
-		std::unordered_set<entt::entity>& GetSelectedEntities();
 	};
 }
 

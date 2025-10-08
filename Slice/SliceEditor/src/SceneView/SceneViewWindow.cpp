@@ -20,6 +20,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 #include <Graphics/TransformHelper.h>
 #include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
+
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -302,7 +304,7 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		auto& set = mManager.GetRegistry().GetSelectionSystem().GetSelectedEntities();
+		auto& set = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
 		if (!set.empty())
 		{
@@ -321,6 +323,7 @@ namespace SliceEditor
 			glm::mat4 world_tr = tmp_tr.transform;
 			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
+			auto op = mManager.GetGizmoOperation();
 			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mManager.GetGizmoOperation(), mManager.GetGizmoMode(), glm::value_ptr(world_tr));
 
 			if (ImGuizmo::IsUsing())
@@ -331,10 +334,29 @@ namespace SliceEditor
 
 				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
-				tmp_tr.position = translation;
-				tmp_tr.rotation = rot;
-				tmp_tr.scale = scale;
+				if (op == ImGuizmo::OPERATION::TRANSLATE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, tmp_tr.position, translation));
+					tmp_tr.position = translation;
+				}
+				
+				if (op == ImGuizmo::OPERATION::ROTATE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, tmp_tr.rotation, rot));
+					tmp_tr.rotation = rot;
+				}
+
+				if (op == ImGuizmo::OPERATION::SCALE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, tmp_tr.scale, scale));
+					tmp_tr.scale = scale;
+				}
 			}
+
+
 		}
 
 
@@ -345,6 +367,8 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
+			auto mSelection = mManager.GetRegistry().GetManager<SelectionManager>("Selection");
+
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
@@ -356,20 +380,19 @@ namespace SliceEditor
 				{
 					if (io.KeyCtrl)
 					{
-						mManager.SelectObject((entt::entity)entt_id);
+
 					}
 
 					else
 					{
 						if (selected_entity == entt::null || entt_id == 0)
 						{
-							mManager.ClearObject();
+
 						}
 
 						else
 						{
-							mManager.ClearObject();
-							mManager.SelectObject((entt::entity)entt_id);
+							mSelection->SelectSingle(selected_entity);
 						}
 					}
 				}

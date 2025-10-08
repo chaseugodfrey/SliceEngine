@@ -22,8 +22,9 @@ struct GLFWwindow;
 #include "Core/Registry.h"
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
-#include "SelectionSystem/SelectionSystem.h"
+#include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
+#include "EditorInputs.h"
 
 namespace SliceEditor
 {
@@ -31,7 +32,7 @@ namespace SliceEditor
 	{
 		SliceEngine::Engine engine;
 		Registry registry;
-
+		EditorInputs inputs;
 		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);
@@ -40,7 +41,6 @@ namespace SliceEditor
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);
 
-		void CheckInputs();
 		void Render();
 
 	public:

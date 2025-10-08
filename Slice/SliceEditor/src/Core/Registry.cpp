@@ -14,7 +14,9 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "Registry.h"
-#include "SelectionSystem/ISelectionListener.h"
+#include "Selection/ISelectionListener.h"
+#include "Selection/SelectionManager.h"
+#include "History/HistoryManager.h"
 #include "SceneView/SceneViewManager.h"
 #include "Hierachy/HierarchyManager.h"
 #include "Inspector/InspectorManager.h"
@@ -22,12 +24,13 @@ DigiPen Institute of Technology is prohibited.
 #include "Profiler/ProfilerManager.h"
 #include "GameView/GameViewManager.h"
 #include "WindowManager/WindowManager.h"
-#include "History/HistoryManager.h"
 
 namespace SliceEditor
 {
 	void Registry::Init()
 	{
+		CreateManager<HistoryManager>("History");
+		CreateManager<SelectionManager>("Selection");
 		CreateManager<ContentBrowserManager>("ContentBrowser");
 		CreateManager<HierarchyManager>("Hierarchy");
 		CreateManager<InspectorManager>("Inspector");
@@ -35,13 +38,15 @@ namespace SliceEditor
 		CreateManager<ProfilerManager>("Profiler");
 		CreateManager<GameViewManager>("GameView");
 		CreateManager<WindowManager>("Windows");
-		CreateManager<HistoryManager>("History");
+
+
+		auto mSelection = GetManager<SelectionManager>("Selection");
 
 		for (auto& [name, manager] : mManagers)
 		{
 			if (auto listener = dynamic_cast<ISelectionListener*>(manager.get()))
 			{
-				selectionSystem.RegisterListener(listener);
+				mSelection->RegisterListener(listener);
 			}
 
 			manager->Init();
@@ -51,10 +56,5 @@ namespace SliceEditor
 	std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& Registry::GetManagers()
 	{
 		return mManagers;
-	}
-
-	SelectionSystem& Registry::GetSelectionSystem()
-	{
-		return selectionSystem;
 	}
 }
