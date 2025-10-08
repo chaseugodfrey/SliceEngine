@@ -188,24 +188,30 @@ namespace SliceEngine
 
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
-		auto& targetSceneGraph = mRegistry.get<SceneGraph>(target);
-		//Check direct children
-		auto child = targetSceneGraph.neighbours[SceneGraph::DOWN];
-		//Checking the right siblings of the child until null
-		while(child != entt::null)
+		if(dest == entt::null)
 		{
-			if(child == dest)
-			{
-				return true;
-			}
-			//Recursively check the child too
-			if(isDescendant(target, child))
-			{
-				return true;
-			}
-			auto& childSceneGraph = mRegistry.get<SceneGraph>(child);
-			child = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			return false;
 		}
+		auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//Check direct children
+		auto parent = destSceneGraph.neighbours[SceneGraph::UP];
+		//Checking the right siblings of the child until null
+		while(parent != entt::null)
+		{
+			if(parent == target)
+			{
+				return true;
+			}
+			//Recursively check the child too (This is wrong)
+			if(isDescendant(target, parent))
+			{
+				return true;
+			}
+			parent = mRegistry.get<SceneGraph>(parent).neighbours[SceneGraph::UP];
+		}
+
+		return false;
 	}
 
 	void GOFactory::Unparent(Entity entity)
