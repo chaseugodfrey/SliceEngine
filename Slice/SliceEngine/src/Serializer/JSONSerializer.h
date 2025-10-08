@@ -33,7 +33,7 @@ namespace SliceEngine
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 		// Add more templates in this region should the current templates do not serve your data type well
-#pragma region SerializationTemplates
+#pragma region Serialization Templates
 		// For generic values
 		template <typename T>
 		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
@@ -76,14 +76,6 @@ namespace SliceEngine
 				else
 					output[name][typeName][propName][i] = static_cast<uint64_t>(e);
 			}
-		}
-
-		// For Entity (entt::entity)
-		template<>
-		inline void Serialize(json& output, const std::string& name, const std::string_view& typeName,
-			const std::string& propName, const EntityID& value, const Entity& entity)
-		{
-			output[name][typeName][propName] = entity;
 		}
 
 		// For glm::vec2
@@ -155,15 +147,31 @@ namespace SliceEngine
 		// For generic values
 		template <typename T>
 		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
-			const T& value)
+			const T& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			prop.set_value(componentInstance, value);
+		}
+
+		// For generic strings + special exceptions
+		template <>
+		inline void Deserialize<std::string>(rttr::variant& componentInstance, rttr::property& prop,
+			const std::string& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
+		{
+			prop.set_value(componentInstance, value);
+
+			if (propName == "mName" && componentName == typeid(SliceEntity).name())
+			{
+				FactoryInstance.UpdateName(value, entity);
+			}
 		}
 
 		// For Relationship array (up down left right stuff)
 		template <>
 		inline void Deserialize<std::array<Entity, 4>>(rttr::variant& componentInstance, rttr::property& prop,
-			const std::array<Entity, 4>& value)
+			const std::array<Entity, 4>& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			std::array<Entity, 4> arr;
 			for (size_t i = 0; i < arr.size(); ++i)
@@ -181,30 +189,23 @@ namespace SliceEngine
 			}
 			prop.set_value(componentInstance, arr);
 		}
-		// For Entity (entt::entity)
-		template <>
-		inline void Deserialize<EntityID>(rttr::variant& componentInstance, rttr::property& prop, const EntityID& value)
-		{
-			uint64_t oldID = value.value;
-			prop.set_value(componentInstance, EntityID{ oldID });
-		}
 		template <typename T>
-		bool TryDeserializeType(rttr::variant& componentInstance,
-			rttr::property& prop,
-			const json& value)
+		bool TryDeserializeType(rttr::variant& componentInstance, rttr::property& prop, 
+			const json& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
 			if (prop.get_type() == rttr::type::get<T>()) {
-				Deserialize<T>(componentInstance, prop, value.get<T>());
+				Deserialize<T>(componentInstance, prop, value.get<T>(),propName, componentName, entity);
 				return true;
 			}
 			return false;
 		}
 		template <typename... Types>
-		void DeserializeProp(rttr::variant& componentInstance,
-			rttr::property& prop,
-			const json& value)
+		void DeserializeProp(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
 		{
-			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value) || ...);
+			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
 
 			if (!handled)
 			{
@@ -217,7 +218,7 @@ namespace SliceEngine
 					<< "Fallback to string deserialization.";
 
 				SLICE_LOG_ERROR(oss.str());
-				Deserialize<std::string>(componentInstance, prop, value);
+				Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);
 			}
 		}
 
@@ -283,10 +284,6 @@ namespace nlohmann
 
 namespace SliceEngine
 {
-	inline void from_json(const json& j, EntityID& e) {
-		e.value = j.get<uint64_t>();
-	}
-
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{

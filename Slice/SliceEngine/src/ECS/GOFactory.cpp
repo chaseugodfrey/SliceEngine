@@ -538,11 +538,10 @@ namespace SliceEngine
 						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
 					else if (value.is_type<double>())
 						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
-					else if (value.get_type() == rttr::type::get<EntityID>() ||
-						value.get_type().is_derived_from(rttr::type::get<EntityID>()))
+					else if (value.get_type() == rttr::type::get<uint64_t>() ||
+						value.get_type().is_derived_from(rttr::type::get<uint64_t>()))
 					{
-						EntityID eid = value.get_value<EntityID>();
-						std::cout << property.get_name() << " = " << eid.value << std::endl;
+						std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
 					}
 					else if (value.is_type<std::array<Entity, 4>>())
 					{

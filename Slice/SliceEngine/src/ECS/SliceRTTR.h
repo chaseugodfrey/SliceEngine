@@ -69,11 +69,6 @@ namespace SliceEngine
 		.property("entity_id", &SceneGraph::entity_id)
 		.property("neighbours", &SceneGraph::neighbours);
 
-	rttr::registration::class_<EntityID>("EntityID")
-		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<uint64_t>()
-		.property("value", &EntityID::value);
-
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
 		.property("mName", &SliceEntity::mName);
