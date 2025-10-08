@@ -17,7 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
 {
@@ -137,9 +139,20 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
-
+			glm::vec3 eulerAngles = SliceEngine::QuatToVec3(tr.rotation);
 			DragVec3InputHeader("Position", "##t", tr.position);
-			DragVec3InputHeader("Rotation", "##r", tr.rotation);
+			//DragVec3InputHeader("Rotation", "##r", eulerAngles);
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles)))
+			{
+				tr.rotation = SliceEngine::Vec3ToQuat(eulerAngles);
+				//glm::vec3 eulerAnglesRad = glm::radians(eulerAngles);
+
+				//glm::quat yaw = glm::angleAxis(eulerAnglesRad.y, glm::vec3(0.0f, 1.0f, 0.0f));
+				//glm::quat pitch = glm::angleAxis(eulerAnglesRad.x, glm::vec3(0.0f, 0.0f, 1.0f));
+				//glm::quat roll = glm::angleAxis(eulerAnglesRad.z, glm::vec3(1.0f, 0.0f, 0.0f));
+
+				//tr.rotation = yaw * pitch * roll;//glm::quat(glm::radians(eulerAngles));
+			}
 			DragVec3InputHeader("Scale", "##s", tr.scale);
 
 			// for testing purposes

@@ -199,17 +199,20 @@ namespace SliceEditor
 				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
 			}
 
-			static ImVec2 rotate_anchor{};
+			//static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
-			static ImVec2 init_rot{};
+			//static ImVec2 init_rot{};
+			static ImVec2 lastMousePos{};
+			static float cameraYaw = 0.0f;
+			static float cameraPitch = 0.0f;
 
 			if (ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					init_rot.x = cam_tr.rotation.y;
-					init_rot.y = cam_tr.rotation.z;
-					rotate_anchor = ImGui::GetMousePos();
+					//init_rot.x = cam_tr.rotation.y;
+					//init_rot.y = cam_tr.rotation.z;
+					lastMousePos = ImGui::GetMousePos();
 					isRotating = true;
 				}
 
@@ -223,11 +226,38 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
-					ImVec2 mouse_diff = ImGui::GetMousePos() - rotate_anchor;
-					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
-					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
+					ImVec2 currMouse = ImGui::GetMousePos();
+					ImVec2 mouse_diff(currMouse.x - lastMousePos.x, currMouse.y - lastMousePos.y);
+
+					float sensitivity = 0.005f;
+					cameraYaw -= mouse_diff.x * sensitivity;
+					cameraPitch -= mouse_diff.y * sensitivity;
+
+					cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+
+					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
+
+					cam_tr.rotation = yawRotation * pitchRotation;
+
+					/*float yawAngle = glm::radians(-mouse_diff.x * 0.2f);
+					glm::quat yawDelta = glm::angleAxis(yawAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+					float pitchAngle = glm::radians(-mouse_diff.y * 0.2f);
+					glm::vec3 cameraRight = glm::normalize(cam_tr.rotation * glm::vec3(0.0f, 0.0f, 1.0f));
+					glm::quat pitchDelta = glm::angleAxis(pitchAngle, cameraRight);
+
+					cam_tr.rotation = yawDelta * cam_tr.rotation;
+					cam_tr.rotation = cam_tr.rotation * pitchDelta;*/
+
+					lastMousePos = currMouse;
+
+					/*cam_tr.rotation.y = init_rot.x - mouse_diff.x;
+					cam_tr.rotation.z = init_rot.y - mouse_diff.y;*/
 				}
 			}
+
+			// update 
 		}
 
 #pragma region Scene Drawing
@@ -291,7 +321,17 @@ namespace SliceEditor
 					if (parent_entity != entt::null && parent_entity != entt::entity{ 0 }) {
 						auto& parent_tr = reg.get<SliceEngine::Transform>(parent_entity);
 						glm::mat4 parent_world = parent_tr.transform;
-						new_local_tr = glm::inverse(parent_world) * new_world_tr;
+
+						glm::vec3 parentScale;
+						parentScale.x = glm::length(glm::vec3(parent_tr.transform[0]));
+						parentScale.y = glm::length(glm::vec3(parent_tr.transform[1]));
+						parentScale.z = glm::length(glm::vec3(parent_tr.transform[2]));
+
+						glm::mat4 invParentScaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f / parentScale.x, 1.0f / parentScale.y, 1.0f / parentScale.z));
+						glm::mat4 newParentTransform = parent_tr.transform * invParentScaleMat;
+
+						//new_local_tr = glm::inverse(parent_world) * new_world_tr;
+						new_local_tr = glm::inverse(newParentTransform) * new_world_tr;
 					}
 					else {
 						new_local_tr = new_world_tr; // root entity
@@ -302,19 +342,27 @@ namespace SliceEditor
 				}
 
 				// Extract all components from local transform
-				glm::vec3 translation, rotation_radians, scale;
-				glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
-				translation = glm::vec3(new_local_tr[3]);
-				scale.x = glm::length(glm::vec3(new_local_tr[0]));
-				scale.y = glm::length(glm::vec3(new_local_tr[1]));
-				scale.z = glm::length(glm::vec3(new_local_tr[2]));
+				//glm::vec3 translation, rotation_radians, scale;
+				//glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
+				//translation = glm::vec3(new_local_tr[3]);
+				//scale.x = glm::length(glm::vec3(new_local_tr[0]));
+				//scale.y = glm::length(glm::vec3(new_local_tr[1]));
+				//scale.z = glm::length(glm::vec3(new_local_tr[2]));
+
+				glm::vec3 scale, translation, skew;
+				glm::quat rotationQuat;
+				glm::vec4 perspective;
+
+				glm::decompose(new_local_tr, scale, rotationQuat, translation, skew, perspective);
+
+				glm::vec3 rotation_degrees = glm::degrees(glm::eulerAngles(rotationQuat));
 
 				// Only update what changed
 				if (operation == ImGuizmo::TRANSLATE) {
 					tmp_tr.position = translation;
 				}
 				else if (operation == ImGuizmo::ROTATE) {
-					tmp_tr.rotation = glm::degrees(rotation_radians);
+					tmp_tr.rotation = rotation_degrees;
 				}
 				else if (operation == ImGuizmo::SCALE) {
 					tmp_tr.scale = scale;

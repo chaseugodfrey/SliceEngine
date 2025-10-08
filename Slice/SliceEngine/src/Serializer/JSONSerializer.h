@@ -23,55 +23,206 @@ using json = nlohmann::json;
 
 namespace SliceEngine
 {
-	//The workflow in my head
-	//GameObject root = ...; // your scene root
-	//json j = RecursiveSerialize(root);
-
-	//// If you want to edit / validate / add metadata, do it here
-	//j["metadata"] = "example";
-
-	//Serialize(j, "scene.json");  // entomb it into a file
-
 	namespace JSONSerializer
 	{
-		void Serialize(json const& input, std::filesystem::path const& filePath);
+		void SerializeFile(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
-		json Deserialize(std::filesystem::path const& filePath);
+		json DeserializeFile(std::filesystem::path const& filePath);
 		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+		// Add more templates in this region should the current templates do not serve your data type well
+#pragma region SerializationTemplates
+		// For generic values
+		template <typename T>
+		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const T& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = value;
+		}
 
-		//failed attempt at genericising serialization types :((((((
-		//template<typename T>
-		//void SerializeValue(json& output, std::string const& name, std::string const& propName, entt::sparse_set& storage, rttr::variant& PropVal)
-		//{
-		//	output[name][storage.type().name()][propName] = propVal.get_value<T>();
-		//}
+		// For generic vectors
+		template <typename T>
+		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::vector<T>& vec, const Entity& entity)
+		{
+			output[name][typeName][propName] = json::array();
+			for (size_t i = 0; i < vec.size(); ++i)
+				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i], entity);
+		}
 
-		//template<typename K, typename V>
-		//void SerializeMap(const std::map<K, V>& m, json& output)
-		//{
-		//	for (const auto& [key, value] : m)
-		//	{
-		//		std::string keyStr = key_to_string(key);
-		//		output[keyStr] = serialize_value(value);
-		//	}
-		//}
+		// For generic arrays
+		template <typename T, size_t N>
+		void Serialize(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const std::array<T, N>& value, const Entity& entity)
+		{
+			for (size_t i = 0; i < N; ++i)
+				output[name][typeName][propName][i] = value[i];
+		}
 
-		//template<typename K, typename V>
-		//std::map<K, V> DeserializeMap(const json& input)
-		//{
-		//	std::map<K, V> result;
-		//	for (auto& [keyStr, val] : input.items())
-		//	{
-		//		K key = string_to_key<K>(keyStr);
-		//		V value = deserialize_value<V>(val);
-		//		result.emplace(key, value);
-		//	}
-		//	return result;
-		//}
+		// For Relationship array (up down left right stuff)
+		template <>
+		inline void Serialize<std::array<Entity, 4>>(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const std::array<Entity, 4>& value, const Entity& entity)
+		{
+			for (size_t i = 0; i < 4; ++i)
+			{
+				Entity e = value[i];
+				if (e == entt::null || e == std::numeric_limits<entt::entity>::max())
+					output[name][typeName][propName][i] = nullptr;
+				else
+					output[name][typeName][propName][i] = static_cast<uint64_t>(e);
+			}
+		}
 
+		// For Entity (entt::entity)
+		template<>
+		inline void Serialize(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const EntityID& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = entity;
+		}
+
+		// For glm::vec2
+		template<>
+		inline void Serialize<glm::vec2>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const glm::vec2& v, const Entity& entity)
+		{
+			output[name][typeName][propName] = { v.x, v.y };
+		}
+
+		// For glm::vec3
+		template<>
+		inline void Serialize<glm::vec3>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const glm::vec3& v, const Entity& entity)
+		{
+			output[name][typeName][propName] = { v.x, v.y, v.z };
+		}
+
+		// For glm::vec4
+		template<>
+		inline void Serialize<glm::vec4>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const glm::vec4& v, const Entity& entity)
+		{
+			output[name][typeName][propName] = { v.x, v.y, v.z, v.w };
+		}
+
+		// For unsigned char
+		template <>
+		inline void Serialize<unsigned char>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const unsigned char& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = static_cast<uint64_t>(value);
+		}
+
+		// Main evaluater for serialization
+		template <typename T>
+		bool TrySerializeType(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const rttr::variant& propVal, const Entity& entity)
+		{
+			if (propVal.is_type<T>())
+			{
+				Serialize(output, name, typeName, propName, propVal.get_value<T>(), entity);
+				return true;
+			}
+			return false;
+		}
+
+		// Main "Looper" of all types declared to be supported
+		template <typename... Types>
+		void SerializeProp(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const rttr::variant& propVal, const Entity& entity)
+		{
+			// stop at first successful serialization
+			bool handled = (TrySerializeType<Types>(output, name, typeName, propName, propVal, entity) || ...);
+
+			if (!handled)
+			{
+				// fallback: convert to string
+				output[name][typeName][propName] = propVal.to_string();
+			}
+		}
+#pragma endregion
+
+		// Add more templates in this region should the current templates do not serve your data type well
+		// For deserialization, may need to add more from_json functions in the same namespace as the variable to be getted from
+#pragma region Deserialization Templates
+		// For generic values
+		template <typename T>
+		void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
+			const T& value)
+		{
+			prop.set_value(componentInstance, value);
+		}
+
+		// For Relationship array (up down left right stuff)
+		template <>
+		inline void Deserialize<std::array<Entity, 4>>(rttr::variant& componentInstance, rttr::property& prop,
+			const std::array<Entity, 4>& value)
+		{
+			std::array<Entity, 4> arr;
+			for (size_t i = 0; i < arr.size(); ++i)
+			{
+				auto v = value[i];
+
+				if (v == entt::null)
+				{
+					arr[i] = entt::null;
+				}
+				else
+				{
+					arr[i] = v;
+				}
+			}
+			prop.set_value(componentInstance, arr);
+		}
+		// For Entity (entt::entity)
+		template <>
+		inline void Deserialize<EntityID>(rttr::variant& componentInstance, rttr::property& prop, const EntityID& value)
+		{
+			uint64_t oldID = value.value;
+			prop.set_value(componentInstance, EntityID{ oldID });
+		}
+		template <typename T>
+		bool TryDeserializeType(rttr::variant& componentInstance,
+			rttr::property& prop,
+			const json& value)
+		{
+			if (prop.get_type() == rttr::type::get<T>()) {
+				Deserialize<T>(componentInstance, prop, value.get<T>());
+				return true;
+			}
+			return false;
+		}
+		template <typename... Types>
+		void DeserializeProp(rttr::variant& componentInstance,
+			rttr::property& prop,
+			const json& value)
+		{
+			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value) || ...);
+
+			if (!handled)
+			{
+				std::ostringstream oss;
+				oss << "[DeserializeProp] Unhandled property type during deserialization\n"
+					<< " Component: " << componentInstance.get_type().get_name().to_string() << "\n"
+					<< " Property:  " << prop.get_name().to_string() << "\n"
+					<< " Expected Type: " << prop.get_type().get_name().to_string() << "\n"
+					<< " JSON Value: " << value.dump() << "\n"
+					<< "Fallback to string deserialization.";
+
+				SLICE_LOG_ERROR(oss.str());
+				Deserialize<std::string>(componentInstance, prop, value);
+			}
+		}
+
+
+#pragma endregion
 		namespace Tests
 		{
 			enum TestNum
@@ -90,5 +241,114 @@ namespace SliceEngine
 	}	
 }
 
+// If .get<T> giving errors, add more support for your containers here
+#pragma region json.hpp .get<T> Additional Type Support
+namespace nlohmann 
+{
+	inline void from_json(const json& j, unsigned char& value)
+	{
+		if (j.is_number_unsigned())
+		{
+			// Direct numeric value
+			uint64_t temp = j.get<uint64_t>();
+			if (temp > 255)
+				throw std::runtime_error("JSON value out of range for unsigned char: " + std::to_string(temp));
+			value = static_cast<unsigned char>(temp);
+		}
+		else if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				value = 0; // Treat empty string as zero
+			}
+			else
+			{
+				uint64_t temp = std::stoull(s);
+				if (temp > 255)
+					throw std::runtime_error("JSON string value out of range for unsigned char: " + s);
+				value = static_cast<unsigned char>(temp);
+			}
+		}
+		else if (j.is_null())
+		{
+			value = 0; // Treat null as zero
+		}
+		else
+		{
+			throw std::runtime_error("Invalid JSON type for unsigned char: " + j.dump());
+		}
+	}
+}
+
+namespace SliceEngine
+{
+	inline void from_json(const json& j, EntityID& e) {
+		e.value = j.get<uint64_t>();
+	}
+
+	// Deserialize GUID
+	inline void from_json(const json& j, GUID& guid)
+	{
+		if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				guid = GUID::null();
+			}
+			else
+			{
+				guid = GUID(static_cast<uint64_t>(std::stoull(s)));
+			}
+		}
+	}
+
+	// Serialize GUID
+	inline void to_json(json& j, const GUID& guid)
+	{
+		j = guid.GetGUID();
+	}
+}
+
+namespace glm
+{
+	inline void from_json(const json& j, glm::vec2& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+	}
+
+	inline void from_json(const json& j, glm::vec3& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+		v.z = j.at(2).get<float>();
+	}
+
+	inline void from_json(const json& j, glm::vec4& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+		v.z = j.at(2).get<float>();
+		v.w = j.at(3).get<float>();
+	}
+}
+
+namespace entt 
+{
+	inline void from_json(const json& j, entt::entity& e)
+	{
+		if (j.is_null()) {
+			e = entt::null;
+		}
+		else {
+			e = static_cast<entt::entity>(j.get<uint64_t>());
+		}
+	}
+
+	inline void to_json(json& j, const entt::entity& e)
+	{
+		j = static_cast<uint64_t>(e);
+	}
+}
+#pragma endregion
 
 #endif
