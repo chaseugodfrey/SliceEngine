@@ -1,2 +1,0 @@
-instanced.vert
-instanced.frag
