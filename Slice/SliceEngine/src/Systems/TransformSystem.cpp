@@ -38,7 +38,8 @@ namespace SliceEngine
 		// -------------------------------------------------------------
 		glm::mat4x4 M(1.f);
 		M = glm::translate(M, tr.position);
-		M *= glm::eulerAngleXYZ(glm::radians(tr.rotation.x), glm::radians(tr.rotation.y), glm::radians(tr.rotation.z));
+		M *= glm::mat4_cast(tr.rotation);
+		//M *= glm::eulerAngleXYZ(glm::radians(tr.rotation.x), glm::radians(tr.rotation.y), glm::radians(tr.rotation.z));
 		M = glm::scale(M, tr.scale);
 
 		tr.transform_local = M;

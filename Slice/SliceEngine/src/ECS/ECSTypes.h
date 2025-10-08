@@ -83,7 +83,8 @@ namespace SliceEngine
 	struct Transform
 	{
 		glm::vec3 position{};
-		glm::vec3 rotation{};
+		//glm::vec3 rotation{};
+		glm::quat  rotation{ glm::quat(1.0f, 0.0f, 0.0f, 0.0f) };
 		glm::vec3 scale{1};
 
 		glm::vec3 previousScale{};
