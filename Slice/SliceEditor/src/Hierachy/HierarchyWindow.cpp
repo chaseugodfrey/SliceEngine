@@ -44,7 +44,7 @@ namespace SliceEditor
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
 
-		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 10));
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
 
 		if (ImGui::BeginDragDropTarget())
 		{
