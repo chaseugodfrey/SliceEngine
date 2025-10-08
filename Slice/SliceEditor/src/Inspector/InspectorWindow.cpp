@@ -142,16 +142,18 @@ namespace SliceEditor
 			glm::vec3 eulerAngles = SliceEngine::QuatToVec3(tr.rotation);
 			DragVec3InputHeader("Position", "##t", tr.position);
 			//DragVec3InputHeader("Rotation", "##r", eulerAngles);
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles)))
+			if (ImGui::DragFloat3("Rotation", glm::value_ptr(tr.inspectorRot)))
 			{
-				tr.rotation = SliceEngine::Vec3ToQuat(eulerAngles);
-				//glm::vec3 eulerAnglesRad = glm::radians(eulerAngles);
+				tr.inspectorRot.x = fmod(tr.inspectorRot.x, 360.0f);
+				tr.inspectorRot.y = fmod(tr.inspectorRot.y, 360.0f);
+				tr.inspectorRot.z = fmod(tr.inspectorRot.z, 360.0f);
 
-				//glm::quat yaw = glm::angleAxis(eulerAnglesRad.y, glm::vec3(0.0f, 1.0f, 0.0f));
-				//glm::quat pitch = glm::angleAxis(eulerAnglesRad.x, glm::vec3(0.0f, 0.0f, 1.0f));
-				//glm::quat roll = glm::angleAxis(eulerAnglesRad.z, glm::vec3(1.0f, 0.0f, 0.0f));
+				glm::vec3 eulerRad = glm::radians(tr.inspectorRot);
+				glm::quat yaw = glm::angleAxis(eulerRad.y, glm::vec3(0, 1, 0));
+				glm::quat pitch = glm::angleAxis(eulerRad.x, glm::vec3(1, 0, 0));
+				glm::quat roll = glm::angleAxis(eulerRad.z, glm::vec3(0, 0, 1));
 
-				//tr.rotation = yaw * pitch * roll;//glm::quat(glm::radians(eulerAngles));
+				tr.rotation = yaw * pitch * roll;
 			}
 			DragVec3InputHeader("Scale", "##s", tr.scale);
 

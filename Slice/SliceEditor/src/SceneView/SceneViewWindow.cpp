@@ -233,7 +233,7 @@ namespace SliceEditor
 					cameraYaw -= mouse_diff.x * sensitivity;
 					cameraPitch -= mouse_diff.y * sensitivity;
 
-					cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
 
 					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
 					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -355,14 +355,15 @@ namespace SliceEditor
 
 				glm::decompose(new_local_tr, scale, rotationQuat, translation, skew, perspective);
 
-				glm::vec3 rotation_degrees = glm::degrees(glm::eulerAngles(rotationQuat));
+				//glm::vec3 rotation_degrees = glm::degrees(glm::eulerAngles(rotationQuat));
 
 				// Only update what changed
 				if (operation == ImGuizmo::TRANSLATE) {
 					tmp_tr.position = translation;
 				}
 				else if (operation == ImGuizmo::ROTATE) {
-					tmp_tr.rotation = rotation_degrees;
+					tmp_tr.rotation = rotationQuat;
+					tmp_tr.inspectorRot = glm::degrees(glm::eulerAngles(rotationQuat));
 				}
 				else if (operation == ImGuizmo::SCALE) {
 					tmp_tr.scale = scale;
