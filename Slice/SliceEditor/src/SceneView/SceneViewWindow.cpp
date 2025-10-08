@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "SceneViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include <Graphics/TransformHelper.h>
 #include "Core/Registry.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -363,7 +364,7 @@ namespace SliceEditor
 				}
 				else if (operation == ImGuizmo::ROTATE) {
 					tmp_tr.rotation = rotationQuat;
-					tmp_tr.inspectorRot = glm::degrees(glm::eulerAngles(rotationQuat));
+					tmp_tr.inspectorRot = SliceEngine::QuatToVec3(rotationQuat);
 				}
 				else if (operation == ImGuizmo::SCALE) {
 					tmp_tr.scale = scale;

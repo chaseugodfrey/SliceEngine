@@ -148,12 +148,7 @@ namespace SliceEditor
 				tr.inspectorRot.y = fmod(tr.inspectorRot.y, 360.0f);
 				tr.inspectorRot.z = fmod(tr.inspectorRot.z, 360.0f);
 
-				glm::vec3 eulerRad = glm::radians(tr.inspectorRot);
-				glm::quat yaw = glm::angleAxis(eulerRad.y, glm::vec3(0, 1, 0));
-				glm::quat pitch = glm::angleAxis(eulerRad.x, glm::vec3(1, 0, 0));
-				glm::quat roll = glm::angleAxis(eulerRad.z, glm::vec3(0, 0, 1));
-
-				tr.rotation = yaw * pitch * roll;
+				tr.rotation = SliceEngine::Vec3ToQuat(tr.inspectorRot);;
 			}
 			DragVec3InputHeader("Scale", "##s", tr.scale);
 
