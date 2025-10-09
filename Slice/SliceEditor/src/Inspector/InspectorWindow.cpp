@@ -50,6 +50,15 @@ namespace SliceEditor
 
 		DisplayEntityData();
 
+		//Loop through registered components and display them if they exist on the selected entity
+		
+		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		{
+			
+		}
+
+
+
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
 		{
@@ -60,6 +69,8 @@ namespace SliceEditor
 			//ImGui::Separator();
 
 			// to do: use component view
+			
+
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
@@ -100,11 +111,6 @@ namespace SliceEditor
 		}
 
 		ImGui::End();
-	}
-
-	void R()
-	{
-		
 	}
 
 	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
