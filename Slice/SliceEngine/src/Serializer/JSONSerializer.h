@@ -29,7 +29,7 @@ namespace SliceEngine
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
 		json DeserializeFile(std::filesystem::path const& filePath);
-		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath);
+		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
 		// Add more templates in this region should the current templates do not serve your data type well
@@ -432,13 +432,13 @@ namespace entt
 			e = entt::null;
 		}
 		else {
-			e = static_cast<entt::entity>(j.get<uint64_t>());
+			e = static_cast<entt::entity>(j.get<uint32_t>());
 		}
 	}
 
 	inline void to_json(json& j, const entt::entity& e)
 	{
-		j = static_cast<uint64_t>(e);
+		j = static_cast<uint32_t>(e);
 	}
 }
 #pragma endregion

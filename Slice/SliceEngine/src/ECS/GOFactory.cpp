@@ -79,6 +79,7 @@ namespace SliceEngine
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
 		go.AddComponent<SceneGraph>();
+		go.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
 		SetParent(go.GetEntity());
 		return go;
 	}
@@ -493,7 +494,7 @@ namespace SliceEngine
 				if (key_entity == entt::null)
 					continue;
 
-				uint64_t key = entt::to_integral(key_entity);
+				uint32_t key = entt::to_integral(key_entity);
 				auto it = map.find(key);
 
 				if (it != map.end())

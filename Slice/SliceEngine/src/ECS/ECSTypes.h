@@ -27,7 +27,7 @@ namespace SliceEngine
 {
 	struct SceneGraph
 	{
-		uint64_t entity_id{};
+		uint32_t entity_id{};
 
 		enum Direction {
 			UP = 0,
