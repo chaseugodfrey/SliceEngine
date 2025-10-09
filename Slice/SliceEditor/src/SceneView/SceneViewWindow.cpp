@@ -18,7 +18,10 @@ DigiPen Institute of Technology is prohibited.
 #include "SceneViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include <Graphics/TransformHelper.h>
 #include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
+
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -27,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+
 	// Convert Euler angles (in degrees) to quaternion
 	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
 		glm::vec3 euler_radians = glm::radians(euler_degrees);
@@ -80,6 +84,32 @@ namespace SliceEditor
 			if (fabs(result[i]) < 0.0001f) result[i] = 0.f;
 		}
 		return result;
+	}
+
+	glm::mat4 ConvertToEulerMatrix(const glm::mat4& transform)
+	{
+		glm::vec3 scale, translation, skew;
+		glm::quat rotationQuat;
+		glm::vec4 perspective;
+
+		// Decompose the matrix into translation, rotation (quaternion), scale, etc.
+		glm::decompose(transform, scale, rotationQuat, translation, skew, perspective);
+
+		// Convert the quaternion to Euler angles (in degrees)
+		glm::vec3 euler = QuaternionToEuler(rotationQuat);
+
+		// Normalize Euler angles (to prevent gimbal lock issues)
+		euler = NormalizeEulerAngles(euler);
+
+		// Recompose the matrix from the Euler angles
+		glm::mat4 new_transform = glm::mat4(1.0f);  // Start with an identity matrix
+		new_transform = glm::translate(new_transform, translation); // Apply translation
+		new_transform = glm::rotate(new_transform, glm::radians(euler.x), glm::vec3(1.0f, 0.0f, 0.0f)); // Apply rotation for X
+		new_transform = glm::rotate(new_transform, glm::radians(euler.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Apply rotation for Y
+		new_transform = glm::rotate(new_transform, glm::radians(euler.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Apply rotation for Z
+		new_transform = glm::scale(new_transform, scale); // Apply scale
+
+		return new_transform;
 	}
 
 	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : camObj(cam), mManager(manager), tex_id(0)
@@ -199,17 +229,20 @@ namespace SliceEditor
 				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
 			}
 
-			static ImVec2 rotate_anchor{};
+			//static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
-			static ImVec2 init_rot{};
+			//static ImVec2 init_rot{};
+			static ImVec2 lastMousePos{};
+			static float cameraYaw = 0.0f;
+			static float cameraPitch = 0.0f;
 
 			if (ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					init_rot.x = cam_tr.rotation.y;
-					init_rot.y = cam_tr.rotation.z;
-					rotate_anchor = ImGui::GetMousePos();
+					//init_rot.x = cam_tr.rotation.y;
+					//init_rot.y = cam_tr.rotation.z;
+					lastMousePos = ImGui::GetMousePos();
 					isRotating = true;
 				}
 
@@ -223,11 +256,25 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
-					ImVec2 mouse_diff = ImGui::GetMousePos() - rotate_anchor;
-					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
-					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
+					ImVec2 currMouse = ImGui::GetMousePos();
+					ImVec2 mouse_diff(currMouse.x - lastMousePos.x, currMouse.y - lastMousePos.y);
+
+					float sensitivity = 0.005f;
+					cameraYaw -= mouse_diff.x * sensitivity;
+					cameraPitch -= mouse_diff.y * sensitivity;
+
+					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+
+					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
+
+					cam_tr.rotation = yawRotation * pitchRotation;
+
+					lastMousePos = currMouse;
 				}
 			}
+
+			// update 
 		}
 
 #pragma region Scene Drawing
@@ -257,9 +304,9 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		auto& set = mManager.GetRegistry().GetSelectionSystem().GetSelectedEntities();
+		auto& set = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
-		if (set.size() > 0)
+		if (!set.empty())
 		{
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
@@ -270,57 +317,46 @@ namespace SliceEditor
 			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
-
 			ImGuizmo::SetRect(scene_window_pos.x, scene_window_pos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
 
 			// get transforms
-			glm::mat4 world_tr = tmp_tr.transform; // already computed as parent * local
-			glm::mat4 new_world_tr = world_tr;
+			glm::mat4 world_tr = tmp_tr.transform;
+			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
-			if (ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P),
-				mManager.GetGizmoOperation(), mManager.GetGizmoMode(),
-				glm::value_ptr(new_world_tr), NULL))
+			auto op = mManager.GetGizmoOperation();
+			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mManager.GetGizmoOperation(), mManager.GetGizmoMode(), glm::value_ptr(world_tr));
+
+			if (ImGuizmo::IsUsing())
 			{
-				auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				auto operation = mManager.GetGizmoOperation();
+				glm::vec3 scale, translation, skew;
+				glm::vec4 persp;
+				glm::quat rot;
 
-				// Convert world transform to local if we have a parent
-				glm::mat4 new_local_tr;
-				if (auto scene_graph = reg.try_get<SliceEngine::SceneGraph>(entt)) {
-					auto parent_entity = scene_graph->neighbours[SliceEngine::SceneGraph::UP];
-					if (parent_entity != entt::null && parent_entity != entt::entity{ 0 }) {
-						auto& parent_tr = reg.get<SliceEngine::Transform>(parent_entity);
-						glm::mat4 parent_world = parent_tr.transform;
-						new_local_tr = glm::inverse(parent_world) * new_world_tr;
-					}
-					else {
-						new_local_tr = new_world_tr; // root entity
-					}
-				}
-				else {
-					new_local_tr = new_world_tr;
-				}
+				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
-				// Extract all components from local transform
-				glm::vec3 translation, rotation_radians, scale;
-				glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
-				translation = glm::vec3(new_local_tr[3]);
-				scale.x = glm::length(glm::vec3(new_local_tr[0]));
-				scale.y = glm::length(glm::vec3(new_local_tr[1]));
-				scale.z = glm::length(glm::vec3(new_local_tr[2]));
-
-				// Only update what changed
-				if (operation == ImGuizmo::TRANSLATE) {
+				if (op == ImGuizmo::OPERATION::TRANSLATE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, tmp_tr.position, translation));
 					tmp_tr.position = translation;
 				}
-				else if (operation == ImGuizmo::ROTATE) {
-					tmp_tr.rotation = glm::degrees(rotation_radians);
+				
+				if (op == ImGuizmo::OPERATION::ROTATE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, tmp_tr.rotation, rot));
+					tmp_tr.rotation = rot;
 				}
-				else if (operation == ImGuizmo::SCALE) {
+
+				if (op == ImGuizmo::OPERATION::SCALE)
+				{
+					mManager.StartUsingGizmo(tmp_tr.position);
+					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, tmp_tr.scale, scale));
 					tmp_tr.scale = scale;
 				}
-				// Don't touch the matrices - let transform system rebuild them
 			}
+
+
 		}
 
 
@@ -331,6 +367,8 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
+			auto mSelection = mManager.GetRegistry().GetManager<SelectionManager>("Selection");
+
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
@@ -342,20 +380,19 @@ namespace SliceEditor
 				{
 					if (io.KeyCtrl)
 					{
-						mManager.SelectObject((entt::entity)entt_id);
+
 					}
 
 					else
 					{
 						if (selected_entity == entt::null || entt_id == 0)
 						{
-							mManager.ClearObject();
+
 						}
 
 						else
 						{
-							mManager.ClearObject();
-							mManager.SelectObject((entt::entity)entt_id);
+							mSelection->SelectSingle(selected_entity);
 						}
 					}
 				}

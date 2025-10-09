@@ -12,31 +12,36 @@ Reproduction or disclosure of this file or its contents without the prior writte
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef SELECTION_SYSTEM_H
-#define SELECTION_SYSTEM_H
+#ifndef SELECTION_MANAGER_H
+#define SELECTION_MANAGER_H
 
+#include "Core/IBaseManager.h"
 #include "ISelectionListener.h"
 
 namespace SliceEditor
 {
-	class SelectionSystem
+	class Registry;
+
+	class SelectionManager : public IBaseManager
 	{
 		// to do:: make it non-static later
 		std::vector<ISelectionListener*> mListeners;
 		std::unordered_set<entt::entity> mSelectedEntities;
-		
+
 		void UpdateManagers();
 
 	public:
-		SelectionSystem() = default;
-		~SelectionSystem() = default;
+		SelectionManager(Registry& reg) : IBaseManager(reg) {};
+		~SelectionManager() = default;
 
+		void Init() override {};
 		void RegisterListener(ISelectionListener* listener);
-		void UpdateSelected(entt::entity entity);
-		void UpdateDeslected(entt::entity entity);
-		void UpdateSelected(std::unordered_set<entt::entity>& entities);
-		void UpdateDeslected(std::unordered_set<entt::entity>& entities);
-		void ClearSelection();
+		void SelectSingle(entt::entity entity, bool suppressHistory = false);
+		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
+		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
+		void SelectMultiple(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void ClearSelection(bool suppressHistory = false);
 
 		// replace this with listener pattern
 		std::unordered_set<entt::entity>& GetSelectedEntities();

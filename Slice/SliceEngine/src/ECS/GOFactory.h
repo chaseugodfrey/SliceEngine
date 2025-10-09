@@ -162,11 +162,14 @@ namespace SliceEngine
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
+
+		bool isDescendant(Entity target, Entity dest);
 		void Unparent(Entity entity);
 		void SetParent(Entity entity, Entity parentEntity = entt::null);
-		void SetSiblingIndex(Entity entity, int pos);
+		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
 		void BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map);
 		void ClearGameObjects();
+		void UpdateTransformFromParent(Entity entity, Entity parent);
 
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();

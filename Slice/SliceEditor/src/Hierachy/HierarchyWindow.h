@@ -22,20 +22,18 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	class HierarchyManager;
-	class SelectionSystem;
+	class SelectionManager;
 	struct TestNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
 		HierarchyManager& mManager;
-		// temporary solution todo: remove this and call from registry/event bus
-		SelectionSystem& mSelection;
 
-		void DrawNode(entt::entity entity, SliceEngine::SceneGraph& graph);
+		void DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& graph);
 		void DrawSceneNode(TestNode& node);
 		void DrawNodeGraph();
 
-		void EntityContextPopUp(TestNode& node);
+		void EntityContextPopUp(entt::entity entity);
 
 		std::unordered_set<TestNode*> set;
 		std::unordered_set<entt::entity> selected;
@@ -43,7 +41,7 @@ namespace SliceEditor
 
 	public:
 
-		HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection);
+		HierarchyWindow(HierarchyManager& manager);
 		~HierarchyWindow() = default;
 		void Draw() override final;
 	};

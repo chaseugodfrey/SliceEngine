@@ -14,10 +14,14 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <pch.h>
+#include <glm/gtc/type_ptr.hpp>
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
 {
@@ -30,7 +34,7 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Inspector");
 
-		auto& entities = mManager.GetSelectedEntities();
+		auto& entities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
 		if (entities.size() > 0)
 			selected_entity = *entities.begin();
@@ -137,10 +141,13 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
-
-			DragVec3InputHeader("Position", "##t", tr.position);
-			DragVec3InputHeader("Rotation", "##r", tr.rotation);
-			DragVec3InputHeader("Scale", "##s", tr.scale);
+			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
+			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
+			if (DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", euler))
+			{
+				tr.rotation = SliceEngine::Vec3ToQuat(euler);
+			}
+			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 
 			// for testing purposes
 			ImGui::BeginDisabled();

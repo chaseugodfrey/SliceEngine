@@ -17,6 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../Selection/SelectionManager.h"
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "../../SliceEngine/src/Core/EventManager.h"
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
@@ -25,28 +27,20 @@ namespace SliceEditor
 
 	void HierarchyManager::Init()
 	{
-		//Test();
-		SubscribeToSceneLoading();
-		Reset();
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
+		BuildHierarchy();
 	}
 
 	void HierarchyManager::Reset()
 	{
-		registry.GetSelectionSystem().ClearSelection();
-		BuildHierarchy();
 	}
 
 	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
 	{
 		if (event.isSceneLoaded)
 		{
-			Reset();
+			registry.GetManager<SelectionManager>("Selection")->ClearSelection(true);
 		}
-	}
-
-	void HierarchyManager::SubscribeToSceneLoading()
-	{
-		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 	}
 
 	void HierarchyManager::SetDirty()
@@ -89,7 +83,7 @@ namespace SliceEditor
 		{
 			TestNode node{};
 			node.entity = entity;
-			SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
+			//SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
 			mHierarchy.emplace(entity, node);
 		}
 	}
@@ -122,22 +116,8 @@ namespace SliceEditor
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
-		//Check for children and remove them first
-		//auto& targetNode = mHierarchy[target];
-
 		// remove everything from selection system(temp fix)
-		registry.GetSelectionSystem().ClearSelection();
-
-		// remove from node structure (including children)
-		//mHierarchy.erase(target);
-
-		//Remove from SelectionSystem FIX THIS LTR
-		/*auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
-		auto selectedIt = selectedEntities.find(target);
-		if(selectedIt != selectedEntities.end())
-		{
-			selectedEntities.erase(selectedIt);
-		}*/
+		registry.GetManager<SelectionManager>("Selection")->ClearSelection();
 
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
@@ -158,57 +138,28 @@ namespace SliceEditor
 		factory.Unparent(child);
 	}
 
-	void HierarchyManager::SetSiblingIndex(entt::entity target, entt::entity destination)
-	{
-		auto core = SliceEngine::Core::GetInstance();
-		auto& factory = core->mFactory;
-		auto go = factory.GetGOByEntity(target);
-
-		auto& dest_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(destination);
-		auto& parent_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(dest_scene_graph.neighbours[SliceEngine::SceneGraph::UP]);
-
-		auto child_entity = parent_scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
-
-		int index{};
-		while (child_entity != entt::null)
-		{
-			if (child_entity == destination)
-				break;
-
-			auto& sg = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-			child_entity = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-			++index;
-		}
-
-		factory.SetSiblingIndex(target, index);
-	}
-
 	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
 	{
-		if (destination == entt::null)
-			ParentGameObject(target);
-
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//If its the same entity, do nothing
+		if(destination == target)
+		{
+			SLICE_LOG_DEBUG("Trying to set new location to same entity, doing nothing");
+			return;
+		}
+		//It be moving somewhere else
 		else
 		{
-			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto& target_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(target);
-			auto& dest_parent_graph = engine_reg.get<SliceEngine::SceneGraph>(destination);
-			auto target_parent = target_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
-			auto dest_parent = dest_parent_graph.neighbours[SliceEngine::SceneGraph::UP];
-
-			if (target_parent != dest_parent)
-			{
-				ParentGameObject(target, dest_parent);
-			}
-
-			SetSiblingIndex(target, destination);
+			auto& destSceneGraph = factory.GetGOByEntity(destination).GetComponent<SliceEngine::SceneGraph>();
+			factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 		}
+
+		SetDirty();
 	}
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()
 	{
-		auto& selectionSystem = registry.GetSelectionSystem();
-		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
+		auto window = std::make_unique<HierarchyWindow>(*this);
 		return window;
 	}
 

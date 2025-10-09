@@ -16,8 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
-#include "../SelectionSystem/SelectionSystem.h"
-//#include "../../SliceEngine/src/Core/Core.h"
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
@@ -25,26 +25,25 @@ namespace SliceEditor
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
 
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection) : mManager(manager), mSelection(selection)
+	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
 	{
 
 	}
 
-	void HierarchyWindow::DrawNode(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
+	void HierarchyWindow::DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		auto core = SliceEngine::Core::GetInstance();
-		bool hasChildren = scene_graph.child_count > 0;
+		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 		auto& node = mManager.GetHierarchy()[entity];
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (node.isSelected)
+		if (mSelection.GetSelectedEntities().find(node.entity) != mSelection.GetSelectedEntities().end())
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
 
-		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 1));
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -68,7 +67,7 @@ namespace SliceEditor
 			ImGui::OpenPopup(name.c_str());
 		}
 
-		EntityContextPopUp(node);
+		EntityContextPopUp(entity);
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -100,14 +99,13 @@ namespace SliceEditor
 
 				else
 				{
-					mSelection.UpdateSelected(node.entity);
+					//mSelection->UpdateSelected(node.entity);
 				}
 			}
 
 			else
 			{
-				mSelection.ClearSelection();
-				mSelection.UpdateSelected(node.entity);
+				mSelection.SelectSingle(node.entity);
 			}
 		}
 
@@ -117,8 +115,8 @@ namespace SliceEditor
 
 			while (child_entity != entt::null)
 			{
-				auto& child_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(child_entity, child_scene_graph);
+				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(mSelection, child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -139,7 +137,7 @@ namespace SliceEditor
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(child_entity, child_scene_graph);
+				DrawNode(*mManager.GetRegistry().GetManager<SelectionManager>("Selection"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -157,9 +155,9 @@ namespace SliceEditor
 		ImGui::EndGroup();
 	}
 
-	void HierarchyWindow::EntityContextPopUp(TestNode& node)
+	void HierarchyWindow::EntityContextPopUp(entt::entity entity)
 	{
-		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(node.entity);
+		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 		bool hasParent = scene_graph.neighbours[SliceEngine::SceneGraph::UP] != SliceEngine::FactoryInstance.GetRootEntity();
 
 		if (ImGui::BeginPopupContextItem())
@@ -169,7 +167,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Unparent"))
 			{
-				mManager.Unparent(node.entity);
+				mManager.Unparent(entity);
 			}
 
 			if (!hasParent)
@@ -182,7 +180,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
-				mManager.RemoveGameObject(node.entity);
+				mManager.RemoveGameObject(entity);
 			}
 
 			ImGui::EndPopup();
@@ -193,11 +191,6 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Hierarchy");
 
-		//if (ImGui::Button("Reload Hierarchy"))
-		//{
-		//	mManager.BuildHierarchy();
-		//}
-
 		DrawNodeGraph();
 
 		ImGui::BeginGroup();
@@ -206,7 +199,7 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked())
 		{
-			mSelection.ClearSelection();
+			mManager.GetRegistry().GetManager<SelectionManager>("Selection")->ClearSelection();
 		}
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))

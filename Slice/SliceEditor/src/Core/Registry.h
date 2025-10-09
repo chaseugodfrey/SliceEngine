@@ -16,13 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #define EDITOR_REGISTRY_H
 
 #include "IBaseManager.h"
-#include "SelectionSystem/SelectionSystem.h"
 
 namespace SliceEditor
 {
 	class Registry
 	{
-		SelectionSystem selectionSystem;
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 
@@ -39,9 +37,6 @@ namespace SliceEditor
 		void Init();
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& GetManagers();
-
-		// To do:: bring this to a system map
-		SelectionSystem& GetSelectionSystem();
 
 		template <typename IManager>
 		IManager* GetManager(std::string_view name)

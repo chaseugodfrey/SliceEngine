@@ -16,7 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
-#include "../../src/Input/InputSystem.h"
+#include <Input/InputSystem.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -86,6 +87,7 @@ namespace SliceEditor
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		inputs.isActive = true;
 		
 	}
 
@@ -93,20 +95,10 @@ namespace SliceEditor
 	{
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			inputs.Update();
 			engine.Update();
 			Render();
 			engine.EndFrame();
-		}
-	}
-
-	void Editor::CheckInputs()
-	{
-		if (ImGui::GetIO().KeyCtrl)
-		{
-			if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-			}
 		}
 	}
 

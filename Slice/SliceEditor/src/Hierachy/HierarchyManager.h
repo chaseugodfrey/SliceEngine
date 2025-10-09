@@ -18,7 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
-#include "../SelectionSystem/ISelectionListener.h"
+#include "../Selection/ISelectionListener.h"
 #include "../../SliceEngine/src/Core/Events.h"
 
 namespace SliceEditor
@@ -56,14 +56,13 @@ namespace SliceEditor
 		void AddEntityDirectly(entt::entity entity);
 		void Reset();
 		void OnSceneLoad(OnSceneLoadedEvent& event);
-		void SubscribeToSceneLoading();
 
 		TestNode& GetSceneRootNode();
+
 		void AddGameObject();
 		void RemoveGameObject(entt::entity target);
 		void ParentGameObject(entt::entity child, entt::entity parent = entt::null);
 		void Unparent(entt::entity child);
-		void SetSiblingIndex(entt::entity target, entt::entity destination);
 		void SetNewLocation(entt::entity target, entt::entity destination);
 
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
