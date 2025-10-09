@@ -55,23 +55,47 @@ namespace SliceEngine
 
 		// For generic vectors
 		template <typename T>
-		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
-			const std::string& propName, const std::vector<T>& vec, const Entity& entity)
+		void Serialize(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const std::vector<T>& vec, const Entity& entity)
 		{
-			output[name][typeName][propName] = json::array();
-			for (size_t i = 0; i < vec.size(); ++i)
-				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i], entity);
+			auto& arr = output[name][typeName][propName];
+			arr = json::array();
+
+			for (const auto& val : vec)
+			{
+				json elem;
+				Serialize(elem, name, typeName, propName, val, entity);
+
+				// extract the inner serialized value if wrapped
+				if (elem.contains(name) && elem[name].contains(typeName) && elem[name][typeName].contains(propName))
+					arr.push_back(elem[name][typeName][propName]);
+				else
+					arr.push_back(val);
+			}
 		}
 
 		// For generic arrays
 		template <typename T, size_t N>
 		void Serialize(json& output, const std::string& name,
 			const std::string_view& typeName, const std::string& propName,
-			const std::array<T, N>& value, const Entity& entity)
+			const std::array<T, N>& arr, const Entity& entity)
 		{
-			for (size_t i = 0; i < N; ++i)
-				output[name][typeName][propName][i] = value[i];
+			auto& jArr = output[name][typeName][propName];
+			jArr = json::array();
+
+			for (const auto& val : arr)
+			{
+				json elem;
+				Serialize(elem, name, typeName, propName, val, entity);
+
+				if (elem.contains(name) && elem[name].contains(typeName) && elem[name][typeName].contains(propName))
+					jArr.push_back(elem[name][typeName][propName]);
+				else
+					jArr.push_back(val);
+			}
 		}
+
 
 		// For Relationship array (up down left right stuff)
 		template <>
@@ -126,7 +150,7 @@ namespace SliceEngine
 		inline void Serialize<unsigned char>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const unsigned char& value, const Entity& entity)
 		{
-			output[name][typeName][propName] = static_cast<uint64_t>(value);
+			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
 		// Main evaluater for serialization
