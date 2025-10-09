@@ -69,6 +69,12 @@ struct OnSceneLoadedEvent
 	bool isSceneLoaded;
 };
 
+struct OnParent
+{
+	Entity parent;
+	Entity child;
+};
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")

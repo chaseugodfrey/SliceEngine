@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "../../SliceEngine/src/Core/EventManager.h"
 #include "../../SliceEngine/src/Core/ComponentEventHandler.h"
@@ -27,20 +28,18 @@ namespace SliceEditor
 	void HierarchyManager::Init()
 	{
 		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
-		Reset();
+		BuildHierarchy();
 	}
 
 	void HierarchyManager::Reset()
 	{
-		registry.GetSelectionSystem().ClearSelection();
-		BuildHierarchy();
 	}
 
 	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
 	{
 		if (event.isSceneLoaded)
 		{
-			Reset();
+			registry.GetManager<SelectionManager>("Selection")->ClearSelection(true);
 		}
 	}
 
@@ -117,22 +116,8 @@ namespace SliceEditor
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
-		//Check for children and remove them first
-		//auto& targetNode = mHierarchy[target];
-
 		// remove everything from selection system(temp fix)
-		registry.GetSelectionSystem().ClearSelection();
-
-		// remove from node structure (including children)
-		//mHierarchy.erase(target);
-
-		//Remove from SelectionSystem FIX THIS LTR
-		/*auto& selectedEntities = registry.GetSelectionSystem().GetSelectedEntities();
-		auto selectedIt = selectedEntities.find(target);
-		if(selectedIt != selectedEntities.end())
-		{
-			selectedEntities.erase(selectedIt);
-		}*/
+		registry.GetManager<SelectionManager>("Selection")->ClearSelection();
 
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
@@ -174,8 +159,7 @@ namespace SliceEditor
 
 	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()
 	{
-		auto& selectionSystem = registry.GetSelectionSystem();
-		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
+		auto window = std::make_unique<HierarchyWindow>(*this);
 		return window;
 	}
 

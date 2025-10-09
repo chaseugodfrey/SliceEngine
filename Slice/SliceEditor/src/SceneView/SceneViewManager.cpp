@@ -16,9 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "SceneViewManager.h"
 #include "SceneViewWindow.h"
+#include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/ECS/ECSTypes.h"
 #include "../Core/Registry.h"
+#include "History/HistoryManager.h"
 
 namespace SliceEditor
 {
@@ -70,14 +72,25 @@ namespace SliceEditor
 		mGuizmoMode = mode;
 	}
 
-	void SceneViewManager::SelectObject(entt::entity entity)
+	void SceneViewManager::CheckGizmoStatus(bool isUse)
 	{
-		registry.GetSelectionSystem().UpdateSelected(entity);
+		//if (isUsing && !isUse)
+		//{
+		//	isUsing = false;
+		//	registry.GetManager<HistoryManager>("History")->AddCommand(
+		//		std::make_unique<ValueCommand<decltype(mGizmoStartTransformValue)>>(mGizmoStartTransformValue,)
+		//	);
+
+		//}
 	}
 
-	void SceneViewManager::ClearObject()
+	void SceneViewManager::StartUsingGizmo(std::variant<glm::vec3, glm::quat> startValue)
 	{
-		registry.GetSelectionSystem().ClearSelection();
+		if (isUsing)
+			return;
+
+		isUsing = true;
+		mGizmoStartTransformValue = startValue;
 	}
 
 	ImGuizmo::OPERATION SceneViewManager::GetGizmoOperation() const

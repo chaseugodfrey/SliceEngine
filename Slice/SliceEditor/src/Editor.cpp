@@ -87,8 +87,7 @@ namespace SliceEditor
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
-
-		//EventManager::GetInstance()->RegisterEvent<AddCommandEvent>();
+		inputs.isActive = true;
 		
 	}
 
@@ -96,20 +95,10 @@ namespace SliceEditor
 	{
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			inputs.Update();
 			engine.Update();
 			Render();
 			engine.EndFrame();
-		}
-	}
-
-	void Editor::CheckInputs()
-	{
-		if (ImGui::GetIO().KeyCtrl)
-		{
-			if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-			}
 		}
 	}
 
