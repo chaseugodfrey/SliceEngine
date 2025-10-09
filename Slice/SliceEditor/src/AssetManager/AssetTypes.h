@@ -53,6 +53,12 @@ namespace SliceEditor
 		INTENSITY
 	};
 
+	enum AudioFormat : std::uint8_t
+	{
+		STEREO,
+		MONO
+	};
+
 	// type UUIDs 
 	namespace ResourceTypeIDs
 	{
@@ -189,6 +195,32 @@ namespace SliceEditor
 		}
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
+		}
+	};
+
+	struct AudioData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
+
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["resourcePath"] = resourcePath;
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 	};
 

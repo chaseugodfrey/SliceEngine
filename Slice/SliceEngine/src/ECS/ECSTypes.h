@@ -184,6 +184,11 @@ namespace SliceEngine
 		bool playPreview = false;
 	};
 
+	struct AudioListener
+	{
+		FMOD_VECTOR pos{};
+	};
+
 	// placeholder particle system component structure for reference
 	struct Particle
 	{

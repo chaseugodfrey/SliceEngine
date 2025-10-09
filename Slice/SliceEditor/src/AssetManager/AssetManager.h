@@ -47,6 +47,7 @@ namespace SliceEditor
 		void CreateDescriptorFile(const std::filesystem::path filePath);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
+		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 	private:
@@ -71,9 +72,9 @@ namespace SliceEditor
 			{".obj", AssetType::Model},
 			{".fbx", AssetType::Model},
 			{".rainne", AssetType::Model},
-			//{".wav", AssetType::Audio},
-			//{".mp3", AssetType::Audio},
-			//{".ogg", AssetType::Audio},
+			{".wav", AssetType::Audio},
+			{".mp3", AssetType::Audio},
+			{".ogg", AssetType::Audio},
 			{".scene", AssetType::Scene},
 			{".shader", AssetType::Shader},
 			//{".vert", AssetType::Shader},

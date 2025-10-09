@@ -95,7 +95,8 @@ namespace SliceEditor
 			typeID = ResourceTypeIDs::MODEL;
 			break;
 		case AssetType::Audio:
-			//metaData = std::make_unique<AudioData>();
+			metaData = std::make_unique<AudioData>();
+			typeID = ResourceTypeIDs::SOUND;
 			break;
 		case AssetType::Scene:
 			metaData = std::make_unique<SceneData>();
@@ -169,6 +170,7 @@ namespace SliceEditor
 				break;
 			case AssetType::Audio:
 				// idk audio yet
+				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
 				break;
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
@@ -276,6 +278,20 @@ namespace SliceEditor
 		// Close process and thread handles. 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
+	}
+
+	void AssetManager::CompileAudioAsset(AudioData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+		}
 	}
 
 	void AssetManager::CompileShaderAsset(ShaderData* metaData)
