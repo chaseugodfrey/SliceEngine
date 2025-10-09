@@ -222,6 +222,11 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
+		}
 	};
 
 	struct ShaderData : public MetaData

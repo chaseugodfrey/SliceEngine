@@ -15,7 +15,7 @@ Reproduction or disclosure of this file or its contents without the prior writte
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
-#include "AudioManager.h"
+#include "../Audio/AudioManager.h"
 #include "../src/Core/Core.h"
 #include "Input/InputSystem.h"
 
@@ -26,7 +26,7 @@ namespace SliceEngine
 	*/
 	void AudioManager::Init()
 	{
-		SLICE_LOG("Initializing FMOD Studio.");
+		SLICE_LOG("Initializing FMOD");
 		FMOD_RESULT result = FMOD::System_Create(&mSoundSystem);
 		if (result != FMOD_OK)
 		{

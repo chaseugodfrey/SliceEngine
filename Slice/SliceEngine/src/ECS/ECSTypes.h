@@ -173,7 +173,7 @@ namespace SliceEngine
 
 	struct AudioListener
 	{
-		FMOD_VECTOR pos{};
+		glm::vec3 listenerPos{};
 	};
 
 	// placeholder particle system component structure for reference
