@@ -116,11 +116,12 @@ namespace SliceEngine
 						float, 
 						double, 
 						bool, 
+						uint32_t,
 						uint64_t,
 						GUID,
 						std::array<uint64_t, 4>, 
 						std::array<Entity, 4>,
-						std::vector<uint64_t>, 
+						std::vector<uint64_t>,
 						glm::vec2, 
 						glm::vec3, 
 						glm::vec4,
@@ -246,10 +247,10 @@ namespace SliceEngine
 			return output;
 		}
 
-		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath)
+		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath)
 		{
 			
-			std::unordered_map<uint64_t, uint64_t> sceneGraphMap{};
+			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 
 			json input = DeserializeFile(filePath);
 			for (auto& [name, components] : input.items())
@@ -315,7 +316,7 @@ namespace SliceEngine
 							// scene graph map stuff
 							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
 							{
-								uint64_t oldID = value.get<uint64_t>();
+								uint32_t oldID = value.get<uint32_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
 							}
 
@@ -408,73 +409,35 @@ namespace SliceEngine
 				}
 			}
 
-			// Remapping Entity IDs after all GOs have been deserialized
-			auto& registry = Core::GetInstance()->GetRegistry();
-			auto entityView = registry.view<SliceEntity>();
-			for (auto entity : entityView)
-			{
-				for (auto&& [type_id, storage] : registry.storage())
-				{
-					if (!storage.contains(entity))
-					{
-						continue; // entity does not have this component
-					}
+			//// Remapping Entity IDs after all GOs have been deserialized
+			//auto& registry = Core::GetInstance()->GetRegistry();
+			//auto& factory = Core::GetInstance()->mFactory;
+			//auto entityView = registry.view<SliceEntity>();
+			//for (auto entity : entityView)
+			//{
+			//	if (!registry.any_of<SceneGraph>(entity))
+			//	{
+			//		continue;
+			//	}
 
-					std::string componentName(storage.type().name());
+			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
+			//	
+			//	for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
+			//	{
+			//		auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
+			//		if (it != sceneGraphMap.end())
+			//		{
+			//			sceneGraphComponent.neighbours[i] = (Entity)it->second;
+			//		}
 
-					rttr::type componentType = rttr::type::get_by_name(componentName);
-					if (!componentType)
-					{
-						SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
-						continue;
-					}
-
-					auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
-					if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
-					{
-						SLICE_LOG_ERROR(std::string(storage.type().name()) + " does not have a getter");
-
-						continue;
-					}
-
-					rttr::variant componentData = it->second(registry, entity);
-
-					for (const auto& property : componentType.get_properties())
-					{
-						rttr::variant propVal = property.get_value(componentData);
-
-						if (propVal.is_type<std::array<Entity, 4>>())
-						{
-							auto oldIDs = propVal.get_value<std::array<uint64_t, 4>>();
-							std::array<Entity, SceneGraph::DIRECTIONS> newArray{};
-							for (size_t i = 0; i < SceneGraph::DIRECTIONS; ++i)
-							{
-								// If it's an invalid ID, skip it
-								if (oldIDs[i] == std::numeric_limits<uint64_t>::max())
-								{
-									newArray[i] = entt::null;
-									continue;
-								}
-
-								// Check if this old ID exists in our remap table
-								auto it = sceneGraphMap.find(oldIDs[i]);
-								if (it != sceneGraphMap.end())
-								{
-									// Map old ID to new entity
-									newArray[i] = static_cast<Entity>(it->second);
-								}
-								else
-								{
-									// Not found, default to null
-									newArray[i] = entt::null;
-								}
-							}
-							property.set_value(componentData, newArray);
-
-						}
-					}
-				}
-			}
+			//		// if this is the new child of the root entity
+			//		// for it to be the new child, up is the root and there is no left children
+			//		if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
+			//		{
+			//			auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
+			//		}
+			//	}
+			//}
 			
 			return sceneGraphMap;
 		}
