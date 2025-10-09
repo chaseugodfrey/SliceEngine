@@ -117,7 +117,7 @@ namespace SliceEngine
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
-		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
+		if(uniformLoc != 0) glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);

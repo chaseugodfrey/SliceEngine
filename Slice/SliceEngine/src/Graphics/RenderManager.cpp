@@ -46,10 +46,10 @@ namespace SliceEngine
 		glDeleteBuffers(1, &mIVBO);
 		glDeleteBuffers(1, &mDebugLineVBO);
 
-		glDeleteTextures(1, &mColAttachment[0]);
-		glDeleteTextures(1, &mColAttachment[1]);
-		glDeleteTextures(1, &mColAttachment[2]);
-		glDeleteTextures(1, &mColAttachment[3]);
+		for (unsigned char c{}; c < GPU_OUT::G_TOTAL; ++c)
+		{
+			glDeleteTextures(1, &mColAttachment[c]);
+		}
 
 		glDeleteBuffers(2, pboIds);
 	}
@@ -63,7 +63,6 @@ namespace SliceEngine
 			,GL_COLOR_ATTACHMENT1
 			,GL_COLOR_ATTACHMENT2
 			,GL_COLOR_ATTACHMENT3
-			,GL_COLOR_ATTACHMENT4
 		};
 		glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 
@@ -79,18 +78,13 @@ namespace SliceEngine
 		//	SLICE_LOG_WARNING("Framebuffer not complete");
 		//}
 
-		glGenBuffers(2, pboIds);
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[0]);
-		glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[1]);
-		glBufferData(GL_PIXEL_PACK_BUFFER, 4, 0, GL_STREAM_READ);
+		glCreateBuffers(2, pboIds);
+		glNamedBufferData(pboIds[0], 4, NULL, GL_STREAM_READ);
+		glNamedBufferData(pboIds[1], 4, NULL, GL_STREAM_READ);
 		pboIdx[0] = 0;
 		pboIdx[1] = 1;
 
-
-		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-		LinkFrameBufferSettings(FBOSetting::UNBIND);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		LinkFrameBufferSettings(FBOSet::F_UNBIND);
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 	void RenderManager::CreateInstancingParams()
@@ -126,26 +120,22 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
-		// Entity ID
-		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[0]);
-		glTextureStorage2D(mColAttachment[0], 1, GL_R32UI, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameterf(mColAttachment[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// Pos
-		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[1]);
-		glTextureStorage2D(mColAttachment[1], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameterf(mColAttachment[1], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// Nom
-		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[2]);
-		glTextureStorage2D(mColAttachment[2], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameterf(mColAttachment[2], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// Nom
-		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[3]);
-		glTextureStorage2D(mColAttachment[3], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
-		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameterf(mColAttachment[3], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[GPU_OUT::G_ID]);
+		glTextureStorage2D(mColAttachment[GPU_OUT::G_ID], 1, GL_R32UI, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_ID], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_ID], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[GPU_OUT::G_POS]);
+		glTextureStorage2D(mColAttachment[GPU_OUT::G_POS], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_POS], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_POS], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[GPU_OUT::G_NOM]);
+		glTextureStorage2D(mColAttachment[GPU_OUT::G_NOM], 1, GL_RGB16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_NOM], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_NOM], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glCreateTextures(GL_TEXTURE_2D, 1, &mColAttachment[GPU_OUT::G_DIF]);
+		glTextureStorage2D(mColAttachment[GPU_OUT::G_DIF], 1, GL_RGBA16F, Core::GetInstance()->GetSystem<CameraSystem>().maxWidth, Core::GetInstance()->GetSystem<CameraSystem>().maxHeight);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_DIF], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GPU_OUT::G_DIF], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 #pragma endregion
 
@@ -189,7 +179,7 @@ namespace SliceEngine
 	{
 		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 
-		LinkFrameBufferSettings(FBOSetting::BIND);
+		LinkFrameBufferSettings(FBOSet::F_BIND);
 		IDPick();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
@@ -199,9 +189,9 @@ namespace SliceEngine
 
 			mCurrShader = Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().UseShader();
 			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FBOSetting::ID_POS_NOM_TEX);
+				LinkFrameBufferSettings(FBOSet::F_ID_POS_NOM_TEX);
 			else
-				LinkFrameBufferSettings(FBOSetting::POS_NOM_TEX);
+				LinkFrameBufferSettings(FBOSet::F_POS_NOM_TEX);
 			LoadSettings(GPUSetting::DEFAULT);
 			UpdateCamGPU(cam);
 			ClearBuffer(BufferClearSetting::ALL);
@@ -211,17 +201,17 @@ namespace SliceEngine
 				glUniform1i(uniformLoc, 0);
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(cam);
 
-			DeferredRender();
+			DeferredRender(cam);
 			
 			if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
 				RenderDebug(cam);
 		}
 
 		mObjPickedThisFrame = false;
-		LinkFrameBufferSettings(FBOSetting::UNBIND);
+		LinkFrameBufferSettings(FBOSet::F_UNBIND);
 		std::swap(pboIdx[0], pboIdx[1]);
 	}
-	void RenderManager::RenderDebug(Entity& cam)
+	void RenderManager::RenderDebug(Entity cam)
 	{
 		glEnable(GL_DEPTH_TEST);
 
@@ -334,7 +324,7 @@ namespace SliceEngine
 			glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, ((mMaxInstance - 2) / 4) * 4 + 2);
 		}
 	}
-	void RenderManager::DeferredRender()
+	void RenderManager::DeferredRender(Entity cam)
 	{
 		glDisable(GL_DEPTH_TEST);
 
@@ -344,28 +334,24 @@ namespace SliceEngine
 
 		Core::GetInstance()->GetSystem<LightingSystem>().SetLightingParams(mCurrShader->s);
 
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);//glColorMaski(1, GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, 0, 0);
-		glBindTextureUnit(0, mColAttachment[3]);
-		glBindTextureUnit(1, mColAttachment[1]);
-		glBindTextureUnit(2, mColAttachment[2]);
+		glBindTextureUnit(0, mColAttachment[GPU_OUT::G_DIF]);
+		glBindTextureUnit(1, mColAttachment[GPU_OUT::G_POS]);
+		glBindTextureUnit(2, mColAttachment[GPU_OUT::G_NOM]);
 
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 		glBindVertexArray(mdl.get()->vao);
 		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 		glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
-
-		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)1001);
-		//glBindVertexArray(mdl.get()->vao);
-		//glDrawElements(GL_TRIANGLES, mdl.get()->drawCnt, GL_UNSIGNED_INT, 0);
 	}
 #pragma endregion
 
 #pragma region Rendering Helpers
-	void RenderManager::CalculateVP(Entity& cam)
+	void RenderManager::CalculateVP(Entity cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
@@ -376,11 +362,9 @@ namespace SliceEngine
 		V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}
-	void RenderManager::UpdateCamGPU(Entity& cam)
+	void RenderManager::UpdateCamGPU(Entity cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, camera.textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
 
 		//scuffed hack
@@ -408,65 +392,20 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Linking
-	void RenderManager::LinkFrameBufferSettings(FBOSetting settings)
+	void RenderManager::LinkFrameBufferSettings(FBOSet settings)
 	{
-		switch (settings)
-		{
-		case FBOSetting::UNBIND:
+		if (settings & FBOSet::F_UNBIND)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			break;
+			return;
 		}
-		case FBOSetting::BIND:
-		{
+		if (settings & FBOSet::F_BIND)
 			glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-			break;
-		}
-		case FBOSetting::COLOR_ONLY:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
-			break;
-		}
-		case FBOSetting::ID:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, 0, 0);
-			break;
-		}
-		case FBOSetting::POS_NOM:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
-			break;
-		}
-		case FBOSetting::POS_NOM_TEX:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, mColAttachment[3], 0);
-			break;
-		}
-		case FBOSetting::ID_POS_NOM:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
-			break;
-		}
-		case FBOSetting::ID_POS_NOM_TEX:
-		{
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, mColAttachment[1], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, mColAttachment[2], 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, mColAttachment[3], 0);
-			break;
-		}
-		}
+		
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, (settings & FBOSet::F_TEX) ? mColAttachment[GPU_OUT::G_DIF] : 0, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, (settings & FBOSet::F_ID) ? mColAttachment[GPU_OUT::G_ID] : 0, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, (settings & FBOSet::F_POS) ? mColAttachment[GPU_OUT::G_POS] : 0, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, (settings & FBOSet::F_NOM) ? mColAttachment[GPU_OUT::G_NOM] : 0, 0);
 	}
 	void RenderManager::LoadSettings(GPUSetting setting)
 	{
@@ -496,7 +435,6 @@ namespace SliceEngine
 			glClearBufferfv(GL_COLOR, 1, zeroFiller);
 			glClearBufferfv(GL_COLOR, 2, zeroFiller);
 			glClearBufferfv(GL_COLOR, 3, zeroFiller);
-			glClearBufferfv(GL_COLOR, 4, zeroFiller);
 			glClearBufferfv(GL_DEPTH, 0, oneFiller);
 			__fallthrough;
 		}
@@ -546,6 +484,7 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region IDPick
 	void RenderManager::SelectCamIDPick(Entity cam)
 	{
 		mCurrentCamIDHover = cam;
@@ -572,7 +511,7 @@ namespace SliceEngine
 		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prevBinding);
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 		glActiveTexture(GL_TEXTURE1);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[0], 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, mColAttachment[GPU_OUT::G_ID], 0);
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, pboIds[pboIdx[0]]);
 		
 		glNamedFramebufferReadBuffer(mFBO, GL_COLOR_ATTACHMENT1);
@@ -598,4 +537,5 @@ namespace SliceEngine
 	{
 		return mIDHovered;
 	}
+#pragma endregion
 }

@@ -43,12 +43,12 @@ namespace SliceEngine
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
 		// Rendering functions
-		void CalculateVP(Entity& cam);
-		void UpdateCamGPU(Entity& cam);
+		void CalculateVP(Entity cam);
+		void UpdateCamGPU(Entity cam);
 		// Rendering calls
 		void Render();
-		void RenderDebug(Entity& cam);
-		void DeferredRender();
+		void RenderDebug(Entity cam);
+		void DeferredRender(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(GUID guid);
@@ -77,19 +77,31 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Shader> mInstanceShader;
 		Handle<SliceEngineTypes::Shader> mDebugLineShader;
 		std::vector<glm::mat4> mInstanceVtx;
-		GLuint mColAttachment[4];
+		enum GPU_OUT : unsigned char
+		{
+			G_DIF = 0,
+			G_POS,
+			G_NOM,
+			G_ID,
+			G_TOTAL
+		};
+
+		GLuint mColAttachment[GPU_OUT::G_TOTAL];
 		glm::mat4 V, P;
 
-		enum class FBOSetting : unsigned char
+		enum FBOSet : unsigned char
 		{
-			UNBIND,
-			BIND,
-			COLOR_ONLY,
-			POS_NOM,
-			POS_NOM_TEX,
-			ID,
-			ID_POS_NOM,
-			ID_POS_NOM_TEX
+			F_UNBIND			= 0b1000'0000,
+			F_BIND				= 0b0100'0000,
+			F_CLEAR				= 0x00,
+			F_ID				= 0b0000'0001,
+			F_POS				= 0b0000'0010,
+			F_NOM				= 0b0000'0100,
+			F_TEX				= 0b0000'1000,
+			F_POS_NOM			= 0b0000'0110,
+			F_POS_NOM_TEX		= 0b0000'1110,
+			F_ID_POS_NOM		= 0b0000'0111,
+			F_ID_POS_NOM_TEX	= 0b0000'1111
 		};
 		enum class GPUSetting : unsigned char
 		{
@@ -100,7 +112,7 @@ namespace SliceEngine
 			DEFAULT,
 			ALL
 		};
-		void LinkFrameBufferSettings(FBOSetting setting);
+		void LinkFrameBufferSettings(FBOSet setting);
 		void LoadSettings(GPUSetting setting);
 		void ClearBuffer(BufferClearSetting setting);
 

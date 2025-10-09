@@ -14,7 +14,6 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec3 fDiffuseColor;
 
 const int cMaxNumLights = 32;
 const float PI = 3.14159265358979323846;
@@ -37,12 +36,12 @@ vec3 BlingPhongDirectional(vec3 pos, vec3 nom, Light light, vec3 mat);
 vec4 BRDFAll(vec3 pos, vec3 n, Light light, vec4 dif);
 
 /***************************************************
-* Out: fPositionData, fNormalData
+* Out: fFragColor, fPositionData, fNormalData, fGID
 *****************************************************/
 void Pass0(){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
-	fDiffuseColor = vec3(texture(uTex, vTexCoord));
+	fFragColor = texture(uTex, vTexCoord);
 	fGID = vGID;
 }
 
@@ -116,7 +115,7 @@ vec4 BRDFAll(vec3 pos, vec3 n, Light light, vec4 dif)
     if (abs(dif.a) < EPSILON)
 		return vec4(0.0f);
 
-	vec3 calcCol = vec3(0.0f);
+	vec3 calcCol = dif.rgb * 0.0025;
 	vec3 v = normalize(-pos);
 
 	// BlingPhongDirectional(pos, n, uLight[0], dif.rgb);
@@ -131,7 +130,7 @@ vec4 BRDFAll(vec3 pos, vec3 n, Light light, vec4 dif)
 		
 		vec3 specBrdf = 0.25f * GgxDistribution(nDotH, tR) * SchlickFresnel(lDotH, dif.rgb, tM) *  GeomSmith(nDotL, tR) * GeomSmith(nDotV, tR);
 	
-		calcCol = (dif.rgb + PI * specBrdf) * light.color * nDotL;
+		calcCol += (dif.rgb + PI * specBrdf) * light.color * nDotL;
 	}
 
 	for(int i = 1; i < numLights; ++i)
