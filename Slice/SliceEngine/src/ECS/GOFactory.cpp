@@ -470,7 +470,7 @@ namespace SliceEngine
 		//Any more edge cases?
 	}
 
-	void GOFactory::BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map)
+	void GOFactory::BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map)
 	{
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
@@ -488,6 +488,15 @@ namespace SliceEngine
 				mRegistry.get<SceneGraph>(scene_root_entity).neighbours[SceneGraph::DOWN] = entity;
 			}
 
+			// update its own entity id
+			uint32_t entityID = scene_graph.entity_id;
+			auto entityIt = map.find(entityID);
+			if (entityIt != map.end())
+			{
+				scene_graph.entity_id = entityIt->second;
+			}
+
+			// update the neighbouts
 			for (size_t i = 0; i < scene_graph.DIRECTIONS; i++)
 			{
 				entt::entity key_entity = scene_graph.neighbours[i];
@@ -502,6 +511,7 @@ namespace SliceEngine
 					entt::entity ent = static_cast<entt::entity>(it->second);
 
 					scene_graph.neighbours[i] = ent;
+
 				}
 			}
 		}

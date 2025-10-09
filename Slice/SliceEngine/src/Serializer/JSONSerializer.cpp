@@ -409,35 +409,35 @@ namespace SliceEngine
 				}
 			}
 
-			// Remapping Entity IDs after all GOs have been deserialized
-			auto& registry = Core::GetInstance()->GetRegistry();
-			auto& factory = Core::GetInstance()->mFactory;
-			auto entityView = registry.view<SliceEntity>();
-			for (auto entity : entityView)
-			{
-				if (!registry.any_of<SceneGraph>(entity))
-				{
-					continue;
-				}
+			//// Remapping Entity IDs after all GOs have been deserialized
+			//auto& registry = Core::GetInstance()->GetRegistry();
+			//auto& factory = Core::GetInstance()->mFactory;
+			//auto entityView = registry.view<SliceEntity>();
+			//for (auto entity : entityView)
+			//{
+			//	if (!registry.any_of<SceneGraph>(entity))
+			//	{
+			//		continue;
+			//	}
 
-				auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
-				
-				for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
-				{
-					auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
-					if (it != sceneGraphMap.end())
-					{
-						sceneGraphComponent.neighbours[i] = (Entity)it->second;
-					}
+			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
+			//	
+			//	for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
+			//	{
+			//		auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
+			//		if (it != sceneGraphMap.end())
+			//		{
+			//			sceneGraphComponent.neighbours[i] = (Entity)it->second;
+			//		}
 
-					// if this is the new child of the root entity
-					// for it to be the new child, up is the root and there is no left children
-					if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
-					{
-						auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
-					}
-				}
-			}
+			//		// if this is the new child of the root entity
+			//		// for it to be the new child, up is the root and there is no left children
+			//		if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
+			//		{
+			//			auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
+			//		}
+			//	}
+			//}
 			
 			return sceneGraphMap;
 		}
