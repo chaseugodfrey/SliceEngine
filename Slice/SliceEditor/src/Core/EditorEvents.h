@@ -13,9 +13,19 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	struct AddCommandEvent
+	struct UndoEvent
 	{
-		std::unique_ptr<Command> command;
+
+	};
+
+	struct RedoEvent
+	{
+
+	};
+
+	struct SaveSceneEvent
+	{
+
 	};
 }
 

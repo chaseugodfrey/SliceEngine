@@ -50,15 +50,6 @@ namespace SliceEditor
 		CONSOLE,
 		ID_MAX
 	};
-	
-	struct TreeNode
-	{
-		std::string name;
-		TreeNode* parent;
-		TreeNode* child;
-		TreeNode* previous;
-		TreeNode* next;
-	};
 
 	struct DirectoryNode
 	{
@@ -67,35 +58,6 @@ namespace SliceEditor
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
-	};
-
-	class Command
-	{
-	public:
-		virtual void Execute() = 0;
-		virtual void Undo() = 0;
-		virtual ~Command() = default;
-	};
-
-	template<typename T>
-	class ValueCommand : public Command
-	{
-		T& ref, oldValue, newValue;
-
-	public:
-
-		ValueCommand(T& r, T oldV, T newV) : ref(r), oldValue(oldV), newValue(newV) {}
-		~ValueCommand() = default;
-
-		void Execute() override 
-		{ 
-			ref = newValue; 
-		}
-
-		void Undo() override 
-		{ 
-			ref = oldValue; 
-		}
 	};
 }
 

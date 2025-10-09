@@ -40,7 +40,7 @@ namespace SliceEditor
 		{
 			if (std::abs(oldVal - val) > FLT_EPSILON)
 			{	
-				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, val, oldVal);
+				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}

@@ -42,25 +42,60 @@ namespace SliceEngine
 			output[name][typeName][propName] = value;
 		}
 
+		//For GUID
+		template <>
+		inline void Serialize<GUID>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const GUID& value, const Entity& entity)
+		{
+			if (value == GUID::null())
+				output[name][typeName][propName] = "";
+			else
+				output[name][typeName][propName] = std::to_string(value.GetGUID());
+		}
+
 		// For generic vectors
 		template <typename T>
-		void Serialize(json& output, const std::string& name, const std::string_view& typeName,
-			const std::string& propName, const std::vector<T>& vec, const Entity& entity)
+		void Serialize(json& output, const std::string& name,
+			const std::string_view& typeName, const std::string& propName,
+			const std::vector<T>& vec, const Entity& entity)
 		{
-			output[name][typeName][propName] = json::array();
-			for (size_t i = 0; i < vec.size(); ++i)
-				Serialize(output, name, typeName, propName + "[" + std::to_string(i) + "]", vec[i], entity);
+			auto& arr = output[name][typeName][propName];
+			arr = json::array();
+
+			for (const auto& val : vec)
+			{
+				json elem;
+				Serialize(elem, name, typeName, propName, val, entity);
+
+				// extract the inner serialized value if wrapped
+				if (elem.contains(name) && elem[name].contains(typeName) && elem[name][typeName].contains(propName))
+					arr.push_back(elem[name][typeName][propName]);
+				else
+					arr.push_back(val);
+			}
 		}
 
 		// For generic arrays
 		template <typename T, size_t N>
 		void Serialize(json& output, const std::string& name,
 			const std::string_view& typeName, const std::string& propName,
-			const std::array<T, N>& value, const Entity& entity)
+			const std::array<T, N>& arr, const Entity& entity)
 		{
-			for (size_t i = 0; i < N; ++i)
-				output[name][typeName][propName][i] = value[i];
+			auto& jArr = output[name][typeName][propName];
+			jArr = json::array();
+
+			for (const auto& val : arr)
+			{
+				json elem;
+				Serialize(elem, name, typeName, propName, val, entity);
+
+				if (elem.contains(name) && elem[name].contains(typeName) && elem[name][typeName].contains(propName))
+					jArr.push_back(elem[name][typeName][propName]);
+				else
+					jArr.push_back(val);
+			}
 		}
+
 
 		// For Relationship array (up down left right stuff)
 		template <>
@@ -115,7 +150,7 @@ namespace SliceEngine
 		inline void Serialize<unsigned char>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const unsigned char& value, const Entity& entity)
 		{
-			output[name][typeName][propName] = static_cast<uint64_t>(value);
+			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
 		// Main evaluater for serialization
@@ -352,11 +387,17 @@ namespace glm
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 	}
+	inline void to_json(json& j, const glm::vec2& v) {
+		j = json::array({ v.x, v.y });
+	}
 
 	inline void from_json(const json& j, glm::vec3& v) {
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
+	}
+	inline void to_json(json& j, const glm::vec3& v) {
+		j = json::array({ v.x, v.y, v.z });
 	}
 
 	inline void from_json(const json& j, glm::vec4& v) {
@@ -365,6 +406,10 @@ namespace glm
 		v.z = j.at(2).get<float>();
 		v.w = j.at(3).get<float>();
 	}
+	inline void to_json(json& j, const glm::vec4& v) {
+		j = json::array({ v.x, v.y, v.z, v.w });
+	}
+
 
 	inline void from_json(const json& j, glm::quat& q)
 	{
@@ -373,7 +418,6 @@ namespace glm
 		q.y = j.at(2).get<float>();
 		q.z = j.at(3).get<float>();
 	}
-
 	inline void to_json(json& j, const glm::quat& q)
 	{
 		j = json::array({ q.w, q.x, q.y, q.z });

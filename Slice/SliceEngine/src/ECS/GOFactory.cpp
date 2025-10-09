@@ -14,6 +14,9 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/ComponentEventHandler.h"
 #include "../Graphics/TransformHelper.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
 
 namespace SliceEngine
 {
@@ -183,7 +186,7 @@ namespace SliceEngine
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
-		//auto& tr = mRegistry.emplace<Transform>(mRootEntity);
+		mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
@@ -318,21 +321,19 @@ namespace SliceEngine
 					right_scene_graph.neighbours[SceneGraph::LEFT] = entt::null;
 				}
 			}
-
-			//--prev_parent_scene_graph.child_count;
 		}
 
 		// if it has no parent / after we unattach it from it's current sibling list
 		// we can treat it like a new entity if it had a parent previously
 
-		Entity parent = entt::null;
+		Entity new_parent = entt::null;
 
 		// Parenting to root entity
 		if (parentEntity == entt::null)
 		{
 			// idk tbh incase they want to unparent and set it back to root node
 			// then parentEntity would be a null
-			parent = mRootEntity;
+			new_parent = mRootEntity;
 		}
 		// Parenting to another entity
 		else
@@ -342,10 +343,10 @@ namespace SliceEngine
 				return;
 			}
 
-			parent = parentEntity;
+			new_parent = parentEntity;
 		}
 
-		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent);
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(new_parent);
 		// if its the first entity being added to this scene graph as a child
 		if (parent_scene_graph.neighbours[SceneGraph::DOWN] == entt::null)
 		{
@@ -353,7 +354,7 @@ namespace SliceEngine
 			parent_scene_graph.neighbours[SceneGraph::DOWN] = entity;
 
 			// set the new entity's up to the parent
-			scene_graph.neighbours[SceneGraph::UP] = parent;
+			scene_graph.neighbours[SceneGraph::UP] = new_parent;
 		}
 		else
 		{
@@ -375,10 +376,9 @@ namespace SliceEngine
 		}
 
 		//++parent_scene_graph.child_count;
-		scene_graph.neighbours[SceneGraph::UP] = parent;
+		scene_graph.neighbours[SceneGraph::UP] = new_parent;
 
-		if (parent != entt::entity(0))
-			UpdateTransformFromParent(entity, parent);
+		UpdateTransformFromParent(entity, new_parent);
 	}
 
 	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
@@ -386,8 +386,16 @@ namespace SliceEngine
 		auto& tr = mRegistry.get<Transform>(entity);
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
-		tr.transform_local = glm::inverse(tr_par.transform) * tr.transform;
-		tr.euler = SliceEngine::QuatToVec3(tr.transform_local);
+		auto mat = glm::inverse(tr_par.transform) * tr.transform;
+		
+		glm::vec3 translation, scale, skew;
+		glm::vec4 perspective;
+		glm::quat rotation;
+		glm::decompose(mat, scale, rotation, translation, skew, perspective);
+
+		tr.position = translation;
+		tr.rotation = rotation;
+		tr.scale = scale;
 	}
 
 

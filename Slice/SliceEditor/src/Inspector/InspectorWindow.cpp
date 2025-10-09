@@ -14,10 +14,12 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <pch.h>
+#include <glm/gtc/type_ptr.hpp>
 #include "InspectorManager.h"
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
 
@@ -32,7 +34,7 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Inspector");
 
-		auto& entities = mManager.GetSelectedEntities();
+		auto& entities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
 		if (entities.size() > 0)
 			selected_entity = *entities.begin();
@@ -140,13 +142,10 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
 			DragVec3InputHeader(mManager.GetRegistry(), "Position", "##t", tr.position);
-			if (DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", tr.euler))
+			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
+			if (DragVec3InputHeader(mManager.GetRegistry(), "Rotation", "##r", euler))
 			{
-				tr.euler.x = fmod(tr.euler.x, 360.0f);
-				tr.euler.y = fmod(tr.euler.y, 360.0f);
-				tr.euler.z = fmod(tr.euler.z, 360.0f);
-
-				tr.rotation = SliceEngine::Vec3ToQuat(tr.euler);
+				tr.rotation = SliceEngine::Vec3ToQuat(euler);
 			}
 			DragVec3InputHeader(mManager.GetRegistry(), "Scale", "##s", tr.scale);
 

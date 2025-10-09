@@ -18,11 +18,11 @@ DigiPen Institute of Technology is prohibited.
 #include <memory>
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
+
 namespace SliceEngine
 {
 	class FramerateManager;
 }
-
 
 namespace SliceEditor
 {

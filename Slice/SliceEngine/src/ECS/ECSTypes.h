@@ -37,9 +37,6 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-
-		// rttr doesnt like c style arrays lol
-		//uint32_t neighbours[4];
 		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
 	};
 
@@ -69,19 +66,15 @@ namespace SliceEngine
 		int val;
 	};
 
-	struct Transform
-	{
-		glm::vec3 position{};
-		//glm::vec3 rotation{};
-		glm::quat rotation{ glm::quat(1.0f, 0.0f, 0.0f, 0.0f) };
-		glm::vec3 euler{ 0.f };
-		glm::vec3 scale{1};
-
-		glm::vec3 previousScale{};
-
-		glm::mat4 transform_local{};
-		glm::mat4 transform{};
-	};
+    struct Transform
+    {
+        glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+        glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+        glm::vec3 previousScale{ 1.0f, 1.0f, 1.0f };
+        glm::mat4 transform_local{ 1.0f };
+        glm::mat4 transform{ 1.0f };
+    };
 
 	struct UITransform
 	{

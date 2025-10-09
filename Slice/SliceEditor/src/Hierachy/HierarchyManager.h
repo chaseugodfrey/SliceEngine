@@ -18,7 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
-#include "../SelectionSystem/ISelectionListener.h"
+#include "../Selection/ISelectionListener.h"
 #include "../../SliceEngine/src/Core/Events.h"
 
 namespace SliceEditor

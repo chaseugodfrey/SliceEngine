@@ -20,7 +20,6 @@ namespace SliceEditor
 		void AddCommand(std::unique_ptr<Command> command);
 		void SetStackSize(size_t size);
 
-		
 		void Undo();
 		void Redo();
 	};
