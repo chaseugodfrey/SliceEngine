@@ -40,6 +40,7 @@ namespace SliceEditor
 		if (event.isSceneLoaded)
 		{
 			registry.GetManager<SelectionManager>("Selection")->ClearSelection(true);
+			BuildHierarchy();
 		}
 	}
 
