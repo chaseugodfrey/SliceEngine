@@ -363,11 +363,17 @@ namespace glm
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 	}
+	inline void to_json(json& j, const glm::vec2& v) {
+		j = json::array({ v.x, v.y });
+	}
 
 	inline void from_json(const json& j, glm::vec3& v) {
 		v.x = j.at(0).get<float>();
 		v.y = j.at(1).get<float>();
 		v.z = j.at(2).get<float>();
+	}
+	inline void to_json(json& j, const glm::vec3& v) {
+		j = json::array({ v.x, v.y, v.z });
 	}
 
 	inline void from_json(const json& j, glm::vec4& v) {
@@ -376,6 +382,10 @@ namespace glm
 		v.z = j.at(2).get<float>();
 		v.w = j.at(3).get<float>();
 	}
+	inline void to_json(json& j, const glm::vec4& v) {
+		j = json::array({ v.x, v.y, v.z, v.w });
+	}
+
 
 	inline void from_json(const json& j, glm::quat& q)
 	{
@@ -384,7 +394,6 @@ namespace glm
 		q.y = j.at(2).get<float>();
 		q.z = j.at(3).get<float>();
 	}
-
 	inline void to_json(json& j, const glm::quat& q)
 	{
 		j = json::array({ q.w, q.x, q.y, q.z });
