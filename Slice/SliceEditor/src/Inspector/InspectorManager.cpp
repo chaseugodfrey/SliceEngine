@@ -23,7 +23,13 @@ namespace SliceEditor
 {
 	void InspectorManager::Init()
 	{
-		
+		RegisterDrawer<SliceEngine::Transform>();
+		RegisterDrawer<SliceEngine::Renderer>();
+		RegisterDrawer<SliceEngine::AudioSource>();
+		RegisterDrawer<SliceEngine::RigidBody>();
+		RegisterDrawer<SliceEngine::ColliderShape>();
+		RegisterDrawer<SliceEngine::Script>();
+		//RegisterDrawer<SliceEngine::Camera>();
 	}
 
 	std::unique_ptr<EditorWindow> InspectorManager::CreateEditorWindow()
@@ -31,5 +37,28 @@ namespace SliceEditor
 		auto window = std::make_unique<InspectorWindow>(*this);
 		return window;
 	}
-
+	
+	template<typename ComponentType>
+	void InspectorManager::DisplayComponentData(ComponentType& component)
+	{
+		SLICE_LOG_WARNING("Displaying Component: idk");
+		for(auto property : rttr::type::get<ComponentType>().get_properties())
+		{
+			auto propVar = property.get_value(component);
+			if (propVar.is_valid())
+			{
+				// Here you would add code to display the property using ImGui
+				// For example, if the property is a float:
+				if (propVar.get_type() == rttr::type::get<float>())
+				{
+					float value = propVar.to_float();
+					if (ImGui::DragFloat(property.get_name().to_string().c_str(), &value, 0.1f))
+					{
+						property.set_value(component, value);
+					}
+				}
+				// Add more type checks and ImGui widgets as needed
+			}
+		}
+	}
 }

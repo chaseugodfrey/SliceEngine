@@ -32,7 +32,7 @@ namespace SliceEditor
 		InspectorManager& mManager;
 
 		// to do: change later
-		std::optional<entt::entity> selected_entity;
+		std::optional<entt::entity> selectedEntity;
 
 		void DisplayEntityData();
 
@@ -53,7 +53,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Remove Component"))
 				{
-					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(selected_entity.value());
+					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(selectedEntity.value());
 				}
 				
 				if (!closeable)
@@ -73,6 +73,12 @@ namespace SliceEditor
 			// if constexpr (std::is_same_v<T, Transform>) { ... }
 			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
 			// etc.
+		}
+
+		template<>
+		void DisplayComponentData<SliceEngine::Transform>(SliceEngine::Transform& component)
+		{
+
 		}
 		// to do in m2 : use rttr to read types.
 		void DisplayTransform();

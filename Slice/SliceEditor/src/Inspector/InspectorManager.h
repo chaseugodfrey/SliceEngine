@@ -21,6 +21,8 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+	using ComponentDrawer = std::function<void(rttr::variant&)>;
+
 	class InspectorManager : public IBaseManager, public ICreateWindow
 	{
 	public:
@@ -30,6 +32,44 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void Init() override;
+
+		template<typename ComponentType>
+		void RegisterDrawer()
+		{
+			const rttr::type key = rttr::type::get<ComponentType>().get_raw_type();
+
+			mComponentDrawers[key] = [this](rttr::variant& var)
+				{
+					if (var.is_type<ComponentType*>())
+					{
+						if (auto* p = var.get_value<ComponentType*>())
+						{
+							this->DisplayComponentData<ComponentType>(*p);
+						}
+					}
+					// back up type shit
+					else if (var.can_convert<ComponentType&>())
+					{
+						auto& obj = var.get_value<ComponentType&>();
+						this->DisplayComponentData<ComponentType>(obj);
+					}
+					else if (var.can_convert<ComponentType>())
+					{
+						auto obj = var.get_value<ComponentType>(); // Makes a copy
+						this->DisplayComponentData<ComponentType>(obj);
+					}
+					else
+					{
+
+					}
+
+				};
+		}
+
+		template<typename ComponentType>
+		void DisplayComponentData(ComponentType& component);
+
+		std::unordered_map<rttr::type, ComponentDrawer> mComponentDrawers;
 	};
 }
 

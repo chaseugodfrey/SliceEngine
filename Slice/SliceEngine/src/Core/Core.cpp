@@ -60,7 +60,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Script>();
 		mFactory.RegisterComponent<RigidBody>();
 		mFactory.RegisterComponent<ColliderShape>();
-		mFactory.RegisterComponent< AudioSource>();
+		mFactory.RegisterComponent<AudioSource>();
 
 		mResource->InitResourceManager();
 	}
