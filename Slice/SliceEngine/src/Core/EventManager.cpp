@@ -27,6 +27,15 @@ void EventManager::SetupEventManager()
 	RegisterEvent<ColliderShapeModifiedEvent>();
 	RegisterEvent<RigidBodyModifiedEvent>();
 	RegisterEvent<OnSceneLoadedEvent>();
+
+	//Collision Events
+	RegisterEvent<OnCollisionEnterEvent>();
+	RegisterEvent<OnCollisionStayEvent>();
+	RegisterEvent<OnCollisionExitEvent>();
+	RegisterEvent<OnTriggerEnterEvent>();
+	RegisterEvent<OnTriggerStayEvent>();
+	RegisterEvent<OnTriggerExitEvent>();
+	//UwU
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

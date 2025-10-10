@@ -130,10 +130,12 @@ namespace SliceEngine
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
-		//mOnCollide = scClass->GetMethod("OnCollide", 1);
-		//mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
-		//mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
-		//mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
+		mOnCollideEnter = scClass->GetMethod("OnCollideEnter", 1);
+		mOnCollideStay = scClass->GetMethod("OnCollideStay", 1);
+		mOnCollideExit = scClass->GetMethod("OnCollideExit", 1);			
+		mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
+		mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
+		mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
 
 		//// Mouse functions
 		//mOnMouseEnter = scClass->GetMethod("OnMouseEnter", 0);
@@ -198,13 +200,33 @@ namespace SliceEngine
 		}
 	}
 
-	void ScriptObject::InvokeOnCollide(unsigned int id)
+	void ScriptObject::InvokeOnCollideEnter(unsigned int id)
 	{
 		//UNUSED(otherID);
-		if (mOnCollide)
+		if (mOnCollideEnter)
 		{
 			void* param = &id;
-			mScriptClass->InvokeMethod(mMonoInstance, mOnCollide, &param);
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideEnter, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnCollideStay(unsigned int id)
+	{
+		//UNUSED(otherID);
+		if (mOnCollideStay)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideStay, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnCollideExit(unsigned int id)
+	{
+		//UNUSED(otherID);
+		if (mOnCollideExit)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideExit, &param);
 		}
 	}
 
