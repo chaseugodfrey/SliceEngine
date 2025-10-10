@@ -23,21 +23,11 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	constexpr static inline uint64_t deferredLightingShader = 12204516898033894501;
-
-	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
+	void WorldSpaceGraphicsSystem::Render(GLuint shader)
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
-		//mShader = rcManager->GetShader();
-		glUseProgram(mShader.get()->s);
-		return mShader;
-	}
-	void WorldSpaceGraphicsSystem::Render(Entity cam)
-	{
+		mShader = shader;
 		//ResetVisibleEntities();
 
-		//tempModel = rcManager->GetModel();
-		//tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
@@ -114,16 +104,16 @@ namespace SliceEngine
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
 		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(mShader.get()->s, "M");
+		uniformLoc = glGetUniformLocation(mShader, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
-		if(uniformLoc != 0) glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
+		uniformLoc = glGetUniformLocation(mShader, "aGID");
+		if (uniformLoc != 0)
+		{
+			glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
+			// -TODO- Temporary measure for light
+			glBindTextureUnit(0, texHandle.get()->texture_id);
+		}
 
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);
-		glBindTextureUnit(0, texHandle.get()->texture_id);
-
-		//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
 		glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 

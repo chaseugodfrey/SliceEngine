@@ -109,9 +109,9 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		GUID model;
-		GUID texture;
-		unsigned char renderTag;
+		GUID model{};
+		GUID texture{};
+		unsigned char renderTag{};
 	};
 
 	struct Camera
@@ -124,16 +124,16 @@ namespace SliceEngine
 
 	struct Light // TODO: Default 1 directional light for now
 	{
-		enum class LightType
+		enum LightType : unsigned char
 		{
-			Directional,
-			Point,
-			Spot
+			Light_Directional = 1
+			,Light_Point
+			,Light_Spot
 		};
-		LightType type = LightType::Point;
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 1.0f };
 		GLuint depthTex{};
+		LightType type = LightType::Light_Point;
 	};
 
 	struct RigidBody

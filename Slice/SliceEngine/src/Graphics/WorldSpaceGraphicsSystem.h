@@ -23,9 +23,8 @@ namespace SliceEngine
 	class ResourceManager;
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
-		Handle<SliceEngineTypes::Shader>& UseShader();
 		void Update(float dt) override;
-		void Render(Entity cam);
+		void Render(GLuint mShader);
 
 		void EntityOnEnter(entt::registry& reg, Entity entity) override;
 		void EntityOnExit(entt::registry& reg, Entity entity) override;
@@ -37,8 +36,8 @@ namespace SliceEngine
 		void AddGridEntities(std::unordered_set<Entity>& in, const int& x, const int& z);
 
 	private:
-		Handle<SliceEngineTypes::Shader> mShader;
-		Handle<SliceEngineTypes::Model> tempModel;
+		GLuint mShader;
+
 		static constexpr float gridSize = 10.f;
 		static constexpr int gridNum = 11; // Has to be odd number lol (cuz account for 0, then +- halfGridNum)
 		std::array<std::vector<Entity>, gridNum* gridNum> spatialData;

@@ -30,7 +30,7 @@ namespace SliceEngine
 		RenderManager();
 		~RenderManager();
 		// One-time setup functions
-		void CreateFramebuffer();
+		void CreateFramebuffers();
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		// Camera related functions
@@ -48,7 +48,8 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
-		void DeferredRender(Entity cam);
+		void RenderShadowMaps();
+		void LightingRender(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(GUID guid);
@@ -60,39 +61,55 @@ namespace SliceEngine
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 
 
-		GLuint mFBO;	// For drawing the scene onto a texture
-		GLuint mIVBO;
-		GLuint mDebugLineVBO;
+		enum FBOType : unsigned char
+		{
+			FB_NIL = 0,
+			FB_DEFERRED,
+			FB_FINAL,
+			FB_TOTAL
+		};
+		enum ShaderOpt : uint64_t
+		{
+			S_BASIC = 18310719961107313904,
+			S_SHADOW = 15542823559299526962,
+			S_DEFERRED = 9461939409271178249,
+			S_LIGHTING = 17353385404596894578,
+			S_FINAL = 9302529766740298710,
+			S_INSTANCED = 17697828682138082227,
+			S_DEBUG_LINE = 13567802095736790143
+		};
+
+		FBOType mCurrFBO{FB_TOTAL};
+		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
+		GLuint mIVBO{};
+		GLuint mDebugLineVBO{};
 		//GLuint mRBO;
-		GLuint pboIds[2];	// For Object Picking
-		GLuint pboIdx[2];
+		GLuint pboIds[2]{};	// For Object Picking
+		GLuint pboIdx[2]{};
 		unsigned int mObjPickX{}, mObjPickY{};
 		bool mObjPickedThisFrame{ false };
-		Entity mCurrentCamIDHover;
-		unsigned int mIDHovered;
+		Entity mCurrentCamIDHover{};
+		unsigned int mIDHovered{};
 		
 		std::optional<GameObject> mainCam;
 
-		Handle<SliceEngineTypes::Shader> mCurrShader;
-		Handle<SliceEngineTypes::Shader> mInstanceShader;
-		Handle<SliceEngineTypes::Shader> mDebugLineShader;
+		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<glm::mat4> mInstanceVtx;
 		enum GPU_OUT : unsigned char
 		{
-			G_DIF = 0,
-			G_POS,
-			G_NOM,
-			G_ID,
-			G_TOTAL
+			GOUT_DIF = 0,
+			GOUT_POS,
+			GOUT_NOM,
+			GOUT_ID,
+			GOUT_FINAL,
+			GOUT_TOTAL
 		};
 
-		GLuint mColAttachment[GPU_OUT::G_TOTAL];
+		GLuint mColAttachment[GOUT_TOTAL]{};
 		glm::mat4 V, P;
 
 		enum FBOSet : unsigned char
 		{
-			F_UNBIND			= 0b1000'0000,
-			F_BIND				= 0b0100'0000,
 			F_CLEAR				= 0x00,
 			F_ID				= 0b0000'0001,
 			F_POS				= 0b0000'0010,
@@ -105,15 +122,19 @@ namespace SliceEngine
 		};
 		enum class GPUSetting : unsigned char
 		{
-			DEFAULT
+			DEFAULT,
+			SHADOW,
+			ADDITION
 		};
 		enum class BufferClearSetting : unsigned char
 		{
 			DEFAULT,
 			ALL
 		};
-		void LinkFrameBufferSettings(FBOSet setting);
+
+		void LinkFrameBufferSettings(FBOType fbo, FBOSet setting);
 		void LoadSettings(GPUSetting setting);
+		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
 
 		void IDPick();
