@@ -238,7 +238,7 @@ namespace SliceEngine
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Physics");
-		if (inputs->GetMode() == InputMode::Game)
+		if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
