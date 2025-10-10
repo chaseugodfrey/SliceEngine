@@ -124,6 +124,14 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
+		//Collision Events
+		void OnCollideEnter(const OnCollisionEnterEvent& event);
+		void OnCollideStay(const OnCollisionStayEvent& event);
+		void OnCollideExit(const OnCollisionExitEvent& event);
+		void OnTriggerEnter(const OnTriggerEnterEvent& event);
+		void OnTriggerStay(const OnTriggerStayEvent& event);
+		void OnTriggerExit(const OnTriggerExitEvent& event);
+
 
 		// Variables
 		MonoDomain* mRootDomain;

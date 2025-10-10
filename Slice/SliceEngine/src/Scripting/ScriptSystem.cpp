@@ -573,8 +573,67 @@ namespace SliceEngine
     {
         auto* eventManager = EventManager::GetInstance();
 
-        //mRegistry->on_construct<Script>().connect<&ScriptSystem::EntityOnEnter>(this);
-        //mRegistry->on_destroy<Script>().connect<&ScriptSystem::EntityOnExit>(this);
-		//mRegistry->on_update<Script>().connect<&ScriptSystem::EntityOnUpdate>(this);
+        eventManager->Subscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
+
+        eventManager->Subscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
+
+        eventManager->Subscribe<OnCollisionExitEvent, &ScriptSystem::OnCollideExit>(this);
+
+        eventManager->Subscribe<OnTriggerEnterEvent, &ScriptSystem::OnTriggerEnter>(this);
+
+        eventManager->Subscribe<OnTriggerStayEvent, &ScriptSystem::OnTriggerStay>(this);
+
+        eventManager->Subscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
+
+    }
+
+    void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+		}
+    }
+    void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+        }
+	}
+    void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+		}
+    }
+    void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+        }
+
+    }
+    void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+        }
+	}
+    void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        }
     }
 }
