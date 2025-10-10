@@ -26,12 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include <unordered_map>
 #include <functional>
 #include <math.h>
-//#ifdef SLICE_INPUT_USE_GLM
-//
-//using Vec2d = glm::dvec2;
-//#else
-//struct Vec2d { double x{ 0.0 }; double y{ 0.0 }; };
-//#endif
+
 
 // create struct for GLFWwindow to avoid including GLFW in header
 struct GLFWwindow;
@@ -86,10 +81,10 @@ namespace SliceEngine
         void UpdatePrevInput();
 
         // queue 
-        bool PollEvent(InputEvent& out);      // pops one event (false if empty)
-        bool PeekEvent(InputEvent& out) const; // copy front without popping (false if empty)
-        size_t EventsThisFrame() const { return changedQueue.size(); }
-        void ClearEvents();
+        size_t EventsThisFrame() const 
+        { 
+            return changedQueue.size(); 
+        }
 
         // bind/unbind callbacks explicitly (instead of always on)
         void BindCallbacksToWindow(GLFWwindow* window);
