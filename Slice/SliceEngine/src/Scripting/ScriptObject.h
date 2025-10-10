@@ -43,7 +43,7 @@ namespace SliceEngine
 		ScriptFieldType mType{ ScriptFieldType::None };
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
-		//variantVar defaultValue{};
+		rttr::variant value;
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};
