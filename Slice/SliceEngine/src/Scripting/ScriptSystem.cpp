@@ -568,4 +568,13 @@ namespace SliceEngine
 
         return mEntityInstances[entityID];
     }
+
+    void ScriptSystem::SubscribeToEvents()
+    {
+        auto* eventManager = EventManager::GetInstance();
+
+        //mRegistry->on_construct<Script>().connect<&ScriptSystem::EntityOnEnter>(this);
+        //mRegistry->on_destroy<Script>().connect<&ScriptSystem::EntityOnExit>(this);
+		//mRegistry->on_update<Script>().connect<&ScriptSystem::EntityOnUpdate>(this);
+    }
 }

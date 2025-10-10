@@ -107,6 +107,8 @@ namespace SliceEngine
 
 		void UpdateExistingPrefabScript(Script& entity);
 
+		void SubscribeToEvents();
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update

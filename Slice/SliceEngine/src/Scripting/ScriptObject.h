@@ -94,7 +94,9 @@ namespace SliceEngine
 		MonoMethod* mOnFixedUpdate = nullptr;
 
 		// Standard object functions
-		MonoMethod* mOnCollide = nullptr;
+		MonoMethod* mOnCollideEnter = nullptr;
+		MonoMethod* mOnCollideStay = nullptr;
+		MonoMethod* mOnCollideExit = nullptr;
 		MonoMethod* mOnTriggerEnter = nullptr;
 		MonoMethod* mOnTriggerStay = nullptr;
 		MonoMethod* mOnTriggerExit = nullptr;
@@ -175,7 +177,11 @@ namespace SliceEngine
 		/// <summary>
 		/// Call when obj collides, if it has a script with an onCollide function
 		/// </summary>
-		void InvokeOnCollide(unsigned int id);
+		void InvokeOnCollideEnter(unsigned int id);
+
+		void InvokeOnCollideStay(unsigned int id);
+
+		void InvokeOnCollideExit(unsigned int id);
 
 		/// <summary>
 		/// Call when kinematic vs kinematic trigger
