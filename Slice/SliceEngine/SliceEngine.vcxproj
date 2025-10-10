@@ -140,6 +140,7 @@
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\Audio.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Model.h" />
     <ClInclude Include="src\Resource\Resource.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Audio.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
     <ClCompile Include="src\Resource\ResourceManager.cpp" />

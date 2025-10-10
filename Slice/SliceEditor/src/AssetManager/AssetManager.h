@@ -87,7 +87,8 @@ namespace SliceEditor
 			{AssetType::Texture, ".dds"},
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
-			{AssetType::Shader, ".shader"}
+			{AssetType::Shader, ".shader"},
+			{AssetType::Audio, ".wav"}
 		};
 	};
 

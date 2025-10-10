@@ -210,6 +210,7 @@ namespace SliceEditor
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
