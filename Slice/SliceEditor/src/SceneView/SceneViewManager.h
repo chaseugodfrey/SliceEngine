@@ -18,7 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
-#include "../SelectionSystem/ISelectionListener.h"
+#include "../Selection/ISelectionListener.h"
 
 namespace SliceEngine
 {
@@ -34,6 +34,9 @@ namespace SliceEditor
 		float mCameraSpeed = 0.01f;
 		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
+		bool isUsing = false;
+
+		std::variant<glm::vec3, glm::quat> mGizmoStartTransformValue;
 
 	public:
 
@@ -50,9 +53,8 @@ namespace SliceEditor
 
 		void SetGizmoOperation(ImGuizmo::OPERATION op);
 		void SetGizmoMode(ImGuizmo::MODE mode);
-
-		void SelectObject(entt::entity);
-		void ClearObject();
+		void CheckGizmoStatus(bool isUse);
+		void StartUsingGizmo(std::variant<glm::vec3, glm::quat> startValue);
 
 		ImGuizmo::OPERATION GetGizmoOperation() const;
 		ImGuizmo::MODE GetGizmoMode() const;

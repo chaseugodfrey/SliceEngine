@@ -21,17 +21,16 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	class ProfilerManager;
-	class SelectionSystem;
+	class SelectionManager;
 
 	class ProfilerWindow : public EditorWindow
 	{
 		ProfilerManager& mManager;
-		SelectionSystem& mSelection;
 
 	public:
 		~ProfilerWindow() = default;
 
-		ProfilerWindow(ProfilerManager& manager, SelectionSystem& select);
+		ProfilerWindow(ProfilerManager& manager);
 
 		void Draw() override final;
 

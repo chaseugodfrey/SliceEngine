@@ -25,19 +25,9 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
-	struct EntityID
-	{
-		uint64_t value;
-
-		EntityID() : value(0) {}
-		EntityID(uint64_t v) : value(v) {}
-
-		operator uint64_t() const { return value; }
-	};
-
 	struct SceneGraph
 	{
-		EntityID entity_id{};
+		uint64_t entity_id{};
 
 		enum Direction {
 			UP = 0,
@@ -47,7 +37,6 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-		uint8_t child_count{};
 
 		// rttr doesnt like c style arrays lol
 		//uint32_t neighbours[4];
@@ -80,17 +69,15 @@ namespace SliceEngine
 		int val;
 	};
 
-	struct Transform
-	{
-		glm::vec3 position{};
-		glm::vec3 rotation{};
-		glm::vec3 scale{1};
-
-		glm::vec3 previousScale{};
-
-		glm::mat4 transform_local{};
-		glm::mat4 transform{};
-	};
+    struct Transform
+    {
+        glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+        glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+        glm::vec3 previousScale{ 1.0f, 1.0f, 1.0f };
+        glm::mat4 transform_local{ 1.0f };
+        glm::mat4 transform{ 1.0f };
+    };
 
 	struct UITransform
 	{
@@ -218,7 +205,7 @@ namespace SliceEngine
 		bool is_repeating{ false };
 		bool is_ending{ false };
 
-		uint32_t oldest_particle_index{ 0u };
+		uint64_t oldest_particle_index{ 0u };
 
 		float max_particle_lifetime{};
 		float particle_speed{};
@@ -228,9 +215,9 @@ namespace SliceEngine
 
 		bool fade_over_lifetime{ false };
 
-		uint32_t max_particles{ 50 }; // pool size
+		uint64_t max_particles{ 50 }; // pool size
 
-		uint32_t internal_current_index{};
+		uint64_t internal_current_index{};
 
 		// ---- Particle storage ----
 		std::vector<Particle> particles;

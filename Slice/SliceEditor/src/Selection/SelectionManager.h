@@ -1,0 +1,51 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SelectionSystem.h
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the SelectionSystem class, which manages the selection of entities in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+#ifndef SELECTION_MANAGER_H
+#define SELECTION_MANAGER_H
+
+#include "Core/IBaseManager.h"
+#include "ISelectionListener.h"
+
+namespace SliceEditor
+{
+	class Registry;
+
+	class SelectionManager : public IBaseManager
+	{
+		// to do:: make it non-static later
+		std::vector<ISelectionListener*> mListeners;
+		std::unordered_set<entt::entity> mSelectedEntities;
+
+		void UpdateManagers();
+
+	public:
+		SelectionManager(Registry& reg) : IBaseManager(reg) {};
+		~SelectionManager() = default;
+
+		void Init() override {};
+		void RegisterListener(ISelectionListener* listener);
+		void SelectSingle(entt::entity entity, bool suppressHistory = false);
+		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
+		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
+		void SelectMultiple(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void ClearSelection(bool suppressHistory = false);
+
+		// replace this with listener pattern
+		std::unordered_set<entt::entity>& GetSelectedEntities();
+	};
+}
+
+#endif

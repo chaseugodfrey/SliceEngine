@@ -10,6 +10,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef EVENTS_H
 #define EVENTS_H
+
 #include "ECS/ECSTypes.h"
 #include <rttr/registration.h>
 
@@ -66,6 +67,12 @@ struct RigidBodyModifiedEvent
 struct OnSceneLoadedEvent
 {
 	bool isSceneLoaded;
+};
+
+struct OnParent
+{
+	Entity parent;
+	Entity child;
 };
 
 RTTR_REGISTRATION

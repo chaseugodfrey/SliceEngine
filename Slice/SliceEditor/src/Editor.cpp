@@ -16,7 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
-#include "../../src/Input/InputSystem.h"
+#include <Input/InputSystem.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -63,6 +64,12 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
+
+		// Scan the resource folder for any hanging resource files or smth
+		// before engine's resource manager scans it to prevent broken meta files/resource files
+		assetManager.ScanResourceFolder();
+		assetManager.Init();
+
 		engine.Init();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
@@ -75,12 +82,12 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init();
 		InitWindowManager();
 
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		inputs.isActive = true;
 		
 	}
 
@@ -88,20 +95,10 @@ namespace SliceEditor
 	{
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			inputs.Update();
 			engine.Update();
 			Render();
 			engine.EndFrame();
-		}
-	}
-
-	void Editor::CheckInputs()
-	{
-		if (ImGui::GetIO().KeyCtrl)
-		{
-			if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-			}
 		}
 	}
 

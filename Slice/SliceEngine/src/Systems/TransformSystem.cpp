@@ -38,19 +38,25 @@ namespace SliceEngine
 		// -------------------------------------------------------------
 		glm::mat4x4 M(1.f);
 		M = glm::translate(M, tr.position);
-		M *= glm::eulerAngleXYZ(glm::radians(tr.rotation.x), glm::radians(tr.rotation.y), glm::radians(tr.rotation.z));
+		M *= glm::mat4_cast(tr.rotation);
+		//M *= glm::eulerAngleXYZ(glm::radians(tr.rotation.x), glm::radians(tr.rotation.y), glm::radians(tr.rotation.z));
 		M = glm::scale(M, tr.scale);
 
 		tr.transform_local = M;
-		tr.transform = tr.transform_local;
-
-		if (auto scene_graph = reg.try_get<SceneGraph>(entity)) {
-			auto parent_entity = scene_graph->neighbours[SceneGraph::UP];
-			if (parent_entity != entt::null && parent_entity != entt::entity{0}) {
-				auto& parent_tr = reg.get<Transform>(parent_entity);
-				tr.transform = parent_tr.transform * tr.transform_local;
-			}
-		}
 	}
 
+	void TransformSystem::UpdateWorldTransforms(entt::entity entity, const glm::mat4& parentWorld)
+	{
+		auto& tr = mRegistry->get<Transform>(entity);
+		tr.transform = parentWorld * tr.transform_local;
+		
+	    if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
+	        entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
+	        while (child != entt::null) 
+			{
+	            UpdateWorldTransforms(child, tr.transform);
+	            child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+	        }
+	    }
+	}
 }
