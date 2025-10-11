@@ -4,5 +4,11 @@
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
+namespace SliceEngine
+{
+	class NavMesh
+	{
 
+	};
+}
 #endif
