@@ -15,12 +15,9 @@ namespace SliceEditor
 		HistoryManager(Registry& reg) : IBaseManager(reg) {};
 		~HistoryManager() = default;
 
-		void Init();
+		void Init() override;
 		void AddCommand(std::unique_ptr<Command> command);
 		void AddCommandFromEvent(AddCommandEvent& event);
-		void Init();
-
-		void AddCommand(std::unique_ptr<Command> command);
 		void SetStackSize(size_t size);
 
 		void Undo();

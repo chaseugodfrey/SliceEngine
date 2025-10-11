@@ -37,7 +37,7 @@ namespace SliceEditor
 
 	struct CreateGameObjectEvent
 	{
-
+		entt::entity entity;
 	};
 
 	struct AddCommandEvent

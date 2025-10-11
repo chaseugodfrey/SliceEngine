@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "HierarchyWindow.h"
 #include "HierarchyManager.h"
 #include "Core/Registry.h"
+#include "History/HistoryManager.h"
 #include "Selection/SelectionManager.h"
 
 namespace SliceEditor
@@ -33,15 +34,15 @@ namespace SliceEditor
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
-		auto& node = mManager.GetHierarchy()[entity];
+		bool isSelected = mSelection.GetSelectedEntities().find(entity) != mSelection.GetSelectedEntities().end();
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (mSelection.GetSelectedEntities().find(node.entity) != mSelection.GetSelectedEntities().end())
+		if (isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
 		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
 
@@ -50,7 +51,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity dropped = *static_cast<entt::entity*>(payload->Data);
-				mManager.SetNewLocation(dropped, node.entity);
+				EditorUtilities::GameObject_SetSibling(dropped, entity, mManager.GetRegistry().GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -71,7 +72,7 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropSource())
 		{
-			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
+			ImGui::SetDragDropPayload("gameobject", (void*)entity, sizeof(entity));
 			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -81,7 +82,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-				mManager.ParentGameObject(child_entity, node.entity);
+				EditorUtilities::GameObject_Parent(child_entity, entt::null, mManager.GetRegistry().GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -91,10 +92,9 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (node.isSelected)
+				if (isSelected)
 				{
-					node.isSelected = false;
-					set.erase(&node);
+
 				}
 
 				else
@@ -105,7 +105,7 @@ namespace SliceEditor
 
 			else
 			{
-				mSelection.SelectSingle(node.entity);
+				mSelection.SelectSingle(entity);
 			}
 		}
 
@@ -180,7 +180,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
-				mManager.RemoveGameObject(entity);
+				EditorUtilities::GameObject_Destroy(entity, mManager.GetRegistry().GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();
@@ -211,7 +211,7 @@ namespace SliceEditor
 		{
 			if (ImGui::Selectable("Add GameObject"))
 			{
-				mManager.AddGameObject();
+				EditorUtilities::GameObject_CreateEmpty(entt::null, mManager.GetRegistry().GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();

@@ -7,6 +7,7 @@ namespace SliceEditor
 	{
 		undoStack = std::stack<std::unique_ptr<Command>>();
 		redoStack = std::stack<std::unique_ptr<Command>>();
+
 		EventManager::GetInstance()->Subscribe<UndoEvent, &HistoryManager::Undo>(this);
 		EventManager::GetInstance()->Subscribe<RedoEvent, &HistoryManager::Redo>(this);
 	}

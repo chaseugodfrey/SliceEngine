@@ -1,8 +1,6 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include <entt.hpp>
-
 namespace SliceEditor
 {
 	class SelectionManager;
@@ -54,11 +52,10 @@ namespace SliceEditor
 
 	class CreateEntityCommand : public Command
 	{
-		entt::entity entity;
 
 	public:
 
-		CreateEntityCommand(entt::entity e) : entity(e) {}
+		CreateEntityCommand() {};
 		~CreateEntityCommand() = default;
 
 		void Redo() override;

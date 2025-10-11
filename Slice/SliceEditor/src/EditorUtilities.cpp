@@ -1,11 +1,13 @@
 #include <pch.h>
+#include "EditorUtilities.h"
+#include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
 
 namespace SliceEditor
 {
-	namespace Utilities
+	namespace EditorUtilities
 	{
-		static SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent, bool suppressHistory)
+		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO();
@@ -13,11 +15,15 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
-			if (!suppressHistory)
-				EventManager::GetInstance()->Publish<AddCommandEvent>(std::make_unique<CreateGameObjectEvent>(go.GetEntity()));
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
 		}
 
-		static void GameObject_Destroy(entt::entity target, bool suppressHistory)
+		void GameObject_Destroy(entt::entity target, HistoryManager* history)
 		{
 			EventManager::GetInstance()->Publish<ClearSelectionEvent>();
 			SliceEngine::FactoryInstance.Destroy(target);
@@ -30,29 +36,38 @@ namespace SliceEditor
 			//	EventManager::GetInstance()->Publish<AddCommandEvent>(std::make_unique<CreateGameObjectEvent>(target));
 		}
 
-		static void GameObject_Parent(entt::entity child, entt::entity parent, bool suppressHistory)
+		void GameObject_Parent(entt::entity child, entt::entity parent, HistoryManager* history)
 		{
-			SliceEngine::FactoryInstance.SetParent(child, parent);
+			auto& scene_graph = SliceEngine::FactoryInstance.GetGOByEntity(child).GetComponent<SliceEngine::SceneGraph>();
+			auto old_parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
 
-			if (!suppressHistory)
+			if (SliceEngine::FactoryInstance.SetParent(child, parent))
 			{
-				auto& scene_graph = SliceEngine::FactoryInstance.GetGOByEntity(child).GetComponent<SliceEngine::SceneGraph>();
-				auto old_parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-				AddCommandEvent e;
-				e.command = std::make_unique<ParentEntityCommand>(child, old_parent, parent);
-				EventManager::GetInstance()->Publish<AddCommandEvent>(std::move(e));
+				if (history)
+				{
+					history->AddCommand(std::make_unique<ParentEntityCommand>(child, old_parent, parent));
+				}
 			}
 		}
 
-		static void GameObject_Unparent(entt::entity child, bool suppressHistory)
+		void GameObject_Unparent(entt::entity child, HistoryManager* history)
 		{
-			SliceEngine::FactoryInstance.Unparent(child);
+			auto& scene_graph = SliceEngine::FactoryInstance.GetGOByEntity(child).GetComponent<SliceEngine::SceneGraph>();
+			auto old_parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
 
-			if (!suppressHistory)
-				EventManager::GetInstance()->Publish<AddCommandEvent>(std::make_unique<ParentEntityCommand>(child, entt::null));
+			if (SliceEngine::FactoryInstance.Unparent(child))
+			{
+				if (history)
+				{
+					auto new_parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+
+					history->AddCommand(std::make_unique<ParentEntityCommand>(child, old_parent, new_parent));
+				}
+
+			}
 		}
 
-		static void GameObject_SetSibling(entt::entity target, entt::entity destination, bool suppressHistory)
+		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 
@@ -63,13 +78,15 @@ namespace SliceEditor
 			{
 				auto& destSceneGraph = factory.GetGOByEntity(destination).GetComponent<SliceEngine::SceneGraph>();
 				factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+
+				if (history)
+				{
+
+				}
 			}
-			
-			if (!suppressHistory)
-				EventManager::GetInstance()->Publish<AddCommandEvent>(std::make_unique<ParentEntityCommand>(target, entt::null, entt::null));
 		}
 
-		static void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, bool suppressHistory)
+		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
 		{
 
 		}

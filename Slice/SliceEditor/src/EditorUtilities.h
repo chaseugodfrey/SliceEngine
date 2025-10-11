@@ -3,15 +3,15 @@
 
 namespace SliceEditor
 {
+	class HistoryManager;
+
 	namespace EditorUtilities
 	{
-		static SliceEngine::GameObject GameObject_CreateEmpty(entt::entity = entt::null, bool suppressHistory = false);
-		static void GameObject_Destroy(entt::entity target, bool suppressHistory = false);
-		static void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, bool suppressHistory = false);
-		static void GameObject_Unparent(entt::entity child, bool suppressHistory = false);
-		static void GameObject_SetSibling(entt::entity target, entt::entity destination, bool suppressHistory = false);
-
-
+		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity = entt::null, HistoryManager* history = nullptr);
+		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
+		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);
+		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 	}
 }
 

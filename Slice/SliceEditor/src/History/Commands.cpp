@@ -7,32 +7,32 @@ namespace SliceEditor
 
 	void SelectEntityCommand::Undo()
 	{
-		sSelection.SelectMultiple(oldEntities, true);
+		sSelection.SelectMultiple(oldEntities);
 	}
 
 	void SelectEntityCommand::Redo()
 	{
-		sSelection.SelectMultiple(newEntities, true);
+		sSelection.SelectMultiple(newEntities);
 	}
 	
 	void CreateEntityCommand::Redo()
 	{
-		EditorUtilities::GameObject_CreateEmpty(entity, true);
+		EditorUtilities::GameObject_CreateEmpty();
 	}
 
 	void CreateEntityCommand::Undo()
 	{
-		EditorUtilities::GameObject_Destroy(entity, true);
+		EditorUtilities::GameObject_Destroy(entity);
 	}
 
 	void ParentEntityCommand::Redo()
 	{
-		EditorUtilities::GameObject_Parent(child, newParent, true);
+		EditorUtilities::GameObject_Parent(child, newParent);
 	}
 
 	void ParentEntityCommand::Undo()
 	{
-		EditorUtilities::GameObject_Parent(child, oldParent, true);
+		EditorUtilities::GameObject_Parent(child, oldParent);
 	}
 
 	void DeleteEntityCommand::Redo()
