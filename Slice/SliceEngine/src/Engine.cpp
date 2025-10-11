@@ -173,7 +173,7 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("light");
+		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecond");
 		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
 		//Dlight.AddComponent<Light>();
 		//Dlight.GetComponent<Light>().type = Light::LightType::Directional;
