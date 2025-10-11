@@ -23,6 +23,7 @@ namespace SliceEngine
 		class Shader;
 		//class Sound;
 		class Scene;
+		class Prefab;
 	}
 
 	namespace DefaultResourceIDs
@@ -87,6 +88,13 @@ namespace SliceEngine
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Scene> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Prefab>
+	{
+		static std::unique_ptr<SliceEngineTypes::Prefab> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr);
 	};
 }
 

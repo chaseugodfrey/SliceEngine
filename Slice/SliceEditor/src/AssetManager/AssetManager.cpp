@@ -105,6 +105,10 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
+		case AssetType::Prefab:
+			metaData = std::make_unique<PrefabData>();
+			typeID = ResourceTypeIDs::PREFAB;
+			break;
 		}
 
 		if (metaData)
@@ -170,6 +174,8 @@ namespace SliceEditor
 			case AssetType::Audio:
 				// idk audio yet
 				break;
+				// prefab and scene is the same just copy it over
+			case AssetType::Prefab:
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
 				break;

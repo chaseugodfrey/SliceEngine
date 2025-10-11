@@ -122,6 +122,12 @@ namespace SliceEngine
 		float intensity = 1.0f;
 	};
 
+	struct Prefab
+	{
+		// GUID reference to original prefab
+		GUID prefabGUID;
+	};
+
 	struct RigidBody
 	{
 		

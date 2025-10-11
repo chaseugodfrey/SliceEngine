@@ -77,6 +77,7 @@ namespace SliceEditor
 			//{".ogg", AssetType::Audio},
 			{".scene", AssetType::Scene},
 			{".shader", AssetType::Shader},
+			{".prefab", AssetType::Prefab}
 			//{".vert", AssetType::Shader},
 			//{".frag", AssetType::Shader}
 		};
@@ -86,7 +87,8 @@ namespace SliceEditor
 			{AssetType::Texture, ".dds"},
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
-			{AssetType::Shader, ".shader"}
+			{AssetType::Shader, ".shader"},
+			{AssetType::Prefab, ".prefab"}
 		};
 	};
 
