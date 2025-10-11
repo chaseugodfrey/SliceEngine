@@ -1,14 +1,26 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Registry.h
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the Registry class, which holds all the managers of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef EDITOR_REGISTRY_H
 #define EDITOR_REGISTRY_H
 
 #include "IBaseManager.h"
-#include "SelectionSystem/SelectionSystem.h"
 
 namespace SliceEditor
 {
 	class Registry
 	{
-		SelectionSystem selectionSystem;
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 
@@ -25,9 +37,6 @@ namespace SliceEditor
 		void Init();
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& GetManagers();
-
-		// To do:: bring this to a system map
-		SelectionSystem& GetSelectionSystem();
 
 		template <typename IManager>
 		IManager* GetManager(std::string_view name)

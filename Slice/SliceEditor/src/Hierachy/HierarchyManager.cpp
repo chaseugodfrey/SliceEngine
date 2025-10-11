@@ -1,20 +1,47 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        HierarchyManager.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the HierarchyManager class, which is responsible for managing the hierarchy of game objects in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "HierarchyManager.h"
 #include "HierarchyWindow.h"
 #include "../Core/Registry.h"
+#include "../Selection/SelectionManager.h"
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
 
 namespace SliceEditor
 {
 
 	void HierarchyManager::Init()
 	{
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &HierarchyManager::OnSceneLoad>(this);
 		BuildHierarchy();
 	}
 
 	void HierarchyManager::Reset()
 	{
-		registry.GetSelectionSystem().ClearSelection();
-		BuildHierarchy();
+	}
+
+	void HierarchyManager::OnSceneLoad(OnSceneLoadedEvent& event)
+	{
+		if (event.isSceneLoaded)
+		{
+			registry.GetManager<SelectionManager>("Selection")->ClearSelection(true);
+			BuildHierarchy();
+		}
 	}
 
 	void HierarchyManager::SetDirty()
@@ -35,12 +62,6 @@ namespace SliceEditor
 	{
 		TestNode node{};
 		node.entity = entity;
-
-		auto& scene_graph_comp = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-		auto parent_entity = scene_graph_comp.neighbours[SliceEngine::SceneGraph::UP];
-
-		node.parent = &mHierarchy.at(parent_entity);
-		node.parent->children.push_back(entity);
 		mHierarchy.emplace(entity, node);
 	}
 
@@ -63,23 +84,8 @@ namespace SliceEditor
 		{
 			TestNode node{};
 			node.entity = entity;
+			//SLICE_LOG_VALUES("Adding entity to hierarchy: " + reg.get<SliceEngine::SliceEntity>(entity).mName);
 			mHierarchy.emplace(entity, node);
-		}
-
-		for (auto& [entity, node] : mHierarchy)
-		{
-			auto& scene_graph = reg.get<SliceEngine::SceneGraph>(entity);
-			auto parent = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			auto child = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
-
-			if (parent != entt::null)
-				node.parent = &mHierarchy[parent];
-
-			while (child != entt::null)
-			{
-				node.children.push_back(child);
-				child = scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
-			}
 		}
 	}
 
@@ -101,68 +107,60 @@ namespace SliceEditor
 		node.entity = go.GetEntity();
 		mHierarchy.emplace(node.entity, node);
 
+
 		auto rootEntity = factory.GetRootEntity();
 		ParentGameObject(node.entity, rootEntity);
 
 		//isDirty = true;
+		SliceEngine::OnGONetworkEvent(go.GetEntity(),true);
 	}
 
 	void HierarchyManager::RemoveGameObject(entt::entity target)
 	{
-		auto parent_entity = mHierarchy[target].parent;
-
-		// remove from parent's children list
-		auto& children = parent_entity->children;
-		auto it = std::find(std::begin(children), std::end(children), target);
-		children.erase(it);
-
-		// remove from selection system
-		registry.GetSelectionSystem().UpdateDeslected({ target });
-
-		// remove from node structure
-		mHierarchy.erase(target);
+		// remove everything from selection system(temp fix)
+		registry.GetManager<SelectionManager>("Selection")->ClearSelection();
 
 		// remove from core registry
 		SliceEngine::FactoryInstance.Destroy(target);
+		SetDirty();
 	}
 
 	void HierarchyManager::ParentGameObject(entt::entity child_entity, entt::entity parent_entity)
 	{
-		auto& child_node = mHierarchy.at(child_entity);
-		auto& parent_node = mHierarchy.at(parent_entity);
-		// detach from previous parent
-		// skip if node was just created
-		if (child_node.parent != nullptr)
-		{
-			auto& children_list = child_node.parent->children;
+		// set parent in engine
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		auto go = factory.GetGOByEntity(child_entity);
+		factory.SetParent(child_entity, parent_entity);
+	}
 
-			auto it = std::find(std::begin(children_list), std::end(children_list), child_node.entity);
-			if (it != children_list.end())
-			{
-				children_list.erase(it);
-			}
+	void HierarchyManager::Unparent(entt::entity child)
+	{
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		factory.Unparent(child);
+	}
+
+	void HierarchyManager::SetNewLocation(entt::entity target, entt::entity destination)
+	{
+		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//If its the same entity, do nothing
+		if(destination == target)
+		{
+			SLICE_LOG_DEBUG("Trying to set new location to same entity, doing nothing");
+			return;
+		}
+		//It be moving somewhere else
+		else
+		{
+			auto& destSceneGraph = factory.GetGOByEntity(destination).GetComponent<SliceEngine::SceneGraph>();
+			factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 		}
 
-		// add new parent
-		child_node.parent = &parent_node;
-
-		// attach to new parent
-		parent_node.children.push_back(child_node.entity);
+		SetDirty();
 	}
 
-	void HierarchyManager::Unparent(entt::entity child, entt::entity parent)
+	std::unique_ptr<EditorWindow> HierarchyManager::CreateEditorWindow()
 	{
-		auto& childNode = mHierarchy[child];
-		auto& parentNode = mHierarchy[parent];
-		auto& grandParentNode = mHierarchy[parentNode.parent->entity];
-		
-		ParentGameObject(childNode.entity, grandParentNode.entity);
-	}
-
-	std::unique_ptr<EditorWindow> HierarchyManager::CreateWindow()
-	{
-		auto& selectionSystem = registry.GetSelectionSystem();
-		auto window = std::make_unique<HierarchyWindow>(*this, selectionSystem);
+		auto window = std::make_unique<HierarchyWindow>(*this);
 		return window;
 	}
 

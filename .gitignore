@@ -5,14 +5,13 @@
 *.vcxproj.filters
 
 # Build results
-[Dd]ebug/
-[Rr]elease/
+# [Dd]ebug/
+# [Rr]elease/
 
 x64/
 *_i.c
 *_p.c
 *.ilk
-*.meta
 *.obj
 *.pch
 *.pdb
@@ -54,3 +53,7 @@ ipch/
 *.scene_temp
 build/
 Slice/SliceEngine/SliceEngine.lib
+Slice/SliceEngine/SliceEngine.idb
+Slice/SliceEngine/SliceEngine.pdb
+Slice/SliceEditor/Assets/Tests/JSONTest3reference.json
+Slice/SliceEditor/Assets/Tests/JSONTest3.json

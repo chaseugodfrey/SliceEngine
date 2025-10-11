@@ -1,8 +1,23 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ContentBrowserManager.cpp
+
+ author:	  Nic Lai
+
+ email:       n.lai@digipen.edu
+
+ brief:		  Defines the Content Browser manager class. It is responsible for handling the data of the Content Browser window in the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "ContentBrowserManager.h"
 #include "ContentBrowserWindow.h"
 #include "Core/Registry.h"
 #include "Hierachy/HierarchyManager.h"
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
 
 namespace SliceEditor
 {
@@ -12,7 +27,7 @@ namespace SliceEditor
 		BuildTree();
 	}
 
-	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateWindow()
+	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Content Browser Window.");
 		auto window = std::make_unique<ContentBrowserWindow>(*this);
@@ -115,8 +130,8 @@ namespace SliceEditor
 	{
 		if (entry.path.extension() == ".scene")
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadScene(entry.path);
-			registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
 		
 		else

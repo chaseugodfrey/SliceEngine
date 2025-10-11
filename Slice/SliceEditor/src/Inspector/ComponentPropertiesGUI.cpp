@@ -1,67 +1,70 @@
-/******************************************************************************/
-/*!
-\group  	CtrlAlt
-\file		EditorProperties.cpp
-\author 	Chase Rodrigues
-\par    	rodrigues.i@digipen.edu
-\date   	14th February 2025
-\brief
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ComponentPropertiesGUI.cpp
 
-Editor class that wraps ImGui functions and editor commands to create displayable properties to allow for
-editing, undoing and redoing.
+ author:	  Chase Rodrigues
 
- */
- /******************************************************************************/
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the ComponentPropertiesGUI class, which wraps ImGui functions to create displayable
+		  properties to allow for editing, undoing and redoing.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <pch.h>
 #include "ComponentPropertiesGUI.h"
+#include <Core/Registry.h>
+#include <History/HistoryManager.h>
+#include "../EditorCommonTypes.h"
+
+#include <Graphics/TransformHelper.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
 
 using namespace std::string_literals;
 
 namespace SliceEditor
 {
-	void DragFloatInput(const char* id, float& val, const char* format, std::function<void(float)> setFunc, float min, float max)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, std::function<void(float)> setFunc, float min, float max)
 	{
 		static float oldVal{};
 
-		ImGui::DragFloat(id, &val, 0.1f, min, max, format);
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
-		//if (ImGui::IsItemActivated())
-		//	oldVal = val;
+		if (ImGui::IsItemActivated())
+			oldVal = val;
 
-		//if (ImGui::IsItemDeactivatedAfterEdit())
-		//{
-		//	if (std::abs(oldVal - val) > FLT_EPSILON)
-		//	{
-		//		if (setFunc)
-		//		{
-		//			setFunc(val);
-		//			service.AddCommand(std::make_unique<FunctionSetsValueCommand<float>>(setFunc, oldVal, val));
-		//		}
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{	
+				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
 
-		//		else
-		//			service.AddCommand(std::make_unique<ValueCommand<float>>(val, oldVal, val));
-		//	}
-		//}
+		return changed;
 	}
 
-	void DragVec3InputHeader(const char* property_label, const char* id, glm::vec3& val)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
+		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(100.0f);
 		ImGui::SetNextItemWidth(50.0f);
-
-		DragFloatInput((id + "_x"s).c_str(), val.x, "X: %.3f");
-
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(50.0f);
-
-		DragFloatInput((id + "_y"s).c_str(), val.y, "Y: %.3f");
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
 
-		DragFloatInput((id + "_z"s).c_str(), val.z, "Z: %.3f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f") || changed;
+
+		return changed;
 	}
 
 }

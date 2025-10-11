@@ -1,6 +1,23 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        ProfilerManager.cpp
+
+ author:	  Nic Lai
+
+ email:       n.lai@digipen.edu
+
+ brief:		  Defines the ProfilerManager class, which manages the data of the profiler window of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "ProfilerManager.h"
 #include "ProfilerWindow.h"
+#include "../Core/Registry.h"
+#include <Systems/FramerateManager.h>
+#include "Selection/SelectionManager.h"
 
 
 namespace SliceEditor
@@ -10,7 +27,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Profiler Data.");
 	}
 
-	std::unique_ptr<EditorWindow> ProfilerManager::CreateWindow()
+	std::unique_ptr<EditorWindow> ProfilerManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Profiler Window.");
 		auto window = std::make_unique<ProfilerWindow>(*this);
@@ -81,9 +98,9 @@ namespace SliceEditor
 
 	float ProfilerManager::LuminanceCalculation(ImU32 color)
 	{
-		float r = (color & 0xFF0000) >> 16;
-		float g = (color & 0x00FF00) >> 8;
-		float b = color & 0x0000FF;
+		float r = static_cast<float>((color & 0xFF0000) >> 16);
+		float g = static_cast<float>((color & 0x00FF00) >> 8);
+		float b = static_cast<float>(color & 0x0000FF);
 
 		r /= 255.0f;
 		g /= 255.0f;

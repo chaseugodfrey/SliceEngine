@@ -1,8 +1,19 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			WorldSpaceGraphicsSystem.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles draw calls, and maybe spatial partioning of all renderEntities
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 
-//#include "ResourceManager.h"
+#include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
+#include "Resource/Texture.h"
 
 #include "WorldSpaceGraphicsSystem.h"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -12,9 +23,11 @@
 
 namespace SliceEngine
 {
+	constexpr static inline uint64_t deferredLightingShader = 12204516898033894501;
+
 	Handle<SliceEngineTypes::Shader>& WorldSpaceGraphicsSystem::UseShader()
 	{
-		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>("Assets/Shaders/deferredLighting.txt");
+		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 		//mShader = rcManager->GetShader();
 		glUseProgram(mShader.get()->s);
 		return mShader;
@@ -24,7 +37,7 @@ namespace SliceEngine
 		//ResetVisibleEntities();
 
 		//tempModel = rcManager->GetModel();
-		tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
+		//tempModel = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(GUID((uint64_t)11935922938096720248));//Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>("Assets/Models/Cube.txt");
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
@@ -44,7 +57,7 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityOnUpdate(entt::registry& reg, Entity entity, float dt)
 	{
-		auto& transform = reg.get<Transform>(entity);
+		//auto& transform = reg.get<Transform>(entity);
 		//// -------------------------------------------------------------
 		//// Calc the Transformation Matrix
 		//// -------------------------------------------------------------
@@ -74,19 +87,29 @@ namespace SliceEngine
 		// Since: 10 ~ 19.999 / 10 = 1
 		// And 0 ~ 9.999 /10 = 0
 		// Therefore, [0, 20) --> [-10,10) + 10 offset -> [0,20) Div Grid Size --> [0,1]
-		const float gridExtreme = (static_cast<float>(gridNum / 2) + (gridNum % 2) * 0.5f) * gridSize;
-
-		int xPos{ static_cast<int>(transform.position.x + gridExtreme) / gridNum },
-			zPos{ static_cast<int>(transform.position.z + gridExtreme) / gridNum };
-		if (xPos < gridNum && xPos > -1 && zPos < gridNum && zPos > -1)
-			spatialData[xPos * gridNum + zPos].push_back(entity);
-		else
-			outerSpatial.push_back(entity);
+		//const float gridExtreme = (static_cast<float>(gridNum / 2) + (gridNum % 2) * 0.5f) * gridSize;
+		//
+		//int xPos{ static_cast<int>(transform.position.x + gridExtreme) / gridNum },
+		//	zPos{ static_cast<int>(transform.position.z + gridExtreme) / gridNum };
+		//if (xPos < gridNum && xPos > -1 && zPos < gridNum && zPos > -1)
+		//	spatialData[xPos * gridNum + zPos].push_back(entity);
+		//else
+		//	outerSpatial.push_back(entity);
 	}
 
 	void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
 	{
-		glBindVertexArray(tempModel.get()->vao);
+		auto core = Core::GetInstance();
+		auto& rc = core->GetRegistry().get<Renderer>(entity);
+
+		//if (rc.model == GUID::null())
+		//	return;
+
+		auto rm = core->GetResourceManager();
+		auto handle = rm->get<SliceEngineTypes::Model>(rc.model);
+		auto texHandle = rm->get<SliceEngineTypes::Texture>(rc.texture);
+
+		glBindVertexArray(handle.get()->vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
@@ -96,14 +119,19 @@ namespace SliceEngine
 		uniformLoc = glGetUniformLocation(mShader.get()->s, "aGID");
 		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
 
-		glDrawArrays(tempModel.get()->drawMode, 0, tempModel.get()->drawCnt);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, texHandle.get()->texture_id);
+		glBindTextureUnit(0, texHandle.get()->texture_id);
+
+		//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
+		glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
 	{
-		for (auto& i : spatialData)
-			i.clear();
-		outerSpatial.clear();
+		//for (auto& i : spatialData)
+		//	i.clear();
+		//outerSpatial.clear();
 
 		BaseSystem::Update(dt);
 	}

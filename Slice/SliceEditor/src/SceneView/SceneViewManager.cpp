@@ -1,9 +1,26 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        SceneViewManager.cpp
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the SceneViewManager class, which manages the data of the scene view window of the editor.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "SceneViewManager.h"
 #include "SceneViewWindow.h"
+#include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/ECS/ECSTypes.h"
 #include "../Core/Registry.h"
+#include "History/HistoryManager.h"
 
 namespace SliceEditor
 {
@@ -12,7 +29,7 @@ namespace SliceEditor
 		mCameraSpeed = 0.01f;
 	}
 
-	std::unique_ptr<EditorWindow> SceneViewManager::CreateWindow()
+	std::unique_ptr<EditorWindow> SceneViewManager::CreateEditorWindow()
 	{
 		// TO DO: replace this with camera creation + attaching to window
 		auto mRenderManager = SliceEngine::RenderManagerInstance;
@@ -55,14 +72,25 @@ namespace SliceEditor
 		mGuizmoMode = mode;
 	}
 
-	void SceneViewManager::SelectObject(entt::entity entity)
+	void SceneViewManager::CheckGizmoStatus(bool isUse)
 	{
-		registry.GetSelectionSystem().UpdateSelected(entity);
+		//if (isUsing && !isUse)
+		//{
+		//	isUsing = false;
+		//	registry.GetManager<HistoryManager>("History")->AddCommand(
+		//		std::make_unique<ValueCommand<decltype(mGizmoStartTransformValue)>>(mGizmoStartTransformValue,)
+		//	);
+
+		//}
 	}
 
-	void SceneViewManager::ClearObject()
+	void SceneViewManager::StartUsingGizmo(std::variant<glm::vec3, glm::quat> startValue)
 	{
-		registry.GetSelectionSystem().ClearSelection();
+		if (isUsing)
+			return;
+
+		isUsing = true;
+		mGizmoStartTransformValue = startValue;
 	}
 
 	ImGuizmo::OPERATION SceneViewManager::GetGizmoOperation() const

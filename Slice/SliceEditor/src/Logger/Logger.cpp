@@ -1,3 +1,17 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Logger.cpp
+
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the Logger class, which is responsible for logging messages to the terminal.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "Logger.h"
 
@@ -14,6 +28,7 @@ namespace Logger
 	//static const char* LogLevelToString(LogLevel level);
 	static const char* LogLevelToColor(LogLevel level);
 	std::deque <std::pair<LogLevel, std::string>> savedLogs;
+	std::mutex _stdoutMutex{};
 
 	void Log(const char* function_name, const std::string& message, LogLevel level)
 	{
@@ -22,12 +37,12 @@ namespace Logger
 		std::tm local_tm{};
 		localtime_s(&local_tm, &now_c);
 		std::ostringstream oss;
-
 		oss /*<< std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S")
 			<< " [" << LogLevelToString(level) << "] "*/
 			<< '(' << function_name << ") - "
 			<< message << '\n';
 
+		std::lock_guard<std::mutex> LoggersLock{ _stdoutMutex };
 		std::cout
 			<< std::put_time(&local_tm, "%Y-%m-%d %H:%M:%S")
 			<< LogLevelToColor(level) << " [" << LogLevelToString(level) << "] " << RESET

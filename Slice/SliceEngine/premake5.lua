@@ -7,7 +7,7 @@ project "SliceEngine"
     targetdir ("")
     -- objdir ("bin-int/%{cfg.buildcfg}")
 
-    files { "src/**" }
+    files { "src/**","thirdparty/recast/Detour/Source/**.cpp" }
 
     includedirs {
         "src",
@@ -20,6 +20,7 @@ project "SliceEngine"
         "thirdparty/JoltPhysics",
         "thirdparty/fmod/include",
         "thirdparty/nlohmann/include",
+        ThirdParty.DETOUR_INC,
         ThirdParty.RTTR_INC,
         ThirdParty.MONO_INC
     }
@@ -33,7 +34,8 @@ project "SliceEngine"
         "thirdparty/glfw/lib-vc2022",
         "thirdparty/fmod/lib",
         ThirdParty.RTTR_LIB,
-        ThirdParty.JOLT_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
         ThirdParty.MONO_LIB
         }
 
@@ -57,6 +59,7 @@ project "SliceEngine"
     pchheader "pch.h"
     pchsource "src/pch.cpp"
 
+    buildoptions { "/bigobj" }
 
     filter "configurations:EditorDebug"
         --defines {"DEBUG_MODE" }
@@ -66,7 +69,11 @@ project "SliceEngine"
         
          links {
             "rttr_core_d",
-            "Jolt_d"
+            "Jolt_d.lib"
+            }
+        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
             }
 
          --defines { "JPH_ENABLE_ASSERTS" }
@@ -85,7 +92,10 @@ project "SliceEngine"
         
          links {
             "rttr_core",
-            "Jolt_r"
+            "Jolt_r.lib"
+            }
+         postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
             }
 
         -- includedirs

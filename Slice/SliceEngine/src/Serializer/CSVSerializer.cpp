@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			CSVSerializer.cpp
+ author:		Hafiz
+ email:			b.muhammadhafiz@digipen.edu
+ brief:			Serialize and Deserialize CSV data
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "CSVSerializer.h"
 
@@ -73,7 +83,7 @@ namespace SliceEngine
                 std::istringstream iss(cur_line);
                 std::string word;
 
-                bool first = true;
+                //bool first = true;
                 while (std::getline(iss, word, ','))
                 {
                     result.col_keys.push_back(word);

@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			pch.h
+ author:
+ email:
+ brief:			Pre-compiled headers
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef PCH_H
 #define PCH_H
 
@@ -29,9 +39,29 @@
 #include "Logger/Logger.h"
 
 // Common Types
-#include "Vectors/Vector2.h"
+//#include "Vectors/Vector2.h"
 //#include "../Vectors/Vector3.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"		// Entire Win32 API...
+#include "winsock2.h"	// ...or Winsock alone
+#include "ws2tcpip.h"		// getaddrinfo()
+
+// Tell the Visual Studio linker to include the following library in linking.
+// Alternatively, we could add this file to the linker command-line parameters,
+// but including it in the source code simplifies the configuration.
+#pragma comment(lib, "ws2_32.lib")
+#undef far
+#undef FAR
+#undef near
+#undef CreateWindowW
+#undef CreateWindow
+#undef ERROR
+#undef PlaySoundW
+#undef PlaySound
+#undef min
+#undef max
+#undef name
 // external libs
 
 // glfw
@@ -76,6 +106,14 @@
 // nlohmann json
 #include <json.hpp>
 
+#include <Resource/GUID.h>
+#include <Resource/Model.h>
 #include "Configuration/ProjectSettings.h"
+
+#include "../../SliceEngine/src/Core/EventManager.h"
+#include "../../SliceEngine/src/Core/Events.h"
+
+
+#define UNUSED(x) (void)(x)
 
 #endif 

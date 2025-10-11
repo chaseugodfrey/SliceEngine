@@ -1,3 +1,18 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        InspectorWindow.h
+
+ author:	  Chase Rodgrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the InspectorWindow class, which is responsible for drawing the Inspector window and its contents.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef INSPECTOR_WINDOW_H
 #define INSPECTOR_WINDOW_H
 
@@ -50,17 +65,24 @@ namespace SliceEditor
 			ImGui::Separator();
 		}
 
+		template<typename T>
+		void DisplayComponentData(T& component)
+		{
+			// This function can be specialized for different component types
+			// For example:
+			// if constexpr (std::is_same_v<T, Transform>) { ... }
+			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
+			// etc.
+		}
 		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
+		void DisplaySceneGraph();
 		void DisplayAudioSource();
 		void DisplayMeshRenderer();
 		void DisplayRigidbody(); 
 		void DisplayCollider3D();
 		void DisplaySliceScript();
 		void AddComponentButton();
-
-		void R();
-
 
 
 	public:

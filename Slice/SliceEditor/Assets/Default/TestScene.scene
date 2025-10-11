@@ -1,0 +1,153 @@
+[
+    {
+        "GameObject_2": {
+            "struct SliceEngine::Renderer": {
+                "model": "",
+                "renderTag": "0",
+                "texture": ""
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 6,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    5,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject_2"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    1.2478160858154297
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_1": {
+            "struct SliceEngine::Renderer": {
+                "model": "",
+                "renderTag": "0",
+                "texture": ""
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 5,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    4,
+                    6
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject_1"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -1.2753162384033203
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject": {
+            "struct SliceEngine::Renderer": {
+                "model": "",
+                "renderTag": "0",
+                "texture": ""
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    2,
+                    5
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "light": {
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    4294967295,
+                    4
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "light"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    5.0,
+                    2.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

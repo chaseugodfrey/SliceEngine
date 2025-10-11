@@ -95,7 +95,7 @@ namespace SliceEngine
 		}
 		catch (...)
 		{
-			SLICE_LOG_ERROR("InvokeMethod: Unknown exception occurred while invoking {} in Class: {}", methodName, className);
+			SLICE_LOG_ERROR("InvokeMethod: Unknown exception occurred while invoking {} in Class: {}" + std::string(methodName) + std::string(className));
 			return nullptr;
 
 		}

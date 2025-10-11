@@ -1,5 +1,14 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			CameraSystem.cpp
+ author:		Won Yu Xuan Rainne
+ email:			won.m@digipen.edu
+ brief:			Handles Creation of individual render targets for each camera
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
-#include "ResourceManager.h"
 #include "CameraSystem.h"
 
 #include "../Core/Core.h"

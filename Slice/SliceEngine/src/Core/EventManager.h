@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			EventManager.h
+ author:		Gideon Francis
+ email:			g.francis@digipen.edu
+ brief:			Handles all events
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef EVENT_MANAGER_H
 #define EVENT_MANAGER_H
 #include "Singleton.h"
@@ -76,6 +86,12 @@ public:
 	void Publish(const Event event)
 	{
 		mDispatcher.trigger(event);
+	}
+
+	template <typename Event>
+	void Publish(const Event&& event)
+	{
+		mDispatcher.trigger(std::move(event));
 	}
 
 	template <typename Event, typename... Args>

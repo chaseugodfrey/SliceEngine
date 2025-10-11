@@ -1,6 +1,23 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        Editor.cpp
+
+ author:	  Chase Rodrigues
+ co-author:   Nic Lai
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Defines the Editor class, which is the main class of the editor application.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "Editor.h"
-#include "../../src/Input/InputSystem.h"
+#include "Scripting/ScriptEditor.h"
+#include <Input/InputSystem.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -47,6 +64,12 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
+
+		// Scan the resource folder for any hanging resource files or smth
+		// before engine's resource manager scans it to prevent broken meta files/resource files
+		assetManager.ScanResourceFolder();
+		assetManager.Init();
+
 		engine.Init();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
@@ -59,30 +82,23 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
-		assetManager.Init(std::filesystem::path("../SliceEditor/Assets"));
 		InitWindowManager();
 
+		//SliceEditor::InitFileWatcher();
+
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		inputs.isActive = true;
+		
 	}
 
 	void Editor::Run()
 	{
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			inputs.Update();
 			engine.Update();
 			Render();
 			engine.EndFrame();
-		}
-	}
-
-	void Editor::CheckInputs()
-	{
-		if (ImGui::GetIO().KeyCtrl)
-		{
-			if (ImGui::IsKeyPressed(ImGuiKey_S))
-			{
-				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveScene();
-			}
 		}
 	}
 
@@ -110,6 +126,7 @@ namespace SliceEditor
 
 	void Editor::Exit()
 	{
+		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();

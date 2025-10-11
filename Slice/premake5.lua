@@ -6,8 +6,9 @@ workspace "Slice"
     warnings "Extra"
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
-script_lib_path = "%{wks.location}/SliceScript/SliceScript.dll"
+script_dev_path = "%{wks.location}/SliceScript"
 assets_build_path = "%{wks.location}/SliceEditor/Assets"
+resource_asset_path = "%{wks.location}/SliceEditor/Resources"
 assets_dev_path = "%{wks.location}/SliceEditor/DevAssets"
 
 IncludeDir = {}
@@ -32,7 +33,10 @@ ThirdParty.FMOD_DLL = "%{wks.location}/SliceEngine/thirdparty/fmod/lib/fmod.dll"
 ThirdParty.JSON_INC = "%{wks.location}/SliceEngine/thirdparty/nlohmann/include"
 
 ThirdParty.JOLT_INC = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics"
-ThirdParty.JOLT_LIB = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib"
+ThirdParty.JOLT_LIB_D = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Debug"
+ThirdParty.JOLT_LIB_R = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Release"
+ThirdParty.JOLT_PDB_D = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Debug/Jolt.pdb"
+ThirdParty.JOLT_PDB_R = "%{wks.location}/SliceEngine/thirdparty/JoltPhysics/lib/Release/Jolt.pdb"
 
 ThirdParty.RTTR_INC = "%{wks.location}/SliceEngine/thirdparty/rttr/include"
 ThirdParty.RTTR_LIB = "%{wks.location}/SliceEngine/thirdparty/rttr/lib"
@@ -44,6 +48,11 @@ ThirdParty.MONO_LIB = "%{wks.location}/SliceEngine/thirdparty/Mono/lib"
 ThirdParty.MONO_MONO = "%{wks.location}/SliceEngine/thirdparty/Mono/mono"
 ThirdParty.MONO_DLL = "%{wks.location}/SliceEngine/thirdparty/Mono/lib/*.dll"
 ThirdParty.MONO_BIN = "%{wks.location}/SliceEngine/thirdparty/Mono/bin"
+
+ThirdParty.RECAST_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Recast/include"
+ThirdParty.DETOUR_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/Detour/include"
+ThirdParty.DETOUR_CROWD_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/DetourCrowd/include"
+ThirdParty.DETOUR_TILE_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/DetourTileCache/include"
 
 include "SliceEngine/premake5.lua"
 include "SliceScript/premake5.lua"

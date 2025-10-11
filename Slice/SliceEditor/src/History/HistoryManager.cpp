@@ -3,9 +3,14 @@
 
 namespace SliceEditor
 {
+	void HistoryManager::Init()
+	{
+		undoStack = std::stack<std::unique_ptr<Command>>();
+		redoStack = std::stack<std::unique_ptr<Command>>();
+		EventManager::GetInstance()->Subscribe<UndoEvent, &HistoryManager::Undo>(this);
+		EventManager::GetInstance()->Subscribe<RedoEvent, &HistoryManager::Redo>(this);
+	}
 
-<<<<<<< Updated upstream
-=======
 	void HistoryManager::AddCommand(std::unique_ptr<Command> command)
 	{
 		undoStack.push(std::move(command));
@@ -50,5 +55,4 @@ namespace SliceEditor
 		while (redoStack.size() > stackSize)
 			redoStack.pop();
 	}
->>>>>>> Stashed changes
 }

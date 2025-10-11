@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			ProjectSettings.h
+ author:		Chase Roderigues
+ email:			roderigues.i@digipen.edu
+ brief:			Handles project settings
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef PROJECT_SETTINGS_H
 #define PROJECT_SETTINGS_H
 

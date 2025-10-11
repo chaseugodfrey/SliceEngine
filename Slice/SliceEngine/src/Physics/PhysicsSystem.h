@@ -1,3 +1,13 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:			PhysicsSystem.h
+ author:		Aloysius Teo
+ email:			teo.k@digipen.edu
+ brief:			Handles all physics
+
+Copyright (C) 2024 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef PHYSICS_SYSTEM_H
 #define PHYSICS_SYSTEM_H
 
@@ -31,7 +41,7 @@ namespace SliceEngine
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		bool isInitialized = false; 
-		int collisionSteps;
+		int collisionSteps{};
 
 	private:
 		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
@@ -45,6 +55,10 @@ namespace SliceEngine
 		void OnRigidBodyAdd(const RigidBodyAddedEvent& event);
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
+
+		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+
+		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
 		void UpdateShapeFromTransform(Entity entity);
 
@@ -73,7 +87,7 @@ namespace SliceEngine
 
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void SubscribeToCollisionEvents();
+		void SubscribeToEvents();
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
 
