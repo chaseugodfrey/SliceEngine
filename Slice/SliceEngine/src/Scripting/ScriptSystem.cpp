@@ -526,10 +526,10 @@ namespace SliceEngine
                             ScriptFieldType fieldType = GetScriptFieldType(type);
 
 
-                            //variantVar defaultValue;
+                            rttr::variant var;
 
                             // Store it in the script's field map
-                            script->mFields[fieldName] = { fieldType, fieldName, field };
+                            script->mFields[fieldName] = { fieldType, fieldName, field, var};
                         }
                     }
 

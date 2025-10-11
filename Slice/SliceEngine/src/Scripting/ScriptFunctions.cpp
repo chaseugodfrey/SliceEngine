@@ -38,6 +38,8 @@ namespace SliceEngine
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
 	
+#pragma region TRANSFORM FUNCTIONS
+
 	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
 	{
 		//SLICE_LOG("Getting position from C++ for entity: {}", entity);
@@ -54,6 +56,32 @@ namespace SliceEngine
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
 	}
+
+	static void Transform_GetScale(unsigned int entity, glm::vec3* outScale)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		*outScale = transform.scale;
+	}
+	
+	static void Transform_SetScale(unsigned int entity, glm::vec3* scale)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.scale = *scale;
+	}
+
+	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		// leaving blank for now cause i think i ahve to return as euler not quaternion
+	}
+
+	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		// leaving blank for now cause i think i ahve to return as euler not quaternion
+	}
+
+#pragma endregion
 
 	static bool IsKeyPressed(Keys keyCode)
 	{
@@ -140,8 +168,13 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
+		ADD_INTERNAL_CALL(Transform_GetScale);
+		ADD_INTERNAL_CALL(Transform_SetScale);
+		ADD_INTERNAL_CALL(Transform_GetRotation);
+		ADD_INTERNAL_CALL(Transform_SetRotation);
 
 		// Key input
 		ADD_INTERNAL_CALL(IsKeyPressed);
