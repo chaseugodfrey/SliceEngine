@@ -52,10 +52,11 @@ namespace SliceEditor
 
 	class CreateEntityCommand : public Command
 	{
+		entt::entity entity;
 
 	public:
 
-		CreateEntityCommand() {};
+		CreateEntityCommand(entt::entity e) : entity(e) {};
 		~CreateEntityCommand() = default;
 
 		void Redo() override;
