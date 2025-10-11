@@ -106,7 +106,8 @@ namespace SliceEngine
 				final_vertices.insert(final_vertices.end(), m.vertices.begin(), m.vertices.end());
 				idx_offset = static_cast<int>(final_vertices.size());
 			}
-
+			final_ind = final_indices;
+			final_vert = final_vertices;
 			//finally, setup the vbo, vao, ebo
 			drawCnt = static_cast<int>(final_indices.size());
 			drawMode = GL_TRIANGLES;
@@ -380,6 +381,16 @@ namespace SliceEngine
 				glDeleteBuffers(1, &ebo);
 			glDeleteBuffers(1, &vbo);
 			glDeleteVertexArrays(1, &vao);
+		}
+
+
+		std::vector<Vertex> Model::GetFinalVert()
+		{
+			return final_vert;
+		}
+		std::vector<unsigned int> Model::GetFinalInd()
+		{
+			return final_ind;
 		}
 	}
 }

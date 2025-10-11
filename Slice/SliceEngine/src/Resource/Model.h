@@ -22,10 +22,16 @@ namespace SliceEngine
 	{
 		//forward declare of helper struct
 		struct Mesh;
+		struct Vertex;
 
 		class Model {
 			//ngl no idea whr to put this so ill put this for now
+			std::vector<Vertex> final_vert{};
+			std::vector<unsigned int> final_ind{};
 		public:
+
+			std::vector<Vertex> GetFinalVert();
+			std::vector<unsigned int> GetFinalInd();
 			/*
 				old ones
 			*/
