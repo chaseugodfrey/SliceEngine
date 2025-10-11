@@ -43,6 +43,10 @@ namespace SliceEngine
 		ScriptFieldType mType{ ScriptFieldType::None };
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
+
+		// used purely for prefab serialization
+		// if not we'd normally just use name to retrieve
+		// the variable and set the variable in runtime
 		rttr::variant value;
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
@@ -226,6 +230,12 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="stateName"></param>
 		void InvokeOnStateExit(std::string stateName);
+
+		// option 1, use a map then set as well
+		std::map<std::string, rttr::variant> GetAllFields();
+
+		// option 2, lambda this b****
+		void ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall);
 
 		rttr::variant GetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field);
 

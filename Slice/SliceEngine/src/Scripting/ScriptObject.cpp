@@ -335,6 +335,62 @@ namespace SliceEngine
 		}
 	}
 
+	/// <summary>
+	/// Use this to get out all the variables of this script obj for editor use
+	/// </summary>
+	/// <returns></returns>
+	std::map<std::string, rttr::variant> ScriptObject::GetAllFields()
+	{
+		std::map<std::string, rttr::variant> fieldsMap;
+		const auto& fieldVariables = mScriptClass->mFields;
+
+		for (const auto& [name, variable] : fieldVariables)
+		{
+			fieldsMap[name] = GetFieldValue(name);
+		}
+
+		return fieldsMap;
+	}
+
+
+	void ScriptObject::ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall)
+	{
+		const auto& fieldVariables = mScriptClass->mFields;
+		for (const auto& [name, field] : fieldVariables)
+		{
+			rttr::variant currValue = GetFieldValue(name);
+			if (!currValue.is_valid())
+				continue;
+
+			rttr::variant originalVal = currValue;
+
+			editorCall(name, currValue);
+
+			/*
+			if editor want to use this
+			std::shared_ptr<SliceEngine::ScriptObject> scriptRef to get the reference to the script instance
+			then 
+			scriptRef->ExposeForEditor([](const std::string& name, rttr::variant& var)
+			{
+				// you can do w/e u need to with the variable
+				// get the type to check how to display it
+				// i.e rttr::type type = var.get_type();
+
+				// this function will handle updating the script instance after setting value in editor
+
+			});
+
+			
+			*/
+
+			if (currValue != originalVal)
+			{
+				SetFieldValue(name, currValue);
+			}
+		}
+
+	}
+
 	rttr::variant ScriptObject::GetFieldValue(const std::string& name)
 	{
 		const auto& fields = mScriptClass->mFields;
@@ -351,15 +407,15 @@ namespace SliceEngine
 
 	void ScriptObject::SetFieldValue(const std::string& name, rttr::variant val)
 	{
-		const auto& fields = mScriptClass->mFields;
+		auto& fields = mScriptClass->mFields;
 		auto it = fields.find(name);
 		if (it == mScriptClass->mFields.end())
 		{
 			return;
 		}
 
-		const ScriptField& field = it->second;
-
+		ScriptField& field = it->second;
+		field.value = val;
 		SetMonoFieldValue(mMonoInstance, field.mClassField, val);
 	}
 
