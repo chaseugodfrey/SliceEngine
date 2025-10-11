@@ -205,7 +205,7 @@ namespace SliceEngine
 			//Release(); //not sure but im like 90% sure this is not supposed to be here
 		}
 
-		Handle(const Handle& other) : mManager(&other.mManager), mInstance(other.mInstance), mGUID(other.mGUID)
+		Handle(const Handle& other) : mManager(other.mManager), mInstance(other.mInstance), mGUID(other.mGUID)
 		{
 			AddRef();
 		}
@@ -245,6 +245,11 @@ namespace SliceEngine
 			return *this;
 		}
 
+		//bool operator<(const Handle<T>& other) const
+		//{
+		//	return mGUID < other.mGUID;
+		//}
+
 		T* operator->()
 		{
 			return get();
@@ -268,6 +273,11 @@ namespace SliceEngine
 		bool IsValid() const
 		{
 			return mInstance != nullptr && mInstance->data != nullptr;
+		}
+
+		GUID getGUID() const
+		{
+			return mGUID;
 		}
 
 	private:

@@ -93,6 +93,8 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Prefab>
 	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
 		static std::unique_ptr<SliceEngineTypes::Prefab> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr);
 	};

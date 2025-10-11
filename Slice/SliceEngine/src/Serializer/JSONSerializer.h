@@ -32,6 +32,9 @@ namespace SliceEngine
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+		void SerializePrefab(std::filesystem::path const& filePath, entt::entity entity);
+		json SerializePrefabChild(entt::entity entity, entt::registry& registry);
+
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
 		// For generic values

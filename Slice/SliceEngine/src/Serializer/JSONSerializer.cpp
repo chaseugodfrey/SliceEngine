@@ -56,6 +56,55 @@ namespace SliceEngine
 
 			SerializeFile(output, filePath);
 		}
+#pragma region PrefabSerializing
+		void SerializePrefab(std::filesystem::path const& filePath, entt::entity entity)
+		{
+			json output;
+			auto& registry = Core::GetInstance()->GetRegistry();
+
+			// serialize the main entity
+			output += SerializeGameObject(entity, registry);
+
+			// Now serialize the children
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				output += SerializePrefabChild(childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+			SerializeFile(output, filePath);
+		}
+
+		// Looks kinda funky having two exact same functions
+		// but 1 is the main function that starts the recursive call from the original main prefab entity
+		// the second one is for iterating the children
+		// it'll check down and right
+		// and go down again if there is one
+		// hopefully our prefabs not gonna be so complicated that this whole recursive call is long and breakable
+
+		json SerializePrefabChild(entt::entity entity, entt::registry& registry)
+		{
+			json output;
+
+			output += SerializeGameObject(entity, registry);
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				output += SerializePrefabChild(childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+			return output;
+		}
+
+#pragma endregion
 
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)
 		{
