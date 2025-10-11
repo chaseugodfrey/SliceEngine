@@ -23,6 +23,7 @@ project "SliceEditor"
         ThirdParty.JOLT_INC,
         ThirdParty.MONO_INC,
         ThirdParty.RECAST_INC,
+        ThirdParty.DETOUR_INC,
         "thirdparty/imgui/include",
         "thirdparty/filewatch/FileWatch"
         
