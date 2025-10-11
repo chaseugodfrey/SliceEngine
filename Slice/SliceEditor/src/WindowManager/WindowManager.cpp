@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #include "ICreateWindow.h"
 #include "../Core/Registry.h"
 #include "Scripting/ScriptEditor.h"
-#include "../Hierachy/HierarchyManager.h"
 #include <Input/InputSystem.h>
 #include <Scripting/ScriptSystem.h>
 #include <Core/ComponentEventHandler.h>
@@ -187,8 +186,6 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Box"))
 				{
 					auto go = factory.CreateGO_Box();
-					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
-
 				}
 
 				ImGui::EndMenu();
@@ -197,7 +194,6 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Camera"))
 			{
 				auto go = factory.CreateGO_Cam();
-				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
 			ImGui::EndMenu();

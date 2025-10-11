@@ -25,12 +25,10 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
-	class InspectorManager;
+	class Registry;
 
 	class InspectorWindow : public EditorWindow
 	{
-		InspectorManager& mManager;
-
 		// to do: change later
 		std::optional<entt::entity> selected_entity;
 
@@ -87,7 +85,7 @@ namespace SliceEditor
 
 	public:
 
-		InspectorWindow(InspectorManager& manager);
+		InspectorWindow(Registry& reg) : EditorWindow(reg) {};
 		~InspectorWindow() = default;
 		void Draw() override final;
 	};

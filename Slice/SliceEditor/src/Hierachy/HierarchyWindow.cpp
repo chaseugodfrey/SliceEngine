@@ -15,7 +15,6 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "HierarchyWindow.h"
-#include "HierarchyManager.h"
 #include "Core/Registry.h"
 #include "History/HistoryManager.h"
 #include "Selection/SelectionManager.h"
@@ -24,12 +23,6 @@ namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
-
-
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager) : mManager(manager)
-	{
-
-	}
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
@@ -51,7 +44,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity dropped = *static_cast<entt::entity*>(payload->Data);
-				EditorUtilities::GameObject_SetSibling(dropped, entity, mManager.GetRegistry().GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_SetSibling(dropped, entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -82,7 +75,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-				EditorUtilities::GameObject_Parent(child_entity, entt::null, mManager.GetRegistry().GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_Parent(child_entity, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -124,20 +117,21 @@ namespace SliceEditor
 		}
 	}
 
-	void HierarchyWindow::DrawSceneNode(TestNode& node)
+	void HierarchyWindow::DrawSceneNode()
 	{
-		if (ImGui::TreeNodeEx(node.name.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
+
+		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Separator();
 
 			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(node.entity);
+			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entt::entity(0));
 			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
 
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mManager.GetRegistry().GetManager<SelectionManager>("Selection"), child_entity, child_scene_graph);
+				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -149,9 +143,7 @@ namespace SliceEditor
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-		auto root_entity = SliceEngine::Core::GetInstance()->mFactory.GetRootEntity();
-		auto& hierarchy = mManager.GetHierarchy();
-		DrawSceneNode(hierarchy[root_entity]);
+		DrawSceneNode();
 		ImGui::EndGroup();
 	}
 
@@ -167,7 +159,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Unparent"))
 			{
-				mManager.Unparent(entity);
+				EditorUtilities::GameObject_Unparent(entity);
 			}
 
 			if (!hasParent)
@@ -180,7 +172,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
-				EditorUtilities::GameObject_Destroy(entity, mManager.GetRegistry().GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_Destroy(entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();
@@ -199,7 +191,7 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked())
 		{
-			mManager.GetRegistry().GetManager<SelectionManager>("Selection")->ClearSelection();
+			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
 		}
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -211,14 +203,12 @@ namespace SliceEditor
 		{
 			if (ImGui::Selectable("Add GameObject"))
 			{
-				EditorUtilities::GameObject_CreateEmpty(entt::null, mManager.GetRegistry().GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_CreateEmpty(entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();
 		}
 
 		ImGui::End();
-
-		mManager.CheckDirty();
 	}
 }

@@ -17,7 +17,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man) : mManager(man)
+	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
 	{}
 
 	void ContentBrowserWindow::Draw()
