@@ -384,11 +384,11 @@ namespace SliceEngine
 		}
 
 
-		std::vector<Vertex> Model::GetFinalVert()
+		const std::vector<Vertex>& Model::GetFinalVert() const
 		{
 			return final_vert;
 		}
-		std::vector<unsigned int> Model::GetFinalInd()
+		const std::vector<unsigned int>& Model::GetFinalInd() const
 		{
 			return final_ind;
 		}

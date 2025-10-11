@@ -30,8 +30,8 @@ namespace SliceEngine
 			std::vector<unsigned int> final_ind{};
 		public:
 
-			std::vector<Vertex> GetFinalVert();
-			std::vector<unsigned int> GetFinalInd();
+			const std::vector<Vertex> &GetFinalVert() const;
+			const std::vector<unsigned int>& GetFinalInd() const;
 			/*
 				old ones
 			*/
