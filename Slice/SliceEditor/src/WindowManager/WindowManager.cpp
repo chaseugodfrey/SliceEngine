@@ -65,8 +65,6 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
-
-
 	}
 
 	void WindowManager::DrawMainMenu()

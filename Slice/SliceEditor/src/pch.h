@@ -72,5 +72,21 @@
 
 #include <json.hpp>
 
+<<<<<<< Updated upstream
 #include <Core/Core.h>
+=======
+// Engine
+#include <Resource/GUID.h>
+#include <Core/Core.h>
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+
+// Editor
+#include <Core/Registry.h>
+#include <Core/EditorEvents.h>
+#include <EditorUtilities.h>
+#include <EditorCommonTypes.h>
+#include <History/Commands.h>
+
+>>>>>>> Stashed changes
 #endif 

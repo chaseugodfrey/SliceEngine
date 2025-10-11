@@ -13,9 +13,8 @@ editing, undoing and redoing.
  */
  /******************************************************************************/
 
-#ifndef COMPONENT_PROPERPTIES_H
-#define COMPONENT_PROPERPTIES_H
-
+#ifndef COMPONENT_PROPERTIES_H
+#define COMPONENT_PROPERTIES_H
 
 namespace SliceEditor
 {
