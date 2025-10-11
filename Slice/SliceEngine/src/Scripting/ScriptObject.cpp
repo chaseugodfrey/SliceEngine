@@ -335,6 +335,115 @@ namespace SliceEngine
 		}
 	}
 
+	rttr::variant ScriptObject::GetFieldValue(const std::string& name)
+	{
+		const auto& fields = mScriptClass->mFields;
+		auto it = fields.find(name);
+		if (it == mScriptClass->mFields.end())
+		{
+			return {};
+		}
+
+		const ScriptField& field = it->second;
+
+		return GetMonoFieldValue(mMonoInstance, field.mClassField);
+	}
+
+	void ScriptObject::SetFieldValue(const std::string& name, rttr::variant val)
+	{
+		const auto& fields = mScriptClass->mFields;
+		auto it = fields.find(name);
+		if (it == mScriptClass->mFields.end())
+		{
+			return;
+		}
+
+		const ScriptField& field = it->second;
+
+		SetMonoFieldValue(mMonoInstance, field.mClassField, val);
+	}
+
+	rttr::variant ScriptObject::GetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field)
+	{
+		MonoObject* valueObj = mono_field_get_value_object(mono_object_get_domain(scriptInstance), field, scriptInstance);
+		
+		if (!valueObj)
+		{
+			return {};
+		}
+
+		void* unboxPtr = mono_object_unbox(valueObj);
+
+		MonoType* type = mono_field_get_type(field);
+		int monoTypeEnum = mono_type_get_type(type);
+		std::string result;
+
+		switch (monoTypeEnum)
+		{
+		case MONO_TYPE_BOOLEAN:
+			return *(bool*)unboxPtr;
+			break;
+		case MONO_TYPE_I4:
+			return *(int32_t*)unboxPtr;
+			break;
+		case MONO_TYPE_U4:
+			return *(uint32_t*)unboxPtr;
+			break;
+		case MONO_TYPE_R4:
+			return *(float*)unboxPtr;
+			break;
+		case MONO_TYPE_R8:
+			return *(double*)unboxPtr;
+			break;
+		case MONO_TYPE_STRING:
+			{
+				MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
+				if (monoStr != nullptr)
+				{
+					char* utf8str = mono_string_to_utf8(monoStr);
+					result = utf8str;
+					mono_free(utf8str);
+				}
+				return result;
+			}
+			break;
+		case MONO_TYPE_VALUETYPE:
+			std::string typeName = mono_type_get_name(type);
+			// Check for value type like vectors and stuff
+
+			break;
+		}
+
+		// if nth then just return a empty variant
+		return {};
+	}
+
+	void ScriptObject::SetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field, rttr::variant& value)
+	{
+		if (!value.is_valid())
+		{
+			return;
+		}
+
+		rttr::type type = value.get_type();
+
+		// if its a str
+		if (type == rttr::type::get<std::string>())
+		{
+			// needh andle with MonoString
+			std::string& strVal = value.get_value <std::string>();
+			MonoString* monoStr = mono_string_new(mono_domain_get(), strVal.c_str());
+			mono_field_set_value(scriptInstance, field, monoStr);
+		}
+		else
+		{
+			// assuming c++ and c# layouts are identical
+			// use get_ptr() for raw data
+			
+			mono_field_set_value(scriptInstance, field, value.get_value<void*>());
+		} 
+
+	}
 
 	std::shared_ptr<ScriptClass> ScriptObject::GetScriptClass()
 	{

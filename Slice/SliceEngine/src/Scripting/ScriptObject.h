@@ -227,6 +227,14 @@ namespace SliceEngine
 		/// <param name="stateName"></param>
 		void InvokeOnStateExit(std::string stateName);
 
+		rttr::variant GetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field);
+
+		void SetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field, rttr::variant& value);
+
+		rttr::variant GetFieldValue(const std::string& name);
+
+		void SetFieldValue(const std::string& name, rttr::variant val);
+
 		template<typename T>
 		T GetFieldValue(const std::string& name)
 		{
