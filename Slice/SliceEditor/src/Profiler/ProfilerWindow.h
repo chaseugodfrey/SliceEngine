@@ -33,6 +33,7 @@ namespace SliceEditor
 
 		ProfilerWindow(ProfilerManager& manager, Registry& reg);
 
+		void Init() override;
 		void Draw() override final;
 
 		void DrawLoggerTab();

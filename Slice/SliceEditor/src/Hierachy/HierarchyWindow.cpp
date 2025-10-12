@@ -179,6 +179,11 @@ namespace SliceEditor
 		}
 	}
 
+	void HierarchyWindow::Init()
+	{
+
+	}
+
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");

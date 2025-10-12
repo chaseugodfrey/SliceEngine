@@ -27,6 +27,8 @@ namespace SliceEditor
 		//ContentBrowserManager() = default;
 		~ContentBrowserWindow() = default;
 		ContentBrowserWindow(ContentBrowserManager& manager, Registry& reg);
+
+		void Init() override;
 		void Draw() override final;
 
 		void DisplayFolders(DirectoryNode& node);
