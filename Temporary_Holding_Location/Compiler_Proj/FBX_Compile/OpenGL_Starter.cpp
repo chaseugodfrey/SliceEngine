@@ -78,14 +78,17 @@ void OpenGL_Starter::Init() {
     const char* model_path = "../Asset/player.fbx";
     assert(std::filesystem::exists(model_path));
     mdl.Init(model_path);
-    anim.Init(model_path, mdl);
-    animator.PlayAnimation(&anim);
+    //anim.Init(model_path, mdl);
+    //animator.PlayAnimation(&anim);
     mdl.SaveModelToFile("../Asset/player_data.mdl");
 
     if (mdl_clone.LoadModelFromFile("../Asset/player_data.mdl")) {
         mdl_clone.InitLoadedModel();
         mdl_clone.SaveModelToFile("../Asset/player_data_clone.mdl");
     }
+  /*  if (mdl_clone.LoadModelFromFile("../Asset/cube.mdl")) {
+        mdl_clone.InitLoadedModel();
+    }*/
 
     //Shaders
     const char* vert_name = "DefaultShader.vert";
@@ -120,7 +123,7 @@ void OpenGL_Starter::Update() {
             time = curr;
         }
 
-        animator.UpdateAnimation(dt);
+       // animator.UpdateAnimation(dt);
 
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -140,13 +143,13 @@ void OpenGL_Starter::Update() {
         uniform = default_shader.GetUniformLoc("light_pos");
         glUniform3fv(uniform, 1, glm::value_ptr(camera.Position));
 
-        uniform = default_shader.GetUniformLoc("finalBonesMatrices");
-        glUniformMatrix4fv(uniform, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform()[0]));
+       /* uniform = default_shader.GetUniformLoc("finalBonesMatrices");
+        glUniformMatrix4fv(uniform, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform()[0]));*/
 
         // render the loaded model
         //std::cout << animator.current_time << std::endl;
-        mdl.Draw(default_shader);
-        //mdl_clone.Draw(default_shader);
+        //mdl.Draw(default_shader);
+        mdl_clone.Draw(default_shader);
 
         //float initialOffsetY = -0.5f;
         //GLuint uni_loc = default_shader.GetUniformLoc("offset");

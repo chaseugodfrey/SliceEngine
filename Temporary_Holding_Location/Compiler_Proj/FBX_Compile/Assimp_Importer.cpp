@@ -3,9 +3,12 @@
 #include <glm/detail/type_mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
 namespace Geometry {
 
-    constexpr uint16_t version_number = 1;
+    constexpr uint16_t version_number = 2;
     constexpr uint64_t i_size = sizeof(unsigned int);
     constexpr uint64_t f_size = sizeof(float);
 
@@ -25,20 +28,94 @@ namespace Geometry {
     /*
     * Importer
     */
-    bool Mesh_Compiler::Compile_Asset(const char* src, const char* dst) {
+
+    void FBX_Compiler::set_options(nlohmann::json const& options, Assimp::Importer& importer) {
+        //Check what type ok compiling it is
+        //only mesh or animation for now
+        if (options.contains("assetType") && options["assetType"] == ".anim") {
+            //default is mdl
+            mesh = false;
+        }
+       
+        //set compile options depending on what type it is
+        int remove_flags = 0;
+        if (mesh) { //set mesh compiler options
+            remove_flags |= aiComponent_CAMERAS | aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_ANIMATIONS | aiComponent_BONEWEIGHTS;
+            if (options.contains("static") && options["static"]) {
+                postprocess_flags |= aiProcess_OptimizeGraph;
+            }
+            if (options.contains("smoothing_angle")) {
+                float smooth = options["smoothing_angle"];
+                importer.SetPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, smooth);
+            }
+        }
+        else {
+            //ill deal with this later
+        }
+        //remove components from the import itself
+        importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, remove_flags);
+        //remove lines and points - only triangles allowed
+        importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+        postprocess_flags |= aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_RemoveComponent;
+        //postprocess_flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_RemoveRedundantMaterials | aiProcess_RemoveComponent;
+    }
+
+    bool FBX_Compiler::Compile_Asset(const char* src, const char* dst, nlohmann::json const& options) {
+        if (!std::filesystem::exists(src)) {
+            std::cout << "Invalid src" << std::endl;
+            return false;
+        }
+        Assimp::Importer importer;
+        set_options(options, importer);
+
+        const aiScene* scene = importer.ReadFile(src, postprocess_flags);
+
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+            std::cout << "Assimp Error: " << importer.GetErrorString() << std::endl;
+            return false;
+        }
+
         Model mdl;
-        if (!mdl.load_model(src)) {
+        if (!mdl.load_model(src, scene)) {
             return false;
         }
         mdl.SaveModelToFile(dst);
     }
 
+    void FBX_Compiler::Compile_Primitive(Primitive_Type type, const char* dst) {
+        Model mdl;
+        switch (type) {
+        case Cube:
+            mdl.Create_Cube();
+            break;
+        }
+        mdl.SaveModelToFile(dst);
+    }
 
     /*
     * Model
     */
 
 #if !COMPILE_ONLY
+    void Model::Init(const char* f) {
+        Assimp::Importer importer;
+        int remove_flags{};
+        remove_flags |= aiComponent_CAMERAS | aiComponent_COLORS | aiComponent_LIGHTS | aiComponent_ANIMATIONS | aiComponent_BONEWEIGHTS;
+
+        //remove components from the import itself
+        importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS, remove_flags);
+        //remove lines and points - only triangles allowed
+        importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_LINE | aiPrimitiveType_POINT);
+
+
+        const aiScene* scene = importer.ReadFile(f, aiProcessPreset_TargetRealtime_MaxQuality | aiProcess_RemoveComponent);
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
+            std::cout << "Assimp Error: " << importer.GetErrorString() << std::endl;
+            return;
+        }
+        load_model(f, scene);
+        init = true;
+    }
     void Model::Release() {
         if (!init) {
             return;
@@ -48,32 +125,45 @@ namespace Geometry {
             m.Release();
         }
     }
+    
+    void Model::draw_node(GL_Shader& shader, Node& node, glm::mat4 const& parent) {
+        glm::mat4x4 M(1.f);
+        M = glm::translate(M, node.position);
+        M *= glm::mat4_cast(node.rotation);
+        M = glm::scale(M, node.scale);
+
+        glm::mat4 global_transform = parent * M;
+
+        for (auto& it : node.mesh_ref) {
+            Mesh const& mesh = meshes[it];
+            glBindVertexArray(mesh.vao);
+
+            GLuint uniform = shader.GetUniformLoc("M");
+            glUniformMatrix4fv(uniform, 1, false, glm::value_ptr(global_transform));
+
+            glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
+            glBindVertexArray(0);
+        }
+
+        for (auto& c : node.children) {
+            draw_node(shader, c, global_transform);
+        }
+    }
 
     void Model::Draw(GL_Shader& shader) {
         if (!init) {
             return;
         }
-        for (int i = 0; i < meshes.size(); ++i) {
-            meshes[i].Draw(shader);
-        }
+        draw_node(shader, root_node, glm::identity<glm::mat4>());
+        return;
     }
 #endif
-    bool Model::load_model(const char* file_name) {
-        if (!std::filesystem::exists(file_name)) {
-            std::cout << "Invalid src" << std::endl;
-            return false;
-        }
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(file_name, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
-
-        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-            std::cout << "Assimp Error: " << importer.GetErrorString() << std::endl;
-            return false;
-        }
+    bool Model::load_model(const char* file_name, const aiScene* scene) {
 
         //Create the meshes
         aiMatrix4x4 identity{};
-        process_node(scene->mRootNode, scene, identity);
+        process_node(scene->mRootNode, scene, identity, root_node);
 
 #if !COMPILE_ONLY
         int num_mat = scene->mNumMaterials;
@@ -94,18 +184,125 @@ namespace Geometry {
         return true;
     }
 
-    void Model::process_node(aiNode* node, aiScene const* scene, aiMatrix4x4 p_tform) {
+
+    void Model::Create_Cube() {
+        name = "Cube";
+        //Create a single mesh
+        meshes.resize(1);
+        auto& mesh = meshes.back();
+        root_node.mesh_ref.resize(1);
+        root_node.mesh_ref[0] = 0;
+        //each vertex needs to be duplicated 3 times because of normals
+        /*
+        * width of cube is 1,current uv coord will be 0-1 on each face for now
+        * will probably need to change it to a cube map for cubes specifically (maybe not needed)
+        */
+        auto& vertices = mesh.vertices;
+        vertices.clear();
+        //----------bot
+        //left-bot-back     0-2
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,1.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{0.f,1.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,1.f} });
+
+        //right-bot-back    3-5
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{1.f,0.f,0.f},{1.f,1.f} });
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{1.f,1.f} });
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,1.f} });
+
+        //left-bot-front    6-8
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{-1.f,0.f,0.f},{1.f,1.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{0.f,0.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f} });
+
+        //right-bot-front   9-11
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{1.f,0.f,0.f},{0.f,1.f} });
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{1.f,0.f} });
+        vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{1.f,1.f} });
+
+        //----------top
+        //left-top-back     12-14
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,0.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,0.f} });
+
+        //right-top-back    15-17
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{1.f,0.f,0.f},{1.f,0.f} });
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{1.f,0.f} });
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,0.f} });
+
+        //left-top-front    18-20
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{-1.f,0.f,0.f},{1.f,0.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,1.f,0.f},{0.f,1.f} });
+        vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,0.f,1.f},{0.f,0.f} });
+
+        //right-top-front   21-23
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{1.f,0.f,0.f},{0.f,0.f} });
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,1.f,0.f},{1.f,1.f} });
+        vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,0.f,1.f},{1.f,0.f} });
+
+        auto& indices = mesh.indices;
+        indices.clear();
+        /*
+            front, left, right, top, bot, back
+        */
+        //front
+        indices.emplace_back(20); indices.emplace_back(8); indices.emplace_back(11);
+        indices.emplace_back(11); indices.emplace_back(23); indices.emplace_back(20);
+
+        //left
+        indices.emplace_back(12); indices.emplace_back(0); indices.emplace_back(6);
+        indices.emplace_back(6); indices.emplace_back(18); indices.emplace_back(12);
+
+        //right
+        indices.emplace_back(21); indices.emplace_back(9); indices.emplace_back(3);
+        indices.emplace_back(3); indices.emplace_back(15); indices.emplace_back(21);
+
+        //top
+        indices.emplace_back(13); indices.emplace_back(19); indices.emplace_back(22);
+        indices.emplace_back(22); indices.emplace_back(16); indices.emplace_back(13);
+
+        //bot
+        indices.emplace_back(7); indices.emplace_back(1); indices.emplace_back(4);
+        indices.emplace_back(4); indices.emplace_back(10); indices.emplace_back(7);
+
+        //back
+        indices.emplace_back(17); indices.emplace_back(5); indices.emplace_back(2);
+        indices.emplace_back(2); indices.emplace_back(14); indices.emplace_back(17);
+    }
+    void Model::Create_Sphere() {
+
+    }
+    void Model::Create_Plane() {
+
+    }
+
+    void Model::process_node(aiNode* node, aiScene const* scene, aiMatrix4x4 p_tform, Node& mdl_node) {
         aiMatrix4x4 n_tform =  p_tform * node->mTransformation;
         glm::mat4 glm_tform = AssimpMatToGLM(n_tform);
 
+        glm::mat4 local_tform = AssimpMatToGLM(node->mTransformation);
+        //decompose to rotation and scale and pos
+        glm::vec3 pos{}, scale{}, skew{};
+        glm::vec4 persp{};
+        glm::quat rot{};
+        glm::decompose(local_tform, scale, rot, pos, skew, persp);
+        mdl_node.position = pos;
+        mdl_node.rotation = rot;
+        mdl_node.scale = scale;
+        
+        mdl_node.mesh_ref.resize(node->mNumMeshes);
+        mdl_node.name = node->mName.C_Str();
         for (int i = 0; i < node->mNumMeshes; ++i) {
             auto* m = scene->mMeshes[node->mMeshes[i]];
+            mdl_node.mesh_ref[i] = meshes.size();
             meshes.emplace_back(process_mesh(m, scene));
-            meshes.back().transform = glm_tform;
             meshes.back().name = m->mName.C_Str();
+
         }
+        mdl_node.children.resize(node->mNumChildren);
         for (int i = 0; i < node->mNumChildren; ++i) {
-            process_node(node->mChildren[i], scene, n_tform);
+            process_node(node->mChildren[i], scene, n_tform, mdl_node.children[i]);
         }
     }
 
@@ -151,7 +348,6 @@ namespace Geometry {
         assert(indices.size() % 3 == 0);
 
         //process materials
-        auto* material = scene->mMaterials[mesh->mMaterialIndex];
         /*
         * Note: i think that this should be linked somehow to the editor's assetmanager because
         * if textures are all exported eventually to a .dds file
@@ -160,6 +356,7 @@ namespace Geometry {
         * probably using the below property stuff
         */
         /*
+        auto* material = scene->mMaterials[mesh->mMaterialIndex];
         auto& pro = material->mProperties[0];
         pro->mKey;  //the property's key(name)
         pro->mData; //the property's data
@@ -173,26 +370,27 @@ namespace Geometry {
 #if !COMPILE_ONLY
 
     void Model::SetVertexBone(Vertex& v, int id, float weight) {
-        float smallestWeight = FLT_MAX;
-        int smallestIdx = -1;
-        for (int i{}; i < MAX_BONE_INFLUENCE; ++i) {
-            if (v.boneIDs[i] < 0) {
-                v.boneIDs[i] = id;
-                v.weights[i] = weight;
-                return;
-            }
-            if (v.weights[i] < smallestWeight) {
-                smallestWeight = v.weights[i];
-                smallestIdx = i;
-            }
-        }
-        //Full, replace the smallest
-        if (weight < smallestWeight && smallestIdx != -1) {
-            v.boneIDs[smallestIdx] = id;
-            v.weights[smallestIdx] = weight;
-        }
+        //float smallestWeight = FLT_MAX;
+        //int smallestIdx = -1;
+        //for (int i{}; i < MAX_BONE_INFLUENCE; ++i) {
+        //    if (v.boneIDs[i] < 0) {
+        //        v.boneIDs[i] = id;
+        //        v.weights[i] = weight;
+        //        return;
+        //    }
+        //    if (v.weights[i] < smallestWeight) {
+        //        smallestWeight = v.weights[i];
+        //        smallestIdx = i;
+        //    }
+        //}
+        ////Full, replace the smallest
+        //if (weight < smallestWeight && smallestIdx != -1) {
+        //    v.boneIDs[smallestIdx] = id;
+        //    v.weights[smallestIdx] = weight;
+        //}
     }
     void Model::ExtractBoneWeights(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene) {
+        return;
         for (int i{}; i < mesh->mNumBones; ++i) {
             int num_weights = mesh->mBones[i]->mNumWeights;
             auto* weights = mesh->mBones[i]->mWeights;
@@ -220,14 +418,14 @@ namespace Geometry {
                 SetVertexBone(vertices[w.mVertexId], bone_id, w.mWeight);
             }
         }
-        for (auto const& v : vertices) {
-            if ((v.boneIDs[0] == -1 && v.boneIDs[1] == -1 
-                && v.boneIDs[2] == -1 && v.boneIDs[3] == -1)
-                ) {
-                //std::cout << "vert missing bone id" << std::endl;
-            }
-            //std::cout << "vert boneid: " << v.boneIDs[0] << " " << v.boneIDs[1] << " " << v.boneIDs[2] << " " << v.boneIDs[3] << std::endl;
-        }
+        //for (auto const& v : vertices) {
+        //    if ((v.boneIDs[0] == -1 && v.boneIDs[1] == -1 
+        //        && v.boneIDs[2] == -1 && v.boneIDs[3] == -1)
+        //        ) {
+        //        //std::cout << "vert missing bone id" << std::endl;
+        //    }
+        //    //std::cout << "vert boneid: " << v.boneIDs[0] << " " << v.boneIDs[1] << " " << v.boneIDs[2] << " " << v.boneIDs[3] << std::endl;
+        //}
     }
 #endif
     /*
@@ -249,14 +447,15 @@ namespace Geometry {
         glEnableVertexArrayAttrib(vao, 0);
         glEnableVertexArrayAttrib(vao, 1);
         glEnableVertexArrayAttrib(vao, 2);
-        glEnableVertexArrayAttrib(vao, 3);
-        glEnableVertexArrayAttrib(vao, 4);
+      //  glEnableVertexArrayAttrib(vao, 3);
+      //  glEnableVertexArrayAttrib(vao, 4);
         glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
         glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
         glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
-        glVertexArrayAttribIFormat(vao, 3, 4, GL_INT, offsetof(Vertex, boneIDs));
-        glVertexArrayAttribFormat(vao, 4, 4, GL_FLOAT, false, offsetof(Vertex, weights));
-
+#if !COMPILE_ONLY
+        //glVertexArrayAttribIFormat(vao, 3, 4, GL_INT, offsetof(Vertex, boneIDs));
+        //glVertexArrayAttribFormat(vao, 4, 4, GL_FLOAT, false, offsetof(Vertex, weights));
+#endif
         glVertexArrayElementBuffer(vao, ebo);
 
         //Today i learned u can just do this
@@ -271,8 +470,10 @@ namespace Geometry {
         glVertexArrayAttribBinding(vao, 0, 0);
         glVertexArrayAttribBinding(vao, 1, 0);
         glVertexArrayAttribBinding(vao, 2, 0);
-        glVertexArrayAttribBinding(vao, 3, 0);
-        glVertexArrayAttribBinding(vao, 4, 0);
+#if !COMPILE_ONLY
+       // glVertexArrayAttribBinding(vao, 3, 0);
+       // glVertexArrayAttribBinding(vao, 4, 0);
+#endif
 
         glBindVertexArray(0);
 	}
@@ -283,31 +484,12 @@ namespace Geometry {
         glDeleteVertexArrays(1, &vao);
     }
 
-    void Mesh::Draw(GL_Shader& shader) {
-        glBindVertexArray(vao);
-
-        if (textures.size()) {
-            glBindTextureUnit(0, textures[0].id);
-            unsigned int loc = shader.GetUniformLoc("uTex2D");
-            glUniform1i(loc, 0);
-        }
-
-        glm::mat4 s = glm::scale(glm::mat4(1.f), { 1.f, 1.f, 1.f });
-        s = s * transform;
-        GLuint uniform = shader.GetUniformLoc("M");
-        glUniformMatrix4fv(uniform, 1, false, glm::value_ptr(s));
-
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(0);
-    }
-
 
     void Vertex::SetBonesDefault() {
-        for (int i{}; i < MAX_BONE_INFLUENCE; ++i) {
+       /* for (int i{}; i < MAX_BONE_INFLUENCE; ++i) {
             boneIDs[i] = -1;
             weights[i] = 0.f;
-        }
+        }*/
     }
 
 #endif
@@ -415,7 +597,7 @@ namespace Geometry {
             return;
         }
 
-        fs.write(buffer, buffer_size);
+        fs.write(buffer, buffer_size + header_size);
         fs.close();
 
         delete[] buffer;
@@ -433,7 +615,95 @@ namespace Geometry {
         for (auto& m : meshes) {
             m.pack_data(buffer, offset);
         }
+        //hierachy
+        //Node test;
+        //test.local_transform = glm::identity<glm::mat4>();
+        //test.mesh_ref.push_back(2);
+        //test.mesh_ref.push_back(3);
+        //test.mesh_ref.push_back(4);
+        //test.children.push_back(Node());
+        //test.children.back().local_transform = glm::translate(glm::identity<glm::mat4>(), { -5.f,1.f,2.f });
+        //test.children.back().mesh_ref.push_back(3);
+        //test.children.back().mesh_ref.push_back(4);
+        //test.children.back().mesh_ref.push_back(5);
+
+        //test.children.push_back(Node());
+        //test.children.back().local_transform = glm::translate(glm::identity<glm::mat4>(), { 5.f,-1.f,-2.f });
+        //test.children.back().mesh_ref.push_back(4);
+        //test.children.back().mesh_ref.push_back(5);
+        //test.children.back().mesh_ref.push_back(6);
+
+        //pack_node_data(buffer, offset, test);
+        pack_node_data(buffer, offset, root_node);
+        //uint32_t dest{};
+        //memcpy(&dest, buffer + offset - i_size, i_size);
+        //assert(dest == 1001);
     }
+
+    /*
+    * because this data is packed recursively,
+    * its best to retrieve the data recursively too
+    */
+    void Model::pack_node_data(char* const buffer, uint64_t& offset, Node const& node) {
+        uint32_t source{};
+        //name
+        source = node.name.size();
+        memcpy(buffer + offset, &source, i_size); offset += i_size;
+        memcpy(buffer + offset, node.name.data(), source); offset += source;
+        //mesh refs
+        source = node.mesh_ref.size();
+        memcpy(buffer + offset, &source, i_size); offset += i_size;
+        source *= sizeof(unsigned short);
+        memcpy(buffer + offset, node.mesh_ref.data(), source); offset += source;
+
+        //transform
+        //memcpy(buffer + offset, glm::value_ptr(node.local_transform), sizeof(glm::mat4));
+        //offset += sizeof(glm::mat4);
+        memcpy(buffer + offset, glm::value_ptr(node.position), sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+        memcpy(buffer + offset, glm::value_ptr(node.rotation), sizeof(glm::quat)); offset += sizeof(glm::quat);
+        memcpy(buffer + offset, glm::value_ptr(node.scale), sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+        
+        
+        //children
+        source = node.children.size();
+        memcpy(buffer + offset, &source, i_size); offset += i_size;
+        for (auto const& child : node.children) {
+            pack_node_data(buffer, offset, child);
+        }
+        //source = 1001;    //sanity check
+        //memcpy(buffer + offset, &source, i_size); offset += i_size;
+    }
+
+    void Model::unpack_node_data(char* const buffer, uint64_t& offset, Node& node) {
+        uint32_t dest{};
+        //name
+        memcpy(&dest, buffer + offset, i_size); offset += i_size;
+        name.resize(dest);
+        memcpy(name.data(), buffer + offset, dest); offset += dest;
+        //mesh refs
+        memcpy(&dest, buffer + offset, i_size); offset += i_size;
+        node.mesh_ref.resize(dest);
+        dest *= sizeof(unsigned short);
+        memcpy(node.mesh_ref.data(), buffer + offset, dest); offset += dest;
+
+        //transform
+        //memcpy(glm::value_ptr(node.local_transform), buffer + offset, sizeof(glm::mat4));
+        //offset += sizeof(glm::mat4);
+        memcpy(glm::value_ptr(node.position), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+        memcpy(glm::value_ptr(node.rotation), buffer + offset, sizeof(glm::quat)); offset += sizeof(glm::quat);
+        memcpy(glm::value_ptr(node.scale), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+
+
+        //children
+        memcpy(&dest, buffer + offset, i_size); offset += i_size;
+        node.children.resize(dest);
+        for (auto& child : node.children) {
+            unpack_node_data(buffer, offset, child);
+        }
+        //memcpy(&dest, buffer + offset, i_size); offset += i_size;
+        //assert(dest == 1001);   //sanity check - its not sanitying
+    }
+
     void Model::unpack_data(char* const buffer, uint64_t& offset) {
         uint32_t dest{};
         //name
@@ -446,6 +716,9 @@ namespace Geometry {
         for (auto& m : meshes) {
             m.unpack_data(buffer, offset);
         }
+        //node
+        unpack_node_data(buffer, offset, root_node);
+        return;
     }
 
     void Mesh::pack_data(char* const buffer, uint64_t& offset) {
@@ -466,27 +739,13 @@ namespace Geometry {
         source = indices.size();
         memcpy(buffer + offset, &source, i_size); offset += i_size;
 
-        source = sizeof(Texture);
-        memcpy(buffer + offset, &source, i_size); offset += i_size;
-        source = textures.size();
-        memcpy(buffer + offset, &source, i_size); offset += i_size;
-
         //buffer
         uint64_t vert_buffer_size = vertices.size() * sizeof(Vertex);
         uint64_t idx_buffer_size = indices.size() * sizeof(unsigned int);
-        uint64_t tex_buffer_size = textures.size() * sizeof(Texture);
 
-        //premultiply all the positions and normals because we are collapsing the hierachy in this example
-        std::vector<Vertex> new_vertices = vertices;
-        for (auto& v : new_vertices) {  //convert ctor from vec4 to vec3
-            v.position = transform * glm::vec4(v.position, 1.0f);
-            v.normal = transform * glm::vec4(v.normal, 1.0f);
-        }
         //note that in this version, using new_vertices.data instead of vertices.data
-        memcpy(buffer + offset, new_vertices.data(), vert_buffer_size); offset += vert_buffer_size;
+        memcpy(buffer + offset, vertices.data(), vert_buffer_size); offset += vert_buffer_size;
         memcpy(buffer + offset, indices.data(), idx_buffer_size); offset += idx_buffer_size;
-        memcpy(buffer + offset, textures.data(), tex_buffer_size); offset += tex_buffer_size;
-        memcpy(buffer + offset, glm::value_ptr(transform), sizeof(glm::mat4x4)); offset += sizeof(glm::mat4x4);
     }
 
     void Mesh::unpack_data(char* const buffer, uint64_t& offset) {
@@ -497,8 +756,8 @@ namespace Geometry {
         name.resize(dest);
         memcpy(name.data(), buffer + offset, dest); offset += dest;
 
-        uint32_t vert_size{}, idx_size{}, tex_size{};
-        uint32_t num_vert{}, num_idx{}, num_tex{};
+        uint32_t vert_size{}, idx_size{};
+        uint32_t num_vert{}, num_idx{};
 
         //buffer details
         memcpy(&vert_size, buffer + offset, i_size); offset += i_size;
@@ -507,21 +766,14 @@ namespace Geometry {
         memcpy(&idx_size, buffer + offset, i_size); offset += i_size;
         memcpy(&num_idx, buffer + offset, i_size); offset += i_size;
 
-        memcpy(&tex_size, buffer + offset, i_size); offset += i_size;
-        memcpy(&num_tex, buffer + offset, i_size); offset += i_size;
-
         //buffer
         uint64_t vert_buffer_size = vert_size * num_vert;
         uint64_t idx_buffer_size = idx_size * num_idx;
-        uint64_t tex_buffer_size = tex_size * num_tex;
 
         vertices.resize(num_vert);
         indices.resize(num_idx);
-        textures.resize(num_tex);
         memcpy(vertices.data(), buffer + offset, vert_buffer_size); offset += vert_buffer_size;
         memcpy(indices.data(), buffer + offset, idx_buffer_size); offset += idx_buffer_size;
-        memcpy(textures.data(), buffer + offset, tex_buffer_size); offset += tex_buffer_size;
-        memcpy(glm::value_ptr(transform), buffer + offset, sizeof(glm::mat4x4)); offset += sizeof(glm::mat4x4);
     }
 
     uint64_t Model::get_model_size() const {
@@ -532,24 +784,41 @@ namespace Geometry {
         for (auto& m : meshes) {
             size += m.get_mesh_size();
         }
+        size += get_node_size(root_node);
+        return size;
+    }
+
+    uint64_t Model::get_node_size(Node const& node) const {
+        uint64_t size{};
+
+        size += i_size +        //name size
+            node.name.size() +  //name
+            i_size +            //mesh ref cnt
+            node.mesh_ref.size() * sizeof(unsigned short) + //mesh ref
+            i_size;             //children cnt
+
+        //size += sizeof(glm::mat4);  //local tform
+        //pos, rot, scale
+        size += sizeof(glm::vec3) + sizeof(glm::quat) + sizeof(glm::vec3);
+        
+        for (auto const& n : node.children) {
+            size += get_node_size(n);   //children
+        }
 
         return size;
     }
+
     uint64_t Mesh::get_mesh_size() const {
         uint64_t size{};
 
         size = i_size +                         //name size
-            name.size() +                       //name]
+            name.size() +                       //name
             i_size +                            //vtx size
             i_size +                            //num vtx
             i_size +                            //idx size
             i_size +                            //num idx
-            i_size +                            //tex size
-            i_size +                            //num tex
             vertices.size() * sizeof(Vertex) +  //vtx
-            indices.size() * i_size +           //idx
-            textures.size() * sizeof(Texture) + //tex
-            sizeof(glm::mat4x4);                //tform
+            indices.size() * i_size;            //idx
 
         return size;
     }
