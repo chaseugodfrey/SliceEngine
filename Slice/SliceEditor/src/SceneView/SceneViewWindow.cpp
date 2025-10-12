@@ -111,6 +111,14 @@ namespace SliceEditor
 		return new_transform;
 	}
 
+	void SceneViewWindow::Init()
+	{
+		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();
+		SliceEngine::GameObject go = mRender->CreateCamera();
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
+		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
+	}
+
 	void SceneViewWindow::Draw()
 	{
 
@@ -132,8 +140,7 @@ namespace SliceEditor
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
-		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
+		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);
 
 		ImVec2 window_pos = ImGui::GetWindowPos();
 		ImVec2 window_size = ImGui::GetWindowSize();
@@ -150,18 +157,18 @@ namespace SliceEditor
 
 		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
 		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
-		mouse_scaled_y = cam.height - mouse_scaled_y;
+		mouse_scaled_y = camObj->camera.height - mouse_scaled_y;
 
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
+		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{
-			if (io.KeyShift)
+			if (io.KeyShift || ImGui::IsMouseDown(ImGuiMouseButton_Right))
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
 				{
@@ -274,13 +281,15 @@ namespace SliceEditor
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
 
-		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(camObj->camera.textureID));
 
+		float scene_x = pos.x + ImGui::GetContentRegionAvail().x;
+		float scene_y = pos.y + ImGui::GetContentRegionAvail().y;
 		// Drawing cam texture
 		ImGui::GetWindowDrawList()->AddImage(
 			tex,
 			ImVec2(pos.x, pos.y),
-			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
+			ImVec2(scene_x, scene_y),
 			ImVec2(0, 1),
 			ImVec2(1, 0)
 		);
@@ -300,14 +309,15 @@ namespace SliceEditor
 		{
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
-			glm::mat4 P = glm::perspective(glm::radians(cam.pov), static_cast<float>(cam.width) / static_cast<float>(cam.height), cam.near, cam.far);
+			glm::mat4 P = glm::perspective(
+				glm::radians(camObj->camera.pov), static_cast<float>(camObj->camera.width) / static_cast<float>(camObj->camera.height), camObj->camera.near, camObj->camera.far);
 
 			// get entities & transform components
 			auto entt = *set.begin();
 			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
-			ImGuizmo::SetRect(scene_window_pos.x, scene_window_pos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			ImGuizmo::SetRect(scene_window_pos.x, scene_window_pos.y, scene_x - scene_window_pos.x, scene_y - scene_window_pos.y);
 
 			// get transforms
 			glm::mat4 world_tr = tmp_tr.transform;
@@ -358,7 +368,7 @@ namespace SliceEditor
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
-				renderer->SelectCamIDPick(camObj.GetEntity());
+				renderer->SelectCamIDPick(camObj->entity);
 				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(mouse_scaled_x), static_cast<int>(mouse_scaled_y));
 				entt::entity selected_entity{ entt_id };
 

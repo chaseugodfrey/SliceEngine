@@ -20,6 +20,10 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+	void GameViewWindow::Init()
+	{
+
+	}
 
 	void GameViewWindow::Draw()
 	{

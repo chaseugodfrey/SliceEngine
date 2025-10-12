@@ -23,6 +23,10 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
+#include <Hierachy/HierarchyWindow.h>
+#include <Inspector/InspectorWindow.h>
+#include <SceneView/SceneViewWindow.h>
+#include <GameView/GameViewWindow.h>
 
 namespace SliceEditor
 {
@@ -44,12 +48,13 @@ namespace SliceEditor
 
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
+
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
-		AddWindow("SceneView");
-		AddWindow("Hierarchy");
-		AddWindow("Inspector");
-		AddWindow("GameView");
+		AddWindow<SceneViewWindow>();
+		AddWindow<GameViewWindow>();
+		AddWindow<HierarchyWindow>();
+		AddWindow<InspectorWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)

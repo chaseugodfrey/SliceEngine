@@ -26,6 +26,10 @@ namespace SliceEditor
 	{
 	}
 
+	void ProfilerWindow::Init()
+	{
+	}
+
 	void ProfilerWindow::Draw()
 	{
 
