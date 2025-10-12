@@ -13,6 +13,13 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	struct SceneData
+	{
+		std::wstring name;
+		std::filesystem::path path;
+
+	};
+
 	class SceneSystem : BaseEngineSystem
 	{
 	public:
@@ -26,7 +33,8 @@ namespace SliceEngine
 		void SaveCurrentScene();
 		void UnloadCurrentScene();
 		void ReloadScene();		
-		
+		void GetCurrentScene();
+
 		void Play();
 		void Pause();
 		void Stop();

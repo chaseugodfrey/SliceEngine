@@ -16,11 +16,13 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ProfilerWindow.h"
 #include "ProfilerManager.h"
-#include "../SelectionSystem/SelectionSystem.h"
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
+#include <Systems/FramerateManager.h>
 
 namespace SliceEditor
 {
-	ProfilerWindow::ProfilerWindow(ProfilerManager& man, SelectionSystem& selection) : mManager(man), mSelection(selection)
+	ProfilerWindow::ProfilerWindow(ProfilerManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
 	{
 	}
 
@@ -53,23 +55,6 @@ namespace SliceEditor
 
 
 		ImGui::End();
-
-		if (ImGui::IsKeyPressed(ImGuiKey_C))
-		{
-			SLICE_LOG_CRITICAL("Critical Message!");
-		}
-		if (ImGui::IsKeyPressed(ImGuiKey_Z))
-		{
-			SLICE_LOG_VALUES("Values Message!");
-		}
-		if (ImGui::IsKeyPressed(ImGuiKey_X))
-		{
-			SLICE_LOG_WARNING("Warning Message!");
-		}
-		if (ImGui::IsKeyPressed(ImGuiKey_V))
-		{
-			SLICE_LOG_ERROR("Error Message!");
-		}
 	}
 
 	void ProfilerWindow::DrawLoggerTab()
@@ -141,7 +126,7 @@ namespace SliceEditor
 
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
 
-			auto& selectedEntities = mSelection.GetSelectedEntities();
+			auto& selectedEntities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 			for(auto& entity: selectedEntities)
 			{
 				DrawSceneGraphComponent(entity);

@@ -17,8 +17,6 @@ DigiPen Institute of Technology is prohibited.
 //#include "Graphics/RenderManager.h"
 //#include "Graphics/CameraSystem.h"
 #include "ECS/BaseSystem.h"
-#include "Systems/SceneSystem.h"
-#include "Physics/PhysicsSystem.h"
 #include "Singleton.h"
 #include "ECS/GOFactory.h"
 #include "../GLFWWindowManager.h"
@@ -33,6 +31,8 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
+	class SceneSystem;
+	class PhysicsSystem;
 	struct NetworkSystem;
 
 	class Core : public Singleton<Core>

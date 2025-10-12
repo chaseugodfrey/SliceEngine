@@ -16,7 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ContentBrowserManager.h"
 #include "ContentBrowserWindow.h"
 #include "Core/Registry.h"
-#include "Hierachy/HierarchyManager.h"
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
 
 namespace SliceEditor
 {
@@ -29,7 +29,7 @@ namespace SliceEditor
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Content Browser Window.");
-		auto window = std::make_unique<ContentBrowserWindow>(*this);
+		auto window = std::make_unique<ContentBrowserWindow>(*this, registry);
 
 		return window;
 	}

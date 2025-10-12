@@ -14,25 +14,21 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include <pch.h>
-#include "InspectorManager.h"
+#include <glm/gtc/type_ptr.hpp>
 #include "InspectorWindow.h"
 #include "ComponentPropertiesGUI.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
 {
-	InspectorWindow::InspectorWindow(InspectorManager& manager) : mManager(manager)
-	{
-
-	}
-
 	void InspectorWindow::Draw()
 	{
 		ImGui::Begin("Inspector");
 
-		auto& entities = mManager.GetSelectedEntities();
+		auto& entities = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
 		if (entities.size() > 0)
 			selected_entity = *entities.begin();
@@ -48,6 +44,15 @@ namespace SliceEditor
 
 		DisplayEntityData();
 
+		//Loop through registered components and display them if they exist on the selected entity
+		
+		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		{
+			
+		}
+
+
+
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity.value()))
 		{
@@ -58,6 +63,8 @@ namespace SliceEditor
 			//ImGui::Separator();
 
 			// to do: use component view
+			
+
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
@@ -100,11 +107,6 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
-	void R()
-	{
-		
-	}
-
 	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
 
 	
@@ -139,21 +141,13 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(selected_entity.value());
 
 			DisplayComponentHeader<SliceEngine::Transform>(false);
-			glm::vec3 eulerAngles = SliceEngine::QuatToVec3(tr.rotation);
-			DragVec3InputHeader("Position", "##t", tr.position);
-			//DragVec3InputHeader("Rotation", "##r", eulerAngles);
-			if (ImGui::DragFloat3("Rotation", glm::value_ptr(eulerAngles)))
+			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);
+			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
+			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
 			{
-				tr.rotation = SliceEngine::Vec3ToQuat(eulerAngles);
-				//glm::vec3 eulerAnglesRad = glm::radians(eulerAngles);
-
-				//glm::quat yaw = glm::angleAxis(eulerAnglesRad.y, glm::vec3(0.0f, 1.0f, 0.0f));
-				//glm::quat pitch = glm::angleAxis(eulerAnglesRad.x, glm::vec3(0.0f, 0.0f, 1.0f));
-				//glm::quat roll = glm::angleAxis(eulerAnglesRad.z, glm::vec3(1.0f, 0.0f, 0.0f));
-
-				//tr.rotation = yaw * pitch * roll;//glm::quat(glm::radians(eulerAngles));
+				tr.rotation = SliceEngine::Vec3ToQuat(euler);
 			}
-			DragVec3InputHeader("Scale", "##s", tr.scale);
+			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
 			// for testing purposes
 			ImGui::BeginDisabled();
@@ -325,8 +319,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
 
-					static JPH::EMotionQuality currmode = rb.CollisionDetection;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)rb.CollisionDetection];
 
 					ImGui::Text("Collision Detection");
 					ImGui::SameLine(150.0f);
@@ -335,10 +328,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::EMotionQuality)i);
+							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::EMotionQuality)i;
+								rb.CollisionDetection = (JPH::EMotionQuality)i;
 							}
 
 							// Highlight current item
@@ -400,8 +393,7 @@ namespace SliceEditor
 						col.offSet.SetZ(buffer);
 					}
 
-					static JPH::ObjectLayer currmode = col.layer;
-					const char* currentLabel = arr[(int)currmode];
+					const char* currentLabel = arr[(int)col.layer];
 
 					ImGui::Text("Collision Layer");
 					ImGui::SameLine(150.0f);
@@ -410,10 +402,10 @@ namespace SliceEditor
 					{
 						for (int i = 0; i < 2; i++)
 						{
-							bool isSelected = (currmode == (JPH::ObjectLayer)i);
+							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
 							if (ImGui::Selectable(arr[i], isSelected))
 							{
-								currmode = (JPH::ObjectLayer)i;
+								col.layer = (JPH::ObjectLayer)i;
 							}
 
 							// Highlight current item

@@ -52,7 +52,7 @@ namespace SliceEngine
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(GUID guid);
-		void LinkDebugLineInstancing(GUID guid);
+		void LinkDebugLineInstancing();
 
 	private:
 		const int mMaxInstance = 100;

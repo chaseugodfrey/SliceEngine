@@ -15,15 +15,14 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
-#include "Scripting/ScriptEditor.h"
-#include "../../src/Input/InputSystem.h"
 #include "../Core/Registry.h"
-#include "../Hierachy/HierarchyManager.h"
-#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
-#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
-#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
-
-#include "../../SliceEngine/src/Networking/NetworkSystem.h"
+#include "Scripting/ScriptEditor.h"
+#include <Input/InputSystem.h>
+#include <Scripting/ScriptSystem.h>
+#include <Core/ComponentEventHandler.h>
+#include <Configuration/ProjectSettings.h>
+#include <Systems/SceneSystem.h>
+#include <Networking/NetworkSystem.h>
 
 namespace SliceEditor
 {
@@ -83,8 +82,6 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
-
-
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -189,8 +186,6 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Box"))
 				{
 					auto go = factory.CreateGO_Box();
-					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
-
 				}
 
 				ImGui::EndMenu();
@@ -199,7 +194,6 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Camera"))
 			{
 				auto go = factory.CreateGO_Cam();
-				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
 			ImGui::EndMenu();

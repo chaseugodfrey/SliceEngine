@@ -25,12 +25,10 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
-	class InspectorManager;
+	class Registry;
 
 	class InspectorWindow : public EditorWindow
 	{
-		InspectorManager& mManager;
-
 		// to do: change later
 		std::optional<entt::entity> selected_entity;
 
@@ -65,6 +63,15 @@ namespace SliceEditor
 			ImGui::Separator();
 		}
 
+		template<typename T>
+		void DisplayComponentData(T& component)
+		{
+			// This function can be specialized for different component types
+			// For example:
+			// if constexpr (std::is_same_v<T, Transform>) { ... }
+			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
+			// etc.
+		}
 		// to do in m2 : use rttr to read types.
 		void DisplayTransform();
 		void DisplaySceneGraph();
@@ -75,13 +82,10 @@ namespace SliceEditor
 		void DisplaySliceScript();
 		void AddComponentButton();
 
-		void R();
-
-
 
 	public:
 
-		InspectorWindow(InspectorManager& manager);
+		InspectorWindow(Registry& reg) : EditorWindow(reg) {};
 		~InspectorWindow() = default;
 		void Draw() override final;
 	};

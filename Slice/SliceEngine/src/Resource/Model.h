@@ -48,7 +48,10 @@ namespace SliceEngine
 			GLuint drawCnt{};
 			GLenum drawMode{};
 			//cant be static because of gl funcs i think
-			bool LoadModel(std::string const&);			//this one is old one
+			void LoadDefaultCubeModel();
+			void LoadDefaultLineModel();
+			void LoadDefaultFrustrumModel();
+			void LoadDefaultQuadModel();
 			bool LoadModelResource(std::string const&);	//this one is new one
 			void DestroyModel();
 		};

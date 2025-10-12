@@ -15,6 +15,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Networking/NetworkSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Systems/FramerateManager.h"
+#include "Systems/SceneSystem.h"
+#include "Physics/PhysicsSystem.h"
 #include "../AudioManager.h"
 #include "Input/InputSystem.h"
 namespace SliceEngine
@@ -59,35 +61,13 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RigidBody>();
 		mFactory.RegisterComponent<ColliderShape>();
 		mFactory.RegisterComponent< AudioSource>();
+		mFactory.RegisterComponent<Light>();
+
 
 		mResource->InitResourceManager();
 	}
 
-	RTTR_REGISTRATION
-	{
-		// Shifting here because SLICE_RTTR is becoming too big of an obj file
-	rttr::registration::class_<Renderer>(typeid(Renderer).name())
-		.constructor<>()
-		.property("model", &Renderer::model)
-		.property("texture", &Renderer::texture)
-		.property("renderTag", &Renderer::renderTag);
-	rttr::registration::class_<Camera>(typeid(Camera).name())
-		.constructor<>()
-		.property("width", &Camera::width)
-		.property("height", &Camera::height)
-		.property("pov", &Camera::pov)
-		.property("near", &Camera::near)
-		.property("far", &Camera::far)
-		.property("textureID", &Camera::textureID)
-		.property("depthTex", &Camera::depthTex)
-		.property("renderTag", &Camera::renderTag);
-	rttr::registration::class_<Script>(typeid(Script).name())
-		.constructor<>()
-		.property("scriptName", &Script::scriptName);
-
-	}
-
-		void Core::ExitCore()
+	void Core::ExitCore()
 	{
 		mWindowManager.CloseWindow();
 		UnbindSystems();

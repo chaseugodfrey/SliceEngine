@@ -36,11 +36,11 @@ namespace SliceEngine
 
 		SLICE_LOG("Loading scene...");
 
-		//auto map = JSONSerializer::DeserializeScene(filePath);
+		auto map = JSONSerializer::DeserializeScene(filePath);
 
 		SLICE_LOG("Scene loaded successfully.");
 
-		//Core::GetInstance()->mFactory.BuildSceneGraph(map);
+		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;

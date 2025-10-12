@@ -69,11 +69,6 @@ namespace SliceEngine
 		.property("entity_id", &SceneGraph::entity_id)
 		.property("neighbours", &SceneGraph::neighbours);
 
-	rttr::registration::class_<EntityID>("EntityID")
-		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<uint64_t>()
-		.property("value", &EntityID::value);
-
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
 		.property("mName", &SliceEntity::mName);
@@ -93,6 +88,35 @@ namespace SliceEngine
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger);
 
+	rttr::registration::class_<Renderer>(typeid(Renderer).name())
+		.constructor<>()
+		.property("model", &Renderer::model)
+		.property("texture", &Renderer::texture)
+		.property("renderTag", &Renderer::renderTag);
+	rttr::registration::class_<Camera>(typeid(Camera).name())
+		.constructor<>()
+		.property("width", &Camera::width)
+		.property("height", &Camera::height)
+		.property("pov", &Camera::pov)
+		.property("near", &Camera::near)
+		.property("far", &Camera::far)
+		.property("textureID", &Camera::textureID)
+		.property("depthTex", &Camera::depthTex)
+		.property("renderTag", &Camera::renderTag);
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.constructor<>()
+		.property("scriptName", &Script::scriptName);
+	rttr::registration::enumeration<Light::LightType>("LightType")
+		(
+			rttr::value("Directional", Light::LightType::Directional),
+			rttr::value("Point", Light::LightType::Point),
+			rttr::value("Spot", Light::LightType::Spot)
+		);
+	rttr::registration::class_<Light>(typeid(Light).name())
+		.constructor<>()
+		.property("type", &Light::type)
+		.property("color", &Light::color)
+		.property("intensity", &Light::intensity);
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
 		.constructor<uint64_t>()

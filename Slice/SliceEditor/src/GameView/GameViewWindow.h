@@ -19,15 +19,14 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	class GameViewManager;
+	class Registry;
 
 	class GameViewWindow : public EditorWindow
 	{
-		GameViewManager& mManager;
 
 	public:
 
-		GameViewWindow(GameViewManager& manager);
+		GameViewWindow(Registry& reg) : EditorWindow(reg) {};
 		~GameViewWindow() = default;
 
 		void Draw() override final;
