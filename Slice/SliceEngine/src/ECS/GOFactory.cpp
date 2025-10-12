@@ -545,6 +545,9 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+
+		//testing only
+		//return CreateGO_Model((GUID)17518266545644652909);
 	}
 
 	GameObject GOFactory::CreateGO_Cam()
@@ -570,6 +573,7 @@ namespace SliceEngine
 			auto& rc = go.GetComponent<Renderer>();
 			rc.model = model_guid;
 			rc.meshOffset = node.mesh_ref[0];
+			//rc.texture = (GUID)18349208178533231704;
 
 			//add siblings if a single node has multiple mesh refs
 			for (int i = 1; i < node.mesh_ref.size(); ++i) {
@@ -585,6 +589,7 @@ namespace SliceEngine
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
 				s_rc.model = model_guid;
 				s_rc.meshOffset = node.mesh_ref[i];
+				//rc.texture = (GUID)18349208178533231704;
 			}
 		}
 		
