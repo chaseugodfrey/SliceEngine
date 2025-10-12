@@ -43,7 +43,10 @@ namespace SliceEngine
 	struct Script
 	{
 		std::string scriptName;
-		//std::unordered_map<std::string, variantVar> scriptableFieldMap;
+
+		// purely for serialization and deserialization
+		// to save scriptable field values in scenes and for prefabs(?)
+		std::unordered_map<std::string, rttr::variant> scriptableFieldMap;
 	};
 
 	struct SliceEntity 

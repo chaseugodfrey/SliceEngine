@@ -138,6 +138,7 @@
     <ClInclude Include="src\NavMesh\NavMesh.h" />
     <ClInclude Include="src\Networking\NetworkSystem.h" />
     <ClInclude Include="src\Physics\CollisionLayer.h" />
+    <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Resource\GUID.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="src\Logger\Logger.cpp" />
     <ClCompile Include="src\Networking\NetworkSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
+    <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />

@@ -43,7 +43,11 @@ namespace SliceEngine
 		ScriptFieldType mType{ ScriptFieldType::None };
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
-		//variantVar defaultValue{};
+
+		// used purely for prefab serialization
+		// if not we'd normally just use name to retrieve
+		// the variable and set the variable in runtime
+		rttr::variant value;
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};
@@ -94,7 +98,9 @@ namespace SliceEngine
 		MonoMethod* mOnFixedUpdate = nullptr;
 
 		// Standard object functions
-		MonoMethod* mOnCollide = nullptr;
+		MonoMethod* mOnCollideEnter = nullptr;
+		MonoMethod* mOnCollideStay = nullptr;
+		MonoMethod* mOnCollideExit = nullptr;
 		MonoMethod* mOnTriggerEnter = nullptr;
 		MonoMethod* mOnTriggerStay = nullptr;
 		MonoMethod* mOnTriggerExit = nullptr;
@@ -175,7 +181,11 @@ namespace SliceEngine
 		/// <summary>
 		/// Call when obj collides, if it has a script with an onCollide function
 		/// </summary>
-		void InvokeOnCollide(unsigned int id);
+		void InvokeOnCollideEnter(unsigned int id);
+
+		void InvokeOnCollideStay(unsigned int id);
+
+		void InvokeOnCollideExit(unsigned int id);
 
 		/// <summary>
 		/// Call when kinematic vs kinematic trigger
@@ -220,6 +230,20 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="stateName"></param>
 		void InvokeOnStateExit(std::string stateName);
+
+		// option 1, use a map then set as well
+		std::map<std::string, rttr::variant> GetAllFields();
+
+		// option 2, lambda this b****
+		void ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall);
+
+		rttr::variant GetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field);
+
+		void SetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field, rttr::variant& value);
+
+		rttr::variant GetFieldValue(const std::string& name);
+
+		void SetFieldValue(const std::string& name, rttr::variant val);
 
 		template<typename T>
 		T GetFieldValue(const std::string& name)

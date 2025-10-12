@@ -220,27 +220,28 @@ namespace SliceEngine
 		return false;
 	}
 
-	void GOFactory::Unparent(Entity entity)
+	bool GOFactory::Unparent(Entity entity)
 	{
 		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
 		if (prev_parent_entity == entt::null)
-			return;
+			return false;
 
 		auto& parent_scene_graph = mRegistry.get<SceneGraph>(prev_parent_entity);
 		auto grandparent_entity = parent_scene_graph.neighbours[SceneGraph::UP];
 
 		SetParent(entity, grandparent_entity);
+		return true;
 	}
 
-	void GOFactory::SetParent(Entity entity, Entity parentEntity)
+	bool GOFactory::SetParent(Entity entity, Entity parentEntity)
 	{
 		if(isDescendant(entity, parentEntity))
 		{
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
-			return;
+			return false;
 		}
 
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
@@ -341,7 +342,7 @@ namespace SliceEngine
 		{
 			if (!mRegistry.valid(parentEntity))
 			{
-				return;
+				return false;
 			}
 
 			new_parent = parentEntity;
@@ -380,6 +381,7 @@ namespace SliceEngine
 		scene_graph.neighbours[SceneGraph::UP] = new_parent;
 
 		UpdateTransformFromParent(entity, new_parent);
+		return true;
 	}
 
 	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)

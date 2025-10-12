@@ -15,7 +15,6 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "SceneViewWindow.h"
-#include "SceneViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 #include <Graphics/TransformHelper.h>
@@ -112,15 +111,6 @@ namespace SliceEditor
 		return new_transform;
 	}
 
-	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : camObj(cam), mManager(manager), tex_id(0)
-	{
-	}
-
-	void SceneViewWindow::SetCameraTexture(GLuint texture_id)
-	{
-		tex_id = texture_id;
-	}
-
 	void SceneViewWindow::Draw()
 	{
 
@@ -133,7 +123,7 @@ namespace SliceEditor
 		ImGui::BeginGroup();
 		ImGui::Text("Speed:");
 		ImGui::SameLine();
-		ImGui::Text("%.3f", mManager.GetCameraSpeed());
+		ImGui::Text("%.3f", mCameraSpeed);
 		ImGui::EndGroup();
 
 
@@ -175,58 +165,58 @@ namespace SliceEditor
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
 				{
-					cam_tr.position += forward * mManager.GetCameraSpeed();
+					cam_tr.position += forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_S))
 				{
-					cam_tr.position -= forward * mManager.GetCameraSpeed();
+					cam_tr.position -= forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_A))
 				{
-					cam_tr.position -= right * mManager.GetCameraSpeed();
+					cam_tr.position -= right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_D))
 				{
-					cam_tr.position += right * mManager.GetCameraSpeed();
+					cam_tr.position += right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_Q))
 				{
-					cam_tr.position -= up * mManager.GetCameraSpeed();
+					cam_tr.position -= up * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_E))
 				{
-					cam_tr.position += up * mManager.GetCameraSpeed();
+					cam_tr.position += up * mCameraSpeed;
 				}
 
 				//Camera Speed Change
 				if (io.MouseWheel > 0.0f)
 				{
-					mManager.ChangeCameraSpeed(0.01f);
+					mCameraSpeed += 0.01f;
 				}
 				else if (io.MouseWheel < 0.0f)
 				{
-					mManager.ChangeCameraSpeed(-0.01f);
+					mCameraSpeed -= 0.01f;
 				}
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_W))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
+				mGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_E))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::ROTATE);
+				mGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_R))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
+				mGuizmoOperation = ImGuizmo::OPERATION::SCALE;
 			}
 
 			//static ImVec2 rotate_anchor{};
@@ -304,7 +294,7 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		auto& set = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
+		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedEntities();
 
 		if (!set.empty())
 		{
@@ -323,8 +313,7 @@ namespace SliceEditor
 			glm::mat4 world_tr = tmp_tr.transform;
 			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
-			auto op = mManager.GetGizmoOperation();
-			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mManager.GetGizmoOperation(), mManager.GetGizmoMode(), glm::value_ptr(world_tr));
+			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mGuizmoOperation, mGuizmoMode, glm::value_ptr(world_tr));
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -334,23 +323,20 @@ namespace SliceEditor
 
 				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
-				if (op == ImGuizmo::OPERATION::TRANSLATE)
+				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
-					mManager.StartUsingGizmo(tmp_tr.position);
 					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, tmp_tr.position, translation));
 					tmp_tr.position = translation;
 				}
 				
-				if (op == ImGuizmo::OPERATION::ROTATE)
+				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
 				{
-					mManager.StartUsingGizmo(tmp_tr.position);
 					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, tmp_tr.rotation, rot));
 					tmp_tr.rotation = rot;
 				}
 
-				if (op == ImGuizmo::OPERATION::SCALE)
+				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
 				{
-					mManager.StartUsingGizmo(tmp_tr.position);
 					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, tmp_tr.scale, scale));
 					tmp_tr.scale = scale;
 				}
@@ -367,7 +353,7 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
-			auto mSelection = mManager.GetRegistry().GetManager<SelectionManager>("Selection");
+			auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
 
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
