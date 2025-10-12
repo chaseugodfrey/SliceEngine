@@ -107,7 +107,8 @@ namespace SliceEngine
 
 		auto rm = core->GetResourceManager();
 		auto& model = *rm->get<SliceEngineTypes::Model>(rc.model).get();
-		auto& mesh = model.meshes[0];
+		
+		auto& mesh = model.meshes[rc.meshOffset];
 		auto texHandle = rm->get<SliceEngineTypes::Texture>(rc.texture);
 
 		glBindVertexArray(mesh.vao);

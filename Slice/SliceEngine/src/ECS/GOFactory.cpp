@@ -17,6 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
+//Somehow kinda funny i need to include 2 files inorder to get the resource manager instance
+//#include "../Resource/ResourceManager.h"
+#include "../Core/Core.h"
 
 namespace SliceEngine
 {
@@ -548,6 +551,54 @@ namespace SliceEngine
 	{
 		auto go = CreateGO("Camera");
 		go.AddComponent<Camera>();
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
+		//Get the resource handle first
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
+
+		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null);
+	}
+
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
+		auto go = CreateGO(node.name);
+		SetParent(go.GetEntity(), parent);
+
+		if (!node.mesh_ref.empty()) {
+			go.AddComponent<Renderer>();
+			auto& rc = go.GetComponent<Renderer>();
+			rc.model = model_guid;
+			rc.meshOffset = node.mesh_ref[0];
+
+			//add siblings if a single node has multiple mesh refs
+			for (int i = 1; i < node.mesh_ref.size(); ++i) {
+				auto sibling = CreateGO(node.name);
+				SetParent(sibling.GetEntity(), parent);
+
+				auto& s_tform = sibling.GetComponent<Transform>();
+				s_tform.position = node.position;
+				s_tform.rotation = node.rotation;
+				s_tform.scale = node.scale;
+
+				sibling.AddComponent<Renderer>();
+				auto& s_rc = sibling.GetComponent<Renderer>(); 
+				s_rc.model = model_guid;
+				s_rc.meshOffset = node.mesh_ref[i];
+			}
+		}
+		
+
+		for (auto& child : node.children) {
+			CreateGO_ModelNode(child, model_guid, go.GetEntity());
+		}
+		//set node local tform here, since setparent does some calculations to decompose relative mtx
+		//infact, do it after recursion, so everything has default values
+		auto& tform = go.GetComponent<Transform>();
+		tform.position = node.position;
+		tform.rotation = node.rotation;
+		tform.scale = node.scale;
+
 		return go;
 	}
 

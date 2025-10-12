@@ -12,6 +12,8 @@ DigiPen Institute of Technology is prohibited.
 #define MODEL_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 #include <vector>
 //#include <GL/glew.h>
 #include <string>
@@ -27,9 +29,13 @@ namespace SliceEngine
 		//used to create the actual scenegraph of entities when trying to create a model in the scene
 		struct ModelNode {
 			std::string name{};
-			glm::mat4 local_transform{};
+			//glm::mat4 local_transform{};
 			std::vector<unsigned short> mesh_ref;
 			std::vector<ModelNode> children;
+
+			glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+			glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+			glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
 			void unpack_data(char* const buffer, uint64_t& offset);
 		};

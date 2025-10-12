@@ -200,8 +200,10 @@ namespace SliceEngine
 			memcpy(mesh_ref.data(), buffer + offset, dest); offset += dest;
 
 			//transform
-			memcpy(glm::value_ptr(local_transform), buffer + offset, sizeof(glm::mat4));
-			offset += sizeof(glm::mat4);
+			memcpy(glm::value_ptr(position), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+			memcpy(glm::value_ptr(rotation), buffer + offset, sizeof(glm::quat)); offset += sizeof(glm::quat);
+			memcpy(glm::value_ptr(scale), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+
 			//children
 			memcpy(&dest, buffer + offset, i_size); offset += i_size;
 			children.resize(dest);
@@ -288,6 +290,12 @@ namespace SliceEngine
 			indices.emplace_back(2); indices.emplace_back(14); indices.emplace_back(17);
 
 			mesh.setup_mesh();
+
+
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
 			return;
 		}
 
@@ -309,6 +317,10 @@ namespace SliceEngine
 
 			mesh.setup_mesh();
 
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
 			return;
 		}
 
@@ -331,6 +343,10 @@ namespace SliceEngine
 			glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
 			glVertexArrayAttribBinding(m.vao, 0, 0);
 
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
 			return;
 		}
 
@@ -350,7 +366,12 @@ namespace SliceEngine
 			glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, sizeof(glm::vec3));
 			glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
 			glVertexArrayAttribBinding(m.vao, 0, 0);
-
+			
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			
 			return;
 		}
 
