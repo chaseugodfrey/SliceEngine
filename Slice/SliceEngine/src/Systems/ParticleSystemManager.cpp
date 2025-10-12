@@ -236,7 +236,7 @@ namespace SliceEngine
 	{
 		//Idk
 	}
-	void ParticleSystemManager::ApplyBurst(Particle& p, ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{
 		for (ParticleSystem::Burst& b : ps.bursts)
 		{
