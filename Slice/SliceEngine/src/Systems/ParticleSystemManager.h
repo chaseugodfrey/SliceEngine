@@ -32,6 +32,7 @@ namespace SliceEngine
 		void InitializeSystem(ParticleSystem& ps);
 		void UpdateSystem(ParticleSystem& ps, float dt);
 		void ExitSystem(ParticleSystem& ps);
+		void ResetSystem(ParticleSystem& ps, float dt);
 
 		// Particle Layer
 		void ActivateParticle(ParticleSystem& ps);
@@ -43,9 +44,10 @@ namespace SliceEngine
 		void InitializeVelocity(Particle& p, ParticleSystem& ps);
 		void InitializeColour(Particle& p, ParticleSystem& ps);
 
-		void ApplyVeloctiy(ParticleSystem& ps, float dt);
-		void ApplyGravity(ParticleSystem& ps, float dt);
-		void ApplyCollision(ParticleSystem& ps, float dt);
+		void ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyCollision(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyBurst(ParticleSystem& ps, float dt);
 	};
 }
 

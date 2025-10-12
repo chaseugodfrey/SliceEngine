@@ -53,7 +53,7 @@ namespace SliceEngine
 		{
 			if (ps.isRepeating)
 			{
-				ps.systemTimer = dt;
+				ResetSystem(ps, dt);
 			}
 			else 
 			{
@@ -73,10 +73,43 @@ namespace SliceEngine
 				ActivateParticle(ps);				
 			}
 		}
+
+		for (Particle& p : ps.particles)
+		{
+			if (p.active)
+			{
+				ApplyVeloctiy(p, ps, dt);
+
+				if (ps.hasGravity)
+				{
+					ApplyGravity(p, ps, dt);
+				}
+
+				if (ps.hasCollision)
+				{
+					ApplyCollision(p, ps, dt);
+				}
+
+				if (ps.hasBursts) 
+				{
+					ApplyBurst(ps, dt);
+				}
+			}
+		}
 	}
 	void ParticleSystemManager::ExitSystem(ParticleSystem& ps)
 	{
 
+	}
+
+	void ParticleSystemManager::ResetSystem(ParticleSystem& ps, float dt)
+	{
+		ps.systemTimer = dt;
+
+		for (ParticleSystem::Burst& b : ps.bursts)
+		{
+			b.triggered = false;
+		}
 	}
 #pragma endregion
 
@@ -97,6 +130,7 @@ namespace SliceEngine
 		InitializeRotation(p, ps);
 		InitializeScale(p, ps);
 		InitializeVelocity(p, ps);
+		InitializeColour(p, ps);
 
 		// Bounds checker
 		ps.awaitingIndex = (ps.awaitingIndex + 1) % ps.particles.size();
@@ -189,18 +223,50 @@ namespace SliceEngine
 		}
 	}
 
-	void ParticleSystemManager::ApplyVeloctiy(ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
-
+		p.position += p.velocity * dt;
 	}
-	void ParticleSystemManager::ApplyGravity(ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
-
+		p.velocity += glm::vec3(0.0f, ps.gForce * dt, 0.0f);
+		p.position += p.velocity * dt;
 	}
-	void ParticleSystemManager::ApplyCollision(ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
 	{
 		//Idk
 	}
+	void ParticleSystemManager::ApplyBurst(Particle& p, ParticleSystem& ps, float dt)
+	{
+		for (ParticleSystem::Burst& b : ps.bursts)
+		{
+			if (!b.triggered && ps.systemTimer >= b.triggerTime)
+			{
+				b.triggered = true;
+				b.burstRepetitions = std::max<uint64_t>(1, b.burstRepetitions); // ensure at least 1
+				b.repTimer = 0.0f; // optional helper field
+				b.repsDone = 0; // optional helper field
+			}
+
+			if (b.triggered && b.repsDone < b.burstRepetitions)
+			{
+				b.repTimer += dt;
+
+				if (b.repTimer >= b.burstPeriod)
+				{
+					// Spawn particles for this repetition
+					for (uint64_t i = 0; i < b.numParticles; ++i)
+					{
+						ActivateParticle(ps);
+					}
+
+					b.repTimer -= b.burstPeriod;
+					++b.repsDone;
+				}
+			}
+		}
+	}
+
 
 #pragma endregion
 }

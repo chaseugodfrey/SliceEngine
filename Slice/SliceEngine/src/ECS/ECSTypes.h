@@ -225,11 +225,13 @@ namespace SliceEngine
 		glm::vec4 minRandomColour{};
 		glm::vec4 maxRandomColour{};
 
-		bool fadeOverLifetime{ false };
 		bool hasGravity{ false };
+		float gForce{};
+
+		bool fadeOverLifetime{ false };
 		bool hasCollision{ false };
 
-		uint64_t maxParticles{ 50 };            // pool size. default 50
+		uint64_t maxParticles{ 200 };            // pool size. default 200
 
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -244,6 +246,10 @@ namespace SliceEngine
 			uint64_t burstRepetitions{};		// how many times to do the burst
 			float burstPeriod{};				// how far apart in time should each repetition be
 			float triggerTime{};				// if greater than systemTimer, trigger burst
+			bool triggered{ false };
+
+			uint64_t repsDone{};
+			float repTimer{};
 		};
 
 		bool hasBursts{ false };

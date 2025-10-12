@@ -185,6 +185,7 @@ namespace SliceEngine
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
 		.property("hasGravity", &ParticleSystem::hasGravity)
+		.property("gForce", &ParticleSystem::gForce)
 		.property("hasCollision", &ParticleSystem::hasCollision)
 		.property("maxParticles", &ParticleSystem::maxParticles)
 		.property("oldestIndex", &ParticleSystem::oldestIndex)
@@ -197,7 +198,10 @@ namespace SliceEngine
 	rttr::registration::class_<ParticleSystem::Burst>("Burst")
 		.constructor<>()
 		.property("numParticles", &ParticleSystem::Burst::numParticles)
-		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod);
+		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
+		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
+		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
+		.property("triggered", &ParticleSystem::Burst::triggered);
 	}
 }
 #endif
