@@ -20,6 +20,11 @@ namespace SliceEditor
 	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
 	{}
 
+	void ContentBrowserWindow::Init()
+	{
+
+	}
+
 	void ContentBrowserWindow::Draw()
 	{
 		ImGui::Begin("Content Browser");

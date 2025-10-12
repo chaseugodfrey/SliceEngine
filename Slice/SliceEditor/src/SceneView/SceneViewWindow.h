@@ -24,20 +24,29 @@ namespace SliceEditor
 
 	class SceneViewWindow : public EditorWindow
 	{
+		struct SceneCamera
+		{
+			entt::entity entity;
+			SliceEngine::GameObject gameobject;
+			SliceEngine::Camera& camera;
+		};
+
 		float mCameraSpeed = 0.01f;
 		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
 		bool isUsing = false;
 
+		std::unique_ptr<SceneCamera> camObj;
+
 		std::variant<glm::vec3, glm::quat> mGizmoStartTransformValue;
-		SliceEngine::GameObject camObj;
 
 	public:
 
 		SceneViewWindow(Registry& reg) : EditorWindow(reg) {};
 		~SceneViewWindow() = default;
 
+		void Init() override;
 		void Draw() override final;
 	};
 }

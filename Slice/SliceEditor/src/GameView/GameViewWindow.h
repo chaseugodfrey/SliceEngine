@@ -29,6 +29,7 @@ namespace SliceEditor
 		GameViewWindow(Registry& reg) : EditorWindow(reg) {};
 		~GameViewWindow() = default;
 
+		void Init() override;
 		void Draw() override final;
 	};
 }

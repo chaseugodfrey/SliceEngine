@@ -41,6 +41,7 @@ namespace SliceEditor
 
 		HierarchyWindow(Registry& reg) : EditorWindow(reg) {};
 		~HierarchyWindow() = default;
+		void Init() override;
 		void Draw() override final;
 	};
 }

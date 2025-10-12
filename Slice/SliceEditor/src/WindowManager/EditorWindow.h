@@ -26,6 +26,7 @@ namespace SliceEditor
 		Registry& mRegistry;
 
 	public:
+		virtual void Init() = 0;
 		virtual void Draw() = 0;
 		EditorWindow(Registry& registry) : mRegistry(registry) {}
 		virtual ~EditorWindow() = default;
