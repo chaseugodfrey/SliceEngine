@@ -107,6 +107,8 @@ namespace SliceEngine
 
 		void UpdateExistingPrefabScript(Script& entity);
 
+		void SubscribeToEvents();
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -121,6 +123,14 @@ namespace SliceEngine
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+
+		//Collision Events
+		void OnCollideEnter(const OnCollisionEnterEvent& event);
+		void OnCollideStay(const OnCollisionStayEvent& event);
+		void OnCollideExit(const OnCollisionExitEvent& event);
+		void OnTriggerEnter(const OnTriggerEnterEvent& event);
+		void OnTriggerStay(const OnTriggerStayEvent& event);
+		void OnTriggerExit(const OnTriggerExitEvent& event);
 
 
 		// Variables

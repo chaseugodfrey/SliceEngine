@@ -27,6 +27,12 @@ namespace SliceEditor
 		}
 	}
 
+	void SelectionManager::Init()
+	{
+		mSelectedEntities.clear();
+		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
+	}
+
 	void SelectionManager::RegisterListener(ISelectionListener* listener)
 	{
 		mListeners.push_back(listener);
@@ -114,6 +120,11 @@ namespace SliceEditor
 	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
 	{
 
+	}
+
+	void SelectionManager::ClearSelectionEventHandler(ClearSelectionEvent& event)
+	{
+		ClearSelection(event.suppressHistory);
 	}
 
 	void SelectionManager::ClearSelection(bool suppressHistory)
