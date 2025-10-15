@@ -94,7 +94,7 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		mAudioManager->LoadSound("3DAudioTest");
 		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
 		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };

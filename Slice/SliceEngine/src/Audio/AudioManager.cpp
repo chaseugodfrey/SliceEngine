@@ -18,6 +18,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../Audio/AudioManager.h"
 #include "../src/Core/Core.h"
 #include "Input/InputSystem.h"
+#include "Resource/ResourceManager.h"
+#include "Resource/Audio.h"
 
 namespace SliceEngine
 {
@@ -54,6 +56,18 @@ namespace SliceEngine
 	{
 
 		FMOD::Sound* sound{ nullptr };
+
+		FMOD::Sound* soundTest{ nullptr };
+
+		auto audioHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundFile);
+		SliceEngineTypes::Audio* audio = audioHandle.get();
+
+		if (audio && audio->sound)
+		{
+			soundTest = audio->sound; 
+			// You can now play, stop, or set properties on soundTest
+		}
+
 
 		std::string soundName;
 		mSoundSystem->createSound(soundFile.c_str(), FMOD_3D, nullptr, &sound);

@@ -16,9 +16,9 @@ namespace SliceEngine
 {
 	namespace SliceEngineTypes
 	{
-		bool Audio::LoadAudioResource(std::string const& filePath)
+		void Audio::LoadAudioResource(std::string const& file)
 		{
-
+			SLICE_LOG(file);
 		}
 	}
 }

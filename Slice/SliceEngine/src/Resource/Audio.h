@@ -11,6 +11,8 @@ DigiPen Institute of Technology is prohibited.
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include <../fmod/include/fmod.hpp>
+
 namespace SliceEngine 
 {
 	namespace SliceEngineTypes
@@ -18,7 +20,9 @@ namespace SliceEngine
 		class Audio
 		{
 		public:	
-			bool LoadAudioResource(std::string const&);
+			FMOD::Sound* sound = nullptr;
+
+			void LoadAudioResource(std::string const&);
 
 		};
 	}
