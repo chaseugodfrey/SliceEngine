@@ -193,89 +193,191 @@ namespace SliceEngine
 			memcpy(glm::value_ptr(transform), buffer + offset, sizeof(glm::mat4x4)); offset += sizeof(glm::mat4x4);
 		}
 
-		//yoinked from old resource manager
-		bool Model::LoadModel(std::string const& filePath) {
-			std::ifstream ifs(filePath, std::ios::binary);
+		void Model::LoadDefaultCubeModel()
+		{
+			Mesh mesh;
+			auto& vertices = mesh.vertices;
+			vertices.reserve(24);
+			//----------bot
+			//left-bot-back     0-2
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,1.f} });
 
-			if (!ifs)
-			{
-				SLICE_LOG_WARNING("Unable to open Obj:" + filePath);
-				return false;
-			}
+			//right-bot-back    3-5
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{1.f,0.f,0.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,1.f} });
 
-			// GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP
-			ifs >> drawMode >> drawCnt;
-			if (drawMode == 0)
-			{
-				SLICE_LOG_WARNING("Error reading obj file");
-				ifs.close();
-				return false;
-			}
+			//left-bot-front    6-8
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{-1.f,0.f,0.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f} });
 
-			switch (drawMode)
-			{
-			case GL_LINES:
-				__fallthrough;
-			case GL_LINE_LOOP:
-			{
-				vtx.reserve(drawCnt);
-				float v1, v2, v3;
-				for (unsigned int i{}; i < drawCnt; ++i)
-				{
-					ifs >> v1 >> v2 >> v3;
-					vtx.emplace_back(glm::vec3{ v1, v2, v3 });
-				}
-				ifs.close();
+			//right-bot-front   9-11
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{1.f,0.f,0.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{1.f,1.f} });
 
-				glCreateBuffers(1, &vbo);
-				glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
-				glCreateVertexArrays(1, &vao);
-				// layout=0
-				glEnableVertexArrayAttrib(vao, 0);
-				glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(glm::vec3));
-				glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-				glVertexArrayAttribBinding(vao, 0, 0);
-				break;
-			}
-			case GL_TRIANGLES:
-				__fallthrough;
-			case GL_TRIANGLE_STRIP:
-			{
-				std::vector<float> tmpVtx;
-				tmpVtx.reserve(drawCnt * 8);
-				float v1;
-				for (unsigned int i{}; i < drawCnt * 8; ++i)
-				{
-					ifs >> v1;
-					tmpVtx.emplace_back(v1);
-				}
-				ifs.close();
-				glCreateBuffers(1, &vbo);
-				glNamedBufferStorage(vbo, tmpVtx.size() * sizeof(float), tmpVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-				glCreateVertexArrays(1, &vao);
-				// layout=0
-				glEnableVertexArrayAttrib(vao, 0);
-				glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(float) * 8);
-				glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-				glVertexArrayAttribBinding(vao, 0, 0);
-				// layout=1 Normal
-				glEnableVertexArrayAttrib(vao, 1);
-				glVertexArrayVertexBuffer(vao, 1, vbo, sizeof(float) * 3, sizeof(float) * 8);
-				glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
-				glVertexArrayAttribBinding(vao, 1, 1);
-				// layout=2 Texture
-				glEnableVertexArrayAttrib(vao, 2);
-				glVertexArrayVertexBuffer(vao, 2, vbo, sizeof(float) * 6, sizeof(float) * 8);
-				glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, GL_FALSE, 0);
-				glVertexArrayAttribBinding(vao, 2, 2);
-				break;
-			}
-			}
+			//----------top
+			//left-top-back     12-14
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,0.f} });
 
-			return true;
+			//right-top-back    15-17
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{1.f,0.f,0.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,0.f} });
+
+			//left-top-front    18-20
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{-1.f,0.f,0.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,1.f,0.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,0.f,1.f},{0.f,0.f} });
+
+			//right-top-front   21-23
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{1.f,0.f,0.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,1.f,0.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,0.f,1.f},{1.f,0.f} });
+
+			auto& indices = mesh.indices;
+			indices.reserve(36);
+			/*
+				front, left, right, top, bot, back
+			*/
+			//front
+			indices.emplace_back(20); indices.emplace_back(8); indices.emplace_back(11);
+			indices.emplace_back(11); indices.emplace_back(23); indices.emplace_back(20);
+
+			//left
+			indices.emplace_back(12); indices.emplace_back(0); indices.emplace_back(6);
+			indices.emplace_back(6); indices.emplace_back(18); indices.emplace_back(12);
+
+			//right
+			indices.emplace_back(21); indices.emplace_back(9); indices.emplace_back(3);
+			indices.emplace_back(3); indices.emplace_back(15); indices.emplace_back(21);
+
+			//top
+			indices.emplace_back(13); indices.emplace_back(19); indices.emplace_back(22);
+			indices.emplace_back(22); indices.emplace_back(16); indices.emplace_back(13);
+
+			//bot
+			indices.emplace_back(7); indices.emplace_back(1); indices.emplace_back(4);
+			indices.emplace_back(4); indices.emplace_back(10); indices.emplace_back(7);
+
+			//back
+			indices.emplace_back(17); indices.emplace_back(5); indices.emplace_back(2);
+			indices.emplace_back(2); indices.emplace_back(14); indices.emplace_back(17);
+
+			drawCnt = static_cast<int>(indices.size());
+			drawMode = GL_TRIANGLES;
+
+			glCreateBuffers(1, &vbo);
+			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+
+			glCreateBuffers(1, &ebo);
+			glNamedBufferStorage(ebo, indices.size() * sizeof(unsigned int), indices.data(), 0);
+
+			glCreateVertexArrays(1, &vao);
+			glEnableVertexArrayAttrib(vao, 0);
+			glEnableVertexArrayAttrib(vao, 1);
+			glEnableVertexArrayAttrib(vao, 2);
+			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
+			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
+			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
+			//i learned recently
+			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
+
+			glVertexArrayAttribBinding(vao, 0, 0);
+			glVertexArrayAttribBinding(vao, 1, 0);
+			glVertexArrayAttribBinding(vao, 2, 0);
+			
+			glVertexArrayElementBuffer(vao, ebo);
+			return;
 		}
 
+		void Model::LoadDefaultQuadModel()
+		{
+			Mesh mesh;
+			auto& vertices = mesh.vertices;
+			vertices.reserve(4);
+			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}});
+			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}});
+			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}});
+			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}});
+
+			auto& indices = mesh.indices;
+			indices.reserve(6);
+			indices.emplace_back(0); indices.emplace_back(1); indices.emplace_back(2);
+			indices.emplace_back(2); indices.emplace_back(1); indices.emplace_back(3);
+
+			drawCnt = static_cast<int>(indices.size());
+			drawMode = GL_TRIANGLES;
+
+			glCreateBuffers(1, &vbo);
+			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+
+			glCreateBuffers(1, &ebo);
+			glNamedBufferStorage(ebo, indices.size() * sizeof(unsigned int), indices.data(), 0);
+
+			glCreateVertexArrays(1, &vao);
+			glEnableVertexArrayAttrib(vao, 0);
+			glEnableVertexArrayAttrib(vao, 1);
+			glEnableVertexArrayAttrib(vao, 2);
+			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
+			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
+			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
+			//i learned recently
+			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
+
+			glVertexArrayAttribBinding(vao, 0, 0);
+			glVertexArrayAttribBinding(vao, 1, 0);
+			glVertexArrayAttribBinding(vao, 2, 0);
+
+			glVertexArrayElementBuffer(vao, ebo);
+			return;
+		}
+
+		void Model::LoadDefaultLineModel()
+		{
+			drawMode = GL_LINES;
+			drawCnt = 2;
+			vtx.reserve(drawCnt);
+			vtx.emplace_back(-0.5, 0.0, 0.0);
+			vtx.emplace_back(0.5, 0.0, 0.0);
+
+			glCreateBuffers(1, &vbo);
+			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
+			glCreateVertexArrays(1, &vao);
+			// layout=0
+			glEnableVertexArrayAttrib(vao, 0);
+			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(glm::vec3));
+			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(vao, 0, 0);
+			return;
+		}
+
+		void Model::LoadDefaultFrustrumModel()
+		{
+			drawMode = GL_LINE_LOOP;
+			drawCnt = 16;
+			vtx.resize(drawCnt);
+
+			glCreateBuffers(1, &vbo);
+			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
+			glCreateVertexArrays(1, &vao);
+			// layout=0
+			glEnableVertexArrayAttrib(vao, 0);
+			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(glm::vec3));
+			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(vao, 0, 0);
+			return;
+		}
+
+
 		void Model::DestroyModel() {
+			if (ebo != 0)
+				glDeleteBuffers(1, &ebo);
 			glDeleteBuffers(1, &vbo);
 			glDeleteVertexArrays(1, &vao);
 		}

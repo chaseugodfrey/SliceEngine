@@ -130,10 +130,12 @@ namespace SliceEngine
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
-		//mOnCollide = scClass->GetMethod("OnCollide", 1);
-		//mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
-		//mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
-		//mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
+		mOnCollideEnter = scClass->GetMethod("OnCollideEnter", 1);
+		mOnCollideStay = scClass->GetMethod("OnCollideStay", 1);
+		mOnCollideExit = scClass->GetMethod("OnCollideExit", 1);			
+		mOnTriggerEnter = scClass->GetMethod("OnTriggerEnter", 1);
+		mOnTriggerStay = scClass->GetMethod("OnTriggerStay", 1);
+		mOnTriggerExit = scClass->GetMethod("OnTriggerExit", 1);
 
 		//// Mouse functions
 		//mOnMouseEnter = scClass->GetMethod("OnMouseEnter", 0);
@@ -198,13 +200,33 @@ namespace SliceEngine
 		}
 	}
 
-	void ScriptObject::InvokeOnCollide(unsigned int id)
+	void ScriptObject::InvokeOnCollideEnter(unsigned int id)
 	{
 		//UNUSED(otherID);
-		if (mOnCollide)
+		if (mOnCollideEnter)
 		{
 			void* param = &id;
-			mScriptClass->InvokeMethod(mMonoInstance, mOnCollide, &param);
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideEnter, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnCollideStay(unsigned int id)
+	{
+		//UNUSED(otherID);
+		if (mOnCollideStay)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideStay, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnCollideExit(unsigned int id)
+	{
+		//UNUSED(otherID);
+		if (mOnCollideExit)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnCollideExit, &param);
 		}
 	}
 
@@ -313,6 +335,171 @@ namespace SliceEngine
 		}
 	}
 
+	/// <summary>
+	/// Use this to get out all the variables of this script obj for editor use
+	/// </summary>
+	/// <returns></returns>
+	std::map<std::string, rttr::variant> ScriptObject::GetAllFields()
+	{
+		std::map<std::string, rttr::variant> fieldsMap;
+		const auto& fieldVariables = mScriptClass->mFields;
+
+		for (const auto& [name, variable] : fieldVariables)
+		{
+			fieldsMap[name] = GetFieldValue(name);
+		}
+
+		return fieldsMap;
+	}
+
+
+	void ScriptObject::ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall)
+	{
+		const auto& fieldVariables = mScriptClass->mFields;
+		for (const auto& [name, field] : fieldVariables)
+		{
+			rttr::variant currValue = GetFieldValue(name);
+			if (!currValue.is_valid())
+				continue;
+
+			rttr::variant originalVal = currValue;
+
+			editorCall(name, currValue);
+
+			/*
+			if editor want to use this
+			std::shared_ptr<SliceEngine::ScriptObject> scriptRef to get the reference to the script instance
+			then 
+			scriptRef->ExposeForEditor([](const std::string& name, rttr::variant& var)
+			{
+				// you can do w/e u need to with the variable
+				// get the type to check how to display it
+				// i.e rttr::type type = var.get_type();
+
+				// this function will handle updating the script instance after setting value in editor
+
+			});
+
+			
+			*/
+
+			if (currValue != originalVal)
+			{
+				SetFieldValue(name, currValue);
+			}
+		}
+
+	}
+
+	rttr::variant ScriptObject::GetFieldValue(const std::string& name)
+	{
+		const auto& fields = mScriptClass->mFields;
+		auto it = fields.find(name);
+		if (it == mScriptClass->mFields.end())
+		{
+			return {};
+		}
+
+		const ScriptField& field = it->second;
+
+		return GetMonoFieldValue(mMonoInstance, field.mClassField);
+	}
+
+	void ScriptObject::SetFieldValue(const std::string& name, rttr::variant val)
+	{
+		auto& fields = mScriptClass->mFields;
+		auto it = fields.find(name);
+		if (it == mScriptClass->mFields.end())
+		{
+			return;
+		}
+
+		ScriptField& field = it->second;
+		field.value = val;
+		SetMonoFieldValue(mMonoInstance, field.mClassField, val);
+	}
+
+	rttr::variant ScriptObject::GetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field)
+	{
+		MonoObject* valueObj = mono_field_get_value_object(mono_object_get_domain(scriptInstance), field, scriptInstance);
+		
+		if (!valueObj)
+		{
+			return {};
+		}
+
+		void* unboxPtr = mono_object_unbox(valueObj);
+
+		MonoType* type = mono_field_get_type(field);
+		int monoTypeEnum = mono_type_get_type(type);
+		std::string result;
+
+		switch (monoTypeEnum)
+		{
+		case MONO_TYPE_BOOLEAN:
+			return *(bool*)unboxPtr;
+			break;
+		case MONO_TYPE_I4:
+			return *(int32_t*)unboxPtr;
+			break;
+		case MONO_TYPE_U4:
+			return *(uint32_t*)unboxPtr;
+			break;
+		case MONO_TYPE_R4:
+			return *(float*)unboxPtr;
+			break;
+		case MONO_TYPE_R8:
+			return *(double*)unboxPtr;
+			break;
+		case MONO_TYPE_STRING:
+			{
+				MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
+				if (monoStr != nullptr)
+				{
+					char* utf8str = mono_string_to_utf8(monoStr);
+					result = utf8str;
+					mono_free(utf8str);
+				}
+				return result;
+			}
+			break;
+		case MONO_TYPE_VALUETYPE:
+			std::string typeName = mono_type_get_name(type);
+			// Check for value type like vectors and stuff
+
+			break;
+		}
+
+		// if nth then just return a empty variant
+		return {};
+	}
+
+	void ScriptObject::SetMonoFieldValue(MonoObject* scriptInstance, MonoClassField* field, rttr::variant& value)
+	{
+		if (!value.is_valid())
+		{
+			return;
+		}
+
+		rttr::type type = value.get_type();
+
+		// if its a str
+		if (type == rttr::type::get<std::string>())
+		{
+			// needh andle with MonoString
+			std::string& strVal = value.get_value <std::string>();
+			MonoString* monoStr = mono_string_new(mono_domain_get(), strVal.c_str());
+			mono_field_set_value(scriptInstance, field, monoStr);
+		}
+		else
+		{
+			// assuming c++ and c# layouts are identical
+			// use get_ptr() for raw data
+			
+			mono_field_set_value(scriptInstance, field, value.get_value<void*>());
+		} 
+
+	}
 
 	std::shared_ptr<ScriptClass> ScriptObject::GetScriptClass()
 	{

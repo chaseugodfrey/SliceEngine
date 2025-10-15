@@ -17,12 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/ISelectionListener.h"
 #include "Selection/SelectionManager.h"
 #include "History/HistoryManager.h"
-#include "SceneView/SceneViewManager.h"
-#include "Hierachy/HierarchyManager.h"
-#include "Inspector/InspectorManager.h"
 #include "ContentBrowser/ContentBrowserManager.h"
 #include "Profiler/ProfilerManager.h"
-#include "GameView/GameViewManager.h"
 #include "WindowManager/WindowManager.h"
 
 namespace SliceEditor
@@ -32,11 +28,7 @@ namespace SliceEditor
 		CreateManager<HistoryManager>("History");
 		CreateManager<SelectionManager>("Selection");
 		CreateManager<ContentBrowserManager>("ContentBrowser");
-		CreateManager<HierarchyManager>("Hierarchy");
-		CreateManager<InspectorManager>("Inspector");
-		CreateManager<SceneViewManager>("SceneView");
 		CreateManager<ProfilerManager>("Profiler");
-		CreateManager<GameViewManager>("GameView");
 		CreateManager<WindowManager>("Windows");
 
 

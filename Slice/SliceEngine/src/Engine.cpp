@@ -173,9 +173,16 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject light = Core::GetInstance()->mFactory.CreateGO("light");
-		//light.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		//light.AddComponent<Light>();
+		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecond");
+		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight.AddComponent<Light>();
+		//Dlight.GetComponent<Light>().type = Light::LightType::Directional;
+		//for (int i = 0; i < 2; ++i)
+		//{
+		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light2");
+		//	light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
+		//	light.AddComponent<Light>();
+		//}
 	}
 
 	void Engine::Update()
@@ -237,15 +244,15 @@ namespace SliceEngine
 		sTransform.UpdateWorldTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		frm.EndSystem("Transform");
 
-		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		frm.StartSystem("Physics");
+		if (sInputs->GetMode() == InputMode::Game)
 		{
-			frm.StartSystem("Physics");
-			if (sInputs->GetMode() == InputMode::Game)
+			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
-			frm.EndSystem("Physics");
 		}
+		frm.EndSystem("Physics");
 
 		frm.StartSystem("Graphics");
 		sRender->Render();

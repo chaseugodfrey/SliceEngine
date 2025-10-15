@@ -25,20 +25,16 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
-	class InspectorManager;
+	class Registry;
 
 	class InspectorWindow : public EditorWindow
 	{
-		InspectorManager& mManager;
 
-		// to do: change later
-		std::optional<entt::entity> selected_entity;
-
-		void DisplayEntityData();
+		void DisplayEntityData(entt::entity entity);
 
 		// temp component header
 		template <typename ComponentType>
-		void DisplayComponentHeader(bool closeable = true)
+		void DisplayComponentHeader(entt::entity entity, bool closeable = true)
 		{
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
 			if (ImGui::Button("-"))
@@ -53,7 +49,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Remove Component"))
 				{
-					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(selected_entity.value());
+					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(entity);
 				}
 				
 				if (!closeable)
@@ -65,24 +61,32 @@ namespace SliceEditor
 			ImGui::Separator();
 		}
 
+		template<typename T>
+		void DisplayComponentData(T& component)
+		{
+			// This function can be specialized for different component types
+			// For example:
+			// if constexpr (std::is_same_v<T, Transform>) { ... }
+			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
+			// etc.
+		}
+
 		// to do in m2 : use rttr to read types.
-		void DisplayTransform();
-		void DisplaySceneGraph();
-		void DisplayAudioSource();
-		void DisplayMeshRenderer();
-		void DisplayRigidbody(); 
-		void DisplayCollider3D();
-		void DisplaySliceScript();
-		void AddComponentButton();
-
-		void R();
-
+		void DisplayTransform(entt::entity entity);
+		void DisplaySceneGraph(entt::entity entity);
+		void DisplayAudioSource(entt::entity entity);
+		void DisplayMeshRenderer(entt::entity entity);
+		void DisplayRigidbody(entt::entity entity);
+		void DisplayCollider3D(entt::entity entity);
+		void DisplaySliceScript(entt::entity entity);
+		void AddComponentButton(entt::entity entity);
 
 
 	public:
 
-		InspectorWindow(InspectorManager& manager);
+		InspectorWindow(Registry& reg) : EditorWindow(reg) {};
 		~InspectorWindow() = default;
+		void Init() override;
 		void Draw() override final;
 	};
 }

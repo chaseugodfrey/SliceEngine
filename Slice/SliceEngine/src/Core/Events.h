@@ -75,6 +75,40 @@ struct OnParent
 	Entity child;
 };
 
+
+// Physics collision events
+struct OnCollisionEnterEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnCollisionStayEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnCollisionExitEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerEnterEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerStayEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerExitEvent
+{
+	Entity entity;
+	Entity other;
+};
+// lol this is stupid but whatever
+
 RTTR_REGISTRATION
 {
 	rttr::registration::class_<EntityCollide>("EntityCollide")

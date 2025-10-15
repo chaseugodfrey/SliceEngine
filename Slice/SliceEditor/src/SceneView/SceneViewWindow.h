@@ -24,17 +24,29 @@ namespace SliceEditor
 
 	class SceneViewWindow : public EditorWindow
 	{
-		SliceEngine::GameObject camObj;
-		SceneViewManager& mManager;
-		GLuint tex_id;
+		struct SceneCamera
+		{
+			entt::entity entity;
+			SliceEngine::GameObject gameobject;
+			SliceEngine::Camera& camera;
+		};
+
+		float mCameraSpeed = 0.01f;
+		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
+		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
+
+		bool isUsing = false;
+
+		std::unique_ptr<SceneCamera> camObj;
+
+		std::variant<glm::vec3, glm::quat> mGizmoStartTransformValue;
 
 	public:
 
-		SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam);
+		SceneViewWindow(Registry& reg) : EditorWindow(reg) {};
 		~SceneViewWindow() = default;
 
-		// TO DO: replace this with proper camera attaching
-		void SetCameraTexture(GLuint texture_id);
+		void Init() override;
 		void Draw() override final;
 	};
 }

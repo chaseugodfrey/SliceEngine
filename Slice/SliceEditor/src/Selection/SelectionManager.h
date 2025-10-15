@@ -34,13 +34,14 @@ namespace SliceEditor
 		SelectionManager(Registry& reg) : IBaseManager(reg) {};
 		~SelectionManager() = default;
 
-		void Init() override {};
+		void Init() override;
 		void RegisterListener(ISelectionListener* listener);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
 		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
 		void SelectMultiple(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
 		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
 
 		// replace this with listener pattern

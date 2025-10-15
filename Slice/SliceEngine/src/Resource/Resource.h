@@ -25,6 +25,15 @@ namespace SliceEngine
 		class Scene;
 	}
 
+	namespace DefaultResourceIDs
+	{
+		constexpr uint64_t CUBE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCube");
+		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
+		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
+		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
+	}
+
+
 	template <>
 	struct Type<SliceEngineTypes::Texture>
 	{
@@ -55,7 +64,7 @@ namespace SliceEngine
 	struct Type<SliceEngineTypes::Model>
 	{
 		//constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
-		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::CUBE_DEFAULT;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Model> Load(ResourceManager& resourceMgr, const std::string& path);

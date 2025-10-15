@@ -27,7 +27,7 @@ namespace SliceEngine
 {
 	struct SceneGraph
 	{
-		uint64_t entity_id{};
+		uint32_t entity_id{};
 
 		enum Direction {
 			UP = 0,
@@ -37,16 +37,16 @@ namespace SliceEngine
 			DIRECTIONS
 		};
 
-
-		// rttr doesnt like c style arrays lol
-		//uint32_t neighbours[4];
 		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
 	};
 
 	struct Script
 	{
 		std::string scriptName;
-		//std::unordered_map<std::string, variantVar> scriptableFieldMap;
+
+		// purely for serialization and deserialization
+		// to save scriptable field values in scenes and for prefabs(?)
+		std::unordered_map<std::string, rttr::variant> scriptableFieldMap;
 	};
 
 	struct SliceEntity 
@@ -111,13 +111,13 @@ namespace SliceEngine
 
 	struct Light // TODO: Default 1 directional light for now
 	{
-		//enum class LightType
-		//{
-		//	Directional,
-		//	Point,
-		//	Spot
-		//};
-		//LightType type = LightType::Directional;
+		enum class LightType
+		{
+			Directional,
+			Point,
+			Spot
+		};
+		LightType type = LightType::Point;
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity = 1.0f;
 	};
