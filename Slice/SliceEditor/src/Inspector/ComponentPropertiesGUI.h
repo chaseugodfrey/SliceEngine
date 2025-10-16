@@ -13,9 +13,8 @@ Reproduction or disclosure of this file or its contents without the prior writte
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifndef COMPONENT_PROPERPTIES_H
-#define COMPONENT_PROPERPTIES_H
-
+#ifndef COMPONENT_PROPERTIES_H
+#define COMPONENT_PROPERTIES_H
 
 namespace SliceEditor
 {

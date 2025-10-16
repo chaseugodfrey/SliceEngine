@@ -14,14 +14,13 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "GameViewWindow.h"
-#include "GameViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 
 
 namespace SliceEditor
 {
-	GameViewWindow::GameViewWindow(GameViewManager& manager) : mManager(manager)
+	void GameViewWindow::Init()
 	{
 
 	}

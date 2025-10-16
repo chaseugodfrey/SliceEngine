@@ -30,7 +30,7 @@ namespace SliceEditor
 	std::unique_ptr<EditorWindow> ProfilerManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Profiler Window.");
-		auto window = std::make_unique<ProfilerWindow>(*this);
+		auto window = std::make_unique<ProfilerWindow>(*this, registry);
 
 		return window;
 	}

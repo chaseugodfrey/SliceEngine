@@ -89,7 +89,7 @@ public:
 	}
 
 	template <typename Event>
-	void Publish(const Event&& event)
+	void Publish(Event&& event, bool a)
 	{
 		mDispatcher.trigger(std::move(event));
 	}

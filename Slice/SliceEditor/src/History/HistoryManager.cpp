@@ -7,6 +7,7 @@ namespace SliceEditor
 	{
 		undoStack = std::stack<std::unique_ptr<Command>>();
 		redoStack = std::stack<std::unique_ptr<Command>>();
+
 		EventManager::GetInstance()->Subscribe<UndoEvent, &HistoryManager::Undo>(this);
 		EventManager::GetInstance()->Subscribe<RedoEvent, &HistoryManager::Redo>(this);
 	}
@@ -16,6 +17,11 @@ namespace SliceEditor
 		undoStack.push(std::move(command));
 		while (!redoStack.empty())
 			redoStack.pop();
+	}
+
+	void HistoryManager::AddCommandFromEvent(AddCommandEvent& event)
+	{
+		AddCommand(std::move(event.command));
 	}
 
 	void HistoryManager::Undo()
