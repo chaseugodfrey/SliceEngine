@@ -20,10 +20,14 @@ namespace SliceEngine
 		class Audio
 		{
 		public:	
+
+			void InitFMODSystem();
+
+			FMOD::Sound* LoadAudioResource(std::string const&);
+		private:
+			const int MAX_CHANNELS = 256;
+			FMOD::System* mSoundSystem;
 			FMOD::Sound* sound = nullptr;
-
-			void LoadAudioResource(std::string const&);
-
 		};
 	}
 }

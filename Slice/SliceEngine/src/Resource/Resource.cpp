@@ -115,9 +115,12 @@ namespace SliceEngine
 	//Audio
 	std::unique_ptr<SliceEngineTypes::Audio> Type<SliceEngineTypes::Audio>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		auto audio = std::make_unique<SliceEngineTypes::Audio>(path);
+		auto audio = std::make_unique<SliceEngineTypes::Audio>();
 		
+		/*if (audio->LoadAudioResource(path))
+		{
 
+		}*/
 		return audio;
 	}
 }

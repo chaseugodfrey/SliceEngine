@@ -73,7 +73,7 @@ namespace SliceEngine
 
 		//FMOD::Studio::System* system;
 		FMOD::System* mSoundSystem;
-		const int MAX_CHANNELS = 256;
+		
 
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
