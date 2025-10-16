@@ -117,10 +117,7 @@ namespace SliceEngine
 	{
 		auto audio = std::make_unique<SliceEngineTypes::Audio>();
 		
-		/*if (audio->LoadAudioResource(path))
-		{
-
-		}*/
+		
 		return audio;
 	}
 }

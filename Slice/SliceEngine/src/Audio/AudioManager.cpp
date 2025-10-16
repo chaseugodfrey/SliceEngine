@@ -28,7 +28,7 @@ namespace SliceEngine
 	*/
 	void AudioManager::Init()
 	{
-		/*SLICE_LOG("Initializing FMOD");
+		SLICE_LOG("Initializing FMOD");
 		FMOD_RESULT result = FMOD::System_Create(&mSoundSystem);
 		if (result != FMOD_OK)
 		{
@@ -41,7 +41,7 @@ namespace SliceEngine
 		{
 			SLICE_LOG_ERROR("FMOD System initialization failed");
 			return;
-		}*/
+		}
 
 		for (int i{}; i < 4; i++)
 		{
