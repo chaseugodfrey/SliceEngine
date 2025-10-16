@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <variant>
 #include "../Physics/CollisionLayer.h"
 #include <rttr/rttr_enable.h>
+#include "Resource/ResourceManager.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -140,6 +141,10 @@ namespace SliceEngine
 	{
 		// GUID reference to original prefab
 		GUID prefabGUID;
+
+		Handle<SliceEngineTypes::Prefab> prefabHandle;
+
+		RTTR_ENABLE();
 	};
 
 	struct RigidBody
