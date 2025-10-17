@@ -74,7 +74,7 @@ namespace SliceEngine
 		//FMOD::Studio::System* system;
 		FMOD::System* mSoundSystem;
 		
-
+		const int MAX_CHANNELS = 256;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 
@@ -98,6 +98,7 @@ namespace SliceEngine
 		};
 
 	private:
+
 		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
 		std::unordered_map<Entity, std::unique_ptr<SoundTrack>> mSounds[SOUND_MAX_SOUNDS];
 		float mMasterVolume = 1.0f;
@@ -112,6 +113,8 @@ namespace SliceEngine
 
 		/** @brief Shuts down and releases all FMOD resources. */
 		void Exit();
+
+		FMOD::System* GetSoundSystem();
 
 		/**
 		 * @brief Converts a glm::vec3 to an FMOD_VECTOR.
@@ -152,7 +155,7 @@ namespace SliceEngine
 		 * @param soundPos The world position for 3D sounds (default at origin).
 		 * @return True if playback started successfully, false otherwise.
 		 */
-		bool PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
+		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
 
 		/**
 		 * @brief Plays a sound preview for the editor without affecting in-game channels.

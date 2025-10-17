@@ -49,6 +49,11 @@ namespace SliceEngine
 		}
 	}
 
+	FMOD::System* AudioManager::GetSoundSystem()
+	{
+		return mSoundSystem;
+	}
+
 	/*
 	* LoadSound loads all sounds in 3D because its easier to make set the FMOD mode to 2D from 3D if need to
 	*/
@@ -61,12 +66,6 @@ namespace SliceEngine
 
 		auto audioHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundFile);
 		SliceEngineTypes::Audio* audio = audioHandle.get();
-
-		if (audio && audio->sound)
-		{
-			soundTest = audio->sound; 
-			// You can now play, stop, or set properties on soundTest
-		}
 
 
 		std::string soundName;
@@ -93,7 +92,7 @@ namespace SliceEngine
 
 	}
 
-	bool AudioManager::PlaySound(const std::string soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos)
+	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos)
 	{
 
 		auto it = mLoadedSounds.find(soundName);

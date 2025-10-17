@@ -12,6 +12,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include <fstream>
 #include <filesystem>
+#include "../Core/Core.h"
+#include "../Audio/AudioManager.h"
 
 namespace SliceEngine
 {
@@ -19,13 +21,28 @@ namespace SliceEngine
 	{
 		
 
-		FMOD::Sound* Audio::LoadAudioResource(std::string const& file)
+		bool Audio::LoadAudioResource(std::string const& file)
 		{
-			if (!mSoundSystem)
+			auto mAudioManager = Core::GetInstance()->GetAudioManager();
+
+			FMOD::System* mSoundSystem = mAudioManager->GetSoundSystem();
+
+			FMOD::Sound* sound = nullptr;
+
+			
+			FMOD_RESULT result = mSoundSystem->createSound(file.c_str(), FMOD_3D, nullptr, &sound);
+			if (result != FMOD_OK)
 			{
-				
+				SLICE_LOG_ERROR("FMOD failed to audio resource from '" + file + "'. Error: " + std::to_string(result));
+
+				sound = nullptr;
+
+				return false;
 			}
-			return false;
+
+			SLICE_LOG("Successfully loaded audio resource " + file);
+			return true;
+			
 		}
 	}
 }

@@ -21,10 +21,8 @@ namespace SliceEngine
 		{
 		public:	
 
-			FMOD_RESULT LoadAudioResource(std::string const&);
-		private:
-			
-			FMOD::Sound* sound = nullptr;
+			bool LoadAudioResource(std::string const&);
+		
 		};
 	}
 }

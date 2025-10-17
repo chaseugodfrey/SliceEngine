@@ -117,7 +117,16 @@ namespace SliceEngine
 	{
 		auto audio = std::make_unique<SliceEngineTypes::Audio>();
 		
+		if (std::filesystem::exists(path))
+		{
+			audio->LoadAudioResource(path);
+		}
 		
 		return audio;
+	}
+
+	void Type<SliceEngineTypes::Audio>::Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr)
+	{
+
 	}
 }
