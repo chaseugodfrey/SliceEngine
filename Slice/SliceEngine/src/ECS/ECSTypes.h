@@ -74,7 +74,6 @@ namespace SliceEngine
         glm::vec3 position{ 0.0f, 0.0f, 0.0f };
         glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-        glm::vec3 previousScale{ 1.0f, 1.0f, 1.0f };
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
     };
@@ -143,13 +142,11 @@ namespace SliceEngine
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
-			JPH::Vec3 prevScale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
 		{
 			float radius{ 1.0f };
-			float prevRadius{ 1.0f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
