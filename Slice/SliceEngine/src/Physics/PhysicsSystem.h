@@ -13,6 +13,9 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include <iostream>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -44,7 +47,7 @@ namespace SliceEngine
 		int collisionSteps{};
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
 
 		void Shutdown();
 
