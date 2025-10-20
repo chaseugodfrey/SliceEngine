@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "AssetManager.h"
 #include "AssetTypes.h"
+#include <Serializer/JSONSerializer.h>
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -67,7 +68,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -76,7 +77,7 @@ namespace SliceEditor
 		if (it == mSupportedAssetTypes.end())
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
-			return; // Unsupported asset type
+			return "";
 		}
 
 		AssetType assetType = it->second;
@@ -193,7 +194,7 @@ namespace SliceEditor
 				// delete the meta file if it didn't compile properly
 				std::filesystem::remove(metaPath);
 
-				return;
+				return "";
 			}
 
 
@@ -206,6 +207,7 @@ namespace SliceEditor
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 		
+			return  metaData->resourcePath;
 		}
 	}
 
@@ -437,6 +439,23 @@ namespace SliceEditor
 				}
 			}
 		}
+	}
+
+	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
+	{
+
+		// idk if this will work yet cause i need it implemented in the editor to test
+		// but this should create the prefab and compile it to create the resource as well 
+
+		// Create the prefab file
+		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
+		std::filesystem::path filePath(path);
+		// Create the descriptor
+		std::string resourcePath = CreateDescriptorFile(filePath);
+
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(resourcePath);
+
 	}
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 

@@ -168,7 +168,7 @@ namespace SliceEngine
 		}
 
 #pragma region PrefabSerializing
-		void SerializePrefab(entt::entity entity)
+		std::string SerializePrefab(entt::entity entity)
 		{
 			json output;
 			auto& registry = Core::GetInstance()->GetRegistry();
@@ -191,6 +191,8 @@ namespace SliceEngine
 			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
 			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
 			SerializeFile(output, filePath);
+
+			return filePath.string();
 		}
 
 		// Looks kinda funky having two exact same functions

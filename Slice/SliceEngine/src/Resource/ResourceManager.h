@@ -156,10 +156,7 @@ namespace SliceEngine
 			return Handle<T>(*this, &instance, assetGUID);
 		}
 
-		void RegisterResourceAsset(const GUID& guid, const std::string& path)
-		{
-			mGUIDToResource[guid] = path;
-		}
+		void RegisterResourceAsset( const std::string& path);
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 

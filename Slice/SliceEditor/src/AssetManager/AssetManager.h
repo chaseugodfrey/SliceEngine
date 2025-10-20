@@ -44,11 +44,12 @@ namespace SliceEditor
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
-		void CreateDescriptorFile(const std::filesystem::path filePath);
+		std::string CreateDescriptorFile(const std::filesystem::path filePath);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CreatePrefab(SliceEngine::GameObject GO);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 	private:
 		

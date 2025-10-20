@@ -32,7 +32,7 @@ namespace SliceEngine
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
-		void SerializePrefab(entt::entity entity);
+		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
 
 		Entity DeserializePrefab(std::filesystem::path const& filePath);
