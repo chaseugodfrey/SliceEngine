@@ -74,6 +74,11 @@ namespace SliceEngine
 			}
 		}
 
+		if (ps.hasBursts)
+		{
+			ApplyBurst(ps, dt);
+		}
+
 		for (Particle& p : ps.particles)
 		{
 			if (p.active)
@@ -88,11 +93,6 @@ namespace SliceEngine
 				if (ps.hasCollision)
 				{
 					ApplyCollision(p, ps, dt);
-				}
-
-				if (ps.hasBursts) 
-				{
-					ApplyBurst(ps, dt);
 				}
 			}
 		}
@@ -114,7 +114,6 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Particle Stuff
-
 	void ParticleSystemManager::ActivateParticle(ParticleSystem& ps)
 	{	
 		if (ps.particles.empty())
@@ -230,7 +229,6 @@ namespace SliceEngine
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
 		p.velocity += glm::vec3(0.0f, ps.gForce * dt, 0.0f);
-		p.position += p.velocity * dt;
 	}
 	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
 	{
