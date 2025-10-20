@@ -13,13 +13,6 @@ void main(void){
 	ivec2 p = ivec2(gl_FragCoord.xy);
 	vec4 col = texelFetch(uTex, p, 0);
 
-	if(any(notEqual(col.rgb, vec3(0.0f))))
-	{
-		fFragColor = col;
-	}
-	else // background
-	{
-		fFragColor = vec4(0.75294f, 1.0f, 0.93333f, 1.0f);
-	}
-	fFragColor.rgb = pow(fFragColor.rgb, vec3(1.0f/2.2f));
+	fFragColor.rgb = pow(col.rgb, vec3(1.0f/2.2f));
+	fFragColor.a = 1.0;
 }

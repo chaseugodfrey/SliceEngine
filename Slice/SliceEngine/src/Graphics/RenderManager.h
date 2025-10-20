@@ -44,16 +44,17 @@ namespace SliceEngine
 		unsigned int GetPickedID();
 		// Rendering functions
 		void CalculateVP(Entity cam);
-		void UpdateCamGPU(Entity cam);
+		void UpdateCamVP();
+		void BindCameraDepth(Entity cam);
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
 		void RenderShadowMaps();
 		void LightingRender(Entity cam);
+		void GammaCorrectionRender(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(GUID guid);
-		void LinkDebugLineInstancing();
 
 	private:
 		const int mMaxInstance = 100;
@@ -82,7 +83,6 @@ namespace SliceEngine
 		FBOType mCurrFBO{FB_TOTAL};
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mIVBO{};
-		GLuint mDebugLineVBO{};
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
 		GLuint pboIdx[2]{};
@@ -124,7 +124,8 @@ namespace SliceEngine
 		{
 			DEFAULT,
 			SHADOW,
-			ADDITION
+			ADDITION,
+			DEBUG
 		};
 		enum class BufferClearSetting : unsigned char
 		{
