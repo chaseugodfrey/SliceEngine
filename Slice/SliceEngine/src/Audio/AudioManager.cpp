@@ -60,29 +60,20 @@ namespace SliceEngine
 	void AudioManager::LoadSound(const std::string& soundFile)
 	{
 
-		FMOD::Sound* sound{ nullptr };
+		auto audioHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundFile).get();
+		
 
-		FMOD::Sound* soundTest{ nullptr };
-
-		auto audioHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundFile);
-		SliceEngineTypes::Audio* audio = audioHandle.get();
-
-
-		std::string soundName;
-		mSoundSystem->createSound(soundFile.c_str(), FMOD_3D, nullptr, &sound);
-
-		soundName = soundFile.substr(soundFile.find_last_of("/") + 1, soundFile.find_last_of(".") - soundFile.find_last_of("/")-1);
-
-		if (sound)
+		if (audioHandle)
 		{
+			
 			auto track = std::make_unique<SoundTrack>();
-			track->sound = sound;
+			track->sound = audioHandle->GetSound();
 
-			mLoadedSounds.try_emplace(soundName, std::move(track));
+			mLoadedSounds.try_emplace(soundFile, std::move(track));
 
-			SLICE_LOG("Sound Loaded" + soundName);
-			return;
+			SLICE_LOG("Sound Loaded" + soundFile);
 		}
+
 	}
 
 	void AudioManager::Update()

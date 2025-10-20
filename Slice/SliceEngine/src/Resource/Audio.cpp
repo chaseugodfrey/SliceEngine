@@ -27,8 +27,6 @@ namespace SliceEngine
 
 			FMOD::System* mSoundSystem = mAudioManager->GetSoundSystem();
 
-			FMOD::Sound* sound = nullptr;
-
 			
 			FMOD_RESULT result = mSoundSystem->createSound(file.c_str(), FMOD_3D, nullptr, &sound);
 			if (result != FMOD_OK)
@@ -43,6 +41,11 @@ namespace SliceEngine
 			SLICE_LOG("Successfully loaded audio resource " + file);
 			return true;
 			
+		}
+
+		FMOD::Sound* Audio::GetSound()
+		{
+			return sound;
 		}
 	}
 }
