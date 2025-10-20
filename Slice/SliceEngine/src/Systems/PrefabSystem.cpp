@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "PrefabSystem.h"
 #include "Core/Core.h"
+#include "Serializer/JSONSerializer.h"
 
 namespace SliceEngine
 {
@@ -25,14 +26,16 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(prefabGUID);
 		
-		// i dont have a way to create from prefab or serialize yet
-		GameObject GO = FactoryInstance.CreateBlank();
-		mPrefabToEntity[prefab] = GO.GetEntity();
+		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
+		FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+
+		mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 
-		return FactoryInstance.CreateGO("temp");
+		return GO;
 	}
 }

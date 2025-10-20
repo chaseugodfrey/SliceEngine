@@ -9,8 +9,8 @@ namespace SliceEngine
 		{
 		private:
 			GUID prefabFile;
-			std::string filePath;
 		public:
+			std::string filePath;
 			Prefab() = default;
 			Prefab(GUID prefabID, const std::string& file) : prefabFile(prefabID), filePath(file) {}
 			~Prefab() = default;
