@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include <glfw3.h>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
+#include <rttr/rttr_enable.h>
+#include "Resource/ResourceManager.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -25,30 +27,6 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
-	struct SceneGraph
-	{
-		uint32_t entity_id{};
-
-		enum Direction {
-			UP = 0,
-			DOWN,
-			LEFT,
-			RIGHT,
-			DIRECTIONS
-		};
-
-		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
-	};
-
-	struct Script
-	{
-		std::string scriptName;
-
-		// purely for serialization and deserialization
-		// to save scriptable field values in scenes and for prefabs(?)
-		std::unordered_map<std::string, rttr::variant> scriptableFieldMap;
-	};
-
 	struct SliceEntity 
 	{
 		std::string mName;
@@ -69,13 +47,44 @@ namespace SliceEngine
 		int val;
 	};
 
+	struct SceneGraph
+	{
+		uint32_t entity_id{};
+
+		enum Direction {
+			UP = 0,
+			DOWN,
+			LEFT,
+			RIGHT,
+			DIRECTIONS
+		};
+
+		std::array<Entity, Direction::DIRECTIONS> neighbours{ entt::null, entt::null, entt::null, entt::null };
+
+		RTTR_ENABLE();
+	};
+
+	struct Script
+	{
+		std::string scriptName;
+
+		// purely for serialization and deserialization
+		// to save scriptable field values in scenes and for prefabs(?)
+		std::unordered_map<std::string, rttr::variant> scriptableFieldMap;
+
+		RTTR_ENABLE();
+	};
+
     struct Transform
     {
+
         glm::vec3 position{ 0.0f, 0.0f, 0.0f };
         glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
+
+		RTTR_ENABLE();
     };
 
 	struct UITransform
@@ -97,7 +106,10 @@ namespace SliceEngine
 		// May need to change if rendering pipeline is diff
 		GUID model;
 		GUID texture;
+		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
+
+		RTTR_ENABLE();
 	};
 
 	struct Camera
@@ -106,6 +118,8 @@ namespace SliceEngine
 		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		unsigned char renderTag{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Light // TODO: Default 1 directional light for now
@@ -119,6 +133,18 @@ namespace SliceEngine
 		LightType type = LightType::Point;
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity = 1.0f;
+
+		RTTR_ENABLE();
+	};
+
+	struct Prefab
+	{
+		// GUID reference to original prefab
+		GUID prefabGUID;
+
+		Handle<SliceEngineTypes::Prefab> prefabHandle;
+
+		RTTR_ENABLE();
 	};
 
 	struct RigidBody
@@ -135,6 +161,7 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+		RTTR_ENABLE();
 	};
 
 	struct ColliderShape
@@ -162,6 +189,7 @@ namespace SliceEngine
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
+		RTTR_ENABLE();
 	};
 
 	struct AudioSource
