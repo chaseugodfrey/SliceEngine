@@ -17,6 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>
 
+//Somehow kinda funny i need to include 2 files inorder to get the resource manager instance
+//#include "../Resource/ResourceManager.h"
+#include "../Core/Core.h"
 
 namespace SliceEngine
 {
@@ -220,27 +223,28 @@ namespace SliceEngine
 		return false;
 	}
 
-	void GOFactory::Unparent(Entity entity)
+	bool GOFactory::Unparent(Entity entity)
 	{
 		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
 		if (prev_parent_entity == entt::null)
-			return;
+			return false;
 
 		auto& parent_scene_graph = mRegistry.get<SceneGraph>(prev_parent_entity);
 		auto grandparent_entity = parent_scene_graph.neighbours[SceneGraph::UP];
 
 		SetParent(entity, grandparent_entity);
+		return true;
 	}
 
-	void GOFactory::SetParent(Entity entity, Entity parentEntity)
+	bool GOFactory::SetParent(Entity entity, Entity parentEntity)
 	{
 		if(isDescendant(entity, parentEntity))
 		{
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
-			return;
+			return false;
 		}
 
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
@@ -341,7 +345,7 @@ namespace SliceEngine
 		{
 			if (!mRegistry.valid(parentEntity))
 			{
-				return;
+				return false;
 			}
 
 			new_parent = parentEntity;
@@ -380,6 +384,7 @@ namespace SliceEngine
 		scene_graph.neighbours[SceneGraph::UP] = new_parent;
 
 		UpdateTransformFromParent(entity, new_parent);
+		return true;
 	}
 
 	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
@@ -540,12 +545,65 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+
+		//testing only
+		//return CreateGO_Model((GUID)17518266545644652909);
 	}
 
 	GameObject GOFactory::CreateGO_Cam()
 	{
 		auto go = CreateGO("Camera");
 		go.AddComponent<Camera>();
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
+		//Get the resource handle first
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
+
+		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null);
+	}
+
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
+		auto go = CreateGO(node.name);
+		SetParent(go.GetEntity(), parent);
+
+		if (!node.mesh_ref.empty()) {
+			go.AddComponent<Renderer>();
+			auto& rc = go.GetComponent<Renderer>();
+			rc.model = model_guid;
+			rc.meshOffset = node.mesh_ref[0];
+			//rc.texture = (GUID)18349208178533231704;
+
+			//add siblings if a single node has multiple mesh refs
+			for (int i = 1; i < node.mesh_ref.size(); ++i) {
+				auto sibling = CreateGO(node.name);
+				SetParent(sibling.GetEntity(), parent);
+
+				auto& s_tform = sibling.GetComponent<Transform>();
+				s_tform.position = node.position;
+				s_tform.rotation = node.rotation;
+				s_tform.scale = node.scale;
+
+				sibling.AddComponent<Renderer>();
+				auto& s_rc = sibling.GetComponent<Renderer>(); 
+				s_rc.model = model_guid;
+				s_rc.meshOffset = node.mesh_ref[i];
+				//rc.texture = (GUID)18349208178533231704;
+			}
+		}
+		
+
+		for (auto& child : node.children) {
+			CreateGO_ModelNode(child, model_guid, go.GetEntity());
+		}
+		//set node local tform here, since setparent does some calculations to decompose relative mtx
+		//infact, do it after recursion, so everything has default values
+		auto& tform = go.GetComponent<Transform>();
+		tform.position = node.position;
+		tform.rotation = node.rotation;
+		tform.scale = node.scale;
+
 		return go;
 	}
 

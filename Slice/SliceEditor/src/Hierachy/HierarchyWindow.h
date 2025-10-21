@@ -17,20 +17,18 @@ DigiPen Institute of Technology is prohibited.
 #define HIERARCHY_WINDOW_H
 
 #include "../WindowManager/EditorWindow.h"
-#include <vector>
 
 namespace SliceEditor
 {
-	class HierarchyManager;
+	class Registry;
 	class SelectionManager;
 	struct TestNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
-		HierarchyManager& mManager;
 
 		void DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& graph);
-		void DrawSceneNode(TestNode& node);
+		void DrawSceneNode();
 		void DrawNodeGraph();
 
 		void EntityContextPopUp(entt::entity entity);
@@ -41,8 +39,9 @@ namespace SliceEditor
 
 	public:
 
-		HierarchyWindow(HierarchyManager& manager);
+		HierarchyWindow(Registry& reg) : EditorWindow(reg) {};
 		~HierarchyWindow() = default;
+		void Init() override;
 		void Draw() override final;
 	};
 }

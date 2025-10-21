@@ -12,6 +12,8 @@ DigiPen Institute of Technology is prohibited.
 #define MODEL_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+
 #include <vector>
 //#include <GL/glew.h>
 #include <string>
@@ -23,8 +25,22 @@ namespace SliceEngine
 		//forward declare of helper struct
 		struct Mesh;
 
+		//Node that represents the scenegraph from the resource pov
+		//used to create the actual scenegraph of entities when trying to create a model in the scene
+		struct ModelNode {
+			std::string name{};
+			//glm::mat4 local_transform{};
+			std::vector<unsigned short> mesh_ref;
+			std::vector<ModelNode> children;
+
+			glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+			glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+			glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+
+			void unpack_data(char* const buffer, uint64_t& offset);
+		};
+
 		class Model {
-			//ngl no idea whr to put this so ill put this for now
 		public:
 			/*
 				old ones
@@ -32,21 +48,23 @@ namespace SliceEngine
 			std::vector<glm::vec3> vtx;
 
 			/*
+			* moved to mesh
+			*/
+			/*GLuint vao{}, vbo{};
+			GLuint drawCnt{};
+			GLenum drawMode{};
+			GLuint ebo{};*/
+
+			/*
 			* new ones
 			*/
 			void unpack_data(char* const buffer, uint64_t& offset);	//helper func
-			GLuint ebo{};
 			std::string name{};	//this can prob help with some editor stuff? gona leave it here for now, ez to remove later
+			ModelNode rootNode;
+			std::vector<Mesh> meshes;	//list of meshes, in the case of static model, max 1 mesh per material involved in the model
 
-			void combine_setup_meshes(std::vector<Mesh> const& meshes);
+			//void combine_setup_meshes(std::vector<Mesh> const& meshes);
 
-
-			/*
-			* no change
-			*/
-			GLuint vao{}, vbo{};
-			GLuint drawCnt{};
-			GLenum drawMode{};
 			//cant be static because of gl funcs i think
 			void LoadDefaultCubeModel();
 			void LoadDefaultLineModel();
@@ -62,18 +80,18 @@ namespace SliceEngine
 			glm::vec3 normal{};
 			glm::vec2 uv{};
 		};
-		struct ResTexture {
-			unsigned int id;
-		};
+
 		struct Mesh {
 			std::string name{};
 			std::vector<Vertex> vertices{};
 			std::vector<unsigned int> indices{};
-			//supposed to have material in here too
-			std::vector<ResTexture> textures{};
 
-			glm::mat4 transform{};
+			GLuint vao{}, vbo{};	//actual vbo vao and ebo to draw
+			GLuint ebo{};
+			GLuint drawCnt{};
+			GLenum drawMode{};
 			void unpack_data(char* const buffer, uint64_t& offset);
+			void setup_mesh();	//allocate the handles vao, vbo, ebo as well as set drawcnt and drawmode
 		};
 	}
 }

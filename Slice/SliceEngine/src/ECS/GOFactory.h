@@ -15,6 +15,8 @@ DigiPen Institute of Technology is prohibited.
 #include <entt.hpp>
 #include <rttr/variant.h>
 
+#include "Resource/Resource.h"
+
 namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
@@ -164,8 +166,8 @@ namespace SliceEngine
 		void InitRootEntity();
 
 		bool isDescendant(Entity target, Entity dest);
-		void Unparent(Entity entity);
-		void SetParent(Entity entity, Entity parentEntity = entt::null);
+		bool Unparent(Entity entity);
+		bool SetParent(Entity entity, Entity parentEntity = entt::null);
 		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
 		void BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map);
 		void ClearGameObjects();
@@ -174,6 +176,7 @@ namespace SliceEngine
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();
 		GameObject CreateGO_Cam();
+		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 
 		Registry mRegistry;
 
@@ -184,6 +187,7 @@ namespace SliceEngine
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
+		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		

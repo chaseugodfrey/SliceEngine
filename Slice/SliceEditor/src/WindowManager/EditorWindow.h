@@ -17,10 +17,18 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+	class Registry;
+
 	class EditorWindow
 	{
+
+	protected:
+		Registry& mRegistry;
+
 	public:
+		virtual void Init() = 0;
 		virtual void Draw() = 0;
+		EditorWindow(Registry& registry) : mRegistry(registry) {}
 		virtual ~EditorWindow() = default;
 	};
 }

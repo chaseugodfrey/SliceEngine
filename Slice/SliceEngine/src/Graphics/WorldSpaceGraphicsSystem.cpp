@@ -106,10 +106,12 @@ namespace SliceEngine
 		//	return;
 
 		auto rm = core->GetResourceManager();
-		auto handle = rm->get<SliceEngineTypes::Model>(rc.model);
+		auto& model = *rm->get<SliceEngineTypes::Model>(rc.model).get();
+		
+		auto& mesh = model.meshes[rc.meshOffset];
 		auto texHandle = rm->get<SliceEngineTypes::Texture>(rc.texture);
 
-		glBindVertexArray(handle.get()->vao);
+		glBindVertexArray(mesh.vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 
@@ -124,7 +126,7 @@ namespace SliceEngine
 		glBindTextureUnit(0, texHandle.get()->texture_id);
 
 		//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
-		glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 
 	void WorldSpaceGraphicsSystem::Update(float dt)

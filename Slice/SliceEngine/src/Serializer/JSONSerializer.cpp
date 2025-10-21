@@ -57,6 +57,168 @@ namespace SliceEngine
 			SerializeFile(output, filePath);
 		}
 
+		Entity DeserializePrefab(std::filesystem::path const& filePath)
+		{
+			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
+			json prefab = DeserializeFile(filePath);
+
+			for (auto& [name, components] : prefab.items())
+			{
+				auto& factory = Core::GetInstance()->mFactory;
+				GameObject newObj = factory.CreateBlank();
+
+				for (auto& [objName, objProps] : components.items())
+				{
+					for (auto& [componentName, props] : objProps.items())
+					{
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							continue;
+						}
+
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
+						{
+							continue;
+						}
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+
+							if (!prop.is_valid())
+								continue;
+
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								uint64_t,
+								GUID,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string
+								>
+								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
+
+							// Anything that needs a second pass
+							// scene graph map stuff
+							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
+							{
+								uint32_t oldID = value.get<uint32_t>();
+								sceneGraphMap[oldID] = entt::to_integral(newObj.GetEntity());
+							}
+						}
+
+						AddComponentFromVariant(newObj, componentInstance, componentName);
+					}
+				}
+			}
+
+			// fix the old to new entity IDs
+			auto& registry = Core::GetInstance()->GetRegistry();
+			auto& factory = Core::GetInstance()->mFactory;
+			auto entityView = registry.view<SliceEntity>();
+			for (auto entity : entityView)
+			{
+				if (!registry.any_of<SceneGraph>(entity))
+				{
+					continue;
+				}
+
+				auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
+				
+				for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
+				{
+					auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
+					if (it != sceneGraphMap.end())
+					{
+						sceneGraphComponent.neighbours[i] = (Entity)it->second;
+					}
+
+					// if this is the new child of the root entity
+					// for it to be the new child, up is the root and there is no left children
+					if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
+					{
+						auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
+					}
+				}
+			}
+
+
+
+			auto it = sceneGraphMap.begin();
+
+			return (Entity)it->second;
+		}
+
+		void  DeserializePrefabChild(json file)
+		{
+
+		}
+
+#pragma region PrefabSerializing
+		std::string SerializePrefab(entt::entity entity)
+		{
+			json output;
+			auto& registry = Core::GetInstance()->GetRegistry();
+
+			// serialize the main entity
+			output += SerializeGameObject(entity, registry);
+
+			// Now serialize the children
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				SerializePrefabChild(output, childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+			// TODO: Find out a better way we shud be doing this
+			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
+			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			SerializeFile(output, filePath);
+
+			return filePath.string();
+		}
+
+		// Looks kinda funky having two exact same functions
+		// but 1 is the main function that starts the recursive call from the original main prefab entity
+		// the second one is for iterating the children
+		// it'll check down and right
+		// and go down again if there is one
+		// hopefully our prefabs not gonna be so complicated that this whole recursive call is long and breakable
+
+		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry)
+		{
+			output += SerializeGameObject(entity, registry);
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				SerializePrefabChild(output, childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+		}
+
+#pragma endregion
+
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)
 		{
 			json output;
