@@ -25,6 +25,8 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
+	using ComponentDrawer = std::function<void(rttr::variant&)>;
+
 	class Registry;
 
 	class InspectorWindow : public EditorWindow
@@ -62,7 +64,7 @@ namespace SliceEditor
 		}
 
 		template<typename T>
-		void DisplayComponentData(T& component)
+		void DisplayComponentData(entt::entity, T& component)
 		{
 			// This function can be specialized for different component types
 			// For example:
@@ -70,8 +72,49 @@ namespace SliceEditor
 			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
 			// etc.
 		}
+		//Template Specialisation for Transform
+		template<>
+		void DisplayComponentData(entt::entity entity, SliceEngine::Transform& tr)
+		{
+			if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+			{
 
+				DisplayComponentHeader<SliceEngine::Transform>(entity, false);
+				DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);
+				glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
+				if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
+				{
+					tr.rotation = SliceEngine::Vec3ToQuat(euler);
+				}
+				DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
+
+				// for testing purposes
+				ImGui::BeginDisabled();
+				ImGui::Text("Parent: ");
+				auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+				auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+				std::string name{ "--" };
+
+				if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
+					name = go.GetName();
+				}
+
+				ImGui::Text(name.c_str());
+				ImGui::EndDisabled();
+
+				ImGui::TreePop();
+			}
+		}
 		// to do in m2 : use rttr to read types.
+
+		template<>
+		void DisplayComponentData(entt::entity entity, SliceEngine::AudioSource)
+		{
+
+		}
+
 		void DisplayTransform(entt::entity entity);
 		void DisplaySceneGraph(entt::entity entity);
 		void DisplayAudioSource(entt::entity entity);
