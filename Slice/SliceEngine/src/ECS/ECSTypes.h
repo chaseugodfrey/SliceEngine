@@ -161,6 +161,16 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+		struct FreezeOptions
+		{
+			bool freezeX = false;
+			bool freezeY = false;
+			bool freezeZ = false;
+		};
+
+		FreezeOptions freezePosition;
+		FreezeOptions freezeRotation;
+
 		RTTR_ENABLE();
 	};
 

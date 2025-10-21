@@ -154,9 +154,34 @@ namespace SliceEngine
 				JPH::Body& body = lock.GetBody();
 				JPH::MotionProperties* mp = body.GetMotionProperties();
 
-				mp->ScaleToMass(rigidBody.mass);
+				JPH::RefConst<JPH::Shape> shape = body.GetShape();
+				JPH::MassProperties massProps = shape->GetMassProperties();
+
+				massProps.ScaleToMass(rigidBody.mass);
+
+				//handle freeze position
+				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+				if (!rigidBody.freezePosition.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+				if(!rigidBody.freezePosition.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+				if (!rigidBody.freezePosition.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+				//handle freeze rotation
+				if (!rigidBody.freezeRotation.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::RotationX;
+				if (!rigidBody.freezeRotation.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::RotationY;
+				if (!rigidBody.freezeRotation.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+				mp->SetMassProperties(allowedDofs, massProps);
+				//mp->ScaleToMass(rigidBody.mass);
 				mp->SetLinearDamping(rigidBody.linearDamping);
 				mp->SetAngularDamping(rigidBody.angularDamping);
+
 			}
 
 		}
@@ -404,7 +429,31 @@ namespace SliceEngine
 			JPH::Body& body = lock.GetBody();
 			JPH::MotionProperties* mp = body.GetMotionProperties();
 
-			mp->ScaleToMass(rigidBody.mass);
+			JPH::RefConst<JPH::Shape> shape = body.GetShape();
+			JPH::MassProperties massProps = shape->GetMassProperties();
+
+			massProps.ScaleToMass(rigidBody.mass);
+
+			//handle freeze position
+			JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+			if (!rigidBody.freezePosition.freezeX)
+				allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+			if (!rigidBody.freezePosition.freezeY)
+				allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+			if (!rigidBody.freezePosition.freezeZ)
+				allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+			//handle freeze rotation
+			if (!rigidBody.freezeRotation.freezeX)
+				allowedDofs |= JPH::EAllowedDOFs::RotationX;
+			if (!rigidBody.freezeRotation.freezeY)
+				allowedDofs |= JPH::EAllowedDOFs::RotationY;
+			if (!rigidBody.freezeRotation.freezeZ)
+				allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+			mp->SetMassProperties(allowedDofs, massProps);
+			//mp->ScaleToMass(rigidBody.mass);
 			mp->SetLinearDamping(rigidBody.linearDamping);
 			mp->SetAngularDamping(rigidBody.angularDamping);
 		}
