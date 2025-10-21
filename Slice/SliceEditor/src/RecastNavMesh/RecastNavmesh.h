@@ -18,7 +18,7 @@ namespace SliceEditor
 		RecastNavMesh();
 		~RecastNavMesh();
 
-        bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model);
+        bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform);
         dtNavMeshQuery *GetNavMeshQuery() { return navQuery; }
         dtNavMesh *GetNavMesh() { return navMesh; }
         void Clear();
