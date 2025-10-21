@@ -52,16 +52,15 @@ namespace SliceEngine
 		void ApplyCollision(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyBurst(ParticleSystem& ps, float dt);
 
-		// Tests
-		
+	// Tests
+	public:
+
 		// Init Test
 		void Test1();
-
+		
 		// Update Test
-		void Test2();		
-
-	public:
-		void RunTests();
+		void Test2Init();
+		void Test2Update();
 	};
 }
 

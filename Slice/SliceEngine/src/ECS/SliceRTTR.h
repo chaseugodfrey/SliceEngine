@@ -187,6 +187,7 @@ namespace SliceEngine
 		.property("hasGravity", &ParticleSystem::hasGravity)
 		.property("gForce", &ParticleSystem::gForce)
 		.property("hasCollision", &ParticleSystem::hasCollision)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
 		.property("maxParticles", &ParticleSystem::maxParticles)
 		.property("oldestIndex", &ParticleSystem::oldestIndex)
 		.property("particles", &ParticleSystem::particles)

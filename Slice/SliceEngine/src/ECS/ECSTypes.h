@@ -189,7 +189,7 @@ namespace SliceEngine
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever
 
-		float emissionRate{ 5.f };              // particles/sec
+		float emissionRate{ 0.0f };              // particles/sec
 
 		float coneAngle{};
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread
@@ -230,7 +230,7 @@ namespace SliceEngine
 
 		bool fadeOverLifetime{ false };
 		bool hasCollision{ false };
-
+		bool destroyOnExpire{ true };
 		uint64_t maxParticles{ 200 };            // pool size. default 200
 
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
@@ -260,6 +260,8 @@ namespace SliceEngine
 		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
+		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
+		bool isActive{ true };
 		float systemTimer{};					// system’s overall lifetime
 
 		float emissionAccumulator{};

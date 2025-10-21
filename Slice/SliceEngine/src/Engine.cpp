@@ -171,7 +171,7 @@ namespace SliceEngine
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
 		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
-		//Core::GetInstance()->GetSystem<ParticleSystemManager>().RunTests();
+		//Core::GetInstance()->GetSystem<ParticleSystemManager>().Test2Init();
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
@@ -220,7 +220,6 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-
 		frm.StartSystem("Input");
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
@@ -261,8 +260,14 @@ namespace SliceEngine
 		sRender->Render();
 		frm.EndSystem("Graphics");
 
+		frm.StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
+		frm.EndSystem("Particle System");
+
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
+
+		//Core::GetInstance()->GetSystem<ParticleSystemManager>().Test2Update();
 	}
 
 	void Engine::EndFrame()

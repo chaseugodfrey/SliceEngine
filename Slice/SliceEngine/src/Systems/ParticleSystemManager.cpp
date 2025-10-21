@@ -30,6 +30,18 @@ namespace SliceEngine
 	void ParticleSystemManager::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto& ps = reg.get<ParticleSystem>(entity);
+		if (ps.expired || (!ps.isActive))
+		{
+			if (ps.destroyOnExpire)
+			{
+				FactoryInstance.Destroy(entity);
+			}
+			else 
+			{
+				ps.isActive = false;
+			}
+			return;
+		}
 		UpdateSystem(ps,dt);
 	}
 	void ParticleSystemManager::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -84,10 +96,12 @@ namespace SliceEngine
 			ApplyBurst(ps, dt);
 		}
 
+		bool isAnyParticleActive = false;
 		for (Particle& p : ps.particles)
 		{
 			if (p.active)
 			{
+				isAnyParticleActive = true;
 				ApplyVeloctiy(p, ps, dt);
 
 				if (ps.hasGravity)
@@ -100,6 +114,10 @@ namespace SliceEngine
 					ApplyCollision(p, ps, dt);
 				}
 			}
+		}
+		if (!isAnyParticleActive && ps.systemEnding)
+		{
+			ps.expired = true;
 		}
 	}
 	void ParticleSystemManager::ExitSystem(ParticleSystem& ps)
@@ -278,31 +296,63 @@ namespace SliceEngine
 		auto& factory = FactoryInstance;
 		GameObject roy = factory.CreateGO("ParticleSystemTest");
 
-		SLICE_LOG("Adding Particle System Component");
+		SLICE_LOG("Adding Particle System Component...");
 		roy.AddComponent<ParticleSystem>();
 
 		json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
 		SLICE_LOG(output.dump(4));
 
-		SLICE_LOG("Deleting Test 1's gameobject");
+		SLICE_LOG("Deleting Test 1's gameobject...");
 		factory.Destroy(roy);
 
 		SLICE_LOG("Test 1 Ended.");
 	}
 
-	void ParticleSystemManager::Test2()
+	void ParticleSystemManager::Test2Init()
 	{
+		SLICE_LOG("Test 2 Beginning...");
 
+		auto& factory = FactoryInstance;
+		factory.CreateGO("ParticleSystemTest");
+		GameObject roy = factory.GetGOByName("ParticleSystemTest");
+
+		SLICE_LOG("Adding Particle System Component...");
+		roy.AddComponent<ParticleSystem>();
+
+		SLICE_LOG("Modifying base values for simulation...");
+		auto& ps = roy.GetComponent<ParticleSystem>();
+		ps.duration = 1.0f;
+		ps.velocity = glm::vec3(1.0f, 1.0f, 0.0f);
+		ps.emissionRate = 5.0f;
+		ps.lifetime = 2.0f;
+		ps.destroyOnExpire = true;
 	}
-	
-	void ParticleSystemManager::RunTests()
+
+	void ParticleSystemManager::Test2Update()
 	{
-		SLICE_LOG("Running Tests...");
+		GameObject roy = FactoryInstance.GetGOByName("ParticleSystemTest");
+		auto& ps = roy.GetComponent<ParticleSystem>();
 
-		Test1();
-		Test2();
+		static bool checkpoint1 = false;
+		if (ps.systemTimer >= 1.0f && !checkpoint1)
+		{
+			checkpoint1 = true;
+			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
+			SLICE_LOG("1 second mark log:");
+			SLICE_LOG(output.dump(4));
+		}
 
-		SLICE_LOG("Tests Ended.");
+		static bool checkpoint2 = false;
+		if (ps.systemTimer >= 2.0f && !checkpoint2)
+		{
+			checkpoint2 = true;
+			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
+			SLICE_LOG("2 second mark log:");
+			SLICE_LOG(output.dump(4));
+			SLICE_LOG("Test 2 Ended.");
+		}
+
+		
 	}
 #pragma endregion
 }
