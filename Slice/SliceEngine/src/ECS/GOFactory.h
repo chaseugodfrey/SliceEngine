@@ -15,6 +15,8 @@ DigiPen Institute of Technology is prohibited.
 #include <entt.hpp>
 #include <rttr/variant.h>
 
+#include "Resource/Resource.h"
+
 namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
@@ -174,6 +176,7 @@ namespace SliceEngine
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();
 		GameObject CreateGO_Cam();
+		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 
 		Registry mRegistry;
 
@@ -184,6 +187,7 @@ namespace SliceEngine
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
+		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
