@@ -178,8 +178,17 @@ namespace SliceEngine
 
 			if (!handled)
 			{
-				// fallback: convert to string
-				output[name][typeName][propName] = propVal.to_string();
+				rttr::type propType = propVal.get_type();
+				if (propType.is_enumeration())
+				{
+					// this line looks kinda cancer ngl
+					output[name][typeName][propName] = propType.get_enumeration().value_to_name(propVal).to_string();
+				}
+				else
+				{
+					// fallback: convert to string
+					output[name][typeName][propName] = propVal.to_string();
+				}
 			}
 		}
 #pragma endregion
@@ -282,16 +291,33 @@ namespace SliceEngine
 
 			if (!handled)
 			{
-				std::ostringstream oss;
-				oss << "[DeserializeProp] Unhandled property type during deserialization\n"
-					<< " Component: " << componentInstance.get_type().get_name().to_string() << "\n"
-					<< " Property:  " << prop.get_name().to_string() << "\n"
-					<< " Expected Type: " << prop.get_type().get_name().to_string() << "\n"
-					<< " JSON Value: " << value.dump() << "\n"
-					<< "Fallback to string deserialization.";
+				rttr::type propType = prop.get_type();
+				// for enumerations
+				if (propType.is_enumeration())
+				{
+					auto enumStr = value.get<std::string>();
+					// this line looks a bit less cancer
+					rttr::variant enumVal = propType.get_enumeration().name_to_value(enumStr);
+					if (enumVal.is_valid())
+					{
+						prop.set_value(componentInstance, enumVal);
+					
+					}
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "[DeserializeProp] Unhandled property type during deserialization\n"
+						<< " Component: " << componentInstance.get_type().get_name().to_string() << "\n"
+						<< " Property:  " << prop.get_name().to_string() << "\n"
+						<< " Expected Type: " << prop.get_type().get_name().to_string() << "\n"
+						<< " JSON Value: " << value.dump() << "\n"
+						<< "Fallback to string deserialization.";
 
-				SLICE_LOG_ERROR(oss.str());
-				Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);
+					SLICE_LOG_ERROR(oss.str());
+					Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);
+				}
+
 			}
 		}
 

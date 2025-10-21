@@ -22,7 +22,11 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	ProfilerWindow::ProfilerWindow(ProfilerManager& man) : mManager(man)
+	ProfilerWindow::ProfilerWindow(ProfilerManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
+	{
+	}
+
+	void ProfilerWindow::Init()
 	{
 	}
 

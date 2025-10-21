@@ -99,13 +99,17 @@
 
 #include <json.hpp>
 
-// Can't include GUID.h after Core.h 
+// Engine
 #include <Resource/GUID.h>
 #include <Core/Core.h>
 #include <Core/EventManager.h>
 #include <Core/Events.h>
-#include <Core/EditorEvents.h>
-#include "EditorCommonTypes.h"
+
+// Editor
 #include <History/Commands.h>
+#include <EditorCommonTypes.h>
+#include <EditorUtilities.h>
+#include <Core/Registry.h>
+#include <Core/EditorEvents.h>
 
 #endif 

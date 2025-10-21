@@ -17,13 +17,16 @@ DigiPen Institute of Technology is prohibited.
 #include "ICreateWindow.h"
 #include "../Core/Registry.h"
 #include "Scripting/ScriptEditor.h"
-#include "../Hierachy/HierarchyManager.h"
 #include <Input/InputSystem.h>
 #include <Scripting/ScriptSystem.h>
 #include <Core/ComponentEventHandler.h>
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
+#include <Hierachy/HierarchyWindow.h>
+#include <Inspector/InspectorWindow.h>
+#include <SceneView/SceneViewWindow.h>
+#include <GameView/GameViewWindow.h>
 
 namespace SliceEditor
 {
@@ -45,12 +48,13 @@ namespace SliceEditor
 
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
+
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
-		AddWindow("SceneView");
-		AddWindow("Hierarchy");
-		AddWindow("Inspector");
-		AddWindow("GameView");
+		AddWindow<SceneViewWindow>();
+		AddWindow<GameViewWindow>();
+		AddWindow<HierarchyWindow>();
+		AddWindow<InspectorWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -83,8 +87,6 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
-
-
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -189,8 +191,6 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Box"))
 				{
 					auto go = factory.CreateGO_Box();
-					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
-
 				}
 
 				ImGui::EndMenu();
@@ -199,7 +199,6 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Camera"))
 			{
 				auto go = factory.CreateGO_Cam();
-				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
 			ImGui::EndMenu();
