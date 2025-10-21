@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace {
 	//some consts to help typing
-	constexpr uint16_t version_number = 1;	//i think having a vers number could be useful, maybe
+	constexpr uint16_t version_number = 2;	//i think having a vers number could be useful, maybe
 	constexpr uint64_t i_size = sizeof(unsigned int);
 	constexpr uint64_t f_size = sizeof(float);
 }
@@ -82,7 +82,7 @@ namespace SliceEngine
 			return true;
 		}
 
-
+		/*
 		void Model::combine_setup_meshes(std::vector<Mesh> const& meshes) {
 			//the absolute simplest way, is to simply add up all the vertices and indices together
 			//most likely do this for now since this is just a temporary soln anyways
@@ -106,8 +106,7 @@ namespace SliceEngine
 				final_vertices.insert(final_vertices.end(), m.vertices.begin(), m.vertices.end());
 				idx_offset = static_cast<int>(final_vertices.size());
 			}
-			final_ind = final_indices;
-			final_vert = final_vertices;
+
 			//finally, setup the vbo, vao, ebo
 			drawCnt = static_cast<int>(final_indices.size());
 			drawMode = GL_TRIANGLES;
@@ -141,7 +140,8 @@ namespace SliceEngine
 
 			glBindVertexArray(0);
 		}
-
+		*/
+		
 		void Model::unpack_data(char* const buffer, uint64_t& offset) {
 			uint32_t dest{};
 			//name
@@ -150,14 +150,14 @@ namespace SliceEngine
 			memcpy(name.data(), buffer + offset, dest); offset += dest;
 			//meshes
 			memcpy(&dest, buffer + offset, i_size); offset += i_size;
-			std::vector<Mesh> meshes;
 			meshes.resize(dest);
 			for (auto& m : meshes) {
 				m.unpack_data(buffer, offset);
+				m.setup_mesh();
 			}
 
-			//Combine meshes into 1 vao, vbo, and ebo, because for now we dont split the objs into multiple meshes
-			combine_setup_meshes(meshes);
+			//node hierachy
+			rootNode.unpack_data(buffer, offset);
 		}
 		void Mesh::unpack_data(char* const buffer, uint64_t& offset) {
 			uint32_t dest{};
@@ -167,8 +167,8 @@ namespace SliceEngine
 			name.resize(dest);
 			memcpy(name.data(), buffer + offset, dest); offset += dest;
 
-			uint32_t vert_size{}, idx_size{}, tex_size{};
-			uint32_t num_vert{}, num_idx{}, num_tex{};
+			uint32_t vert_size{}, idx_size{};//, tex_size{};
+			uint32_t num_vert{}, num_idx{};//, num_tex{};
 
 			//buffer details
 			memcpy(&vert_size, buffer + offset, i_size); offset += i_size;
@@ -177,27 +177,46 @@ namespace SliceEngine
 			memcpy(&idx_size, buffer + offset, i_size); offset += i_size;
 			memcpy(&num_idx, buffer + offset, i_size); offset += i_size;
 
-			memcpy(&tex_size, buffer + offset, i_size); offset += i_size;
-			memcpy(&num_tex, buffer + offset, i_size); offset += i_size;
-
 			//buffer
 			uint64_t vert_buffer_size = vert_size * num_vert;
 			uint64_t idx_buffer_size = idx_size * num_idx;
-			uint64_t tex_buffer_size = tex_size * num_tex;
 
 			vertices.resize(num_vert);
 			indices.resize(num_idx);
-			textures.resize(num_tex);
 			memcpy(vertices.data(), buffer + offset, vert_buffer_size); offset += vert_buffer_size;
 			memcpy(indices.data(), buffer + offset, idx_buffer_size); offset += idx_buffer_size;
-			memcpy(textures.data(), buffer + offset, tex_buffer_size); offset += tex_buffer_size;
-			memcpy(glm::value_ptr(transform), buffer + offset, sizeof(glm::mat4x4)); offset += sizeof(glm::mat4x4);
+		}
+
+		void ModelNode::unpack_data(char* const buffer, uint64_t& offset) {
+			uint32_t dest{};
+			//name
+			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			name.resize(dest);
+			memcpy(name.data(), buffer + offset, dest); offset += dest;
+			//mesh refs
+			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			mesh_ref.resize(dest);
+			dest *= sizeof(unsigned short);
+			memcpy(mesh_ref.data(), buffer + offset, dest); offset += dest;
+
+			//transform
+			memcpy(glm::value_ptr(position), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+			memcpy(glm::value_ptr(rotation), buffer + offset, sizeof(glm::quat)); offset += sizeof(glm::quat);
+			memcpy(glm::value_ptr(scale), buffer + offset, sizeof(glm::vec3)); offset += sizeof(glm::vec3);
+
+			//children
+			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			children.resize(dest);
+			for (auto& child : children) {
+				child.unpack_data(buffer, offset);
+			}
 		}
 
 		void Model::LoadDefaultCubeModel()
 		{
-			Mesh mesh;
-			auto& vertices = mesh.vertices;
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
 			vertices.reserve(24);
 			//----------bot
 			//left-bot-back     0-2
@@ -241,7 +260,7 @@ namespace SliceEngine
 			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,1.f,0.f},{1.f,1.f} });
 			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,0.f,1.f},{1.f,0.f} });
 
-			auto& indices = mesh.indices;
+			auto& indices = mesh.indices;	indices.clear();
 			indices.reserve(36);
 			/*
 				front, left, right, top, bot, back
@@ -270,57 +289,112 @@ namespace SliceEngine
 			indices.emplace_back(17); indices.emplace_back(5); indices.emplace_back(2);
 			indices.emplace_back(2); indices.emplace_back(14); indices.emplace_back(17);
 
-			drawCnt = static_cast<int>(indices.size());
-			drawMode = GL_TRIANGLES;
+			mesh.setup_mesh();
 
-			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
 
-			glCreateBuffers(1, &ebo);
-			glNamedBufferStorage(ebo, indices.size() * sizeof(unsigned int), indices.data(), 0);
-
-			glCreateVertexArrays(1, &vao);
-			glEnableVertexArrayAttrib(vao, 0);
-			glEnableVertexArrayAttrib(vao, 1);
-			glEnableVertexArrayAttrib(vao, 2);
-			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
-			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
-			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
-			//i learned recently
-			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
-
-			glVertexArrayAttribBinding(vao, 0, 0);
-			glVertexArrayAttribBinding(vao, 1, 0);
-			glVertexArrayAttribBinding(vao, 2, 0);
-			
-			glVertexArrayElementBuffer(vao, ebo);
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
 			return;
 		}
 
 		void Model::LoadDefaultQuadModel()
 		{
-			Mesh mesh;
-			auto& vertices = mesh.vertices;
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
 			vertices.reserve(4);
 			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}});
 			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}});
 			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}});
 			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}});
 
-			auto& indices = mesh.indices;
+			auto& indices = mesh.indices;	indices.clear();
 			indices.reserve(6);
 			indices.emplace_back(0); indices.emplace_back(1); indices.emplace_back(2);
 			indices.emplace_back(2); indices.emplace_back(1); indices.emplace_back(3);
 
-			drawCnt = static_cast<int>(indices.size());
-			drawMode = GL_TRIANGLES;
+			mesh.setup_mesh();
 
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			return;
+		}
+
+		void Model::LoadDefaultLineModel()
+		{
+			meshes.resize(1);
+			auto& m = meshes[0];
+			m.drawMode = GL_LINES;
+			m.drawCnt = 2;
+			vtx.reserve(m.drawCnt);
+			vtx.emplace_back(-0.5, 0.0, 0.0);
+			vtx.emplace_back(0.5, 0.0, 0.0);
+
+			glCreateBuffers(1, &m.vbo);
+			glNamedBufferStorage(m.vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
+			glCreateVertexArrays(1, &m.vao);
+			// layout=0
+			glEnableVertexArrayAttrib(m.vao, 0);
+			glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, sizeof(glm::vec3));
+			glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(m.vao, 0, 0);
+
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			return;
+		}
+
+		void Model::LoadDefaultFrustrumModel()
+		{
+			meshes.resize(1);
+			auto& m = meshes[0];
+			m.drawMode = GL_LINE_LOOP;
+			m.drawCnt = 16;
+			vtx.resize(m.drawCnt);
+
+			glCreateBuffers(1, &m.vbo);
+			glNamedBufferStorage(m.vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
+			glCreateVertexArrays(1, &m.vao);
+			// layout=0
+			glEnableVertexArrayAttrib(m.vao, 0);
+			glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, sizeof(glm::vec3));
+			glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(m.vao, 0, 0);
+			
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			
+			return;
+		}
+
+		void Model::DestroyModel() {
+			for (auto& m : meshes) {
+				if (m.ebo != 0) {
+					glDeleteBuffers(1, &m.ebo);
+				}
+				glDeleteBuffers(1, &m.vbo);
+				glDeleteVertexArrays(1, &m.vao);
+			}
+		}
+
+		void Mesh::setup_mesh() {
+			//vbo
 			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_STORAGE_BIT);
+			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), 0);
 
+			//ebo
 			glCreateBuffers(1, &ebo);
 			glNamedBufferStorage(ebo, indices.size() * sizeof(unsigned int), indices.data(), 0);
 
+			//vao
 			glCreateVertexArrays(1, &vao);
 			glEnableVertexArrayAttrib(vao, 0);
 			glEnableVertexArrayAttrib(vao, 1);
@@ -328,69 +402,17 @@ namespace SliceEngine
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
-			//i learned recently
+			glVertexArrayElementBuffer(vao, ebo);
+
+			//Today i learned u can just do this
 			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
 
 			glVertexArrayAttribBinding(vao, 0, 0);
 			glVertexArrayAttribBinding(vao, 1, 0);
 			glVertexArrayAttribBinding(vao, 2, 0);
 
-			glVertexArrayElementBuffer(vao, ebo);
-			return;
-		}
-
-		void Model::LoadDefaultLineModel()
-		{
-			drawMode = GL_LINES;
-			drawCnt = 2;
-			vtx.reserve(drawCnt);
-			vtx.emplace_back(-0.5, 0.0, 0.0);
-			vtx.emplace_back(0.5, 0.0, 0.0);
-
-			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
-			glCreateVertexArrays(1, &vao);
-			// layout=0
-			glEnableVertexArrayAttrib(vao, 0);
-			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(glm::vec3));
-			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(vao, 0, 0);
-			return;
-		}
-
-		void Model::LoadDefaultFrustrumModel()
-		{
-			drawMode = GL_LINE_LOOP;
-			drawCnt = 16;
-			vtx.resize(drawCnt);
-
-			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
-			glCreateVertexArrays(1, &vao);
-			// layout=0
-			glEnableVertexArrayAttrib(vao, 0);
-			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(glm::vec3));
-			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(vao, 0, 0);
-			return;
-		}
-
-
-		void Model::DestroyModel() {
-			if (ebo != 0)
-				glDeleteBuffers(1, &ebo);
-			glDeleteBuffers(1, &vbo);
-			glDeleteVertexArrays(1, &vao);
-		}
-
-
-		const std::vector<Vertex>& Model::GetFinalVert() const
-		{
-			return final_vert;
-		}
-		const std::vector<unsigned int>& Model::GetFinalInd() const
-		{
-			return final_ind;
+			drawCnt = indices.size();
+			drawMode = GL_TRIANGLES;
 		}
 	}
 }
