@@ -296,6 +296,61 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
+		{
+			//if we add sphereData
+			const JPH::CapsuleShape* capsuleShape = static_cast<const JPH::CapsuleShape*>(colliderShape.shape.GetPtr());
+			float capsuleRadius = capsuleShape->GetRadius();
+			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
+
+			auto& capsuleData = std::get < ColliderShape::CapsuleData > (colliderShape.shapeData);
+			float tempScaleX = capsuleData.radius * fabs(transform.scale.x);
+			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
+			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
+
+			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
+			{
+				return;
+			}
+
+			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+
+			JPH::CapsuleShapeSettings settings(tempScaleHeight,capsuleData.radius * fabs(biggestScaleRad));
+			auto result = settings.Create();
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to rebuild scaled Capsule: " + std::string(result.GetError()));
+				return;
+			}
+
+			colliderShape.shape = result.Get();
+			// Replace shape on body if it already exists
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+
+				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+				if (mRegistry->any_of<RigidBody>(event.entity))
+				{
+					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					if (!rb.isKinematic)
+					{
+						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+						if (lock.Succeeded())
+						{
+							JPH::Body& body = lock.GetBody();
+							if (auto* mp = body.GetMotionProperties())
+							{
+								mp->ScaleToMass(rb.mass);
+								mp->SetLinearDamping(rb.linearDamping);
+								mp->SetAngularDamping(rb.angularDamping);
+							}
+						}
+					}
+				}
+			}
+
+		}
 
 
 		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
@@ -468,6 +523,61 @@ namespace SliceEngine
 					}
 				}
 			}
+		}
+		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
+		{
+			//if we add sphereData
+			const JPH::CapsuleShape* capsuleShape = static_cast<const JPH::CapsuleShape*>(colliderShape.shape.GetPtr());
+			float capsuleRadius = capsuleShape->GetRadius();
+			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
+
+			auto& capsuleData = std::get < ColliderShape::CapsuleData >(colliderShape.shapeData);
+			float tempScaleX = capsuleData.radius * fabs(transform.scale.x);
+			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
+			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
+
+			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
+			{
+				return;
+			}
+
+			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+
+			JPH::CapsuleShapeSettings settings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
+			auto result = settings.Create();
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to rebuild scaled Capsule: " + std::string(result.GetError()));
+				return;
+			}
+
+			colliderShape.shape = result.Get();
+			// Replace shape on body if it already exists
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+
+				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+				if (mRegistry->any_of<RigidBody>(entity))
+				{
+					auto& rb = mRegistry->get<RigidBody>(entity);
+					if (!rb.isKinematic)
+					{
+						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+						if (lock.Succeeded())
+						{
+							JPH::Body& body = lock.GetBody();
+							if (auto* mp = body.GetMotionProperties())
+							{
+								mp->ScaleToMass(rb.mass);
+								mp->SetLinearDamping(rb.linearDamping);
+								mp->SetAngularDamping(rb.angularDamping);
+							}
+						}
+					}
+				}
+			}
+
 		}
 
 	}
