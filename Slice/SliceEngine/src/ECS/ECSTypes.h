@@ -107,6 +107,7 @@ namespace SliceEngine
 		// May need to change if rendering pipeline is diff
 		GUID model;
 		GUID texture;
+		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
 		RTTR_ENABLE();

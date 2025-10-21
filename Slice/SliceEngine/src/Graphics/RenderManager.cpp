@@ -282,12 +282,12 @@ namespace SliceEngine
 				frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
 
 				// Frustrum Rendering
-				glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
+				glNamedBufferSubData(frustrum.meshes[0].vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
 
 				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
 
-				glBindVertexArray(frustrum.vao);
-				glDrawArraysInstanced(frustrum.drawMode, 0, frustrum.drawCnt, 1);
+				glBindVertexArray(frustrum.meshes[0].vao);
+				glDrawArraysInstanced(frustrum.meshes[0].drawMode, 0, frustrum.meshes[0].drawCnt, 1);
 			}
 		}
 		
@@ -298,7 +298,8 @@ namespace SliceEngine
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
 
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 			glBindVertexArray(mdl.vao);
 
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
@@ -325,7 +326,8 @@ namespace SliceEngine
 			mCurrShader = mDebugLineShader;
 			glUseProgram(mCurrShader.get()->s);
 			UpdateCamGPU(cam);
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::LINE_DEFAULT).get();
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::LINE_DEFAULT).get();
+			auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 			
 			GLint uniformLoc;
 			if(UniformExists("uPosOffset", uniformLoc))
@@ -356,10 +358,11 @@ namespace SliceEngine
 		glBindTextureUnit(2, mColAttachment[2]);
 
 
-		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-		glBindVertexArray(mdl.get()->vao);
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+		glBindVertexArray(mdl.vao);
 		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-		glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
 		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)1001);
 		//glBindVertexArray(mdl.get()->vao);
@@ -521,7 +524,9 @@ namespace SliceEngine
 	void RenderManager::LinkTransformInstancing(GUID guid)
 	{
 		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
+		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+
 		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 
 		// Link drawing models with instancing vbo
@@ -541,7 +546,8 @@ namespace SliceEngine
 	void RenderManager::LinkDebugLineInstancing()
 	{
 		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::LINE_DEFAULT).get();
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::LINE_DEFAULT).get();
+		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 
 		glBindVertexArray(mdl.vao);
 		int idx = 15;

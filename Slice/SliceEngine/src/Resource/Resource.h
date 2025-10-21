@@ -10,7 +10,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef RESOURCE_H
 #define RESOURCE_H
-//#include "ResourceManager.h"
+#include "ResourceManager.h"
 #include <cstdint>
 #include <string_view>
 
@@ -20,6 +20,7 @@ namespace SliceEngine
 	{
 		class Texture;
 		class Model;
+		struct ModelNode;	//used to represent scene graph
 		class Shader;
 		//class Sound;
 		class Scene;
