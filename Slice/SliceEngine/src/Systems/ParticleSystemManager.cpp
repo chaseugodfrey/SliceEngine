@@ -12,11 +12,16 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <random>
 #include "Systems/ParticleSystemManager.h"
+#include "../Serializer/JSONSerializer.h"
+#include <Core/Core.h>
 
 namespace SliceEngine
 {
 #pragma region Manager Stuff
-	void ParticleSystemManager::EntityOnInit(entt::registry& reg, entt::entity entity)
+	std::random_device ParticleSystemManager::rd{};
+	std::mt19937 ParticleSystemManager::gen{ rd() };
+
+	void ParticleSystemManager::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& ps = reg.get<ParticleSystem>(entity);
 		ps.parentTransform = mRegistry->try_get<Transform>(entity);		
@@ -42,7 +47,7 @@ namespace SliceEngine
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
 
-		gen.seed(ps.rd());
+		gen.seed(rd());
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
@@ -264,7 +269,40 @@ namespace SliceEngine
 			}
 		}
 	}
+#pragma endregion
 
+#pragma region Tests	
+	void ParticleSystemManager::Test1()
+	{
+		SLICE_LOG("Test 1 Beginning...");
+		auto& factory = FactoryInstance;
+		GameObject roy = factory.CreateGO("ParticleSystemTest");
 
+		SLICE_LOG("Adding Particle System Component");
+		roy.AddComponent<ParticleSystem>();
+
+		json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
+		SLICE_LOG(output.dump(4));
+
+		SLICE_LOG("Deleting Test 1's gameobject");
+		factory.Destroy(roy);
+
+		SLICE_LOG("Test 1 Ended.");
+	}
+
+	void ParticleSystemManager::Test2()
+	{
+
+	}
+	
+	void ParticleSystemManager::RunTests()
+	{
+		SLICE_LOG("Running Tests...");
+
+		Test1();
+		Test2();
+
+		SLICE_LOG("Tests Ended.");
+	}
 #pragma endregion
 }

@@ -142,7 +142,7 @@ namespace SliceEngine
 		.constructor<uint64_t>()
 		.property_readonly("Value", &GUID::GetGUID);
 
-	rttr::registration::class_<Particle>("Particle")
+	rttr::registration::class_<Particle>(typeid(Particle).name())
 		.constructor<>()
 		.property("active", &Particle::active)
 		.property("age", &Particle::age)
@@ -152,7 +152,7 @@ namespace SliceEngine
 		.property("velocity", &Particle::velocity)
 		.property("colour", &Particle::colour);
 
-	rttr::registration::class_<ParticleSystem>("ParticleSystem")
+	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		// System settings
 		.property("duration", &ParticleSystem::duration)
@@ -195,7 +195,7 @@ namespace SliceEngine
 		.property("numBursts", &ParticleSystem::numBursts)
 		.property("bursts", &ParticleSystem::bursts);
 
-	rttr::registration::class_<ParticleSystem::Burst>("Burst")
+	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
 		.property("numParticles", &ParticleSystem::Burst::numParticles)
 		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)

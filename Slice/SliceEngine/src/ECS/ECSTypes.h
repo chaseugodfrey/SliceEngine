@@ -184,7 +184,7 @@ namespace SliceEngine
 	};
 	struct ParticleSystem
 	{
-		Transform* parentTransform;
+		Transform* parentTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever
@@ -237,7 +237,7 @@ namespace SliceEngine
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
 
 		// Main Particle Storage Poooool
-		std::vector<Particle> particles;
+		std::vector<Particle> particles{};
 
 		// Bursts		
 		struct Burst
@@ -255,7 +255,7 @@ namespace SliceEngine
 		bool hasBursts{ false };
 		uint64_t numBursts{};		
 
-		std::vector<Burst> bursts;
+		std::vector<Burst> bursts{};
 
 		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
 
@@ -263,7 +263,6 @@ namespace SliceEngine
 		float systemTimer{};					// system’s overall lifetime
 
 		float emissionAccumulator{};
-		std::random_device rd;
 	};
 }
 

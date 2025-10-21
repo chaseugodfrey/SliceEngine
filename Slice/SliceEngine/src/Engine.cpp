@@ -34,6 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/ParticleSystemManager.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -107,6 +108,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
@@ -169,6 +171,7 @@ namespace SliceEngine
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
 		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
+		//Core::GetInstance()->GetSystem<ParticleSystemManager>().RunTests();
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();

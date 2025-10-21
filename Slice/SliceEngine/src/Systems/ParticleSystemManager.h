@@ -18,14 +18,17 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine 
 {
-	struct ParticleSystemManager : BaseSystem<ParticleSystem>
+	struct particleSystemEntity {};
+
+	struct ParticleSystemManager : BaseSystem<particleSystemEntity, ParticleSystem>
 	{
 		static std::mt19937 gen;
+		static std::random_device rd;
 
 		//Manager Layer
-		void EntityOnInit(entt::registry& reg, entt::entity entity);
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt);
-		void EntityOnExit(entt::registry& reg, entt::entity entity);
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
+		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
 	private:
 		// System Layer
@@ -48,6 +51,17 @@ namespace SliceEngine
 		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyCollision(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyBurst(ParticleSystem& ps, float dt);
+
+		// Tests
+		
+		// Init Test
+		void Test1();
+
+		// Update Test
+		void Test2();		
+
+	public:
+		void RunTests();
 	};
 }
 
