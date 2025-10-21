@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ECS/ECSTypes.h"
 #include "CollisionLayer.h"
 #include "../Core/Events.h"
+#include "ContactListener.h"
 
 namespace 
 {
@@ -43,6 +44,7 @@ namespace SliceEngine
 		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
+		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
 		int collisionSteps{};
 
@@ -68,6 +70,8 @@ namespace SliceEngine
 		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
 
 		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
+
+		void HandleRemovedContacts();
 
 	public:
 

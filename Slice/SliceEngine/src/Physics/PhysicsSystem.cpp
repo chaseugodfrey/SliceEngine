@@ -75,6 +75,10 @@ namespace SliceEngine
 				*objectVsBroadphaseLayerFilter,
 				*objectLayerPairFilter);
 
+			contactListener = std::make_unique<MyContactListener>();
+
+			physicsSystem->SetContactListener(contactListener.get());
+
 			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
 			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
@@ -710,6 +714,60 @@ namespace SliceEngine
 
 	}
 
+	void PhysicsSystem::HandleRemovedContacts()
+	{
+		for (auto& bodyPair : contactListener->GetBodiesInContact())
+		{
+			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
+			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
+
+			if (lock1.Succeeded() && lock2.Succeeded())
+			{
+				const JPH::Body& body1 = lock1.GetBody();
+				const JPH::Body& body2 = lock2.GetBody();
+
+				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body1.GetUserData()));
+				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body2.GetUserData()));
+
+				auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
+				auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
+
+				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
+				{
+					OnTriggerExitEvent triggerEvent1;
+					OnTriggerExitEvent triggerEvent2;
+
+					triggerEvent1.entity = checkEntity1.GetEntity();
+					triggerEvent1.other = checkEntity2.GetEntity();
+
+					triggerEvent2.entity = checkEntity2.GetEntity();
+					triggerEvent2.other = checkEntity1.GetEntity();
+
+					EventManager::GetInstance()->Publish<OnTriggerExitEvent>(triggerEvent1);
+					EventManager::GetInstance()->Publish<OnTriggerExitEvent>(triggerEvent2);
+				}
+				else
+				{
+					OnCollisionExitEvent collisionEvent1;
+					OnCollisionExitEvent collisionEvent2;
+
+					collisionEvent1.entity = checkEntity1.GetEntity();
+					collisionEvent1.other = checkEntity2.GetEntity();
+
+					collisionEvent2.entity = checkEntity2.GetEntity();
+					collisionEvent2.other = checkEntity1.GetEntity();
+
+					EventManager::GetInstance()->Publish<OnCollisionExitEvent>(collisionEvent1);
+					EventManager::GetInstance()->Publish<OnCollisionExitEvent>(collisionEvent2);
+
+				}
+			}
+		}
+
+		contactListener->clearBodiesInContact();
+
+	}
+
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& transform = reg.get<Transform>(entity);
@@ -824,6 +882,10 @@ namespace SliceEngine
 		SyncECSToPhysics(transform, colliderShape);
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
+
+		HandleRemovedContacts();
+
+		
 	}
 
 	void PhysicsSystem::SubscribeToEvents()
