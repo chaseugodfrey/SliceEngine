@@ -22,7 +22,7 @@ namespace SliceEditor
 {
 	class Registry;
 	class SelectionManager;
-	struct TestNode;
+	struct EntityNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
@@ -33,11 +33,9 @@ namespace SliceEditor
 
 		void EntityContextPopUp(entt::entity entity);
 
-		std::unordered_set<TestNode*> set;
-		std::unordered_set<entt::entity> selected;
-		std::unordered_set<entt::entity> deselected;
-
 	public:
+
+		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 
 		HierarchyWindow(Registry& reg) : EditorWindow(reg) {};
 		~HierarchyWindow() = default;

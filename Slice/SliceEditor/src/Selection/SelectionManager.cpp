@@ -38,23 +38,26 @@ namespace SliceEditor
 		mListeners.push_back(listener);
 	}
 
-	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
+	void SelectionManager::SelectSingle(SelectionNode* node, bool suppressHistory)
 	{
-		std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
+		//std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
+		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
 
 		ClearSelection(suppressHistory);
-		mSelectedEntities.insert(entity);
+		//mSelectedEntities.insert(entity);
+		mSelectedNodes.insert(node);
+		node->isSelected = true;
 
 		if (!suppressHistory)
 		{
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, oldSelection, mSelectedEntities));
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
 		}
 
-		std::unordered_set<entt::entity> set{ entity };
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateSelected(set);
-		}
+		//std::unordered_set<entt::entity> set{ entity };
+		//for (auto& listener : mListeners)
+		//{
+		//	listener->OnUpdateSelected(set);
+		//}
 	}
 
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
@@ -93,28 +96,20 @@ namespace SliceEditor
 		}
 	}
 
-	void SelectionManager::SelectMultiple(std::unordered_set<entt::entity>& entities, bool suppressHistory)
+	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
 		std::unordered_set<entt::entity> selected{};
 		std::unordered_set<entt::entity> deselected{};
 
-		//for (auto entity : entities)
-		//{
-		//	auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-		//	if (it == std::end(mSelectedEntities))
-		//		selected.insert(entity);
-		//	else
-		//		deselected.insert(entity);
-		//}
+		if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));
 
-		mSelectedEntities = entities;
+		for (auto& node : selectedNodes)
+			node->isSelected = true;
 
-		// update all listeners
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateSelected(selected);
-			listener->OnUpdateDeselected(deselected);
-		}
+		ClearSelection(suppressHistory);
+
+		mSelectedNodes = selectedNodes;
 	}
 
 	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
@@ -129,19 +124,16 @@ namespace SliceEditor
 
 	void SelectionManager::ClearSelection(bool suppressHistory)
 	{
-		if (mSelectedEntities.empty())
+		if (mSelectedNodes.empty())
 			return;
 
 		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities, std::unordered_set<entt::entity>{}));
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
 
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateDeselected(mSelectedEntities);
-		}
+		for (auto& node : mSelectedNodes)
+			node->isSelected = false;
 
-		// to do: get managers to subscribe
-		mSelectedEntities.clear();
+		mSelectedNodes.clear();
 	}
 
 	std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()
