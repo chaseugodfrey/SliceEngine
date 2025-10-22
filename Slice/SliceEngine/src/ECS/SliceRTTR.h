@@ -54,16 +54,6 @@ namespace SliceEngine
 		.property("y", &glm::quat::y)
 		.property("z", &glm::quat::z);
 
-	rttr::registration::class_<std::vector<Particle>>("VectorParticle")
-		.constructor<>()
-		.method("size", &std::vector<Particle>::size)
-		.method("resize", static_cast<void (std::vector<Particle>::*)(size_t)>(&std::vector<Particle>::resize))
-		.method("clear", &std::vector<Particle>::clear)
-		.method("push_back", static_cast<void(std::vector<Particle>::*)(const Particle&)>(&std::vector<Particle>::push_back))
-		.method("at", static_cast<Particle& (std::vector<Particle>::*)(size_t)>(&std::vector<Particle>::at))
-		.method("operator[]", static_cast<Particle& (std::vector<Particle>::*)(size_t)>(&std::vector<Particle>::operator[]));
-
-
 	rttr::registration::class_<std::vector<uint32_t>>("VectorUInt32")
 		.constructor<>()
 		.method("size", &std::vector<uint32_t>::size)
