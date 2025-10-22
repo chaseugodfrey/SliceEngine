@@ -81,7 +81,6 @@ namespace SliceEngine
         glm::vec3 position{ 0.0f, 0.0f, 0.0f };
         glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
         glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-        glm::vec3 previousScale{ 1.0f, 1.0f, 1.0f };
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
 
@@ -162,6 +161,16 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+		struct FreezeOptions
+		{
+			bool freezeX = false;
+			bool freezeY = false;
+			bool freezeZ = false;
+		};
+
+		FreezeOptions freezePosition;
+		FreezeOptions freezeRotation;
+
 		RTTR_ENABLE();
 	};
 
@@ -170,18 +179,22 @@ namespace SliceEngine
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
-			JPH::Vec3 prevScale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
 		{
 			float radius{ 1.0f };
-			float prevRadius{ 1.0f };
+		};
+
+		struct CapsuleData
+		{
+			float radius{ 0.5f };
+			float height{ 2.0f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
 		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D

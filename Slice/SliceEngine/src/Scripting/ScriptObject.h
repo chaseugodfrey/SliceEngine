@@ -34,7 +34,9 @@ namespace SliceEngine
 		Vector2,
 		Vector3,
 		Entity,
-		String
+		String,
+		Audio,
+		Prefab
 	};
 
 	//struct
