@@ -279,7 +279,13 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region Action Mapping
 
+
+
+#pragma endregion
+
+#pragma region glm integration
     // func to convert keycode to string, for chars that are not printable, provide own fallback names
     const char* InputSystem::KeyNameFallback(int key)
     {
@@ -379,4 +385,5 @@ namespace SliceEngine
         default: return "Unknown Key";
         }
     }
+#pragma endregion
 }

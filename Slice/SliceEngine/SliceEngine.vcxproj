@@ -132,6 +132,7 @@
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
+    <ClInclude Include="src\Input\ActionMapping.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
     <ClInclude Include="src\Logger\Logger.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
+    <ClCompile Include="src\Input\ActionMapping.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
     <ClCompile Include="src\Networking\NetworkSystem.cpp" />
