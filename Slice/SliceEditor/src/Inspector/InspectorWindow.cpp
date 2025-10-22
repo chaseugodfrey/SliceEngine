@@ -260,9 +260,25 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string model_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##mesh", &model_guid_string, ImGuiInputTextFlags_ReadOnly))
+			if (ImGui::InputText("##mesh", &model_guid_string))
 			{
 				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##GUID_Payload"))
+				{
+					if (!payload->DataSize == sizeof(uint64_t))
+					{
+						SLICE_LOG_WARNING("Wrong Drop on Model");
+					}
+					else
+					{
+						SliceEngine::GUID newGUID(*(uint64_t*)payload->Data);
+						rend.model = newGUID;
+					}
+				}
 			}
 
 			ImGui::Text("Texture");

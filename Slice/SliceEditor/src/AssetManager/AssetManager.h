@@ -51,12 +51,13 @@ namespace SliceEditor
 		void CompileSceneAsset(SceneData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
+
+		std::unordered_map <std::string, uint64_t> mDescriptorMap; // Maps files to GUIDs
 	private:
 		
 		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
-		std::unordered_map <std::string, uint64_t> mDescriptorMap; // Maps files to GUIDs
 
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		std::unordered_map<AssetType, std::vector<std::string>> mAssets; 

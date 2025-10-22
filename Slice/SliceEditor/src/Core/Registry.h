@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #define EDITOR_REGISTRY_H
 
 #include "IBaseManager.h"
+#include "../AssetManager/AssetManager.h"
 
 namespace SliceEditor
 {
@@ -23,6 +24,7 @@ namespace SliceEditor
 	{
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
+		AssetManager& mAssetManager;
 
 		template <typename ManagerType>
 		void CreateManager(std::string name)
@@ -33,6 +35,14 @@ namespace SliceEditor
 		}
 
 	public:
+
+		Registry(AssetManager& ass) : mAssetManager(ass)
+		{ }
+
+		inline AssetManager& GetAssetManager()
+		{
+			return mAssetManager;
+		}
 
 		void Init();
 

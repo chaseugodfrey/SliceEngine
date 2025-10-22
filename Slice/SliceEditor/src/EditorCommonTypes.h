@@ -54,6 +54,7 @@ namespace SliceEditor
 	struct DirectoryNode
 	{
 		std::string fileName;
+		SliceEngine::GUID guid;
 		bool isDirectory = false;
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
