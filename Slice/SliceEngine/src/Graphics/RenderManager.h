@@ -49,7 +49,8 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
-		void RenderShadowMaps();
+		void RenderGeneralShadowMaps();
+		void RenderDirectionalShadowMaps(Entity cam);
 		void LightingRender(Entity cam);
 		void GammaCorrectionRender(Entity cam);
 		// Utility functions
@@ -80,21 +81,6 @@ namespace SliceEngine
 			S_DEBUG_LINE = 13567802095736790143
 		};
 
-		FBOType mCurrFBO{FB_TOTAL};
-		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
-		GLuint mIVBO{};
-		//GLuint mRBO;
-		GLuint pboIds[2]{};	// For Object Picking
-		GLuint pboIdx[2]{};
-		unsigned int mObjPickX{}, mObjPickY{};
-		bool mObjPickedThisFrame{ false };
-		Entity mCurrentCamIDHover{};
-		unsigned int mIDHovered{};
-		
-		std::optional<GameObject> mainCam;
-
-		std::pair<ShaderOpt, GLuint> mCurrShader;
-		std::vector<glm::mat4> mInstanceVtx;
 		enum GPU_OUT : unsigned char
 		{
 			GOUT_DIF = 0,
@@ -104,9 +90,6 @@ namespace SliceEngine
 			GOUT_FINAL,
 			GOUT_TOTAL
 		};
-
-		GLuint mColAttachment[GOUT_TOTAL]{};
-		glm::mat4 V, P;
 
 		enum FBOSet : unsigned char
 		{
@@ -125,13 +108,35 @@ namespace SliceEngine
 			DEFAULT,
 			SHADOW,
 			ADDITION,
-			DEBUG
+			DEBUG,
+			TOTAL
 		};
 		enum class BufferClearSetting : unsigned char
 		{
 			DEFAULT,
 			ALL
 		};
+
+		FBOType mCurrFBO{ FB_TOTAL };
+		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
+		GLuint mIVBO{};
+		//GLuint mRBO;
+		GLuint pboIds[2]{};	// For Object Picking
+		GLuint pboIdx[2]{};
+		unsigned int mObjPickX{}, mObjPickY{};
+		bool mObjPickedThisFrame{ false };
+		Entity mCurrentCamIDHover{};
+		unsigned int mIDHovered{};
+
+		std::optional<GameObject> mainCam;
+
+		std::pair<ShaderOpt, GLuint> mCurrShader;
+		std::vector<glm::mat4> mInstanceVtx;
+
+		GLuint mColAttachment[GOUT_TOTAL]{};
+		GPUSetting mCurrGPUSetting{ GPUSetting::TOTAL };
+		glm::mat4 V, P;
+
 
 		void LinkFrameBufferSettings(FBOType fbo, FBOSet setting);
 		void LoadSettings(GPUSetting setting);

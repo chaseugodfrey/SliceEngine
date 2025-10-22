@@ -22,8 +22,8 @@ uniform vec2 uCamPos;
 void main(void){
 	vPos = cIdxPos[cIndices[gl_VertexID]] * cPlaneSize;
 	
-	vPos.x += uCamPos.x;
-	vPos.z += uCamPos.y;
+	vPos.x += V[0][3];
+	vPos.z += V[1][3];
 	
 	gl_Position = P * V * vec4(vPos, 1.0);
 }

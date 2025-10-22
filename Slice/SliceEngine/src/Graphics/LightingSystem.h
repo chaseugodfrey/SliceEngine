@@ -14,7 +14,7 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		
-		const unsigned int SHADOW_DIMENSION = 1024;
+		const unsigned int SHADOW_DIMENSION = 2048;
 	private:
 	};
 }

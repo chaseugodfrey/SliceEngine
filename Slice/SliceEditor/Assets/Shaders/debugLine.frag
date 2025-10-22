@@ -11,7 +11,7 @@ const float cNumBtwnThick = 5.0;
 const vec4 cGridColorThin = vec4(0.5, 0.5, 0.5, 0.5);
 const vec4 cGridColorThick = vec4(0.0, 0.0, 0.0, 1.0);
 
-uniform vec2 uCamPos;
+uniform mat4 V; // View transform matrix
 
 void main(void){
 	vec2 dvx = vec2(dFdx(vPos.x), dFdy(vPos.x));
@@ -59,7 +59,7 @@ void main(void){
 		color.a *= Lod0a * (1.0 - LodFade);
 	}
 
-	float opacityFalloff = 1.0 - (clamp(length(vPos.xz - uCamPos.xy), 0.0, 1.0) / cPlaneSize);
+	float opacityFalloff = 1.0 - (clamp(length(vPos.xz - vec2(V[0][3], V[2][3])), 0.0, 1.0) / cPlaneSize);
 	
 	color.a *= opacityFalloff;
 

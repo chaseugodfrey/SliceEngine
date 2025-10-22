@@ -173,12 +173,16 @@ namespace SliceEngine
 		SetShader(S_SHADOW);
 		LinkFrameBufferSettings(FB_NIL, F_CLEAR);
 		LoadSettings(GPUSetting::SHADOW);
-		RenderShadowMaps();
+		RenderGeneralShadowMaps();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
 			CalculateVP(cam);
+			SetShader(S_SHADOW);
+			LinkFrameBufferSettings(FB_NIL, F_CLEAR);
+			LoadSettings(GPUSetting::SHADOW);
+			RenderDirectionalShadowMaps(cam);
 
 			SetShader(S_DEFERRED);
 			if(cam == mCurrentCamIDHover)
@@ -193,7 +197,7 @@ namespace SliceEngine
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
 
 			SetShader(S_LIGHTING);
-			LinkFrameBufferSettings(FB_FINAL, F_TEX); // Out Tex Not Linked here
+			LinkFrameBufferSettings(FB_FINAL, F_TEX);
 			LoadSettings(GPUSetting::ADDITION);
 			UpdateCamVP();
 			BindCameraDepth(cam);
@@ -215,8 +219,6 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDebug(Entity cam)
 	{
-		glEnable(GL_DEPTH_TEST);
-
 		// Draw other cameras' frustrum
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
 		{
@@ -286,6 +288,7 @@ namespace SliceEngine
 			SetShader(S_INSTANCED);
 			UpdateCamVP();
 			BindCameraDepth(cam);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
 			glBindVertexArray(mdl.vao);
@@ -300,12 +303,13 @@ namespace SliceEngine
 				if (num == mMaxInstance)
 				{
 					glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
-					glDrawArraysInstanced(mdl.drawMode, 0, mdl.drawCnt, num);
+					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 					offset += num;
 				}
 			}
 			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
-			glDrawArraysInstanced(GL_LINES, 0, mdl.drawCnt, num);
+			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
 		// Draw Debug Line
@@ -314,16 +318,11 @@ namespace SliceEngine
 			SetShader(S_DEBUG_LINE);
 			UpdateCamVP();
 			BindCameraDepth(cam);
-			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
-			
-			GLint uniformLoc;
-			if(UniformExists("uCamPos", uniformLoc))
-				glUniform2f(uniformLoc, camT.position.x, camT.position.z);
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
-	void RenderManager::RenderShadowMaps()
+	void RenderManager::RenderGeneralShadowMaps()
 	{
 		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
 		glViewport(0, 0, shadowDim, shadowDim);
@@ -332,18 +331,47 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (light.type == Light::LightType::Light_Directional) continue;
+			//auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			//
+			//glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
+			//glClear(GL_DEPTH_BUFFER_BIT);
+			//
+			//float sDim = 20.f, near = 1.f, far = 20.5f;
+			//
+			//glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, sDim);
+			//glm::mat4 V = glm::lookAt(
+			//	glm::vec3(0.f, sDim / 2.f, 0.f),
+			//	glm::vec3(0.f, 0.f, 0.f),
+			//	glm::vec3(1.f, 0.f, 0.f));
+			//P = P * V;
+			//
+			//GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+			//glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+			//
+			//Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
+		}
+	}
+	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
+	{
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		for (auto entity : view)
+		{
+			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			float sDim = 10.f, near = 1.f, far = 20.5f;
-
-			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, near, far);
+			float sDim = 40.f;
+			glm::vec3 lightPos{ camT.position.x, camT.position.y + sDim, camT.position.z };
+			glm::vec3 lightDir = glm::normalize(-transform.position);
+			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
 			glm::mat4 V = glm::lookAt(
-				transform.position,
-				glm::vec3(0.f, 0.f, 0.f),
+				lightPos,
+				lightPos + lightDir,
 				glm::vec3(1.f, 0.f, 0.f));
 			P = P * V;
 
@@ -367,33 +395,28 @@ namespace SliceEngine
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
 			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
+			glUniform3f(uniformLoc, -transform.position.x, -transform.position.y, -transform.position.z);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.color");
-			glm::vec3 col = light.color * light.intensity;
-			glUniform3f(uniformLoc, col.r, col.g, col.b);
+			glUniform4f(uniformLoc, light.color.r, light.color.g, light.color.b, light.intensity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.type");
 			glUniform1i(uniformLoc, static_cast<int>(light.type));
-			glm::mat4 M{ 1.f };
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "V");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
-			M = glm::scale(M, glm::vec3(2.f, 2.f, 2.f));
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 
-			float sDim = 10.f, near = 1.f, far = 20.5f;
-
-			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, near, far);
+			float sDim = 40.f;
+			glm::vec3 lightPos{ camT.position.x, camT.position.y + sDim, camT.position.z };
+			glm::vec3 lightDir = glm::normalize(-transform.position);
+			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
 			glm::mat4 V = glm::lookAt(
-				transform.position,
-				glm::vec3(0.f, 0.f, 0.f),
+				lightPos,
+				lightPos + lightDir,
 				glm::vec3(1.f, 0.f, 0.f));
 			P = P * V;
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
 			glBindTextureUnit(3, light.depthTex);
@@ -403,8 +426,6 @@ namespace SliceEngine
 			//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 			glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 		}
-
-		glDepthMask(GL_TRUE);
 	}
 	void RenderManager::GammaCorrectionRender(Entity cam)
 	{
@@ -420,6 +441,7 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Rendering Helpers
+	// Only need to calculate for camera once
 	void RenderManager::CalculateVP(Entity cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -431,6 +453,7 @@ namespace SliceEngine
 		V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}
+	// Updates V P uniforms
 	void RenderManager::UpdateCamVP()
 	{
 		GLint uniformLoc;
@@ -440,6 +463,7 @@ namespace SliceEngine
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
 
 	}
+	// Binds Depth Texture from camera & ViewPort size
 	void RenderManager::BindCameraDepth(Entity cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -461,6 +485,7 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Linking
+	// Binds Framebuffer and Links any internal Output textures
 	void RenderManager::LinkFrameBufferSettings(FBOType fbo, FBOSet settings)
 	{
 		if (fbo == FBOType::FB_TOTAL)
@@ -486,11 +511,39 @@ namespace SliceEngine
 			break;
 		}
 	}
+	// Does all the glEnable and Disables etc. Maybe can be more streamlined to check if certain settings are already there?
 	void RenderManager::LoadSettings(GPUSetting setting)
 	{
-		glDisable(GL_BLEND);
+		if (mCurrGPUSetting == setting)
+			return;
 
-		switch (setting)
+		switch (mCurrGPUSetting)
+		{
+		case GPUSetting::DEFAULT:
+		{
+			break;
+		}
+		case GPUSetting::SHADOW:
+		{
+			glCullFace(GL_BACK);
+			break;
+		}
+		case GPUSetting::DEBUG:
+		{
+			glEnable(GL_CULL_FACE);
+
+			glDisable(GL_BLEND);
+			break;
+		}
+		case GPUSetting::ADDITION:
+		{
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+			break;
+		}
+		}
+		mCurrGPUSetting = setting;
+		switch (mCurrGPUSetting)
 		{
 		case GPUSetting::DEFAULT:
 		{
@@ -499,8 +552,6 @@ namespace SliceEngine
 
 			glEnable(GL_DEPTH_TEST);
 			glDepthFunc(GL_LESS);
-
-			glDisable(GL_BLEND);
 			break;
 		}
 		case GPUSetting::SHADOW:
@@ -534,11 +585,11 @@ namespace SliceEngine
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
-
 			break;
 		}
 		}
 	}
+	// Changes Shader if not current
 	void RenderManager::SetShader(ShaderOpt sh)
 	{
 		if (sh != mCurrShader.first)
@@ -548,6 +599,7 @@ namespace SliceEngine
 			glUseProgram(mCurrShader.second);
 		}
 	}
+	// Honestly, Just clears all currently
 	void RenderManager::ClearBuffer(BufferClearSetting setting)
 	{
 		switch (setting)
@@ -570,6 +622,7 @@ namespace SliceEngine
 		}
 		}
 	}
+	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	void RenderManager::LinkTransformInstancing(GUID guid)
 	{
 		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";

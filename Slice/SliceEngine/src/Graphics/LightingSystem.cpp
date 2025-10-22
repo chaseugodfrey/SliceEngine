@@ -23,6 +23,8 @@ namespace SliceEngine
 		glTexParameteri(light.depthTex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(light.depthTex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(light.depthTex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.f,1.f,1.f,1.f };
+		glTexParameterfv(light.depthTex, GL_TEXTURE_BORDER_COLOR, borderColor);
 	}
 	void LightingSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
