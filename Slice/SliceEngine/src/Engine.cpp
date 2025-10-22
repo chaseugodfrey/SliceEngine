@@ -170,8 +170,6 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
-		//Core::GetInstance()->GetSystem<ParticleSystemManager>().Test2Init();
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
@@ -266,8 +264,6 @@ namespace SliceEngine
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
-
-		//Core::GetInstance()->GetSystem<ParticleSystemManager>().Test2Update();
 	}
 
 	void Engine::EndFrame()

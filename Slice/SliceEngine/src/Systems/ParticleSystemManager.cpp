@@ -87,7 +87,7 @@ namespace SliceEngine
 
 			for (uint64_t i = 0; i < particlesToSpawn; ++i)
 			{
-				ActivateParticle(ps);				
+				ActivateParticle(ps);
 			}
 		}
 
@@ -330,6 +330,13 @@ namespace SliceEngine
 
 	void ParticleSystemManager::Test2Update()
 	{
+		bool testEnded{ false };
+		
+		if (testEnded)
+		{
+			return;
+		}
+
 		GameObject roy = FactoryInstance.GetGOByName("ParticleSystemTest");
 		auto& ps = roy.GetComponent<ParticleSystem>();
 
@@ -338,8 +345,7 @@ namespace SliceEngine
 		{
 			checkpoint1 = true;
 			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
-			SLICE_LOG("1 second mark log:");
-			SLICE_LOG(output.dump(4));
+			SLICE_LOG("1 second mark");
 		}
 
 		static bool checkpoint2 = false;
@@ -347,11 +353,10 @@ namespace SliceEngine
 		{
 			checkpoint2 = true;
 			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
-			SLICE_LOG("2 second mark log:");
-			SLICE_LOG(output.dump(4));
+			SLICE_LOG("2 second mark");
 			SLICE_LOG("Test 2 Ended.");
+			testEnded = true;
 		}
-
 		
 	}
 #pragma endregion
