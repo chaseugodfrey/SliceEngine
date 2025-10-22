@@ -21,7 +21,6 @@ namespace SliceEditor
 {
 	class Registry
 	{
-
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 
 		template <typename ManagerType>
@@ -35,6 +34,7 @@ namespace SliceEditor
 	public:
 
 		void Init();
+		void Update();
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& GetManagers();
 

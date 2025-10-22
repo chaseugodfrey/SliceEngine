@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "pch.h"
 #include "SelectionManager.h"
 #include "Core/Registry.h"
+#include "Session/SessionManager.h"
 #include "History/HistoryManager.h"
 
 namespace SliceEditor
@@ -43,7 +44,7 @@ namespace SliceEditor
 		//std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
 		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
 
-		ClearSelection(suppressHistory);
+		ClearSelection(true);
 		//mSelectedEntities.insert(entity);
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
@@ -58,6 +59,13 @@ namespace SliceEditor
 		//{
 		//	listener->OnUpdateSelected(set);
 		//}
+	}
+
+	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
+	{
+		auto session = registry.GetManager<SessionManager>("Session");
+		auto& node = session->GetEntityNodes().at(entity);
+		SelectSingle(node.get(), suppressHistory);
 	}
 
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
@@ -98,18 +106,15 @@ namespace SliceEditor
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
-		std::unordered_set<entt::entity> selected{};
-		std::unordered_set<entt::entity> deselected{};
-
 		if (!suppressHistory)
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));
-
-		for (auto& node : selectedNodes)
-			node->isSelected = true;
 
 		ClearSelection(suppressHistory);
 
 		mSelectedNodes = selectedNodes;
+
+		for (auto& node : mSelectedNodes)
+			node->isSelected = true;
 	}
 
 	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
@@ -139,5 +144,9 @@ namespace SliceEditor
 	std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()
 	{
 		return mSelectedEntities;
+	}
+	std::unordered_set<SelectionNode*>& SelectionManager::GetSelectedNodes()
+	{
+		return mSelectedNodes;
 	}
 }
