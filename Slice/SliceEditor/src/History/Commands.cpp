@@ -7,12 +7,12 @@ namespace SliceEditor
 
 	void SelectEntityCommand::Undo()
 	{
-		sSelection.SelectMultiple(oldEntities);
+
 	}
 
 	void SelectEntityCommand::Redo()
 	{
-		sSelection.SelectMultiple(newEntities);
+
 	}
 	
 	void CreateEntityCommand::Redo()
@@ -63,5 +63,15 @@ namespace SliceEditor
 	void RemoveComponentCommand::Undo()
 	{
 		//go.AddComponent<ComponentType>(oldValue);
+	}
+
+	void SelectNodeCommand::Redo()
+	{
+		sSelection.SelectMultiple(newNodes, true);
+	}
+
+	void SelectNodeCommand::Undo()
+	{
+		sSelection.SelectMultiple(oldNodes, true);
 	}
 }

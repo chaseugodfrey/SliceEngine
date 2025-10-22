@@ -388,7 +388,7 @@ namespace SliceEditor
 
 						else
 						{
-							mSelection->SelectSingle(selectedEntity);
+							//mSelection->SelectSingle(selected_entity);
 						}
 					}
 				}

@@ -26,13 +26,14 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
+		auto node = mEntityNodes[entity].get();
+
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
-		bool isSelected = mSelection.GetSelectedEntities().find(entity) != mSelection.GetSelectedEntities().end();
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (isSelected)
+		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
@@ -85,7 +86,7 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (isSelected)
+				if (node->isSelected)
 				{
 
 				}
@@ -98,7 +99,7 @@ namespace SliceEditor
 
 			else
 			{
-				mSelection.SelectSingle(entity);
+				mSelection.SelectSingle(node);
 			}
 		}
 
@@ -142,6 +143,16 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNodeGraph()
 	{
+		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
+		if (view.size() != mEntityNodes.size())
+		{
+			mEntityNodes.clear();
+			for (auto entity : view)
+			{
+				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
+			}
+		}
+
 		ImGui::BeginGroup();
 		DrawSceneNode();
 		ImGui::EndGroup();

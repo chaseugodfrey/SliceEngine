@@ -51,7 +51,28 @@ namespace SliceEditor
 		ID_MAX
 	};
 
-	struct DirectoryNode
+	struct SelectionNode
+	{
+		enum class SelectionType
+		{
+			ENTITY,
+			FILE
+		} type;
+		bool isSelected;
+	};
+
+	struct EntityNode : SelectionNode
+	{
+		//std::string name;
+		entt::entity entity = entt::null;
+		EntityNode(entt::entity ent) : entity(ent)
+		{
+			type = SelectionType::ENTITY;
+			isSelected = false;
+		}
+	};
+
+	struct DirectoryNode : SelectionNode
 	{
 		std::string fileName;
 		SliceEngine::GUID guid;
@@ -59,6 +80,13 @@ namespace SliceEditor
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
+
+		DirectoryNode()
+		{
+			type = SelectionType::FILE;
+			isSelected = false;	
+		}
+
 	};
 }
 
