@@ -10,7 +10,7 @@ namespace SliceEngine
 	class MyContactListener : public JPH::ContactListener
 	{
 
-		virtual JPH::ValidateResult	OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult) override;
+		//virtual JPH::ValidateResult	OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult) override;
 
 		virtual void OnContactAdded(const  JPH::Body& inBody1, const  JPH::Body& inBody2, const  JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override;
 
@@ -18,6 +18,17 @@ namespace SliceEngine
 
 		virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override;
 
+
+
+	private:
+
+		std::vector<JPH::SubShapeIDPair> bodiesInContact;
+
+	public:
+
+		void clearBodiesInContact();
+
+		std::vector<JPH::SubShapeIDPair> GetBodiesInContact() const;
 	};
 
 

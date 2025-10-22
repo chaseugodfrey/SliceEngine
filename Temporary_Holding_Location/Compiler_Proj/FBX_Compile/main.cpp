@@ -1,5 +1,7 @@
 #include "Assimp_Importer.h"
 
+#define NO_INPUT 0
+
 #if COMPILE_ONLY
 #include <json.hpp>
 #else
@@ -8,6 +10,8 @@
 int main(int argc, char** argv)
 {
 #if COMPILE_ONLY	//only load compile and save
+
+#if !NO_INPUT
 	std::cout << "Current directory: " << std::filesystem::current_path() << std::endl;
 	
 	if (!std::filesystem::exists(argv[0])) {
@@ -32,15 +36,17 @@ int main(int argc, char** argv)
 
 	std::string asset_path = obj["assetPath"];
 	std::string resource_path = obj["resourcePath"];
-
-	//std::string asset_path = "../Asset/player.fbx";;
-	//std::string resource_path = "../Asset/player_mdl.mdl";;
-
+#else
+	//kinda dosent work rn since no json
+	std::string asset_path = "../Asset/player.fbx";
+	std::string resource_path = "../Asset/player.mdl";
+#endif
 	//Read the descriptor file here i guess?
 
-	Geometry::Mesh_Compiler compiler{};
+	Geometry::FBX_Compiler compiler{};
 
-	compiler.Compile_Asset(asset_path.c_str(), resource_path.c_str());
+	compiler.Compile_Asset(asset_path.c_str(), resource_path.c_str(), obj);
+	//compiler.Compile_Primitive(Geometry::Mesh_Compiler::Cube, resource_path2.c_str());
 	return 1;
 
 #else	//load, compile, save, draw
