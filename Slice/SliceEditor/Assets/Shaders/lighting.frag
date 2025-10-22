@@ -21,7 +21,7 @@ const int isSpot 		= 3;
 
 uniform mat4 uLightMtx; // Shadow Transform Matrix
 uniform Light uLight;
-uniform mat4 V;
+uniform vec3 uCamPos;
 
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
@@ -48,22 +48,20 @@ void main(void){
 		vec3 projCoords = vLightPos.xyz / vLightPos.w;
 		projCoords = projCoords * 0.5f + 0.5f;
 
-		vec3 viewPos = (V * vec4(wPos, 1.0f)).xyz;
-		vec3 v = normalize(viewPos);
+		vec3 v = normalize(uCamPos - wPos);
 
 		if(uLight.type == isDirectional)
 		{
 			vec3 ambient = dif.rgb * ambient; // if blocked by shadow
 
-			vec3 l = normalize(-uLight.direction);
+			vec3 l = normalize(-uLight.direction);// Surface to Light
 			float shadow = getShadowMulti(nom, l, projCoords);
 			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb);
 			fFragColor = vec4(ambient, 1.0f);
 		}
 		else if(uLight.type == isPoint)
 		{
-			vec3 lightPosInView = (V * vec4(uLight.position, 1.0f)).xyz;
-			vec3 l = uLight.position - viewPos; // light vector
+			vec3 l = uLight.position - wPos; // Surface to Light
 			float dist = length(l);
 			l = l / dist;
 			vec4 lightCol = uLight.color;

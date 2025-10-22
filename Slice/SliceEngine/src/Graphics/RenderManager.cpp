@@ -354,20 +354,22 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
+		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			float sDim = 40.f;
-			glm::vec3 lightPos{ camT.position.x, camT.position.y + sDim, camT.position.z };
+			glm::vec3 lightPos{ camT.position.x, camT.position.y, camT.position.z };
 			glm::vec3 lightDir = glm::normalize(-transform.position);
+			lightPos -= sDim * lightDir;
 			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
 			glm::mat4 V = glm::lookAt(
 				lightPos,
@@ -388,14 +390,16 @@ namespace SliceEngine
 		glBindTextureUnit(1, mColAttachment[GPU_OUT::GOUT_POS]);
 		glBindTextureUnit(2, mColAttachment[GPU_OUT::GOUT_NOM]);
 
-		GLint uniformLoc;
+		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+		glUniform3f(uniformLoc, camT.position.x, camT.position.y, camT.position.z);
+
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
 			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
@@ -407,8 +411,9 @@ namespace SliceEngine
 			glUniform1i(uniformLoc, static_cast<int>(light.type));
 
 			float sDim = 40.f;
-			glm::vec3 lightPos{ camT.position.x, camT.position.y + sDim, camT.position.z };
+			glm::vec3 lightPos{ camT.position.x, camT.position.y, camT.position.z };
 			glm::vec3 lightDir = glm::normalize(-transform.position);
+			lightPos -= sDim * lightDir;
 			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
 			glm::mat4 V = glm::lookAt(
 				lightPos,
