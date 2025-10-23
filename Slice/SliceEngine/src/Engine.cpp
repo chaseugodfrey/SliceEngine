@@ -34,6 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/PrefabSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -107,7 +108,9 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
+
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -173,10 +176,28 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecond");
-		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		//Dlight.AddComponent<Light>();
-		//Dlight.GetComponent<Light>().type = Light::LightType::Directional;
+		GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
+		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		Dlight.AddComponent<Light>();
+		Dlight.GetComponent<Light>().type = Light::LightType::Directional;
+
+		GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
+		Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		Dlight2.AddComponent<Light>();
+		Dlight2.GetComponent<Light>().type = Light::LightType::Directional;
+
+		FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
+
+		GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
+		Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		Dlight3.AddComponent<Light>();
+		Dlight3.GetComponent<Light>().type = Light::LightType::Directional;
+
+		FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
+		
+		//Core::GetInstance()->GetSystem<PrefabSystem>().CreatePrefab((GUID)9528168868150986328);
+		JSONSerializer::SerializePrefab(Dlight.GetEntity());
+
 		//for (int i = 0; i < 2; ++i)
 		//{
 		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light2");

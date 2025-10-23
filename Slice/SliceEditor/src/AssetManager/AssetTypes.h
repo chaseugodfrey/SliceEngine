@@ -27,7 +27,8 @@ namespace SliceEditor
 		Model,
 		Audio,
 		Scene,
-		Shader
+		Shader,
+		Prefab
 	};
 	enum CompressionFormat : std::uint8_t {
 		//		RGBA_UNCOMPRESSED,
@@ -61,6 +62,8 @@ namespace SliceEditor
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
+		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
+
 	}
 
 	class MetaData
@@ -191,6 +194,39 @@ namespace SliceEditor
 		{
 		}
 	};
+
+	struct PrefabData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::PREFAB;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			// technically this is done in compiling of asset
+			// but scene has no compiling so we just set it here
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties to scene goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+		}
+	};
+
 
 	struct ShaderData : public MetaData
 	{

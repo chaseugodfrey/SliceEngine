@@ -27,6 +27,7 @@ namespace SliceEditor
 		// to do:: make it non-static later
 		std::vector<ISelectionListener*> mListeners;
 		std::unordered_set<entt::entity> mSelectedEntities;
+		std::unordered_set<SelectionNode*> mSelectedNodes;
 
 		void UpdateManagers();
 
@@ -36,16 +37,18 @@ namespace SliceEditor
 
 		void Init() override;
 		void RegisterListener(ISelectionListener* listener);
+		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
 		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
-		void SelectMultiple(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
+		void SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory = false);
 		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
 		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
 
 		// replace this with listener pattern
 		std::unordered_set<entt::entity>& GetSelectedEntities();
+		std::unordered_set<SelectionNode*>& GetSelectedNodes();
 	};
 }
 
