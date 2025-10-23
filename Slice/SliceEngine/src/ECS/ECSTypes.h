@@ -172,6 +172,11 @@ namespace SliceEngine
 		bool playPreview = false;
 	};
 
+	struct CAnimator
+	{
+		std::string animatorName;
+	};
+
 	// placeholder particle system component structure for reference
 	struct Particle
 	{
