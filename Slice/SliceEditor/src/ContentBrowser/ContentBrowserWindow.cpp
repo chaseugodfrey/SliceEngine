@@ -190,15 +190,17 @@ namespace SliceEditor
 					//Drag and Drop Payload
 					if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 					{
-						if (!selectedEntry)
+						if (selectedEntry != &entry)
 						{
-							ImGui::EndDragDropSource();
+							selectedEntry = &entry;
 						}
+
 						uint64_t guid = mRegistry.GetAssetManager().mDescriptorMap[selectedEntry->fileName];
 						ImGui::SetDragDropPayload("##GUID_Payload", &guid, sizeof(uint64_t));
 
 						ImGui::Text("Dragging item %s", selectedEntry->fileName);
 						ImGui::EndDragDropSource();
+						
 					}
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
