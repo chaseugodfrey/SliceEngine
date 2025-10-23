@@ -32,6 +32,8 @@ namespace SliceEditor
 	class InspectorWindow : public EditorWindow
 	{
 
+#pragma region Entitiy Inspection
+		// Displaying Entities
 		void DisplayEntityData(entt::entity entity);
 
 		// temp component header
@@ -71,8 +73,13 @@ namespace SliceEditor
 		void DisplayCollider3D(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
+#pragma endregion
 
+#pragma region Main Draw Functions
 
+		void DisplayEntity(EntityNode* node);
+		void DisplayMaterial(DirectoryNode* node);
+#pragma endregion
 	public:
 
 		InspectorWindow(Registry& reg) : EditorWindow(reg) {};

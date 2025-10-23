@@ -123,21 +123,21 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSceneGraphTab()
 	{
-		ImGui::Text("Scene Graph View");
-		ImGui::BeginChild("SceneGraph", ImVec2(0, 0), true);
-		{
-			DrawSceneGraphComponent(SliceEngine::FactoryInstance.GetRootEntity());
+		//ImGui::Text("Scene Graph View");
+		//ImGui::BeginChild("SceneGraph", ImVec2(0, 0), true);
+		//{
+		//	DrawSceneGraphComponent(SliceEngine::FactoryInstance.GetRootEntity());
 
-			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
+		//	ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
 
-			auto& selectedEntities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
-			for(auto& entity: selectedEntities)
-			{
-				DrawSceneGraphComponent(entity);
-				ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,5.0f);
-			}
-			ImGui::EndChild();
-		}
+		//	auto& selectedEntities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
+		//	for(auto& entity: selectedEntities)
+		//	{
+		//		DrawSceneGraphComponent(entity);
+		//		ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,5.0f);
+		//	}
+		//	ImGui::EndChild();
+		//}
 	}
 
 	void ProfilerWindow::DrawSystemTimeline()

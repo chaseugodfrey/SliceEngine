@@ -22,7 +22,6 @@ namespace SliceEditor
 {
 	class Registry
 	{
-
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 		AssetManager& mAssetManager;
 
@@ -45,6 +44,7 @@ namespace SliceEditor
 		}
 
 		void Init();
+		void Update();
 
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& GetManagers();
 

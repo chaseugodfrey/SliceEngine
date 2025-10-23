@@ -38,6 +38,7 @@ namespace SliceEditor
 		void Init() override;
 		void RegisterListener(ISelectionListener* listener);
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
+		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
 		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
 		void SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory = false);
@@ -47,6 +48,7 @@ namespace SliceEditor
 
 		// replace this with listener pattern
 		std::unordered_set<entt::entity>& GetSelectedEntities();
+		std::unordered_set<SelectionNode*>& GetSelectedNodes();
 	};
 }
 

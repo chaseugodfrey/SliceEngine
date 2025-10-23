@@ -41,6 +41,7 @@ namespace SliceEditor
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);
 
+		void Update();
 		void Render();
 
 	public:

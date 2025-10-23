@@ -31,15 +31,23 @@ namespace SliceEditor
 			SliceEngine::Camera& camera;
 		};
 
+		struct GizmoUseTracker
+		{
+			ImGuizmo::OPERATION operation;
+			std::variant<glm::vec3, glm::quat> startValue;
+			std::variant<glm::vec3, glm::quat> endValue;
+
+			GizmoUseTracker(ImGuizmo::OPERATION op, glm::vec3 ref) : operation(op), startValue(ref) {}
+			GizmoUseTracker(ImGuizmo::OPERATION op, glm::quat ref) : operation(op), startValue(ref) {}
+		};
+
+		std::optional<GizmoUseTracker> mGizmoTracker;
+
 		float mCameraSpeed = 0.01f;
 		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
-		bool isUsing = false;
-
 		std::unique_ptr<SceneCamera> camObj;
-
-		std::variant<glm::vec3, glm::quat> mGizmoStartTransformValue;
 
 	public:
 
