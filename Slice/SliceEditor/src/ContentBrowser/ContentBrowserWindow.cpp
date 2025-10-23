@@ -195,11 +195,19 @@ namespace SliceEditor
 							selectedEntry = &entry;
 						}
 
-						uint64_t guid = mRegistry.GetAssetManager().mDescriptorMap[selectedEntry->fileName];
-						ImGui::SetDragDropPayload("##GUID_Payload", &guid, sizeof(uint64_t));
+						if (mRegistry.GetAssetManager().mDescriptorMap.find(selectedEntry->fileName) == mRegistry.GetAssetManager().mDescriptorMap.end())
+						{
+							SLICE_LOG_WARNING("Could not find descriptor for this file!");
+							ImGui::EndDragDropSource();
+						}
+						else
+						{
+							ImGui::SetDragDropPayload("##Node_Payload", &entry, sizeof(DirectoryNode));
 
-						ImGui::Text("Dragging item %s", selectedEntry->fileName);
-						ImGui::EndDragDropSource();
+							std::string dragText = "Dragging item " + entry.fileName;
+							ImGui::Text(dragText.c_str());
+							ImGui::EndDragDropSource();
+						}
 						
 					}
 

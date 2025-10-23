@@ -220,9 +220,9 @@ namespace SliceEditor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##GUID_Payload"))
 				{
-					if (!payload->DataSize == sizeof(uint64_t))
+					if (!payload->DataSize == sizeof(DirectoryNode))
 					{
-						SLICE_LOG_WARNING("Wrong Drop on Model");
+						SLICE_LOG_WARNING("Wrong Drop Size");
 					}
 					else
 					{
@@ -235,10 +235,26 @@ namespace SliceEditor
 			ImGui::Text("Texture");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(rend.model.GetGUID());
+			std::string texture_guid_string = std::to_string(rend.texture.GetGUID());
 			if (ImGui::InputText("##texture", &texture_guid_string, ImGuiInputTextFlags_ReadOnly))
 			{
-				rend.model = SliceEngine::GUID(std::stoll(texture_guid_string));
+				rend.texture = SliceEngine::GUID(std::stoll(texture_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##GUID_Payload"))
+				{
+					if (!payload->DataSize == sizeof(uint64_t))
+					{
+						SLICE_LOG_WARNING("Wrong Drop on Texture");
+					}
+					else
+					{
+						SliceEngine::GUID newGUID(*(uint64_t*)payload->Data);
+						rend.texture = newGUID;
+					}
+				}
 			}
 
 			ImGui::TreePop();
