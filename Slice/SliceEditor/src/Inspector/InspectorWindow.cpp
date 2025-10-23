@@ -218,16 +218,24 @@ namespace SliceEditor
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##GUID_Payload"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##Node_Payload"))
 				{
-					if (!payload->DataSize == sizeof(DirectoryNode))
+					if (!payload->DataSize == sizeof(FilePayload))
 					{
-						SLICE_LOG_WARNING("Wrong Drop Size");
+						SLICE_LOG_WARNING("Wrong Drop Size!");
 					}
 					else
 					{
-						SliceEngine::GUID newGUID(*(uint64_t*)payload->Data);
-						rend.model = newGUID;
+						FilePayload recievedPayload(*(FilePayload*)payload->Data);
+						if (recievedPayload.assetType != AssetType::Model)
+						{
+							SLICE_LOG_WARNING("Did not recieve a Model!");
+						}
+						else
+						{
+							rend.model = recievedPayload.guid;
+						}
+						
 					}
 				}
 			}

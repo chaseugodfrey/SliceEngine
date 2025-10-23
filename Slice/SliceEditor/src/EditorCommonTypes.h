@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
+#include "AssetManager/AssetTypes.h"
+
 namespace SliceEditor
 {
 
@@ -75,7 +77,6 @@ namespace SliceEditor
 	struct DirectoryNode : SelectionNode
 	{
 		std::string fileName;
-		SliceEngine::GUID guid;
 		bool isDirectory = false;
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
@@ -87,6 +88,19 @@ namespace SliceEditor
 			isSelected = false;	
 		}
 
+	};
+
+	struct FilePayload : SelectionNode
+	{
+		SliceEngine::GUID guid;
+		AssetType assetType;
+
+		FilePayload()
+		{
+			type = SelectionType::FILE;
+			isSelected = false;
+			assetType = AssetType::Texture; //Default to Texture for now
+		}
 	};
 }
 

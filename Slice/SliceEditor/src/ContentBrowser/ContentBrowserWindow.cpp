@@ -202,7 +202,7 @@ namespace SliceEditor
 						}
 						else
 						{
-							ImGui::SetDragDropPayload("##Node_Payload", &entry, sizeof(DirectoryNode));
+							ImGui::SetDragDropPayload("##Node_Payload", &entry, sizeof(FilePayload));
 
 							std::string dragText = "Dragging item " + entry.fileName;
 							ImGui::Text(dragText.c_str());
