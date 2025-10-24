@@ -34,6 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
 #include "Input/ActionMapping.h"
 //using namespace rttr;
@@ -125,6 +126,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 
@@ -188,7 +190,6 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
@@ -255,7 +256,6 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-
 		frm.StartSystem("Input");
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
@@ -309,6 +309,10 @@ namespace SliceEngine
 		frm.StartSystem("Graphics");
 		sRender->Render();
 		frm.EndSystem("Graphics");
+
+		frm.StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
+		frm.EndSystem("Particle System");
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();

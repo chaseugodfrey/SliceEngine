@@ -18,9 +18,11 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
 #include <Graphics/TransformHelper.h>
+
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
-
+#include "WindowManager/WindowManager.h"
+#include "History/HistoryManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -303,17 +305,17 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedEntities();
+		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 
-		if (!set.empty())
+		if (!set.empty() && set.begin().operator*()->type == SelectionNode::SelectionType::ENTITY)
 		{
+			auto entt = static_cast<EntityNode*>(*set.begin())->entity;
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
 			glm::mat4 P = glm::perspective(
 				glm::radians(camObj->camera.pov), static_cast<float>(camObj->camera.width) / static_cast<float>(camObj->camera.height), camObj->camera.near, camObj->camera.far);
 
 			// get entities & transform components
-			auto entt = *set.begin();
 			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
@@ -327,6 +329,22 @@ namespace SliceEditor
 
 			if (ImGuizmo::IsUsing())
 			{
+				if (!mGizmoTracker.has_value())
+				{
+					switch (mGuizmoOperation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.position);
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.rotation);
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.scale);
+						break;
+					}
+				}
+
 				glm::vec3 scale, translation, skew;
 				glm::vec4 persp;
 				glm::quat rot;
@@ -335,24 +353,45 @@ namespace SliceEditor
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
-					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, tmp_tr.position, translation));
 					tmp_tr.position = translation;
+					mGizmoTracker->endValue = translation;
 				}
 				
 				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
 				{
-					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, tmp_tr.rotation, rot));
 					tmp_tr.rotation = rot;
+					mGizmoTracker->endValue = rot;
 				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
 				{
-					//mManager.GetRegistry().GetManager<HistoryManager>("History")->AddCommand(std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, tmp_tr.scale, scale));
 					tmp_tr.scale = scale;
+					mGizmoTracker->endValue = scale;
 				}
 			}
 
-
+			else
+			{
+				if (mGizmoTracker.has_value())
+				{
+					switch (mGizmoTracker->operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, std::get<glm::quat>(mGizmoTracker->startValue), std::get<glm::quat>(mGizmoTracker->endValue)));
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+						break;
+					}
+					mGizmoTracker.reset();
+				}
+			}
 		}
 
 

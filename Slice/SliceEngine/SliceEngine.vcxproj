@@ -157,6 +157,7 @@
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\GameStateManager.h" />
+    <ClInclude Include="src\Systems\ParticleSystemManager.h" />
     <ClInclude Include="src\Systems\PrefabSystem.h" />
     <ClInclude Include="src\Systems\SceneSystem.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\GameStateManager.cpp" />
+    <ClCompile Include="src\Systems\ParticleSystemManager.cpp" />
     <ClCompile Include="src\Systems\PrefabSystem.cpp" />
     <ClCompile Include="src\Systems\SceneSystem.cpp" />
     <ClCompile Include="src\Systems\SoundSystem.cpp" />

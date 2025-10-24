@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "HierarchyWindow.h"
 #include "Core/Registry.h"
+#include "Session/SessionManager.h"
 #include "History/HistoryManager.h"
 #include "Selection/SelectionManager.h"
 
@@ -24,15 +25,17 @@ namespace SliceEditor
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-	void HierarchyWindow::DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
+	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
+		auto& map = mSession.GetEntityNodes();
+		auto node = map[entity].get();
+
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
-		bool isSelected = mSelection.GetSelectedEntities().find(entity) != mSelection.GetSelectedEntities().end();
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (isSelected)
+		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
@@ -85,7 +88,7 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (isSelected)
+				if (node->isSelected)
 				{
 
 				}
@@ -98,7 +101,7 @@ namespace SliceEditor
 
 			else
 			{
-				mSelection.SelectSingle(entity);
+				mSelection.SelectSingle(node);
 			}
 		}
 
@@ -109,7 +112,7 @@ namespace SliceEditor
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(mSelection, child_entity, child_scene_graph);
+				DrawNode(mSelection, mSession, child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -131,7 +134,7 @@ namespace SliceEditor
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), child_entity, child_scene_graph);
+				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
