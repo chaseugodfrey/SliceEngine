@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <entt.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glfw3.h>
+#include <../fmod/include/fmod.hpp>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
 
@@ -163,7 +164,10 @@ namespace SliceEngine
 
 	struct AudioSource
 	{
-		std::string soundName;
+		//std::string soundName;
+		GUID soundGUID = (GUID)9244272128099795086;
+		FMOD::Channel* channel;
+		FMOD::Channel* previewChannel;
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;

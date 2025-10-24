@@ -32,14 +32,6 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		
 		
-		if (audioComp.soundName == "")
-		{
-			audioComp.soundName = "3DAudioTest";
-		}
-		audioComp.isPaused = true;
-		audioComp.playPreview = false;
-		audioComp.is3D = true;
-		audioComp.currentVolume = 0.3f;
 
 		
 		//audioManager->PlaySound(audioComp.soundName, SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, audioComp.is3D, audioComp.isPaused, audioComp.isLoop, audioComp.currentVolume, entity, transform.position);

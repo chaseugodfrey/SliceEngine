@@ -43,10 +43,19 @@ namespace SliceEngine
 			return;
 		}
 
-		for (int i{}; i < 4; i++)
+		/*for (int i{}; i < 4; i++)
 		{
 			mCategoryVolumes.emplace(static_cast<SoundCategory>(i), 1.0f);
-		}
+		}*/
+
+		//master now points to master channel group
+		mSoundSystem->getMasterChannelGroup(&master);
+
+		//Create categories for the different sounds
+		mSoundSystem->createChannelGroup("SFX", &sfx);
+		mSoundSystem->createChannelGroup("BGM", &bgm);
+		mSoundSystem->createChannelGroup("UI", &ui);
+		mSoundSystem->createChannelGroup("Editor", &editor);
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -57,22 +66,18 @@ namespace SliceEngine
 	/*
 	* LoadSound loads all sounds in 3D because its easier to make set the FMOD mode to 2D from 3D if need to
 	*/
-	void AudioManager::LoadSound(const std::string& soundFile)
+	void AudioManager::LoadSound(GUID soundFile)
 	{
 
 		auto audioHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundFile).get();
 		
 
-		if (audioHandle)
-		{
-			
-			auto track = std::make_unique<SoundTrack>();
-			track->sound = audioHandle->GetSound();
+		//if (audioHandle)
+		//{
+		//	//mLoadedSounds.try_emplace(soundFile, audioHandle->GetSound());
 
-			mLoadedSounds.try_emplace(soundFile, std::move(track));
-
-			SLICE_LOG("Sound Loaded" + soundFile);
-		}
+		//	SLICE_LOG("Sound Loaded" + soundFile);
+		//}
 
 	}
 
@@ -85,13 +90,6 @@ namespace SliceEngine
 
 	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos)
 	{
-
-		auto it = mLoadedSounds.find(soundName);
-		if (it == mLoadedSounds.end())
-		{
-			SLICE_LOG("Sound not loaded");
-			return false;
-		}
 
 		auto track = std::make_unique<SoundTrack>();
 
@@ -135,27 +133,22 @@ namespace SliceEngine
 
 	}
 
-	bool AudioManager::PlayEditorPreview(const std::string soundName, bool is3D, Entity& id, glm::vec3 soundPos)
+	bool AudioManager::PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel, glm::vec3 soundPos)
 	{
-		auto it = mLoadedSounds.find(soundName);
-		if (it == mLoadedSounds.end())
-		{
-			SLICE_LOG("Sound not loaded");
-			return false;
-		}
+		//This call will handle the loading if the resource hasn't been loaded
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+
 
 		auto track = std::make_unique<SoundTrack>();
 
-		if (is3D == false)
+		if (!is3D)
 		{
-			track->channel->setMode(FMOD_2D);
+			previewChannel->setMode(FMOD_2D);
 		}
 
 		track->soundPos3D = Vec3ToFMODVec3(soundPos);
 
-		FMOD::Channel* channel = nullptr;
-
-		FMOD_RESULT result = mSoundSystem->playSound(it->second.get()->sound, nullptr, false, &channel);
+		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), nullptr, false, &previewChannel);
 
 		if (result != FMOD_OK)
 		{
@@ -163,7 +156,7 @@ namespace SliceEngine
 			return false;
 		}
 
-		if (channel)
+		if (previewChannel)
 		{
 			track->previewChannel = channel;
 			track->category = SoundCategory::Editor;

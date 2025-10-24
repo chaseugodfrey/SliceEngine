@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	//Can be taken out
 	enum class SoundCategory
 	{
 		SFX,
@@ -37,8 +38,10 @@ namespace SliceEngine
 	struct SoundTrack
 	{
 		FMOD::Sound* sound = nullptr;
+		/**************Moved to Audio Source so to takeout *****************/
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
+		/*******************************************************************/
 		float defaultSoundVolume = 1.0f;
 		float currentSoundVolume = 1.0f;
 		FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
@@ -73,9 +76,15 @@ namespace SliceEngine
 
 		//FMOD::Studio::System* system;
 		FMOD::System* mSoundSystem;
+		FMOD::ChannelGroup* master;
+		FMOD::ChannelGroup* sfx;
+		FMOD::ChannelGroup* bgm;
+		FMOD::ChannelGroup* ui;
+		FMOD::ChannelGroup* editor;
 		
 		const int MAX_CHANNELS = 256;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
+		//To take out cause redundant
 		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 
 		const float defaultVolume = 1.0f;
@@ -83,11 +92,7 @@ namespace SliceEngine
 
 
 	public:
-		/*static AudioManager& Get()
-		{
-			static AudioManager instance;
-			return instance;
-		}*/
+		//To take out cause redundant
 		enum InternalSound
 		{
 			SOUND_INGAME,
@@ -140,7 +145,7 @@ namespace SliceEngine
 		 * @brief Loads a sound file into memory and stores it for later playback.
 		 * @param soundFile The path or name of the sound file to load.
 		 */
-		void LoadSound(const std::string& soundFile);
+		void LoadSound(GUID soundFile);
 
 		/**
 		 * @brief Plays a sound associated with a specific entity.
@@ -165,7 +170,7 @@ namespace SliceEngine
 		 * @param soundPos Position for 3D preview playback.
 		 * @return True if preview playback started successfully, false otherwise.
 		 */
-		bool PlayEditorPreview(const std::string soundName, bool is3D, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
+		bool PlayEditorPreview(GUID soundName, bool is3D, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
 
 		/**
 		 * @brief Updates the listener's 3D attributes (position, velocity, orientation).

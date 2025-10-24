@@ -59,6 +59,14 @@ namespace SliceEditor
 		MONO
 	};
 
+	enum AudioCategory : std::uint8_t
+	{
+		SFX,
+		BGM,
+		UI,
+		Editor
+	}
+
 	// type UUIDs 
 	namespace ResourceTypeIDs
 	{
@@ -212,6 +220,7 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+			
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 
