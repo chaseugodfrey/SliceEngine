@@ -46,7 +46,7 @@ namespace SliceEditor
 				continue;
 			}
 
-			std::string fileName = dirEntry.path().filename().stem().string();
+			std::string fileName = dirEntry.path().filename().stem().stem().string();
 
 			// Since this isn't unity style where meta files are alongside assets
 			// we need to compare wit hthe file name to GUID from the resource manager
@@ -80,7 +80,7 @@ namespace SliceEditor
 			return "";
 		}
 
-		AssetType assetType = it->second;
+		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
 
 		// I think can compile assets somewhere around here
@@ -377,7 +377,7 @@ namespace SliceEditor
 							if (std::filesystem::exists(resourceFilePath))
 								std::filesystem::remove(resourceFilePath);
 
-							return;
+							//return;
 						}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
@@ -401,7 +401,7 @@ namespace SliceEditor
 							// and remove the meta file
 							std::filesystem::remove(filePath);
 
-							return;
+							continue;
 							// note: for shaders since it comes in a set of 3 files
 							// i dont rlly know how to clean that up
 						}
@@ -426,7 +426,7 @@ namespace SliceEditor
 
 							// idk about shaders
 
-							return;
+							continue;
 						}
 
 						mDescriptorMap.insert_or_assign(assetName, guid);

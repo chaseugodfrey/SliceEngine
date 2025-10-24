@@ -89,19 +89,6 @@ namespace SliceEditor
 		}
 
 	};
-
-	struct FilePayload : SelectionNode
-	{
-		SliceEngine::GUID guid;
-		AssetType assetType;
-
-		FilePayload()
-		{
-			type = SelectionType::FILE;
-			isSelected = false;
-			assetType = AssetType::Texture; //Default to Texture for now
-		}
-	};
 }
 
 #endif

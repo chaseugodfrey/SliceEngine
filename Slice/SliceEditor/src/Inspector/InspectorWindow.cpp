@@ -218,25 +218,10 @@ namespace SliceEditor
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##Node_Payload"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
-					if (!payload->DataSize == sizeof(FilePayload))
-					{
-						SLICE_LOG_WARNING("Wrong Drop Size!");
-					}
-					else
-					{
-						FilePayload recievedPayload(*(FilePayload*)payload->Data);
-						if (recievedPayload.assetType != AssetType::Model)
-						{
-							SLICE_LOG_WARNING("Did not recieve a Model!");
-						}
-						else
-						{
-							rend.model = recievedPayload.guid;
-						}
-						
-					}
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					rend.model = recievedPayload;
 				}
 			}
 
@@ -251,17 +236,10 @@ namespace SliceEditor
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("##GUID_Payload"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
 				{
-					if (!payload->DataSize == sizeof(uint64_t))
-					{
-						SLICE_LOG_WARNING("Wrong Drop on Texture");
-					}
-					else
-					{
-						SliceEngine::GUID newGUID(*(uint64_t*)payload->Data);
-						rend.texture = newGUID;
-					}
+						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+						rend.texture = recievedPayload;
 				}
 			}
 
