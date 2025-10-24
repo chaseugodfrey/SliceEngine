@@ -25,36 +25,12 @@ constexpr unsigned char MAX_BONE_INFLUENCE = 4;
 namespace SliceEngine
 {
 	//include the real one once done
-	class Animation;
-	class Bone;
-	struct BoneInfo 
+
+	struct BoneInfo
 	{
 		int id{};
 		glm::mat4 offset;
 	};
-	struct animatorEntity {};
-
-	class Animator : BaseSystem<animatorEntity, CAnimator>
-	{
-	public:
-		Animator();
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-		void UpdateAnimation(float dt);
-		void PlayAnimation(Animation*);
-		void CalculateBoneTransform(const SliceEngineTypes::ModelNode& node, glm::mat4 const& parent_tform);
-
-		std::vector<glm::mat4> const& GetFinalTform() const 
-		{
-			return final_tforms;
-		}
-		float current_time{};
-	private:
-		std::vector<glm::mat4> final_tforms;
-		Animation* curr_anim{};
-	};
-
 	struct Key_Position {
 		glm::vec3 pos{};
 		float timestamp{};
@@ -70,27 +46,7 @@ namespace SliceEngine
 		float timestamp{};
 	};
 
-	class Animation {
-	public:
-		//also for now just hack it and re-import the .fbx file for animation
-		//void Init(const char* file, SliceEngineTypes::Model& mdl);
 
-		float duration{};
-		int ticks_per_second{};
-		std::vector<Bone> bones;
-		/*
-		* tbh this one is closer to a ref/copy of the one in model
-		* main reason for having this is so that animator can access it,
-		* and accessing bones via aiAnimation.mChannels can sometimes capture missing bones
-		*/
-		std::unordered_map<std::string, BoneInfo> bone_map;
-
-		//void ReadBones(aiAnimation const* anim, Model& mdl);
-		//void ReadHierachyData(AssimpNodeData& dest, const aiNode* src);
-
-		SliceEngineTypes::ModelNode root;
-		glm::mat4 globalinv;
-	};
 
 	class Bone {
 	private:
@@ -118,6 +74,92 @@ namespace SliceEngine
 		unsigned int GetKeyRotationIdx(float time);
 		unsigned int GetKeyScaleIdx(float time);
 	};
+
+	class Animation {
+	public:
+		//also for now just hack it and re-import the .fbx file for animation
+		//void Init(const char* file, SliceEngineTypes::Model& mdl);
+		std::string animName;
+		float duration{};
+		int ticks_per_second{};
+		std::vector<Bone> bones;
+		/*
+		* tbh this one is closer to a ref/copy of the one in model
+		* main reason for having this is so that animator can access it,
+		* and accessing bones via aiAnimation.mChannels can sometimes capture missing bones
+		*/
+		std::unordered_map<std::string, BoneInfo> bone_map;
+
+		//void ReadBones(aiAnimation const* anim, Model& mdl);
+		//void ReadHierachyData(AssimpNodeData& dest, const aiNode* src);
+
+		SliceEngineTypes::ModelNode root;
+		glm::mat4 globalinv;
+	};
+
+
+
+	struct Transition
+	{
+		std::string targetState;
+		std::variant<bool, int, float, std::string> condition;
+
+		bool operator==(const Transition& other) const
+		{
+			return targetState == other.targetState && condition == other.condition;
+		}
+	};
+
+	struct State
+	{
+		std::string stateName;
+		Animation* currAnim;
+		bool isLoop;
+		std::variant<bool, int, float, std::string> stateCon;
+
+		std::vector<Transition> transitions;
+
+		bool operator==(const State& other) const
+		{
+			return (other.stateName == this->stateName) && (other.currAnim->animName == this->currAnim->animName) && (other.stateCon == this->stateCon);
+		}
+	};
+
+	struct animatorEntity {};
+
+	class Animator : BaseSystem<animatorEntity, CAnimator>
+	{
+	public:
+		Animator();
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
+		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+		void UpdateAnimation(float dt);
+		void PlayAnimation(Animation*);
+		void CalculateBoneTransform(const SliceEngineTypes::ModelNode& node, glm::mat4 const& parent_tform);
+
+		void InitState();
+		void CheckStates();
+		void UpdateState();
+
+		std::vector<glm::mat4> const& GetFinalTform() const 
+		{
+			return final_tforms;
+		}
+		float current_time{};
+	private:
+		std::vector<glm::mat4> final_tforms;
+		//Animation* curr_anim{};
+
+
+		State currState;
+		State nextState;
+		State entryState;
+
+		std::unordered_map<std::string, State> stateMap;
+	};
+
+	
 
 }
 

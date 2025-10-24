@@ -28,23 +28,56 @@ namespace SliceEngine
 
 	void Animator::UpdateAnimation(float dt) 
 	{
-		if (curr_anim) 
+		if (currState.currAnim) 
 		{
-			current_time += curr_anim->ticks_per_second * dt;	//needed to convert actual time to animation time
+			current_time += currState.currAnim->ticks_per_second * dt;	//needed to convert actual time to animation time
 			//for now just inf loop it
-			while (current_time > curr_anim->duration) 
+			while (current_time > currState.currAnim->duration)
 			{
-				current_time -= curr_anim->duration;
+				current_time -= currState.currAnim->duration;
 			}
 			glm::mat4 id = glm::mat4(1.0f);
-			CalculateBoneTransform(curr_anim->root, id);
+			CalculateBoneTransform(currState.currAnim->root, id);
 		}
 	}
 
 	void Animator::PlayAnimation(Animation* anim) 
 	{
 		current_time = 0.f;
-		curr_anim = anim;
+		currState.currAnim = anim;
+		//curr_anim = anim;
+	}
+
+	void Animator::InitState()
+	{
+		if (entryState.stateName.empty())
+		{
+			entryState = stateMap.begin()->second;
+		}
+
+		nextState = entryState;
+	}
+
+	void Animator::CheckStates()
+	{
+		for (Transition T : currState.transitions)
+		{
+			if (currState.stateCon == T.condition)
+			{
+				if (stateMap.find(T.targetState) != stateMap.end())
+				{
+					nextState = stateMap[T.targetState];
+				}
+			}
+		}
+	}
+
+	void Animator::UpdateState()
+	{
+		if (currState != nextState)
+		{
+			currState = nextState;
+		}
 	}
 
 	/*
@@ -73,7 +106,7 @@ namespace SliceEngine
 		glm::mat4 bone_tform;
 		//node may not be a bone
 		Bone* b{};
-		for (auto& bone : curr_anim->bones) 
+		for (auto& bone : currState.currAnim->bones)
 		{
 			if (bone.name == node_name)
 			{
@@ -102,7 +135,7 @@ namespace SliceEngine
 
 		if (b) 
 		{
-			auto& boneinfo = curr_anim->bone_map[node_name];
+			auto& boneinfo = currState.currAnim->bone_map[node_name];
 			bone_tform = bone_tform * boneinfo.offset;
 			final_tforms[boneinfo.id] = tform * boneinfo.offset;
 		}
