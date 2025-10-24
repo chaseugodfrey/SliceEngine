@@ -76,6 +76,7 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_stdlib.h>
 #include <ImGuizmo.h>
+#include <imgui_node_editor.h>
 
 // filewatcher
 #include <../thirdparty/filewatch/FileWatcher.h>
