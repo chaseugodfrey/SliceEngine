@@ -83,6 +83,14 @@ namespace SliceEngine
 
 		inline void ReleaseResource(const GUID& guid)
 		{
+			//std::cout << "Resource being released " << guid.GetGUID() << " : ";
+			//for(const auto& [key, val] : mFileNameToGUID)
+			//{
+			//	if (val == guid)
+			//	{
+			//		std::cout << key << std::endl;
+			//	}
+			//}
 			auto it = mInstances.find(guid);
 			if (it != mInstances.end())
 			{
@@ -160,6 +168,15 @@ namespace SliceEngine
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
+		// Option 1:
+		// I'm thinking when deserializing a scene, pull out all the GUIDs used in the scene
+		// and store it in here to create all the necessary handles?
+		std::set<GUID> mSceneGUIDs; 
+
+		// Option 2: 
+		// When serializing the scene, i'll serialize all the scene resources separately
+		// then deserialize the scene resources before the scene itself
+		std::set<GUID> mGUIDToSerialize;
 	private:
 		template<typename T> friend class Handle;
 
