@@ -37,10 +37,10 @@ namespace SliceEngine
 	{
 		struct Instance
 		{
-			std::unique_ptr<void, void(*)(void*)> data = { nullptr, nullptr };
+			std::unique_ptr<void, std::function<void(void*)>> data = {nullptr, nullptr};
 			int refCount = 1;
 			std::string filePath;
-			std::function<std::unique_ptr<void, void(*)(void*)>(ResourceManager&, const std::string&)> reload;
+			std::function<std::unique_ptr<void, std::function<void(void*)>>(ResourceManager&, const std::string&)> reload;
 		};
 	}
 
@@ -81,18 +81,7 @@ namespace SliceEngine
 			//}
 		}
 
-		inline void ReleaseResource(const GUID& guid)
-		{
-			auto it = mInstances.find(guid);
-			if (it != mInstances.end())
-			{
-				it->second.refCount--;
-				if (it->second.refCount <= 0)
-				{
-					mInstances.erase(it);
-				}
-			}
-		}
+		void ReleaseResource(const GUID& guid);
 
 		void InitResourceManager();
 
@@ -140,21 +129,40 @@ namespace SliceEngine
 
 			auto& instance = mInstances[assetGUID];
 			instance.filePath = path;
-			auto deleter = [](void* ptr) 
+			std::function<void(void*)> deleter = [this](void* ptr) mutable
 			{ 
-				delete static_cast<T*>(ptr); 
-			};
-			instance.data = std::unique_ptr<void, void(*)(void*)>(data.release(), deleter);
+					T* resourcePtr = static_cast<T*>(ptr);
+					Type<T>::Destroy(*resourcePtr, *this);
 
-			instance.reload = [](ResourceManager& mgr, const std::string& path) {
-				std::unique_ptr<T> newData = Type<T>::Load(mgr, path);
-				auto deleter = [](void* ptr) { delete static_cast<T*>(ptr); };
-				return std::unique_ptr<void, void(*)(void*)>(newData.release(), deleter);
+					delete resourcePtr;
+			};
+			instance.data = std::unique_ptr<void, std::function<void(void*)>>(data.release(), deleter);
+
+			instance.reload = [this](ResourceManager& mgr, const std::string& path) -> std::unique_ptr<void, std::function<void(void*)>>
+			{
+					std::unique_ptr<T> newData = Type<T>::Load(mgr, path);
+					if (!newData)
+					{
+						SLICE_LOG_ERROR("Unable to load resource");
+						return std::unique_ptr<void, std::function<void(void*)>>(nullptr, nullptr);
+					}
+
+					std::function<void(void*)> newDeleter = [this](void* ptr) mutable
+						{
+							T* resourcePtr = static_cast<T*>(ptr);
+							Type<T>::Destroy(*resourcePtr, *this);
+
+							delete resourcePtr;
+						};
+
+					return std::unique_ptr<void, std::function<void(void*)>>(newData.release(), newDeleter);
 			};
 			
 
 			return Handle<T>(*this, &instance, assetGUID);
 		}
+
+		void ReloadResource(const GUID& guid);
 
 		template<typename T>
 		Handle<T> get(const std::string& fileName)
@@ -172,14 +180,21 @@ namespace SliceEngine
 			return get<T>(guid);
 		}
 
-		void RegisterResourceAsset(const GUID& guid, const std::string& path)
-		{
-			mGUIDToResource[guid] = path;
-		}
-		void RegisterResourceAsset( const std::string& path);
+		void RegisterResourceAsset(const GUID& guid, const std::string& path);
+
+		void RegisterResourceAsset(const std::string& path);
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
+		// Option 1:
+		// I'm thinking when deserializing a scene, pull out all the GUIDs used in the scene
+		// and store it in here to create all the necessary handles?
+		std::set<GUID> mSceneGUIDs; 
+
+		// Option 2: 
+		// When serializing the scene, i'll serialize all the scene resources separately
+		// then deserialize the scene resources before the scene itself
+		std::set<GUID> mGUIDToSerialize;
 	private:
 		template<typename T> friend class Handle;
 
