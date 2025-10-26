@@ -474,32 +474,14 @@ namespace SliceEngine
 
 	void AudioManager::StopSound(FMOD::Channel* channel)
 	{
-		/*for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
-		{
-			for (auto& track : mSound[i])
-			{
-				if (track->entityID == id && track->channel)
-				{
-					track->channel->stop();
-					break;
-				}
-			}
-		}*/
 
 		channel->stop();
+		channel = nullptr;
 	}
 
 	void AudioManager::StopEditorPreview(FMOD::Channel* channel)
 	{
-		/*for (auto& track : mSound[SOUND_EDITOR])
-		{
-			if (track->entityID == id && track->previewChannel)
-			{
-				track->previewChannel->stop();
-				track->previewChannel = nullptr;
-				break;
-			}
-		}*/
+
 		channel->stop();
 		channel = nullptr;
 	}

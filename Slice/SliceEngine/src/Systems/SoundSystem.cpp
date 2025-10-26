@@ -107,7 +107,7 @@ namespace SliceEngine
 
 		audioComp.previewChannel->isPlaying(&playPreviewFlag);
 
-		if (audioComp.playPreview && audioComp.previewChannel == nullptr)
+		if (audioComp.playPreview && (playPreviewFlag == false || audioComp.previewChannel == nullptr))
 		{
 			
 			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D);
