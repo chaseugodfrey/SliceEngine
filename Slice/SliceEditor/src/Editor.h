@@ -31,9 +31,9 @@ namespace SliceEditor
 	class Editor
 	{
 		SliceEngine::Engine engine;
+		AssetManager assetManager;
 		Registry registry;
 		EditorInputs inputs;
-		AssetManager assetManager;
 
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
@@ -41,9 +41,14 @@ namespace SliceEditor
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);
 
+		void Update();
 		void Render();
 
 	public:
+
+		Editor() : assetManager(), registry(assetManager)
+		{
+		}
 
 		// todo : push this to event manager
 		bool isNewSceneLoaded{};

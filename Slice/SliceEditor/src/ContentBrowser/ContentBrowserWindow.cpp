@@ -22,7 +22,6 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::Init()
 	{
-
 	}
 
 	void ContentBrowserWindow::Draw()
@@ -118,6 +117,8 @@ namespace SliceEditor
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
+
+			//Section for Folders
 			for (auto& [name, entry] : node.children)
 			{
 				if (entry.isDirectory)
@@ -129,11 +130,11 @@ namespace SliceEditor
 					{
 						selectedEntry = &entry;
 					}
+
 					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 					{
 						selectedEntry = &entry;
 					}
-
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 					{
 						SelectFile(entry);
@@ -172,18 +173,44 @@ namespace SliceEditor
 			}
 
 
-
+			//Section for Files
 			for (auto& [name, entry] : node.children)
 			{
 				if (!entry.isDirectory)
 				{
 					ImGui::TableNextColumn();
 
-					//DisplayButton(selectedEntry, entry, false);
+					std::filesystem::path filePath = entry.fileName;
+					std::string fileKey = filePath.stem().stem().string();
+					std::string fileExt = filePath.extension().string();
+					bool canDrag = true;
+
+					if (mRegistry.GetAssetManager().mDescriptorMap.find(fileKey) == mRegistry.GetAssetManager().mDescriptorMap.end())
+					{
+						canDrag = false;
+					}
+
+					if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
+					{
+						canDrag = false;
+					}
 
 					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
+					}
+
+					//Drag and Drop Payload
+					if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					{
+						//Check that the extension exists in the map
+						SliceEngine::GUID newGUID = SliceEngine::GUID(mRegistry.GetAssetManager().mDescriptorMap[fileKey]);
+						std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
+						ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
+
+						std::string dragText = "Dragging item " + entry.fileName;
+						ImGui::Text(dragText.c_str());
+						ImGui::EndDragDropSource();
 					}
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))

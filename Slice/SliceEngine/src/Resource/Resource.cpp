@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Model.h"
 #include "Scene.h"
 #include "Audio.h"
+#include "Prefab.h"
 
 namespace SliceEngine
 {
@@ -128,5 +129,19 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Audio>::Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr)
 	{
 		resource.DestroyAudio();
+	}
+	
+	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+			std::filesystem::path file(path);
+			GUID guid = GUID::FromString(file.stem().string());
+			
+			auto prefab = std::make_unique<SliceEngineTypes::Prefab>(guid, path);
+			return prefab;
+	}
+
+	void Type<SliceEngineTypes::Prefab>::Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr)
+	{
+		// nth to destroy
 	}
 }

@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "AssetManager.h"
 #include "AssetTypes.h"
+#include <Serializer/JSONSerializer.h>
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -45,7 +46,7 @@ namespace SliceEditor
 				continue;
 			}
 
-			std::string fileName = dirEntry.path().filename().stem().string();
+			std::string fileName = dirEntry.path().filename().stem().stem().string();
 
 			// Since this isn't unity style where meta files are alongside assets
 			// we need to compare wit hthe file name to GUID from the resource manager
@@ -67,7 +68,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -76,10 +77,10 @@ namespace SliceEditor
 		if (it == mSupportedAssetTypes.end())
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
-			return; // Unsupported asset type
+			return "";
 		}
 
-		AssetType assetType = it->second;
+		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
 
 		// I think can compile assets somewhere around here
@@ -105,6 +106,10 @@ namespace SliceEditor
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::Prefab:
+			metaData = std::make_unique<PrefabData>();
+			typeID = ResourceTypeIDs::PREFAB;
 			break;
 		}
 
@@ -172,6 +177,8 @@ namespace SliceEditor
 				// idk audio yet
 				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
 				break;
+				// prefab and scene is the same just copy it over
+			case AssetType::Prefab:
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
 				break;
@@ -189,7 +196,7 @@ namespace SliceEditor
 				// delete the meta file if it didn't compile properly
 				std::filesystem::remove(metaPath);
 
-				return;
+				return "";
 			}
 
 
@@ -202,6 +209,7 @@ namespace SliceEditor
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 		
+			return  metaData->resourcePath;
 		}
 	}
 
@@ -385,7 +393,7 @@ namespace SliceEditor
 							if (std::filesystem::exists(resourceFilePath))
 								std::filesystem::remove(resourceFilePath);
 
-							return;
+							//return;
 						}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
@@ -409,7 +417,7 @@ namespace SliceEditor
 							// and remove the meta file
 							std::filesystem::remove(filePath);
 
-							return;
+							continue;
 							// note: for shaders since it comes in a set of 3 files
 							// i dont rlly know how to clean that up
 						}
@@ -434,7 +442,7 @@ namespace SliceEditor
 
 							// idk about shaders
 
-							return;
+							continue;
 						}
 
 						mDescriptorMap.insert_or_assign(assetName, guid);
@@ -447,6 +455,23 @@ namespace SliceEditor
 				}
 			}
 		}
+	}
+
+	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
+	{
+
+		// idk if this will work yet cause i need it implemented in the editor to test
+		// but this should create the prefab and compile it to create the resource as well 
+
+		// Create the prefab file
+		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
+		std::filesystem::path filePath(path);
+		// Create the descriptor
+		std::string resourcePath = CreateDescriptorFile(filePath);
+
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(resourcePath);
+
 	}
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 

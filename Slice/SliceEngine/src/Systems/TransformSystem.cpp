@@ -22,7 +22,6 @@ namespace SliceEngine
 		if (transform.scale.x == 0.f && transform.scale.y == 0.f && transform.scale.z == 0.f)
 		{
 			transform.scale = glm::vec3(1.f);
-			transform.previousScale = transform.scale;
 		}
 			
 	}
