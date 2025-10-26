@@ -45,6 +45,7 @@ namespace SliceEditor
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
 		std::string CreateDescriptorFile(const std::filesystem::path filePath);
+		bool CompileAsset(const std::string fileName);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileShaderAsset(ShaderData* metaData);

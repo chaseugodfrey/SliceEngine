@@ -196,6 +196,7 @@ namespace SliceEditor
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
 		manager->RebuildDirectory(*manager->rootNode);
+		manager->mPendingDrops.push(path);
 	}
 
 

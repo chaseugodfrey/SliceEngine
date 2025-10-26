@@ -56,7 +56,15 @@ namespace SliceEditor
 				// this file does not have a meta/descriptor file
 				// make one ig?
 				CreateDescriptorFile(dirEntry.path());
+
+				bool compiled = CompileAsset(fileName);
 			}
+			else
+			{
+
+			}
+
+
 		}
 		SLICE_LOG("Asset Manager Initialized");
 	}
@@ -138,11 +146,15 @@ namespace SliceEditor
 			*/
 			
 			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
-			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			
+			//UNUSED
+			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			
 			// get the file path to the meta file
 			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
+
+			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
 			{
@@ -208,8 +220,58 @@ namespace SliceEditor
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 		
 			return  metaData->resourcePath;
+			#pragma endregion
 		}
 	}
+
+	//bool AssetManager::CompileAsset(const std::string fileName)
+	//{
+	//	if (mDescriptorMap.find(fileName) == mDescriptorMap.end())
+	//	{
+
+	//	}
+
+	//	switch (assetType)
+	//	{
+	//	case AssetType::Texture:
+	//		// This should create the texture asset into the resource folder
+	//		CompileTextureAsset(metaPath);
+	//		break;
+	//	case AssetType::Model:
+	//		// Compile the model file and write into the resource folder
+	//		if (ext == ".rainne")
+	//		{
+	//			// cause rainne is still using manual vertice fbx files
+	//			// i renamed them to .rainne
+	//			// and ill just copy it over instead
+	//			try
+	//			{
+	//				std::filesystem::copy(metaData->assetPath, metaData->resourcePath);
+	//			}
+	//			catch (std::filesystem::filesystem_error& e)
+	//			{
+	//				SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+	//				//return;
+	//			}
+	//		}
+	//		else
+	//		{
+	//			CompileFBXAsset(metaPath);
+	//		}
+	//		break;
+	//	case AssetType::Audio:
+	//		// idk audio yet
+	//		break;
+	//		// prefab and scene is the same just copy it over
+	//	case AssetType::Prefab:
+	//	case AssetType::Scene:
+	//		CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
+	//		break;
+	//	case AssetType::Shader:
+	//		CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
+	//		break;
+	//	}
+	//}
 
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;

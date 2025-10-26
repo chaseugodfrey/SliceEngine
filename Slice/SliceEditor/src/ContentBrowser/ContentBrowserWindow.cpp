@@ -68,6 +68,27 @@ namespace SliceEditor
 				ImGui::EndChild();
 			}
 		}
+
+		if (!mManager.mPendingDrops.empty())
+		{
+			mManager.mActiveDrop = mManager.mPendingDrops.front();
+		}
+
+		if(mManager.mActiveDrop.has_value())
+		{
+			bool isOpen;
+
+			ImGui::OpenPopup("##CompileAsset");
+
+			CompileAssetPopup(*mManager.mActiveDrop, isOpen);
+
+			if (!isOpen) //Pop-up is closed for some reason
+			{
+				mManager.mPendingDrops.pop(); //The front is done, move on to next (if any)
+				mManager.mActiveDrop.reset(); //Remove the current activeDrop
+			}
+		}
+
 		ImGui::End();
 	}
 
@@ -323,8 +344,7 @@ namespace SliceEditor
 	{
 		static char newName[256] = {};
 
-
-		if (ImGui::BeginPopupModal("##RenameFile"))
+		if (ImGui::BeginPopupModal("##RenameFile",0, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::IsWindowAppearing()) //First-time copying the name of the file for ImGui to register it
 			{
@@ -355,6 +375,34 @@ namespace SliceEditor
 			if (ImGui::Button("Cancel"))
 			{
 				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	void ContentBrowserWindow::CompileAssetPopup(std::filesystem::path entry, bool& toClose)
+	{
+		if (ImGui::BeginPopupModal("##CompileAsset",&toClose, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+
+			std::string pathString = entry.string();
+			std::string fileExt = entry.extension().string();
+
+			ImGui::Text(pathString.c_str());
+
+			if (ImGui::Button("Compile"))
+			{
+				ImGui::CloseCurrentPopup();
+				toClose = true;
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+				toClose = true;
 			}
 
 			ImGui::EndPopup();

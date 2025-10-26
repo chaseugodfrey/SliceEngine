@@ -122,8 +122,26 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 
-		void Deserialize(const std::filesystem::path & desc_path) override
+		void Deserialize(const std::filesystem::path& desc_path) override
 		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID::FromString(metaData["guid"].get<std::string>());
+			assetName = metaData["assetName"].get<std::string>();
+
 
 		}
 	};
