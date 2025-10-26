@@ -141,7 +141,9 @@ namespace SliceEditor
 
 			guid = SliceEngine::GUID::FromString(metaData["guid"].get<std::string>());
 			assetName = metaData["assetName"].get<std::string>();
-
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
 
 		}
 	};
