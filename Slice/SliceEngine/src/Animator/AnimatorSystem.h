@@ -16,6 +16,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #include "../Resource/Model.h"
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
+#include "FSMSystem.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -97,33 +98,13 @@ namespace SliceEngine
 		glm::mat4 globalinv;
 	};
 
-
-
-	struct Transition
+	struct CAnimator
 	{
-		std::string targetState;
-		std::variant<bool, int, float, std::string> condition;
-
-		bool operator==(const Transition& other) const
-		{
-			return targetState == other.targetState && condition == other.condition;
-		}
+		CStateMachine stateMachine;
+		float animTimer = 0.0f;
 	};
 
-	struct State
-	{
-		std::string stateName;
-		Animation* currAnim;
-		bool isLoop;
-		std::variant<bool, int, float, std::string> stateCon;
-
-		std::vector<Transition> transitions;
-
-		bool operator==(const State& other) const
-		{
-			return (other.stateName == this->stateName) && (other.currAnim->animName == this->currAnim->animName) && (other.stateCon == this->stateCon);
-		}
-	};
+	
 
 	struct animatorEntity {};
 
@@ -149,14 +130,7 @@ namespace SliceEngine
 		float current_time{};
 	private:
 		std::vector<glm::mat4> final_tforms;
-		//Animation* curr_anim{};
-
-
-		State currState;
-		State nextState;
-		State entryState;
-
-		std::unordered_map<std::string, State> stateMap;
+		Animation* curr_anim{};
 	};
 
 	
