@@ -35,18 +35,14 @@ namespace SliceEditor
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
 	{
-		Clear(); // start fresh
+		Clear();
 
 		const auto &vertices = model.meshes[0].vertices;
 		const auto &indices = model.meshes[0].indices;
 
-		//std::cout << "Input indices count: " << vertices.size() << std::endl;
-		//for (auto &v : indices)
-		//	std::cout << "(" << v << ")\n";
 		if (vertices.empty() || indices.empty())
 			return false;
 
-		// Convert vertices to Recast format
 		std::vector<float> verts;
 		verts.reserve(vertices.size() * 3);
 
@@ -54,13 +50,11 @@ namespace SliceEditor
 		{
 			const auto &v = vertices[i].position;
 
-			// Apply transformation
 			glm::vec4 worldPos = transform * glm::vec4(v.x, v.y, v.z, 1.0f);
 
-			// Convert to Recast coordinate system (swap Y and Z)
 			verts.push_back(worldPos.x);
-			verts.push_back(worldPos.y);  // Z becomes Y (height)
-			verts.push_back(worldPos.z);  // Y becomes Z (depth)
+			verts.push_back(worldPos.y);  
+			verts.push_back(worldPos.z);  
 		}
 
 		std::cout << "Input vertex count: " << vertices.size() << std::endl;
@@ -70,35 +64,31 @@ namespace SliceEditor
 
 		std::cout << "indices.size(): " << indices.size() << std::endl;
 		std::cout << "verts.size(): " << verts.size() << std::endl;
-		// Create a new indices array for Recast (0..n-1)
 		std::vector<int> recastIndices(indices.begin(), indices.end());
 
 		memset(&config, 0, sizeof(config));
-		config.cs = 0.2f;  // 20cm cells - reasonable for navigation
-		config.ch = 0.2f;  // 20cm height
-		config.walkableHeight = (int)ceilf(2.0f / config.ch);   // 10 cells = 2 units height
-		config.walkableClimb = (int)floorf(0.5f / config.ch);   // 2-3 cells = 0.5 units climb
-		config.walkableRadius = (int)ceilf(0.4f / config.cs);   // 2 cells = 0.4 units radius
-		config.maxEdgeLen = (int)(12.0f / config.cs);            // 60 cells
+		config.cs = 0.2f; 
+		config.ch = 0.2f; 
+		config.walkableHeight = (int)ceilf(2.0f / config.ch);  
+		config.walkableClimb = (int)floorf(0.5f / config.ch);  
+		config.walkableRadius = (int)ceilf(0.4f / config.cs);  
+		config.maxEdgeLen = (int)(12.0f / config.cs);          
 		config.maxSimplificationError = 1.3f;
-		config.minRegionArea = (int)rcSqr(8);   // Back to reasonable values
+		config.minRegionArea = (int)rcSqr(8);  
 		config.mergeRegionArea = (int)rcSqr(20);
 		config.maxVertsPerPoly = 6;
 		config.detailSampleDist = config.cs * 6.0f;
 		config.detailSampleMaxError = config.ch * 1.0f;
 
-		// Bounding box
 		float bmin[3], bmax[3];
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
 
-		// ADD THIS DEBUG
 		std::cout << "Bounds: (" << bmin[0] << "," << bmin[1] << "," << bmin[2] << ") to ("
 			<< bmax[0] << "," << bmax[1] << "," << bmax[2] << ")" << std::endl;
 
-		// FIX: Ensure minimum bounds in Y (height) direction
 		if (bmax[1] - bmin[1] < 0.01f)
 		{
-			bmax[1] = bmin[1] + 0.01f;  // Add at least 1cm of height
+			bmax[1] = bmin[1] + 0.01f;  
 		}
 
 		rcCalcGridSize(bmin, bmax, config.cs, &config.width, &config.height);
@@ -112,28 +102,6 @@ namespace SliceEditor
 
 		std::vector<unsigned char> areas(recastIndices.size() / 3, RC_WALKABLE_AREA);
 
-		// Debug: Check triangle winding
-		for (int t = 0; t < (int)(recastIndices.size() / 3); ++t)
-		{
-			int i0 = recastIndices[t * 3 + 0] * 3;
-			int i1 = recastIndices[t * 3 + 1] * 3;
-			int i2 = recastIndices[t * 3 + 2] * 3;
-
-			float v0[3] = { verts[i0], verts[i0 + 1], verts[i0 + 2] };
-			float v1[3] = { verts[i1], verts[i1 + 1], verts[i1 + 2] };
-			float v2[3] = { verts[i2], verts[i2 + 1], verts[i2 + 2] };
-
-			// Calculate normal
-			float e0[3] = { v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2] };
-			float e1[3] = { v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2] };
-			float normal[3] = {
-				e0[1] * e1[2] - e0[2] * e1[1],
-				e0[2] * e1[0] - e0[0] * e1[2],
-				e0[0] * e1[1] - e0[1] * e1[0]
-			};
-
-			std::cout << "Triangle " << t << " normal: (" << normal[0] << ", " << normal[1] << ", " << normal[2] << ")" << std::endl;
-		}
 
 		rcRasterizeTriangles(&ctx, verts.data(), (int)verts.size() / 3,
 			recastIndices.data(), areas.data(), (int)(recastIndices.size() / 3),
@@ -170,7 +138,6 @@ namespace SliceEditor
 
 		std::cout << "Max region: " << compactHeightfield->maxRegions << std::endl;
 
-		// Now check if we actually have regions
 		if (compactHeightfield->maxRegions == 0)
 		{
 			std::cout << "ERROR: No regions were created!" << std::endl;
@@ -226,7 +193,7 @@ namespace SliceEditor
 			<< " detailVerts: " << params.detailVertsCount
 			<< " detailTris: " << params.detailTriCount
 			<< std::endl;
-		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false; // returning false here
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
 		navMesh = dtAllocNavMesh();
 		if (dtStatusFailed(navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA)))
