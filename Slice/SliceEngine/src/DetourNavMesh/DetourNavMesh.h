@@ -6,9 +6,11 @@
 #include <DetourCommon.h>
 namespace SliceEngine
 {
-	class NavMesh
+	class DetourNavMesh
 	{
-
+	private:
+		dtNavMesh *navMesh = nullptr;
+		dtNavMeshQuery *navQuery = nullptr;
 	};
 }
 #endif

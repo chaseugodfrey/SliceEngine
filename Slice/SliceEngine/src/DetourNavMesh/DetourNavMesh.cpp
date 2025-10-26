@@ -1,5 +1,5 @@
 #include <pch.h>
-#include "NavMesh.h"
+#include "DetourNavMesh.h"
 
 namespace SliceEngine
 {
