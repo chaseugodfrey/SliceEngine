@@ -44,6 +44,8 @@ namespace SliceEngine
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
         {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.Audio", ScriptFieldType::Audio},
+        {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
 
     ScriptSystem::ScriptSystem()
@@ -476,6 +478,8 @@ namespace SliceEngine
 
     void ScriptSystem::LoadEntityClasses()
     {
+        //loook here aloy
+
         // clear the map before using it
         mEntityClasses.clear();
 
@@ -527,7 +531,6 @@ namespace SliceEngine
 
 
                             rttr::variant var;
-
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, fieldName, field, var};
                         }

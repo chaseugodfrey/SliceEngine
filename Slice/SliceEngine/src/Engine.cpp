@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
-#include "AudioManager.h"
+#include "../src/Audio/AudioManager.h"
 #include "Systems/TransformSystem.h"
 #include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
@@ -34,6 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
 //using namespace rttr;
 
@@ -95,7 +96,7 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		
 		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
 		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
@@ -108,8 +109,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
+
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -170,7 +173,6 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
@@ -237,7 +239,6 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-
 		frm.StartSystem("Input");
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
@@ -277,6 +278,10 @@ namespace SliceEngine
 		frm.StartSystem("Graphics");
 		sRender->Render();
 		frm.EndSystem("Graphics");
+
+		frm.StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
+		frm.EndSystem("Particle System");
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();

@@ -164,6 +164,26 @@ namespace SliceEngine
 			return Handle<T>(*this, &instance, assetGUID);
 		}
 
+		template<typename T>
+		Handle<T> get(const std::string& fileName)
+		{
+			auto it = mFileNameToGUID.find(fileName);
+
+			if (it == mFileNameToGUID.end())
+			{
+				SLICE_LOG_ERROR("ResourceManager: file name not registered");
+				return Handle<T>();
+			}
+
+			const GUID& guid = it->second;
+
+			return get<T>(guid);
+		}
+
+		void RegisterResourceAsset(const GUID& guid, const std::string& path)
+		{
+			mGUIDToResource[guid] = path;
+		}
 		void RegisterResourceAsset( const std::string& path);
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;

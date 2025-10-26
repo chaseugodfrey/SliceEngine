@@ -34,73 +34,24 @@ namespace SliceEditor
 
 		ImGui::Begin("Inspector");
 
-		auto& entities = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedEntities();
+		auto& selected_nodes = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 
-		if (entities.size() <= 0)
+		if (selected_nodes.size() <= 0)
 		{
 			ImGui::End();
 			return;
 		}
 
-		entt::entity selected_entity = *entities.begin();
+		// check what type selected nodes are
 
-		DisplayEntityData(selected_entity);
+		auto type = selected_nodes.begin().operator*()->type;
 
-		//Loop through registered components and display them if they exist on the selected entity
-		
-		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		switch (type)
 		{
-			
-		}
-
-
-
-		// to do : use gamefactory component view
-		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(selected_entity))
-		{
-			auto entity = selected_entity;
-			DisplayTransform(selected_entity);
-			ImGui::Separator();
-
-			//DisplaySceneGraph();
-			//ImGui::Separator();
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
-			{
-				DisplayMeshRenderer(selected_entity);
-				ImGui::Separator();
-			}
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
-			{
-				DisplayCollider3D(selected_entity);
-				ImGui::Separator();
-			}
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
-			{
-				DisplayRigidbody(selected_entity);
-				ImGui::Separator();
-			}
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
-			{
-				DisplayAudioSource(selected_entity);
-				ImGui::Separator();
-			}
-
-			// to do: change to better format
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
-			{
-				DisplaySliceScript(selected_entity);
-				ImGui::Separator();
-			}
-
-			AddComponentButton(selected_entity);
+		case SelectionNode::SelectionType::ENTITY:
+			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
+		case SelectionNode::SelectionType::FILE:
+			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
 		}
 
 		ImGui::End();
@@ -203,10 +154,10 @@ namespace SliceEditor
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
-				ImGui::Text("Audio Clip");
+				/*ImGui::Text("Audio Clip");
 				ImGui::SameLine(150);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
 
 				ImGui::Text("Volume");
 				ImGui::SameLine(150);
@@ -260,18 +211,36 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string model_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##mesh", &model_guid_string, ImGuiInputTextFlags_ReadOnly))
+			if (ImGui::InputText("##mesh", &model_guid_string))
 			{
 				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					rend.model = recievedPayload;
+				}
 			}
 
 			ImGui::Text("Texture");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(rend.model.GetGUID());
+			std::string texture_guid_string = std::to_string(rend.texture.GetGUID());
 			if (ImGui::InputText("##texture", &texture_guid_string, ImGuiInputTextFlags_ReadOnly))
 			{
-				rend.model = SliceEngine::GUID(std::stoll(texture_guid_string));
+				rend.texture = SliceEngine::GUID(std::stoll(texture_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+				{
+						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+						rend.texture = recievedPayload;
+				}
 			}
 
 			ImGui::TreePop();
@@ -559,5 +528,71 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+	}
+
+	void InspectorWindow::DisplayEntity(EntityNode* node)
+	{
+		DisplayEntityData(node->entity);
+
+		//Loop through registered components and display them if they exist on the selected entity
+
+		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		{
+
+		}
+
+		// to do : use gamefactory component view
+		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(node->entity))
+		{
+			auto entity = node->entity;
+			DisplayTransform(node->entity);
+			ImGui::Separator();
+
+			//DisplaySceneGraph();
+			//ImGui::Separator();
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
+			{
+				DisplayMeshRenderer(node->entity);
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ColliderShape>(entity))
+			{
+				DisplayCollider3D(node->entity);
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::RigidBody>(entity))
+			{
+				DisplayRigidbody(node->entity);
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
+			{
+				DisplayAudioSource(node->entity);
+				ImGui::Separator();
+			}
+
+			// to do: change to better format
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
+			{
+				DisplaySliceScript(node->entity);
+				ImGui::Separator();
+			}
+
+			AddComponentButton(node->entity);
+		}
+
+	}
+
+	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
+	{
+
 	}
 }

@@ -25,11 +25,15 @@ namespace SliceEngine
 
 namespace SliceEditor
 {
+	using ComponentDrawer = std::function<void(rttr::variant&)>;
+
 	class Registry;
 
 	class InspectorWindow : public EditorWindow
 	{
 
+#pragma region Entitiy Inspection
+		// Displaying Entities
 		void DisplayEntityData(entt::entity entity);
 
 		// temp component header
@@ -61,17 +65,6 @@ namespace SliceEditor
 			ImGui::Separator();
 		}
 
-		template<typename T>
-		void DisplayComponentData(T& component)
-		{
-			// This function can be specialized for different component types
-			// For example:
-			// if constexpr (std::is_same_v<T, Transform>) { ... }
-			// else if constexpr (std::is_same_v<T, Rigidbody>) { ... }
-			// etc.
-		}
-
-		// to do in m2 : use rttr to read types.
 		void DisplayTransform(entt::entity entity);
 		void DisplaySceneGraph(entt::entity entity);
 		void DisplayAudioSource(entt::entity entity);
@@ -80,8 +73,13 @@ namespace SliceEditor
 		void DisplayCollider3D(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
+#pragma endregion
 
+#pragma region Main Draw Functions
 
+		void DisplayEntity(EntityNode* node);
+		void DisplayMaterial(DirectoryNode* node);
+#pragma endregion
 	public:
 
 		InspectorWindow(Registry& reg) : EditorWindow(reg) {};
