@@ -22,22 +22,21 @@ namespace SliceEditor
 {
 	class Registry;
 	class SelectionManager;
-	struct TestNode;
+	class SessionManager;
+
+	struct EntityNode;
 
 	class HierarchyWindow : public EditorWindow
 	{
 
-		void DrawNode(SelectionManager& mSelection, entt::entity entity, SliceEngine::SceneGraph& graph);
+		void DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph);
 		void DrawSceneNode();
 		void DrawNodeGraph();
-
+		void Reset();
 		void EntityContextPopUp(entt::entity entity);
 
-		std::unordered_set<TestNode*> set;
-		std::unordered_set<entt::entity> selected;
-		std::unordered_set<entt::entity> deselected;
-
 	public:
+
 
 		HierarchyWindow(Registry& reg) : EditorWindow(reg) {};
 		~HierarchyWindow() = default;

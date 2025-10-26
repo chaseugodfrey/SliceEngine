@@ -127,6 +127,7 @@ namespace SliceEditor
 	{
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			registry.Update();
 			inputs.Update();
 			engine.Update();
 			Render();

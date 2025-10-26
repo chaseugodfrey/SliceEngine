@@ -106,9 +106,9 @@
 #include <Core/Events.h>
 
 // Editor
-#include <History/Commands.h>
 #include <EditorCommonTypes.h>
 #include <EditorUtilities.h>
+#include <History/Commands.h>
 #include <Core/Registry.h>
 #include <Core/EditorEvents.h>
 
