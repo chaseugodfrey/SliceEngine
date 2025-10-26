@@ -4,7 +4,7 @@
  email:			g.francis@digipen.edu
  brief:			Handles all resources
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -37,6 +37,34 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
 	}
 
+	void ResourceManager::ReloadResource(const GUID& guid)
+	{
+		auto it = mInstances.find(guid);
+		if (it == mInstances.end())
+		{
+			SLICE_LOG_WARNING("Attempted to reload a resource that does not exist");
+			return;
+		}
+
+		auto& instance = it->second;
+
+		if (!instance.reload)
+		{
+			SLICE_LOG_WARNING("Resource has no reload function");
+			return;
+		}
+
+		// recompile the new data
+		auto newData = instance.reload(*this, instance.filePath);
+
+		instance.data = std::move(newData);
+	}
+
+	void ResourceManager::RegisterResourceAsset(const GUID& guid, const std::string& path)
+	{
+		mGUIDToResource[guid] = path;
+	}
+
 	void ResourceManager::RegisterResourceAsset(const std::string& path)
 	{
 		//if (mGUIDToResource.count(guid) != 0)
@@ -66,5 +94,25 @@ namespace SliceEngine
 
 	}
 
+	void ResourceManager::ReleaseResource(const GUID& guid)
+	{
+		//std::cout << "Resource being released " << guid.GetGUID() << " : ";
+		//for(const auto& [key, val] : mFileNameToGUID)
+		//{
+		//	if (val == guid)
+		//	{
+		//		std::cout << key << std::endl;
+		//	}
+		//}
+		auto it = mInstances.find(guid);
+		if (it != mInstances.end())
+		{
+			it->second.refCount--;
+			if (it->second.refCount <= 0)
+			{
+				mInstances.erase(it);
+			}
+		}
+	}
 
 }

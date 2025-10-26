@@ -55,6 +55,26 @@ namespace SliceEditor
 		INTENSITY
 	};
 
+	enum AudioStream : std::uint8_t
+	{
+		CREATE_SAMPLE,
+		CREATE_STREAM
+	};
+
+	enum AudioDimension : std::uint8_t
+	{
+		FMOD2D,
+		FMOD3D
+	};
+
+	enum AudioCategory : std::uint8_t
+	{
+		SFX,
+		BGM,
+		UI,
+		EditorSounds
+	};
+
 	// type UUIDs 
 	namespace ResourceTypeIDs
 	{
@@ -216,6 +236,50 @@ namespace SliceEditor
 		}
 	};
 
+	struct AudioData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
+
+		AudioStream stream{ AudioStream::CREATE_SAMPLE };
+		AudioDimension dimension{ AudioDimension::FMOD3D };		
+		AudioCategory category{ AudioCategory::SFX };
+		
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			metaJson["stream"] = stream;
+			metaJson["dimension"] = dimension;
+			metaJson["category"] = category;
+			
+
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+
+		
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
+		}
+	};
+
 	struct PrefabData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::PREFAB;
@@ -225,6 +289,7 @@ namespace SliceEditor
 			// now set the resource path
 			// technically this is done in compiling of asset
 			// but scene has no compiling so we just set it here
+
 			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
@@ -232,6 +297,8 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+			
+
 			// specific properties to scene goes here but we dh that yet
 			// now create the meta file
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
@@ -247,7 +314,6 @@ namespace SliceEditor
 		{
 		}
 	};
-
 
 	struct ShaderData : public MetaData
 	{
