@@ -91,11 +91,42 @@ namespace SliceEngine
 	bool AudioManager::PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos)
 	{
 
-		auto track = std::make_unique<SoundTrack>();
+		//This call will handle the loading if the resource hasn't been loaded
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+		/*auto track = std::make_unique<SoundTrack>();
 
 		if (is3D == false)
 		{
 			track->channel->setMode(FMOD_2D);
+		}
+
+		FMOD_RESULT result;
+
+		switch (audioClip->GetCategory())
+		{
+		case 1:
+		{
+
+			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, true, &channel);
+			break;
+		};
+		case 2:
+		{
+
+			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, true, &previewChannel);
+			break;
+		};
+		case 3:
+		{
+			result = mSoundSystem->playSound(audioClip->GetSound(), ui, true, &previewChannel);
+			break;
+		};
+		case 4:
+		{
+			result = mSoundSystem->playSound(audioClip->GetSound(), editor, true, &previewChannel);
+			break;
+		};
+
 		}
 		
 		track->soundPos3D = Vec3ToFMODVec3(soundPos);
@@ -108,9 +139,9 @@ namespace SliceEngine
 		{
 			SLICE_LOG_ERROR("Failed to play sound");
 			return false;
-		}
+		}*/
 
-		if (channel)
+		/*if (channel)
 		{
 			track->channel = channel;
 			
@@ -124,7 +155,7 @@ namespace SliceEngine
 
 			mSound[internalCategory].emplace_back(std::move(track));
 			return true;
-		}
+		}*/
 
 
 
@@ -133,22 +164,22 @@ namespace SliceEngine
 
 	}
 
-	bool AudioManager::PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel, glm::vec3 soundPos)
+	bool AudioManager::PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel)
 	{
 		//This call will handle the loading if the resource hasn't been loaded
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
 
-
-		auto track = std::make_unique<SoundTrack>();
-
-		if (!is3D)
+		if (!audioClip->GetDimension())
 		{
 			previewChannel->setMode(FMOD_2D);
 		}
 
-		track->soundPos3D = Vec3ToFMODVec3(soundPos);
+		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), editor, true, &previewChannel);
 
-		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), nullptr, false, &previewChannel);
+		
+
+		//track->soundPos3D = Vec3ToFMODVec3(soundPos);
+
 
 		if (result != FMOD_OK)
 		{
@@ -156,7 +187,7 @@ namespace SliceEngine
 			return false;
 		}
 
-		if (previewChannel)
+		/*if (previewChannel)
 		{
 			track->previewChannel = channel;
 			track->category = SoundCategory::Editor;
@@ -169,7 +200,7 @@ namespace SliceEngine
 			mSound[SOUND_EDITOR].emplace_back(std::move(track));
 			return true;
 
-		}
+		}*/
 
 		return false;
 	}

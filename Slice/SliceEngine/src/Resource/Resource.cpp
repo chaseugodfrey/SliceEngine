@@ -127,6 +127,6 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Audio>::Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr)
 	{
-
+		resource.DestroyAudio();
 	}
 }

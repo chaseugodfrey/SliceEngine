@@ -109,7 +109,7 @@ namespace SliceEngine
 			if (audioManager->IsPreviewChannelPlaying(entity) == false)
 			{
 				
-				audioManager->PlayEditorPreview(audioComp.soundName, audioComp.is3D, entity);
+				audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D, audioComp.previewChannel);
   				
 			}
 

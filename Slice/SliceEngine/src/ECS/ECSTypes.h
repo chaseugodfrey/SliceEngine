@@ -166,8 +166,8 @@ namespace SliceEngine
 	{
 		//std::string soundName;
 		GUID soundGUID = (GUID)9244272128099795086;
-		FMOD::Channel* channel;
-		FMOD::Channel* previewChannel;
+		FMOD::Channel* channel = nullptr;
+		FMOD::Channel* previewChannel = nullptr;
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;

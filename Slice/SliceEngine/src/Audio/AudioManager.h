@@ -170,7 +170,7 @@ namespace SliceEngine
 		 * @param soundPos Position for 3D preview playback.
 		 * @return True if preview playback started successfully, false otherwise.
 		 */
-		bool PlayEditorPreview(GUID soundName, bool is3D, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
+		bool PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel);
 
 		/**
 		 * @brief Updates the listener's 3D attributes (position, velocity, orientation).

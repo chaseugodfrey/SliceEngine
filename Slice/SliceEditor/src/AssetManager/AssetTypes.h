@@ -53,10 +53,16 @@ namespace SliceEditor
 		INTENSITY
 	};
 
-	enum AudioFormat : std::uint8_t
+	enum AudioStream : std::uint8_t
 	{
-		STEREO,
-		MONO
+		CREATE_SAMPLE,
+		CREATE_STREAM
+	};
+
+	enum AudioDimension : std::uint8_t
+	{
+		FMOD2D,
+		FMOD3D
 	};
 
 	enum AudioCategory : std::uint8_t
@@ -65,7 +71,7 @@ namespace SliceEditor
 		BGM,
 		UI,
 		Editor
-	}
+	};
 
 	// type UUIDs 
 	namespace ResourceTypeIDs
@@ -210,6 +216,10 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
 
+		AudioStream stream{ AudioStream::CREATE_SAMPLE };
+		AudioDimension dimension{ AudioDimension::FMOD3D };		
+		AudioCategory category{ AudioCategory::SFX };
+		
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -220,7 +230,12 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+
+			metaJson["stream"] = stream;
+			metaJson["dimension"] = dimension;
+			metaJson["category"] = category;
 			
+
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 
