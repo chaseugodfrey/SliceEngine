@@ -381,20 +381,28 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserWindow::CompileAssetPopup(std::filesystem::path entry, bool& toClose)
+	void ContentBrowserWindow::CompileAssetPopup(std::filesystem::path entry, bool& willOpen)
 	{
-		if (ImGui::BeginPopupModal("##CompileAsset",&toClose, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("##CompileAsset",&willOpen, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 
 			std::string pathString = entry.string();
 			std::string fileExt = entry.extension().string();
+
+			if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
+			{
+				ImGui::CloseCurrentPopup();
+				willOpen = false;
+			}
+
+			AssetType assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
 
 			ImGui::Text(pathString.c_str());
 
 			if (ImGui::Button("Compile"))
 			{
 				ImGui::CloseCurrentPopup();
-				toClose = true;
+				willOpen = false;
 			}
 
 			ImGui::SameLine();
@@ -402,7 +410,7 @@ namespace SliceEditor
 			if (ImGui::Button("Cancel"))
 			{
 				ImGui::CloseCurrentPopup();
-				toClose = true;
+				willOpen = false;
 			}
 
 			ImGui::EndPopup();
