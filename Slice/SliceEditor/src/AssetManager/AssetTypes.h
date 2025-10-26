@@ -72,7 +72,7 @@ namespace SliceEditor
 		SFX,
 		BGM,
 		UI,
-		Editor
+		EditorSounds
 	};
 
 	// type UUIDs 
@@ -278,8 +278,6 @@ namespace SliceEditor
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
 			
-
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 
 			// specific properties to scene goes here but we dh that yet
 			// now create the meta file

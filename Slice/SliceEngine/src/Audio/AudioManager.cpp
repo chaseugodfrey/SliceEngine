@@ -50,12 +50,14 @@ namespace SliceEngine
 
 		//master now points to master channel group
 		mSoundSystem->getMasterChannelGroup(&master);
+		master->setVolume(1.0f);
 
 		//Create categories for the different sounds
 		mSoundSystem->createChannelGroup("SFX", &sfx);
 		mSoundSystem->createChannelGroup("BGM", &bgm);
 		mSoundSystem->createChannelGroup("UI", &ui);
-		mSoundSystem->createChannelGroup("Editor", &editor);
+		mSoundSystem->createChannelGroup("Editor", &editorSounds);
+		editorSounds->setVolume(1.0f);
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -164,17 +166,19 @@ namespace SliceEngine
 
 	}
 
-	bool AudioManager::PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel)
+	FMOD::Channel* AudioManager::PlayEditorPreview(GUID soundName, bool is3D)
 	{
 		//This call will handle the loading if the resource hasn't been loaded
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+
+		FMOD::Channel* previewChannel = nullptr;
 
 		if (!audioClip->GetDimension())
 		{
 			previewChannel->setMode(FMOD_2D);
 		}
 
-		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), editor, true, &previewChannel);
+		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, false, &previewChannel);
 
 		
 
@@ -184,7 +188,7 @@ namespace SliceEngine
 		if (result != FMOD_OK)
 		{
 			SLICE_LOG_ERROR("Failed to play sound");
-			return false;
+			return nullptr;
 		}
 
 		/*if (previewChannel)
@@ -202,7 +206,7 @@ namespace SliceEngine
 
 		}*/
 
-		return false;
+		return previewChannel;
 	}
 
 	void AudioManager::SetMasterVolume(float volume)
@@ -468,9 +472,9 @@ namespace SliceEngine
 		}
 	}
 
-	void AudioManager::StopSound(Entity& id)
+	void AudioManager::StopSound(FMOD::Channel* channel)
 	{
-		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		/*for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
 		{
 			for (auto& track : mSound[i])
 			{
@@ -480,12 +484,14 @@ namespace SliceEngine
 					break;
 				}
 			}
-		}
+		}*/
+
+		channel->stop();
 	}
 
-	void AudioManager::StopEditorPreview(Entity& id)
+	void AudioManager::StopEditorPreview(FMOD::Channel* channel)
 	{
-		for (auto& track : mSound[SOUND_EDITOR])
+		/*for (auto& track : mSound[SOUND_EDITOR])
 		{
 			if (track->entityID == id && track->previewChannel)
 			{
@@ -493,7 +499,9 @@ namespace SliceEngine
 				track->previewChannel = nullptr;
 				break;
 			}
-		}
+		}*/
+		channel->stop();
+		channel = nullptr;
 	}
 
 	void AudioManager::StopAllSound(InternalSound InternalCategory)
@@ -515,25 +523,6 @@ namespace SliceEngine
 
 	void AudioManager::Exit()
 	{
-		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; ++i)
-		{
-
-			StopAllSound(static_cast<InternalSound>(i));
-
-		}
-
-
-		for (auto& pair : mLoadedSounds)
-		{
-			if (pair.second->sound)
-			{
-				pair.second->sound->release();
-				pair.second->sound = nullptr;
-			}
-		}
-
-		mLoadedSounds.clear();
-
 
 		if (mSoundSystem)
 		{

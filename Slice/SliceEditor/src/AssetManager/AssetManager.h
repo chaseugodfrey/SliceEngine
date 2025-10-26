@@ -65,9 +65,9 @@ namespace SliceEditor
 			{".obj", {AssetType::Model, "Model"}},
 			{".fbx", {AssetType::Model, "Model"}},
 			{".rainne", {AssetType::Model, "Model"}},
-			//{".wav", AssetType::Audio},
-			//{".mp3", AssetType::Audio},
-			//{".ogg", AssetType::Audio},
+			{".wav", {AssetType::Audio, "Audio"}},
+			{".mp3", {AssetType::Audio, "Audio"}},
+			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}}
@@ -84,26 +84,6 @@ namespace SliceEditor
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 
-		
-		std::unordered_map <std::string, AssetType> mSupportedAssetTypes = 
-		{
-			{".png", AssetType::Texture},
-			{".jpg", AssetType::Texture},
-			{".jpeg", AssetType::Texture},
-			{".dds", AssetType::Texture},
-			{".tga", AssetType::Texture},
-			{".gif", AssetType::Texture},
-			{".obj", AssetType::Model},
-			{".fbx", AssetType::Model},
-			{".rainne", AssetType::Model},
-			{".wav", AssetType::Audio},
-			{".mp3", AssetType::Audio},
-			{".ogg", AssetType::Audio},
-			{".scene", AssetType::Scene},
-			{".shader", AssetType::Shader},
-			//{".vert", AssetType::Shader},
-			//{".frag", AssetType::Shader}
-		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
 		{
@@ -111,7 +91,7 @@ namespace SliceEditor
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
 			{AssetType::Shader, ".shader"},
-			{AssetType::Audio, ".wav"}
+			{AssetType::Audio, ".wav"},
 			{AssetType::Prefab, ".prefab"}
 		};
 	};

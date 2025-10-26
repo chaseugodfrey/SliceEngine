@@ -68,7 +68,7 @@ namespace SliceEngine
 				return false;
 			}
 
-			sound->setDefaults(0.0f, 128);
+			
 
 			if (audioData.dimension == SliceEditor::AudioDimension::FMOD2D)
 			{

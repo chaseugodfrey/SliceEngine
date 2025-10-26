@@ -154,10 +154,10 @@ namespace SliceEditor
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
-				ImGui::Text("Audio Clip");
+				/*ImGui::Text("Audio Clip");
 				ImGui::SameLine(150);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
 
 				ImGui::Text("Volume");
 				ImGui::SameLine(150);

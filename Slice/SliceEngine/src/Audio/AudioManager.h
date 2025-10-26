@@ -80,7 +80,7 @@ namespace SliceEngine
 		FMOD::ChannelGroup* sfx;
 		FMOD::ChannelGroup* bgm;
 		FMOD::ChannelGroup* ui;
-		FMOD::ChannelGroup* editor;
+		FMOD::ChannelGroup* editorSounds;
 		
 		const int MAX_CHANNELS = 256;
 		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
@@ -170,7 +170,7 @@ namespace SliceEngine
 		 * @param soundPos Position for 3D preview playback.
 		 * @return True if preview playback started successfully, false otherwise.
 		 */
-		bool PlayEditorPreview(GUID soundName, bool is3D, FMOD::Channel* previewChannel);
+		FMOD::Channel* PlayEditorPreview(GUID soundName, bool is3D);
 
 		/**
 		 * @brief Updates the listener's 3D attributes (position, velocity, orientation).
@@ -278,13 +278,13 @@ namespace SliceEngine
 		 * @brief Stops a sound currently playing for a given entity.
 		 * @param id Entity whose sound should be stopped.
 		 */
-		void StopSound(Entity& id);
+		void StopSound(FMOD::Channel* channel);
 
 		/**
 		 * @brief Stops an active editor preview sound.
 		 * @param id Entity whose preview to stop.
 		 */
-		void StopEditorPreview(Entity& id);
+		void StopEditorPreview(FMOD::Channel* channel);
 
 		/**
 		 * @brief Stops all sounds in the specified internal sound group.

@@ -47,12 +47,12 @@ namespace SliceEngine
 
 		if (audioManager->IsChannelPlaying(entity))
 		{
-			audioManager->StopSound(entity);
+			//audioManager->StopSound(entity);
 
 		}
 		else if (audioManager->IsPreviewChannelPlaying(entity))
 		{
-			audioManager->StopEditorPreview(entity);
+			//audioManager->StopEditorPreview(entity);
 		}
 
 		std::cout << "Entity exiting sound system" << std::endl;
@@ -73,7 +73,7 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		
-		if (!audioManager->IsChannelNull(entity))
+		/*if (!audioManager->IsChannelNull(entity))
 		{
 
 			if (audioComp.currentVolume != audioManager->GetCurrentTrackVolume(entity))
@@ -101,26 +101,30 @@ namespace SliceEngine
 				}
 			}
 
-		}
+		}*/
 
+		bool playPreviewFlag = false;
 
-		if (audioComp.playPreview)
+		audioComp.previewChannel->isPlaying(&playPreviewFlag);
+
+		if (audioComp.playPreview && audioComp.previewChannel == nullptr)
 		{
-			if (audioManager->IsPreviewChannelPlaying(entity) == false)
-			{
-				
-				audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D, audioComp.previewChannel);
-  				
-			}
+			
+			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D);
+  			
+			
 
 		}
-		else
+		else if(audioComp.playPreview == false && playPreviewFlag == true)
 		{
-			if (audioManager->IsPreviewChannelPlaying(entity))
+			/*if (audioManager->IsPreviewChannelPlaying(entity))
 			{
 				audioManager->StopEditorPreview(entity);
 				
-			}
+			}*/
+
+			audioManager->StopEditorPreview(audioComp.previewChannel);
+			
 		}
 		
 	}
