@@ -1,5 +1,5 @@
-#ifndef NAV_MESH_H
-#define NAV_MESH_H
+#ifndef DETOUR_NAVMESH_H
+#define DETOUR_NAVMESH_H
 
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>

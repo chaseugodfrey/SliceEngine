@@ -1,5 +1,5 @@
-#ifndef MESH_H
-#define MESH_H
+#ifndef RECAST_NAVMESH_H
+#define RECAST_NAVMESH_H
 
 #include <string>
 #include <vector>

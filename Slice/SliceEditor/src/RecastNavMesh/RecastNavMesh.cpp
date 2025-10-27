@@ -195,6 +195,11 @@ namespace SliceEditor
 			<< std::endl;
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
+		// testing if can save into file
+		std::ofstream outFile("output_navmesh.bin", std::ios::binary);
+		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
+		outFile.close();
+
 		navMesh = dtAllocNavMesh();
 		if (dtStatusFailed(navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA)))
 		{

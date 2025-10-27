@@ -91,7 +91,7 @@ namespace SliceEditor
 		auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
 
 		RecastNavMesh navMesh;
-		if (navMesh.BuildFromModel(model, transformMatrix))  // Pass the transform!
+		if (navMesh.BuildFromModel(model, transformMatrix))  
 		{
 			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
 		}
