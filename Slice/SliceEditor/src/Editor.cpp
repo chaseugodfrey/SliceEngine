@@ -249,7 +249,7 @@ namespace SliceEditor
 		//	break;
 		//}
 
-		manager->mPendingDrops.push(file);
+		manager->mPendingDrops.push(std::move(file));
 	}
 
 
