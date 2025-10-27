@@ -49,7 +49,7 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
-		void RenderGeneralShadowMaps();
+		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
 		void LightingRender(Entity cam);
 		void GammaCorrectionRender(Entity cam);
@@ -61,6 +61,20 @@ namespace SliceEngine
 		const int mMaxInstance = 100;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
+		const float pointLightFar = 20.f;
+		struct ShadowCamDir
+		{
+			glm::vec3 target;
+			glm::vec3 up;
+		};
+		const ShadowCamDir mShadowCamDir[6]{
+			{glm::vec3(1.f,0.f,0.f), glm::vec3(0.f,-1.f,0.f) },
+			{glm::vec3(-1.f,0.f,0.f), glm::vec3(0.f,-1.f,0.f)},
+			{glm::vec3(0.f,1.f,0.f), glm::vec3(0.f,0.f,1.f)},
+			{glm::vec3(0.f,-1.f,0.f), glm::vec3(0.f,0.f,-1.f)},
+			{glm::vec3(0.f,0.f,1.f), glm::vec3(0.f,-1.f,0.f) },
+			{glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f,-1.f,0.f)}
+		};
 
 
 		enum FBOType : unsigned char
@@ -72,13 +86,14 @@ namespace SliceEngine
 		};
 		enum ShaderOpt : uint64_t
 		{
-			S_BASIC = 18310719961107313904,
-			S_SHADOW = 15542823559299526962,
-			S_DEFERRED = 9461939409271178249,
-			S_LIGHTING = 17353385404596894578,
-			S_FINAL = 9302529766740298710,
-			S_INSTANCED = 17697828682138082227,
-			S_DEBUG_LINE = 13567802095736790143
+			S_BASIC			= 18310719961107313904,
+			S_SHADOW		= 15542823559299526962,
+			S_POINT_SHADOW	= 16403285895328080424,
+			S_DEFERRED		= 9461939409271178249,
+			S_LIGHTING		= 17353385404596894578,
+			S_FINAL			= 9302529766740298710,
+			S_INSTANCED		= 17697828682138082227,
+			S_DEBUG_LINE	= 13567802095736790143
 		};
 
 		enum GPU_OUT : unsigned char
@@ -107,14 +122,15 @@ namespace SliceEngine
 		{
 			DEFAULT,
 			SHADOW,
+			SPE_ADDITION,
 			ADDITION,
 			DEBUG,
 			TOTAL
 		};
 		enum class BufferClearSetting : unsigned char
 		{
-			DEFAULT,
-			ALL
+			ALL,
+			CUBE_SHADOW
 		};
 
 		FBOType mCurrFBO{ FB_TOTAL };
@@ -137,7 +153,7 @@ namespace SliceEngine
 		GPUSetting mCurrGPUSetting{ GPUSetting::TOTAL };
 		glm::mat4 V, P;
 
-
+		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
 		void LinkFrameBufferSettings(FBOType fbo, FBOSet setting);
 		void LoadSettings(GPUSetting setting);
 		void SetShader(ShaderOpt sh);

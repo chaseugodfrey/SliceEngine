@@ -133,6 +133,7 @@ namespace SliceEngine
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 1.0f };
 		GLuint depthTex{};
+		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 	};
 

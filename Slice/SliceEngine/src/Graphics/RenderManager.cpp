@@ -170,10 +170,10 @@ namespace SliceEngine
 
 		IDPick();
 
-		SetShader(S_SHADOW);
+		SetShader(S_POINT_SHADOW);
 		LinkFrameBufferSettings(FB_NIL, F_CLEAR);
 		LoadSettings(GPUSetting::SHADOW);
-		RenderGeneralShadowMaps();
+		RenderPointShadowMaps();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
@@ -198,7 +198,6 @@ namespace SliceEngine
 
 			SetShader(S_LIGHTING);
 			LinkFrameBufferSettings(FB_FINAL, F_TEX);
-			LoadSettings(GPUSetting::ADDITION);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			LightingRender(cam);
@@ -322,7 +321,7 @@ namespace SliceEngine
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
-	void RenderManager::RenderGeneralShadowMaps()
+	void RenderManager::RenderPointShadowMaps()
 	{
 		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
 		glViewport(0, 0, shadowDim, shadowDim);
@@ -331,25 +330,28 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (light.type == Light::LightType::Light_Directional) continue;
-			//auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			//
-			//glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
-			//glClear(GL_DEPTH_BUFFER_BIT);
-			//
-			//float sDim = 20.f, near = 1.f, far = 20.5f;
-			//
-			//glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, sDim);
-			//glm::mat4 V = glm::lookAt(
-			//	glm::vec3(0.f, sDim / 2.f, 0.f),
-			//	glm::vec3(0.f, 0.f, 0.f),
-			//	glm::vec3(1.f, 0.f, 0.f));
-			//P = P * V;
-			//
-			//GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
-			//glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
-			//
-			//Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
+			if (light.type != Light::LightType::Light_Point) continue;
+			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.shadowCubeMap, 0);
+			ClearBuffer(BufferClearSetting::CUBE_SHADOW);
+
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightPos");
+			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			glUniform1f(uniformLoc, pointLightFar);
+			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, pointLightFar);
+			std::stringstream ss{};
+			for (size_t i{}; i < 6; ++i)
+			{
+				glm::mat4 shadowMat{ lightP * glm::lookAt(transform.position, transform.position + mShadowCamDir[i].target, mShadowCamDir[i].up) };
+				ss.str("");
+				ss << "uShadowMat[" << std::to_string(i) << "]";
+				uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
+			}
+
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
 		}
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
@@ -366,19 +368,7 @@ namespace SliceEngine
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			float sDim = 40.f;
-			glm::vec3 lightPos{ camT.position.x, camT.position.y, camT.position.z };
-			glm::vec3 lightDir = glm::normalize(-transform.position);
-			lightPos -= sDim * lightDir;
-			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
-			glm::mat4 V = glm::lookAt(
-				lightPos,
-				lightPos + lightDir,
-				glm::vec3(1.f, 0.f, 0.f));
-			P = P * V;
-
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+			SetDirectionalLightMtx(camT.position, transform.position);
 
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
 		}
@@ -398,38 +388,57 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (light.type != Light::LightType::Light_Directional) continue;
-			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-
+			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
-			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
-			glUniform3f(uniformLoc, -transform.position.x, -transform.position.y, -transform.position.z);
+			glUniform3f(uniformLoc, lightT.position.x, lightT.position.y, lightT.position.z);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.color");
 			glUniform4f(uniformLoc, light.color.r, light.color.g, light.color.b, light.intensity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.type");
 			glUniform1i(uniformLoc, static_cast<int>(light.type));
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.hasShadow");
+			glUniform1f(uniformLoc, 1.f);
 
-			float sDim = 40.f;
-			glm::vec3 lightPos{ camT.position.x, camT.position.y, camT.position.z };
-			glm::vec3 lightDir = glm::normalize(-transform.position);
-			lightPos -= sDim * lightDir;
-			glm::mat4 P = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
-			glm::mat4 V = glm::lookAt(
-				lightPos,
-				lightPos + lightDir,
-				glm::vec3(1.f, 0.f, 0.f));
-			P = P * V;
+			switch(light.type)
+			{
+			case Light::LightType::Light_Directional:
+			{
+				LoadSettings(GPUSetting::ADDITION);
 
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
+				glUniform3f(uniformLoc, -lightT.position.x, -lightT.position.y, -lightT.position.z);
 
-			glBindTextureUnit(3, light.depthTex);
+				SetDirectionalLightMtx(camT.position, lightT.position);
 
-			auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-			glBindVertexArray(mdl.get()->vao);
-			//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-			glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+				glBindTextureUnit(3, light.depthTex);
+
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+				glBindVertexArray(mdl.get()->vao);
+				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+				glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+				break;
+			}
+			case Light::LightType::Light_Point:
+			{
+				if(glm::distance(camT.position, lightT.position) > pointLightFar * 0.5f)
+					LoadSettings(GPUSetting::ADDITION);
+				else
+					LoadSettings(GPUSetting::SPE_ADDITION);
+
+				glm::mat4 M{ 1.f };
+				M = glm::translate(M, lightT.position);
+				M = glm::scale(M, glm::vec3(pointLightFar, pointLightFar, pointLightFar));
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
+				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+
+				glBindTextureUnit(4, light.shadowCubeMap);
+
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT);
+				glBindVertexArray(mdl.get()->vao);
+				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+				glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+				break;
+			}
+			}
 		}
 	}
 	void RenderManager::GammaCorrectionRender(Entity cam)
@@ -490,6 +499,23 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Linking
+	void RenderManager::SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos)
+	{
+		glm::vec3 dir = glm::normalize(-lightPos);
+
+		float sDim = 40.f;
+		camPos -= sDim * dir;
+
+		glm::mat4 lightP = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
+		glm::mat4 lightV = glm::lookAt(
+			camPos,
+			camPos + dir,
+			glm::vec3(1.f, 0.f, 0.f));
+		lightP = lightP * lightV;
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &lightP[0][0]);
+	}
 	// Binds Framebuffer and Links any internal Output textures
 	void RenderManager::LinkFrameBufferSettings(FBOType fbo, FBOSet settings)
 	{
@@ -541,8 +567,11 @@ namespace SliceEngine
 			break;
 		}
 		case GPUSetting::ADDITION:
+			__fallthrough;
+		case GPUSetting::SPE_ADDITION:
 		{
-			glDepthMask(GL_TRUE);
+			glEnable(GL_DEPTH_TEST);
+			//glDepthMask(GL_TRUE);
 			glDisable(GL_BLEND);
 			break;
 		}
@@ -584,9 +613,24 @@ namespace SliceEngine
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			glDepthMask(GL_FALSE);
+			glDisable(GL_DEPTH_TEST);
+			//glEnable(GL_DEPTH_TEST);
+			//glDepthFunc(GL_LESS);
+			//glDepthMask(GL_FALSE);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+			break;
+		}
+		case GPUSetting::SPE_ADDITION:
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+
+			glDisable(GL_DEPTH_TEST);
+			//glEnable(GL_DEPTH_TEST);
+			//glDepthFunc(GL_GEQUAL);
+			//glDepthMask(GL_FALSE);
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_ONE);
@@ -609,6 +653,13 @@ namespace SliceEngine
 	{
 		switch (setting)
 		{
+		case BufferClearSetting::CUBE_SHADOW:
+		{
+			//glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+			glClearColor(0.f, 0.f, 0.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			break;
+		}
 		case BufferClearSetting::ALL:
 		{
 			//glClearBufferfv(GL_COLOR, 0, zeroFiller);
@@ -616,11 +667,8 @@ namespace SliceEngine
 			//glClearBufferfv(GL_COLOR, 2, zeroFiller);
 			//glClearBufferfv(GL_COLOR, 3, zeroFiller);
 			//glClearBufferfv(GL_DEPTH, 0, oneFiller);
-			__fallthrough;
-		}
-		case BufferClearSetting::DEFAULT:
-		{
 			//glClearColor(0.75294f, 1.f, 0.93333f, 1.f);
+			//__fallthrough;
 			glClearColor(0.f, 0.f, 0.f, 1.f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			break;

@@ -4,6 +4,7 @@ struct Light{
 	vec3 position;
 	vec3 direction;
 	vec4 color; // rgb + intensity
+	float hasShadow;
 	int type;
 };
 
@@ -26,10 +27,12 @@ uniform vec3 uCamPos;
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
-layout (binding = 3) uniform sampler2D 	uShadowTex;
+layout (binding = 3) uniform sampler2D 	uShadowTex;			// Only for shadow mapping (spot / directional light)
+layout (binding = 4) uniform samplerCube 	uShadowCubeMap; // Only for shadow mapping (point light)
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords);
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif);
 
 /***************************************************
@@ -55,7 +58,7 @@ void main(void){
 			vec3 ambient = dif.rgb * ambient; // if blocked by shadow
 
 			vec3 l = normalize(-uLight.direction);// Surface to Light
-			float shadow = getShadowMulti(nom, l, projCoords);
+			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords);
 			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb);
 			fFragColor = vec4(ambient, 1.0f);
 		}
@@ -63,11 +66,11 @@ void main(void){
 		{
 			vec3 l = uLight.position - wPos; // Surface to Light
 			float dist = length(l);
-			l = l / dist;
 			vec4 lightCol = uLight.color;
 			lightCol.a *= 100 / (dist * dist); // Insensity is normalized, so scale up by 100?
 
-			float shadow = getShadowMulti(nom, l, projCoords);
+			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(uCamPos - wPos), dist);
+			l = l / dist;
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb)), 1.0f);
 		}
 	}
@@ -129,7 +132,6 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif)
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords)
 {
-	float shadowDepth = texture(uShadowTex, projCoords.xy, 0).r;
 	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(uShadowTex, 0);
@@ -143,4 +145,34 @@ float getShadowMulti(vec3 n, vec3 l, vec3 projCoords)
 	}
 
 	return shadow / 9.0;
+}
+
+
+// array of offset direction for sampling
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
+{
+	vec3 fragToLight = -l;
+
+	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	float diskRadius = (1.0 + (viewDist / 20.0)) / 25.0;
+	
+	int samples = 20;
+	float shadow = 0.0;
+	for(int i = 0; i < samples; ++i)
+	{
+		float closestDepth = texture(uShadowCubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		closestDepth *= 20.0;
+		if(dist - bias > closestDepth)
+			shadow += 1.0;
+	}
+	return shadow /= float(samples);
 }

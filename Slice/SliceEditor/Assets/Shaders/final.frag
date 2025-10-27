@@ -12,7 +12,7 @@ layout (binding = 0) uniform sampler2D 	uTex; // Already undergone the addition 
 void main(void){
 	ivec2 p = ivec2(gl_FragCoord.xy);
 	vec4 col = texelFetch(uTex, p, 0);
-
-	fFragColor.rgb = pow(col.rgb, vec3(1.0f/2.2f));
+	fFragColor.rgb = fFragColor.rgb / (fFragColor.rgb + vec3(1.0)); // HDR Tone Mapping 
+	fFragColor.rgb = pow(col.rgb, vec3(1.0f/2.2f)); // Gamma Correction
 	fFragColor.a = 1.0;
 }

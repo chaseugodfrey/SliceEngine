@@ -177,15 +177,20 @@ namespace SliceEngine
 		//Core::GetInstance()->mFactory.TestLoop();
 
 		GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("light");
-		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 0.f);
+		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, -1.f, 0.f);
 		Dlight.AddComponent<Light>();
 		Dlight.GetComponent<Light>().type = Light::LightType::Light_Directional;
-		for (int i = 0; i < 0; ++i)
-		{
-			GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
-			light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
-			light.AddComponent<Light>();
-		}
+		//for (int i = 0; i < 2; ++i)
+		//{
+		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
+		//	light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
+		//	light.AddComponent<Light>();
+		//	light.GetComponent<Light>().type = Light::LightType::Light_Point;
+		//	if(i == 0)
+		//		light.GetComponent<Light>().color = glm::vec3(1.f, 0.f, 0.f);
+		//	else
+		//		light.GetComponent<Light>().color = glm::vec3(0.f, 1.f, 0.f);
+		//}
 	}
 
 	void Engine::Update()

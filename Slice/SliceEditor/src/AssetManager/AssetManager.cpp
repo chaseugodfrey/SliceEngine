@@ -286,9 +286,11 @@ namespace SliceEditor
 		// get the vert and frag path
 		std::filesystem::path vertPath = parentPath / (fileName + ".vert");
 		std::filesystem::path fragPath = parentPath / (fileName + ".frag");
+		std::filesystem::path geomPath = parentPath / (fileName + ".geom");
 		// get the destination path for all 2 files
 		std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
 		std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
+		std::string tempGeomPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".geom";
 
 		// copy the 3 files over to resources
 		// cause loading shaders now come in 3s
@@ -299,6 +301,8 @@ namespace SliceEditor
 			std::filesystem::copy(filePath, metaData->resourcePath);
 			std::filesystem::copy(vertPath, tempVertPath);
 			std::filesystem::copy(fragPath, tempFragPath);
+			if (std::filesystem::exists(geomPath))
+				std::filesystem::copy(geomPath, tempGeomPath);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
