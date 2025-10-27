@@ -15,6 +15,8 @@ DigiPen Institute of Technology is prohibited.
 #include <entt.hpp>
 #include <rttr/variant.h>
 
+#include "Resource/Resource.h"
+
 namespace SliceEngine
 {
 	using ComponentCloner = std::function<void(Registry& reg, Entity eToClone, Entity eToCreate)>;
@@ -162,15 +164,19 @@ namespace SliceEngine
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
-		void Unparent(Entity entity);
-		void SetParent(Entity entity, Entity parentEntity = entt::null);
-		void SetSiblingIndex(Entity entity, int pos);
-		void BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map);
+
+		bool isDescendant(Entity target, Entity dest);
+		bool Unparent(Entity entity);
+		bool SetParent(Entity entity, Entity parentEntity = entt::null);
+		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
+		void BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map);
 		void ClearGameObjects();
+		void UpdateTransformFromParent(Entity entity, Entity parent);
 
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();
 		GameObject CreateGO_Cam();
+		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 
 		Registry mRegistry;
 
@@ -181,6 +187,7 @@ namespace SliceEngine
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
+		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		

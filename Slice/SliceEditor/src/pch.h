@@ -16,6 +16,7 @@
 #include <deque>
 #include <queue>
 #include <map>
+#include <variant>
 
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"		// Entire Win32 API...
@@ -48,8 +49,7 @@
 
 // Logger
 #include "Logger/Logger.h"
-#include "EditorCommonTypes.h"
-#include "../../SliceEngine/src/Systems/FramerateManager.h"
+
 
 // Common Types
 //#include "Vectors/Vector2.h"
@@ -84,20 +84,32 @@
 #undef ERROR
 
 // jolt
- #include <Jolt/Jolt.h>
- #include <Jolt/RegisterTypes.h>
- #include <Jolt/Core/Factory.h>
- #include <Jolt/Core/TempAllocator.h>
- #include <Jolt/Core/JobSystemThreadPool.h>
- #include <Jolt/Physics/PhysicsSettings.h>
- #include <Jolt/Physics/PhysicsSystem.h>
- #include <Jolt/Physics/Collision/Shape/BoxShape.h>
- #include <Jolt/Physics/Collision/Shape/SphereShape.h>
- #include <Jolt/Physics/Body/BodyCreationSettings.h>
- #include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <entt.hpp>
 
 #include <json.hpp>
 
+// Engine
+#include <Resource/GUID.h>
 #include <Core/Core.h>
+#include <Core/EventManager.h>
+#include <Core/Events.h>
+
+// Editor
+#include <EditorCommonTypes.h>
+#include <EditorUtilities.h>
+#include <History/Commands.h>
+#include <Core/Registry.h>
+#include <Core/EditorEvents.h>
+
 #endif 

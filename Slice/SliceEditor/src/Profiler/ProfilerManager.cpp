@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include "ProfilerManager.h"
 #include "ProfilerWindow.h"
 #include "../Core/Registry.h"
+#include <Systems/FramerateManager.h>
+#include "Selection/SelectionManager.h"
 
 
 namespace SliceEditor
@@ -28,8 +30,7 @@ namespace SliceEditor
 	std::unique_ptr<EditorWindow> ProfilerManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Profiler Window.");
-		auto& selectionSystem = registry.GetSelectionSystem();
-		auto window = std::make_unique<ProfilerWindow>(*this, selectionSystem);
+		auto window = std::make_unique<ProfilerWindow>(*this, registry);
 
 		return window;
 	}

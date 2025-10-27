@@ -22,18 +22,18 @@ struct GLFWwindow;
 #include "Core/Registry.h"
 #include "History/HistoryManager.h"
 #include "WindowManager/WindowManager.h"
-#include "SelectionSystem/SelectionSystem.h"
+#include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
+#include "EditorInputs.h"
 
 namespace SliceEditor
 {
 	class Editor
 	{
 		SliceEngine::Engine engine;
-		Registry registry;
-
-		HistoryManager history;
 		AssetManager assetManager;
+		Registry registry;
+		EditorInputs inputs;
 
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
@@ -41,10 +41,14 @@ namespace SliceEditor
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);
 
-		void CheckInputs();
+		void Update();
 		void Render();
 
 	public:
+
+		Editor() : assetManager(), registry(assetManager)
+		{
+		}
 
 		// todo : push this to event manager
 		bool isNewSceneLoaded{};

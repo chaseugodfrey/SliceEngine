@@ -1,24 +1,25 @@
 #ifndef HISTORY_MANAGER_H
 #define HISTORY_MANAGER_H
 
+#include "../Core/IBaseManager.h"
+
 namespace SliceEditor
 {
-	struct Command;
-
-	class HistoryManager
+	class HistoryManager : public IBaseManager
 	{
 		size_t stackSize = 50;
 		std::stack<std::unique_ptr<Command>> undoStack;
 		std::stack<std::unique_ptr<Command>> redoStack;
 
 	public:
-		HistoryManager() = default;
+		HistoryManager(Registry& reg) : IBaseManager(reg) {};
 		~HistoryManager() = default;
 
-		void AddCommand(const Command& command);
+		void Init() override;
+		void AddCommand(std::unique_ptr<Command> command);
+		void AddCommandFromEvent(AddCommandEvent& event);
 		void SetStackSize(size_t size);
 
-		
 		void Undo();
 		void Redo();
 	};

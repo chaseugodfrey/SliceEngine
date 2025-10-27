@@ -11,6 +11,9 @@ namespace SliceEngine
         public float speed = 5.0f;
         public Vector3 direction = new Vector3(-1.0f, 0.0f, 0.0f);
 
+        public Audio testAudio = new Audio("TestSound.wav");
+        public Prefab testPrefab = new Prefab("TestPrefab");
+
         public override void OnCreate()
         {
             Console.WriteLine("TestEntity Created with ID: " + mID);

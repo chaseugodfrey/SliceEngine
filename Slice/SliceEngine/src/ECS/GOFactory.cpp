@@ -12,7 +12,14 @@ DigiPen Institute of Technology is prohibited.
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
 #include "../Core/ComponentEventHandler.h"
+#include "../Graphics/TransformHelper.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>
+
+//Somehow kinda funny i need to include 2 files inorder to get the resource manager instance
+//#include "../Resource/ResourceManager.h"
+#include "../Core/Core.h"
 
 namespace SliceEngine
 {
@@ -75,6 +82,7 @@ namespace SliceEngine
 		go.AddComponent<Transform>();
 		// Every entity created will keep this flag for easy pulling
 		go.AddComponent<SceneGraph>();
+		go.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
 		SetParent(go.GetEntity());
 		return go;
 	}
@@ -182,27 +190,63 @@ namespace SliceEngine
 	void GOFactory::InitRootEntity()
 	{
 		mRootEntity = mRegistry.create();
-		//auto& tr = mRegistry.emplace<Transform>(mRootEntity);
+		mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
-	void GOFactory::Unparent(Entity entity)
+	bool GOFactory::isDescendant(Entity target, Entity dest)
+	{
+		if(dest == entt::null)
+		{
+			return false;
+		}
+		auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//auto& destSceneGraph = mRegistry.get<SceneGraph>(dest);
+		//Check direct children
+		auto parent = destSceneGraph.neighbours[SceneGraph::UP];
+		//Checking the right siblings of the child until null
+		while(parent != entt::null)
+		{
+			if(parent == target)
+			{
+				return true;
+			}
+
+			//Recursively check the child too (This is wrong)
+			if(isDescendant(target, parent))
+			{
+				return true;
+			}
+			parent = mRegistry.get<SceneGraph>(parent).neighbours[SceneGraph::UP];
+		}
+
+		return false;
+	}
+
+	bool GOFactory::Unparent(Entity entity)
 	{
 		// idk if i need to but ill set the base entity's UP to null so we can treat it as a brand new entity beingg parented
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
 		if (prev_parent_entity == entt::null)
-			return;
+			return false;
 
 		auto& parent_scene_graph = mRegistry.get<SceneGraph>(prev_parent_entity);
 		auto grandparent_entity = parent_scene_graph.neighbours[SceneGraph::UP];
 
 		SetParent(entity, grandparent_entity);
+		return true;
 	}
 
-	void GOFactory::SetParent(Entity entity, Entity parentEntity)
+	bool GOFactory::SetParent(Entity entity, Entity parentEntity)
 	{
+		if(isDescendant(entity, parentEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return false;
+		}
+
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 
@@ -282,34 +326,32 @@ namespace SliceEngine
 					right_scene_graph.neighbours[SceneGraph::LEFT] = entt::null;
 				}
 			}
-
-			--prev_parent_scene_graph.child_count;
 		}
 
 		// if it has no parent / after we unattach it from it's current sibling list
 		// we can treat it like a new entity if it had a parent previously
 
-		Entity parent = entt::null;
+		Entity new_parent = entt::null;
 
 		// Parenting to root entity
 		if (parentEntity == entt::null)
 		{
 			// idk tbh incase they want to unparent and set it back to root node
 			// then parentEntity would be a null
-			parent = mRootEntity;
+			new_parent = mRootEntity;
 		}
 		// Parenting to another entity
 		else
 		{
 			if (!mRegistry.valid(parentEntity))
 			{
-				return;
+				return false;
 			}
 
-			parent = parentEntity;
+			new_parent = parentEntity;
 		}
 
-		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent);
+		auto& parent_scene_graph = mRegistry.get<SceneGraph>(new_parent);
 		// if its the first entity being added to this scene graph as a child
 		if (parent_scene_graph.neighbours[SceneGraph::DOWN] == entt::null)
 		{
@@ -317,7 +359,7 @@ namespace SliceEngine
 			parent_scene_graph.neighbours[SceneGraph::DOWN] = entity;
 
 			// set the new entity's up to the parent
-			scene_graph.neighbours[SceneGraph::UP] = parent;
+			scene_graph.neighbours[SceneGraph::UP] = new_parent;
 		}
 		else
 		{
@@ -338,73 +380,102 @@ namespace SliceEngine
 			scene_graph.neighbours[SceneGraph::LEFT] = child_entity;
 		}
 
-		++parent_scene_graph.child_count;
-		scene_graph.neighbours[SceneGraph::UP] = parent;
+		//++parent_scene_graph.child_count;
+		scene_graph.neighbours[SceneGraph::UP] = new_parent;
 
+		UpdateTransformFromParent(entity, new_parent);
+		return true;
 	}
 
-	void GOFactory::SetSiblingIndex(Entity targetEntity, int pos)
+	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
 	{
-		auto& target_scene_graph = mRegistry.get<SceneGraph>(targetEntity);
+		auto& tr = mRegistry.get<Transform>(entity);
+		auto& tr_par = mRegistry.get<Transform>(parent);
 
-		auto parent_entity = target_scene_graph.neighbours[SceneGraph::UP];
-		auto& parent_scene_graph = mRegistry.get<SceneGraph>(parent_entity);
+		auto mat = glm::inverse(tr_par.transform) * tr.transform;
+		
+		glm::vec3 translation, scale, skew;
+		glm::vec4 perspective;
+		glm::quat rotation;
+		glm::decompose(mat, scale, rotation, translation, skew, perspective);
 
-		auto child_entity = parent_scene_graph.neighbours[SceneGraph::DOWN];
+		tr.position = translation;
+		tr.rotation = rotation;
+		tr.scale = scale;
+	}
 
-		if (child_entity == entt::null)
+
+	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
+	{
+
+		if (isDescendant(targetEntity, rightEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
 			return;
-
-		// get which is lower so that pos doesnt go out of bounds
-		pos = std::min((int)parent_scene_graph.child_count, pos);
-
-		for (int i = 0; i < pos; i++)
-		{
-			auto& child_scene_graph = mRegistry.get<SceneGraph>(child_entity);
-			child_entity = child_scene_graph.neighbours[SceneGraph::RIGHT];
 		}
+		//Remove it from its current position
+		SceneGraphDelete(targetEntity);
 
-		// attach loose ends first
-		// get left and right of target entity
-		auto sibling_before_left = target_scene_graph.neighbours[SceneGraph::LEFT];
-		auto sibling_before_right = target_scene_graph.neighbours[SceneGraph::RIGHT];
-
-		if (sibling_before_left != entt::null)
+		//Add it to the new position
+		auto& movedSceneGraph = mRegistry.get<SceneGraph>(targetEntity);
+		
+		//It is the left most entity (Need to update parent's down and right's left)
+		if (leftEntity == entt::null)
 		{
-			auto& bl_scene_graph = mRegistry.get<SceneGraph>(sibling_before_left);
-			bl_scene_graph.neighbours[SceneGraph::RIGHT] = sibling_before_right;
-
-			if (sibling_before_right != entt::null)
+			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
+			//Check if parent is rootNode
+			if(destRightGraph.neighbours[SceneGraph::UP] == GetRootEntity())
 			{
-				auto& br_scene_graph = mRegistry.get<SceneGraph>(sibling_before_right);
-				br_scene_graph.neighbours[SceneGraph::LEFT] = sibling_before_left;
+				//Update rootNode's down to target entity
+				mRegistry.get<SceneGraph>(GetRootEntity()).neighbours[SceneGraph::DOWN] = targetEntity;
 			}
+			else
+			{
+				auto& destRightParentGraph = mRegistry.get<SceneGraph>(destRightGraph.neighbours[SceneGraph::UP]);
+				//Update parent's down to target entity
+				destRightParentGraph.neighbours[SceneGraph::DOWN] = targetEntity;
+			}
+			//Update right entity's left to target entity
+			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
+
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destRightGraph.neighbours[SceneGraph::UP];
 		}
 
-		// attach new siblings
-		auto& destination_scene_graph = mRegistry.get<SceneGraph>(child_entity);
-		auto sibling_after_left = destination_scene_graph.neighbours[SceneGraph::LEFT];
-
-		// if null, then will be first 
-		if (sibling_after_left != entt::null)
+		//It is the right most entity (Need to update left's right)
+		else if(rightEntity == entt::null)
 		{
-			auto& al_scene_graph = mRegistry.get<SceneGraph>(sibling_after_left);
-			al_scene_graph.neighbours[SceneGraph::RIGHT] = targetEntity;
-			target_scene_graph.neighbours[SceneGraph::LEFT] = sibling_after_left;
-			target_scene_graph.neighbours[SceneGraph::RIGHT] = child_entity;
-		}
+			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
+			//Update left entity's right to target entity
+			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
 
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
+		}
+		//It is between two entities
 		else
 		{
-			parent_scene_graph.neighbours[SceneGraph::DOWN] = targetEntity;
-			target_scene_graph.neighbours[SceneGraph::RIGHT] = child_entity;
+			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
+			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
+
+			//Update right entity's left to target entity
+			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
+			//Update left entity's right to target entity
+			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
+
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
 		}
-
-		destination_scene_graph.neighbours[SceneGraph::LEFT] = targetEntity;
-
+		
+		//Any more edge cases?
 	}
 
-	void GOFactory::BuildSceneGraph(std::unordered_map<uint64_t, uint64_t> map)
+	void GOFactory::BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map)
 	{
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
@@ -422,13 +493,22 @@ namespace SliceEngine
 				mRegistry.get<SceneGraph>(scene_root_entity).neighbours[SceneGraph::DOWN] = entity;
 			}
 
+			// update its own entity id
+			uint32_t entityID = scene_graph.entity_id;
+			auto entityIt = map.find(entityID);
+			if (entityIt != map.end())
+			{
+				scene_graph.entity_id = entityIt->second;
+			}
+
+			// update the neighbouts
 			for (size_t i = 0; i < scene_graph.DIRECTIONS; i++)
 			{
 				entt::entity key_entity = scene_graph.neighbours[i];
 				if (key_entity == entt::null)
 					continue;
 
-				uint64_t key = entt::to_integral(key_entity);
+				uint32_t key = entt::to_integral(key_entity);
 				auto it = map.find(key);
 
 				if (it != map.end())
@@ -436,6 +516,7 @@ namespace SliceEngine
 					entt::entity ent = static_cast<entt::entity>(it->second);
 
 					scene_graph.neighbours[i] = ent;
+
 				}
 			}
 		}
@@ -464,12 +545,65 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+
+		//testing only
+		//return CreateGO_Model((GUID)17518266545644652909);
 	}
 
 	GameObject GOFactory::CreateGO_Cam()
 	{
 		auto go = CreateGO("Camera");
 		go.AddComponent<Camera>();
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
+		//Get the resource handle first
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
+
+		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null);
+	}
+
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
+		auto go = CreateGO(node.name);
+		SetParent(go.GetEntity(), parent);
+
+		if (!node.mesh_ref.empty()) {
+			go.AddComponent<Renderer>();
+			auto& rc = go.GetComponent<Renderer>();
+			rc.model = model_guid;
+			rc.meshOffset = node.mesh_ref[0];
+			//rc.texture = (GUID)18349208178533231704;
+
+			//add siblings if a single node has multiple mesh refs
+			for (int i = 1; i < node.mesh_ref.size(); ++i) {
+				auto sibling = CreateGO(node.name);
+				SetParent(sibling.GetEntity(), parent);
+
+				auto& s_tform = sibling.GetComponent<Transform>();
+				s_tform.position = node.position;
+				s_tform.rotation = node.rotation;
+				s_tform.scale = node.scale;
+
+				sibling.AddComponent<Renderer>();
+				auto& s_rc = sibling.GetComponent<Renderer>(); 
+				s_rc.model = model_guid;
+				s_rc.meshOffset = node.mesh_ref[i];
+				//rc.texture = (GUID)18349208178533231704;
+			}
+		}
+		
+
+		for (auto& child : node.children) {
+			CreateGO_ModelNode(child, model_guid, go.GetEntity());
+		}
+		//set node local tform here, since setparent does some calculations to decompose relative mtx
+		//infact, do it after recursion, so everything has default values
+		auto& tform = go.GetComponent<Transform>();
+		tform.position = node.position;
+		tform.rotation = node.rotation;
+		tform.scale = node.scale;
+
 		return go;
 	}
 
@@ -536,11 +670,10 @@ namespace SliceEngine
 						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
 					else if (value.is_type<double>())
 						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
-					else if (value.get_type() == rttr::type::get<EntityID>() ||
-						value.get_type().is_derived_from(rttr::type::get<EntityID>()))
+					else if (value.get_type() == rttr::type::get<uint64_t>() ||
+						value.get_type().is_derived_from(rttr::type::get<uint64_t>()))
 					{
-						EntityID eid = value.get_value<EntityID>();
-						std::cout << property.get_name() << " = " << eid.value << std::endl;
+						std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
 					}
 					else if (value.is_type<std::array<Entity, 4>>())
 					{
@@ -667,7 +800,11 @@ namespace SliceEngine
 			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
 			{
 				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
-				parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+
+				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				{
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+				}
 			}
 		}
 	}

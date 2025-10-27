@@ -30,7 +30,7 @@ namespace SliceEngine
 		}
 
 		//Save json (the data structure) to JSON (the file) Note: This replaces the file in the filepath with data in the given json
-		void Serialize(json const& input, std::filesystem::path const& filePath)
+		void SerializeFile(json const& input, std::filesystem::path const& filePath)
 		{
 			std::ofstream ofs(filePath);
 			if (!ofs.is_open())
@@ -38,7 +38,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Serialize", "Unable to write JSON to path: " + filePath.string());
 				return;
 			}
-			ofs << input;
+			ofs << input.dump(4);
 			ofs.close();
 		}
 
@@ -54,8 +54,170 @@ namespace SliceEngine
 				output += SerializeGameObject(entity, registry);
 			}
 
-			Serialize(output, filePath);
+			SerializeFile(output, filePath);
 		}
+
+		Entity DeserializePrefab(std::filesystem::path const& filePath)
+		{
+			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
+			json prefab = DeserializeFile(filePath);
+
+			for (auto& [name, components] : prefab.items())
+			{
+				auto& factory = Core::GetInstance()->mFactory;
+				GameObject newObj = factory.CreateBlank();
+
+				for (auto& [objName, objProps] : components.items())
+				{
+					for (auto& [componentName, props] : objProps.items())
+					{
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							continue;
+						}
+
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
+						{
+							continue;
+						}
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+
+							if (!prop.is_valid())
+								continue;
+
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								uint64_t,
+								GUID,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string
+								>
+								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
+
+							// Anything that needs a second pass
+							// scene graph map stuff
+							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
+							{
+								uint32_t oldID = value.get<uint32_t>();
+								sceneGraphMap[oldID] = entt::to_integral(newObj.GetEntity());
+							}
+						}
+
+						AddComponentFromVariant(newObj, componentInstance, componentName);
+					}
+				}
+			}
+
+			// fix the old to new entity IDs
+			auto& registry = Core::GetInstance()->GetRegistry();
+			auto& factory = Core::GetInstance()->mFactory;
+			auto entityView = registry.view<SliceEntity>();
+			for (auto entity : entityView)
+			{
+				if (!registry.any_of<SceneGraph>(entity))
+				{
+					continue;
+				}
+
+				auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
+				
+				for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
+				{
+					auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
+					if (it != sceneGraphMap.end())
+					{
+						sceneGraphComponent.neighbours[i] = (Entity)it->second;
+					}
+
+					// if this is the new child of the root entity
+					// for it to be the new child, up is the root and there is no left children
+					if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
+					{
+						auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
+					}
+				}
+			}
+
+
+
+			auto it = sceneGraphMap.begin();
+
+			return (Entity)it->second;
+		}
+
+		void  DeserializePrefabChild(json file)
+		{
+
+		}
+
+#pragma region PrefabSerializing
+		std::string SerializePrefab(entt::entity entity)
+		{
+			json output;
+			auto& registry = Core::GetInstance()->GetRegistry();
+
+			// serialize the main entity
+			output += SerializeGameObject(entity, registry);
+
+			// Now serialize the children
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				SerializePrefabChild(output, childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+			// TODO: Find out a better way we shud be doing this
+			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
+			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			SerializeFile(output, filePath);
+
+			return filePath.string();
+		}
+
+		// Looks kinda funky having two exact same functions
+		// but 1 is the main function that starts the recursive call from the original main prefab entity
+		// the second one is for iterating the children
+		// it'll check down and right
+		// and go down again if there is one
+		// hopefully our prefabs not gonna be so complicated that this whole recursive call is long and breakable
+
+		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry)
+		{
+			output += SerializeGameObject(entity, registry);
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				SerializePrefabChild(output, childEntity, registry);
+				auto& childEntityGraph = registry.get<SceneGraph>(childEntity);
+				childEntity = childEntityGraph.neighbours[SceneGraph::RIGHT];
+			}
+
+		}
+
+#pragma endregion
 
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)
 		{
@@ -103,91 +265,121 @@ namespace SliceEngine
 						continue;
 					}
 
-					if (propVal.is_type<int>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<int>();
-					}
-					else if (propVal.is_type<unsigned int>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
-					}
-					else if (propVal.is_type<float>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<float>();
-					}
-					else if (propVal.is_type<double>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<double>();
-					}
-					else if (propVal.is_type<bool>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<bool>();
-					}
-					else if (propVal.is_type<uint64_t>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
-					}
-					else if (propVal.is_type<EntityID>())
-					{
-						//EntityID eid();//propVal.get_value<EntityID>();
-						output[name][storage.type().name()][propName] = entity;
-					}
-					else if (propVal.is_type<std::array<uint64_t, 4>>())
-					{
-						const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
-						for (size_t i{}; i < 4; ++i)
-						{
-							output[name][storage.type().name()][propName][i] = vec[i];
-						}
-					}
-					else if (propVal.is_type<std::array<Entity, 4>>())
-					{
-						const auto& vec = propVal.get_value<std::array<Entity, 4>>();
-						for (size_t i{}; i < 4; ++i)
-						{
-							Entity e = vec[i];
-							if (e == entt::null)
-							{
-								output[name][storage.type().name()][propName][i] = nullptr;
-							}
-							else
-							{
-								output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
-							}
-						}
-					}
-					else if (propVal.is_type<std::string>())
-					{
-						output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
-					}
-					else if (propVal.is_type<std::vector<uint64_t>>())
-					{
-						const auto& vec = propVal.get_value<std::vector<uint64_t>>();
-						for (const auto& elem : vec)
-						{
-							output[name][storage.type().name()][propName].push_back(elem);
-						}
-					}
-					else if (propVal.is_type<glm::vec2>())
-					{
-						auto v = propVal.get_value<glm::vec2>();
-						output[name][storage.type().name()][propName] = { v.x, v.y};
-					}
-					else if (propVal.is_type<glm::vec3>())
-					{
-						auto v = propVal.get_value<glm::vec3>();
-						output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
-					}
-					else if (propVal.is_type<glm::vec4>())
-					{
-						auto v = propVal.get_value<glm::vec4>();
-						output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
-					}
-					else
-					{
-						// fallback
-						output[name][storage.type().name()][propName] = propVal.to_string();
-					}
+
+					// To make it easy to see and add what types are supported. If added
+					// but the output is wrong, might need to create a specialized variant
+					// of Serialize(...) in the header file
+					// Add supported types here + DeserializeProp below
+					SerializeProp
+					<
+						int, 
+						unsigned int,
+						unsigned char,
+						float, 
+						double, 
+						bool, 
+						uint32_t,
+						uint64_t,
+						GUID,
+						std::array<uint64_t, 4>, 
+						std::array<Entity, 4>,
+						std::vector<uint64_t>,
+						glm::vec2, 
+						glm::vec3, 
+						glm::vec4,
+						glm::quat,
+						std::string
+					>
+						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
+
+#pragma region Old Serialization Backup
+					//if (propVal.is_type<int>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<int>();
+					//}
+					//else if (propVal.is_type<unsigned int>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
+					//}
+					//else if (propVal.is_type<float>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<float>();
+					//}
+					//else if (propVal.is_type<double>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<double>();
+					//}
+					//else if (propVal.is_type<bool>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<bool>();
+					//}
+					//else if (propVal.is_type<uint64_t>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
+					//}
+					//else if (propVal.is_type<EntityID>())
+					//{
+					//	//EntityID eid();//propVal.get_value<EntityID>();
+					//	output[name][storage.type().name()][propName] = entity;
+					//}
+					//else if (propVal.is_type<std::array<uint64_t, 4>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
+					//	for (size_t i{}; i < 4; ++i)
+					//	{
+					//		output[name][storage.type().name()][propName][i] = vec[i];
+					//	}
+					//}
+					//else if (propVal.is_type<std::array<Entity, 4>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::array<Entity, 4>>();
+					//	for (size_t i{}; i < 4; ++i)
+					//	{
+					//		Entity e = vec[i];
+					//		if (e == entt::null)
+					//		{
+					//			output[name][storage.type().name()][propName][i] = nullptr;
+					//		}
+					//		else
+					//		{
+					//			output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
+					//		}
+					//	}
+					//}
+					//else if (propVal.is_type<std::string>())
+					//{
+					//	output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
+					//}
+					//else if (propVal.is_type<std::vector<uint64_t>>())
+					//{
+					//	const auto& vec = propVal.get_value<std::vector<uint64_t>>();
+					//	for (const auto& elem : vec)
+					//	{
+					//		output[name][storage.type().name()][propName].push_back(elem);
+					//	}
+					//}
+					//else if (propVal.is_type<glm::vec2>())
+					//{
+					//	auto v = propVal.get_value<glm::vec2>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y};
+					//}
+					//else if (propVal.is_type<glm::vec3>())
+					//{
+					//	auto v = propVal.get_value<glm::vec3>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
+					//}
+					//else if (propVal.is_type<glm::vec4>())
+					//{
+					//	auto v = propVal.get_value<glm::vec4>();
+					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
+					//}
+					//else
+					//{
+					//	// fallback
+					//	output[name][storage.type().name()][propName] = propVal.to_string();
+					//}
+#pragma endregion
+
 				}
 			}
 
@@ -203,7 +395,7 @@ namespace SliceEngine
 		}
 
 		//Loads JSON (the file) and returns it as a json (the data structure) that can be accessed and edited
-		json Deserialize(std::filesystem::path const& filePath)
+		json DeserializeFile(std::filesystem::path const& filePath)
 		{
 			std::ifstream ifs(filePath);
 			if (!ifs.is_open())
@@ -211,24 +403,22 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Deserialize", "Unable to find/load JSON in path: " + filePath.string());
 				return json{};
 			}
-
+			
 			json output;
 			ifs >> output;
 			return output;
 		}
 
-		std::unordered_map<uint64_t, uint64_t> DeserializeScene(std::filesystem::path const& filePath)
+		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath)
 		{
-			std::unordered_map<uint64_t, uint64_t> sceneGraphMap{};
+			
+			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 
-			json input = Deserialize(filePath);
+			json input = DeserializeFile(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
-
-				// Temprorary until have createGO without transform
-				//node.RemoveComponent<Transform>();
 
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -256,84 +446,122 @@ namespace SliceEngine
 
 						for (auto& [propName, value] : props.items())
 						{
-							rttr::property prop = compType.get_property(propName);
+							rttr::property prop = compType.get_property(propName);							
+
 							if (!prop.is_valid())
 								continue;
 
-							if (prop.get_type() == rttr::type::get<int>())
-								prop.set_value(componentInstance, value.get<int>());
-							else if (prop.get_type() == rttr::type::get<unsigned int>())
-								prop.set_value(componentInstance, value.get<unsigned int>());
-							else if (prop.get_type() == rttr::type::get<float>())
-								prop.set_value(componentInstance, value.get<float>());
-							else if (prop.get_type() == rttr::type::get<double>())
-								prop.set_value(componentInstance, value.get<double>());
-							else if (prop.get_type() == rttr::type::get<bool>())
-								prop.set_value(componentInstance, value.get<bool>());
-							else if (prop.get_type() == rttr::type::get<uint64_t>())
-								prop.set_value(componentInstance, value.get<uint64_t>());
-							else if (prop.get_type() == rttr::type::get<std::string>())
-								prop.set_value(componentInstance, value.get<std::string>());
-							else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
-							{
-								std::vector<uint64_t> vec;
-								for (auto& v : value)
-								{
-									vec.push_back(v.get<uint64_t>());
-								}
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<EntityID>())
-							{
-								uint64_t rawID = value.get<uint64_t>();
-								prop.set_value(componentInstance, EntityID{ rawID });
-								sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
-							}
-							else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
-							{
-								std::array<uint64_t, 4> arr;
-								arr = value;
-								prop.set_value(componentInstance, arr);
-							}
-							else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
-							{
-								std::array<Entity, 4> arr;
-								for (size_t i = 0; i < arr.size(); ++i)
-								{
-									auto v = value[i];
+							// First Pass
+							// Add supported types here
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								uint64_t,
+								GUID,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string
+								>
+								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
-									if (v.is_null())
-									{
-										arr[i] = entt::null;
-									}
-									else
-									{
-										arr[i] = static_cast<Entity>(v.get<uint64_t>());
-									}
-								}
-								prop.set_value(componentInstance, arr);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec2>())
+							// Anything that needs a second pass
+							// scene graph map stuff
+							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
 							{
-								glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec3>())
-							{
-								glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							else if (prop.get_type() == rttr::type::get<glm::vec4>())
-							{
-								glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
-								prop.set_value(componentInstance, vec);
-							}
-							else
-							{
-								// fallback: try string
-								prop.set_value(componentInstance, value.get<std::string>());
+								uint32_t oldID = value.get<uint32_t>();
+								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
 							}
 
+#pragma region Old Deserialization Backup
+							//if (prop.get_type() == rttr::type::get<int>())
+							//	prop.set_value(componentInstance, value.get<int>());
+							//else if (prop.get_type() == rttr::type::get<unsigned int>())
+							//	prop.set_value(componentInstance, value.get<unsigned int>());
+							//else if (prop.get_type() == rttr::type::get<float>())
+							//	prop.set_value(componentInstance, value.get<float>());
+							//else if (prop.get_type() == rttr::type::get<double>())
+							//	prop.set_value(componentInstance, value.get<double>());
+							//else if (prop.get_type() == rttr::type::get<bool>())
+							//	prop.set_value(componentInstance, value.get<bool>());
+							//else if (prop.get_type() == rttr::type::get<uint64_t>())
+							//	prop.set_value(componentInstance, value.get<uint64_t>());
+							//else if (prop.get_type() == rttr::type::get<std::string>())
+							//	prop.set_value(componentInstance, value.get<std::string>());
+							//else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
+							//{
+							//	std::vector<uint64_t> vec;
+							//	for (auto& v : value)
+							//	{
+							//		vec.push_back(v.get<uint64_t>());
+							//	}
+							//	prop.set_value(componentInstance, vec);
+							//}
+							//else if (prop.get_type() == rttr::type::get<EntityID>())
+							//{
+							//	uint64_t rawID = value.get<uint64_t>();								
+							//	prop.set_value(componentInstance, EntityID{ rawID });
+							//	sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
+							//}
+							//else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
+							//{
+							//	std::array<uint64_t, 4> arr;
+							//	arr = value;
+							//	prop.set_value(componentInstance, arr);
+							//}
+							//else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
+							//{
+							//	std::array<Entity, 4> arr;
+							//	for (size_t i = 0; i < arr.size(); ++i)
+							//	{
+							//		auto v = value[i];
+
+							//		if (v.is_null())
+							//		{
+							//			arr[i] = entt::null;
+							//		}
+							//		else
+							//		{
+							//			arr[i] = static_cast<Entity>(v.get<uint64_t>());
+							//		}
+							//	}
+							//	prop.set_value(componentInstance, arr);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec2>())
+							//{
+							//	glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec3>())
+							//{
+							//	glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							//else if (prop.get_type() == rttr::type::get<glm::vec4>())
+							//{
+							//	glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
+							//	prop.set_value(componentInstance, vec);
+							//}
+							////else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
+							////{
+							////	
+							////}
+
+							//else 
+							//{
+							//	// fallback: try string
+							//	prop.set_value(componentInstance, value.get<std::string>());
+							//}
+#pragma endregion
 							
 						}
 
@@ -343,6 +571,36 @@ namespace SliceEngine
 				}
 			}
 
+			//// Remapping Entity IDs after all GOs have been deserialized
+			//auto& registry = Core::GetInstance()->GetRegistry();
+			//auto& factory = Core::GetInstance()->mFactory;
+			//auto entityView = registry.view<SliceEntity>();
+			//for (auto entity : entityView)
+			//{
+			//	if (!registry.any_of<SceneGraph>(entity))
+			//	{
+			//		continue;
+			//	}
+
+			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
+			//	
+			//	for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
+			//	{
+			//		auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
+			//		if (it != sceneGraphMap.end())
+			//		{
+			//			sceneGraphComponent.neighbours[i] = (Entity)it->second;
+			//		}
+
+			//		// if this is the new child of the root entity
+			//		// for it to be the new child, up is the root and there is no left children
+			//		if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
+			//		{
+			//			auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
+			//		}
+			//	}
+			//}
+			
 			return sceneGraphMap;
 		}
 
@@ -386,9 +644,9 @@ namespace SliceEngine
 					input[root][i]["Transform"]["Scale"] = { 1.0f, 2.0f, 3.0f };
 				}
 
-				Serialize(input, testPath + std::string("JSONTest1.scene"));
+				SerializeFile(input, testPath + std::string("JSONTest1.scene"));
 
-				json output = Deserialize(testPath + std::string("JSONTest1.scene"));
+				json output = DeserializeFile(testPath + std::string("JSONTest1.scene"));
 				if (output == json())
 				{
 					SLICE_LOG_ERROR(testPath + std::string("JSONTest1.scene") + " is empty");
@@ -422,11 +680,11 @@ namespace SliceEngine
 				}
 
 				// Serialize the object
-				Serialize(SerializeGameObject(omnia_victrum), testPath + std::string("JSONTest2.json"));
+				SerializeScene(testPath + std::string("JSONTest2.json"));
 
 				factory.Destroy(omnia_victrum);
 
-				DeserializeScene(Deserialize(testPath + std::string("JSONTest2.json")));
+				DeserializeScene(testPath + std::string("JSONTest2.json"));
 				if (cleanOutput)
 				{
 					std::filesystem::remove(testPath + std::string("JSONTest2.json"));
@@ -438,7 +696,6 @@ namespace SliceEngine
 			{
 				SLICE_LOG("Test 3 Beginning...");
 				auto& factory = FactoryInstance;
-
 				GameObject parent = factory.CreateGO("Bing_Bong_Parent");
 				GameObject child = factory.CreateGO("Bing_Bong_Child");
 

@@ -10,6 +10,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef EVENTS_H
 #define EVENTS_H
+
 #include "ECS/ECSTypes.h"
 #include <rttr/registration.h>
 
@@ -67,6 +68,46 @@ struct OnSceneLoadedEvent
 {
 	bool isSceneLoaded;
 };
+
+struct OnParent
+{
+	Entity parent;
+	Entity child;
+};
+
+
+// Physics collision events
+struct OnCollisionEnterEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnCollisionStayEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnCollisionExitEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerEnterEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerStayEvent
+{
+	Entity entity;
+	Entity other;
+};
+struct OnTriggerExitEvent
+{
+	Entity entity;
+	Entity other;
+};
+// lol this is stupid but whatever
 
 RTTR_REGISTRATION
 {

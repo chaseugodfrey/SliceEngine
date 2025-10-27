@@ -15,43 +15,39 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "HierarchyWindow.h"
-#include "HierarchyManager.h"
-#include "../SelectionSystem/SelectionSystem.h"
-//#include "../../SliceEngine/src/Core/Core.h"
+#include "Core/Registry.h"
+#include "Session/SessionManager.h"
+#include "History/HistoryManager.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-
-	HierarchyWindow::HierarchyWindow(HierarchyManager& manager, SelectionSystem& selection) : mManager(manager), mSelection(selection)
+	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
+		auto& map = mSession.GetEntityNodes();
+		auto node = map[entity].get();
 
-	}
-
-	void HierarchyWindow::DrawNode(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
-	{
-		auto core = SliceEngine::Core::GetInstance();
-		bool hasChildren = scene_graph.child_count > 0;
-		auto& node = mManager.GetHierarchy()[entity];
+		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-		if (node.isSelected)
+		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
-		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(node.entity).GetName();
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
-		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 1));
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
 
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity dropped = *static_cast<entt::entity*>(payload->Data);
-				mManager.SetNewLocation(dropped, node.entity);
+				EditorUtilities::GameObject_SetSibling(dropped, entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -68,11 +64,11 @@ namespace SliceEditor
 			ImGui::OpenPopup(name.c_str());
 		}
 
-		EntityContextPopUp(node);
+		EntityContextPopUp(entity);
 
 		if (ImGui::BeginDragDropSource())
 		{
-			ImGui::SetDragDropPayload("gameobject", (void*)&node.entity, sizeof(node.entity));
+			ImGui::SetDragDropPayload("gameobject", (void*)entity, sizeof(entity));
 			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -82,7 +78,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-				mManager.ParentGameObject(child_entity, node.entity);
+				EditorUtilities::GameObject_Parent(child_entity, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -92,22 +88,20 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (node.isSelected)
+				if (node->isSelected)
 				{
-					node.isSelected = false;
-					set.erase(&node);
+
 				}
 
 				else
 				{
-					mSelection.UpdateSelected(node.entity);
+					//mSelection->UpdateSelected(node.entity);
 				}
 			}
 
 			else
 			{
-				mSelection.ClearSelection();
-				mSelection.UpdateSelected(node.entity);
+				mSelection.SelectSingle(node);
 			}
 		}
 
@@ -117,8 +111,8 @@ namespace SliceEditor
 
 			while (child_entity != entt::null)
 			{
-				auto& child_scene_graph = core->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(child_entity, child_scene_graph);
+				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
+				DrawNode(mSelection, mSession, child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -126,20 +120,21 @@ namespace SliceEditor
 		}
 	}
 
-	void HierarchyWindow::DrawSceneNode(TestNode& node)
+	void HierarchyWindow::DrawSceneNode()
 	{
-		if (ImGui::TreeNodeEx(node.name.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
+
+		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Separator();
 
 			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(node.entity);
+			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entt::entity(0));
 			auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
 
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(child_entity, child_scene_graph);
+				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -151,15 +146,13 @@ namespace SliceEditor
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-		auto root_entity = SliceEngine::Core::GetInstance()->mFactory.GetRootEntity();
-		auto& hierarchy = mManager.GetHierarchy();
-		DrawSceneNode(hierarchy[root_entity]);
+		DrawSceneNode();
 		ImGui::EndGroup();
 	}
 
-	void HierarchyWindow::EntityContextPopUp(TestNode& node)
+	void HierarchyWindow::EntityContextPopUp(entt::entity entity)
 	{
-		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(node.entity);
+		auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 		bool hasParent = scene_graph.neighbours[SliceEngine::SceneGraph::UP] != SliceEngine::FactoryInstance.GetRootEntity();
 
 		if (ImGui::BeginPopupContextItem())
@@ -169,7 +162,7 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Unparent"))
 			{
-				mManager.Unparent(node.entity);
+				EditorUtilities::GameObject_Unparent(entity);
 			}
 
 			if (!hasParent)
@@ -182,21 +175,21 @@ namespace SliceEditor
 
 			if (ImGui::Selectable("Remove GameObject"))
 			{
-				mManager.RemoveGameObject(node.entity);
+				EditorUtilities::GameObject_Destroy(entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();
 		}
 	}
 
+	void HierarchyWindow::Init()
+	{
+
+	}
+
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");
-
-		//if (ImGui::Button("Reload Hierarchy"))
-		//{
-		//	mManager.BuildHierarchy();
-		//}
 
 		DrawNodeGraph();
 
@@ -206,7 +199,7 @@ namespace SliceEditor
 
 		if (ImGui::IsItemClicked())
 		{
-			mSelection.ClearSelection();
+			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
 		}
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
@@ -218,14 +211,12 @@ namespace SliceEditor
 		{
 			if (ImGui::Selectable("Add GameObject"))
 			{
-				mManager.AddGameObject();
+				EditorUtilities::GameObject_CreateEmpty(entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndPopup();
 		}
 
 		ImGui::End();
-
-		mManager.CheckDirty();
 	}
 }

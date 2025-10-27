@@ -16,7 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
-#include "../../SliceEngine/src/Resource/GUID.h"
+#include "AssetManager/AssetTypes.h"
 
 namespace SliceEditor
 {
@@ -52,38 +52,42 @@ namespace SliceEditor
 		CONSOLE,
 		ID_MAX
 	};
-	
-	struct TreeNode
+
+	struct SelectionNode
 	{
-		std::string name;
-		TreeNode* parent;
-		TreeNode* child;
-		TreeNode* previous;
-		TreeNode* next;
+		enum class SelectionType
+		{
+			ENTITY,
+			FILE
+		} type;
+		bool isSelected;
 	};
 
-	struct DirectoryNode
+	struct EntityNode : SelectionNode
+	{
+		//std::string name;
+		entt::entity entity = entt::null;
+		EntityNode(entt::entity ent) : entity(ent)
+		{
+			type = SelectionType::ENTITY;
+			isSelected = false;
+		}
+	};
+
+	struct DirectoryNode : SelectionNode
 	{
 		std::string fileName;
 		bool isDirectory = false;
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
-	};
 
-	struct Command
-	{
-		virtual void Execute() = 0;
-		virtual void Undo() = 0;
-		virtual ~Command() = default;
-	};
+		DirectoryNode()
+		{
+			type = SelectionType::FILE;
+			isSelected = false;	
+		}
 
-	struct SelectionCommand : Command
-	{
-		TreeNode* previous, *current;
-		SelectionCommand(TreeNode* prev, TreeNode* curr) : previous(prev), current(curr) {}
-		void Execute() override;
-		void Undo() override;
 	};
 }
 

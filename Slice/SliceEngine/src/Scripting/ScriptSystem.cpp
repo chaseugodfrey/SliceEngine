@@ -44,6 +44,8 @@ namespace SliceEngine
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
         {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.Audio", ScriptFieldType::Audio},
+        {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
 
     ScriptSystem::ScriptSystem()
@@ -476,6 +478,8 @@ namespace SliceEngine
 
     void ScriptSystem::LoadEntityClasses()
     {
+        //loook here aloy
+
         // clear the map before using it
         mEntityClasses.clear();
 
@@ -526,10 +530,9 @@ namespace SliceEngine
                             ScriptFieldType fieldType = GetScriptFieldType(type);
 
 
-                            //variantVar defaultValue;
-
+                            rttr::variant var;
                             // Store it in the script's field map
-                            script->mFields[fieldName] = { fieldType, fieldName, field };
+                            script->mFields[fieldName] = { fieldType, fieldName, field, var};
                         }
                     }
 
@@ -567,5 +570,73 @@ namespace SliceEngine
         }
 
         return mEntityInstances[entityID];
+    }
+
+    void ScriptSystem::SubscribeToEvents()
+    {
+        auto* eventManager = EventManager::GetInstance();
+
+        eventManager->Subscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
+
+        eventManager->Subscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
+
+        eventManager->Subscribe<OnCollisionExitEvent, &ScriptSystem::OnCollideExit>(this);
+
+        eventManager->Subscribe<OnTriggerEnterEvent, &ScriptSystem::OnTriggerEnter>(this);
+
+        eventManager->Subscribe<OnTriggerStayEvent, &ScriptSystem::OnTriggerStay>(this);
+
+        eventManager->Subscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
+
+    }
+
+    void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+		}
+    }
+    void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+        }
+	}
+    void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+		}
+    }
+    void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+        }
+
+    }
+    void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+        }
+	}
+    void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
+    {
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        }
     }
 }

@@ -18,7 +18,6 @@ DigiPen Institute of Technology is prohibited.
 #include "WindowTypes.h"
 #include "EditorWindow.h"
 #include "../Core/IBaseManager.h"
-//#include "EditorState.h"
 
 namespace SliceEditor
 {
@@ -43,6 +42,16 @@ namespace SliceEditor
 
 		//void Init(EditorState& editorState);
 		void AddWindow(const std::string& name);
+		
+		template <typename WindowType>
+		void AddWindow()
+		{
+			static_assert(std::is_base_of_v<EditorWindow, WindowType>, "WindowType must derive from EditorWindow");
+			auto window = std::make_unique<WindowType>(registry);
+			window->Init();
+			list.push_back(std::move(window));
+		}
+
 		void Init();
 		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();

@@ -15,15 +15,18 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "WindowManager.h"
 #include "ICreateWindow.h"
-#include "Scripting/ScriptEditor.h"
-#include "../../src/Input/InputSystem.h"
 #include "../Core/Registry.h"
-#include "../Hierachy/HierarchyManager.h"
-#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
-#include "../../SliceEngine/src/Core/ComponentEventHandler.h"
-#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
-
-#include "../../SliceEngine/src/Networking/NetworkSystem.h"
+#include "Scripting/ScriptEditor.h"
+#include <Input/InputSystem.h>
+#include <Scripting/ScriptSystem.h>
+#include <Core/ComponentEventHandler.h>
+#include <Configuration/ProjectSettings.h>
+#include <Systems/SceneSystem.h>
+#include <Networking/NetworkSystem.h>
+#include <Hierachy/HierarchyWindow.h>
+#include <Inspector/InspectorWindow.h>
+#include <SceneView/SceneViewWindow.h>
+#include <GameView/GameViewWindow.h>
 
 namespace SliceEditor
 {
@@ -45,12 +48,13 @@ namespace SliceEditor
 
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
+
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
-		AddWindow("SceneView");
-		AddWindow("Hierarchy");
-		AddWindow("Inspector");
-		AddWindow("GameView");
+		AddWindow<SceneViewWindow>();
+		AddWindow<GameViewWindow>();
+		AddWindow<HierarchyWindow>();
+		AddWindow<InspectorWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -83,8 +87,6 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
-
-
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -189,8 +191,6 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Box"))
 				{
 					auto go = factory.CreateGO_Box();
-					registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
-
 				}
 
 				ImGui::EndMenu();
@@ -199,7 +199,6 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Camera"))
 			{
 				auto go = factory.CreateGO_Cam();
-				registry.GetManager<HierarchyManager>("Hierarchy")->AddEntityDirectly(go.GetEntity());
 			}
 
 			ImGui::EndMenu();
@@ -306,20 +305,20 @@ namespace SliceEditor
 			ImGui::OpenPopup("host_req");
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
-		{
-			if (SliceEngine::gScriptSystem)
-			{
-				SliceEngine::gScriptSystem->ReloadAssembly();
-			}
-		}
-		ImGui::SameLine();
 		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
 		{
 			ImGui::OpenPopup("connect_req");
 
 		}
 
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 		if (ImGui::BeginPopup("host_req"))
 		{
 

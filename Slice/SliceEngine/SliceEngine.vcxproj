@@ -138,10 +138,12 @@
     <ClInclude Include="src\NavMesh\NavMesh.h" />
     <ClInclude Include="src\Networking\NetworkSystem.h" />
     <ClInclude Include="src\Physics\CollisionLayer.h" />
+    <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Model.h" />
+    <ClInclude Include="src\Resource\Prefab.h" />
     <ClInclude Include="src\Resource\Resource.h" />
     <ClInclude Include="src\Resource\ResourceManager.h" />
     <ClInclude Include="src\Resource\Scene.h" />
@@ -154,6 +156,8 @@
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\GameStateManager.h" />
+    <ClInclude Include="src\Systems\ParticleSystemManager.h" />
+    <ClInclude Include="src\Systems\PrefabSystem.h" />
     <ClInclude Include="src\Systems\SceneSystem.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
@@ -180,9 +184,11 @@
     <ClCompile Include="src\Logger\Logger.cpp" />
     <ClCompile Include="src\Networking\NetworkSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
+    <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
+    <ClCompile Include="src\Resource\Prefab.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />
     <ClCompile Include="src\Resource\ResourceManager.cpp" />
     <ClCompile Include="src\Resource\Scene.cpp" />
@@ -195,6 +201,8 @@
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\GameStateManager.cpp" />
+    <ClCompile Include="src\Systems\ParticleSystemManager.cpp" />
+    <ClCompile Include="src\Systems\PrefabSystem.cpp" />
     <ClCompile Include="src\Systems\SceneSystem.cpp" />
     <ClCompile Include="src\Systems\SoundSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />

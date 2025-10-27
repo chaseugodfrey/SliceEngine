@@ -15,10 +15,14 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "SceneViewWindow.h"
-#include "SceneViewManager.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include <Graphics/TransformHelper.h>
+
 #include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
+#include "WindowManager/WindowManager.h"
+#include "History/HistoryManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -27,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+
 	// Convert Euler angles (in degrees) to quaternion
 	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
 		glm::vec3 euler_radians = glm::radians(euler_degrees);
@@ -82,13 +87,38 @@ namespace SliceEditor
 		return result;
 	}
 
-	SceneViewWindow::SceneViewWindow(SceneViewManager& manager, SliceEngine::GameObject cam) : camObj(cam), mManager(manager), tex_id(0)
+	glm::mat4 ConvertToEulerMatrix(const glm::mat4& transform)
 	{
+		glm::vec3 scale, translation, skew;
+		glm::quat rotationQuat;
+		glm::vec4 perspective;
+
+		// Decompose the matrix into translation, rotation (quaternion), scale, etc.
+		glm::decompose(transform, scale, rotationQuat, translation, skew, perspective);
+
+		// Convert the quaternion to Euler angles (in degrees)
+		glm::vec3 euler = QuaternionToEuler(rotationQuat);
+
+		// Normalize Euler angles (to prevent gimbal lock issues)
+		euler = NormalizeEulerAngles(euler);
+
+		// Recompose the matrix from the Euler angles
+		glm::mat4 new_transform = glm::mat4(1.0f);  // Start with an identity matrix
+		new_transform = glm::translate(new_transform, translation); // Apply translation
+		new_transform = glm::rotate(new_transform, glm::radians(euler.x), glm::vec3(1.0f, 0.0f, 0.0f)); // Apply rotation for X
+		new_transform = glm::rotate(new_transform, glm::radians(euler.y), glm::vec3(0.0f, 1.0f, 0.0f)); // Apply rotation for Y
+		new_transform = glm::rotate(new_transform, glm::radians(euler.z), glm::vec3(0.0f, 0.0f, 1.0f)); // Apply rotation for Z
+		new_transform = glm::scale(new_transform, scale); // Apply scale
+
+		return new_transform;
 	}
 
-	void SceneViewWindow::SetCameraTexture(GLuint texture_id)
+	void SceneViewWindow::Init()
 	{
-		tex_id = texture_id;
+		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();
+		SliceEngine::GameObject go = mRender->CreateCamera();
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
+		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
 	}
 
 	void SceneViewWindow::Draw()
@@ -103,7 +133,7 @@ namespace SliceEditor
 		ImGui::BeginGroup();
 		ImGui::Text("Speed:");
 		ImGui::SameLine();
-		ImGui::Text("%.3f", mManager.GetCameraSpeed());
+		ImGui::Text("%.3f", mCameraSpeed);
 		ImGui::EndGroup();
 
 
@@ -112,8 +142,7 @@ namespace SliceEditor
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObj.GetEntity());
-		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj.GetEntity());
+		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);
 
 		ImVec2 window_pos = ImGui::GetWindowPos();
 		ImVec2 window_size = ImGui::GetWindowSize();
@@ -130,86 +159,89 @@ namespace SliceEditor
 
 		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width;
 		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
-		mouse_scaled_y = cam.height - mouse_scaled_y;
+		mouse_scaled_y = camObj->camera.height - mouse_scaled_y;
 
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		cam.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
+		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj, forward, right, up);
+		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{
-			if (io.KeyShift)
+			if (io.KeyShift || ImGui::IsMouseDown(ImGuiMouseButton_Right))
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
 				{
-					cam_tr.position += forward * mManager.GetCameraSpeed();
+					cam_tr.position += forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_S))
 				{
-					cam_tr.position -= forward * mManager.GetCameraSpeed();
+					cam_tr.position -= forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_A))
 				{
-					cam_tr.position -= right * mManager.GetCameraSpeed();
+					cam_tr.position -= right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_D))
 				{
-					cam_tr.position += right * mManager.GetCameraSpeed();
+					cam_tr.position += right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_Q))
 				{
-					cam_tr.position -= up * mManager.GetCameraSpeed();
+					cam_tr.position -= up * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_E))
 				{
-					cam_tr.position += up * mManager.GetCameraSpeed();
+					cam_tr.position += up * mCameraSpeed;
 				}
 
 				//Camera Speed Change
 				if (io.MouseWheel > 0.0f)
 				{
-					mManager.ChangeCameraSpeed(0.01f);
+					mCameraSpeed += 0.01f;
 				}
 				else if (io.MouseWheel < 0.0f)
 				{
-					mManager.ChangeCameraSpeed(-0.01f);
+					mCameraSpeed -= 0.01f;
 				}
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_W))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::TRANSLATE);
+				mGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_E))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::ROTATE);
+				mGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_R))
 			{
-				mManager.SetGizmoOperation(ImGuizmo::OPERATION::SCALE);
+				mGuizmoOperation = ImGuizmo::OPERATION::SCALE;
 			}
 
-			static ImVec2 rotate_anchor{};
+			//static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
-			static ImVec2 init_rot{};
+			//static ImVec2 init_rot{};
+			static ImVec2 lastMousePos{};
+			static float cameraYaw = 0.0f;
+			static float cameraPitch = 0.0f;
 
 			if (ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					init_rot.x = cam_tr.rotation.y;
-					init_rot.y = cam_tr.rotation.z;
-					rotate_anchor = ImGui::GetMousePos();
+					//init_rot.x = cam_tr.rotation.y;
+					//init_rot.y = cam_tr.rotation.z;
+					lastMousePos = ImGui::GetMousePos();
 					isRotating = true;
 				}
 
@@ -223,11 +255,25 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
 				{
-					ImVec2 mouse_diff = ImGui::GetMousePos() - rotate_anchor;
-					cam_tr.rotation.y = init_rot.x - mouse_diff.x;
-					cam_tr.rotation.z = init_rot.y - mouse_diff.y;
+					ImVec2 currMouse = ImGui::GetMousePos();
+					ImVec2 mouse_diff(currMouse.x - lastMousePos.x, currMouse.y - lastMousePos.y);
+
+					float sensitivity = 0.005f;
+					cameraYaw -= mouse_diff.x * sensitivity;
+					cameraPitch -= mouse_diff.y * sensitivity;
+
+					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+
+					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
+
+					cam_tr.rotation = yawRotation * pitchRotation;
+
+					lastMousePos = currMouse;
 				}
 			}
+
+			// update 
 		}
 
 #pragma region Scene Drawing
@@ -237,13 +283,15 @@ namespace SliceEditor
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
 
-		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(camObj->camera.textureID));
 
+		float scene_x = pos.x + ImGui::GetContentRegionAvail().x;
+		float scene_y = pos.y + ImGui::GetContentRegionAvail().y;
 		// Drawing cam texture
 		ImGui::GetWindowDrawList()->AddImage(
 			tex,
 			ImVec2(pos.x, pos.y),
-			ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
+			ImVec2(scene_x, scene_y),
 			ImVec2(0, 1),
 			ImVec2(1, 0)
 		);
@@ -257,69 +305,92 @@ namespace SliceEditor
 		ImGuizmo::SetDrawlist(drawlist);
 		ImGuizmo::Enable(true);
 
-		auto& set = mManager.GetRegistry().GetSelectionSystem().GetSelectedEntities();
+		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 
-		if (set.size() > 0)
+		if (!set.empty() && set.begin().operator*()->type == SelectionNode::SelectionType::ENTITY)
 		{
+			auto entt = static_cast<EntityNode*>(*set.begin())->entity;
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
-			glm::mat4 P = glm::perspective(glm::radians(cam.pov), static_cast<float>(cam.width) / static_cast<float>(cam.height), cam.near, cam.far);
+			glm::mat4 P = glm::perspective(
+				glm::radians(camObj->camera.pov), static_cast<float>(camObj->camera.width) / static_cast<float>(camObj->camera.height), camObj->camera.near, camObj->camera.far);
 
 			// get entities & transform components
-			auto entt = *set.begin();
 			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
-
-			ImGuizmo::SetRect(scene_window_pos.x, scene_window_pos.y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+			ImGuizmo::SetRect(scene_window_pos.x, scene_window_pos.y, scene_x - scene_window_pos.x, scene_y - scene_window_pos.y);
 
 			// get transforms
-			glm::mat4 world_tr = tmp_tr.transform; // already computed as parent * local
-			glm::mat4 new_world_tr = world_tr;
+			glm::mat4 world_tr = tmp_tr.transform;
+			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
-			if (ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P),
-				mManager.GetGizmoOperation(), mManager.GetGizmoMode(),
-				glm::value_ptr(new_world_tr), NULL))
+			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mGuizmoOperation, mGuizmoMode, glm::value_ptr(world_tr));
+
+			if (ImGuizmo::IsUsing())
 			{
-				auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				auto operation = mManager.GetGizmoOperation();
-
-				// Convert world transform to local if we have a parent
-				glm::mat4 new_local_tr;
-				if (auto scene_graph = reg.try_get<SliceEngine::SceneGraph>(entt)) {
-					auto parent_entity = scene_graph->neighbours[SliceEngine::SceneGraph::UP];
-					if (parent_entity != entt::null && parent_entity != entt::entity{ 0 }) {
-						auto& parent_tr = reg.get<SliceEngine::Transform>(parent_entity);
-						glm::mat4 parent_world = parent_tr.transform;
-						new_local_tr = glm::inverse(parent_world) * new_world_tr;
-					}
-					else {
-						new_local_tr = new_world_tr; // root entity
+				if (!mGizmoTracker.has_value())
+				{
+					switch (mGuizmoOperation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.position);
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.rotation);
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.scale);
+						break;
 					}
 				}
-				else {
-					new_local_tr = new_world_tr;
-				}
 
-				// Extract all components from local transform
-				glm::vec3 translation, rotation_radians, scale;
-				glm::extractEulerAngleXYZ(new_local_tr, rotation_radians.x, rotation_radians.y, rotation_radians.z);
-				translation = glm::vec3(new_local_tr[3]);
-				scale.x = glm::length(glm::vec3(new_local_tr[0]));
-				scale.y = glm::length(glm::vec3(new_local_tr[1]));
-				scale.z = glm::length(glm::vec3(new_local_tr[2]));
+				glm::vec3 scale, translation, skew;
+				glm::vec4 persp;
+				glm::quat rot;
 
-				// Only update what changed
-				if (operation == ImGuizmo::TRANSLATE) {
+				glm::decompose(world_tr, scale, rot, translation, skew, persp);
+
+				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
+				{
 					tmp_tr.position = translation;
+					mGizmoTracker->endValue = translation;
 				}
-				else if (operation == ImGuizmo::ROTATE) {
-					tmp_tr.rotation = glm::degrees(rotation_radians);
+				
+				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
+				{
+					tmp_tr.rotation = rot;
+					mGizmoTracker->endValue = rot;
 				}
-				else if (operation == ImGuizmo::SCALE) {
+
+				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
+				{
 					tmp_tr.scale = scale;
+					mGizmoTracker->endValue = scale;
 				}
-				// Don't touch the matrices - let transform system rebuild them
+			}
+
+			else
+			{
+				if (mGizmoTracker.has_value())
+				{
+					switch (mGizmoTracker->operation)
+					{
+					case ImGuizmo::OPERATION::TRANSLATE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+						break;
+					case ImGuizmo::OPERATION::ROTATE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, std::get<glm::quat>(mGizmoTracker->startValue), std::get<glm::quat>(mGizmoTracker->endValue)));
+						break;
+					case ImGuizmo::OPERATION::SCALE:
+						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+						break;
+					}
+					mGizmoTracker.reset();
+				}
 			}
 		}
 
@@ -331,31 +402,32 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
+			auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
+
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
-				renderer->SelectCamIDPick(camObj.GetEntity());
+				renderer->SelectCamIDPick(camObj->entity);
 				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(mouse_scaled_x), static_cast<int>(mouse_scaled_y));
-				entt::entity selected_entity{ entt_id };
+				entt::entity selectedEntity{ entt_id };
 
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
 					if (io.KeyCtrl)
 					{
-						mManager.SelectObject((entt::entity)entt_id);
+
 					}
 
 					else
 					{
-						if (selected_entity == entt::null || entt_id == 0)
+						if (selectedEntity == entt::null || entt_id == 0)
 						{
-							mManager.ClearObject();
+
 						}
 
 						else
 						{
-							mManager.ClearObject();
-							mManager.SelectObject((entt::entity)entt_id);
+							mSelection->SelectSingle(selectedEntity);
 						}
 					}
 				}

@@ -31,8 +31,11 @@ DigiPen Institute of Technology is prohibited.
 #include "Serializer/CSVSerializer.h"
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
+#include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/ParticleSystemManager.h"
+#include "Systems/PrefabSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -106,7 +109,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<ParticleSystemManager>();
+		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
+
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -163,23 +169,36 @@ namespace SliceEngine
 		//test();
 
 		
-		//JSONSerializer::Test2();
-		//JSONSerializer::Tests::RunTests(false);
-		//JSONSerializer::Tests::RunTests(false);
 		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
-		//JSONSerializer::Tests::RunTests(false);
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("light");
-		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, -1.f, 0.f);
+		GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
+		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
 		Dlight.AddComponent<Light>();
 		Dlight.GetComponent<Light>().type = Light::LightType::Light_Directional;
+
+		GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
+		Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		Dlight2.AddComponent<Light>();
+		Dlight2.GetComponent<Light>().type = Light::LightType::Light_Directional;
+
+		FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
+
+		GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
+		Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		Dlight3.AddComponent<Light>();
+		Dlight3.GetComponent<Light>().type = Light::LightType::Light_Directional;
+
+		FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
+		
+		//Core::GetInstance()->GetSystem<PrefabSystem>().CreatePrefab((GUID)9528168868150986328);
+		JSONSerializer::SerializePrefab(Dlight.GetEntity());
+
 		//for (int i = 0; i < 2; ++i)
 		//{
 		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
@@ -195,12 +214,18 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
-		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
-		if (!sceneSystem->CheckQueueEmpty())
+		auto core = Core::GetInstance();
+		auto sTransform = core->GetSystem<TransformSystem>();
+		auto sScene = Core::GetInstance()->GetSceneSystem();
+		auto sRender = core->GetRenderManager();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+
+		if (!sScene->CheckQueueEmpty())
 		{
-			if (sceneSystem->isSceneUnloaded)
+			if (sScene->isSceneUnloaded)
 			{
-				sceneSystem->LoadNextScene();
+				sScene->LoadNextScene();
 			}
 		}
 
@@ -208,12 +233,10 @@ namespace SliceEngine
 		frm.StartFrame();
 
 		//auto mResource = Core::GetInstance()->GetResourceManager();
-		auto mRender = Core::GetInstance()->GetRenderManager();
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		auto inputs = Core::GetInstance()->GetInputSystem();
+
 
 		frm.StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(Core::GetInstance()->GetWindow());
+		glfwMakeContextCurrent(core->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
@@ -221,20 +244,19 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-
 		frm.StartSystem("Input");
 		//inputs->Update();
-		inputs->UpdatePrevInput();
+		sInputs->UpdatePrevInput();
 		frm.EndSystem("Input");
 
         frm.StartSystem("Audio");
-		Core::GetInstance()->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
-		mAudioManager->Update();
+		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
+		sAudio->Update();
         frm.EndSystem("Audio");
         
 		frm.StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		if (inputs->GetMode() == InputMode::Game)
+		if (sInputs->GetMode() == InputMode::Game)
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
@@ -244,22 +266,27 @@ namespace SliceEngine
 
 
 		frm.StartSystem("Transform");
-		Core::GetInstance()->GetSystem<TransformSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sTransform.Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sTransform.UpdateWorldTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		frm.EndSystem("Transform");
 
-		for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+		frm.StartSystem("Physics");
+		if (sInputs->GetMode() == InputMode::Game)
 		{
-			frm.StartSystem("Physics");
-			if (inputs->GetMode() == InputMode::Game)
+			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
-				Core::GetInstance()->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
-			frm.EndSystem("Physics");
 		}
+		frm.EndSystem("Physics");
 
 		frm.StartSystem("Graphics");
-		mRender->Render();
+		sRender->Render();
 		frm.EndSystem("Graphics");
+
+		frm.StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
+		frm.EndSystem("Particle System");
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();

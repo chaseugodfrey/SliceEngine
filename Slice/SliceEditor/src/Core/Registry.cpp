@@ -14,45 +14,45 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "Registry.h"
-#include "SelectionSystem/ISelectionListener.h"
-#include "SceneView/SceneViewManager.h"
-#include "Hierachy/HierarchyManager.h"
-#include "Inspector/InspectorManager.h"
+#include "Session/SessionManager.h"
+#include "Selection/ISelectionListener.h"
+#include "Selection/SelectionManager.h"
+#include "History/HistoryManager.h"
 #include "ContentBrowser/ContentBrowserManager.h"
 #include "Profiler/ProfilerManager.h"
-#include "GameView/GameViewManager.h"
 #include "WindowManager/WindowManager.h"
 
 namespace SliceEditor
 {
 	void Registry::Init()
 	{
+		CreateManager<SessionManager>("Session");
+		CreateManager<HistoryManager>("History");
+		CreateManager<SelectionManager>("Selection");
 		CreateManager<ContentBrowserManager>("ContentBrowser");
-		CreateManager<HierarchyManager>("Hierarchy");
-		CreateManager<InspectorManager>("Inspector");
-		CreateManager<SceneViewManager>("SceneView");
 		CreateManager<ProfilerManager>("Profiler");
-		CreateManager<GameViewManager>("GameView");
 		CreateManager<WindowManager>("Windows");
+
+		auto mSelection = GetManager<SelectionManager>("Selection");
 
 		for (auto& [name, manager] : mManagers)
 		{
 			if (auto listener = dynamic_cast<ISelectionListener*>(manager.get()))
 			{
-				selectionSystem.RegisterListener(listener);
+				mSelection->RegisterListener(listener);
 			}
 
 			manager->Init();
 		}
 	}
+
+	void Registry::Update()
+	{
+		GetManager<SessionManager>("Session")->Update();
+	}
 	
 	std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& Registry::GetManagers()
 	{
 		return mManagers;
-	}
-
-	SelectionSystem& Registry::GetSelectionSystem()
-	{
-		return selectionSystem;
 	}
 }

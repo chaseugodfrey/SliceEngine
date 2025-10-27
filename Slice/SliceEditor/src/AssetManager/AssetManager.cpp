@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "AssetManager.h"
 #include "AssetTypes.h"
+#include <Serializer/JSONSerializer.h>
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -45,7 +46,7 @@ namespace SliceEditor
 				continue;
 			}
 
-			std::string fileName = dirEntry.path().filename().stem().string();
+			std::string fileName = dirEntry.path().filename().stem().stem().string();
 
 			// Since this isn't unity style where meta files are alongside assets
 			// we need to compare wit hthe file name to GUID from the resource manager
@@ -67,7 +68,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	void AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -76,10 +77,10 @@ namespace SliceEditor
 		if (it == mSupportedAssetTypes.end())
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
-			return; // Unsupported asset type
+			return "";
 		}
 
-		AssetType assetType = it->second;
+		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
 
 		// I think can compile assets somewhere around here
@@ -104,6 +105,10 @@ namespace SliceEditor
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::Prefab:
+			metaData = std::make_unique<PrefabData>();
+			typeID = ResourceTypeIDs::PREFAB;
 			break;
 		}
 
@@ -170,6 +175,8 @@ namespace SliceEditor
 			case AssetType::Audio:
 				// idk audio yet
 				break;
+				// prefab and scene is the same just copy it over
+			case AssetType::Prefab:
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
 				break;
@@ -187,7 +194,7 @@ namespace SliceEditor
 				// delete the meta file if it didn't compile properly
 				std::filesystem::remove(metaPath);
 
-				return;
+				return "";
 			}
 
 
@@ -200,6 +207,7 @@ namespace SliceEditor
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 		
+			return  metaData->resourcePath;
 		}
 	}
 
@@ -344,9 +352,37 @@ namespace SliceEditor
 						inFile >> metaData;
 						std::string assetName = metaData["assetName"].get<std::string>();
 						uint64_t guid = metaData["guid"].get<uint64_t>();
+						std::string fileType = metaData["assetType"];
 						std::string assetPath = metaData["assetPath"].get<std::string>();
 						std::string resourcePath = metaData["resourcePath"].get<std::string>();
 
+						// if its a shader file just delete that shit
+						// cause we got no file watcher to check if a shader was modified
+						// so we just delete them and recompile everytime its ran
+						if (fileType == ".shader")
+						{
+							inFile.close();
+							// and remove the meta file
+							std::filesystem::remove(filePath);
+
+							if (std::filesystem::exists(resourcePath))
+							{
+								std::filesystem::remove(resourcePath);
+							}
+
+							std::filesystem::path resourceFilePath = resourcePath;
+
+							resourceFilePath.replace_extension(".vert");
+
+							if (std::filesystem::exists(resourceFilePath))
+								std::filesystem::remove(resourceFilePath);
+							resourceFilePath.replace_extension(".frag");
+
+							if (std::filesystem::exists(resourceFilePath))
+								std::filesystem::remove(resourceFilePath);
+
+							//return;
+						}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
 						if (!std::filesystem::exists(assetPath) || !std::filesystem::exists(resourcePath))
@@ -369,10 +405,34 @@ namespace SliceEditor
 							// and remove the meta file
 							std::filesystem::remove(filePath);
 
+							continue;
 							// note: for shaders since it comes in a set of 3 files
 							// i dont rlly know how to clean that up
 						}
 					
+						// Check if the asset file was modified after meta file creation
+						std::filesystem::file_time_type assetTime = std::filesystem::last_write_time(assetPath);
+						std::filesystem::file_time_type resourceTime = std::filesystem::last_write_time(resourcePath);
+						
+						
+						// compare these two
+						if (resourceTime < assetTime)
+						{
+							// Resource file is older than asset file, so recompile the resource
+							// close the ifstream before removing meta file
+							inFile.close();
+							// and remove the meta file
+							std::filesystem::remove(filePath);
+							if (std::filesystem::exists(resourcePath))
+							{
+								std::filesystem::remove(resourcePath);
+							}
+
+							// idk about shaders
+
+							continue;
+						}
+
 						mDescriptorMap.insert_or_assign(assetName, guid);
 					}
 					catch (nlohmann::json::parse_error& e)
@@ -384,4 +444,36 @@ namespace SliceEditor
 			}
 		}
 	}
+
+	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
+	{
+
+		// idk if this will work yet cause i need it implemented in the editor to test
+		// but this should create the prefab and compile it to create the resource as well 
+
+		// Create the prefab file
+		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
+		std::filesystem::path filePath(path);
+		// Create the descriptor
+		std::string resourcePath = CreateDescriptorFile(filePath);
+
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(resourcePath);
+
+	}
+
+	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
+	//{
+	//	auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>
+	//		(
+	//		ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()
+	//		);
+	//	std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+	//	std::string time_str = std::ctime(&cftime);
+	//	if (!time_str.empty() && time_str.back() == '\n') 
+	//	{
+	//		time_str.pop_back();
+	//	}
+	//	return time_str;
+	//}
 }

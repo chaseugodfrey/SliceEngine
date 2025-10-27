@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include <glfw3.h>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
+#include <rttr/rttr_enable.h>
+#include "Resource/ResourceManager.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -25,41 +27,6 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
-	struct EntityID
-	{
-		uint64_t value;
-
-		EntityID() : value(0) {}
-		EntityID(uint64_t v) : value(v) {}
-
-		operator uint64_t() const { return value; }
-	};
-
-	struct SceneGraph
-	{
-		EntityID entity_id{};
-
-		enum Direction {
-			UP = 0,
-			DOWN,
-			LEFT,
-			RIGHT,
-			DIRECTIONS
-		};
-
-		uint8_t child_count{};
-
-		// rttr doesnt like c style arrays lol
-		//uint32_t neighbours[4];
-		std::array<Entity, Direction::DIRECTIONS> neighbours{entt::null, entt::null, entt::null, entt::null};
-	};
-
-	struct Script
-	{
-		std::string scriptName;
-		//std::unordered_map<std::string, variantVar> scriptableFieldMap;
-	};
-
 	struct SliceEntity 
 	{
 		std::string mName;
@@ -80,17 +47,45 @@ namespace SliceEngine
 		int val;
 	};
 
-	struct Transform
+	struct SceneGraph
 	{
-		glm::vec3 position{};
-		glm::vec3 rotation{};
-		glm::vec3 scale{1};
+		uint32_t entity_id{};
 
-		glm::vec3 previousScale{};
+		enum Direction {
+			UP = 0,
+			DOWN,
+			LEFT,
+			RIGHT,
+			DIRECTIONS
+		};
 
-		glm::mat4 transform_local{};
-		glm::mat4 transform{};
+		std::array<Entity, Direction::DIRECTIONS> neighbours{ entt::null, entt::null, entt::null, entt::null };
+
+		RTTR_ENABLE();
 	};
+
+	struct Script
+	{
+		std::string scriptName;
+
+		// purely for serialization and deserialization
+		// to save scriptable field values in scenes and for prefabs(?)
+		std::unordered_map<std::string, rttr::variant> scriptableFieldMap;
+
+		RTTR_ENABLE();
+	};
+
+    struct Transform
+    {
+
+        glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+        glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+        glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+        glm::mat4 transform_local{ 1.0f };
+        glm::mat4 transform{ 1.0f };
+
+		RTTR_ENABLE();
+    };
 
 	struct UITransform
 	{
@@ -109,9 +104,12 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		GUID model{};
-		GUID texture{};
-		unsigned char renderTag{};
+		GUID model;
+		GUID texture;
+		unsigned short meshOffset{ 0 };
+		unsigned char renderTag;
+
+		RTTR_ENABLE();
 	};
 
 	struct Camera
@@ -120,6 +118,8 @@ namespace SliceEngine
 		float pov{}, near{}, far{};// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		unsigned char renderTag{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Light // TODO: Default 1 directional light for now
@@ -135,6 +135,18 @@ namespace SliceEngine
 		GLuint depthTex{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
+
+		RTTR_ENABLE();
+	};
+
+	struct Prefab
+	{
+		// GUID reference to original prefab
+		GUID prefabGUID;
+
+		Handle<SliceEngineTypes::Prefab> prefabHandle;
+
+		RTTR_ENABLE();
 	};
 
 	struct RigidBody
@@ -151,6 +163,19 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+
+		//To add in Inspector
+		struct FreezeOptions
+		{
+			bool freezeX = false;
+			bool freezeY = false;
+			bool freezeZ = false;
+		};
+
+		FreezeOptions freezePosition;
+		FreezeOptions freezeRotation;
+
+		RTTR_ENABLE();
 	};
 
 	struct ColliderShape
@@ -158,22 +183,27 @@ namespace SliceEngine
 		struct BoxData
 		{
 			JPH::Vec3 scale{ 0.5f, 0.5f,0.5f };
-			JPH::Vec3 prevScale{ 0.5f, 0.5f,0.5f };
 		};
 
 		struct SphereData
 		{
 			float radius{ 1.0f };
-			float prevRadius{ 1.0f };
+		};
+
+		struct CapsuleData
+		{
+			float radius{ 0.5f };
+			float height{ 2.0f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
 		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		std::variant<BoxData, SphereData> shapeData = BoxData{};// will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{};// will add more if we have more shapes :D
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
+		RTTR_ENABLE();
 	};
 
 	struct AudioSource
@@ -186,68 +216,100 @@ namespace SliceEngine
 		bool playPreview = false;
 	};
 
-	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
-
-		float lifetime{};        // how long this particle has left
-		float speed{};           // current speed
-		float angle{};           // direction (in radians or degrees)
-
-		// optional transform-like data
+		float age{};             // how long this particle has been alive
+		
 		glm::vec3 position{};
+		glm::quat rotation{};
+		glm::vec3 scale{};
 		glm::vec3 velocity{};    // derived from speed + angle
-		glm::vec3 color{};       // if you want per-particle tint
-
-		// flags
-		bool has_rigidbody{ false };
+		glm::vec4 colour{};       // if you want per-particle tint
 	};
-	class ParticleSystem
+	struct ParticleSystem
 	{
-		// ---- System-wide settings ----
-		Transform* parent_transform{};     // emitter transform (spawn reference)
+		Transform* parentTransform{ nullptr };
 
-		float internal_timer{};            // tracker for emission interval
-		float lifetime_timer{};            // system’s overall lifetime
-		float duration{};                  // how long the system lasts
+		// System Settings
+		float duration{};                       // how long the system should last, 0.0f = forever
 
-		float emission_rate{ 1.f };        // particles/sec
-		float emitter_angle_degrees{ 0.0f };
-		float emitter_angle_radians{ 0.0f }; // cache
-		float arc{ 360.f };                // emission spread
+		float emissionRate{ 0.0f };              // particles/sec
 
-		bool is_repeating{ false };
-		bool is_ending{ false };
+		float coneAngle{};
+		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread
 
-		uint32_t oldest_particle_index{ 0u };
+		bool isRepeating{ false };
 
-		float max_particle_lifetime{};
-		float particle_speed{};
+		bool hasRandomParticleLifetime{ false };
+		float lifetime{};
+		float minParticleLifetime{};
+		float maxParticleLifetime{};
 
-		glm::vec3 min_random_spawn_pos_relative_to_parent{};
-		glm::vec3 max_random_spawn_pos_relative_to_parent{};
+		bool hasRandomSpawnPos{ false };        // random relative to parent
+		glm::vec3 minRandomSpawnPos{};
+		glm::vec3 maxRandomSpawnPos{};
 
-		bool fade_over_lifetime{ false };
+		bool hasRandomInitialRotation{ false };
+		glm::quat rotation{};
+		glm::quat minRandomRotation{};
+		glm::quat maxRandomRotation{};
 
-		uint32_t max_particles{ 50 }; // pool size
+		bool hasRandomVelocity{ false };
+		glm::vec3 velocity{};
+		glm::vec3 minRandomVelocity{};
+		glm::vec3 maxRandomVelocity{};
 
-		uint32_t internal_current_index{};
+		bool hasRandomScale{ false };
+		glm::vec3 scale{};
+		glm::vec3 minRandomScale{};
+		glm::vec3 maxRandomScale{};
 
-		// ---- Particle storage ----
-		std::vector<Particle> particles;
+		bool hasRandomColour{ false };
+		glm::vec4 colour{};
+		glm::vec4 minRandomColour{};
+		glm::vec4 maxRandomColour{};
 
-	public:
-		//ParticleSystem(uint32_t maxCount = 50)
-		//	: max_particles(maxCount)
-		//{
-		//	particles.resize(max_particles);
-		//}
+		bool hasGravity{ false };
+		float gForce{};
 
-		//void Init(Transform* _parent) { parent_transform = _parent; }
-		//void Update(float dt);
-		//void ResetParticle(uint32_t idx);
-		//void DisableParticle(uint32_t idx);
+		bool fadeOverLifetime{ false };
+		bool hasCollision{ false };
+		bool destroyOnExpire{ true };
+		uint64_t maxParticles{ 200 };            // pool size. default 200
+
+		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
+		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
+
+		// Main Particle Storage Poooool
+		std::vector<Particle> particles{};
+
+		// Bursts		
+		struct Burst
+		{
+			uint64_t numParticles{};
+			uint64_t burstRepetitions{};		// how many times to do the burst
+			float burstPeriod{};				// how far apart in time should each repetition be
+			float triggerTime{};				// if greater than systemTimer, trigger burst
+			bool triggered{ false };
+
+			uint64_t repsDone{};
+			float repTimer{};
+		};
+
+		bool hasBursts{ false };
+		uint64_t numBursts{};		
+
+		std::vector<Burst> bursts{};
+
+		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
+
+		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
+		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
+		bool isActive{ true };
+		float systemTimer{};					// systemï¿½s overall lifetime
+
+		float emissionAccumulator{};
 	};
 }
 

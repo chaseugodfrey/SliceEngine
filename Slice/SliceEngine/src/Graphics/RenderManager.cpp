@@ -135,7 +135,7 @@ namespace SliceEngine
 		
 		auto& transform = newCam.GetComponent<Transform>();
 		transform.position = glm::vec3(-2.f, 1.f, 0.f);
-		transform.rotation = glm::vec3(0.f, 0.f, -10.f);
+		transform.rotation = glm::quat(glm::radians(glm::vec3(0.f, 0.f, -10.f)));
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 
@@ -156,7 +156,8 @@ namespace SliceEngine
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
 		auto& camTrans = cam.GetComponent<Transform>();
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
+		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
 		forward = rot * f;
 		right = rot * r;
 		up = rot * u;
@@ -237,7 +238,9 @@ namespace SliceEngine
 
 				transform.transform = glm::mat4x4(1.f);
 				transform.transform = glm::translate(transform.transform, transform.position);
-				glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
+				glm::mat4 Rot = glm::mat4_cast(transform.rotation);
+
+				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 				transform.transform *= Rot;
 				transform.transform = glm::scale(transform.transform, transform.scale);
 
@@ -272,12 +275,12 @@ namespace SliceEngine
 				frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
 
 				// Frustrum Rendering
-				glNamedBufferSubData(frustrum.vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
+				glNamedBufferSubData(frustrum.meshes[0].vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
 
 				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
 
-				glBindVertexArray(frustrum.vao);
-				glDrawArraysInstanced(frustrum.drawMode, 0, frustrum.drawCnt, 1);
+				glBindVertexArray(frustrum.meshes[0].vao);
+				glDrawArraysInstanced(frustrum.meshes[0].drawMode, 0, frustrum.meshes[0].drawCnt, 1);
 			}
 		}
 		
@@ -289,7 +292,8 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 			glBindVertexArray(mdl.vao);
 
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
@@ -412,9 +416,10 @@ namespace SliceEngine
 				glBindTextureUnit(3, light.depthTex);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-				glBindVertexArray(mdl.get()->vao);
+				auto& mesh = mdl.get()->meshes[0];
+				glBindVertexArray(mesh.vao);
 				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-				glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				break;
 			}
 			case Light::LightType::Light_Point:
@@ -433,9 +438,10 @@ namespace SliceEngine
 				glBindTextureUnit(4, light.shadowCubeMap);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT);
-				glBindVertexArray(mdl.get()->vao);
+				auto& mesh = mdl.get()->meshes[0];
+				glBindVertexArray(mesh.vao);
 				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-				glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				break;
 			}
 			}
@@ -448,9 +454,15 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_FINAL]);
 
-		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-		glBindVertexArray(mdl.get()->vao);
-		glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+		glBindVertexArray(mdl.vao);
+		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+		//glBindVertexArray(mdl.get()->vao);
+		//glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 #pragma endregion
 
@@ -462,9 +474,15 @@ namespace SliceEngine
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 		glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
-		glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
 
-		V = glm::lookAt(camTrans.position, camTrans.position + rot * target, rot * up);
+		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		glm::vec3 forward = camTrans.rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+
+
+		V = glm::lookAt(camTrans.position, camTrans.position + forward , upVec);
+
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}
 	// Updates V P uniforms
@@ -679,7 +697,9 @@ namespace SliceEngine
 	void RenderManager::LinkTransformInstancing(GUID guid)
 	{
 		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& mdl = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
+		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+
 		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 
 		// Link drawing models with instancing vbo

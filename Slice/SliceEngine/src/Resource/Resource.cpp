@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Shader.h"
 #include "Model.h"
 #include "Scene.h"
+#include "Prefab.h"
 
 namespace SliceEngine
 {
@@ -109,5 +110,19 @@ namespace SliceEngine
 	{
 		// scene got nth to destroy that resource manager doesn't do for it
 		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
+	}
+
+	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+			std::filesystem::path file(path);
+			GUID guid = GUID::FromString(file.stem().string());
+			
+			auto prefab = std::make_unique<SliceEngineTypes::Prefab>(guid, path);
+			return prefab;
+	}
+
+	void Type<SliceEngineTypes::Prefab>::Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr)
+	{
+		// nth to destroy
 	}
 }
