@@ -87,6 +87,7 @@ namespace SliceEditor
 
 	}
 
+
 	class MetaData
 	{
 	public:
@@ -95,6 +96,45 @@ namespace SliceEditor
 		std::string assetType;
 		std::string assetPath;
 		std::string resourcePath;
+		
+		//MetaData() = default;
+		//~MetaData() = default;
+
+		void InitMetaData(const std::filesystem::path path, AssetType type, const std::string& typeName)
+		{
+			std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
+
+			uint64_t typeID = 0;
+			switch (type)
+			{
+			case AssetType::Texture:
+				typeID = ResourceTypeIDs::TEXTURE;
+				break;
+			case AssetType::Model:
+				typeID = ResourceTypeIDs::MODEL;
+				break;
+			case AssetType::Audio:
+				typeID = ResourceTypeIDs::SOUND;
+				break;
+			case AssetType::Scene:
+				typeID = ResourceTypeIDs::SCENE;
+				break;
+			case AssetType::Shader:
+				typeID = ResourceTypeIDs::SHADER;
+				break;
+			case AssetType::Prefab:
+				typeID = ResourceTypeIDs::PREFAB;
+				break;
+			}
+
+
+			assetName = path.stem().string();
+			guid = SliceEngine::GUID::Generate(assetName, typeID);
+			assetType = typeName;
+			assetPath = path.string();
+			resourcePath = mResourcesDirectory.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+
+		}
 
 		virtual std::filesystem::path Serialize(const std::filesystem::path & ) = 0;
 		virtual void Deserialize(const std::filesystem::path & ) = 0;

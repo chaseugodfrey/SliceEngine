@@ -123,11 +123,13 @@ namespace SliceEditor
 
 		if (metaData)
 		{
-			metaData->assetName = filePath.stem().string();
-			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
-			metaData->assetType = mAssetExtensions[assetType];
-			metaData->assetPath = filePath.string();
-			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
+
+			//metaData->assetName = filePath.stem().string();
+			//metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
+			//metaData->assetType =;
+			//metaData->assetPath = filePath.string();
+			//metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 
 			// for rainne's old models and stuff idk
 			if (ext == ".rainne")
@@ -224,6 +226,61 @@ namespace SliceEditor
 		
 			return  metaData->resourcePath;
 		}
+	}
+
+	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
+	{
+		//Find out the type of asset:
+		std::string ext = filePath.extension().string();
+
+		auto it = mSupportedAssetTypes.find(ext);
+		if (it == mSupportedAssetTypes.end())
+		{
+			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
+			return nullptr;
+		}
+
+		AssetType assetType = it->second.first;
+		std::unique_ptr<MetaData> metaData;
+
+		// I think can compile assets somewhere around here
+		uint64_t typeID = 0;
+		switch (assetType)
+		{
+		case AssetType::Texture:
+			metaData = std::make_unique<TextureData>();
+			typeID = ResourceTypeIDs::TEXTURE;
+			break;
+		case AssetType::Model:
+			metaData = std::make_unique<ModelData>();
+			typeID = ResourceTypeIDs::MODEL;
+			break;
+		case AssetType::Audio:
+			metaData = std::make_unique<AudioData>();
+			typeID = ResourceTypeIDs::SOUND;
+			break;
+		case AssetType::Scene:
+			metaData = std::make_unique<SceneData>();
+			typeID = ResourceTypeIDs::SCENE;
+			break;
+		case AssetType::Shader:
+			metaData = std::make_unique<ShaderData>();
+			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::Prefab:
+			metaData = std::make_unique<PrefabData>();
+			typeID = ResourceTypeIDs::PREFAB;
+			break;
+		}
+
+		if (metaData)
+		{
+			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
+
+			return metaData;
+		}
+
+		return nullptr;
 	}
 
 	bool AssetManager::CompileAsset(const std::string fileName)

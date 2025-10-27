@@ -221,33 +221,33 @@ namespace SliceEditor
 
 		file.assetType = registry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
 		file.filePath = target;
-		switch (file.assetType)
-		{
-		case AssetType::Texture:
-			file.metaData = std::make_unique<TextureData>();
-			file.typeID = ResourceTypeIDs::TEXTURE;
-			break;
-		case AssetType::Model:
-			file.metaData = std::make_unique<ModelData>();
-			file.typeID = ResourceTypeIDs::MODEL;
-			break;
-		case AssetType::Audio:
-			file.metaData = std::make_unique<AudioData>();
-			file.typeID = ResourceTypeIDs::SOUND;
-			break;
-		case AssetType::Scene:
-			file.metaData = std::make_unique<SceneData>();
-			file.typeID = ResourceTypeIDs::SCENE;
-			break;
-		case AssetType::Shader:
-			file.metaData = std::make_unique<ShaderData>();
-			file.typeID = ResourceTypeIDs::SHADER;
-			break;
-		case AssetType::Prefab:
-			file.metaData = std::make_unique<PrefabData>();
-			file.typeID = ResourceTypeIDs::PREFAB;
-			break;
-		}
+		//switch (file.assetType)
+		//{
+		//case AssetType::Texture:
+		//	file.metaData = std::make_unique<TextureData>();
+		//	file.typeID = ResourceTypeIDs::TEXTURE;
+		//	break;
+		//case AssetType::Model:
+		//	file.metaData = std::make_unique<ModelData>();
+		//	file.typeID = ResourceTypeIDs::MODEL;
+		//	break;
+		//case AssetType::Audio:
+		//	file.metaData = std::make_unique<AudioData>();
+		//	file.typeID = ResourceTypeIDs::SOUND;
+		//	break;
+		//case AssetType::Scene:
+		//	file.metaData = std::make_unique<SceneData>();
+		//	file.typeID = ResourceTypeIDs::SCENE;
+		//	break;
+		//case AssetType::Shader:
+		//	file.metaData = std::make_unique<ShaderData>();
+		//	file.typeID = ResourceTypeIDs::SHADER;
+		//	break;
+		//case AssetType::Prefab:
+		//	file.metaData = std::make_unique<PrefabData>();
+		//	file.typeID = ResourceTypeIDs::PREFAB;
+		//	break;
+		//}
 
 		manager->mPendingDrops.push(file);
 	}
