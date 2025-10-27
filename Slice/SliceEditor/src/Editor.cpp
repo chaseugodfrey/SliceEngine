@@ -184,7 +184,18 @@ namespace SliceEditor
 		for (int i = 0; i < count; i++)
 		{
 			std::filesystem::path path = paths[i];
-			editor->HandleDrop(path);
+			//Handles folders just in case
+			if (std::filesystem::is_directory(path))
+			{
+				for (auto& entry : std::filesystem::recursive_directory_iterator(path))
+				{
+					editor->HandleDrop(entry.path());
+				}
+			}
+			else
+			{
+				editor->HandleDrop(path);
+			}
 		}
 	}
 
@@ -196,7 +207,48 @@ namespace SliceEditor
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
 		manager->RebuildDirectory(*manager->rootNode);
-		manager->mPendingDrops.push(path);
+
+		//Create the Package for the ContentBrowser to read
+		std::string fileExt = target.extension().string();
+
+		if (registry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == registry.GetAssetManager().mSupportedAssetTypes.end())
+		{
+			SLICE_LOG_VALUES("Dropped Unsupported Asset Type");
+			return;
+		}
+
+		DroppedFile file;
+
+		file.assetType = registry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+		switch (file.assetType)
+		{
+		case AssetType::Texture:
+			file.metaData = std::make_unique<TextureData>();
+			//typeID = ResourceTypeIDs::TEXTURE;
+			break;
+		case AssetType::Model:
+			file.metaData = std::make_unique<ModelData>();
+			//typeID = ResourceTypeIDs::MODEL;
+			break;
+		case AssetType::Audio:
+			file.metaData = std::make_unique<AudioData>();
+			//typeID = ResourceTypeIDs::SOUND;
+			break;
+		case AssetType::Scene:
+			file.metaData = std::make_unique<SceneData>();
+			//typeID = ResourceTypeIDs::SCENE;
+			break;
+		case AssetType::Shader:
+			file.metaData = std::make_unique<ShaderData>();
+			//typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::Prefab:
+			file.metaData = std::make_unique<PrefabData>();
+			//typeID = ResourceTypeIDs::PREFAB;
+			break;
+		}
+
+		//manager->mPendingDrops.push(path);
 	}
 
 
