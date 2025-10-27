@@ -80,7 +80,7 @@ namespace SliceEditor
 
 			ImGui::OpenPopup("##CompileAsset");
 
-			CompileAssetPopup(*mManager.mActiveDrop, isOpen);
+			//CompileAssetPopup(*mManager.mActiveDrop, isOpen);
 
 			if (!isOpen) //Pop-up is closed for some reason
 			{
