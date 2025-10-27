@@ -44,9 +44,9 @@ namespace SliceEditor
 
 		DirectoryNode* selectedFolder;
 
-		std::queue<DirectoryNode> mPendingDrops;
+		std::queue<DroppedFile> mPendingDrops;
 
-		std::optional<DirectoryNode> mActiveDrop;
+		std::optional<DroppedFile> mActiveDrop;
 
 		bool openRenameFile = false;
 		bool mHasDroppedAssets = false;

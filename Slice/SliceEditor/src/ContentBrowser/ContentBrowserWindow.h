@@ -39,7 +39,7 @@ namespace SliceEditor
 
 		void RenameFilePopup(DirectoryNode& entry);
 
-		void CompileAssetPopup(std::filesystem::path entry, bool& isOpen);
+		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
 
 		void SelectFile(DirectoryNode& node);
 	};

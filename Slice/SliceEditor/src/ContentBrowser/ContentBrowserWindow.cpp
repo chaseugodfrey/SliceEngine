@@ -71,16 +71,16 @@ namespace SliceEditor
 
 		if (!mManager.mPendingDrops.empty())
 		{
-			mManager.mActiveDrop = mManager.mPendingDrops.front();
+			mManager.mActiveDrop = std::move(mManager.mPendingDrops.front());
 		}
 
 		if(mManager.mActiveDrop.has_value())
 		{
-			bool isOpen;
+			bool isOpen = true;
 
 			ImGui::OpenPopup("##CompileAsset");
 
-			//CompileAssetPopup(*mManager.mActiveDrop, isOpen);
+			CompileAssetPopup(*mManager.mActiveDrop, isOpen);
 
 			if (!isOpen) //Pop-up is closed for some reason
 			{
@@ -381,13 +381,13 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserWindow::CompileAssetPopup(std::filesystem::path entry, bool& willOpen)
+	void ContentBrowserWindow::CompileAssetPopup(DroppedFile& file, bool& willOpen)
 	{
 		if (ImGui::BeginPopupModal("##CompileAsset",&willOpen, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 
-			std::string pathString = entry.string();
-			std::string fileExt = entry.extension().string();
+			std::string pathString = file.filePath.string();
+			std::string fileExt = file.filePath.extension().string();
 
 			if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
 			{

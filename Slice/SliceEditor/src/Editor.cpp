@@ -220,35 +220,36 @@ namespace SliceEditor
 		DroppedFile file;
 
 		file.assetType = registry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+		file.filePath = target;
 		switch (file.assetType)
 		{
 		case AssetType::Texture:
 			file.metaData = std::make_unique<TextureData>();
-			//typeID = ResourceTypeIDs::TEXTURE;
+			file.typeID = ResourceTypeIDs::TEXTURE;
 			break;
 		case AssetType::Model:
 			file.metaData = std::make_unique<ModelData>();
-			//typeID = ResourceTypeIDs::MODEL;
+			file.typeID = ResourceTypeIDs::MODEL;
 			break;
 		case AssetType::Audio:
 			file.metaData = std::make_unique<AudioData>();
-			//typeID = ResourceTypeIDs::SOUND;
+			file.typeID = ResourceTypeIDs::SOUND;
 			break;
 		case AssetType::Scene:
 			file.metaData = std::make_unique<SceneData>();
-			//typeID = ResourceTypeIDs::SCENE;
+			file.typeID = ResourceTypeIDs::SCENE;
 			break;
 		case AssetType::Shader:
 			file.metaData = std::make_unique<ShaderData>();
-			//typeID = ResourceTypeIDs::SHADER;
+			file.typeID = ResourceTypeIDs::SHADER;
 			break;
 		case AssetType::Prefab:
 			file.metaData = std::make_unique<PrefabData>();
-			//typeID = ResourceTypeIDs::PREFAB;
+			file.typeID = ResourceTypeIDs::PREFAB;
 			break;
 		}
 
-		//manager->mPendingDrops.push(path);
+		manager->mPendingDrops.push(file);
 	}
 
 

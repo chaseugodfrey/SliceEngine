@@ -94,6 +94,8 @@ namespace SliceEditor
 	{
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;
+		uint64_t typeID;
+		std::filesystem::path filePath;
 	};
 }
 
