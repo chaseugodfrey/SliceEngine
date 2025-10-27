@@ -77,6 +77,9 @@
 #include <imgui_stdlib.h>
 #include <ImGuizmo.h>
 #include <imgui_node_editor.h>
+#include <ImSequencer.h>
+#include <imgui_neo_internal.h>
+#include <imgui_neo_sequencer.h>
 
 // filewatcher
 #include <../thirdparty/filewatch/FileWatcher.h>
