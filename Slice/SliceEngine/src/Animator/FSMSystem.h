@@ -53,6 +53,10 @@ namespace SliceEngine
 		bool isLoop;
 		//rttr::variant stateCon;
 
+		bool hasExitTime;
+		float exitTime;
+		float entryTime;
+
 		std::vector<Transition> transitions;
 
 		bool operator==(const State& other) const
@@ -71,6 +75,7 @@ namespace SliceEngine
 		std::string entryState ;
 		State* currState = nullptr;
 		std::string nextState;
+		std::string prevState;
 
 		bool stateCon = false;
 		std::map<std::string, rttr::variant> parameters;

@@ -33,6 +33,16 @@ namespace SliceEngine
 		{
 			animator.animTimer += dt;
 		}*/
+
+		/*
+		use .compare
+		if(animator.stateMachine.prevState != animator.stateMachine.currState->stateName)
+		{
+			interp (animator.stateMachine.stateMap[stateMachine.prevState],animator.stateMachine.currState)
+
+			animator.stateMachine.prevState = animator.stateMachine.currState->stateName;
+		}
+		*/
 	}
 
 	void Animator::UpdateAnimation(float dt) 

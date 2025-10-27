@@ -64,18 +64,37 @@ namespace SliceEngine
 			return;
 		}
 
-		if (stateMachine.stateMap.find(stateMachine.nextState) != stateMachine.stateMap.end())
+		bool safeToChange = false;
+
+		if(stateMachine.currState->hasExitTime)
 		{
-			stateMachine.currState = &stateMachine.stateMap[stateMachine.nextState];
-			//stateMachine.animTimer = 0.0f;
+			//if(stateMachine.currState.exitTime >= (current anim time))
+			{
+				safeToChange = true;
+			}
 		}
 		else
 		{
-			std::cout << "wassup error" << std::endl;
+			safeToChange = true;
 		}
 
-		stateMachine.stateCon = false;
-		stateMachine.nextState.clear();
+		if(safeToChange)
+		{
+
+			if (stateMachine.stateMap.find(stateMachine.nextState) != stateMachine.stateMap.end())
+			{
+				stateMachine.prevState = stateMachine.currState->stateName;
+				stateMachine.currState = &stateMachine.stateMap[stateMachine.nextState];
+				//stateMachine.animTimer = 0.0f;
+			}
+			else
+			{
+				std::cout << "wassup error" << std::endl;
+			}
+
+			stateMachine.stateCon = false;
+			stateMachine.nextState.clear();
+		}
 	}
 
 
