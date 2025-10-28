@@ -789,6 +789,8 @@ namespace SliceEngine
 			return;
 		}
 
+		colliderShape.shape = shape;
+
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
 		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
