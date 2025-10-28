@@ -20,9 +20,25 @@ namespace SliceEngine
 
 	};
 
+	enum SceneState
+	{
+		PLAY_SCENE,
+		//Reload scene after stop
+		RELOAD_SCENE,
+		//Stop scene
+		EXIT_SCENE
+	};
+
 	class SceneSystem : BaseEngineSystem
 	{
 	public:
+		
+		
+
+		SceneState mCurrState;
+		SceneState mNextState;
+		bool mRuntime;
+
 		void Init();
 
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
@@ -46,8 +62,12 @@ namespace SliceEngine
 
 	private:
 		//can change to other identifier
+
 		std::queue<std::filesystem::path> mSceneQueue;
 		std::filesystem::path mCurrentScene{};
+		std::filesystem::path mNextScene{};
+		std::filesystem::path mDefaultScene{};
+		
 	};
 }
 

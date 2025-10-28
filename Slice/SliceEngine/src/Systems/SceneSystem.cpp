@@ -4,7 +4,7 @@
  email:			b.muhammadhafiz@digipen.edu
  brief:			Handles Scenes
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -14,6 +14,12 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	
+	void SceneSystem::Init()
+	{
+		//Will do all the loading of the resources based on the scene file
+
+	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
