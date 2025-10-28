@@ -26,6 +26,7 @@ namespace SliceEngine
 		class Shader {
 			//ngl no idea whr to put this so ill put this for now
 			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile);
+			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile, const std::string& geomFile);
 
 		public:
 

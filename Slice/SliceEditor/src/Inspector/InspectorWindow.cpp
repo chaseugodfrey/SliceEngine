@@ -211,18 +211,36 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string model_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##mesh", &model_guid_string, ImGuiInputTextFlags_ReadOnly))
+			if (ImGui::InputText("##mesh", &model_guid_string))
 			{
 				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					rend.model = recievedPayload;
+				}
 			}
 
 			ImGui::Text("Texture");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##texture", &texture_guid_string, ImGuiInputTextFlags_ReadOnly))
+			std::string material_guid_string = std::to_string(rend.material.GetGUID());
+			if (ImGui::InputText("##material", &material_guid_string, ImGuiInputTextFlags_ReadOnly))
 			{
-				rend.model = SliceEngine::GUID(std::stoll(texture_guid_string));
+				rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+				{
+						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+						rend.material = recievedPayload;
+				}
 			}
 
 			ImGui::TreePop();

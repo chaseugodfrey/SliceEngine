@@ -1,0 +1,3 @@
+pointShadow.vert
+pointShadow.frag
+pointShadow.geom

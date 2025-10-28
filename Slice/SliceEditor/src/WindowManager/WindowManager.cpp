@@ -306,20 +306,20 @@ namespace SliceEditor
 			ImGui::OpenPopup("host_req");
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
-		{
-			if (SliceEngine::gScriptSystem)
-			{
-				SliceEngine::gScriptSystem->ReloadAssembly();
-			}
-		}
-		ImGui::SameLine();
 		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
 		{
 			ImGui::OpenPopup("connect_req");
 
 		}
 
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 		if (ImGui::BeginPopup("host_req"))
 		{
 
