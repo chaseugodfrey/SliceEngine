@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
+#include "Resource/Material.h"
 #include "Resource/Model.h"
 #include "Resource/Texture.h"
 
@@ -23,9 +24,10 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	void WorldSpaceGraphicsSystem::Render(GLuint shader)
+	void WorldSpaceGraphicsSystem::Render(GLuint shader, bool withTex)
 	{
 		mShader = shader;
+		mHasRenderTexture = withTex;
 		//ResetVisibleEntities();
 
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
@@ -92,15 +94,10 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
 
-		//if (rc.model == GUID::null())
-		//	return;
-
 		auto rm = core->GetResourceManager();
 		auto& model = *rm->get<SliceEngineTypes::Model>(rc.model).get();
 		
 		auto& mesh = model.meshes[rc.meshOffset];
-		auto texHandle = rm->get<SliceEngineTypes::Texture>(rc.texture);
-
 		glBindVertexArray(mesh.vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
@@ -108,12 +105,21 @@ namespace SliceEngine
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-		uniformLoc = glGetUniformLocation(mShader, "aGID");
-		if (uniformLoc != 0)
+		if (mHasRenderTexture)
 		{
+			auto material = rm->get<SliceEngineTypes::Material>(rc.material).get();
+
+			uniformLoc = glGetUniformLocation(mShader, "aGID");
 			glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
-			// -TODO- Temporary measure for light
-			glBindTextureUnit(0, texHandle.get()->texture_id);
+			uniformLoc = glGetUniformLocation(mShader, "uRoughness");
+			glUniform1f(uniformLoc, material->roughness);
+			uniformLoc = glGetUniformLocation(mShader, "uMetallic");
+			glUniform1f(uniformLoc, material->metallic);
+
+			auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);
+			//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
+
+			glBindTextureUnit(0, albedoTex.get()->texture_id);
 		}
 
 		//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);

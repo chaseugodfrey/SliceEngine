@@ -13,8 +13,6 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 const float PI = 3.14159265358979323846;
 const float EPSILON = 0.000001;
 // -TODO- Temporary material values
-const float tR = 0.3;// Roughness
-const float tM = 0.0;// Metalness
 const float ambient = 0.01;
 const int isDirectional = 1;
 const int isPoint 		= 2;
@@ -23,6 +21,8 @@ const int isSpot 		= 3;
 uniform mat4 uLightMtx; // Shadow Transform Matrix
 uniform Light uLight;
 uniform vec3 uCamPos;
+uniform float uRoughness;
+uniform float uMetallic;
 
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
@@ -115,15 +115,15 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif)
 	float nDotL = clamp(dot(n, l), 0.0, 1.0);
 	float nDotV = abs(dot(n, v)) + 1e-5;
 	
-	//vec3 specBrdf = 0.25f * GgxDistribution(nDotH, tR) * SchlickFresnel(lDotH, dif, tM) *  GeomSmith(nDotL, tR) * GeomSmith(nDotV, tR);
+	//vec3 specBrdf = 0.25f * GgxDistribution(nDotH, uRoughness) * SchlickFresnel(lDotH, dif, uMetallic) *  GeomSmith(nDotL, uRoughness) * GeomSmith(nDotV, uRoughness);
 	//return (dif + PI * specBrdf) * lightCol * nDotL;
 
-	vec3 F = SchlickFresnel(vDotH, dif, tM);
+	vec3 F = SchlickFresnel(vDotH, dif, uMetallic);
 	vec3 kD = 1.0 - F;
-	vec3 specBRDF_nom = GgxDistribution(nDotH, tR) *
+	vec3 specBRDF_nom = GgxDistribution(nDotH, uRoughness) *
 					F *
-					GeomSmith(nDotL, tR) *
-					GeomSmith(nDotV, tR);
+					GeomSmith(nDotL, uRoughness) *
+					GeomSmith(nDotV, uRoughness);
 	float specBRDF_denom = 4.0 * nDotV * nDotL + 1e-5;
 	vec3 specBPDF = specBRDF_nom / specBRDF_denom;
 	vec3 diffuseBRDF = kD * dif / PI;

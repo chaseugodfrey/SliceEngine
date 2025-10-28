@@ -106,6 +106,10 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
+		case AssetType::Material:
+			metaData = std::make_unique<MaterialData>();
+			typeID = ResourceTypeIDs::MATERIAL;
+			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			typeID = ResourceTypeIDs::PREFAB;
@@ -119,13 +123,6 @@ namespace SliceEditor
 			metaData->assetType = mAssetExtensions[assetType];
 			metaData->assetPath = filePath.string();
 			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-
-			// for rainne's old models and stuff idk
-			if (ext == ".rainne")
-			{
-				metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".rainne";
-			}
-			
 			
 			/*
 				meta file breakdown
@@ -152,25 +149,7 @@ namespace SliceEditor
 				break;
 			case AssetType::Model:
 				// Compile the model file and write into the resource folder
-				if (ext == ".rainne")
-				{
-					// cause rainne is still using manual vertice fbx files
-					// i renamed them to .rainne
-					// and ill just copy it over instead
-					try
-					{
-						std::filesystem::copy(metaData->assetPath, metaData->resourcePath);
-					}
-					catch (std::filesystem::filesystem_error& e)
-					{
-						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
-						//return;
-					}
-				}
-				else
-				{
-					CompileFBXAsset(metaPath);
-				}
+				CompileFBXAsset(metaPath);
 				break;
 			case AssetType::Audio:
 				// idk audio yet
@@ -182,6 +161,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
+				break;
+			case AssetType::Material:
+				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
 				break;
 			}
 
@@ -318,6 +300,21 @@ namespace SliceEditor
 			//return;
 		}
 
+	}
+
+	void AssetManager::CompileMaterialAsset(MaterialData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
 	}
 
 	void AssetManager::CompileSceneAsset(SceneData* metaData)

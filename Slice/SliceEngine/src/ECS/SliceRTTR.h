@@ -111,7 +111,7 @@ namespace SliceEngine
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
 		.property("model", &Renderer::model)
-		.property("texture", &Renderer::texture)
+		.property("material", &Renderer::material)
 		.property("renderTag", &Renderer::renderTag);
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()

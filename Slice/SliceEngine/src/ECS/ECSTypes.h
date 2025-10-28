@@ -105,7 +105,7 @@ namespace SliceEngine
 	{
 		// May need to change if rendering pipeline is diff
 		GUID model;
-		GUID texture;
+		GUID material;
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 

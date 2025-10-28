@@ -194,8 +194,7 @@ namespace SliceEngine
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);
-
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, true);
 
 			SetShader(S_LIGHTING);
 			LinkFrameBufferSettings(FB_FINAL, F_TEX);
@@ -356,7 +355,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, false);
 		}
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
@@ -375,7 +374,7 @@ namespace SliceEngine
 
 			SetDirectionalLightMtx(camT.position, transform.position);
 
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second);
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, false);
 		}
 	}
 	void RenderManager::LightingRender(Entity cam)

@@ -24,7 +24,7 @@ namespace SliceEngine
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
 		void Update(float dt) override;
-		void Render(GLuint mShader);
+		void Render(GLuint mShader, bool withTex);
 
 		void EntityOnEnter(entt::registry& reg, Entity entity) override;
 		void EntityOnExit(entt::registry& reg, Entity entity) override;
@@ -37,6 +37,7 @@ namespace SliceEngine
 
 	private:
 		GLuint mShader;
+		bool mHasRenderTexture;
 
 		static constexpr float gridSize = 10.f;
 		static constexpr int gridNum = 11; // Has to be odd number lol (cuz account for 0, then +- halfGridNum)
