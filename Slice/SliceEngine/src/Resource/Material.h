@@ -1,15 +1,15 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- file:			Shader.h
+ file:			Material.h
  author:		Elton leosantosa
  email:			leosantosa@digipen.edu
- brief:			Loads Shaders
+ brief:			Loads Material
 
 Copyright (C) 2024 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef MATERIALS_H
+#define MATERIALS_H
 
 #include <string>
 
@@ -23,19 +23,17 @@ namespace SliceEngine
 		* and they need to be compiled after building the exe
 		* so it needs to be done on engine code and cant precompile
 		*/
-		class Shader {
-			//ngl no idea whr to put this so ill put this for now
-			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile);
-			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile, const std::string& geomFile);
-
+		class Material {
 		public:
 
-			unsigned int s;
+			GUID albedo;
+			float roughness;
+			float metallic;
 
 			//takes in a shader resource file that links to shader files
 			//and compile
-			static Shader LoadShader(std::string const&);
-			void DestroyShader();
+			static Material LoadMaterial(std::string const&);
+			void DestroyMaterial();
 		};
 	}
 }
