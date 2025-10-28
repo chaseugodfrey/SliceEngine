@@ -175,7 +175,16 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			// specific properties to texture goes here but we dh that yet
-
+			// now we have specific properties :)
+			metaJson["comp_format"] = cmp_format;
+			metaJson["mip_filter"] = mip_filter;
+			metaJson["u_wrap"] = u_wrap;
+			metaJson["v_wrap"] = v_wrap;
+			metaJson["comp_quality"] = comp_quality;
+			metaJson["generateMips"] = generateMips;
+			metaJson["mip_count"] = mip_count;
+			metaJson["hasAlpha"] = hasAlpha;
+			metaJson["alpha_threshold"] = alpha_threshold;
 			// now create the meta file
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())

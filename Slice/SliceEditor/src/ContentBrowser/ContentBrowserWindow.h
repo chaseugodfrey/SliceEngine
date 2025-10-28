@@ -41,6 +41,11 @@ namespace SliceEditor
 
 		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
 
+	#pragma region Display Meta Data Functions
+		void DisplayTextureData(TextureData* data);
+		
+	#pragma endregion
+
 		void SelectFile(DirectoryNode& node);
 	};
 }

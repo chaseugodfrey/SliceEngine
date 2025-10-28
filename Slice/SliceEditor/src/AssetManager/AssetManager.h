@@ -46,8 +46,7 @@ namespace SliceEditor
 		void ScanResourceFolder();
 		std::string CreateDescriptorFile(const std::filesystem::path filePath);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
-
-		bool CompileAsset(const std::string fileName);
+		void CreateResource(MetaData* metaData, AssetType assetType);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
