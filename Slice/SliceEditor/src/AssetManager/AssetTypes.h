@@ -28,7 +28,8 @@ namespace SliceEditor
 		Audio,
 		Scene,
 		Shader,
-		Prefab
+		Prefab,
+		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
 		//		RGBA_UNCOMPRESSED,

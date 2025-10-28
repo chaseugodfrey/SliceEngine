@@ -409,7 +409,7 @@ namespace SliceEditor
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
 				renderer->SelectCamIDPick(camObj->entity);
 				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(mouse_scaled_x), static_cast<int>(mouse_scaled_y));
-				entt::entity selected_entity{ entt_id };
+				entt::entity selectedEntity{ entt_id };
 
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
@@ -420,14 +420,14 @@ namespace SliceEditor
 
 					else
 					{
-						if (selected_entity == entt::null || entt_id == 0)
+						if (selectedEntity == entt::null || entt_id == 0)
 						{
 
 						}
 
 						else
 						{
-							mSelection->SelectSingle(selected_entity);
+							mSelection->SelectSingle(selectedEntity);
 						}
 					}
 				}

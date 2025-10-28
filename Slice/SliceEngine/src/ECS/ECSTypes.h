@@ -161,6 +161,8 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+
+		//To add in Inspector
 		struct FreezeOptions
 		{
 			bool freezeX = false;
