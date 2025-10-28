@@ -242,6 +242,8 @@ namespace SliceEditor
 			file.metaData = std::make_unique<PrefabData>();
 			break;
 		}
+		//Default Init the MetaData base class
+		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);
 
 		manager->mPendingDrops.push(std::move(file));
 	}

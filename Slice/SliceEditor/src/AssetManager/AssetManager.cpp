@@ -172,6 +172,8 @@ namespace SliceEditor
 
 	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
 	{
+
+
 		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
 		switch (assetType)
