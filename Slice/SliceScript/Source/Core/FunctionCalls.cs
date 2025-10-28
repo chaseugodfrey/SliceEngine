@@ -27,6 +27,12 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotation(uint entityID, ref Vector3 rotation);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
+        internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_SetVelocity(uint entityID, ref Vector3 rotation);
+
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool IsKeyPressed(Keys key);

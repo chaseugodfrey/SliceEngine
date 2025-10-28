@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ScriptSystem.h"
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
+#include "../Physics/PhysicsSystem.h"
 
 namespace SliceEngine
 {
@@ -121,6 +122,25 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region RIGIDBODY FUNCTIONS
+
+	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3* outPosition)
+	{
+		//SLICE_LOG("Getting velocity from C++ for entity: {}", entity);
+
+		*outPosition = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity((Entity)entity);
+	}
+
+	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3* position)
+	{
+		//SLICE_LOG("Setting velocity from C++ for entity: {}", entity);
+
+		JPH::Vec3 vel(position->x, position->y, position->z);
+
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
+	}
+
+#pragma endregion
 
 
 	template <typename T>
@@ -184,6 +204,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Log);
 		ADD_INTERNAL_CALL(LogWarn);
 		ADD_INTERNAL_CALL(LogError);
+
+		//Physics
+		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
+		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
 	}
 
 }
