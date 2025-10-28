@@ -251,4 +251,9 @@ namespace SliceEditor
 
 		return true;
 	}
+
+	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model> &model, const std::vector<glm::mat4> &transform)
+	{
+		return false;
+	}
 }
