@@ -52,6 +52,7 @@ namespace SliceEditor
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
+		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
@@ -67,12 +68,12 @@ namespace SliceEditor
 			{".gif", {AssetType::Texture, "Texture"}},
 			{".obj", {AssetType::Model, "Model"}},
 			{".fbx", {AssetType::Model, "Model"}},
-			{".rainne", {AssetType::Model, "Model"}},
 			{".wav", {AssetType::Audio, "Audio"}},
 			{".mp3", {AssetType::Audio, "Audio"}},
 			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
+			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}}
 			//{".vert", AssetType::Shader},
 			//{".frag", AssetType::Shader}
@@ -95,6 +96,7 @@ namespace SliceEditor
 			{AssetType::Scene, ".scene"},
 			{AssetType::Shader, ".shader"},
 			{AssetType::Audio, ".wav"},
+			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"}
 		};
 	};

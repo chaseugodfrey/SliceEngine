@@ -10,11 +10,12 @@ namespace SliceEngine
 
 	struct LightingSystem : BaseSystem<lightingEntity, Transform, Light>
 	{
-		void SetLightingParams(GLuint shader);
-
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+		
+		const unsigned int SHADOW_DIMENSION = 2048;
+	private:
 	};
 }
 
