@@ -25,6 +25,7 @@ struct GLFWwindow;
 #include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
 #include "EditorInputs.h"
+#include <RecastNavMesh/RecastNavmesh.h>
 
 namespace SliceEditor
 {
@@ -34,7 +35,7 @@ namespace SliceEditor
 		AssetManager assetManager;
 		Registry registry;
 		EditorInputs inputs;
-
+		RecastNavMesh navMesh;
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
 		void InitEditorState();
