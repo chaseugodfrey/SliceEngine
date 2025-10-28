@@ -193,7 +193,7 @@ namespace SliceEngine
 		struct CapsuleData
 		{
 			float radius{ 0.5f };
-			float height{ 2.0f };
+			float height{ 0.5f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference

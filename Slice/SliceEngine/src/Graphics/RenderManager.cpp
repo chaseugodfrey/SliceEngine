@@ -340,7 +340,7 @@ namespace SliceEngine
 						if (i != 2)
 							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
-						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height / 2.f, capsuleData.radius * 2.f));
+						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
 					}
 
 					num++;
