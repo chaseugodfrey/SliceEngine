@@ -25,7 +25,7 @@ struct GLFWwindow;
 #include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
 #include "EditorInputs.h"
-#include <RecastNavMesh/RecastNavmesh.h>
+#include <Navigation/RecastNavmesh.h>
 
 namespace SliceEditor
 {
