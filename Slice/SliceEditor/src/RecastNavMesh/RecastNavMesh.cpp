@@ -57,13 +57,12 @@ namespace SliceEditor
 			verts.push_back(worldPos.z);  
 		}
 
-		std::cout << "Input vertex count: " << vertices.size() << std::endl;
-		for (auto &v : verts)
-			std::cout << "(" << v << ")\n";
+		//std::cout << "Input vertex count: " << vertices.size() << std::endl;
+		//for (auto &v : verts)
+		//	std::cout << "(" << v << ")\n";
+		//std::cout << "indices.size(): " << indices.size() << std::endl;
+		//std::cout << "verts.size(): " << verts.size() << std::endl;
 
-
-		std::cout << "indices.size(): " << indices.size() << std::endl;
-		std::cout << "verts.size(): " << verts.size() << std::endl;
 		std::vector<int> recastIndices(indices.begin(), indices.end());
 
 		memset(&config, 0, sizeof(config));
@@ -83,8 +82,8 @@ namespace SliceEditor
 		float bmin[3], bmax[3];
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
 
-		std::cout << "Bounds: (" << bmin[0] << "," << bmin[1] << "," << bmin[2] << ") to ("
-			<< bmax[0] << "," << bmax[1] << "," << bmax[2] << ")" << std::endl;
+		//std::cout << "Bounds: (" << bmin[0] << "," << bmin[1] << "," << bmin[2] << ") to ("
+		//	<< bmax[0] << "," << bmax[1] << "," << bmax[2] << ")" << std::endl;
 
 		if (bmax[1] - bmin[1] < 0.01f)
 		{
@@ -107,8 +106,8 @@ namespace SliceEditor
 			recastIndices.data(), areas.data(), (int)(recastIndices.size() / 3),
 			*heightfield, config.walkableClimb);
 
-		std::cout << "Heightfield width: " << heightfield->width
-			<< " height: " << heightfield->height << std::endl;
+		//std::cout << "Heightfield width: " << heightfield->width
+		//	<< " height: " << heightfield->height << std::endl;
 		int spanCount = 0;
 		for (int i = 0; i < heightfield->width * heightfield->height; ++i)
 		{
@@ -117,7 +116,7 @@ namespace SliceEditor
 				spanCount++;
 			}
 		}
-		std::cout << "Heightfield span count: " << spanCount << std::endl;
+		//std::cout << "Heightfield span count: " << spanCount << std::endl;
 
 		//rcFilterLowHangingWalkableObstacles(&ctx, config.walkableClimb, *heightfield);
 		//rcFilterLedgeSpans(&ctx, config.walkableHeight, config.walkableClimb, *heightfield);
@@ -128,15 +127,15 @@ namespace SliceEditor
 		if (!rcBuildCompactHeightfield(&ctx, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
 			return false;
 		
-		std::cout << "Compact heightfield span count: " << compactHeightfield->spanCount << std::endl;
-		std::cout << "Compact heightfield max region count: " << compactHeightfield->maxRegions << std::endl;
+		//std::cout << "Compact heightfield span count: " << compactHeightfield->spanCount << std::endl;
+		//std::cout << "Compact heightfield max region count: " << compactHeightfield->maxRegions << std::endl;
 		if (!rcBuildDistanceField(&ctx, *compactHeightfield))
 			return false;
 
 		if (!rcBuildRegions(&ctx, *compactHeightfield, 0, config.minRegionArea, config.mergeRegionArea))
 			return false;
 
-		std::cout << "Max region: " << compactHeightfield->maxRegions << std::endl;
+		//std::cout << "Max region: " << compactHeightfield->maxRegions << std::endl;
 
 		if (compactHeightfield->maxRegions == 0)
 		{
@@ -151,17 +150,44 @@ namespace SliceEditor
 		if (!contourSet) return false;
 		if (!rcBuildContours(&ctx, *compactHeightfield, config.maxSimplificationError, config.maxEdgeLen, *contourSet))
 			return false;
-		std::cout << "Contour count: " << contourSet->nconts << std::endl;
+		//std::cout << "Contour count: " << contourSet->nconts << std::endl;
 
 
 		polyMesh = rcAllocPolyMesh();
 		if (!polyMesh) return false;
 		if (!rcBuildPolyMesh(&ctx, *contourSet, config.maxVertsPerPoly, *polyMesh))
 			return false;
-		std::cout << "PolyMesh nverts: " << polyMesh->nverts << " npolys: " << polyMesh->npolys << std::endl;
+		//std::cout << "PolyMesh nverts: " << polyMesh->nverts << " npolys: " << polyMesh->npolys << std::endl;
 		rcPolyMeshDetail *detailMesh = nullptr;
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
+
+		std::ofstream objFile("navmesh_debug.obj");
+		if (objFile.is_open())
+		{
+			for (int i = 0; i < detailMesh->nverts; ++i)
+			{
+				const float *v = &detailMesh->verts[i * 3];
+				objFile << "v " << v[0] << " " << v[1] << " " << v[2] << "\n";
+			}
+
+			for (int i = 0; i < detailMesh->ntris; ++i)
+			{
+				const unsigned char *t = &detailMesh->tris[i * 4];
+				objFile << "f "
+					<< (int)t[0] + 1 << " "
+					<< (int)t[1] + 1 << " "
+					<< (int)t[2] + 1 << "\n";
+			}
+
+			objFile.close();
+			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+		}
 
 		// Fill dtNavMeshCreateParams
 		dtNavMeshCreateParams params{};
@@ -187,15 +213,15 @@ namespace SliceEditor
 
 		unsigned char *navData = nullptr;
 		int navDataSize = 0;
-		std::cout << "verts: " << params.vertCount
-			<< " polys: " << params.polyCount
-			<< " nvp: " << params.nvp
-			<< " detailVerts: " << params.detailVertsCount
-			<< " detailTris: " << params.detailTriCount
-			<< std::endl;
+		//std::cout << "verts: " << params.vertCount
+		//	<< " polys: " << params.polyCount
+		//	<< " nvp: " << params.nvp
+		//	<< " detailVerts: " << params.detailVertsCount
+		//	<< " detailTris: " << params.detailTriCount
+		//	<< std::endl;
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
-		// testing if can save into file
+		// testing if can save into file, this is for detour to read
 		std::ofstream outFile("output_navmesh.bin", std::ios::binary);
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();

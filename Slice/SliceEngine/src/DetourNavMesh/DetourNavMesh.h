@@ -6,11 +6,18 @@
 #include <DetourCommon.h>
 namespace SliceEngine
 {
-	class DetourNavMesh
-	{
-	private:
-		dtNavMesh *navMesh = nullptr;
-		dtNavMeshQuery *navQuery = nullptr;
-	};
+    class DetourNavMesh
+    {
+    public:
+        DetourNavMesh() = default;
+        ~DetourNavMesh();
+
+        bool LoadFromFile(const std::string &filePath);
+        bool FindPath(const float *start, const float *end, std::vector<glm::vec3> &outPath);
+
+    private:
+        dtNavMesh *navMesh = nullptr;
+        dtNavMeshQuery *navQuery = nullptr;
+    };
 }
 #endif
