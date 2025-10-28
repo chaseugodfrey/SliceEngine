@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
+#include "Physics/PhysicsSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -98,6 +99,8 @@ namespace SliceEngine
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
 		LinkTransformInstancing((GUID)DefaultResourceIDs::CUBE_DEFAULT);
+		LinkTransformInstancing((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+		LinkTransformInstancing((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
 		LinkTransformInstancing((GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT);
 	}
 	void RenderManager::CreateDeferredTextures()
@@ -292,26 +295,65 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
-			auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
-			glBindVertexArray(mdl.vao);
-
-			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); //renderEntity
-			int num{}, offset{};
-			for (auto entity : view)
+			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(); //renderEntity
+			for (int i{}; i < 3; ++i)
 			{
-				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
-				mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(1.01f, 1.01f, 1.01f));
-				num++;
-				if (num == mMaxInstance)
+				GUID modelID;
+				switch (i)
 				{
-					glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
-					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
-					offset += num;
+				case 0:
+					modelID = (GUID)DefaultResourceIDs::CUBE_DEFAULT;
+					break;
+				case 1:
+					modelID = (GUID)DefaultResourceIDs::SPHERE_DEFAULT;
+					break;
+				case 2:
+					modelID = (GUID)DefaultResourceIDs::CAPSULE_DEFAULT;
+					break;
 				}
+
+				auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(modelID).get();
+				auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+				glBindVertexArray(mdl.vao);
+
+				int num{}, offset{};
+				for (auto entity : view)
+				{
+					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+					auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
+					if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
+					{
+						if (i != 0)
+							continue;
+						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
+						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
+					}
+					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
+					{
+						if (i != 1)
+							continue;
+						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
+						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(sphereData.radius * 2.f));
+					}
+					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
+					{
+						if (i != 2)
+							continue;
+						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
+						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height / 2.f, capsuleData.radius * 2.f));
+					}
+
+					num++;
+					if (num == mMaxInstance)
+					{
+						glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+						glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
+						offset += num;
+					}
+				}
+				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+				glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 			}
-			glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
-			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
