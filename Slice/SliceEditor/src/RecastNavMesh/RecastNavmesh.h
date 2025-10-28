@@ -24,6 +24,8 @@ namespace SliceEditor
         void Clear();
 
     private:
+        rcPolyMeshDetail *detailMesh = nullptr;
+
         rcHeightfield *heightfield = nullptr;
         rcCompactHeightfield *compactHeightfield = nullptr;
         rcContourSet *contourSet = nullptr;

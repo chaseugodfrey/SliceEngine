@@ -25,12 +25,16 @@ namespace SliceEditor
 		if (compactHeightfield) rcFreeCompactHeightfield(compactHeightfield);
 		if (heightfield) rcFreeHeightField(heightfield);
 
+		if (detailMesh) rcFreePolyMeshDetail(detailMesh);
+
 		navQuery = nullptr;
 		navMesh = nullptr;
 		polyMesh = nullptr;
 		contourSet = nullptr;
 		compactHeightfield = nullptr;
 		heightfield = nullptr;
+
+		detailMesh = nullptr;
 	}
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
@@ -158,7 +162,7 @@ namespace SliceEditor
 		if (!rcBuildPolyMesh(&ctx, *contourSet, config.maxVertsPerPoly, *polyMesh))
 			return false;
 		//std::cout << "PolyMesh nverts: " << polyMesh->nverts << " npolys: " << polyMesh->npolys << std::endl;
-		rcPolyMeshDetail *detailMesh = nullptr;
+		
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 

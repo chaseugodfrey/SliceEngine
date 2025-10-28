@@ -18,7 +18,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
 #include <Systems/SceneSystem.h>
-#include <RecastNavMesh/RecastNavmesh.h>
 #include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
@@ -90,14 +89,13 @@ namespace SliceEditor
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
 
-		RecastNavMesh navMesh;
 		if (navMesh.BuildFromModel(model, transformMatrix))  
 		{
 			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
 		}
 		else
 		{
-			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+			SLICE_LOG_ERROR("NAVMESH RecNOT BUILT");
 		}
 
 
@@ -159,6 +157,7 @@ namespace SliceEditor
 
 	void Editor::Exit()
 	{
+		navMesh.Clear();
 		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
