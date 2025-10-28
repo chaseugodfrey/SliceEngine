@@ -95,7 +95,7 @@ namespace SliceEditor
 		}
 		else
 		{
-			SLICE_LOG_ERROR("NAVMESH RecNOT BUILT");
+			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
 		}
 
 

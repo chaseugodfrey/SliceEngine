@@ -41,8 +41,17 @@ namespace SliceEditor
 	{
 		Clear();
 
-		const auto &vertices = model.meshes[0].vertices;
-		const auto &indices = model.meshes[0].indices;
+		std::vector<SliceEngine::SliceEngineTypes::Vertex> vertices;
+		std::vector<unsigned int> indices;
+
+		for (const auto &mesh : model.meshes)
+		{
+			for (const auto &v : mesh.vertices)
+			vertices.push_back(v);
+
+			for (const auto &ind : mesh.indices)
+				indices.push_back(ind);
+		}
 
 		if (vertices.empty() || indices.empty())
 			return false;
@@ -166,7 +175,7 @@ namespace SliceEditor
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
-		std::ofstream objFile("navmesh_debug.obj");
+		std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -226,7 +235,7 @@ namespace SliceEditor
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
 		// testing if can save into file, this is for detour to read
-		std::ofstream outFile("output_navmesh.bin", std::ios::binary);
+		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
