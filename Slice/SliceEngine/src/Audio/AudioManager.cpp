@@ -117,7 +117,9 @@ namespace SliceEngine
 		
 		channel->setVolume(volume);
 		channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
-		channel->set3DAttributes(&Vec3ToFMODVec3(soundPos), &Vec3ToFMODVec3(vel));
+		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+		channel->set3DAttributes(&soundPosition, &velocity);
 
 		if (result != FMOD_OK)
 		{
@@ -161,17 +163,7 @@ namespace SliceEngine
 
 	void AudioManager::SetMasterVolume(float volume)
 	{
-		/*mMasterVolume = std::clamp(volume, 0.0f, 1.0f);
-
-		for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; ++i)
-		{
-			for (auto& track : mSound[i])
-			{
-
-				UpdateSoundVolume(track.get());
-
-			}
-		}*/
+		
 		master->setVolume(volume);
 	}
 
@@ -261,7 +253,10 @@ namespace SliceEngine
 				}
 			}
 		}*/
-		channel->set3DAttributes(&Vec3ToFMODVec3(soundPos), &Vec3ToFMODVec3(vel));
+		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+
+		channel->set3DAttributes(&soundPosition, &velocity);
 		if (!is3D)
 		{
 			channel->set3DMinMaxDistance(0.0f, 0.0f);

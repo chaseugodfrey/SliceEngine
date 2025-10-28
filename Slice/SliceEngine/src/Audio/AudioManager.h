@@ -93,9 +93,9 @@ namespace SliceEngine
 		 * @param vector The input glm vector.
 		 * @return An equivalent FMOD_VECTOR.
 		 */
-		FMOD_VECTOR Vec3ToFMODVec3(glm::vec3& vector)
+		inline FMOD_VECTOR Vec3ToFMODVec3(glm::vec3 vector)
 		{
-			return FMOD_VECTOR{ vector.x,vector.y,vector.z };
+			return { vector.x,vector.y,vector.z };
 		}
 
 		/**
@@ -103,9 +103,9 @@ namespace SliceEngine
 		 * @param vector The input FMOD vector.
 		 * @return An equivalent glm::vec3.
 		 */
-		glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
+		inline glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
 		{
-			return glm::vec3{ vector.x, vector.y, vector.z };
+			return { vector.x, vector.y, vector.z };
 		}
 
 		/**
