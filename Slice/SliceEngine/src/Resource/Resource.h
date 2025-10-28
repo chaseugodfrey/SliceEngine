@@ -30,6 +30,9 @@ namespace SliceEngine
 	namespace DefaultResourceIDs
 	{
 		constexpr uint64_t CUBE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCube");
+		constexpr uint64_t SPHERE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultSphere");
+		constexpr uint64_t SPHERE_LOW_POLY_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLowPolySphere");
+		constexpr uint64_t CAPSULE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCapsule");
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");

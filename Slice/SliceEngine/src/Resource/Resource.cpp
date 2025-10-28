@@ -71,6 +71,15 @@ namespace SliceEngine
 			case DefaultResourceIDs::CUBE_DEFAULT:
 				m->LoadDefaultCubeModel();
 				break;
+			case DefaultResourceIDs::SPHERE_DEFAULT:
+				m->LoadDefaultSphereModel();
+				break;
+			case DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT:
+				m->LoadDefaultSphereModel(5,7);
+				break;
+			case DefaultResourceIDs::CAPSULE_DEFAULT:
+				m->LoadDefaultCapsuleModel();
+				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
 				break;

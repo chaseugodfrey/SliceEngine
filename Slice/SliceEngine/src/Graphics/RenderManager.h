@@ -129,8 +129,8 @@ namespace SliceEngine
 		};
 		enum class BufferClearSetting : unsigned char
 		{
-			ALL,
-			CUBE_SHADOW
+			COLOR_ONLY,
+			ALL
 		};
 
 		FBOType mCurrFBO{ FB_TOTAL };

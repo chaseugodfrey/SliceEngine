@@ -201,6 +201,7 @@ namespace SliceEngine
 			LinkFrameBufferSettings(FB_FINAL, F_TEX);
 			UpdateCamVP();
 			BindCameraDepth(cam);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			LightingRender(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
@@ -338,7 +339,7 @@ namespace SliceEngine
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.shadowCubeMap, 0);
-			ClearBuffer(BufferClearSetting::CUBE_SHADOW);
+			ClearBuffer(BufferClearSetting::ALL);
 
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightPos");
 			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
@@ -379,7 +380,6 @@ namespace SliceEngine
 	}
 	void RenderManager::LightingRender(Entity cam)
 	{
-		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_DIF]);
 		glBindTextureUnit(1, mColAttachment[GPU_OUT::GOUT_POS]);
 		glBindTextureUnit(2, mColAttachment[GPU_OUT::GOUT_NOM]);
@@ -437,7 +437,7 @@ namespace SliceEngine
 
 				glBindTextureUnit(4, light.shadowCubeMap);
 
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT);
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
 				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
@@ -671,11 +671,10 @@ namespace SliceEngine
 	{
 		switch (setting)
 		{
-		case BufferClearSetting::CUBE_SHADOW:
+		case BufferClearSetting::COLOR_ONLY:
 		{
-			//glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
 			glClearColor(0.f, 0.f, 0.f, 1.f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT);
 			break;
 		}
 		case BufferClearSetting::ALL:
