@@ -127,6 +127,9 @@ namespace SliceEditor
 			case AssetType::Prefab:
 				typeID = ResourceTypeIDs::PREFAB;
 				break;
+			case AssetType::Material:
+				typeID = ResourceTypeIDs::MATERIAL;
+				break;
 			}
 
 
