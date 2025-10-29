@@ -298,6 +298,15 @@ namespace SliceEditor
 
 #pragma endregion
 
+#pragma region Dropping Into the Scene Directly
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (ImGui::AcceptDragDropPayload("Material"))
+			{
+				
+			}
+		}
+
 #pragma region ImGuizmos
 		// ======= IMGUIZMO =======
 		auto* drawlist = ImGui::GetWindowDrawList();

@@ -55,6 +55,8 @@ namespace SliceEditor
 		
 		void RebuildDirectory(DirectoryNode& node);
 
+		void SetSelectedFolder(DirectoryNode& node);
+
 		void RenameFile(DirectoryNode& entry, char* newName);
 
 		void OpenFile(DirectoryNode& entry);

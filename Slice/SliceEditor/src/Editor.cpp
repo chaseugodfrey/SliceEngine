@@ -197,6 +197,8 @@ namespace SliceEditor
 				editor->HandleDrop(path);
 			}
 		}
+		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		manager->RebuildDirectory(*manager->rootNode);
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)
@@ -206,7 +208,9 @@ namespace SliceEditor
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
+		//DirectoryNode node = *manager->selectedFolder;
 		manager->RebuildDirectory(*manager->rootNode);
+		//manager->SetSelectedFolder(node);
 
 		//Create the Package for the ContentBrowser to read
 		std::string fileExt = target.extension().string();
