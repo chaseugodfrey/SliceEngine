@@ -102,7 +102,7 @@ namespace SliceEngine
 
 	void SceneSystem::Play()
 	{
-		//
+		mNextState = SceneState::PLAY_SCENE;
 	}
 
 	void SceneSystem::Pause()
@@ -112,7 +112,12 @@ namespace SliceEngine
 
 	void SceneSystem::Stop()
 	{
-		//
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			
+			mNextState = SceneState::EDITOR;
+
+		}
 	}
 
 	bool SceneSystem::CheckQueueEmpty()

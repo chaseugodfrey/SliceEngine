@@ -224,6 +224,11 @@ namespace SliceEngine
 			}
 		}
 
+		while (sScene->mCurrentState == sScene->mNextState)
+		{
+
+		}
+
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm.StartFrame();
 
