@@ -95,7 +95,7 @@ namespace SliceEditor
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
 		// Gives editor a vector of all asset files by name for displaying in inspector
-		std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
+		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 
 
 	};

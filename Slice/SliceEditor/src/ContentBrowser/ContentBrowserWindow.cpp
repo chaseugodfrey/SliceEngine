@@ -383,6 +383,14 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::CompileAssetPopup(DroppedFile& file, bool& willOpen)
 	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
 		if (ImGui::BeginPopupModal("##CompileAsset",&willOpen, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 
@@ -395,16 +403,27 @@ namespace SliceEditor
 				willOpen = false;
 			}
 			//Name of Asset File
-			ImGui::Text(file.filePath.stem().string().c_str());
+			//Default MetaFile stuff
+			Label("Asset Name: ");
+			ImGui::Text(file.metaData.get()->assetName.c_str());
+			Label("GUID: ");
+			ImGui::Text(std::to_string(file.metaData.get()->guid.GetGUID()).c_str());
 
 			AssetType assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
 
 			switch (assetType)
 			{
 			case AssetType::Texture:
-				if(auto* data = static_cast<TextureData*>(file.metaData.get()))
+				if (auto* data = static_cast<TextureData*>(file.metaData.get()))
 				{
 					DisplayTextureData(data);
+				}
+				break;
+
+			case AssetType::Model:
+				if(auto* data = static_cast<ModelData*>(file.metaData.get()))
+				{
+					DisplayFBXData(data);
 				}
 				break;
 			}
@@ -428,6 +447,7 @@ namespace SliceEditor
 		}
 	}
 
+	#pragma region Display MetaData Region
 	void ContentBrowserWindow::DisplayTextureData(TextureData* data)
 	{
 		auto Label = [&](const char* text)
@@ -536,4 +556,31 @@ namespace SliceEditor
 		}
 
 	}
+
+	void ContentBrowserWindow::DisplayFBXData(ModelData* data)
+	{}
+
+	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
+		Label("Roughness: ");
+		if (ImGui::DragFloat("##Roughness", &data->roughness, 0.1f, 0.0f, 1.0f, "%.1f"))
+		{
+			data->roughness = std::clamp(data->roughness, 0.0f, 1.0f);
+		}
+
+		Label("Metallic: ");
+		if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
+		{
+			data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
+		}
+	}
+#pragma endregion
 }

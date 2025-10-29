@@ -161,7 +161,7 @@ namespace SliceEditor
 			//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			//resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
 
-			mAssets[assetType].push_back(metaData->assetName);
+			//mAssets[assetType].push_back(metaData->assetName);
 
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
@@ -176,6 +176,9 @@ namespace SliceEditor
 
 		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
+		//mAssets[assetType].push_back(metaData->assetName);
+		// Update the descriptor map
+		mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
 		switch (assetType)
 		{
 		case AssetType::Texture:
@@ -202,6 +205,11 @@ namespace SliceEditor
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
 			break;
 		}
+
+		// register into resource manager
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
 	}
 
 	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)

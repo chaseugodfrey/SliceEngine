@@ -43,6 +43,8 @@ namespace SliceEditor
 
 	#pragma region Display Meta Data Functions
 		void DisplayTextureData(TextureData* data);
+		void DisplayFBXData(ModelData* data);
+		void DisplayMaterialData(MaterialData* data);
 		
 	#pragma endregion
 
