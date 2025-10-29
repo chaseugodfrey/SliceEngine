@@ -66,93 +66,93 @@ namespace SliceEditor
 			NodeEditor::EndNode();
 		}
 
-		auto& style = NodeEditor::GetStyle();
-		style.LinkStrength = 1.0f; // reduces curvature toward a straight line
-		
-		NodeEditor::Suspend();
+		//auto& style = NodeEditor::GetStyle();
+		//style.LinkStrength = 1.0f; // reduces curvature toward a straight line
+		//
+		//NodeEditor::Suspend();
 
-		NodeEditor::NodeId contextNodeId = 0;
-		NodeEditor::LinkId contextLinkId = 0;
+		//NodeEditor::NodeId contextNodeId = 0;
+		//NodeEditor::LinkId contextLinkId = 0;
 
-		if (NodeEditor::ShowNodeContextMenu(&contextNodeId))
-		{
-			ImGui::OpenPopup("NodeContextMenu");
-		}
-
-		//else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))
+		//if (NodeEditor::ShowNodeContextMenu(&contextNodeId))
 		//{
-		//	ImGui::OpenPopup("LinkContextMenu");
+		//	ImGui::OpenPopup("NodeContextMenu");
 		//}
 
-		//else if (NodeEditor::ShowBackgroundContextMenu())
+		////else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))
+		////{
+		////	ImGui::OpenPopup("LinkContextMenu");
+		////}
+
+		////else if (NodeEditor::ShowBackgroundContextMenu())
+		////{
+		////	ImGui::OpenPopup("BackgroundContextMenu");
+		////}
+
+		////// Popups
+
+		//if (ImGui::BeginPopup("NodeContextMenu"))
 		//{
-		//	ImGui::OpenPopup("BackgroundContextMenu");
-		//}
-
-		//// Popups
-
-		if (ImGui::BeginPopup("NodeContextMenu"))
-		{
-			if (ImGui::MenuItem("Delete Node"))
-			{
-
-			}
-			ImGui::EndPopup();
-		}
-
-		//if (ImGui::BeginPopup("LinkContextMenu"))
-		//{
-		//	if (ImGui::MenuItem("Delete Link"))
+		//	if (ImGui::MenuItem("Delete Node"))
 		//	{
 
 		//	}
 		//	ImGui::EndPopup();
 		//}
 
-		//if (ImGui::BeginPopup("BackgroundContextMenu"))
-		//{
-		//	if (ImGui::MenuItem("Add Node"))
-		//	{
+		////if (ImGui::BeginPopup("LinkContextMenu"))
+		////{
+		////	if (ImGui::MenuItem("Delete Link"))
+		////	{
 
-		//	}
-		//	ImGui::EndPopup();
+		////	}
+		////	ImGui::EndPopup();
+		////}
+
+		////if (ImGui::BeginPopup("BackgroundContextMenu"))
+		////{
+		////	if (ImGui::MenuItem("Add Node"))
+		////	{
+
+		////	}
+		////	ImGui::EndPopup();
+		////}
+
+		//NodeEditor::Resume();
+
+		//for (auto& link : m_Links)
+		//{
+		//	NodeEditor::Link(link.Id, link.sourceId, link.targetId);
 		//}
 
-		NodeEditor::Resume();
+		//if (NodeEditor::BeginCreate())
+		//{
+		//	NodeEditor::PinId inputPinId, outputPinId;
+		//	if (NodeEditor::QueryNewLink(&inputPinId, &outputPinId))
+		//	{
+		//		if (inputPinId && outputPinId) // both are valid, let's accept link
+		//		{
+		//			// ed::AcceptNewItem() return true when user release mouse button.
+		//			if (NodeEditor::AcceptNewItem())
+		//			{
+		//				//if (inputPinid == NodeEditor::PinKind::Output)
+		//				LinkInfo link{ NodeEditor::LinkId(m_Links.size() + 1), inputPinId, outputPinId };
 
-		for (auto& link : m_Links)
-		{
-			NodeEditor::Link(link.Id, link.sourceId, link.targetId);
-		}
+		//				// Since we accepted new link, lets add one to our list of links.
+		//				m_Links.push_back(link);
 
-		if (NodeEditor::BeginCreate())
-		{
-			NodeEditor::PinId inputPinId, outputPinId;
-			if (NodeEditor::QueryNewLink(&inputPinId, &outputPinId))
-			{
-				if (inputPinId && outputPinId) // both are valid, let's accept link
-				{
-					// ed::AcceptNewItem() return true when user release mouse button.
-					if (NodeEditor::AcceptNewItem())
-					{
-						//if (inputPinid == NodeEditor::PinKind::Output)
-						LinkInfo link{ NodeEditor::LinkId(m_Links.size() + 1), inputPinId, outputPinId };
+		//				// Draw new link.
+		//				NodeEditor::Link(m_Links.back().Id, m_Links.back().sourceId, m_Links.back().targetId);
+		//			}
 
-						// Since we accepted new link, lets add one to our list of links.
-						m_Links.push_back(link);
+		//			// You may choose to reject connection between these nodes 
+		//			// by calling ed::RejectNewItem(). This will allow editor to give
+		//			// visual feedback by changing link thickness and color.
+		//		}
+		//	}
+		//}
 
-						// Draw new link.
-						NodeEditor::Link(m_Links.back().Id, m_Links.back().sourceId, m_Links.back().targetId);
-					}
-
-					// You may choose to reject connection between these nodes 
-					// by calling ed::RejectNewItem(). This will allow editor to give
-					// visual feedback by changing link thickness and color.
-				}
-			}
-		}
-
-		NodeEditor::EndCreate();
+		//NodeEditor::EndCreate();
 
 		// End Node Drawing
 		NodeEditor::End();
