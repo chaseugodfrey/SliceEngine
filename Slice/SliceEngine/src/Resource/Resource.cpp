@@ -13,6 +13,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Texture.h"
 #include "Shader.h"
+#include "Material.h"
 #include "Model.h"
 #include "Scene.h"
 #include "Prefab.h"
@@ -56,6 +57,16 @@ namespace SliceEngine
 		resource.DestroyShader();	//calls glDeleteProgram
 	}
 
+	//Material
+	std::unique_ptr<SliceEngineTypes::Material> Type<SliceEngineTypes::Material>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::Material>( SliceEngineTypes::Material::LoadMaterial(path));
+	}
+
+	void Type<SliceEngineTypes::Material>::Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyMaterial();
+	}
 	//Model
 	std::unique_ptr<SliceEngineTypes::Model> Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -70,6 +81,15 @@ namespace SliceEngine
 			{
 			case DefaultResourceIDs::CUBE_DEFAULT:
 				m->LoadDefaultCubeModel();
+				break;
+			case DefaultResourceIDs::SPHERE_DEFAULT:
+				m->LoadDefaultSphereModel();
+				break;
+			case DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT:
+				m->LoadDefaultSphereModel(5,7);
+				break;
+			case DefaultResourceIDs::CAPSULE_DEFAULT:
+				m->LoadDefaultCapsuleModel();
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();

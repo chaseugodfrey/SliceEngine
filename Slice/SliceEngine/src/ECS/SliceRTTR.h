@@ -111,7 +111,7 @@ namespace SliceEngine
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
 		.property("model", &Renderer::model)
-		.property("texture", &Renderer::texture)
+		.property("material", &Renderer::material)
 		.property("renderTag", &Renderer::renderTag);
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -128,9 +128,9 @@ namespace SliceEngine
 		.property("scriptName", &Script::scriptName);
 	rttr::registration::enumeration<Light::LightType>("LightType")
 		(
-			rttr::value("Directional", Light::LightType::Directional),
-			rttr::value("Point", Light::LightType::Point),
-			rttr::value("Spot", Light::LightType::Spot)
+			rttr::value("Directional", Light::LightType::Light_Directional),
+			rttr::value("Point", Light::LightType::Light_Point),
+			rttr::value("Spot", Light::LightType::Light_Spot)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()

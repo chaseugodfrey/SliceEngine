@@ -194,33 +194,38 @@ namespace SliceEngine
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
-		Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		Dlight.AddComponent<Light>();
-		Dlight.GetComponent<Light>().type = Light::LightType::Directional;
-
-		GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
-		Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		Dlight2.AddComponent<Light>();
-		Dlight2.GetComponent<Light>().type = Light::LightType::Directional;
-
-		FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
-
-		GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
-		Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		Dlight3.AddComponent<Light>();
-		Dlight3.GetComponent<Light>().type = Light::LightType::Directional;
-
-		FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
+		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
+		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight.AddComponent<Light>();
+		//Dlight.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
+		//Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight2.AddComponent<Light>();
+		//Dlight2.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
+		//
+		//GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
+		//Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight3.AddComponent<Light>();
+		//Dlight3.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
 		
 		//Core::GetInstance()->GetSystem<PrefabSystem>().CreatePrefab((GUID)9528168868150986328);
-		JSONSerializer::SerializePrefab(Dlight.GetEntity());
+		//JSONSerializer::SerializePrefab(Dlight.GetEntity());
 
 		//for (int i = 0; i < 2; ++i)
 		//{
-		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light2");
+		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
 		//	light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
 		//	light.AddComponent<Light>();
+		//	light.GetComponent<Light>().type = Light::LightType::Light_Point;
+		//	if(i == 0)
+		//		light.GetComponent<Light>().color = glm::vec3(1.f, 0.f, 0.f);
+		//	else
+		//		light.GetComponent<Light>().color = glm::vec3(0.f, 1.f, 0.f);
 		//}
 	}
 

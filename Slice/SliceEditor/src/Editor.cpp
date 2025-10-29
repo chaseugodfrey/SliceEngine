@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
 #include <Systems/SceneSystem.h>
+#include <Graphics/TransformHelper.h>
 
 namespace SliceEditor
 {
@@ -68,10 +69,39 @@ namespace SliceEditor
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
+
 		assetManager.ScanResourceFolder();
 		assetManager.Init();
 
 		engine.Init();
+		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		FloorTest.AddComponent<SliceEngine::Renderer>();
+		FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
+
+		auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+
+		// Build transformation matrix
+		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+			* glm::mat4_cast(transform.rotation)
+			* glm::scale(glm::mat4(1.0f), transform.scale);
+
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
+
+		if (navMesh.BuildFromModel(model, transformMatrix))  
+		{
+			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+		}
+		else
+		{
+			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+		}
+
+
+
+
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
 
@@ -128,6 +158,7 @@ namespace SliceEditor
 
 	void Editor::Exit()
 	{
+		navMesh.Clear();
 		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
