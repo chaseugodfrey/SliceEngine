@@ -24,22 +24,6 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	enum class ActionType
-	{
-		Button,
-		Value1D, // not sure i'll ever use this but just in case
-		Value2D
-	};
-
-	enum class ActionPhase
-	{
-		Disabled,
-		Waiting,
-		Started,
-		Performed,
-		Canceled
-	};
-
 	// DEFINITIONS
 	// ActionDefintion		-> the particular action i wanna perform (jump, shoot, move, etc)
 		// contains string name/id, actiontype, 
@@ -57,12 +41,28 @@ namespace SliceEngine
 	// then during update i check the key/button state,
 	// then update the action state accordingly [hopefully it works this way]
 
-	// ACTION STUFF
+	enum class ActionType
+	{
+		Button,
+		Value1D, // not sure i'll ever use this but just in case
+		Value2D
+	};
+
+	enum class ActionPhase
+	{
+		Disabled,
+		Waiting,
+		Started,
+		Performed,
+		Canceled
+	};
+
 	// binding fo a physical key, for 2dvalues, use x/y vvalues
 	struct ActionBinding
 	{
 		int keyCode{}; // glfw keycode or mouse button code
-		float scaleX = 1.0f; // for value1D
+		float scaleX = 0.0f; // for value1D/Horizontal
+		float scaleY = 0.0f;
 		float x = 0.0f; // for value2D
 		float y = 0.0f; // for value2D
 	};
@@ -90,12 +90,12 @@ namespace SliceEngine
 		std::vector<ActionState> states; // states of each action, should be samze size as def
 	};
 
-	// this class contains functions that will add actions, bind them to keys 
-	// and work with queue system to update action states
+	// this class contains functions that will add actions, bind them to keys and work with queue system to update action states
 	class ActionMappingSystem
 	{
 	public:
 		// pointer to input system to query key/button states
+		// this explicit default constructor is to ensure input system pointer is provided
 		explicit ActionMappingSystem(InputSystem* input) : inputSys(input) {}
 
 		// functions to add action maps, actions, and bindings
@@ -121,6 +121,9 @@ namespace SliceEngine
 		bool PerformedThisFrame(const std::string& mapName, const std::string& actionName); // for buttons
 		std::pair<float, float> GetValue2D(const std::string& mapName, const std::string& actionName); // for value2D
 
+		// function to pull map of actionmaps
+		std::unordered_map<std::string, ActionMap>& GetActionMaps() { return maps; }
+
 	private:
 		InputSystem* inputSys; // 
 		std::unordered_map<std::string, ActionMap> maps; // class contains a container of all the different action maps there are
@@ -128,4 +131,7 @@ namespace SliceEngine
 		static ActionMap* findMap(std::unordered_map<std::string, ActionMap>& maps, const std::string& mapName); // finds a specific action map in the container of action maps
 
 	};
+
+	// globbal accessor for singleton class actionmappingsystem instance
+	ActionMappingSystem& GetActionMappingSystem();
 }

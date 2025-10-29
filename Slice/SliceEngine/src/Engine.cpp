@@ -49,8 +49,15 @@ DigiPen Institute of Technology is prohibited.
 //		 .method("func", &MyStruct::func);
 //}
 
+
 namespace SliceEngine
 {
+	// forward declare global pointer to action mapping system
+	extern ActionMappingSystem* gActionMappingSystemInstance;
+	// actual single instance pointer which is static
+	static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
+
+
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
 	{
@@ -83,23 +90,6 @@ namespace SliceEngine
 		glfwInit();
 
 		Core::GetInstance()->InitCore();
-		// --- Action mapping setup (do once) ---
-		static SliceEngine::ActionMappingSystem gActions(Core::GetInstance()->GetInputSystem());
-		gActions.CreateMap("Gameplay");
-
-		// Button: Jump on Space
-		gActions.AddButton("Gameplay", "Jump");
-		gActions.BindButton("Gameplay", "Jump", GLFW_KEY_SPACE);
-
-		// Value2D: Move on WASD (x,y)
-		gActions.AddValue2D("Gameplay", "Move");
-		gActions.Bind2D("Gameplay", "Move", GLFW_KEY_W, 0, +1);
-		gActions.Bind2D("Gameplay", "Move", GLFW_KEY_S, 0, -1);
-		gActions.Bind2D("Gameplay", "Move", GLFW_KEY_D, +1, 0);
-		gActions.Bind2D("Gameplay", "Move", GLFW_KEY_A, -1, 0);
-
-		// Keep it enabled; processing will only run in Game mode anyway
-		gActions.enableMap("Gameplay", true);
 
 
 		// Set up Engine Systems
@@ -265,20 +255,7 @@ namespace SliceEngine
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
 		frm.EndSystem("Input");
-		{
-			static SliceEngine::ActionMappingSystem gActions(Core::GetInstance()->GetInputSystem());
-			// If you created it above in Init(), remove this static line here and keep only the calls below.
-			if (sInputs->GetMode() == SliceEngine::InputMode::Game) {
-				gActions.processInput("Gameplay");
 
-				if (gActions.PerformedThisFrame("Gameplay", "Jump")) {
-					std::cout << "[Action] Jump\n";
-				}
-				auto [mx, my] = gActions.GetValue2D("Gameplay", "Move");
-				// use (mx, my) for movement, camera, etc.
-				//std::cout << "Move: (" << mx << "," << my << ")\n";
-			}
-		}
 
         frm.StartSystem("Audio");
 		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));

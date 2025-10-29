@@ -93,22 +93,23 @@ namespace SliceEngine
             return;
         }
 
-        // transition key states, loop through all keys in map and update states
-        for (auto& [key, state] : keyMap)
-        {
-            if (state == KeyStates::PRESS) 
-                state = KeyStates::PRESSED;
-            else if (state == KeyStates::RELEASE) 
-                state = KeyStates::RELEASED;
-        }
+        // this shit not even being used, we using updateprevinput for everything now
+        //// transition key states, loop through all keys in map and update states
+        //for (auto& [key, state] : keyMap)
+        //{
+        //    if (state == KeyStates::PRESS) 
+        //        state = KeyStates::PRESSED;
+        //    else if (state == KeyStates::RELEASE) 
+        //        state = KeyStates::RELEASED;
+        //}
 
-        for (auto& [button, state] : mouseMap)
-        {
-            if (state == KeyStates::PRESS) 
-                state = KeyStates::PRESSED;
-            else if (state == KeyStates::RELEASE) 
-                state = KeyStates::RELEASED;
-        }
+        //for (auto& [button, state] : mouseMap)
+        //{
+        //    if (state == KeyStates::PRESS) 
+        //        state = KeyStates::PRESSED;
+        //    else if (state == KeyStates::RELEASE) 
+        //        state = KeyStates::RELEASED;
+        //}
 
         scrollDelta = 0.0f; // reset each frame
     }

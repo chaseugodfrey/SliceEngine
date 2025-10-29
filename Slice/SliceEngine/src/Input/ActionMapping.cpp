@@ -11,7 +11,6 @@ Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 --------------------------------------------------------------------------------------------------*/
-#pragma
 #include <pch.h>
 #include "ActionMapping.h"
 #include "../Input/InputSystem.h"
@@ -19,6 +18,16 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	// gloval instance of action mapping system
+	// use a pinter to be set to singleton instance
+	static ActionMappingSystem gActionMappingSystemInstance{ nullptr };
+
+	// global accessor for map of action maps
+	ActionMappingSystem& GetActionMappingSystem()
+	{
+		return gActionMappingSystemInstance;
+	}
+
 	// finding maps and actions
 	ActionMap* ActionMappingSystem::findMap(std::unordered_map<std::string, ActionMap>& maps, const std::string& mapName)
 	{
