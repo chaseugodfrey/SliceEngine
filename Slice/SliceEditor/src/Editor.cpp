@@ -73,33 +73,70 @@ namespace SliceEditor
 		assetManager.Init();
 
 		engine.Init();
-		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-		FloorTest.AddComponent<SliceEngine::Renderer>();
-		FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
-		FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-		FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
 
-		auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+		/*
+		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+        FloorTest.AddComponent<SliceEngine::Renderer>();
+        FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+        FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+        FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
+
+        auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+
+        // Build transformation matrix
+        glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+            * glm::mat4_cast(transform.rotation)
+            * glm::scale(glm::mat4(1.0f), transform.scale);
+
+        auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+        auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
+		*/
+		SliceEngine::GameObject FloorTest1 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		FloorTest1.AddComponent<SliceEngine::Renderer>();
+		FloorTest1.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest1.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		FloorTest1.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
+
+		auto &transform1 = FloorTest1.GetComponent<SliceEngine::Transform>();
+		transform1.position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		// Build transformation matrix
-		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-			* glm::mat4_cast(transform.rotation)
-			* glm::scale(glm::mat4(1.0f), transform.scale);
+		glm::mat4 transformMatrix1 = glm::translate(glm::mat4(1.0f), transform1.position)
+			* glm::mat4_cast(transform1.rotation)
+			* glm::scale(glm::mat4(1.0f), transform1.scale);
 
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
+		auto &model1 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest1.GetComponent<SliceEngine::Renderer>().model).get();
 
-		if (navMesh.BuildFromModel(model, transformMatrix))  
+		SliceEngine::GameObject FloorTest2 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		FloorTest2.AddComponent<SliceEngine::Renderer>();
+		FloorTest2.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest2.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		FloorTest2.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
+
+		auto &transform2 = FloorTest2.GetComponent<SliceEngine::Transform>();
+		transform2.position = glm::vec3(1.0f, 0.0f, 0.0f);
+
+		// Build transformation matrix
+		glm::mat4 transformMatrix2 = glm::translate(glm::mat4(1.0f), transform2.position)
+			* glm::mat4_cast(transform2.rotation)
+			* glm::scale(glm::mat4(1.0f), transform2.scale);
+
+		auto &model2 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest2.GetComponent<SliceEngine::Renderer>().model).get();
+
+		std::vector<SliceEngine::SliceEngineTypes::Model> models = { model1, model2 };
+		std::vector<glm::mat4> transforms = { transformMatrix1, transformMatrix2 };
+
+		SliceEditor::RecastNavMesh navMesh;
+
+		if (navMesh.BuildFromModel(models, transforms))
 		{
-			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+			SLICE_LOG_DEBUG("NAVMESH BUILT SUCCESSFULLY");
 		}
 		else
 		{
 			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
 		}
-
-
-
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input

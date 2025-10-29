@@ -266,27 +266,12 @@ namespace SliceEditor
 		std::vector<unsigned int> indices;
 
 		size_t vertexOffset = 0;
-
 		for (size_t i = 0; i < model.size(); ++i)
 		{
 			const auto &mdl = model[i];
-			const auto &trans = transform[i];
+			const auto &baseTransform = transform[i];
 
-			for (const auto &mesh : mdl.meshes)
-			{
-				for (const auto &v : mesh.vertices)
-				{
-					auto worldPos = trans * glm::vec4(v.position, 1.0f);
-					SliceEngine::SliceEngineTypes::Vertex transformed = v;
-					transformed.position = glm::vec3(worldPos);
-					vertices.push_back(transformed);
-				}
-
-				for (auto ind : mesh.indices)
-					indices.push_back(ind + static_cast<unsigned int>(vertexOffset));
-
-				vertexOffset += mesh.vertices.size();
-			}
+			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
 		}
 
 		if (vertices.empty() || indices.empty())
@@ -455,5 +440,44 @@ namespace SliceEditor
 		navQuery->init(navMesh, 2048);
 
 		return true;
+	}
+
+	void RecastNavMesh::CollectMeshDataFromNode(
+		const SliceEngine::SliceEngineTypes::Model &model,
+		const SliceEngine::SliceEngineTypes::ModelNode &node,
+		const glm::mat4 &parentTransform,
+		std::vector<SliceEngine::SliceEngineTypes::Vertex> &outVertices,
+		std::vector<unsigned int> &outIndices,
+		size_t &vertexOffset)
+	{
+		glm::mat4 localTransform =
+			parentTransform *
+			glm::translate(glm::mat4(1.0f), node.position) *
+			glm::mat4_cast(node.rotation) *
+			glm::scale(glm::mat4(1.0f), node.scale);
+
+		for (unsigned short meshIndex : node.mesh_ref)
+		{
+			if (meshIndex >= model.meshes.size()) continue;
+			const auto &mesh = model.meshes[meshIndex];
+
+			for (const auto &v : mesh.vertices)
+			{
+				glm::vec4 worldPos = localTransform * glm::vec4(v.position, 1.0f);
+				auto transformed = v;
+				transformed.position = glm::vec3(worldPos);
+				outVertices.push_back(transformed);
+			}
+
+			for (auto idx : mesh.indices)
+				outIndices.push_back(idx + static_cast<unsigned int>(vertexOffset));
+
+			vertexOffset += mesh.vertices.size();
+		}
+
+		for (const auto &child : node.children)
+		{
+			CollectMeshDataFromNode(model, child, localTransform, outVertices, outIndices, vertexOffset);
+		}
 	}
 }
