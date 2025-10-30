@@ -60,6 +60,11 @@ namespace SliceEditor
 		selectedFolder = &node;
 	}
 
+	void ContentBrowserManager::SetSelectedFolder(DirectoryNode& node)
+	{
+		selectedFolder = &node;
+	}
+
 	void ContentBrowserManager::CreateDirectory(DirectoryNode& node)
 	{
 		if (node.path.has_extension())

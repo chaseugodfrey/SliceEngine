@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include <GameView/GameViewWindow.h>
 #include <Animator/AnimatorWindow.h>
 #include <Animation/AnimationWindow.h>
+#include <Navigation/NavigationWindow.h>
 
 namespace SliceEditor
 {

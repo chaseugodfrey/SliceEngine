@@ -1,0 +1,2 @@
+lighting.vert
+lighting.frag

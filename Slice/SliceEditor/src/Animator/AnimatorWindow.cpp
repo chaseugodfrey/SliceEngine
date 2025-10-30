@@ -44,10 +44,10 @@ namespace SliceEditor
 		ImGui::EndGroup();
 #pragma endregion
 
-#pragma region Animator Canvas
+//#pragma region Animator Canvas
 		NodeEditor::SetCurrentEditor(m_Context);
-		NodeEditor::Begin("Animator Editor", ImVec2(0.0, 0.0f));
-
+		NodeEditor::Begin("Animator Editor");
+//
 		NodeEditor::EnableShortcuts(true);
 
 		// Draw Nodes here
@@ -55,6 +55,7 @@ namespace SliceEditor
 		{
 			// Draw Nodes here
 			NodeEditor::BeginNode(node.Id);
+
 			ImGui::Text(node.Name.c_str());
 			NodeEditor::BeginPin(node.outputPinId, NodeEditor::PinKind::Output);
 			ImGui::Text("o");
@@ -63,6 +64,7 @@ namespace SliceEditor
 			NodeEditor::BeginPin(node.inputPinId, NodeEditor::PinKind::Input);
 			ImGui::Text("o");
 			NodeEditor::EndPin();
+
 			NodeEditor::EndNode();
 		}
 
@@ -70,27 +72,27 @@ namespace SliceEditor
 		style.LinkStrength = 1.0f; // reduces curvature toward a straight line
 		
 		NodeEditor::Suspend();
-
+//
 		NodeEditor::NodeId contextNodeId = 0;
 		NodeEditor::LinkId contextLinkId = 0;
-
+//
 		if (NodeEditor::ShowNodeContextMenu(&contextNodeId))
 		{
 			ImGui::OpenPopup("NodeContextMenu");
 		}
-
-		//else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))
-		//{
-		//	ImGui::OpenPopup("LinkContextMenu");
-		//}
-
-		//else if (NodeEditor::ShowBackgroundContextMenu())
-		//{
-		//	ImGui::OpenPopup("BackgroundContextMenu");
-		//}
-
-		//// Popups
-
+//
+//		//else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))
+//		//{
+//		//	ImGui::OpenPopup("LinkContextMenu");
+//		//}
+//
+//		//else if (NodeEditor::ShowBackgroundContextMenu())
+//		//{
+//		//	ImGui::OpenPopup("BackgroundContextMenu");
+//		//}
+//
+//		////// Popups
+//
 		if (ImGui::BeginPopup("NodeContextMenu"))
 		{
 			if (ImGui::MenuItem("Delete Node"))
@@ -99,32 +101,32 @@ namespace SliceEditor
 			}
 			ImGui::EndPopup();
 		}
-
-		//if (ImGui::BeginPopup("LinkContextMenu"))
-		//{
-		//	if (ImGui::MenuItem("Delete Link"))
-		//	{
-
-		//	}
-		//	ImGui::EndPopup();
-		//}
-
-		//if (ImGui::BeginPopup("BackgroundContextMenu"))
-		//{
-		//	if (ImGui::MenuItem("Add Node"))
-		//	{
-
-		//	}
-		//	ImGui::EndPopup();
-		//}
-
+//
+//		////if (ImGui::BeginPopup("LinkContextMenu"))
+//		////{
+//		////	if (ImGui::MenuItem("Delete Link"))
+//		////	{
+//
+//		////	}
+//		////	ImGui::EndPopup();
+//		////}
+//
+//		////if (ImGui::BeginPopup("BackgroundContextMenu"))
+//		////{
+//		////	if (ImGui::MenuItem("Add Node"))
+//		////	{
+//
+//		////	}
+//		////	ImGui::EndPopup();
+//		////}
+//
 		NodeEditor::Resume();
-
+//
 		for (auto& link : m_Links)
 		{
 			NodeEditor::Link(link.Id, link.sourceId, link.targetId);
 		}
-
+//
 		if (NodeEditor::BeginCreate())
 		{
 			NodeEditor::PinId inputPinId, outputPinId;
@@ -153,12 +155,12 @@ namespace SliceEditor
 		}
 
 		NodeEditor::EndCreate();
-
-		// End Node Drawing
+//
+//		// End Node Drawing
 		NodeEditor::End();
 		NodeEditor::SetCurrentEditor(nullptr);
-
-#pragma endregion
+//
+//#pragma endregion
 		ImGui::End();
 	}
 }

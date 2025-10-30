@@ -4,7 +4,7 @@
  email:			g.francis@digipen.edu
  brief:			Loads resources
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Material.h"
 #include "Model.h"
 #include "Scene.h"
+#include "Audio.h"
 #include "Prefab.h"
 
 namespace SliceEngine
@@ -132,6 +133,24 @@ namespace SliceEngine
 		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
 	}
 
+	//Audio
+	std::unique_ptr<SliceEngineTypes::Audio> Type<SliceEngineTypes::Audio>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto audio = std::make_unique<SliceEngineTypes::Audio>();
+		
+		if (std::filesystem::exists(path))
+		{
+			audio->LoadAudioResource(path);
+		}
+		
+		return audio;
+	}
+
+	void Type<SliceEngineTypes::Audio>::Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyAudio();
+	}
+	
 	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 			std::filesystem::path file(path);
