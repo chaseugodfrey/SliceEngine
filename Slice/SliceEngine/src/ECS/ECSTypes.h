@@ -106,7 +106,7 @@ namespace SliceEngine
 	{
 		// May need to change if rendering pipeline is diff
 		GUID model;
-		GUID texture;
+		GUID material;
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
@@ -125,15 +125,17 @@ namespace SliceEngine
 
 	struct Light // TODO: Default 1 directional light for now
 	{
-		enum class LightType
+		enum LightType : unsigned char
 		{
-			Directional,
-			Point,
-			Spot
+			Light_Directional = 1
+			,Light_Point
+			,Light_Spot
 		};
-		LightType type = LightType::Point;
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
-		float intensity = 1.0f;
+		float intensity{ 1.0f };
+		GLuint depthTex{};
+		GLuint shadowCubeMap{};
+		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
 	};
@@ -186,13 +188,13 @@ namespace SliceEngine
 
 		struct SphereData
 		{
-			float radius{ 1.0f };
+			float radius{ 0.5f };
 		};
 
 		struct CapsuleData
 		{
 			float radius{ 0.5f };
-			float height{ 2.0f };
+			float height{ 0.5f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference

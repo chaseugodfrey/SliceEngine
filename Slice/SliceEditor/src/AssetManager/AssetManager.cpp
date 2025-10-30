@@ -56,7 +56,15 @@ namespace SliceEditor
 				// this file does not have a meta/descriptor file
 				// make one ig?
 				CreateDescriptorFile(dirEntry.path());
+
+				//bool compiled = CompileAsset(fileName);
 			}
+			else
+			{
+
+			}
+
+
 		}
 		SLICE_LOG("Asset Manager Initialized");
 	}
@@ -78,6 +86,142 @@ namespace SliceEditor
 		{
 			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
 			return "";
+		}
+
+		AssetType assetType = it->second.first;
+		std::unique_ptr<MetaData> metaData;
+
+		metaData = CreateDefaultMeta(filePath);
+
+		if (metaData)
+		{				
+			/*
+				meta file breakdown
+
+				assetName = file path name without extension
+				guid
+				asset type = compiled asset extension
+				asset path = original asset path in asset folder
+				resource path = path within the resource folder 
+			*/
+			
+			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
+			
+			//UNUSED
+			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			
+			// get the file path to the meta file
+			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
+
+
+			#pragma region Resource Compiling Section
+			// compile the asset here?? or before creating the meta file?
+			switch (assetType)
+			{
+			case AssetType::Texture:
+				// This should create the texture asset into the resource folder
+				CompileTextureAsset(metaPath);
+				break;
+			case AssetType::Model:
+				// Compile the model file and write into the resource folder
+				CompileFBXAsset(metaPath);
+				break;
+			case AssetType::Audio:
+				// idk audio yet
+				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
+				break;
+				// prefab and scene is the same just copy it over
+			case AssetType::Prefab:
+			case AssetType::Scene:
+				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
+				break;
+			case AssetType::Shader:
+				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
+				break;
+			case AssetType::Material:
+				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
+				break;
+			}
+
+
+			// should we check if the compiled asset worked?
+			// cause if not we should delete the meta file created
+			if (!std::filesystem::exists(metaData->resourcePath))
+			{
+				SLICE_LOG_ERROR("Unable to compile asset :" + metaData->assetName + " at " + metaData->assetPath);
+				// delete the meta file if it didn't compile properly
+				std::filesystem::remove(metaPath);
+
+				return "";
+			}
+
+			#pragma endregion
+
+			// register into resource manager
+			//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			//resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
+			//mAssets[assetType].push_back(metaData->assetName);
+
+			// Update the descriptor map
+			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
+		
+			return  metaData->resourcePath;
+		}
+	}
+
+	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
+	{
+
+
+		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
+
+		//mAssets[assetType].push_back(metaData->assetName);
+		// Update the descriptor map
+		mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
+		switch (assetType)
+		{
+		case AssetType::Texture:
+			// This should create the texture asset into the resource folder
+			CompileTextureAsset(metaPath);
+			break;
+		case AssetType::Model:
+			// Compile the model file and write into the resource folder
+			CompileFBXAsset(metaPath);
+			break;
+		case AssetType::Audio:
+			// idk audio yet
+			CompileAudioAsset(static_cast<AudioData*>(metaData));
+			break;
+			// prefab and scene is the same just copy it over
+		case AssetType::Prefab:
+		case AssetType::Scene:
+			CompileSceneAsset(static_cast<SceneData*>(metaData));
+			break;
+		case AssetType::Shader:
+			CompileShaderAsset(static_cast<ShaderData*>(metaData));
+			break;
+		case AssetType::Material:
+			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
+			break;
+		}
+
+		// register into resource manager
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
+	}
+
+	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
+	{
+		//Find out the type of asset:
+		std::string ext = filePath.extension().string();
+
+		auto it = mSupportedAssetTypes.find(ext);
+		if (it == mSupportedAssetTypes.end())
+		{
+			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
+			return nullptr;
 		}
 
 		AssetType assetType = it->second.first;
@@ -107,6 +251,10 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
+		case AssetType::Material:
+			metaData = std::make_unique<MaterialData>();
+			typeID = ResourceTypeIDs::MATERIAL;
+			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			typeID = ResourceTypeIDs::PREFAB;
@@ -115,104 +263,14 @@ namespace SliceEditor
 
 		if (metaData)
 		{
-			metaData->assetName = filePath.stem().string();
-			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
-			metaData->assetType = mAssetExtensions[assetType];
-			metaData->assetPath = filePath.string();
-			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
 
-			// for rainne's old models and stuff idk
-			if (ext == ".rainne")
-			{
-				metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".rainne";
-			}
-			
-			
-			/*
-				meta file breakdown
-
-				assetName = file path name without extension
-				guid
-				asset type = compiled asset extension
-				asset path = original asset path in asset folder
-				resource path = path within the resource folder 
-			*/
-			
-			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
-			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-			
-			// get the file path to the meta file
-			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
-
-			// compile the asset here?? or before creating the meta file?
-			switch (assetType)
-			{
-			case AssetType::Texture:
-				// This should create the texture asset into the resource folder
-				CompileTextureAsset(metaPath);
-				break;
-			case AssetType::Model:
-				// Compile the model file and write into the resource folder
-				if (ext == ".rainne")
-				{
-					// cause rainne is still using manual vertice fbx files
-					// i renamed them to .rainne
-					// and ill just copy it over instead
-					try
-					{
-						std::filesystem::copy(metaData->assetPath, metaData->resourcePath);
-					}
-					catch (std::filesystem::filesystem_error& e)
-					{
-						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
-						//return;
-					}
-				}
-				else
-				{
-					CompileFBXAsset(metaPath);
-				}
-				break;
-			case AssetType::Audio:
-				// idk audio yet
-				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
-				break;
-				// prefab and scene is the same just copy it over
-			case AssetType::Prefab:
-			case AssetType::Scene:
-				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
-				break;
-			case AssetType::Shader:
-				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
-				break;
-			}
-
-
-			// should we check if the compiled asset worked?
-			// cause if not we should delete the meta file created
-			if (!std::filesystem::exists(metaData->resourcePath))
-			{
-				SLICE_LOG_ERROR("Unable to compile asset :" + metaData->assetName + " at " + metaData->assetPath);
-				// delete the meta file if it didn't compile properly
-				std::filesystem::remove(metaPath);
-
-				return "";
-			}
-
-
-			// register into resource manager
-			//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-			//resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
-
-			mAssets[assetType].push_back(metaData->assetName);
-
-			// Update the descriptor map
-			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
-		
-			return  metaData->resourcePath;
+			return metaData;
 		}
-	}
 
+		return nullptr;
+	}
+	
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -310,9 +368,11 @@ namespace SliceEditor
 		// get the vert and frag path
 		std::filesystem::path vertPath = parentPath / (fileName + ".vert");
 		std::filesystem::path fragPath = parentPath / (fileName + ".frag");
+		std::filesystem::path geomPath = parentPath / (fileName + ".geom");
 		// get the destination path for all 2 files
 		std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
 		std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
+		std::string tempGeomPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".geom";
 
 		// copy the 3 files over to resources
 		// cause loading shaders now come in 3s
@@ -323,6 +383,8 @@ namespace SliceEditor
 			std::filesystem::copy(filePath, metaData->resourcePath);
 			std::filesystem::copy(vertPath, tempVertPath);
 			std::filesystem::copy(fragPath, tempFragPath);
+			if (std::filesystem::exists(geomPath))
+				std::filesystem::copy(geomPath, tempGeomPath);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -330,6 +392,21 @@ namespace SliceEditor
 			//return;
 		}
 
+	}
+
+	void AssetManager::CompileMaterialAsset(MaterialData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
 	}
 
 	void AssetManager::CompileSceneAsset(SceneData* metaData)

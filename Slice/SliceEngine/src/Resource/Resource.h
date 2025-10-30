@@ -25,11 +25,15 @@ namespace SliceEngine
 		class Audio;
 		class Scene;
 		class Prefab;
+		class Material;
 	}
 
 	namespace DefaultResourceIDs
 	{
 		constexpr uint64_t CUBE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCube");
+		constexpr uint64_t SPHERE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultSphere");
+		constexpr uint64_t SPHERE_LOW_POLY_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLowPolySphere");
+		constexpr uint64_t CAPSULE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCapsule");
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
@@ -59,6 +63,18 @@ namespace SliceEngine
 		static std::unique_ptr<SliceEngineTypes::Shader> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Material>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 10819322238111217941;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::Material> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr);
 
 	};
 
