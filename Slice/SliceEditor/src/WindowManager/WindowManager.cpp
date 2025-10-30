@@ -56,7 +56,7 @@ namespace SliceEditor
 		AddWindow<InspectorWindow>();
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
-		//AddWindow<NavigationWindow>();
+		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)

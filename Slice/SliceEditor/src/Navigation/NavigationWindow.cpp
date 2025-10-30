@@ -12,9 +12,17 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Navigation");
 	
-		ImGui::Button("Bake");
+		if (ImGui::Button("Bake"))
+		{
+
+		}
+
 		ImGui::SameLine();
-		ImGui::Button("Clear");
+		if (ImGui::Button("Clear"))
+		{
+
+		}
+
 		ImGui::End();
 	}
 }
