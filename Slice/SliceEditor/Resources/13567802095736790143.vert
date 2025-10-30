@@ -1,29 +1,29 @@
 #version 460 core
 
-layout (location=0) in vec3		aVertexPosition;
-layout (location=15) in vec3	iVals; // offset, scale, if rotate
+const vec3 cIdxPos[4] = vec3[4](
+	vec3(-1.0, 0.0, -1.0),
+	vec3( 1.0, 0.0, -1.0),
+	vec3( 1.0, 0.0,  1.0),
+	vec3(-1.0, 0.0,  1.0)
+);
+
+
+const int cIndices[6] = int[6](0,2,1,2,0,3);
+
+layout (location=0) out vec3 vPos;
+
+const float cPlaneSize = 250.0;
 
 uniform mat4 V; // View transform matrix
 uniform mat4 P; // Perspective transform matrix
+uniform vec2 uCamPos;
 
-uniform vec2 uPosOffset;
-uniform float uScale;
 
 void main(void){
-	vec3 temp = aVertexPosition;
-	temp.x *= iVals.y; // [-100,100], [0], [0]
-	if (iVals.z > 0.5) // Means rotate
-	{
-		// [offset * uScale], [0], [-100, 100] * uScale // Whole things + uPosOffset
-		temp.z = temp.x * uScale + uPosOffset.y;// Offsets
-		temp.x = iVals.x * uScale + uPosOffset.x;
-	}
-	else
-	{
-		// [-100, 100] * uScale , [0], [offset * uScale] // Whole thing + uPosOffset
-		temp.x += temp.x * uScale + uPosOffset.x;// Offsets
-		temp.z = iVals.x * uScale + uPosOffset.y;	
-	}
-
-	gl_Position	= P * V * vec4(temp, 1.0);
+	vPos = cIdxPos[cIndices[gl_VertexID]] * cPlaneSize;
+	
+	vPos.x += V[0][3];
+	vPos.z += V[1][3];
+	
+	gl_Position = P * V * vec4(vPos, 1.0);
 }

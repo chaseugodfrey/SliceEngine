@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <entt.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glfw3.h>
+#include <../fmod/include/fmod.hpp>
 #include <variant>
 #include "../Physics/CollisionLayer.h"
 #include <rttr/rttr_enable.h>
@@ -105,7 +106,7 @@ namespace SliceEngine
 	{
 		// May need to change if rendering pipeline is diff
 		GUID model;
-		GUID texture;
+		GUID material;
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
@@ -124,15 +125,17 @@ namespace SliceEngine
 
 	struct Light // TODO: Default 1 directional light for now
 	{
-		enum class LightType
+		enum LightType : unsigned char
 		{
-			Directional,
-			Point,
-			Spot
+			Light_Directional = 1
+			,Light_Point
+			,Light_Spot
 		};
-		LightType type = LightType::Point;
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
-		float intensity = 1.0f;
+		float intensity{ 1.0f };
+		GLuint depthTex{};
+		GLuint shadowCubeMap{};
+		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
 	};
@@ -161,6 +164,8 @@ namespace SliceEngine
 		float linearDamping = 0.05f;    //:D
 		float angularDamping = 0.05f;	//:D
 
+
+		//To add in Inspector
 		struct FreezeOptions
 		{
 			bool freezeX = false;
@@ -183,13 +188,13 @@ namespace SliceEngine
 
 		struct SphereData
 		{
-			float radius{ 1.0f };
+			float radius{ 0.5f };
 		};
 
 		struct CapsuleData
 		{
 			float radius{ 0.5f };
-			float height{ 2.0f };
+			float height{ 0.5f };
 		};
 
 		JPH::BodyID bodyID;										// Jolt body reference
@@ -204,7 +209,11 @@ namespace SliceEngine
 
 	struct AudioSource
 	{
-		std::string soundName;
+		//std::string soundName;
+		GUID soundGUID = (GUID)9244272128099795086;
+		FMOD::Channel* channel = nullptr;
+		FMOD::Channel* previewChannel = nullptr;
+		FMOD_VECTOR soundPos{};
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;
@@ -212,68 +221,106 @@ namespace SliceEngine
 		bool playPreview = false;
 	};
 
+	struct AudioListener
+	{
+		glm::vec3 listenerPos{};
+	};
+
 	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
-
-		float lifetime{};        // how long this particle has left
-		float speed{};           // current speed
-		float angle{};           // direction (in radians or degrees)
-
-		// optional transform-like data
+		float age{};             // how long this particle has been alive
+		
 		glm::vec3 position{};
+		glm::quat rotation{};
+		glm::vec3 scale{};
 		glm::vec3 velocity{};    // derived from speed + angle
-		glm::vec3 color{};       // if you want per-particle tint
-
-		// flags
-		bool has_rigidbody{ false };
+		glm::vec4 colour{};       // if you want per-particle tint
 	};
-	class ParticleSystem
+	struct ParticleSystem
 	{
-		// ---- System-wide settings ----
-		Transform* parent_transform{};     // emitter transform (spawn reference)
+		Transform* parentTransform{ nullptr };
 
-		float internal_timer{};            // tracker for emission interval
-		float lifetime_timer{};            // system’s overall lifetime
-		float duration{};                  // how long the system lasts
+		// System Settings
+		float duration{};                       // how long the system should last, 0.0f = forever
 
-		float emission_rate{ 1.f };        // particles/sec
-		float emitter_angle_degrees{ 0.0f };
-		float emitter_angle_radians{ 0.0f }; // cache
-		float arc{ 360.f };                // emission spread
+		float emissionRate{ 0.0f };              // particles/sec
 
-		bool is_repeating{ false };
-		bool is_ending{ false };
+		float coneAngle{};
+		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread
 
-		uint64_t oldest_particle_index{ 0u };
+		bool isRepeating{ false };
 
-		float max_particle_lifetime{};
-		float particle_speed{};
+		bool hasRandomParticleLifetime{ false };
+		float lifetime{};
+		float minParticleLifetime{};
+		float maxParticleLifetime{};
 
-		glm::vec3 min_random_spawn_pos_relative_to_parent{};
-		glm::vec3 max_random_spawn_pos_relative_to_parent{};
+		bool hasRandomSpawnPos{ false };        // random relative to parent
+		glm::vec3 minRandomSpawnPos{};
+		glm::vec3 maxRandomSpawnPos{};
 
-		bool fade_over_lifetime{ false };
+		bool hasRandomInitialRotation{ false };
+		glm::quat rotation{};
+		glm::quat minRandomRotation{};
+		glm::quat maxRandomRotation{};
 
-		uint64_t max_particles{ 50 }; // pool size
+		bool hasRandomVelocity{ false };
+		glm::vec3 velocity{};
+		glm::vec3 minRandomVelocity{};
+		glm::vec3 maxRandomVelocity{};
 
-		uint64_t internal_current_index{};
+		bool hasRandomScale{ false };
+		glm::vec3 scale{};
+		glm::vec3 minRandomScale{};
+		glm::vec3 maxRandomScale{};
 
-		// ---- Particle storage ----
-		std::vector<Particle> particles;
+		bool hasRandomColour{ false };
+		glm::vec4 colour{};
+		glm::vec4 minRandomColour{};
+		glm::vec4 maxRandomColour{};
 
-	public:
-		//ParticleSystem(uint32_t maxCount = 50)
-		//	: max_particles(maxCount)
-		//{
-		//	particles.resize(max_particles);
-		//}
+		bool hasGravity{ false };
+		float gForce{};
 
-		//void Init(Transform* _parent) { parent_transform = _parent; }
-		//void Update(float dt);
-		//void ResetParticle(uint32_t idx);
-		//void DisableParticle(uint32_t idx);
+		bool fadeOverLifetime{ false };
+		bool hasCollision{ false };
+		bool destroyOnExpire{ true };
+		uint64_t maxParticles{ 200 };            // pool size. default 200
+
+		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
+		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
+
+		// Main Particle Storage Poooool
+		std::vector<Particle> particles{};
+
+		// Bursts		
+		struct Burst
+		{
+			uint64_t numParticles{};
+			uint64_t burstRepetitions{};		// how many times to do the burst
+			float burstPeriod{};				// how far apart in time should each repetition be
+			float triggerTime{};				// if greater than systemTimer, trigger burst
+			bool triggered{ false };
+
+			uint64_t repsDone{};
+			float repTimer{};
+		};
+
+		bool hasBursts{ false };
+		uint64_t numBursts{};		
+
+		std::vector<Burst> bursts{};
+
+		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
+
+		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
+		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
+		bool isActive{ true };
+		float systemTimer{};					// systemï¿½s overall lifetime
+
+		float emissionAccumulator{};
 	};
 }
 

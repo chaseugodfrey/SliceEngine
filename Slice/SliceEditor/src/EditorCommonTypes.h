@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
+#include "AssetManager/AssetTypes.h"
+
 namespace SliceEditor
 {
 
@@ -86,6 +88,13 @@ namespace SliceEditor
 			isSelected = false;	
 		}
 
+	};
+
+	struct DroppedFile
+	{
+		AssetType assetType;
+		std::unique_ptr<MetaData> metaData;
+		std::filesystem::path filePath;
 	};
 }
 

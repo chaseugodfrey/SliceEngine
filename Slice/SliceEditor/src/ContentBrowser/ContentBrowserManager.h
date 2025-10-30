@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include <memory>
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
+#include "../AssetManager/AssetManager.h"
 
 namespace SliceEditor
 {
@@ -36,18 +37,25 @@ namespace SliceEditor
 	
 	public:
 
-		ContentBrowserManager(Registry& reg) : IBaseManager(reg) {};
+		ContentBrowserManager(Registry& reg) : IBaseManager(reg), selectedFolder(nullptr) {};
 		~ContentBrowserManager() = default;
 
 		std::unique_ptr<DirectoryNode> rootNode;
 
 		DirectoryNode* selectedFolder;
 
+		std::queue<DroppedFile> mPendingDrops;
+
+		std::optional<DroppedFile> mActiveDrop;
+
 		bool openRenameFile = false;
+		bool mHasDroppedAssets = false;
 
 		void Init() override;
 		
 		void RebuildDirectory(DirectoryNode& node);
+
+		void SetSelectedFolder(DirectoryNode& node);
 
 		void RenameFile(DirectoryNode& entry, char* newName);
 

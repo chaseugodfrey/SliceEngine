@@ -18,6 +18,8 @@ namespace {
 	constexpr uint16_t version_number = 2;	//i think having a vers number could be useful, maybe
 	constexpr uint64_t i_size = sizeof(unsigned int);
 	constexpr uint64_t f_size = sizeof(float);
+	const float PIF = 3.14159265359f;
+	const float PI05F = 1.57079632679f;
 }
 
 namespace SliceEngine
@@ -288,6 +290,193 @@ namespace SliceEngine
 			//back
 			indices.emplace_back(17); indices.emplace_back(5); indices.emplace_back(2);
 			indices.emplace_back(2); indices.emplace_back(14); indices.emplace_back(17);
+
+			mesh.setup_mesh();
+
+
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			return;
+		}
+
+		void Model::LoadDefaultSphereModel(int stackCount, int sectorCount)
+		{
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
+			vertices.reserve(24);
+			auto& indices = mesh.indices;	indices.clear();
+			indices.reserve(36);
+
+			float radius = 0.5f;
+			vertices.reserve((stackCount + 1) * (sectorCount + 1));
+			indices.reserve(stackCount * sectorCount * 6);
+			for (int i = 0; i <= stackCount; ++i)
+			{
+				float v = static_cast<float>(i) / stackCount; // Texture V-coordinate
+				float phi = v * PIF; // Latitude angle (0 to PI)
+
+				for (int j = 0; j <= sectorCount; ++j)
+				{
+					float u = static_cast<float>(j) / sectorCount; // Texture U-coordinate
+					float theta = u * 2.0f * PIF; // Longitude angle (0 to 2*PI)
+
+					// Calculate vertex position (Cartesian coordinates from spherical)
+					float x = radius * std::sin(phi) * std::cos(theta);
+					float y = radius * std::cos(phi);
+					float z = radius * std::sin(phi) * std::sin(theta);
+
+					// Calculate normal
+					// For a perfect sphere centered at (0,0,0), 
+					// the normal is just the normalized position.
+					float nx = x / radius;
+					float ny = y / radius;
+					float nz = z / radius;
+
+					// Add the vertex
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+				}
+			}
+			for (int i = 0; i < stackCount; ++i)
+			{
+				for (int j = 0; j < sectorCount; ++j)
+				{
+					// Calculate the indices for the four corners of the current quad
+					//
+					// (i, j) --- (i, j+1)
+					//   |           |
+					// (i+1, j) -- (i+1, j+1)
+					//
+					int first = (i * (sectorCount + 1)) + j;
+					int second = first + (sectorCount + 1);
+
+					// First triangle (CCW winding)
+					indices.emplace_back(first);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second);
+
+					// Second triangle (CCW winding)
+					indices.emplace_back(second);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second + 1);
+				}
+			}
+
+			mesh.setup_mesh();
+
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			return;
+		}
+
+		void Model::LoadDefaultCapsuleModel()
+		{
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
+			auto& indices = mesh.indices;	indices.clear();
+
+			float radius = 0.5f;
+			float halfHeight = 0.5f;    // Half the height of the *cylinder* part
+			int capStackCount = 10;     // Stacks for *one* hemisphere cap
+			int cylStackCount = 5;      // Stacks for the cylinder body
+			int sectorCount = 30;       // Vertical slices (longitude), same as sphere
+
+			// Total stacks for indexing
+			int totalStacks = capStackCount + cylStackCount + capStackCount;
+
+			vertices.reserve((totalStacks + 1) * (sectorCount + 1));
+			indices.reserve(totalStacks * sectorCount * 6);
+
+			// 2. Generate Vertices
+			// We loop from i = 0 to totalStacks (inclusive)
+			// This creates (totalStacks + 1) rings of vertices
+			for (int i = 0; i <= totalStacks; ++i)
+			{
+				float phi;
+				float y;
+				float nx, ny, nz;
+
+				// v-coordinate for texture mapping
+				float v = static_cast<float>(i) / totalStacks;
+
+				// We are in the TOP CAP
+				if (i <= capStackCount)
+				{
+					float t = static_cast<float>(i) / capStackCount;
+					phi = t * PI05F; // 0 to pi/2
+
+					y = radius * std::cos(phi) + halfHeight; // y-position with offset
+					ny = std::cos(phi);
+				}
+				// We are in the CYLINDER BODY
+				else if (i > capStackCount && i <= capStackCount + cylStackCount)
+				{
+					float t = static_cast<float>(i - capStackCount) / cylStackCount;
+					phi = PI05F; // pi/2 (equator)
+
+					y = halfHeight - (t * (halfHeight * 2.0f)); // Interpolate from +h to -h
+					ny = 0; // Normal is horizontal
+				}
+				// We are in the BOTTOM CAP
+				else
+				{
+					float t = static_cast<float>(i - (capStackCount + cylStackCount)) / capStackCount;
+					phi = PI05F + (t * PI05F); // pi/2 to pi
+
+					y = radius * std::cos(phi) - halfHeight; // y-position with offset
+					ny = std::cos(phi);
+				}
+
+				// Inner loop for sectors (longitude)
+				for (int j = 0; j <= sectorCount; ++j)
+				{
+					float u = static_cast<float>(j) / sectorCount;
+					float theta = u * 2.0f * PIF;
+
+					float cosPhi = std::cos(phi);
+					float sinPhi = std::sin(phi);
+					float cosTheta = std::cos(theta);
+					float sinTheta = std::sin(theta);
+
+					// Position
+					float x = radius * sinPhi * cosTheta;
+					float z = radius * sinPhi * sinTheta;
+
+					// Normal (re-calculate x and z components)
+					nx = sinPhi * cosTheta;
+					nz = sinPhi * sinTheta;
+
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+				}
+			}
+
+			// 4. Generate Indices
+			// This logic is IDENTICAL to the sphere, as we've built the vertices
+			// in a consistent grid.
+			for (int i = 0; i < totalStacks; ++i)
+			{
+				for (int j = 0; j < sectorCount; ++j)
+				{
+					// Get the indices for the four corners of the quad
+					int first = (i * (sectorCount + 1)) + j;
+					int second = first + (sectorCount + 1);
+
+					// First triangle
+					indices.emplace_back(first);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second);
+
+					// Second triangle
+					indices.emplace_back(second);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second + 1);
+				}
+			}
 
 			mesh.setup_mesh();
 

@@ -15,19 +15,15 @@ DigiPen Institute of Technology is prohibited.
 #ifndef WINDOW_TYPES_H
 #define WINDOW_TYPES_H
 
-#include "../ContentBrowser/ContentBrowserWindow.h"
-#include "../SceneView/SceneViewWindow.h"
-#include "../Profiler/ProfilerWindow.h"
-//#include "Windows/EW_GameView.h"
-//#include "Windows/EW_Hierarchy.h"
-//#include "Windows/EW_Inspector.h"
-//#include "Windows/EW_Console.h"
-//#include "Windows/EW_Animator.h"
-//#include "Windows/EW_Profiler.h"
-//#include "Windows/EW_Animation.h"
-//#include "Windows/EW_Settings.h"
-//#include "Windows/EW_Preferences.h"
-
+#include <ContentBrowser/ContentBrowserWindow.h>
+#include <Profiler/ProfilerWindow.h>
+#include <Hierachy/HierarchyWindow.h>
+#include <Inspector/InspectorWindow.h>
+#include <SceneView/SceneViewWindow.h>
+#include <GameView/GameViewWindow.h>
+#include <Animator/AnimatorWindow.h>
+#include <Animation/AnimationWindow.h>
+#include <Navigation/NavigationWindow.h>
 
 namespace SliceEditor
 {

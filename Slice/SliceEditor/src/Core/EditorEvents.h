@@ -44,6 +44,11 @@ namespace SliceEditor
 	{
 		std::unique_ptr<Command> command;
 	};
+
+	struct GetGUIDEvent
+	{
+		std::string fileName;
+	};
 }
 
 #endif
