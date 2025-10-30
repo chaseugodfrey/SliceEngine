@@ -3,29 +3,10 @@
 
 namespace SliceEngine
 {
-	void FSMSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
+	void FSMSystem::OnExit()
 	{
-		CStateMachine& entitySM = reg.get<CStateMachine>(entity);
-
-		entitySM.currState = &entitySM.stateMap[entitySM.entryState];
-		entitySM.stateCon = false;
+		EFSM.currState = nullptr;
 	}
-
-	void FSMSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
-	{
-		CStateMachine& entitySM = reg.get<CStateMachine>(entity);
-		entitySM.currState = nullptr;
-	}
-
-	void FSMSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
-	{
-		CStateMachine& entitySM = reg.get<CStateMachine>(entity);
-
-		CheckStates(entitySM);
-
-		UpdateState(entitySM);
-	}
-
 
 	void FSMSystem::InitState()
 	{
@@ -35,38 +16,42 @@ namespace SliceEngine
 		}
 
 		nextState = entryState;*/
+
+
+		EFSM.currState = &EFSM.stateMap[EFSM.entryState];
+		EFSM.stateCon = false;
 	}
-	void FSMSystem::CheckStates(CStateMachine& stateMachine)
+	void FSMSystem::CheckStates()
 	{
 
-		if (!stateMachine.currState) return;
+		if (!EFSM.currState) return;
 
-		for (const Transition& transition : stateMachine.currState->transitions)
+		for (const Transition& transition : EFSM.currState->transitions)
 		{
 			
-			if (stateMachine.parameters.find(transition.parameterName) != stateMachine.parameters.end())
+			if (EFSM.parameters.find(transition.parameterName) != EFSM.parameters.end())
 			{
-				const rttr::variant& currentParamValue = stateMachine.parameters[transition.parameterName];
+				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
 
 				if (EvalCon(currentParamValue, transition.operation, transition.condition))
 				{
-					stateMachine.nextState = transition.targetState;
-					stateMachine.stateCon = true;
+					EFSM.nextState = transition.targetState;
+					EFSM.stateCon = true;
 					break;
 				}
 			}
 		}
 	}
-	void FSMSystem::UpdateState(CStateMachine& stateMachine)
+	void FSMSystem::UpdateState()
 	{
-		if (!stateMachine.stateCon)
+		if (!EFSM.stateCon)
 		{
 			return;
 		}
 
 		bool safeToChange = false;
 
-		if(stateMachine.currState->hasExitTime)
+		if(EFSM.currState->hasExitTime)
 		{
 			//if(stateMachine.currState.exitTime >= (current anim time))
 			{
@@ -81,10 +66,10 @@ namespace SliceEngine
 		if(safeToChange)
 		{
 
-			if (stateMachine.stateMap.find(stateMachine.nextState) != stateMachine.stateMap.end())
+			if (EFSM.stateMap.find(EFSM.nextState) != EFSM.stateMap.end())
 			{
-				stateMachine.prevState = stateMachine.currState->stateName;
-				stateMachine.currState = &stateMachine.stateMap[stateMachine.nextState];
+				EFSM.prevState = EFSM.currState->stateName;
+				EFSM.currState = &EFSM.stateMap[EFSM.nextState];
 				//stateMachine.animTimer = 0.0f;
 			}
 			else
@@ -92,8 +77,8 @@ namespace SliceEngine
 				std::cout << "wassup error" << std::endl;
 			}
 
-			stateMachine.stateCon = false;
-			stateMachine.nextState.clear();
+			EFSM.stateCon = false;
+			EFSM.nextState.clear();
 		}
 	}
 

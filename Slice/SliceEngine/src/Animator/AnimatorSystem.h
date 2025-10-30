@@ -100,7 +100,7 @@ namespace SliceEngine
 
 	struct CAnimator
 	{
-		CStateMachine stateMachine;
+		FSMSystem stateMachine;
 		float animTimer = 0.0f;
 	};
 
@@ -118,10 +118,6 @@ namespace SliceEngine
 		void UpdateAnimation(float dt);
 		void PlayAnimation(Animation*);
 		void CalculateBoneTransform(const SliceEngineTypes::ModelNode& node, glm::mat4 const& parent_tform);
-
-		void InitState();
-		void CheckStates();
-		void UpdateState();
 
 		std::vector<glm::mat4> const& GetFinalTform() const 
 		{

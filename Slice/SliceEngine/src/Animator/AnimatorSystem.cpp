@@ -14,13 +14,15 @@ namespace SliceEngine
 	void Animator::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		CAnimator& animator = reg.get<CAnimator>(entity);
+		animator.stateMachine.InitState();
 
 		animator.animTimer = 0.0f;
 	}
 
 	void Animator::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
+		CAnimator& animator = reg.get<CAnimator>(entity);
+		animator.stateMachine.OnExit();
 	}
 
 	void Animator::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -28,6 +30,9 @@ namespace SliceEngine
 
 		CAnimator& animator = reg.get<CAnimator>(entity);
 
+		animator.stateMachine.CheckStates();
+
+		animator.stateMachine.UpdateState();
 
 		/*if (animator.stateMachine.currState && animator.stateMachine.currState->currAnim)
 		{

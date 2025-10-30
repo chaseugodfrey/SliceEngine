@@ -65,8 +65,6 @@ namespace SliceEngine
 		}
 	};
 
-	struct SMEntity {};
-
 	class CStateMachine
 	{
 	public:
@@ -87,18 +85,20 @@ namespace SliceEngine
 	};
 
 
-	class FSMSystem : BaseSystem<SMEntity, CStateMachine>
+	class FSMSystem
 	{
 	public:
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
 		void InitState();
-		void CheckStates(CStateMachine& stateMachine);
-		void UpdateState(CStateMachine& stateMachine);
+		void CheckStates();
+		void UpdateState();
 
 		bool EvalCon(const rttr::variant& paramValue, ComparisonOp op, const rttr::variant& valueToCompare);
+
+		void OnExit();
+
+	private:
+		CStateMachine EFSM;
 	};
 }
 
