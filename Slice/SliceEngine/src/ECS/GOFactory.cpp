@@ -577,11 +577,12 @@ namespace SliceEngine
 	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
 		auto go = CreateGO(node.name);
 		SetParent(go.GetEntity(), parent);
+		auto rm = Core::GetInstance()->GetResourceManager();
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
 			auto& rc = go.GetComponent<Renderer>();
-			rc.model = model_guid;
+			rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 			rc.meshOffset = node.mesh_ref[0];
 			//rc.texture = (GUID)18349208178533231704;
 
@@ -597,7 +598,7 @@ namespace SliceEngine
 
 				sibling.AddComponent<Renderer>();
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
-				s_rc.model = model_guid;
+				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 				s_rc.meshOffset = node.mesh_ref[i];
 				//rc.texture = (GUID)18349208178533231704;
 			}

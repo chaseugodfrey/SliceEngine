@@ -323,7 +323,6 @@ namespace SliceEngine
 			return mGUID;
 		}
 
-	private:
 		void AddRef()
 		{
 			if (mInstance)
@@ -360,9 +359,4 @@ namespace SliceEngine
 	};
 
 }
-
-
-#include "Resource.h"
-
-
 #endif
