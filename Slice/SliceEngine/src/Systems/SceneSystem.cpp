@@ -23,6 +23,7 @@ namespace SliceEngine
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
+		mNextScene = filePath;
 		UnloadCurrentScene();
 	}
 
@@ -56,9 +57,16 @@ namespace SliceEngine
 
 	void SceneSystem::LoadNextScene()
 	{
-		auto scene_to_load = mSceneQueue.front();
+		/*auto scene_to_load = mSceneQueue.front();
 		mSceneQueue.pop();
-		LoadScene(scene_to_load);
+		LoadScene(scene_to_load);*/
+		if (mNextScene == mSceneQueue.front())
+		{
+			
+			LoadScene(mNextScene);
+			mSceneQueue.pop();
+			mNextScene = "";
+		}
 	}
 
 	void SceneSystem::SaveScene(std::filesystem::path const filePath)
@@ -89,6 +97,8 @@ namespace SliceEngine
 		SLICE_LOG("Unloading Scenes.");
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
+
+		isSceneUnloaded = true;
 	}
 
 	// For play then unplay, should call this one to reload scene as per last save instead of using current information
