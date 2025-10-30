@@ -45,6 +45,8 @@ namespace SliceEditor
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
 		std::string CreateDescriptorFile(const std::filesystem::path filePath);
+		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
+		void CreateResource(MetaData* metaData, AssetType assetType);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
@@ -65,7 +67,6 @@ namespace SliceEditor
 			{".gif", {AssetType::Texture, "Texture"}},
 			{".obj", {AssetType::Model, "Model"}},
 			{".fbx", {AssetType::Model, "Model"}},
-			{".rainne", {AssetType::Model, "Model"}},
 			{".wav", {AssetType::Audio, "Audio"}},
 			{".mp3", {AssetType::Audio, "Audio"}},
 			{".ogg", {AssetType::Audio, "Audio"}},
@@ -77,16 +78,6 @@ namespace SliceEditor
 			//{".frag", AssetType::Shader}
 		};
 
-	private:
-		
-		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
-		// TODO: Change this to be configurable
-		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
-
-		// Gives editor a vector of all asset files by name for displaying in inspector
-		std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
-
-
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
 		{
 			{AssetType::Texture, ".dds"},
@@ -97,6 +88,16 @@ namespace SliceEditor
 			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"}
 		};
+	private:
+		
+		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
+		// TODO: Change this to be configurable
+		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
+
+		// Gives editor a vector of all asset files by name for displaying in inspector
+		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
+
+
 	};
 
 }

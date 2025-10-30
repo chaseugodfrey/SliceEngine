@@ -225,7 +225,7 @@ namespace SliceEditor
 				}
 			}
 
-			ImGui::Text("Texture");
+			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string material_guid_string = std::to_string(rend.material.GetGUID());
@@ -236,7 +236,7 @@ namespace SliceEditor
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
 						rend.material = recievedPayload;

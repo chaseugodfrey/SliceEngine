@@ -23,7 +23,7 @@ namespace SliceEngine
 			// filepath to material.mat in resource folder
 
 			Material temp;
-			temp.albedo = (GUID)18349208178533231704;
+			temp.albedo = (GUID)10452617659721414527;
 			temp.roughness = 0.6f;
 			temp.metallic = 1.7f;
 

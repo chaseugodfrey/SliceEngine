@@ -215,8 +215,21 @@ namespace SliceEditor
 		for (int i = 0; i < count; i++)
 		{
 			std::filesystem::path path = paths[i];
-			editor->HandleDrop(path);
+			//Handles folders just in case
+			if (std::filesystem::is_directory(path))
+			{
+				for (auto& entry : std::filesystem::recursive_directory_iterator(path))
+				{
+					editor->HandleDrop(entry.path());
+				}
+			}
+			else
+			{
+				editor->HandleDrop(path);
+			}
 		}
+		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		manager->RebuildDirectory(*manager->rootNode);
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)
@@ -226,7 +239,48 @@ namespace SliceEditor
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
+		//DirectoryNode node = *manager->selectedFolder;
 		manager->RebuildDirectory(*manager->rootNode);
+		//manager->SetSelectedFolder(node);
+
+		//Create the Package for the ContentBrowser to read
+		std::string fileExt = target.extension().string();
+
+		if (registry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == registry.GetAssetManager().mSupportedAssetTypes.end())
+		{
+			SLICE_LOG_VALUES("Dropped Unsupported Asset Type");
+			return;
+		}
+
+		DroppedFile file;
+
+		file.assetType = registry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+		file.filePath = target;
+		switch (file.assetType)
+		{
+		case AssetType::Texture:
+			file.metaData = std::make_unique<TextureData>();
+			break;
+		case AssetType::Model:
+			file.metaData = std::make_unique<ModelData>();
+			break;
+		case AssetType::Audio:
+			file.metaData = std::make_unique<AudioData>();
+			break;
+		case AssetType::Scene:
+			file.metaData = std::make_unique<SceneData>();
+			break;
+		case AssetType::Shader:
+			file.metaData = std::make_unique<ShaderData>();
+			break;
+		case AssetType::Prefab:
+			file.metaData = std::make_unique<PrefabData>();
+			break;
+		}
+		//Default Init the MetaData base class
+		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+		manager->mPendingDrops.push(std::move(file));
 	}
 
 
