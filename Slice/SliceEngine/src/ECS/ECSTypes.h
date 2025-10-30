@@ -213,7 +213,6 @@ namespace SliceEngine
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
-		FMOD_VECTOR soundPos{};
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;
