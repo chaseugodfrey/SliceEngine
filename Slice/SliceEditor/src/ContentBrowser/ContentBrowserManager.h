@@ -44,11 +44,18 @@ namespace SliceEditor
 
 		DirectoryNode* selectedFolder;
 
+		std::queue<DroppedFile> mPendingDrops;
+
+		std::optional<DroppedFile> mActiveDrop;
+
 		bool openRenameFile = false;
+		bool mHasDroppedAssets = false;
 
 		void Init() override;
 		
 		void RebuildDirectory(DirectoryNode& node);
+
+		void SetSelectedFolder(DirectoryNode& node);
 
 		void RenameFile(DirectoryNode& entry, char* newName);
 

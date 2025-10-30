@@ -89,6 +89,13 @@ namespace SliceEditor
 		}
 
 	};
+
+	struct DroppedFile
+	{
+		AssetType assetType;
+		std::unique_ptr<MetaData> metaData;
+		std::filesystem::path filePath;
+	};
 }
 
 #endif
