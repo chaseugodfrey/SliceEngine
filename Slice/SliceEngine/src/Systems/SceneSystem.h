@@ -23,12 +23,11 @@ namespace SliceEngine
 	enum SceneState
 	{
 		DEFAULT,
-		EDITOR_VIEW,
 		//Play scene
 		PLAY_SCENE,
 		//Reload scene
 		RELOAD_SCENE,
-		LOAD_NEXT_SCENE,
+		//
 		STOP_SCENE
 	};
 

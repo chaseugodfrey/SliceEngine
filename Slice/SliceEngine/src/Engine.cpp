@@ -250,6 +250,9 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sScene->ReloadScene();
+
+				gScriptSystem->OnEnd();
 
 				sScene->mCurrentState = SceneState::DEFAULT;
 				sScene->mNextState = SceneState::DEFAULT;

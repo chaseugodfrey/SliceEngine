@@ -119,9 +119,19 @@ namespace SliceEngine
 	void SceneSystem::ReloadScene()
 	{
 		// need function to clear everything on the scene
+		Core::GetInstance()->mFactory.ClearGameObjects();
+		Core::GetInstance()->mFactory.UpdateDestroyed();
 
+		LoadScene(mCurrentScene);
 		// reloads the scene
-		JSONSerializer::DeserializeScene(mCurrentScene);
+		/*JSONSerializer::DeserializeScene(mCurrentScene);
+
+		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+		OnSceneLoadedEvent event;
+		event.isSceneLoaded = true;
+
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);*/
 	}
 
 	void SceneSystem::Play()
