@@ -20,12 +20,12 @@ namespace SliceEngine
                 string audioName = FunctionCalls.Audio_GetSoundName(Entity.mID);
                 return new Audio(audioName);
             }
-            set
-            {
-                //Console.WriteLine($"Entity ID:{Entity.mID}");
+            //set
+            //{
+            //    //Console.WriteLine($"Entity ID:{Entity.mID}");
 
-                FunctionCalls.Audio_SetSoundName(Entity.mID, ref value);
-            }
+            //    FunctionCalls.Audio_SetSoundName(Entity.mID, ref value);
+            //}
         }
 
     }

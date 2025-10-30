@@ -150,20 +150,36 @@ namespace SliceEngine
 		
 		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
 
-		return mono_string_new(mono_domain_get(), audio.soundName.c_str());
+		std::string test;
+
+		for (auto pair : Core::GetInstance()->GetResourceManager()->mFileNameToGUID)
+		{
+			if(audio.soundGUID == pair.second)
+			{
+				test = pair.first;
+				break;
+			}
+		}
+
+		if(test == "")
+		{
+			return;
+		}
+
+		return mono_string_new(mono_domain_get(), test.c_str());
 		
 	}
 
-	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	{
-		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	//{
+	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-		std::string str = MonoToString(string);
+	//	std::string str = MonoToString(string);
 
-		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-		audio.soundName = str;
+	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+	//	audio.soundName = str;
 
-	}
+	//}
 
 
 #pragma endregion
@@ -237,7 +253,7 @@ namespace SliceEngine
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		ADD_INTERNAL_CALL(Audio_SetSoundName);
+		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 	}
 
 }
