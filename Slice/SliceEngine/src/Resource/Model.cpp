@@ -381,7 +381,7 @@ namespace SliceEngine
 			auto& indices = mesh.indices;	indices.clear();
 
 			float radius = 0.5f;
-			float halfHeight = 1.0f;    // Half the height of the *cylinder* part
+			float halfHeight = 0.5f;    // Half the height of the *cylinder* part
 			int capStackCount = 10;     // Stacks for *one* hemisphere cap
 			int cylStackCount = 5;      // Stacks for the cylinder body
 			int sectorCount = 30;       // Vertical slices (longitude), same as sphere
