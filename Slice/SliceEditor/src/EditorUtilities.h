@@ -8,6 +8,7 @@ namespace SliceEditor
 	namespace EditorUtilities
 	{
 		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateModel(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history = nullptr);
 		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);

@@ -120,6 +120,7 @@
     <ClInclude Include="src\Core\EventManager.h" />
     <ClInclude Include="src\Core\Events.h" />
     <ClInclude Include="src\Core\Singleton.h" />
+    <ClInclude Include="src\DetourNavMesh\DetourNavMesh.h" />
     <ClInclude Include="src\ECS\BaseSystem.h" />
     <ClInclude Include="src\ECS\ECSTypes.h" />
     <ClInclude Include="src\ECS\GOFactory.h" />
@@ -135,13 +136,13 @@
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
     <ClInclude Include="src\Logger\Logger.h" />
-    <ClInclude Include="src\NavMesh\NavMesh.h" />
     <ClInclude Include="src\Networking\NetworkSystem.h" />
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Resource\GUID.h" />
+    <ClInclude Include="src\Resource\Material.h" />
     <ClInclude Include="src\Resource\Model.h" />
     <ClInclude Include="src\Resource\Prefab.h" />
     <ClInclude Include="src\Resource\Resource.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
+    <ClCompile Include="src\DetourNavMesh\DetourNavMesh.cpp" />
     <ClCompile Include="src\ECS\GOFactory.cpp" />
     <ClCompile Include="src\ECS\GameObject.cpp" />
     <ClCompile Include="src\Engine.cpp" />
@@ -187,6 +189,7 @@
     <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Material.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Prefab.cpp" />
     <ClCompile Include="src\Resource\Resource.cpp" />

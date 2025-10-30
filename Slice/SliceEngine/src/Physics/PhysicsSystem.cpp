@@ -788,9 +788,7 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
 			return;
 		}
-
 		colliderShape.shape = shape;
-
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
 		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
