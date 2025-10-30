@@ -142,6 +142,32 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region AUDIO FUNCTIONS
+
+	static MonoString* Audio_GetSoundName(unsigned int entity)
+	{
+		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
+		
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+
+		return mono_string_new(mono_domain_get(), audio.soundName.c_str());
+		
+	}
+
+	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	{
+		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+
+		std::string str = MonoToString(string);
+
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+		audio.soundName = str;
+
+	}
+
+
+#pragma endregion
+
 
 	template <typename T>
 	static void RegisterComponent()
@@ -208,6 +234,10 @@ namespace SliceEngine
 		//Physics
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
+
+		// Audio
+		ADD_INTERNAL_CALL(Audio_GetSoundName);
+		ADD_INTERNAL_CALL(Audio_SetSoundName);
 	}
 
 }

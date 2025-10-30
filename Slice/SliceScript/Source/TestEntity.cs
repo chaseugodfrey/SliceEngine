@@ -25,12 +25,16 @@ namespace SliceEngine
         {
             //Console.WriteLine("TestEntity Update called with dt: " + dt);
 
+
+            Console.WriteLine("ALOYSISU TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+
+
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
                 Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
-                Position += direction * speed * dt;
+                //Position += direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
         }

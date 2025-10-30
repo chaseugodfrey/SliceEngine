@@ -206,7 +206,7 @@ namespace SliceEngine
 
 	struct AudioSource
 	{
-		std::string soundName;
+		std::string soundName; //resource manager
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;
