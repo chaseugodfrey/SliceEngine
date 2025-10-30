@@ -112,7 +112,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\AudioManager.h" />
+    <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\ComponentModified.h" />
@@ -141,6 +141,7 @@
     <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\Audio.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Material.h" />
     <ClInclude Include="src\Resource\Model.h" />
@@ -166,7 +167,7 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AudioManager.cpp" />
+    <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\ComponentModified.cpp" />
@@ -189,6 +190,7 @@
     <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\Audio.cpp" />
     <ClCompile Include="src\Resource\Material.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Prefab.cpp" />
