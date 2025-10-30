@@ -22,11 +22,14 @@ namespace SliceEngine
 
 	enum SceneState
 	{
-		EDITOR,
+		DEFAULT,
+		EDITOR_VIEW,
 		//Play scene
 		PLAY_SCENE,
 		//Reload scene
 		RELOAD_SCENE,
+		LOAD_NEXT_SCENE,
+		STOP_SCENE
 	};
 
 	class SceneSystem : BaseEngineSystem

@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Inspector/InspectorWindow.h>
 #include <SceneView/SceneViewWindow.h>
 #include <GameView/GameViewWindow.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -247,6 +248,7 @@ namespace SliceEditor
 
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
@@ -259,17 +261,18 @@ namespace SliceEditor
 
 				if (isPlaying) // if its play, enable game input
 				{
-					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					inputs->SetEnabled(true);
-					SliceEngine::gScriptSystem->OnStart();
+					scene->Play();
+					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					//inputs->SetEnabled(true);
+					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
-				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
-				{
-					//inputs->UnbindCallbacks();
-					inputs->SetMode(SliceEngine::InputMode::Editor);
-					inputs->SetEnabled(false);
-				}
+				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				//{
+				//	//inputs->UnbindCallbacks();
+				//	inputs->SetMode(SliceEngine::InputMode::Editor);
+				//	inputs->SetEnabled(false);
+				//}
 			}
 		}
 		else
@@ -277,19 +280,20 @@ namespace SliceEditor
 			if(ImGui::Button("Stop", ImVec2{ 60, 35 }))
 			{
 				isPlaying = !isPlaying;
-				if (isPlaying) // if its play, enable game input
+				if (!isPlaying) // if its play, enable game input
 				{
-					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					inputs->SetEnabled(true);
-					SliceEngine::gScriptSystem->OnStart();
+					scene->Stop();
+					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					//inputs->SetEnabled(true);
+					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
-				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
-				{
-					//inputs->UnbindCallbacks();
-					inputs->SetMode(SliceEngine::InputMode::Editor);
-					inputs->SetEnabled(false);
-				}
+				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				//{
+				//	//inputs->UnbindCallbacks();
+				//	inputs->SetMode(SliceEngine::InputMode::Editor);
+				//	inputs->SetEnabled(false);
+				//}
 			}
 		}
 

@@ -33,6 +33,15 @@ namespace SliceEngine
                 Position += direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
+
+            if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
+            {
+                Console.WriteLine("TestEntity Created with ID: " + mID);
+
+                //Vector3 pos = Position;
+                Position -= direction * speed * dt;
+                //Console.WriteLine("TestEntity Update called with dt: " + dt);
+            }
         }
 
     }

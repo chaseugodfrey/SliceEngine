@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include <fstream>
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
+#include "../Systems/SceneSystem.h"
 namespace SliceEngine
 {
     ScriptSystem* gScriptSystem = NULL;
@@ -376,10 +377,17 @@ namespace SliceEngine
                     mEntityInstances[*entity] = scriptObj;
 
                     auto inputs = Core::GetInstance()->GetInputSystem();
+                    auto scene = Core::GetInstance()->GetSceneSystem();
 
-                    if (inputs->GetMode() == InputMode::Game)
+                    //if (inputs->GetMode() == InputMode::Game)
+                    //{
+                    //    //check if its running or in edit mode but for now just call
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
+
+                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
                     {
-                        //check if its running or in edit mode but for now just call
                         mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
                         mEntityInstances[*entity]->InvokeOnCreate();
                     }

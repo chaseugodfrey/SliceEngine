@@ -115,7 +115,7 @@ namespace SliceEngine
 		if (mCurrentState == SceneState::PLAY_SCENE)
 		{
 			
-			mNextState = SceneState::EDITOR;
+			mNextState = SceneState::STOP_SCENE;
 
 		}
 	}
