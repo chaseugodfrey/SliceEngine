@@ -182,6 +182,10 @@ namespace SliceEngine
 			{
 				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
 				{
+						if (component.get_type() == rttr::type::get< Renderer>())
+						{
+							std::cout << "test" << std::endl;
+						}
 						for (const auto& property : type.get_properties())
 						{
 							// this should be the component's property data
@@ -215,6 +219,7 @@ namespace SliceEngine
 		// idk what would be passed in when deserializing in scene system
 		void DeserializeSceneResource(std::filesystem::path const& filePath)
 		{
+			
 			std::filesystem::path outPath(filePath);
 			std::string resourcePath = outPath.replace_extension(".resource").string();
 
@@ -222,7 +227,7 @@ namespace SliceEngine
 
 			for (auto guid : sceneResource.items())
 			{
-
+				
 			}
 		}
 

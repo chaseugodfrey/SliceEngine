@@ -105,8 +105,8 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		GUID model;
-		GUID material;
+		GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID;
+		GUID material = (GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID;
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
