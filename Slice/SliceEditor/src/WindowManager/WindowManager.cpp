@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include "WindowManager.h"
 #include "ICreateWindow.h"
 #include "../Core/Registry.h"
+#include "WindowTypes.h"
+
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
 #include <Scripting/ScriptSystem.h>
@@ -28,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include <SceneView/SceneViewWindow.h>
 #include <GameView/GameViewWindow.h>
 #include <Systems/SceneSystem.h>
+
 
 namespace SliceEditor
 {
@@ -56,6 +59,9 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
+		AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
+		//AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)

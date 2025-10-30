@@ -107,6 +107,10 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
+		case AssetType::Material:
+			metaData = std::make_unique<MaterialData>();
+			typeID = ResourceTypeIDs::MATERIAL;
+			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			typeID = ResourceTypeIDs::PREFAB;
@@ -120,13 +124,6 @@ namespace SliceEditor
 			metaData->assetType = mAssetExtensions[assetType];
 			metaData->assetPath = filePath.string();
 			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-
-			// for rainne's old models and stuff idk
-			if (ext == ".rainne")
-			{
-				metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".rainne";
-			}
-			
 			
 			/*
 				meta file breakdown
@@ -153,25 +150,7 @@ namespace SliceEditor
 				break;
 			case AssetType::Model:
 				// Compile the model file and write into the resource folder
-				if (ext == ".rainne")
-				{
-					// cause rainne is still using manual vertice fbx files
-					// i renamed them to .rainne
-					// and ill just copy it over instead
-					try
-					{
-						std::filesystem::copy(metaData->assetPath, metaData->resourcePath);
-					}
-					catch (std::filesystem::filesystem_error& e)
-					{
-						SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
-						//return;
-					}
-				}
-				else
-				{
-					CompileFBXAsset(metaPath);
-				}
+				CompileFBXAsset(metaPath);
 				break;
 			case AssetType::Audio:
 				// idk audio yet
@@ -184,6 +163,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
+				break;
+			case AssetType::Material:
+				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
 				break;
 			}
 
@@ -310,9 +292,11 @@ namespace SliceEditor
 		// get the vert and frag path
 		std::filesystem::path vertPath = parentPath / (fileName + ".vert");
 		std::filesystem::path fragPath = parentPath / (fileName + ".frag");
+		std::filesystem::path geomPath = parentPath / (fileName + ".geom");
 		// get the destination path for all 2 files
 		std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
 		std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
+		std::string tempGeomPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".geom";
 
 		// copy the 3 files over to resources
 		// cause loading shaders now come in 3s
@@ -323,6 +307,8 @@ namespace SliceEditor
 			std::filesystem::copy(filePath, metaData->resourcePath);
 			std::filesystem::copy(vertPath, tempVertPath);
 			std::filesystem::copy(fragPath, tempFragPath);
+			if (std::filesystem::exists(geomPath))
+				std::filesystem::copy(geomPath, tempGeomPath);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -330,6 +316,21 @@ namespace SliceEditor
 			//return;
 		}
 
+	}
+
+	void AssetManager::CompileMaterialAsset(MaterialData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
 	}
 
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
