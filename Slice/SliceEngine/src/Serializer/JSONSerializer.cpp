@@ -57,19 +57,12 @@ namespace SliceEngine
 
 			SerializeFile(output, filePath);
 
-			// create the resource file for scene
-			// can't actually test until changing GUIDs is done 
-			json resourceOutput;
-
-			for (auto it = rc->mGUIDToSerialize.begin(); it != rc->mGUIDToSerialize.end(); it++)
-			{
-				resourceOutput += std::to_string((*it).GetGUID());
-			}
+			json GUIDFile = SerializeSceneResources();
 
 			std::filesystem::path outPath(filePath);
 			std::string resourcePath = outPath.replace_extension(".resource").string();
 
-			SerializeFile(resourceOutput, resourcePath);
+			SerializeFile(GUIDFile, resourcePath);
 		}
 
 		Entity DeserializePrefab(std::filesystem::path const& filePath)
@@ -177,7 +170,7 @@ namespace SliceEngine
 			return (Entity)it->second;
 		}
 
-		void SerializeSceneResources(std::string const& currScene)
+		json SerializeSceneResources()
 		{
 			auto& registry = Core::GetInstance()->GetRegistry();
 			auto resourceManager = Core::GetInstance()->GetResourceManager();
@@ -216,23 +209,21 @@ namespace SliceEngine
 				GUIDFile += guid.GetGUID();
 			}
 
-			GUID sceneGUID = resourceManager->mFileNameToGUID[currScene];
-			std::filesystem::path outFile = "Resource/" + sceneGUID.GetGUID();
-			outFile.replace_extension(".resource");
-
-			SerializeFile(GUIDFile, outFile);
+			return GUIDFile;
 		}
 
 		// idk what would be passed in when deserializing in scene system
-		void DeserializeSceneResource(std::string filePath)
+		void DeserializeSceneResource(std::filesystem::path const& filePath)
 		{
-			json prefab = DeserializeFile(filePath);
+			std::filesystem::path outPath(filePath);
+			std::string resourcePath = outPath.replace_extension(".resource").string();
 
-		}
+			json sceneResource = DeserializeFile(resourcePath);
 
-		void  DeserializePrefabChild(json file)
-		{
+			for (auto guid : sceneResource.items())
+			{
 
+			}
 		}
 
 #pragma region PrefabSerializing
@@ -396,7 +387,9 @@ namespace SliceEngine
 
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath)
 		{
-			
+			DeserializeSceneResource(filePath);
+
+
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 
 			json input = DeserializeFile(filePath);
