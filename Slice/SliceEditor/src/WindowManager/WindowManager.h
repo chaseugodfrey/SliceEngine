@@ -32,8 +32,12 @@ namespace SliceEditor
 		void DrawPlayState();
 		void DrawPreferenceWindow();
 		void DrawProjectSettings();
+		void DrawSaveSceneAsPopup();
+		void DrawNewScenePopup();
 
 		bool projectSettingsPopupOpen{ false };
+		bool saveSceneAsPopupOpen{ false };
+		bool newScenePopupOpen{ false };
 
 	public:
 		

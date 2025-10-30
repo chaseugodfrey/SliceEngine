@@ -69,14 +69,28 @@ namespace SliceEngine
 		}
 	}
 
+	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
+	{
+		mCurrentScene = filePath;
+	}
+
 	void SceneSystem::SaveScene(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());
 
-		if (!std::filesystem::exists(filePath))
+		std::filesystem::path directory = filePath.parent_path();
+		if (!std::filesystem::exists(directory))
 		{
-			SLICE_LOG_ERROR("Filepath not found. Saving scene unsuccessful.");
-			return;
+			try
+			{
+				std::filesystem::create_directories(directory);
+				SLICE_LOG("Created directory: " + directory.string());
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to create directory: " + directory.string() + ". Error: " + e.what());
+				return; // Stop if we can't create the directory
+			}
 		}
 
 		SLICE_LOG("Saving scene...");
