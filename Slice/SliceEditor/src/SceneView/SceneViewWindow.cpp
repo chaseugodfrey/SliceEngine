@@ -301,9 +301,13 @@ namespace SliceEditor
 #pragma region Dropping Into the Scene Directly
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (ImGui::AcceptDragDropPayload("Material"))
+			if (ImGui::AcceptDragDropPayload("Model"))
 			{
-				
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+				}
 			}
 		}
 

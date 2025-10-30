@@ -23,6 +23,22 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateModel(entt::entity parent,SliceEngine::GUID guid, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Model(guid);
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)
 		{
 			EventManager::GetInstance()->Publish<ClearSelectionEvent>();
