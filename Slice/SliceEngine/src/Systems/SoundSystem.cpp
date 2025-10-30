@@ -16,7 +16,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "SoundSystem.h"
-#include "AudioManager.h"
+#include "../Audio/AudioManager.h"
 
 
 namespace SliceEngine
@@ -32,14 +32,6 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		
 		
-		if (audioComp.soundName == "")
-		{
-			audioComp.soundName = "3DAudioTest";
-		}
-		audioComp.isPaused = true;
-		audioComp.playPreview = false;
-		audioComp.is3D = true;
-		audioComp.currentVolume = 0.3f;
 
 		
 		//audioManager->PlaySound(audioComp.soundName, SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, audioComp.is3D, audioComp.isPaused, audioComp.isLoop, audioComp.currentVolume, entity, transform.position);
@@ -55,12 +47,12 @@ namespace SliceEngine
 
 		if (audioManager->IsChannelPlaying(entity))
 		{
-			audioManager->StopSound(entity);
+			//audioManager->StopSound(entity);
 
 		}
 		else if (audioManager->IsPreviewChannelPlaying(entity))
 		{
-			audioManager->StopEditorPreview(entity);
+			//audioManager->StopEditorPreview(entity);
 		}
 
 		std::cout << "Entity exiting sound system" << std::endl;
@@ -81,7 +73,7 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		
-		if (!audioManager->IsChannelNull(entity))
+		/*if (!audioManager->IsChannelNull(entity))
 		{
 
 			if (audioComp.currentVolume != audioManager->GetCurrentTrackVolume(entity))
@@ -109,26 +101,30 @@ namespace SliceEngine
 				}
 			}
 
-		}
+		}*/
 
+		bool playPreviewFlag = false;
 
-		if (audioComp.playPreview)
+		audioComp.previewChannel->isPlaying(&playPreviewFlag);
+
+		if (audioComp.playPreview && audioComp.previewChannel == nullptr)
 		{
-			if (audioManager->IsPreviewChannelPlaying(entity) == false)
-			{
-				
-				audioManager->PlayEditorPreview(audioComp.soundName, audioComp.is3D, entity);
-  				
-			}
+			
+			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D);
+  			
+			
 
 		}
-		else
+		else if(audioComp.playPreview == false && playPreviewFlag == true)
 		{
-			if (audioManager->IsPreviewChannelPlaying(entity))
+			/*if (audioManager->IsPreviewChannelPlaying(entity))
 			{
 				audioManager->StopEditorPreview(entity);
 				
-			}
+			}*/
+
+			audioManager->StopEditorPreview(audioComp.previewChannel);
+			
 		}
 		
 	}

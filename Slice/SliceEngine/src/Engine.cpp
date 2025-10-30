@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
-#include "AudioManager.h"
+#include "../src/Audio/AudioManager.h"
 #include "Systems/TransformSystem.h"
 #include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
@@ -96,7 +96,7 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		
 		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
 		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };

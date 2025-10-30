@@ -22,7 +22,7 @@ namespace SliceEngine
 		class Model;
 		struct ModelNode;	//used to represent scene graph
 		class Shader;
-		//class Sound;
+		class Audio;
 		class Scene;
 		class Prefab;
 		class Material;
@@ -91,11 +91,15 @@ namespace SliceEngine
 
 	};
 
-	//template <>
-	//struct Type<SliceEngineTypes::Sound>
-	//{
+	template <>
+	struct Type<SliceEngineTypes::Audio>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
 
-	//};
+		static std::unique_ptr<SliceEngineTypes::Audio> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr);
+	};
 
 	template <>
 	struct Type<SliceEngineTypes::Scene>

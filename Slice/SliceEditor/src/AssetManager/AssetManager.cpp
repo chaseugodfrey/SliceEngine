@@ -56,7 +56,15 @@ namespace SliceEditor
 				// this file does not have a meta/descriptor file
 				// make one ig?
 				CreateDescriptorFile(dirEntry.path());
+
+				//bool compiled = CompileAsset(fileName);
 			}
+			else
+			{
+
+			}
+
+
 		}
 		SLICE_LOG("Asset Manager Initialized");
 	}
@@ -83,47 +91,10 @@ namespace SliceEditor
 		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
 
-		// I think can compile assets somewhere around here
-		uint64_t typeID = 0;
-		switch (assetType)
-		{
-		case AssetType::Texture:
-			metaData = std::make_unique<TextureData>();
-			typeID = ResourceTypeIDs::TEXTURE;
-			break;
-		case AssetType::Model:
-			metaData = std::make_unique<ModelData>();
-			typeID = ResourceTypeIDs::MODEL;
-			break;
-		case AssetType::Audio:
-			//metaData = std::make_unique<AudioData>();
-			break;
-		case AssetType::Scene:
-			metaData = std::make_unique<SceneData>();
-			typeID = ResourceTypeIDs::SCENE;
-			break;
-		case AssetType::Shader:
-			metaData = std::make_unique<ShaderData>();
-			typeID = ResourceTypeIDs::SHADER;
-			break;
-		case AssetType::Material:
-			metaData = std::make_unique<MaterialData>();
-			typeID = ResourceTypeIDs::MATERIAL;
-			break;
-		case AssetType::Prefab:
-			metaData = std::make_unique<PrefabData>();
-			typeID = ResourceTypeIDs::PREFAB;
-			break;
-		}
+		metaData = CreateDefaultMeta(filePath);
 
 		if (metaData)
-		{
-			metaData->assetName = filePath.stem().string();
-			metaData->guid = SliceEngine::GUID::Generate(metaData->assetName, typeID);
-			metaData->assetType = mAssetExtensions[assetType];
-			metaData->assetPath = filePath.string();
-			metaData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-			
+		{				
 			/*
 				meta file breakdown
 
@@ -135,11 +106,15 @@ namespace SliceEditor
 			*/
 			
 			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
-			std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
+			
+			//UNUSED
+			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			
 			// get the file path to the meta file
 			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
+
+			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
 			{
@@ -153,6 +128,7 @@ namespace SliceEditor
 				break;
 			case AssetType::Audio:
 				// idk audio yet
+				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
 				break;
 				// prefab and scene is the same just copy it over
 			case AssetType::Prefab:
@@ -179,12 +155,13 @@ namespace SliceEditor
 				return "";
 			}
 
+			#pragma endregion
 
 			// register into resource manager
 			//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			//resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
 
-			mAssets[assetType].push_back(metaData->assetName);
+			//mAssets[assetType].push_back(metaData->assetName);
 
 			// Update the descriptor map
 			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
@@ -193,6 +170,107 @@ namespace SliceEditor
 		}
 	}
 
+	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
+	{
+
+
+		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
+
+		//mAssets[assetType].push_back(metaData->assetName);
+		// Update the descriptor map
+		mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
+		switch (assetType)
+		{
+		case AssetType::Texture:
+			// This should create the texture asset into the resource folder
+			CompileTextureAsset(metaPath);
+			break;
+		case AssetType::Model:
+			// Compile the model file and write into the resource folder
+			CompileFBXAsset(metaPath);
+			break;
+		case AssetType::Audio:
+			// idk audio yet
+			CompileAudioAsset(static_cast<AudioData*>(metaData));
+			break;
+			// prefab and scene is the same just copy it over
+		case AssetType::Prefab:
+		case AssetType::Scene:
+			CompileSceneAsset(static_cast<SceneData*>(metaData));
+			break;
+		case AssetType::Shader:
+			CompileShaderAsset(static_cast<ShaderData*>(metaData));
+			break;
+		case AssetType::Material:
+			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
+			break;
+		}
+
+		// register into resource manager
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+
+	}
+
+	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
+	{
+		//Find out the type of asset:
+		std::string ext = filePath.extension().string();
+
+		auto it = mSupportedAssetTypes.find(ext);
+		if (it == mSupportedAssetTypes.end())
+		{
+			SLICE_LOG("Unsupported asset type for file: " + filePath.string());
+			return nullptr;
+		}
+
+		AssetType assetType = it->second.first;
+		std::unique_ptr<MetaData> metaData;
+
+		// I think can compile assets somewhere around here
+		uint64_t typeID = 0;
+		switch (assetType)
+		{
+		case AssetType::Texture:
+			metaData = std::make_unique<TextureData>();
+			typeID = ResourceTypeIDs::TEXTURE;
+			break;
+		case AssetType::Model:
+			metaData = std::make_unique<ModelData>();
+			typeID = ResourceTypeIDs::MODEL;
+			break;
+		case AssetType::Audio:
+			metaData = std::make_unique<AudioData>();
+			typeID = ResourceTypeIDs::SOUND;
+			break;
+		case AssetType::Scene:
+			metaData = std::make_unique<SceneData>();
+			typeID = ResourceTypeIDs::SCENE;
+			break;
+		case AssetType::Shader:
+			metaData = std::make_unique<ShaderData>();
+			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::Material:
+			metaData = std::make_unique<MaterialData>();
+			typeID = ResourceTypeIDs::MATERIAL;
+			break;
+		case AssetType::Prefab:
+			metaData = std::make_unique<PrefabData>();
+			typeID = ResourceTypeIDs::PREFAB;
+			break;
+		}
+
+		if (metaData)
+		{
+			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
+
+			return metaData;
+		}
+
+		return nullptr;
+	}
+	
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -266,6 +344,20 @@ namespace SliceEditor
 		// Close process and thread handles. 
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
+	}
+
+	void AssetManager::CompileAudioAsset(AudioData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+		}
 	}
 
 	void AssetManager::CompileShaderAsset(ShaderData* metaData)

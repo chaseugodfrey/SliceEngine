@@ -73,33 +73,70 @@ namespace SliceEditor
 		assetManager.Init();
 
 		engine.Init();
-		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-		FloorTest.AddComponent<SliceEngine::Renderer>();
-		FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
-		FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-		FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
 
-		auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+		/*
+		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+        FloorTest.AddComponent<SliceEngine::Renderer>();
+        FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+        FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+        FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
+
+        auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+
+        // Build transformation matrix
+        glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+            * glm::mat4_cast(transform.rotation)
+            * glm::scale(glm::mat4(1.0f), transform.scale);
+
+        auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+        auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
+		*/
+		SliceEngine::GameObject FloorTest1 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		FloorTest1.AddComponent<SliceEngine::Renderer>();
+		FloorTest1.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest1.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		FloorTest1.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
+
+		auto &transform1 = FloorTest1.GetComponent<SliceEngine::Transform>();
+		transform1.position = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		// Build transformation matrix
-		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-			* glm::mat4_cast(transform.rotation)
-			* glm::scale(glm::mat4(1.0f), transform.scale);
+		glm::mat4 transformMatrix1 = glm::translate(glm::mat4(1.0f), transform1.position)
+			* glm::mat4_cast(transform1.rotation)
+			* glm::scale(glm::mat4(1.0f), transform1.scale);
 
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
+		auto &model1 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest1.GetComponent<SliceEngine::Renderer>().model).get();
 
-		if (navMesh.BuildFromModel(model, transformMatrix))  
+		SliceEngine::GameObject FloorTest2 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		FloorTest2.AddComponent<SliceEngine::Renderer>();
+		FloorTest2.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest2.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		FloorTest2.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
+
+		auto &transform2 = FloorTest2.GetComponent<SliceEngine::Transform>();
+		transform2.position = glm::vec3(1.0f, 0.0f, 0.0f);
+
+		// Build transformation matrix
+		glm::mat4 transformMatrix2 = glm::translate(glm::mat4(1.0f), transform2.position)
+			* glm::mat4_cast(transform2.rotation)
+			* glm::scale(glm::mat4(1.0f), transform2.scale);
+
+		auto &model2 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest2.GetComponent<SliceEngine::Renderer>().model).get();
+
+		std::vector<SliceEngine::SliceEngineTypes::Model> models = { model1, model2 };
+		std::vector<glm::mat4> transforms = { transformMatrix1, transformMatrix2 };
+
+		SliceEditor::RecastNavMesh navMesh;
+
+		if (navMesh.BuildFromModel(models, transforms))
 		{
-			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+			SLICE_LOG_DEBUG("NAVMESH BUILT SUCCESSFULLY");
 		}
 		else
 		{
 			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
 		}
-
-
-
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
@@ -215,8 +252,21 @@ namespace SliceEditor
 		for (int i = 0; i < count; i++)
 		{
 			std::filesystem::path path = paths[i];
-			editor->HandleDrop(path);
+			//Handles folders just in case
+			if (std::filesystem::is_directory(path))
+			{
+				for (auto& entry : std::filesystem::recursive_directory_iterator(path))
+				{
+					editor->HandleDrop(entry.path());
+				}
+			}
+			else
+			{
+				editor->HandleDrop(path);
+			}
 		}
+		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		manager->RebuildDirectory(*manager->rootNode);
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)
@@ -226,7 +276,48 @@ namespace SliceEditor
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
+		//DirectoryNode node = *manager->selectedFolder;
 		manager->RebuildDirectory(*manager->rootNode);
+		//manager->SetSelectedFolder(node);
+
+		//Create the Package for the ContentBrowser to read
+		std::string fileExt = target.extension().string();
+
+		if (registry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == registry.GetAssetManager().mSupportedAssetTypes.end())
+		{
+			SLICE_LOG_VALUES("Dropped Unsupported Asset Type");
+			return;
+		}
+
+		DroppedFile file;
+
+		file.assetType = registry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+		file.filePath = target;
+		switch (file.assetType)
+		{
+		case AssetType::Texture:
+			file.metaData = std::make_unique<TextureData>();
+			break;
+		case AssetType::Model:
+			file.metaData = std::make_unique<ModelData>();
+			break;
+		case AssetType::Audio:
+			file.metaData = std::make_unique<AudioData>();
+			break;
+		case AssetType::Scene:
+			file.metaData = std::make_unique<SceneData>();
+			break;
+		case AssetType::Shader:
+			file.metaData = std::make_unique<ShaderData>();
+			break;
+		case AssetType::Prefab:
+			file.metaData = std::make_unique<PrefabData>();
+			break;
+		}
+		//Default Init the MetaData base class
+		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+		manager->mPendingDrops.push(std::move(file));
 	}
 
 

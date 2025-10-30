@@ -154,10 +154,10 @@ namespace SliceEditor
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
-				ImGui::Text("Audio Clip");
+				/*ImGui::Text("Audio Clip");
 				ImGui::SameLine(150);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::InputText("##audio_file", &as.soundName, ImGuiInputTextFlags_ReadOnly);
+				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
 
 				ImGui::Text("Volume");
 				ImGui::SameLine(150);
@@ -225,7 +225,7 @@ namespace SliceEditor
 				}
 			}
 
-			ImGui::Text("Texture");
+			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string material_guid_string = std::to_string(rend.material.GetGUID());
@@ -236,7 +236,7 @@ namespace SliceEditor
 
 			if (ImGui::BeginDragDropTarget())
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
 						rend.material = recievedPayload;
