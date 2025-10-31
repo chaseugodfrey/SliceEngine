@@ -12,18 +12,19 @@ namespace SliceEngine
         public Vector3 direction = new Vector3(-1.0f, 0.0f, 0.0f);
 
         public TestEntity te;
+        public Transform t;
         
 
         public override void OnCreate()
         {
-            te = GetComponent<TestEntity>();
-
-            //transform = GetComponent<Transform>();
+            t = GetComponent<Transform>();           
         }
 
         public override void OnUpdate(float dt)
         {
-            //transform.Position = new Vector3(0, 0, 0);
+            // This part is not even running
+            SliceLog.Log("I'm running btw");
+            t.Position = new Vector3(t.Position.x + speed*dt, 0, 0);
         }
 
     }
