@@ -234,6 +234,17 @@ namespace SliceEngine
 		
 		~Handle() 
 		{ 
+			std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
+			if (!mManager)
+				return;
+
+			for (const auto& [key, val] : mManager->mFileNameToGUID)
+			{
+				if (val == mGUID)
+				{
+					std::cout << key << std::endl;
+				}
+			}
 			//Release(); //not sure but im like 90% sure this is not supposed to be here
 		}
 

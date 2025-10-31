@@ -35,6 +35,8 @@ namespace SliceEditor
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
+		if (node == nullptr) return;
+
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
