@@ -45,7 +45,7 @@ namespace SliceEngine
                 Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
-                Position -= direction * speed * dt;
+                //Position -= direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
         }

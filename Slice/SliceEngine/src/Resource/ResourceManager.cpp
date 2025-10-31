@@ -99,7 +99,7 @@ namespace SliceEngine
 
 	void ResourceManager::ReleaseResource(const GUID& guid)
 	{
-		std::cout << "Resource being released " << guid.GetGUID() << " : ";
+		//std::cout << "Resource being released " << guid.GetGUID() << " : ";
 		for(const auto& [key, val] : mFileNameToGUID)
 		{
 			if (val == guid)

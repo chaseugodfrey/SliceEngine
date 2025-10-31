@@ -234,7 +234,7 @@ namespace SliceEngine
 		
 		~Handle() 
 		{ 
-			std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
+			//std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
 			if (!mManager)
 				return;
 

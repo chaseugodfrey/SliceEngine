@@ -11,12 +11,12 @@ namespace SliceEngine
         public float speed = 5.0f;
         public Vector3 direction = new Vector3(-1.0f, 0.0f, 0.0f);
 
-        public TestEntity te;
         public Transform t;
         
 
         public override void OnCreate()
         {
+            Console.WriteLine("Test Movement onCreate");
             t = GetComponent<Transform>();           
         }
 
