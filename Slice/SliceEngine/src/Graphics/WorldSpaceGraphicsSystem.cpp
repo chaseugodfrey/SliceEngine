@@ -39,7 +39,19 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
 	{
+		auto rm = Core::GetInstance()->GetResourceManager();
+		auto& renderer = reg.get<Renderer>(entity);
+		if (!renderer.modelHandle.IsValid())
+		{
+			renderer.modelHandle = rm->get<SliceEngineTypes::Model>(renderer.modelHandle.mGUID);
+			// get model handle
+		}
 
+		if (!renderer.materialHandle.IsValid())
+		{
+			// get material handle
+			renderer.materialHandle = rm->get<SliceEngineTypes::Material>(renderer.materialHandle.mGUID);
+		}
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnExit(entt::registry& reg, Entity entity)

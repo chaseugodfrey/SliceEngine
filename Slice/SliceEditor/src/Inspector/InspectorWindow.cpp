@@ -210,10 +210,11 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.model.GetGUID());
+			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
 			if (ImGui::InputText("##mesh", &model_guid_string))
 			{
-				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+				rend.modelHandle.mGUID = SliceEngine::GUID(std::stoll(model_guid_string));
+				// update the handle
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -221,17 +222,19 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					rend.model = recievedPayload;
+					rend.modelHandle.mGUID = recievedPayload;
+					// update the handle after
 				}
 			}
 
 			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string material_guid_string = std::to_string(rend.material.GetGUID());
+			std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
 			if (ImGui::InputText("##material", &material_guid_string, ImGuiInputTextFlags_ReadOnly))
 			{
-				rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
+				rend.materialHandle.mGUID = SliceEngine::GUID(std::stoll(material_guid_string));
+				// reload material handle here
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -239,7 +242,8 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.material = recievedPayload;
+						rend.materialHandle.mGUID = recievedPayload;
+						// reload material handle here
 				}
 			}
 

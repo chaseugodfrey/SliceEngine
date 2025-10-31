@@ -183,6 +183,8 @@ namespace SliceEngine
 		void RegisterResourceAsset(const GUID& guid, const std::string& path);
 
 		void RegisterResourceAsset(const std::string& path);
+
+		void UpdateEntityResources();
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
@@ -356,6 +358,7 @@ namespace SliceEngine
 		ResourceManager* mManager;
 		detail::Instance* mInstance;
 		GUID mGUID;
+		std::string fileName;
 	};
 
 }

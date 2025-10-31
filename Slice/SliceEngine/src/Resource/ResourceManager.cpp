@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ResourceManager.h"
 #include <fstream>
+#include "Core/Core.h"
 namespace SliceEngine
 {
 	void ResourceManager::InitResourceManager()
@@ -95,6 +96,36 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 		}
 
+	}
+
+	/// <summary>
+	/// IDK whether we should just write one update loop to check for any changes
+	/// in resources
+	/// or manually call a function to update the resource when its changed
+	/// 
+	/// nvm chase said manually update
+	/// </summary>
+	void ResourceManager::UpdateEntityResources()
+	{
+		auto& registry = Core::GetInstance()->GetRegistry();
+		auto entityView = registry.view<SliceEntity>();
+		for (auto entity : entityView)
+		{
+			// if it has renderer component
+			if (registry.any_of<Renderer>(entity))
+			{
+				auto& rend = registry.get<Renderer>(entity);
+				// get the GUID of the current file name
+				GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+
+				// check if its the same GUID as its set
+				if (currGUID != rend.modelHandle.mGUID)
+				{
+					// if its not the same then reload
+					rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
+				}
+			}
+		}
 	}
 
 	void ResourceManager::ReleaseResource(const GUID& guid)
