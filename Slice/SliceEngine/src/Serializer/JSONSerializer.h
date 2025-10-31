@@ -298,6 +298,8 @@ namespace SliceEngine
 			}
 			prop.set_value(componentInstance, arr);
 		}
+
+		// Handle
 		template <typename T>
 		inline void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
 			const Handle<T>& value, const std::string& propName, const std::string& componentName,
@@ -445,7 +447,7 @@ namespace SliceEngine
 
 	// Handle
 	template <typename T>
-	inline void from_json(json& j, const Handle<T>& handle)
+	inline void from_json(const json& j, Handle<T>& handle)
 	{
 		if (j.is_null())
 		{
