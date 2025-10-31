@@ -23,12 +23,11 @@ namespace SliceEngine
 	enum SceneState
 	{
 		DEFAULT,
-		EDITOR_VIEW,
 		//Play scene
 		PLAY_SCENE,
 		//Reload scene
 		RELOAD_SCENE,
-		LOAD_NEXT_SCENE,
+		//
 		STOP_SCENE
 	};
 
@@ -48,6 +47,7 @@ namespace SliceEngine
 		void LoadScene(std::filesystem::path const filePath);
 		void LoadScene(uint32_t const index);
 		void LoadNextScene();
+		void SetCurrentScenePath(std::filesystem::path const& filePath);
 		void SaveScene(std::filesystem::path const filePath);
 		void SaveCurrentScene();
 		void UnloadCurrentScene();

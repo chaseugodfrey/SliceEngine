@@ -89,6 +89,8 @@ namespace SliceEditor
 		DrawPlayState();
 		DrawDockspace();
 		DrawProjectSettings();
+		DrawSaveSceneAsPopup();
+		DrawNewScenePopup();
 		
 		for (auto& window : list)
 		{
@@ -109,12 +111,20 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("New Scene"))
 			{
-
+				newScenePopupOpen = true;
+				//SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
+				
 			}
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+			}
+
+			if (ImGui::MenuItem("Save Scene As"))
+			{
+				saveSceneAsPopupOpen = true;
+				
 			}
 
 			ImGui::Separator();
@@ -497,6 +507,85 @@ namespace SliceEditor
 
 		projectSettingsPopupOpen = isOpen;
 
+	}
+
+	void WindowManager::DrawSaveSceneAsPopup()
+	{
+		if (!saveSceneAsPopupOpen)
+		{
+			return;
+		}
+
+		static std::string sceneName = "";
+
+		bool isOpen;
+		if (ImGui::Begin("save scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			if (ImGui::InputText("New Scene Name", &sceneName))
+			{
+
+			}
+
+			if (ImGui::SmallButton("Save Scene"))
+			{
+				if (!sceneName.empty())
+				{
+					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
+				}
+			}
+
+			ImGui::End();
+		}
+
+		if (!isOpen)
+		{
+			saveSceneAsPopupOpen = false;
+		}
+	}
+
+	void WindowManager::DrawNewScenePopup()
+	{
+		if (!newScenePopupOpen)
+		{
+			return;
+		}
+
+		static std::string sceneName = "NewScene";
+
+		bool isOpen;
+		if (ImGui::Begin("new scene window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			if(ImGui::InputText("New Scene Name", &sceneName))
+			{
+
+			}
+
+			if (ImGui::SmallButton("Create Scene"))
+			{
+				if (!sceneName.empty())
+				{
+
+					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
+					SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
+					SliceEngine::Core::GetInstance()->mFactory.UpdateDestroyed();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
+					newScenePopupOpen = false;
+					sceneName = "NewScene";
+				}
+			}
+
+			ImGui::End();
+		}
+
+		if (!isOpen)
+		{
+			newScenePopupOpen = false;
+		}
 	}
 
 }

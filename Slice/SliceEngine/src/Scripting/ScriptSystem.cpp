@@ -447,6 +447,7 @@ namespace SliceEngine
 		auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
+
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
 
@@ -459,8 +460,12 @@ namespace SliceEngine
             // but again after M1 
 
             // for now we just invoke the moment it has been added
-			mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
-			mEntityInstances[entity]->InvokeOnCreate();
+            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+            {
+			    mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+			    mEntityInstances[entity]->InvokeOnCreate();
+
+            }
 		}
         else
         {
