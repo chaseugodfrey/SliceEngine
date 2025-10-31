@@ -25,6 +25,7 @@ namespace SliceEngine
 		*/
 		class Material {
 		public:
+			//			Handle<Texture> albedo;
 
 			GUID albedo;
 			float roughness;
