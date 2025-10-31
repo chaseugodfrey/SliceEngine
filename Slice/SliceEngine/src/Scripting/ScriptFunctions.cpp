@@ -163,7 +163,7 @@ namespace SliceEngine
 
 		if(test == "")
 		{
-			return;
+			return nullptr;
 		}
 
 		return mono_string_new(mono_domain_get(), test.c_str());
