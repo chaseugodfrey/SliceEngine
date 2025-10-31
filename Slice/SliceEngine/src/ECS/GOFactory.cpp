@@ -33,7 +33,7 @@ namespace SliceEngine
 
 	GOFactory::~GOFactory()
 	{
-
+		SLICE_LOG_DEBUG("test");
 	}
 
 	
@@ -402,6 +402,11 @@ namespace SliceEngine
 		tr.position = translation;
 		tr.rotation = rotation;
 		tr.scale = scale;
+	}
+
+	void GOFactory::FactoryShutdown()
+	{
+		mRegistry.clear();
 	}
 
 
