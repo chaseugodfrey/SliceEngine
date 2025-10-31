@@ -49,6 +49,9 @@ namespace SliceEditor
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
 
+		if (node->type == SelectionNode::SelectionType::ENTITY)
+			mSelectionType = SelectionType::ENTITY;
+
 		if (!suppressHistory)
 		{
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
