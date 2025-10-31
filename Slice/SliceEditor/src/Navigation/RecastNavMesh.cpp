@@ -5,6 +5,7 @@
 #include <DetourNavMeshBuilder.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
+#include "Core/Core.h"
 
 namespace SliceEditor
 {
@@ -35,24 +36,26 @@ namespace SliceEditor
 		heightfield = nullptr;
 
 		detailMesh = nullptr;
+
+		ReleaseDebugMesh();
 	}
 
 	void RecastNavMesh::ReleaseDebugMesh()
 	{
-		if (debugMesh.vao)
+		if (SliceEngine::Core::GetInstance()->debugMesh.vao)
 		{
-			glDeleteVertexArrays(1, &debugMesh.vao);
-			debugMesh.vao = 0;
+			glDeleteVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
+			SliceEngine::Core::GetInstance()->debugMesh.vao = 0;
 		}
-		if (debugMesh.vbo)
+		if (SliceEngine::Core::GetInstance()->debugMesh.vbo)
 		{
-			glDeleteBuffers(1, &debugMesh.vbo);
-			debugMesh.vbo = 0;
+			glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
+			SliceEngine::Core::GetInstance()->debugMesh.vbo = 0;
 		}
-		//if (debugMesh.ebo)
+		//if (SliceEngine::Core::GetInstance()->debugMesh.ebo)
 		//{
-		//	glDeleteBuffers(1, &debugMesh.ebo);
-		//	debugMesh.ebo = 0;
+		//	glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
+		//	SliceEngine::Core::GetInstance()->debugMesh.ebo = 0;
 		//}
 
 	}
@@ -60,16 +63,19 @@ namespace SliceEditor
 	void RecastNavMesh::LoadDebugMesh()
 	{
 		ReleaseDebugMesh();
-		if (navMesh)
+
+		auto tNavMesh = const_cast<const dtNavMesh*>(navMesh);
+
+		if (tNavMesh)
 		{
 			std::vector<float> vertices;
 			//std::vector<unsigned short> indices;
-			for (int t{}; t < navMesh->getMaxTiles(); ++t)
+			for (int t{}; t < tNavMesh->getMaxTiles(); ++t)
 			{
-				const dtMeshTile* tile = navMesh->getTile(t);
+				const dtMeshTile* tile = tNavMesh->getTile(t);
 				if (!tile->header) continue;
 
-				dtPolyRef  base = navMesh->getPolyRefBase(tile);
+				dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
@@ -84,36 +90,38 @@ namespace SliceEditor
 						{
 							if (t[k] < p->vertCount)
 							{
-								vertices.emplace_back(&tile->verts[p->verts[t[k]] * 3]);
-								vertices.emplace_back(&tile->verts[p->verts[t[k]] * 3 + 1]);
-								vertices.emplace_back(&tile->verts[p->verts[t[k]] * 3 + 2]);
-							}
-							else
-							{
-								vertices.emplace_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3]);
-								vertices.emplace_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 1]);
-								vertices.emplace_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 2]);
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3]);
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 1]);
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 2]);
+							}			 
+							else		 
+							{			 
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 1]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 2]);
 							}
 						}
 					}
 				}
 			}
 			//vbo
-			glCreateBuffers(1, &debugMesh.vbo);
-			glNamedBufferStorage(debugMesh.vbo, vertices.size() * sizeof(float), vertices.data(), 0);
+			glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
+			glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.vbo, vertices.size() * sizeof(float), vertices.data(), 0);
 
 			//ebo
-			//glCreateBuffers(1, &debugMesh.ebo);
-			//glNamedBufferStorage(debugMesh.ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
+			//glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
+			//glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
 
 			//vao
-			glCreateVertexArrays(1, &debugMesh.vao);
-			glEnableVertexArrayAttrib(debugMesh.vao, 0);
-			glVertexArrayAttribFormat(debugMesh.vao, 0, 3, GL_FLOAT, false, 0);
-			//glVertexArrayElementBuffer(debugMesh.vao, debugMesh.ebo);
+			glCreateVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
+			glEnableVertexArrayAttrib(SliceEngine::Core::GetInstance()->debugMesh.vao, 0);
+			glVertexArrayAttribFormat(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 3, GL_FLOAT, false, 0);
+			//glVertexArrayElementBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, SliceEngine::Core::GetInstance()->debugMesh.ebo);
 
-			glVertexArrayVertexBuffer(debugMesh.vao, 0, debugMesh.vbo, 0, sizeof(float) * 3);
-			glVertexArrayAttribBinding(debugMesh.vao, 0, 0);
+			glVertexArrayVertexBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, SliceEngine::Core::GetInstance()->debugMesh.vbo, 0, sizeof(float) * 3);
+			glVertexArrayAttribBinding(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 0);
+
+			SliceEngine::Core::GetInstance()->debugMesh.drawCnt = vertices.size() / 3;
 		}
 	}
 
@@ -519,7 +527,7 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
-
+		LoadDebugMesh();
 
 		return true;
 	}

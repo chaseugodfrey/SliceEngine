@@ -357,6 +357,20 @@ namespace SliceEngine
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
+		// Draw Recast Navigation Data
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
+		{
+			SetShader(S_BASIC);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			auto& navDat = Core::GetInstance()->debugMesh;
+			if (navDat.vao != 0)
+			{
+				glBindVertexArray(navDat.vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.drawCnt);
+			}
+		}
+
 		// Draw Debug Line
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_GRID_TAG)
 		{

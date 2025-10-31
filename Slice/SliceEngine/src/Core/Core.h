@@ -105,7 +105,13 @@ namespace SliceEngine
 
 		NetworkSystem* GetNetwork();
 
-
+		struct debugMesh
+		{
+			uint32_t vao;
+			uint32_t vbo;
+			uint32_t drawCnt;
+		};
+		debugMesh debugMesh;
 	private:
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
