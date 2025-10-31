@@ -6,14 +6,14 @@
 
 namespace SliceEngine
 {
-	Animator::Animator() 
+	AnimatorSystem::AnimatorSystem() 
 	{
 		final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
 	}
 
-	void Animator::EntityOnEnter(entt::registry& reg, entt::entity entity)
+	void AnimatorSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		CAnimator& animator = reg.get<CAnimator>(entity);
+		Animator& animator = reg.get<Animator>(entity);
 		animator.stateMachine.InitState();
 
 		animator.animTimer = 0.0f;
@@ -24,17 +24,15 @@ namespace SliceEngine
 		CAnimator& animator = reg.get<CAnimator>(entity);
 		animator.stateMachine.OnExit();
 	}
-
-	void Animator::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+	void AnimatorSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 
-		CAnimator& animator = reg.get<CAnimator>(entity);
+		Animator& animator = reg.get<Animator>(entity);
 
 		animator.stateMachine.CheckStates();
 
 		animator.stateMachine.UpdateState();
 
-		/*if (animator.stateMachine.currState && animator.stateMachine.currState->currAnim)
 		{
 			animator.animTimer += dt;
 		}*/
@@ -50,7 +48,7 @@ namespace SliceEngine
 		*/
 	}
 
-	void Animator::UpdateAnimation(float dt) 
+	void AnimatorSystem::UpdateAnimation(float dt) 
 	{
 		if (curr_anim) 
 		{
@@ -65,7 +63,7 @@ namespace SliceEngine
 		}
 	}
 
-	void Animator::PlayAnimation(Animation* anim) 
+	void AnimatorSystem::PlayAnimation(Animation* anim) 
 	{
 		current_time = 0.f;
 		curr_anim = anim;
@@ -75,7 +73,7 @@ namespace SliceEngine
 	* There is a clash here because this takes into account of hierachy, where the model load dosent
 	* probably need to resolve that somehow
 	*/
-	void Animator::CalculateBoneTransform(SliceEngineTypes::ModelNode const& node, glm::mat4 const& parent_tform) 
+	void AnimatorSystem::CalculateBoneTransform(SliceEngineTypes::ModelNode const& node, glm::mat4 const& parent_tform) 
 	{
 		std::string node_name = node.name;
 

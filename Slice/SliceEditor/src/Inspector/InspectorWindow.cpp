@@ -486,9 +486,29 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayAnimator(entt::entity entity)
+	{
+		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
+
+		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::Animator>(entity);
+
+			ImGui::Text("Controller: ");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+
+			std::string anim_file{};
+			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::TreePop();
+		}
+	}
+
+
 	void InspectorWindow::DisplayLight(entt::entity entity)
 	{
-		if (ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Light", mBaseFlags))
 		{
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
@@ -496,18 +516,7 @@ namespace SliceEditor
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 
-			ImGui::Text("Colour: ");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_r", &light.color.r, 0.01f, 0.0f, 1.0f, "R: %.2f");
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_g", &light.color.g, 0.01f, 0.0f, 1.0f, "G: %.2f");
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_b", &light.color.b, 0.01f, 0.0f, 1.0f, "B: %.2f");
+			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
 			ImGui::Text("Intensity");
 			ImGui::SameLine(100.0f);
@@ -627,6 +636,14 @@ namespace SliceEditor
 				} 
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::Animator>())
+			{
+				if (ImGui::Selectable("Add Animator"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Animator>(entity);
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 	}
@@ -651,6 +668,11 @@ namespace SliceEditor
 
 			//DisplaySceneGraph();
 			//ImGui::Separator();
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
+			{
+				DisplayLight(node->entity);
+				ImGui::Separator();
+			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
@@ -680,19 +702,19 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity))
+			{
+				DisplayAnimator(node->entity);
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
 				DisplaySliceScript(node->entity);
 				ImGui::Separator();
 			}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
-			{
-				DisplayLight(node->entity);
-				ImGui::Separator();
-			}
-
+            
 			AddComponentButton(node->entity);
 		}
 
