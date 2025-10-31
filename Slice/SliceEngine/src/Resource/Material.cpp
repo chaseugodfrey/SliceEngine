@@ -56,7 +56,7 @@ namespace SliceEngine
 		}
 
 		void Material::DestroyMaterial() {
-		
+			albedo.Release();
 		}
 	}
 }
