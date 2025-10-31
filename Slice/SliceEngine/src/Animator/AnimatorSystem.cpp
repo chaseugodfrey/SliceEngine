@@ -19,9 +19,9 @@ namespace SliceEngine
 		animator.animTimer = 0.0f;
 	}
 
-	void Animator::EntityOnExit(entt::registry& reg, entt::entity entity)
+	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-		CAnimator& animator = reg.get<CAnimator>(entity);
+		Animator& animator = reg.get<Animator>(entity);
 		animator.stateMachine.OnExit();
 	}
 	void AnimatorSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -35,7 +35,7 @@ namespace SliceEngine
 
 		{
 			animator.animTimer += dt;
-		}*/
+		}
 
 		/*
 		use .compare
