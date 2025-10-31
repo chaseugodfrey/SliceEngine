@@ -14,11 +14,13 @@ namespace SliceEngine
         public Audio testAudio = new Audio("TestSound.wav");
         public Prefab testPrefab = new Prefab("TestPrefab");
 
+        Transform t;
+
         public override void OnCreate()
         {
             Console.WriteLine("TestEntity Created with ID: " + mID);
-            
-            
+
+            t = GetComponent<Transform>();
         }
 
         public override void OnUpdate(float dt)

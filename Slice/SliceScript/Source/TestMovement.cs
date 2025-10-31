@@ -23,7 +23,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             // This part is not even running
-            SliceLog.Log("I'm running btw");
+            Console.WriteLine("I'm running btw");
             t.Position = new Vector3(t.Position.x + speed*dt, 0, 0);
         }
 
