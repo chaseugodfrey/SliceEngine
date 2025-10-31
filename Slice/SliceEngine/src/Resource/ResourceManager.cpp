@@ -144,6 +144,10 @@ namespace SliceEngine
 			it->second.refCount--;
 			if (it->second.refCount <= 0)
 			{
+				// store it in a local so that itll destrroy itself instead of a nested destroy when calling erase(it)
+				auto ToDestroy = std::move(it->second.data);
+
+				// erasing is safer now since the instance is empty after moving
 				mInstances.erase(it);
 			}
 		}
