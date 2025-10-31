@@ -718,6 +718,7 @@ namespace SliceEngine
 	{
 		for (auto& bodyPair : contactListener->GetBodiesInContact())
 		{
+			// do this later aloysius
 			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
 			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
 
