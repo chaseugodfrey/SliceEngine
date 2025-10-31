@@ -473,6 +473,73 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayLight(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
+
+			DisplayComponentHeader<SliceEngine::Light>(entity, false);
+
+			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
+
+			ImGui::Text("Colour: ");
+			ImGui::SameLine(100.0f);
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_r", &light.color.r, 0.01f, 0.0f, 1.0f, "R: %.2f");
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_g", &light.color.g, 0.01f, 0.0f, 1.0f, "G: %.2f");
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_b", &light.color.b, 0.01f, 0.0f, 1.0f, "B: %.2f");
+
+			ImGui::Text("Intensity");
+			ImGui::SameLine(100.0f);
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+
+			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
+			int current_light_type_index = static_cast<int>(light.type) - 1;
+
+			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
+			{
+				switch (current_light_type_index)
+				{
+				case 0:
+					light.type = SliceEngine::Light::Light_Directional;
+					break;
+				case 1:
+					light.type = SliceEngine::Light::Light_Point;
+					break;
+				case 2:
+					light.type = SliceEngine::Light::Light_Spot;
+					break;
+				}
+			}
+
+			// for testing purposes
+			ImGui::BeginDisabled();
+			ImGui::Text("Parent: ");
+			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+			std::string name{ "--" };
+
+			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
+			{
+				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
+				name = go.GetName();
+			}
+
+			ImGui::Text(name.c_str());
+			ImGui::EndDisabled();
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::AddComponentButton(entt::entity entity)
 	{
 
@@ -524,6 +591,14 @@ namespace SliceEditor
 				{
 					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(entity);
 				}
+			}
+
+			if (!selectedGO.HasComponent<SliceEngine::Light>())
+			{
+				if (ImGui::Selectable("Add LightSource"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Light>(entity);
+				} 
 			}
 
 			ImGui::EndPopup();
@@ -583,6 +658,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
 				DisplaySliceScript(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
+			{
+				DisplayLight(node->entity);
 				ImGui::Separator();
 			}
 
