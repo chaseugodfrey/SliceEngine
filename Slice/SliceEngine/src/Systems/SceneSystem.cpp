@@ -69,6 +69,15 @@ namespace SliceEngine
 		}
 	}
 
+	void SceneSystem::WriteTempFile()
+	{
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		
+		JSONSerializer::SerializeScene(CurrentSceneTemp);
+	}
+
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
 	{
 		mCurrentScene = filePath;
@@ -137,11 +146,16 @@ namespace SliceEngine
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
+		
 	}
 
 	void SceneSystem::Pause()
 	{
 		//
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			mNextState = SceneState::PAUSE_SCENE;
+		}
 	}
 
 	void SceneSystem::Stop()
