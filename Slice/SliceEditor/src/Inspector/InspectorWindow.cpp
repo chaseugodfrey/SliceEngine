@@ -26,7 +26,7 @@ namespace SliceEditor
 {
 	void InspectorWindow::Init()
 	{
-
+		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
 	}
 
 	void InspectorWindow::Draw()
@@ -86,7 +86,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransform(entt::entity entity)
 	{
-		if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Transform", mBaseFlags))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 
@@ -203,7 +203,7 @@ namespace SliceEditor
 	{
 		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(entity);
 
-		if (ImGui::TreeNodeEx("Renderer", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Renderer", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
@@ -256,7 +256,7 @@ namespace SliceEditor
 
 		reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
 			{
-				if (ImGui::TreeNodeEx("Rigidbody", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::TreeNodeEx("Rigidbody", mBaseFlags))
 				{
 					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
 
@@ -321,14 +321,27 @@ namespace SliceEditor
 	void InspectorWindow::DisplayCollider3D(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& colliderData = reg.get<SliceEngine::ColliderShape>(entity);
 
 		const char* arr[2] = { "Moving", "Non-Moving" };
+		std::string colliderName;
+		
+		std::visit([&](auto&& data)
+			{
+				using T = std::decay_t<decltype(data)>;
+				if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::BoxData>)
+					colliderName = "Box Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::SphereData>)
+					colliderName = "Sphere Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
+					colliderName = "Capsule Collider";
+			}, colliderData.shapeData);
 
 		reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
 			{
-				if (ImGui::TreeNodeEx("Box Collider", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
 				{
-					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
+					DisplayComponentHeader<SliceEngine::ColliderShape>(entity);
 
 					ImGui::Text("Is Trigger");
 					ImGui::SameLine(150.0f);
@@ -389,7 +402,7 @@ namespace SliceEditor
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
 
-		if (ImGui::TreeNodeEx("Script", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Script", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Script>(entity);
 
@@ -473,6 +486,73 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayLight(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
+
+			DisplayComponentHeader<SliceEngine::Light>(entity, false);
+
+			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
+
+			ImGui::Text("Colour: ");
+			ImGui::SameLine(100.0f);
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_r", &light.color.r, 0.01f, 0.0f, 1.0f, "R: %.2f");
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_g", &light.color.g, 0.01f, 0.0f, 1.0f, "G: %.2f");
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##c_b", &light.color.b, 0.01f, 0.0f, 1.0f, "B: %.2f");
+
+			ImGui::Text("Intensity");
+			ImGui::SameLine(100.0f);
+			ImGui::SetNextItemWidth(50.0f);
+			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+
+			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
+			int current_light_type_index = static_cast<int>(light.type) - 1;
+
+			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
+			{
+				switch (current_light_type_index)
+				{
+				case 0:
+					light.type = SliceEngine::Light::Light_Directional;
+					break;
+				case 1:
+					light.type = SliceEngine::Light::Light_Point;
+					break;
+				case 2:
+					light.type = SliceEngine::Light::Light_Spot;
+					break;
+				}
+			}
+
+			// for testing purposes
+			ImGui::BeginDisabled();
+			ImGui::Text("Parent: ");
+			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
+			std::string name{ "--" };
+
+			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
+			{
+				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
+				name = go.GetName();
+			}
+
+			ImGui::Text(name.c_str());
+			ImGui::EndDisabled();
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::AddComponentButton(entt::entity entity)
 	{
 
@@ -504,9 +584,22 @@ namespace SliceEditor
 
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
-				if (ImGui::Selectable("Add Collider3D"))
+				if (ImGui::Selectable("Add Box Collider"))
 				{
-					reg.emplace<SliceEngine::ColliderShape>(entity);
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
+					col.shapeData = SliceEngine::ColliderShape::BoxData{};
+				}
+
+				if (ImGui::Selectable("Add Sphere Collider"))
+				{
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
+					col.shapeData = SliceEngine::ColliderShape::SphereData{};
+				}
+
+				if (ImGui::Selectable("Add Capsule Collider"))
+				{
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
+					col.shapeData = SliceEngine::ColliderShape::CapsuleData{};
 				}
 			}
 			
@@ -524,6 +617,14 @@ namespace SliceEditor
 				{
 					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioSource>(entity);
 				}
+			}
+
+			if (!selectedGO.HasComponent<SliceEngine::Light>())
+			{
+				if (ImGui::Selectable("Add LightSource"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Light>(entity);
+				} 
 			}
 
 			ImGui::EndPopup();
@@ -583,6 +684,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
 				DisplaySliceScript(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
+			{
+				DisplayLight(node->entity);
 				ImGui::Separator();
 			}
 

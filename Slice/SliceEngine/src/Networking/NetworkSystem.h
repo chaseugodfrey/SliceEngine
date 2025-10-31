@@ -1,6 +1,6 @@
 /*!
 \file		NetworkSystem.h
-\author		Muhammad Rauan (muhammadrayan.b@digipen.edu)
+\author		Muhammad Rayan (muhammadrayan.b@digipen.edu)
 \co-author
 \brief
 	Functions that deal with the networking stuff
