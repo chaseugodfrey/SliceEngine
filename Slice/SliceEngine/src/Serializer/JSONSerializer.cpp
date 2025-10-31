@@ -108,6 +108,8 @@ namespace SliceEngine
 								bool,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Model>,
+								Handle<SliceEngineTypes::Material>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,

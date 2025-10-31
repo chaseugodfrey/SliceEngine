@@ -166,6 +166,20 @@ namespace SliceEngine
 			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
+		// Handle
+		template<typename T>
+		inline void Serialize(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const Handle<T>& value, const Entity& entity)
+		{
+			if (value.getGUID() == GUID::null())
+				output[name][typeName][propName]["GUID"] = "";
+			else
+			{
+				output[name][typeName][propName]["GUID"] = std::to_string(value.GetGUID());
+				Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(value.getGUID());
+			}
+		}
+
 		// Main evaluater for serialization
 		template <typename T>
 		bool TrySerializeType(json& output, const std::string& name,
@@ -284,6 +298,16 @@ namespace SliceEngine
 			}
 			prop.set_value(componentInstance, arr);
 		}
+		template <typename T>
+		inline void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
+			const Handle<T>& value, const std::string& propName, const std::string& componentName,
+			const Entity& entity)
+		{
+			Handle<T> handle;
+			handle.mGUID = value.getGUID();
+			prop.set_value(componentInstance, handle);
+		}
+
 		template <typename T>
 		bool TryDeserializeType(rttr::variant& componentInstance, rttr::property& prop, 
 			const json& value, const std::string& propName, const std::string& componentName,
@@ -417,6 +441,21 @@ namespace SliceEngine
 	inline void to_json(json& j, const GUID& guid)
 	{
 		j = guid.GetGUID();
+	}
+
+	// Handle
+	template <typename T>
+	inline void from_json(json& j, const Handle<T>& handle)
+	{
+		if (j.is_null())
+		{
+			handle = Handle<T>{};
+			return;
+		}
+
+		GUID guid;
+		from_json(j, guid); // use your existing GUID deserializer
+		handle.mGUID = guid;
 	}
 }
 
