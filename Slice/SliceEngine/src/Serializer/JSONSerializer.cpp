@@ -453,9 +453,7 @@ namespace SliceEngine
 								glm::vec3,
 								glm::vec4,
 								glm::quat,
-								std::string,
-								Handle<SliceEngineTypes::Model>,
-								Handle<SliceEngineTypes::Material>
+								std::string
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
