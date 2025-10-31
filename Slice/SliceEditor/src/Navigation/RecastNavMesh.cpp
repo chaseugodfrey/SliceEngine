@@ -337,6 +337,8 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
+		LoadDebugMesh();
+
 		return true;
 	}
 

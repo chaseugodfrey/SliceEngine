@@ -93,12 +93,12 @@ namespace SliceEditor
 		*/
 		SliceEngine::GameObject FloorTest1 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
 		FloorTest1.AddComponent<SliceEngine::Renderer>();
-		FloorTest1.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		FloorTest1.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
 		FloorTest1.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
 		FloorTest1.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
 
 		auto &transform1 = FloorTest1.GetComponent<SliceEngine::Transform>();
-		transform1.position = glm::vec3(0.0f, 0.0f, 0.0f);
+		transform1.position = glm::vec3(-10.f, 5.f, -10.f);
 
 		// Build transformation matrix
 		glm::mat4 transformMatrix1 = glm::translate(glm::mat4(1.0f), transform1.position)
