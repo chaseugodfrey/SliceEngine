@@ -44,6 +44,16 @@ namespace SliceEditor
 
         dtNavMesh *navMesh = nullptr;      
         dtNavMeshQuery *navQuery = nullptr;
+
+        struct debugMesh
+        {
+            uint32_t vao;
+            uint32_t vbo;
+            uint32_t drawCnt;
+        };
+        debugMesh debugMesh;
+        void ReleaseDebugMesh();
+        void LoadDebugMesh();
 	};
 }
 #endif

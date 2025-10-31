@@ -127,8 +127,6 @@ namespace SliceEditor
 		std::vector<SliceEngine::SliceEngineTypes::Model> models = { model1, model2 };
 		std::vector<glm::mat4> transforms = { transformMatrix1, transformMatrix2 };
 
-		SliceEditor::RecastNavMesh navMesh;
-
 		if (navMesh.BuildFromModel(models, transforms))
 		{
 			SLICE_LOG_DEBUG("NAVMESH BUILT SUCCESSFULLY");
