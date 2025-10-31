@@ -175,7 +175,7 @@ namespace SliceEngine
 				output[name][typeName][propName]["GUID"] = "";
 			else
 			{
-				output[name][typeName][propName]["GUID"] = std::to_string(value.GetGUID());
+				output[name][typeName][propName]["GUID"] = std::to_string(value.getGUID().GetGUID());
 				Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(value.getGUID());
 			}
 		}
@@ -453,8 +453,7 @@ namespace SliceEngine
 			return;
 		}
 
-		GUID guid;
-		from_json(j, guid); // use your existing GUID deserializer
+		GUID guid = j.get<GUID>();
 		handle.mGUID = guid;
 	}
 }
