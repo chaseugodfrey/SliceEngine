@@ -885,7 +885,7 @@ namespace SliceEngine
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		SyncPhysicsToECS(transform, colliderShape);
 
-		//HandleRemovedContacts();
+		HandleRemovedContacts();
 
 		
 	}
