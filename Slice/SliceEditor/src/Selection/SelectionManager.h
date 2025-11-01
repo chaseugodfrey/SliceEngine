@@ -40,6 +40,7 @@ namespace SliceEditor
 		~SelectionManager() = default;
 
 		void Init() override;
+		void Update() override;
 		void RegisterListener(ISelectionListener* listener);
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);

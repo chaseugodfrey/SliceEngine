@@ -30,7 +30,7 @@ namespace SliceEditor
 		void DrawMainMenu();
 		void DrawDockspace();
 		void DrawPlayState();
-		void DrawPreferenceWindow();
+		void DrawPreferenceSettings();
 		void DrawProjectSettings();
 		void DrawSaveSceneAsPopup();
 		void DrawNewScenePopup();
@@ -38,6 +38,7 @@ namespace SliceEditor
 		bool projectSettingsPopupOpen{ false };
 		bool saveSceneAsPopupOpen{ false };
 		bool newScenePopupOpen{ false };
+		bool preferenceSettingsPopupOpen{ false };
 
 	public:
 		
@@ -46,17 +47,36 @@ namespace SliceEditor
 
 		//void Init(EditorState& editorState);
 		void AddWindow(const std::string& name);
+
+		template <typename WindowType>
+		bool CheckIfWindowExists()
+		{
+			for (const auto& window : list) {
+				if (dynamic_cast<WindowType*>(window.get())) {
+					return true;
+				}
+			}
+
+			return false;
+		}
 		
 		template <typename WindowType>
-		void AddWindow()
+		void AddWindow(bool singleInstanceCheck = false)
 		{
+			if (singleInstanceCheck)
+				if (CheckIfWindowExists<WindowType>())
+					return;
+
 			static_assert(std::is_base_of_v<EditorWindow, WindowType>, "WindowType must derive from EditorWindow");
+
 			auto window = std::make_unique<WindowType>(registry);
 			window->Init();
 			list.push_back(std::move(window));
 		}
 
+
 		void Init();
+		void Update() override;
 		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();
 
