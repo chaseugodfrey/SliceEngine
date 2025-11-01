@@ -379,6 +379,12 @@ namespace SliceEditor
 					DisplayFBXData(data);
 				}
 				break;
+
+			case AssetType::Audio:
+				if (auto* data = static_cast<AudioData*>(file.metaData.get()))
+				{
+					DisplayAudioData(data);
+				}
 			}
 
 			if (ImGui::Button("Compile"))
@@ -392,6 +398,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
+				mRegistry.GetAssetManager().CreateDescriptorFile(file.filePath);
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -533,6 +540,59 @@ namespace SliceEditor
 		if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
 		{
 			data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
+		}
+	}
+
+	void ContentBrowserWindow::DisplayAudioData(AudioData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
+		static std::vector<std::string> streamNames{ "CREATE_SAMPLE", "CREATE_STREAM"};
+		Label("Audio Stream: ");
+		if (ImGui::BeginCombo("##AudioStream: ", streamNames[(int)data->stream].c_str()))
+		{
+			for (int i = 0; i < streamNames.size(); ++i)
+			{
+				if (ImGui::Selectable(streamNames[i].c_str()))
+				{
+					data->stream = (AudioStream)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		static std::vector<std::string> dimensionNames{ "FMOD2D", "FMOD3D"};
+		Label("Audio Dimension: ");
+		if (ImGui::BeginCombo("##Audio_Dimension: ", dimensionNames[(int)data->dimension].c_str()))
+		{
+			for (int i = 0; i < dimensionNames.size(); ++i)
+			{
+				if (ImGui::Selectable(dimensionNames[i].c_str()))
+				{
+					data->dimension = (AudioDimension)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		static std::vector<std::string> audioCategoryNames{ "SFX", "BGM", "UI", "EditorSounds"};
+		Label("Audio Category: ");
+		if (ImGui::BeginCombo("##Audio_Category: ", audioCategoryNames[(int)data->category].c_str()))
+		{
+			for (int i = 0; i < audioCategoryNames.size(); ++i)
+			{
+				if (ImGui::Selectable(audioCategoryNames[i].c_str()))
+				{
+					data->category = (AudioCategory)i;
+				}
+			}
+			ImGui::EndCombo();
 		}
 	}
 #pragma endregion
