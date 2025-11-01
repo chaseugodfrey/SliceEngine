@@ -275,7 +275,14 @@ namespace SliceEngine
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
+
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+
+				// Single world step
+				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm.getFixedDeltaTime()));
+
+				// Post-step: pull dynamic poses for rendering
+				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
 		}
 		frm.EndSystem("Physics");

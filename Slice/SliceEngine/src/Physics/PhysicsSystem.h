@@ -98,6 +98,10 @@ namespace SliceEngine
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
 
+		void StepWorld(float dt);
+
+		void PostStepSync();
+
 	};
 
 

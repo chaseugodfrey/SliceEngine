@@ -693,6 +693,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
+		//auto motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+		//if (motionType == JPH::EMotionType::Dynamic)
+		//	return; // skip, let physics handle dynamic motion
+
 		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
 		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -704,6 +708,8 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
 	{
+
+
 		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
 		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
 
@@ -815,7 +821,7 @@ namespace SliceEngine
 			{
 				bodySettings.mGravityFactor = rigidBody.gravityFactor;
 				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
-				bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
+				//bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
 				bodySettings.mFriction = rigidBody.friction;
 				bodySettings.mRestitution = rigidBody.restitution;
 				bodySettings.mLinearDamping = rigidBody.linearDamping;
@@ -883,12 +889,28 @@ namespace SliceEngine
 		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
-		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
-		SyncPhysicsToECS(transform, colliderShape);
+		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+		//SyncPhysicsToECS(transform, colliderShape);
 
-		HandleRemovedContacts();
+		//HandleRemovedContacts();
 
 		
+	}
+
+	void PhysicsSystem::StepWorld(float dt)
+	{
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+	}
+
+	void PhysicsSystem::PostStepSync()
+	{
+		auto view = mRegistry->view<Transform, ColliderShape>();
+
+		// Safe, iterator-free iteration
+		for (auto [e, t, c] : view.each())
+		{
+			SyncPhysicsToECS(t, c);
+		}
 	}
 
 	void PhysicsSystem::SubscribeToEvents()
