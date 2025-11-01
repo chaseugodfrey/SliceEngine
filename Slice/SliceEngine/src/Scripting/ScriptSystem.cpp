@@ -481,7 +481,25 @@ namespace SliceEngine
     /// <param name="entity">Entity being removed</param>
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
-        
+        for (auto& it : mEntityInstances)
+        {
+            if (it.first == entity)
+            {
+                mono_gchandle_free(it.second->mHandle);
+
+                mEntityInstances.erase(it.first);
+                break;
+            }
+        }
+
+        for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
+        {
+            if (*it == entity)
+            {
+                entityAdded.erase(it);
+                break;
+            }
+        }
     }
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)

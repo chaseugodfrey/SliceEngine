@@ -59,8 +59,8 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();
+		/*AddWindow<AnimatorWindow>();
+		AddWindow<AnimationWindow>();*/
 		AddWindow<NavigationWindow>();
 	}
 
