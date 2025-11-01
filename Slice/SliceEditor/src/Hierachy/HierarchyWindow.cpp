@@ -122,7 +122,6 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawSceneNode()
 	{
-
 		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Separator();
@@ -137,7 +136,6 @@ namespace SliceEditor
 				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
-
 
 			ImGui::TreePop();
 		}

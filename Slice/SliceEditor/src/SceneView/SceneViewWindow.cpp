@@ -123,7 +123,6 @@ namespace SliceEditor
 
 	void SceneViewWindow::Draw()
 	{
-
 		ImGui::Begin("Scene");
 
 		auto& io = ImGui::GetIO();
@@ -211,6 +210,8 @@ namespace SliceEditor
 				{
 					mCameraSpeed -= 0.01f;
 				}
+
+				mCameraSpeed = std::clamp(mCameraSpeed, 0.0f, 5.0f);
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_W))
