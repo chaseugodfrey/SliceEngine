@@ -74,6 +74,8 @@ namespace SliceEditor
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
+		void DisplayLight(entt::entity entity);
+		void DisplayAnimator(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
 #pragma endregion
 
