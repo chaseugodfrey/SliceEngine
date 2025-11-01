@@ -27,16 +27,22 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		auto& map = mSession.GetEntityNodes();
-		auto node = map[entity].get();
-
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
+		auto& map = mSession.GetEntityNodes();
+		if (map.find(entity) == map.end())
+		{
+			return;
+		}
+		auto node = map[entity].get();
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
+
+
+		//Temporary Change
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 

@@ -135,6 +135,7 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayItems(DirectoryNode& node)
 	{
 		static DirectoryNode* selectedEntry = nullptr;
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
@@ -206,7 +207,7 @@ namespace SliceEditor
 					std::string fileExt = filePath.extension().string();
 					bool canDrag = true;
 
-					if (mRegistry.GetAssetManager().mDescriptorMap.find(fileKey) == mRegistry.GetAssetManager().mDescriptorMap.end())
+					if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
 					{
 						canDrag = false;
 					}
@@ -225,7 +226,7 @@ namespace SliceEditor
 					if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 					{
 						//Check that the extension exists in the map
-						SliceEngine::GUID newGUID = SliceEngine::GUID(mRegistry.GetAssetManager().mDescriptorMap[fileKey]);
+						SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
 						std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
 						ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
 
