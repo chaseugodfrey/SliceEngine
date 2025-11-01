@@ -722,22 +722,48 @@ namespace SliceEngine
 
 	void PhysicsSystem::HandleRemovedContacts()
 	{
+		bool pass = true;
+
 		for (auto& bodyPair : contactListener->GetBodiesInContact())
 		{
 			// do this later aloysius
 			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
-			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
 
-			if (lock1.Succeeded() && lock2.Succeeded())
+			JPH::uint64 ent1;
+			JPH::uint64 ent2;
+
+			ColliderShape colliderShape1;
+			ColliderShape colliderShape2;
+
+			if (lock1.Succeeded())
 			{
 				const JPH::Body& body1 = lock1.GetBody();
+				ent1 = static_cast<JPH::uint64>(body1.GetUserData());
+			}
+			else
+			{
+				pass = false;
+			}
+			lock1.ReleaseLock();
+
+			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
+			if (lock2.Succeeded())
+			{
 				const JPH::Body& body2 = lock2.GetBody();
+				ent2 = static_cast<JPH::uint64>(body2.GetUserData());
+			}
+			else
+			{
+				pass = false;
+			}
+			lock2.ReleaseLock();
 
-				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body1.GetUserData()));
-				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body2.GetUserData()));
-
-				auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
-				auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
+			if (pass = true)
+			{
+				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
+				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
+				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
+				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
@@ -769,10 +795,13 @@ namespace SliceEngine
 
 				}
 			}
+			else
+			{
+				pass = true;
+				continue;
+			}
 		}
-
 		contactListener->clearBodiesInContact();
-
 	}
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -904,6 +933,8 @@ namespace SliceEngine
 
 	void PhysicsSystem::PostStepSync()
 	{
+		HandleRemovedContacts();
+
 		auto view = mRegistry->view<Transform, ColliderShape>();
 
 		// Safe, iterator-free iteration
