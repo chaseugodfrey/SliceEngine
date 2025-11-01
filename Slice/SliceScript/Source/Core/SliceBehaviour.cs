@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class SliceBehaviour
+    public class SliceBehaviour : Component
     {
         public uint mID;
+        public Transform transform;
 
         protected SliceBehaviour()
         {
@@ -25,23 +26,17 @@ namespace SliceEngine
             mID = id;
         }
 
+        public virtual void OnAwake() { }
+        //public virtual void OnEnable() { }
         public virtual void OnCreate() { }
         public virtual void OnUpdate(float dt) { }
         //public virtual void OnDestroy() { }
-       // public virtual void OnFixedUpdate(float dt) { }
+        public virtual void OnFixedUpdate(float dt) { }
 
-        public Vector3 Position
+        public T GetComponent<T>() where T : Component, new()
         {
-            get
-            {
-                Vector3 pos;
-                FunctionCalls.Transform_GetPosition(mID, out pos);
-                return pos;
-            }
-            set
-            {
-                FunctionCalls.Transform_SetPosition(mID, ref value);
-            }
+            T component = new T() { Entity = this };
+            return component;
         }
     }
 }
