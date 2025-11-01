@@ -27,7 +27,7 @@ namespace SliceEditor
 
 		std::filesystem::path pathToWatch = rootNode->path;
 
-		mFileWatcher = std::make_unique<filewatch::FileWatch>(
+		mFileWatcher = std::make_unique<filewatch::FileWatch<std::filesystem::path>>(
 			pathToWatch, [this](const std::filesystem::path filePath, const filewatch::Event changeType)
 			{
 				std::filesystem::path path(filePath);
