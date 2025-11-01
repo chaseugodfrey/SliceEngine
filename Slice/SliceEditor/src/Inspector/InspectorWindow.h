@@ -31,6 +31,7 @@ namespace SliceEditor
 
 	class InspectorWindow : public EditorWindow
 	{
+		ImGuiTreeNodeFlags mBaseFlags;
 
 #pragma region Entitiy Inspection
 		// Displaying Entities
@@ -41,6 +42,7 @@ namespace SliceEditor
 		void DisplayComponentHeader(entt::entity entity, bool closeable = true)
 		{
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
+
 			if (ImGui::Button("-"))
 			{
 				ImGui::OpenPopup("ComponentContextMenu");  // Open the popup when button is clicked
@@ -72,6 +74,8 @@ namespace SliceEditor
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
+		void DisplayLight(entt::entity entity);
+		void DisplayAnimator(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
 #pragma endregion
 

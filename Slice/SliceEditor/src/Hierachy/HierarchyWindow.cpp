@@ -70,7 +70,7 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropSource())
 		{
-			ImGui::SetDragDropPayload("gameobject", (void*)entity, sizeof(entity));
+			ImGui::SetDragDropPayload("gameobject", &entity, sizeof(entity));
 			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -80,7 +80,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-				EditorUtilities::GameObject_Parent(child_entity, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_Parent(child_entity, entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
@@ -124,7 +124,6 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawSceneNode()
 	{
-
 		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Separator();
@@ -139,7 +138,6 @@ namespace SliceEditor
 				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
-
 
 			ImGui::TreePop();
 		}

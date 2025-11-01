@@ -22,6 +22,7 @@ namespace SliceEditor
         bool BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model> &model, const std::vector<glm::mat4> &transform);
         dtNavMeshQuery *GetNavMeshQuery() { return navQuery; }
         dtNavMesh *GetNavMesh() { return navMesh; }
+        void Init();
         void Clear();
 
     private:

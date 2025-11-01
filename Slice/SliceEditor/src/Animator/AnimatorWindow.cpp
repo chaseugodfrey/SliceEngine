@@ -18,7 +18,6 @@ namespace SliceEditor
 	{
 		// To do: save into an editor config path
 		NodeEditor::Config config;
-		config.SettingsFile = "AnimatorEditor.json";
 		m_Context = NodeEditor::CreateEditor(&config);
 
 		// Create some sample nodes
@@ -32,7 +31,7 @@ namespace SliceEditor
 	{
 
 		ImGui::Begin("Animator");
-#pragma region Animator Toolbar
+#pragma region AnimatorSystem Toolbar
 		ImGui::BeginGroup();
 		ImGui::Text("Parameters");
 		if (ImGui::BeginMenuBar())
