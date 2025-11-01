@@ -195,6 +195,24 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Hierarchy");
 
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImVec2 p1 = p0 + ImVec2(p0.x + ImGui::GetContentRegionAvail().x, p0.y + ImGui::GetContentRegionAvail().y);
+		ImGuiID id = ImGui::GetCurrentWindow()->GetID("HierarchyDrop");
+		ImRect rect(p0, p1);
+
+		if (ImGui::BeginDragDropTargetCustom(rect, id))
+		{
+			if (ImGui::AcceptDragDropPayload("Model"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		DrawNodeGraph();
 
 		ImGui::BeginGroup();
