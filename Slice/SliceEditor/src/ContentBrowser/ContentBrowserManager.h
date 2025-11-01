@@ -16,14 +16,31 @@ DigiPen Institute of Technology is prohibited.
 #define CONTENT_BROWSER_MANAGER_H
 
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <filesystem>
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 #include "../AssetManager/AssetManager.h"
+#include "../thirdparty/filewatch/FileWatcher.h"
 
 namespace SliceEditor
 {
 	struct DirectoryNode;
 	class Registry;
+
+	enum class FileEventType
+	{
+		ADDED,
+		REMOVED,
+		Modified
+	};
+
+	struct FileEvent
+	{
+		std::filesystem::path path;
+		FileEventType type;
+	};
 
 	class ContentBrowserManager : public IBaseManager, public ICreateWindow
 	{
@@ -34,6 +51,17 @@ namespace SliceEditor
 
 		void CreateDirectory(DirectoryNode& node);
 
+
+		std::unique_ptr<filewatch::FileWatch<std::filesystem::path>> mFileWatcher;
+		std::queue<FileEvent> mFileEvents;
+		std::mutex mFileEventQueueMutex;
+
+		void ProcessFileEvents();
+		void HandleFileAdded(const std::filesystem::path& path);
+		void HandleFileRemoved(const std::filesystem::path& path);
+		void HandleFileModified(const std::filesystem::path& path);
+		DirectoryNode* FindNodeByPath(const std::filesystem::path& path);
+		void RemoveNodeFromTree(DirectoryNode& node);
 	
 	public:
 
@@ -52,6 +80,8 @@ namespace SliceEditor
 		bool mHasDroppedAssets = false;
 
 		void Init() override;
+
+		void Update();
 		
 		void RebuildDirectory(DirectoryNode& node);
 

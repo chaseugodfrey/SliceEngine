@@ -24,6 +24,21 @@ namespace SliceEditor
 	{
 		SLICE_LOG("Initializing Content Browser Data.");
 		BuildTree();
+
+		std::filesystem::path pathToWatch = rootNode->path;
+
+		mFileWatcher = std::make_unique<filewatch::FileWatch>(
+			pathToWatch, [this](const std::filesystem::path filePath, const filewatch::Event change_type)
+			{
+				std::filesystem::path path(filePath);
+
+				if (path.extension() == ".meta")
+				{
+					return;
+				}
+			}
+		)
+
 	}
 
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
