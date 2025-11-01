@@ -59,8 +59,8 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();
+		/*AddWindow<AnimatorWindow>();
+		AddWindow<AnimationWindow>();*/
 		AddWindow<NavigationWindow>();
 	}
 
@@ -290,6 +290,7 @@ namespace SliceEditor
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
+		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -320,6 +321,7 @@ namespace SliceEditor
 				isPlaying = !isPlaying;
 				if (!isPlaying) // if its play, enable game input
 				{
+					isPaused = false;
 					scene->Stop();
 					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
 					//inputs->SetEnabled(true);
@@ -336,16 +338,46 @@ namespace SliceEditor
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		if (!isPaused)
 		{
-			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
 			{
-				scene->Pause();
+				isPaused = !isPaused;
 
+				if (isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+					{
+						scene->Pause();
+
+					}
+				
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
 			}
-			else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+		}
+		else
+		{
+			if (ImGui::Button("Unpause", ImVec2{ 60, 35 }))
 			{
-				scene->Play();
+				isPaused = !isPaused;
+
+				if (!isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+
+					}
+
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
 			}
 		}
 
