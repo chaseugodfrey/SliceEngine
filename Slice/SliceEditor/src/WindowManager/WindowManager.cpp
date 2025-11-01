@@ -137,9 +137,10 @@ namespace SliceEditor
 
 						}
 					}
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 
 				}
+
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
 			if (ImGui::MenuItem("Save Scene As"))
