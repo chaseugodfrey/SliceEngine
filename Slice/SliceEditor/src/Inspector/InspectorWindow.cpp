@@ -119,31 +119,6 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
-	{
-		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-
-		entt::entity ent_display{};
-		ImGui::Text("Parent:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Child:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Previous Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Next Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-	}
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
@@ -292,6 +267,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					if (ImGui::BeginCombo("##detection", currentLabel))
 					{
+
 						for (int i = 0; i < 2; i++)
 						{
 							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
@@ -594,5 +570,31 @@ namespace SliceEditor
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
 
+	}
+
+	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
+	{
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+
+		entt::entity ent_display{};
+		ImGui::Text("Parent:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Child:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Previous Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Next Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 	}
 }

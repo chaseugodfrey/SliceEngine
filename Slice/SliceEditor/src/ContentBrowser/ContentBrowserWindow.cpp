@@ -517,8 +517,7 @@ namespace SliceEditor
 
 	}
 
-	void ContentBrowserWindow::DisplayFBXData(ModelData* data)
-	{}
+	void ContentBrowserWindow::DisplayFBXData(ModelData* data){}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)
 	{

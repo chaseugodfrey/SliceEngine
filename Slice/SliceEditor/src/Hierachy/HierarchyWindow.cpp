@@ -68,7 +68,7 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropSource())
 		{
-			ImGui::SetDragDropPayload("gameobject", (void*)entity, sizeof(entity));
+			ImGui::SetDragDropPayload("gameobject", &entity, sizeof(entity));
 			ImGui::Text(name.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -78,7 +78,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
 				entt::entity child_entity = *static_cast<entt::entity*>(payload->Data);
-				EditorUtilities::GameObject_Parent(child_entity, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+				EditorUtilities::GameObject_Parent(child_entity, entity, mRegistry.GetManager<HistoryManager>("History"));
 			}
 
 			ImGui::EndDragDropTarget();
