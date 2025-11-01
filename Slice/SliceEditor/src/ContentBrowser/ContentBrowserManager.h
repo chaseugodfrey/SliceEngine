@@ -33,7 +33,7 @@ namespace SliceEditor
 	{
 		ADDED,
 		REMOVED,
-		Modified
+		MODIFIED
 	};
 
 	struct FileEvent

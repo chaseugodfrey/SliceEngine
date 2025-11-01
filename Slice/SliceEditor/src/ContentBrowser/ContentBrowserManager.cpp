@@ -28,7 +28,7 @@ namespace SliceEditor
 		std::filesystem::path pathToWatch = rootNode->path;
 
 		mFileWatcher = std::make_unique<filewatch::FileWatch>(
-			pathToWatch, [this](const std::filesystem::path filePath, const filewatch::Event change_type)
+			pathToWatch, [this](const std::filesystem::path filePath, const filewatch::Event changeType)
 			{
 				std::filesystem::path path(filePath);
 
@@ -36,8 +36,42 @@ namespace SliceEditor
 				{
 					return;
 				}
+
+				if (path.string().find(rootNode->path.string() + "/Resources") != std::string::npos)
+				{
+					return;
+				}
+
+				FileEvent event;
+
+				event.path = path;
+
+				bool shouldQueue = false;
+				switch (changeType)
+				{
+				case filewatch::Event::added:
+				case filewatch::Event::renamed_new:
+					event.type = FileEventType::ADDED;
+					shouldQueue = true;
+					break;
+				case filewatch::Event::modified:
+					event.type = FileEventType::MODIFIED;
+					shouldQueue = true;
+					break;
+				case filewatch::Event::removed:
+				case filewatch::Event::renamed_old:
+					event.type = FileEventType::REMOVED;
+					shouldQueue = true;
+					break;
+				}
+
+				if (shouldQueue)
+				{
+					std::lock_guard<std::mutex> lock(mFileEventQueueMutex);
+					mFileEvents.push(event);
+				}
 			}
-		)
+		);
 
 	}
 
@@ -169,6 +203,8 @@ namespace SliceEditor
 		SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
 		SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
 		std::string fileName = entry.fileName;
+		std::filesystem::path pathToDelete = entry.path;
+
 		try
 		{
 			if (std::filesystem::remove_all(entry.path))
@@ -191,5 +227,168 @@ namespace SliceEditor
 
 		parent.children.erase(fileName);
 
+		auto assetMgr = registry.GetManager<AssetManager>("AssetManager");
+		if (assetMgr)
+		{
+			assetMgr->HandleAssetRemoval(pathToDelete);
+		}
+
+	}
+
+	void ContentBrowserManager::Update()
+	{
+		ProcessFileEvents();
+	}
+
+	void ContentBrowserManager::ProcessFileEvents()
+	{
+		std::queue<FileEvent> eventsToProcess;
+
+		{
+			std::lock_guard<std::mutex> lock(mFileEventQueueMutex);
+			if (mFileEvents.empty())
+			{
+				return;
+			}
+
+			eventsToProcess.swap(mFileEvents);
+		}
+
+		auto assetMgr = registry.GetManager<AssetManager>("AssetManager");
+		if (!assetMgr)
+		{
+			SLICE_LOG_ERROR("AssetManager not found while processing file events");
+			return;
+		}
+
+		while (!eventsToProcess.empty())
+		{
+			FileEvent event = eventsToProcess.front();
+			eventsToProcess.pop();
+
+			switch (event.type)
+			{
+				case FileEventType::ADDED:
+					SLICE_LOG("File Added: " + event.path.string());
+					HandleFileAdded(event.path);
+					break;
+				case FileEventType::REMOVED:
+					SLICE_LOG("File Removed: " + event.path.string());
+					HandleFileRemoved(event.path);
+					break;
+				case FileEventType::MODIFIED:
+					SLICE_LOG("File Modified: " + event.path.string());
+					HandleFileModified(event.path);
+					break;
+			}
+		}
+	}
+
+	void ContentBrowserManager::HandleFileAdded(const std::filesystem::path& path)
+	{
+		auto assetMgr = registry.GetManager<AssetManager>("AssetManager");
+		if (!assetMgr)
+		{
+			return;
+		}
+
+		std::filesystem::path parentPath = path.parent_path();
+
+		DirectoryNode* parent = FindNodeByPath(parentPath);
+
+		if (parent == nullptr)
+		{
+			SLICE_LOG_WARNING("Could not find parent directory in tree for new file: " + path.string());
+
+			return;
+		}
+
+		DirectoryNode child;
+		child.fileName = path.filename().string();
+		child.path = path;
+		child.parent = parent;
+		child.isDirectory = std::filesystem::is_directory(path);
+
+		parent->children.insert({ child.fileName, child });
+
+		if (child.isDirectory)
+		{
+			CreateDirectory(parent->children[child.fileName]);
+		}
+		else
+		{
+			assetMgr->CreateDescriptorFile(path);
+		}
+	}
+
+	void ContentBrowserManager::HandleFileRemoved(const std::filesystem::path& path)
+	{
+		DirectoryNode* node = FindNodeByPath(path);
+
+		if (node)
+		{
+			RemoveNodeFromTree(*node);
+		}
+
+		auto assetMgr = registry.GetManager<AssetManager>("AssetManager");
+		if (assetMgr)
+		{
+			assetMgr->HandleAssetRemoval(path);
+		}
+	}
+
+	void ContentBrowserManager::HandleFileModified(const std::filesystem::path& path)
+	{
+		auto assetMgr = registry.GetManager<AssetManager>("AssetManager");
+		if (assetMgr)
+		{
+			assetMgr->RecompileAsset(path);
+		}
+	}
+
+	void ContentBrowserManager::RemoveNodeFromTree(DirectoryNode& node)
+	{
+		if (node.parent)
+		{
+			node.parent->children.erase(node.fileName);
+		}
+	}
+
+	DirectoryNode* ContentBrowserManager::FindNodeByPath(const std::filesystem::path& path)
+	{
+		if (!rootNode || path == rootNode->path)
+		{
+			return rootNode.get();
+		}
+
+		std::filesystem::path relativePath;
+		try
+		{
+			relativePath = std::filesystem::relative(path, rootNode->path);
+		}
+		catch (const std::exception& e)
+		{
+			SLICE_LOG_ERROR("Failed to get relative path: " + std::string(e.what()));
+			return nullptr;
+		}
+
+		if (relativePath.empty() || relativePath == ".")
+		{
+			return rootNode.get();
+		}
+
+		DirectoryNode* current = rootNode.get();
+		for (const auto& part : relativePath)
+		{
+			auto it = current->children.find(part.string());
+			if (it == current->children.end())
+			{
+				return nullptr;
+			}
+
+			current = &it->second;
+		}
+
+		return current;
 	}
 }
