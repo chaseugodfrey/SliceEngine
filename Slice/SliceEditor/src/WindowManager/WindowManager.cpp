@@ -118,7 +118,28 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+				{
+					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
+					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension("_temp");
+
+				
+					if (std::filesystem::exists(currentScenePath) && std::filesystem::exists(currentSceneTemp))
+					{
+						auto time1 = std::filesystem::last_write_time(currentScenePath);
+						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
+
+						if (time1 < time2)
+						{
+							std::filesystem::remove(currentScenePath);
+							currentSceneTemp.replace_extension(".scene");
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+
+						}
+					}
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+
+				}
 			}
 
 			if (ImGui::MenuItem("Save Scene As"))
@@ -316,7 +337,15 @@ namespace SliceEditor
 		ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
 		{
+			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+			{
+				scene->Pause();
 
+			}
+			else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+			{
+				scene->Play();
+			}
 		}
 
 		ImGui::SameLine();
