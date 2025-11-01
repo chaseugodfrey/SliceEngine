@@ -50,13 +50,13 @@ namespace SliceEditor
 
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
+		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
 		//AddWindow<AnimationWindow>();
-		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)

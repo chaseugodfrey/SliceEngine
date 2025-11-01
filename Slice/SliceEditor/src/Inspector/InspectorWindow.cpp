@@ -228,58 +228,20 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
 
-					ImGui::Text("Mass");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##mass", &rb.mass);
+					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
 
-					ImGui::Text("Gravity");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##gravity", &rb.gravityFactor);
+					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
+					
+					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
+					
+					DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
 
-					ImGui::Text("Is Kinematic");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isKinematic", &rb.isKinematic);
+					DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
 
-					ImGui::Text("Linear Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##linearDamp", &rb.linearDamping);
+					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
 
-					ImGui::Text("Angular Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
-
-					const char* currentLabel = arr[(int)rb.CollisionDetection];
-
-					ImGui::Text("Collision Detection");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								rb.CollisionDetection = (JPH::EMotionQuality)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
-
-					ImGui::Text("Friction");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##friction", &rb.friction);
+					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
+					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
 
 					ImGui::TreePop();
 				}
