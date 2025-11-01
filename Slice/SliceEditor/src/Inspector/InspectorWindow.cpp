@@ -99,22 +99,6 @@ namespace SliceEditor
 			}
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
-
 			ImGui::TreePop();
 		}
 	}
@@ -124,8 +108,9 @@ namespace SliceEditor
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
-		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
-			if (ImGui::TreeNodeEx("AudioSource"))
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) 
+			{
+			if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
