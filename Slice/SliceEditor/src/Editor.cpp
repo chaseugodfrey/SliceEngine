@@ -88,15 +88,19 @@ namespace SliceEditor
 			* glm::scale(glm::mat4(1.0f), transform.scale);
 
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
+		if (FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.IsValid())
+		{
+			auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
+			
+			if (navMesh.BuildFromModel(*model, transformMatrix))  
+			{
+				SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+			}
+			else
+			{
+				SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+			}
 
-		if (navMesh.BuildFromModel(*model, transformMatrix))  
-		{
-			SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
-		}
-		else
-		{
-			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
 		}
 
 

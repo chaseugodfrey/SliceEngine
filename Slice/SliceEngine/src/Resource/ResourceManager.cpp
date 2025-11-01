@@ -153,4 +153,17 @@ namespace SliceEngine
 		}
 	}
 
+	void ResourceManager::Shutdown()
+	{
+		std::vector<std::unique_ptr<void, std::function<void(void*)>>> dataToDestroy;
+		dataToDestroy.reserve(mInstances.size()); 
+
+		for (auto& pair : mInstances)
+		{
+			dataToDestroy.push_back(std::move(pair.second.data));
+		}
+	
+		mInstances.clear();
+		dataToDestroy.clear();
+	}
 }

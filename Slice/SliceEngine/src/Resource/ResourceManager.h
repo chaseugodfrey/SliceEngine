@@ -38,7 +38,7 @@ namespace SliceEngine
 		struct Instance
 		{
 			std::unique_ptr<void, std::function<void(void*)>> data = {nullptr, nullptr};
-			int refCount = 0;
+			int refCount = 1;
 			std::string filePath;
 			std::function<std::unique_ptr<void, std::function<void(void*)>>(ResourceManager&, const std::string&)> reload;
 		};
@@ -197,6 +197,8 @@ namespace SliceEngine
 		void RegisterResourceAsset(const std::string& path);
 
 		void UpdateEntityResources();
+
+		void Shutdown();
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
@@ -319,7 +321,14 @@ namespace SliceEngine
 
 		T* get()
 		{
-			return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
+			//return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
+
+			if (mInstance)
+			{
+				return static_cast<T*>(mInstance->data.get());
+			}
+			else
+				return nullptr;
 		}
 
 		const T* get() const
