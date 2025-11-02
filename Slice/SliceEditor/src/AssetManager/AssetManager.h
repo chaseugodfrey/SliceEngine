@@ -46,6 +46,7 @@ namespace SliceEditor
 		void ScanResourceFolder();
 		std::string CreateDescriptorFile(const std::filesystem::path filePath);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
+		void AddDefaultModelsToMap();
 		void CreateResource(MetaData* metaData, AssetType assetType);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
@@ -54,6 +55,7 @@ namespace SliceEditor
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
+		void CleanUpSceneTemp();
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
 		std::unordered_map <SliceEngine::GUID, std::string> mGUIDtoFilename; // Maps GUIDs to fileName

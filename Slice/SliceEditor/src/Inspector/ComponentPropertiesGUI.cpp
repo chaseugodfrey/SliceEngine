@@ -173,6 +173,27 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+		static float oldVal{};
+
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<float>> command = std::make_unique<ScriptFieldSetterCommand<float>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;

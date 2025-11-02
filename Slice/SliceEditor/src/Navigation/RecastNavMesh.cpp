@@ -5,6 +5,7 @@
 #include <DetourNavMeshBuilder.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
+#include "Core/Core.h"
 
 namespace SliceEditor
 {
@@ -52,6 +53,93 @@ namespace SliceEditor
 		heightfield = nullptr;
 
 		detailMesh = nullptr;
+
+		ReleaseDebugMesh();
+	}
+
+	void RecastNavMesh::ReleaseDebugMesh()
+	{
+		if (SliceEngine::Core::GetInstance()->debugMesh.vao)
+		{
+			glDeleteVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
+			SliceEngine::Core::GetInstance()->debugMesh.vao = 0;
+		}
+		if (SliceEngine::Core::GetInstance()->debugMesh.vbo)
+		{
+			glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
+			SliceEngine::Core::GetInstance()->debugMesh.vbo = 0;
+		}
+		//if (SliceEngine::Core::GetInstance()->debugMesh.ebo)
+		//{
+		//	glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
+		//	SliceEngine::Core::GetInstance()->debugMesh.ebo = 0;
+		//}
+
+	}
+
+	void RecastNavMesh::LoadDebugMesh()
+	{
+		ReleaseDebugMesh();
+
+		auto tNavMesh = const_cast<const dtNavMesh*>(navMesh);
+
+		if (tNavMesh)
+		{
+			std::vector<float> vertices;
+			//std::vector<unsigned short> indices;
+			for (int t{}; t < tNavMesh->getMaxTiles(); ++t)
+			{
+				const dtMeshTile* tile = tNavMesh->getTile(t);
+				if (!tile->header) continue;
+
+				dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
+				for (int i{}; i < tile->header->polyCount; ++i)
+				{
+					const dtPoly* p = &tile->polys[i];
+					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+						continue;
+					const dtPolyDetail* pd = &tile->detailMeshes[i];
+
+					for (int j{}; j < pd->triCount; ++j)
+					{
+						const unsigned char* t = &tile->detailTris[(pd->triBase + j) * 4];
+						for (int k{}; k < 3; ++k)
+						{
+							if (t[k] < p->vertCount)
+							{
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3]);
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 1]);
+								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 2]);
+							}			 
+							else		 
+							{			 
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 1]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 2]);
+							}
+						}
+					}
+				}
+			}
+			//vbo
+			glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
+			glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.vbo, vertices.size() * sizeof(float), vertices.data(), 0);
+
+			//ebo
+			//glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
+			//glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
+
+			//vao
+			glCreateVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
+			glEnableVertexArrayAttrib(SliceEngine::Core::GetInstance()->debugMesh.vao, 0);
+			glVertexArrayAttribFormat(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 3, GL_FLOAT, false, 0);
+			//glVertexArrayElementBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, SliceEngine::Core::GetInstance()->debugMesh.ebo);
+
+			glVertexArrayVertexBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, SliceEngine::Core::GetInstance()->debugMesh.vbo, 0, sizeof(float) * 3);
+			glVertexArrayAttribBinding(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 0);
+
+			SliceEngine::Core::GetInstance()->debugMesh.drawCnt = vertices.size() / 3;
+		}
 	}
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
@@ -252,11 +340,239 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
+		LoadDebugMesh();
+
 		return true;
 	}
 
 	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model> &model, const std::vector<glm::mat4> &transform)
 	{
-		return false;
+		if (model.size() != transform.size())
+		{
+			std::cerr << "ERROR: Model and transform count mismatch in RecastNavMesh::BuildFromModel\n";
+			return false;
+		}
+
+		Clear();
+
+		std::vector<SliceEngine::SliceEngineTypes::Vertex> vertices;
+		std::vector<unsigned int> indices;
+
+		size_t vertexOffset = 0;
+		for (size_t i = 0; i < model.size(); ++i)
+		{
+			const auto &mdl = model[i];
+			const auto &baseTransform = transform[i];
+
+			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
+		}
+
+		if (vertices.empty() || indices.empty())
+			return false;
+
+		std::vector<float> verts;
+		verts.reserve(vertices.size() * 3);
+		for (const auto &v : vertices)
+		{
+			verts.push_back(v.position.x);
+			verts.push_back(v.position.y);
+			verts.push_back(v.position.z);
+		}
+
+		std::vector<int> recastIndices(indices.begin(), indices.end());
+		memset(&config, 0, sizeof(config));
+		config.cs = 0.2f;
+		config.ch = 0.2f;
+		config.walkableHeight = (int)ceilf(2.0f / config.ch);
+		config.walkableClimb = (int)floorf(0.5f / config.ch);
+		config.walkableRadius = (int)ceilf(0.4f / config.cs);
+		config.maxEdgeLen = (int)(12.0f / config.cs);
+		config.maxSimplificationError = 1.3f;
+		config.minRegionArea = (int)rcSqr(8);
+		config.mergeRegionArea = (int)rcSqr(20);
+		config.maxVertsPerPoly = 6;
+		config.detailSampleDist = config.cs * 6.0f;
+		config.detailSampleMaxError = config.ch * 1.0f;
+
+		float bmin[3], bmax[3];
+		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
+
+
+		if (bmax[1] - bmin[1] < 0.01f)
+		{
+			bmax[1] = bmin[1] + 0.01f;
+		}
+
+		rcCalcGridSize(bmin, bmax, config.cs, &config.width, &config.height);
+
+		rcContext ctx;
+		heightfield = rcAllocHeightfield();
+		if (!heightfield) return false;
+
+		if (!rcCreateHeightfield(&ctx, *heightfield, config.width, config.height, bmin, bmax, config.cs, config.ch))
+			return false;
+
+		std::vector<unsigned char> areas(recastIndices.size() / 3, RC_WALKABLE_AREA);
+
+
+		rcRasterizeTriangles(&ctx, verts.data(), (int)verts.size() / 3,
+			recastIndices.data(), areas.data(), (int)(recastIndices.size() / 3),
+			*heightfield, config.walkableClimb);
+
+		int spanCount = 0;
+		for (int i = 0; i < heightfield->width * heightfield->height; ++i)
+		{
+			for (rcSpan *s = heightfield->spans[i]; s; s = s->next)
+			{
+				spanCount++;
+			}
+		}
+
+		//rcFilterLowHangingWalkableObstacles(&ctx, config.walkableClimb, *heightfield);
+		//rcFilterLedgeSpans(&ctx, config.walkableHeight, config.walkableClimb, *heightfield);
+		//rcFilterWalkableLowHeightSpans(&ctx, config.walkableHeight, *heightfield);
+
+		compactHeightfield = rcAllocCompactHeightfield();
+		if (!compactHeightfield) return false;
+		if (!rcBuildCompactHeightfield(&ctx, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
+			return false;
+
+		if (!rcBuildDistanceField(&ctx, *compactHeightfield))
+			return false;
+
+		if (!rcBuildRegions(&ctx, *compactHeightfield, 0, config.minRegionArea, config.mergeRegionArea))
+			return false;
+
+
+		if (compactHeightfield->maxRegions == 0)
+		{
+			std::cout << "ERROR: No regions were created!" << std::endl;
+			return false;
+		}
+
+
+		contourSet = rcAllocContourSet();
+		if (!contourSet) return false;
+		if (!rcBuildContours(&ctx, *compactHeightfield, config.maxSimplificationError, config.maxEdgeLen, *contourSet))
+			return false;
+
+
+		polyMesh = rcAllocPolyMesh();
+		if (!polyMesh) return false;
+		if (!rcBuildPolyMesh(&ctx, *contourSet, config.maxVertsPerPoly, *polyMesh))
+			return false;
+
+		detailMesh = rcAllocPolyMeshDetail();
+		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
+
+		std::ofstream objFile("Resources/navmesh_debug.obj");
+		if (objFile.is_open())
+		{
+			for (int i = 0; i < detailMesh->nverts; ++i)
+			{
+				const float *v = &detailMesh->verts[i * 3];
+				objFile << "v " << v[0] << " " << v[1] << " " << v[2] << "\n";
+			}
+
+			for (int i = 0; i < detailMesh->ntris; ++i)
+			{
+				const unsigned char *t = &detailMesh->tris[i * 4];
+				objFile << "f "
+					<< (int)t[0] + 1 << " "
+					<< (int)t[1] + 1 << " "
+					<< (int)t[2] + 1 << "\n";
+			}
+
+			objFile.close();
+			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+		}
+		else
+		{
+			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+		}
+
+		dtNavMeshCreateParams params{};
+		memset(&params, 0, sizeof(params));
+		params.verts = polyMesh->verts;
+		params.vertCount = polyMesh->nverts;
+		params.polys = polyMesh->polys;
+		params.polyAreas = polyMesh->areas;
+		params.polyFlags = polyMesh->flags;
+		params.polyCount = polyMesh->npolys;
+		params.nvp = polyMesh->nvp;
+		params.detailMeshes = detailMesh->meshes;
+		params.detailVerts = detailMesh->verts;
+		params.detailVertsCount = detailMesh->nverts;
+		params.detailTris = detailMesh->tris;
+		params.detailTriCount = detailMesh->ntris;
+		rcVcopy(params.bmin, polyMesh->bmin);
+		rcVcopy(params.bmax, polyMesh->bmax);
+
+		params.cs = config.cs;
+		params.ch = config.ch;
+		params.buildBvTree = true;
+
+		unsigned char *navData = nullptr;
+		int navDataSize = 0;
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
+
+		// testing if can save into file, this is for detour to read
+		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
+		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
+		outFile.close();
+
+		navMesh = dtAllocNavMesh();
+		if (dtStatusFailed(navMesh->init(navData, navDataSize, DT_TILE_FREE_DATA)))
+		{
+			dtFree(navData);
+			return false;
+		}
+
+		navQuery = dtAllocNavMeshQuery();
+		navQuery->init(navMesh, 2048);
+
+		LoadDebugMesh();
+
+		return true;
+	}
+
+	void RecastNavMesh::CollectMeshDataFromNode(
+		const SliceEngine::SliceEngineTypes::Model &model,
+		const SliceEngine::SliceEngineTypes::ModelNode &node,
+		const glm::mat4 &parentTransform,
+		std::vector<SliceEngine::SliceEngineTypes::Vertex> &outVertices,
+		std::vector<unsigned int> &outIndices,
+		size_t &vertexOffset)
+	{
+		glm::mat4 localTransform =
+			parentTransform *
+			glm::translate(glm::mat4(1.0f), node.position) *
+			glm::mat4_cast(node.rotation) *
+			glm::scale(glm::mat4(1.0f), node.scale);
+
+		for (unsigned short meshIndex : node.mesh_ref)
+		{
+			if (meshIndex >= model.meshes.size()) continue;
+			const auto &mesh = model.meshes[meshIndex];
+
+			for (const auto &v : mesh.vertices)
+			{
+				glm::vec4 worldPos = localTransform * glm::vec4(v.position, 1.0f);
+				auto transformed = v;
+				transformed.position = glm::vec3(worldPos);
+				outVertices.push_back(transformed);
+			}
+
+			for (auto idx : mesh.indices)
+				outIndices.push_back(idx + static_cast<unsigned int>(vertexOffset));
+
+			vertexOffset += mesh.vertices.size();
+		}
+
+		for (const auto &child : node.children)
+		{
+			CollectMeshDataFromNode(model, child, localTransform, outVertices, outIndices, vertexOffset);
+		}
 	}
 }

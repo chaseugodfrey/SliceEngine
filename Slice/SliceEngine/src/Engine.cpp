@@ -274,17 +274,6 @@ namespace SliceEngine
 				sScene->mCurrentState = SceneState::DEFAULT;
 				sScene->mNextState = SceneState::DEFAULT;
 			}
-
-			/*if (sScene->mNextState == SceneState::LOAD_NEXT_SCENE)
-			{
-				if (!sScene->CheckQueueEmpty())
-				{
-					if (sScene->isSceneUnloaded)
-					{
-						sScene->LoadNextScene();
-					}
-				}
-			}*/
 		}
 
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
@@ -318,10 +307,7 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
-		/*if (sInputs->GetMode() == InputMode::Game)
-		{
-			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
-		}*/
+		
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
