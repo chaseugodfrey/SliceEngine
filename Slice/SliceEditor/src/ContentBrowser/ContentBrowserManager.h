@@ -32,7 +32,7 @@ namespace SliceEditor
 
 		void ResetRootDirectory(DirectoryNode& node);
 
-		void CreateDirectory(DirectoryNode& node);
+		void CreateDirectoryNode(DirectoryNode& node);
 
 	
 	public:
