@@ -693,6 +693,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
+		//auto motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+		//if (motionType == JPH::EMotionType::Dynamic)
+		//	return; // skip, let physics handle dynamic motion
+
 		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
 		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
@@ -704,33 +708,62 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
 	{
+
+
 		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
 		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
 
-		glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
+		//glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
 		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
-		transform.rotation = rot;
+		transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
 
 	}
 
 	void PhysicsSystem::HandleRemovedContacts()
 	{
+		bool pass = true;
+
 		for (auto& bodyPair : contactListener->GetBodiesInContact())
 		{
+			// do this later aloysius
 			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
-			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
 
-			if (lock1.Succeeded() && lock2.Succeeded())
+			JPH::uint64 ent1;
+			JPH::uint64 ent2;
+
+			ColliderShape colliderShape1;
+			ColliderShape colliderShape2;
+
+			if (lock1.Succeeded())
 			{
 				const JPH::Body& body1 = lock1.GetBody();
+				ent1 = static_cast<JPH::uint64>(body1.GetUserData());
+			}
+			else
+			{
+				pass = false;
+			}
+			lock1.ReleaseLock();
+
+			JPH::BodyLockRead lock2(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody2ID());
+			if (lock2.Succeeded())
+			{
 				const JPH::Body& body2 = lock2.GetBody();
+				ent2 = static_cast<JPH::uint64>(body2.GetUserData());
+			}
+			else
+			{
+				pass = false;
+			}
+			lock2.ReleaseLock();
 
-				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body1.GetUserData()));
-				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(body2.GetUserData()));
-
-				auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
-				auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
+			if (pass = true)
+			{
+				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
+				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
+				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
+				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
@@ -762,10 +795,13 @@ namespace SliceEngine
 
 				}
 			}
+			else
+			{
+				pass = true;
+				continue;
+			}
 		}
-
 		contactListener->clearBodiesInContact();
-
 	}
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -814,7 +850,7 @@ namespace SliceEngine
 			{
 				bodySettings.mGravityFactor = rigidBody.gravityFactor;
 				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
-				bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
+				//bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
 				bodySettings.mFriction = rigidBody.friction;
 				bodySettings.mRestitution = rigidBody.restitution;
 				bodySettings.mLinearDamping = rigidBody.linearDamping;
@@ -874,18 +910,64 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
+
+		//if (entity == static_cast<Entity>(6U));
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
-		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
-		SyncPhysicsToECS(transform, colliderShape);
+		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+		//SyncPhysicsToECS(transform, colliderShape);
 
-		HandleRemovedContacts();
+		//HandleRemovedContacts();
 
 		
+	}
+
+	void PhysicsSystem::StepWorld(float dt)
+	{
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+	}
+
+	void PhysicsSystem::PostStepSync()
+	{
+		HandleRemovedContacts();
+
+		auto view = mRegistry->view<Transform, ColliderShape>();
+
+		// Safe, iterator-free iteration
+		for (auto [e, t, c] : view.each())
+		{
+			SyncPhysicsToECS(t, c);
+		}
+	}
+
+	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddForce(colliderShape.bodyID, force);
+	}
+
+	void PhysicsSystem::AddImpulseToEntity(Entity entity, const JPH::Vec3& impulse)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddImpulse(colliderShape.bodyID, impulse);
+	}
+
+	void PhysicsSystem::AddVelocityChangeToEntity(Entity entity, const JPH::Vec3& deltaVelocity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddLinearVelocity(colliderShape.bodyID, deltaVelocity);
+	}
+
+	void PhysicsSystem::AddAccelerationToEntity(Entity entity, const JPH::Vec3& deltaVelocity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 accelerationDelta = deltaVelocity * static_cast<float>(1.f/60.f);
+
+		physicsSystem->GetBodyInterface().AddLinearVelocity(colliderShape.bodyID, accelerationDelta);
 	}
 
 	void PhysicsSystem::SubscribeToEvents()
@@ -910,6 +992,17 @@ namespace SliceEngine
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
 
 	}
+
+	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
+
+		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
+
+		return velocity;
+	}
+
 
 	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
 	{

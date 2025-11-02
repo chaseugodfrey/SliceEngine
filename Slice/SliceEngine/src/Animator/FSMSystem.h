@@ -13,9 +13,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #ifndef FSMSYSTEM_H
 #define	FSMSYSTEM_H
 
-#include "../ECS/BaseSystem.h"
-#include "../ECS/ECSTypes.h"
-
 namespace SliceEngine
 {
 	struct Animations {};
@@ -77,7 +74,6 @@ namespace SliceEngine
 
 		bool stateCon = false;
 		std::map<std::string, rttr::variant> parameters;
-
 
 		void SetBool(const std::string& name, bool value) { parameters[name] = value; }
 		void SetFloat(const std::string& name, float value) { parameters[name] = value; }

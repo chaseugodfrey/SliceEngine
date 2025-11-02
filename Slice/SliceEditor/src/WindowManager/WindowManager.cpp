@@ -25,11 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
-#include <Hierachy/HierarchyWindow.h>
-#include <Inspector/InspectorWindow.h>
-#include <SceneView/SceneViewWindow.h>
-#include <GameView/GameViewWindow.h>
-#include <Systems/SceneSystem.h>
+#include <Profiler/ProfilerManager.h>
 
 
 namespace SliceEditor
@@ -59,9 +55,18 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		/*AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();*/
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
 		AddWindow<NavigationWindow>();
+	}
+
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -89,8 +94,6 @@ namespace SliceEditor
 		DrawPlayState();
 		DrawDockspace();
 		DrawProjectSettings();
-		DrawSaveSceneAsPopup();
-		DrawNewScenePopup();
 		
 		for (auto& window : list)
 		{
@@ -111,9 +114,7 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("New Scene"))
 			{
-				newScenePopupOpen = true;
-				//SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
-				
+
 			}
 
 			if (ImGui::MenuItem("Save Scene"))
@@ -143,12 +144,6 @@ namespace SliceEditor
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
-			if (ImGui::MenuItem("Save Scene As"))
-			{
-				saveSceneAsPopupOpen = true;
-				
-			}
-
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Project Settings"))
@@ -158,7 +153,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -173,14 +168,9 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
-			if (ImGui::MenuItem("Animation"))
+			if (ImGui::MenuItem("Content Browser"))
 			{
-
-			}
-
-			if (ImGui::MenuItem("Animator"))
-			{
-
+				registry.GetManager<ProfilerManager>("ContentBrowser")->CreateEditorWindow();
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -188,34 +178,39 @@ namespace SliceEditor
 
 			}
 
-			if (ImGui::MenuItem("Content Browser"))
-			{
-
-			}
-
 			if (ImGui::MenuItem("Game"))
 			{
-
+				AddWindow<GameViewWindow>();
 			}
 
-			if (ImGui::MenuItem("Hierachy"))
+			if (ImGui::MenuItem("Hierarchy"))
 			{
-
+				AddWindow<HierarchyWindow>();
 			}
 
 			if (ImGui::MenuItem("Inspector"))
 			{
-
+				AddWindow<InspectorWindow>();
 			}
 
 			if (ImGui::MenuItem("Scene"))
 			{
-
+				AddWindow<SceneViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
 			{
+				AddWindow("Profiler");
+			}
 
+			if (ImGui::MenuItem("Animation"))
+			{
+				AddWindow<AnimationWindow>(true);
+			}
+
+			if (ImGui::MenuItem("Animator"))
+			{
+				AddWindow<AnimatorWindow>(true);
 			}
 
 			ImGui::EndMenu();
@@ -229,7 +224,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					auto go = factory.CreateGO_Box();
+					EditorUtilities::GameObject_CreateBox();
 				}
 
 				ImGui::EndMenu();
@@ -237,7 +232,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = factory.CreateGO_Cam();
+				EditorUtilities::GameObject_CreateCam();
 			}
 
 			ImGui::EndMenu();
@@ -286,7 +281,6 @@ namespace SliceEditor
 
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
-		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
@@ -300,18 +294,17 @@ namespace SliceEditor
 
 				if (isPlaying) // if its play, enable game input
 				{
-					scene->Play();
-					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					//inputs->SetEnabled(true);
-					//SliceEngine::gScriptSystem->OnStart();
+					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					inputs->SetEnabled(true);
+					SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
-				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
-				//{
-				//	//inputs->UnbindCallbacks();
-				//	inputs->SetMode(SliceEngine::InputMode::Editor);
-				//	inputs->SetEnabled(false);
-				//}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
 			}
 		}
 		else
@@ -319,7 +312,7 @@ namespace SliceEditor
 			if(ImGui::Button("Stop", ImVec2{ 60, 35 }))
 			{
 				isPlaying = !isPlaying;
-				if (!isPlaying) // if its play, enable game input
+				if (isPlaying) // if its play, enable game input
 				{
 					isPaused = false;
 					scene->Stop();
@@ -328,12 +321,12 @@ namespace SliceEditor
 					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
-				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
-				//{
-				//	//inputs->UnbindCallbacks();
-				//	inputs->SetMode(SliceEngine::InputMode::Editor);
-				//	inputs->SetEnabled(false);
-				//}
+				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				{
+					//inputs->UnbindCallbacks();
+					inputs->SetMode(SliceEngine::InputMode::Editor);
+					inputs->SetEnabled(false);
+				}
 			}
 		}
 
@@ -501,6 +494,10 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void WindowManager::DrawPreferenceSettings()
+	{
+	}
+
 	void WindowManager::DrawProjectSettings()
 	{
 		if (!projectSettingsPopupOpen)
@@ -571,83 +568,8 @@ namespace SliceEditor
 
 	}
 
-	void WindowManager::DrawSaveSceneAsPopup()
-	{
-		if (!saveSceneAsPopupOpen)
-		{
-			return;
-		}
-
-		static std::string sceneName = "";
-
-		bool isOpen;
-		if (ImGui::Begin("save scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			if (ImGui::InputText("New Scene Name", &sceneName))
-			{
-
-			}
-
-			if (ImGui::SmallButton("Save Scene"))
-			{
-				if (!sceneName.empty())
-				{
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
-				}
-			}
-
-			ImGui::End();
-		}
-
-		if (!isOpen)
-		{
-			saveSceneAsPopupOpen = false;
-		}
-	}
-
-	void WindowManager::DrawNewScenePopup()
-	{
-		if (!newScenePopupOpen)
-		{
-			return;
-		}
-
-		static std::string sceneName = "NewScene";
-
-		bool isOpen;
-		if (ImGui::Begin("new scene window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			if(ImGui::InputText("New Scene Name", &sceneName))
-			{
-
-			}
-
-			if (ImGui::SmallButton("Create Scene"))
-			{
-				if (!sceneName.empty())
-				{
-
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
-					SliceEngine::Core::GetInstance()->mFactory.UpdateDestroyed();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
-					newScenePopupOpen = false;
-					sceneName = "NewScene";
-				}
-			}
-
-			ImGui::End();
-		}
-
-		if (!isOpen)
-		{
-			newScenePopupOpen = false;
-		}
-	}
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }

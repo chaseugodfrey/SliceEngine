@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Physics/CollisionLayer.h"
 #include <rttr/rttr_enable.h>
 #include "Resource/ResourceManager.h"
+#include "Animator/FSMSystem.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -320,6 +321,15 @@ namespace SliceEngine
 		float systemTimer{};					// system�s overall lifetime
 
 		float emissionAccumulator{};
+	};
+
+
+	struct Animator
+	{
+		FSMSystem stateMachine{};
+		float animTimer = 0.0f;
+
+		RTTR_ENABLE();
 	};
 }
 

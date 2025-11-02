@@ -34,6 +34,11 @@ namespace SliceEditor
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
 	}
 
+	void SelectionManager::Update()
+	{
+
+	}
+
 	void SelectionManager::RegisterListener(ISelectionListener* listener)
 	{
 		mListeners.push_back(listener);

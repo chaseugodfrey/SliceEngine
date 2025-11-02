@@ -52,7 +52,8 @@ namespace SliceEditor
 		bool mHasDroppedAssets = false;
 
 		void Init() override;
-		
+		void Update() override;
+
 		void RebuildDirectory(DirectoryNode& node);
 
 		void SetSelectedFolder(DirectoryNode& node);
