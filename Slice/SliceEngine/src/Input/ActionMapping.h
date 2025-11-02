@@ -62,7 +62,7 @@ namespace SliceEngine
 	{
 		int keyCode{}; // glfw keycode or mouse button code
 		float scaleX = 0.0f; // for value1D/Horizontal
-		float scaleY = 0.0f;
+		float scaleY = 0.0f; // for value1D/Vertical
 		float x = 0.0f; // for value2D
 		float y = 0.0f; // for value2D
 	};
@@ -102,9 +102,11 @@ namespace SliceEngine
 		ActionMap& CreateMap(const std::string& mapName);
 		// add action to map
 		size_t AddButton(const std::string& mapName, const std::string& actionName);
+		size_t AddValue1D(const std::string& mapName, const std::string& actionName);
 		size_t AddValue2D(const std::string& mapName, const std::string& actionName);
 		// bind keys to action
 		void BindButton(const std::string& mapName, const std::string& actionName, int keyCode);
+		void Bind1D(const std::string& mapName, const std::string& actionName, int keyCode, float scale);
 		void Bind2D(const std::string& mapName, const std::string& actionName, int keyCode, float x, float y);
 		// enable/disble action map
 		void enableMap(const std::string& mapName, bool enable);

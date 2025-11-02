@@ -70,6 +70,15 @@ namespace SliceEngine
 		return map.definitions.size() - 1; // return index of newly added action
 	}
 
+	size_t ActionMappingSystem::AddValue1D(const std::string& mapName, const std::string& actionName)
+	{
+		auto& map = maps[mapName];
+		map.name = mapName;
+		map.definitions.push_back({ actionName, ActionType::Value1D, {} }); // give name, type, empty bindings for now
+		map.states.push_back({ ActionPhase::Disabled, false, 0.0f, 0.0f }); // default state
+		return map.definitions.size() - 1; // return index of newly added action
+	}
+
 	size_t ActionMappingSystem::AddValue2D(const std::string& mapName, const std::string& actionName)
 	{
 		auto& map = maps[mapName];
@@ -90,6 +99,19 @@ namespace SliceEngine
 		{
 			map.definitions[actionIndex].bindings.push_back({ keyCode, 1.0f, 0.0f, 0.0f }); // for button, scaleX=1.0f, x/y=0.0f
 			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "'\n";
+		}
+	}
+
+	void ActionMappingSystem::Bind1D(const std::string& mapName, const std::string& actionName, int keyCode, float scale)
+	{
+		auto& map = maps[mapName];
+		// find action index through its name then bind the keycode to it
+		size_t actionIndex = findAction(map, actionName);
+		// if action found, bind keycode
+		if (actionIndex != static_cast<size_t>(-1))
+		{
+			map.definitions[actionIndex].bindings.push_back({ keyCode, scale, 0.0f, 0.0f }); // for value1D, x/y=0.0f
+			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "' with scale " << scale << "\n";
 		}
 	}
 

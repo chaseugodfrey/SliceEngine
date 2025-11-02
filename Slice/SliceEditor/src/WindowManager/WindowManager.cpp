@@ -459,6 +459,7 @@ namespace SliceEditor
 			ImGui::InputText("Action Map Name", newMap, IM_ARRAYSIZE(newMap));
 			ImGui::InputText("Action Name", newAction, IM_ARRAYSIZE(newAction));
 			ImGui::RadioButton("Button", &newType, 0); ImGui::SameLine();
+			ImGui::RadioButton("1D Value", &newType, 2); ImGui::SameLine();
 			ImGui::RadioButton("2D Value", &newType, 1);
 
 			// for 2D value, input direction x and y
@@ -466,6 +467,11 @@ namespace SliceEditor
 			{
 				ImGui::InputFloat("Direction X", &dirX);
 				ImGui::InputFloat("Direction Y", &dirY);
+			}
+			// for 1D value, input direction x only
+			else if( newType == 2)
+			{
+				ImGui::InputFloat("Direction X", &dirX);
 			}
 
 			// creating a new action map
@@ -485,6 +491,10 @@ namespace SliceEditor
 				else if( newType == 1) // 2D value
 				{
 					AM.AddValue2D(newMap, newAction);
+				}
+				else if( newType == 2) // 1D value
+				{
+					AM.AddValue1D(newMap, newAction);
 				}
 			}
 			
@@ -516,6 +526,11 @@ namespace SliceEditor
 						ImGui::TableSetupColumn("Bind...");
 						ImGui::TableHeadersRow();
 					}
+
+					// idk how this fixes things tbh but it does
+					// persistent per-row capture state [which rows are currently capturing]
+					// use unordered_map to map action names to bools
+					static std::unordered_map<std::string, bool> sCapturing;
 					
 					// loop through all actions in this map and list them
 					for (size_t i{}; i < map.definitions.size(); ++i)
@@ -537,37 +552,49 @@ namespace SliceEditor
 						{
 							ImGui::TextUnformatted("2D Value");
 						}
+						// for 1d values
+						else if(definition.type == SliceEngine::ActionType::Value1D)
+						{
+							ImGui::TextUnformatted("1D Value");
+						}
 
 						// current bindings
 						ImGui::TableSetColumnIndex(2);
 						{
-							// show key names using the inputsystem's keycode to name function
-							for (size_t j{}; j < definition.bindings.size(); ++j)
+							if(definition.bindings.empty())
 							{
-								for (size_t bi = 0; bi < definition.bindings.size(); ++bi) 
-								{
-									const auto& b = definition.bindings[bi];
-									const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
-									if (definition.type == SliceEngine::ActionType::Button) 
+								ImGui::TextDisabled("No Bindings");
+							}
+							else
+							{
+								// show key names using the inputsystem's keycode to name function
+								//for (size_t j{}; j < definition.bindings.size(); ++j)
+								//{
+									for (size_t bi = 0; bi < definition.bindings.size(); ++bi)
 									{
-										ImGui::Text("%s", label);
+										const auto& b = definition.bindings[bi];
+										const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
+										if (definition.type == SliceEngine::ActionType::Button)
+										{
+											ImGui::Text("%s", label);
+										}
+										else
+										{
+											ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
+										}
 									}
-									else 
-									{
-										ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
-									}
-								}
-								if (definition.bindings.empty())
-								{
-									ImGui::TextDisabled("No Bindings");
-								}
+								//}
 							}
 						}
 
-						// bind new key
+						// bind new key/UI
 						ImGui::TableSetColumnIndex(3);
+
+						// create unique key for this aciton's capture state
+						const std::string capKey = mapName + " : " + definition.name;
+						bool& captureInput = sCapturing[capKey]; // check if we're capturing input for this action
+
 						ImGui::PushID((int)i); // push id for button
-						bool captureInput = false;
 						if (!captureInput)
 						{
 							if (ImGui::Button("Bind"))
@@ -590,6 +617,10 @@ namespace SliceEditor
 								{
 									AM.Bind2D(mapName, definition.name, key, dirX, dirY);
 								}
+								else if(definition.type == SliceEngine::ActionType::Value1D)
+								{
+									AM.Bind1D(mapName, definition.name, key, dirX);
+								}
 								captureInput = false; // stop capturing after key press
 							}
 							// cancel button
@@ -598,8 +629,8 @@ namespace SliceEditor
 							{
 								captureInput = false;
 							}
-							ImGui::PopID();
 						}
+						ImGui::PopID();
 					}
 					ImGui::EndTable();
 				}
