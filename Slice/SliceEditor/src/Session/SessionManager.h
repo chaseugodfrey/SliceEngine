@@ -30,6 +30,7 @@ namespace SliceEditor
 
 		void CreateEntityNodes();
 		void OnSceneChange(const OnSceneLoadedEvent& event);
+		void OnSceneStop(const OnSceneStopEvent& event);
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
 	};
 

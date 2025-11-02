@@ -168,6 +168,7 @@ namespace SliceEditor
 	void Editor::Exit()
 	{
 		navMesh.Clear();
+		assetManager.CleanUpSceneTemp();
 		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

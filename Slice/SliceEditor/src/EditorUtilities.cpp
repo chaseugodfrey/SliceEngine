@@ -2,6 +2,7 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <../src/Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -134,6 +135,18 @@ namespace SliceEditor
 				}
 			}
 		}
+
+		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager)
+		{
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(path);
+			selectionManager.ClearSelection(true);
+		}
+
+		void Scene_Stop(SelectionManager& selectionManager)
+		{
+			selectionManager.ClearSelection(true);
+		}
+
 
 		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
 		{

@@ -547,6 +547,21 @@ namespace SliceEditor
 
 	}
 
+	void AssetManager::CleanUpSceneTemp()
+	{
+		std::filesystem::path mAssetDirectoryFolder = mAssetDirectory;
+		mAssetDirectoryFolder /= "Default";
+
+		for (const auto& file : std::filesystem::directory_iterator(mAssetDirectoryFolder))
+		{
+			if (file.is_regular_file() && file.path().extension() == ".temp")
+			{
+				remove(file);
+			}
+		}
+
+	}
+
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
 	//{
 	//	auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>

@@ -280,10 +280,7 @@ namespace SliceEditor
 				if (isPlaying) // if its play, enable game input
 				{
 					scene->Play();
-					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					//inputs->SetEnabled(true);
-					//SliceEngine::gScriptSystem->OnStart();
-					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+					
 				}
 				
 			}
@@ -297,10 +294,7 @@ namespace SliceEditor
 				{
 					isPaused = false;
 					scene->Stop();
-					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					//inputs->SetEnabled(true);
-					//SliceEngine::gScriptSystem->OnStart();
-					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+					
 				}
 			}
 		}
@@ -319,11 +313,6 @@ namespace SliceEditor
 						scene->Pause();
 
 					}
-				
-					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
-					{
-						scene->Play();
-					}*/
 				}
 			}
 		}
@@ -340,11 +329,7 @@ namespace SliceEditor
 						scene->Play();
 
 					}
-
-					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
-					{
-						scene->Play();
-					}*/
+					
 				}
 			}
 		}

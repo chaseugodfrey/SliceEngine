@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ContentBrowserWindow.h"
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
@@ -140,7 +141,9 @@ namespace SliceEditor
 		
 		if (entry.path.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
 		
