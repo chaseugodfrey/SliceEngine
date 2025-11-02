@@ -4,7 +4,7 @@ project "SliceScript"
     dotnetframework "4.7.2"
     targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
-    targetdir ("")
+   -- targetdir ("")
 
     files
     {
@@ -20,8 +20,10 @@ project "SliceScript"
 
     filter "configurations:EditorDebug"
         optimize "Off"
-        symbols "Default"
-    
+        symbols "On"
+       -- buildoptions {"/debug:portable"}
+
     filter "configurations:EditorRelease"
         optimize "On"
-        symbols "Default"
+        symbols "On"
+        --buildoptions {"/debug:portable"}
