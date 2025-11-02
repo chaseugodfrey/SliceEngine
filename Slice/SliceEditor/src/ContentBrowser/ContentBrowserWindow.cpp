@@ -394,11 +394,35 @@ namespace SliceEditor
 			if (ImGui::Button("Compile"))
 			{
 				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
-				ImGui::CloseCurrentPopup();
-				willOpen = false;
+				//ImGui::CloseCurrentPopup();
+				//willOpen = false;
 			}
 
 			ImGui::SameLine();
+			if (assetType == AssetType::Model)
+			{
+				if (ImGui::Button("Compile Skl"))
+				{
+					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+					skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
+					mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton);
+				//	ImGui::CloseCurrentPopup();
+					//willOpen = false;
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Compile Anim"))
+				{
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
+					mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation);
+					//ImGui::CloseCurrentPopup();
+					//willOpen = false;
+				}
+
+				ImGui::SameLine();
+			}
 
 			if (ImGui::Button("Cancel"))
 			{
@@ -521,7 +545,18 @@ namespace SliceEditor
 
 	}
 
-	void ContentBrowserWindow::DisplayFBXData(ModelData* data){}
+	void ContentBrowserWindow::DisplayFBXData(ModelData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+		Label("Is Static: ");
+		ImGui::Checkbox("##Has_Alpha", &data->is_static);
+	}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)
 	{

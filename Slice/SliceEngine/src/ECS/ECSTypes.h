@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Resource.h"
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
+#include "Resource/Skeleton.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -107,7 +108,7 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		//GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID;
+		//GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID; 
 		//GUID material = (GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID;
 
 		Handle<SliceEngineTypes::Model> modelHandle;
@@ -333,6 +334,59 @@ namespace SliceEngine
 	{
 		FSMSystem stateMachine{};
 		float animTimer = 0.0f;
+		bool is_bone{ true };
+		float current_time{};
+
+		std::vector<glm::mat4> final_tforms;
+		std::bitset<MAX_BONES> inverse_flags{};
+		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
+
+		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
+		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
+
+		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+
+		unsigned int curr_anim_idx{};
+
+		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
+
+		/*
+		void SetAnimationPackage(SliceEngine::GUID anim)
+		{
+			curr_anim_pkg.mGUID = anim;
+		}
+		void SetSkeleton(SliceEngineTypes::Skeleton* skele) 
+		{
+			skeleton = skele;
+		}
+		*/
+
+
+		void SetInverseRoots() {
+			for (unsigned int i{}; i < inverse_flags.size(); ++i) {
+				if (inverse_flags[i]) {
+					inverse_map[i] = glm::inverse(final_tforms[i]);
+				}
+			}
+		}
+
+		void PlayAnimation(unsigned int idx) 
+		{
+			curr_anim_idx = idx;
+		}
+
+		std::vector<glm::mat4> const& GetFinalTform() const
+		{
+			return final_tforms;
+		}
+
+		RTTR_ENABLE();
+	};
+
+	struct Bone 
+	{
+		Entity skeleton_root{};
+		unsigned int frame_idx{};
 
 		RTTR_ENABLE();
 	};

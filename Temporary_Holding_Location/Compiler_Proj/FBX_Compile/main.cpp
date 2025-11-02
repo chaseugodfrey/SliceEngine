@@ -36,16 +36,17 @@ int main(int argc, char** argv)
 
 	std::string asset_path = obj["assetPath"];
 	std::string resource_path = obj["resourcePath"];
-#else
-	//kinda dosent work rn since no json
-	std::string asset_path = "../Asset/player.fbx";
-	std::string resource_path = "../Asset/player.mdl";
-#endif
-	//Read the descriptor file here i guess?
 
 	Geometry::FBX_Compiler compiler{};
 
-	compiler.Compile_Asset(asset_path.c_str(), resource_path.c_str(), obj);
+	return compiler.Compile_Asset(asset_path.c_str(), resource_path.c_str(), obj);
+#else
+
+	std::string asset_path = "../Asset/player.fbx";
+	std::string resource_path = "../Asset/cube.mdl";
+#endif
+	//Read the descriptor file here i guess?
+
 	//compiler.Compile_Primitive(Geometry::Mesh_Compiler::Cube, resource_path2.c_str());
 	return 1;
 

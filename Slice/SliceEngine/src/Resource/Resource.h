@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Scene.h"
 #include "Shader.h"
 #include "Audio.h"
+#include "Skeleton.h"
 
 namespace SliceEngine
 {
@@ -115,6 +116,24 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::Prefab> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Skeleton>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::Skeleton> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Skeleton& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::AnimationPackage>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::AnimationPackage> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr);
 	};
 }
 
