@@ -57,8 +57,7 @@ namespace SliceEditor
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
-		//AddWindow<AnimationWindow>();
-		//dAddWindow<NavigationWindow>();
+		AddWindow<AnimationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -68,9 +67,6 @@ namespace SliceEditor
 			if (window->markForRemoval)
 				list.erase(std::remove(list.begin(), list.end(), window));
 		}
-		/*AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();*/
-		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -282,6 +278,15 @@ namespace SliceEditor
 					scene->Play();
 					
 				}
+				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
+				//{
+				//	//inputs->UnbindCallbacks();
+				//	inputs->SetMode(SliceEngine::InputMode::Editor);
+				//	inputs->SetEnabled(false);
+				//}
+					//SliceEngine::gScriptSystem->OnStart();
+					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
+				
 				
 			}
 		}

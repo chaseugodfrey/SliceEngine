@@ -73,6 +73,27 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min, float max)
+	{
+		static int oldVal{};
+
+		bool changed = ImGui::DragInt(id, &val, 1.0f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ValueCommand<int>> command = std::make_unique<ValueCommand<int>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 	bool BoolInput(Registry& reg, const char* id, bool& val)
 	{
 
@@ -83,6 +104,28 @@ namespace SliceEditor
 			if (changed)
 			{
 				std::unique_ptr<ValueCommand<bool>> command = std::make_unique<ValueCommand<bool>>(val, !val, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool StringInput(Registry& reg, const char* id, std::string& val)
+	{
+		static std::string oldVal{};
+		bool changed = ImGui::InputText(id, &val);
+
+		if (ImGui::IsItemActivated())
+		{
+			oldVal = val;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (changed)
+			{
+				std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
@@ -106,6 +149,26 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format, float min, float max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = DragIntInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = StringInput(reg, id, val) || changed;
 
 		return changed;
 	}
