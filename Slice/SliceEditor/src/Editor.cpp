@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Input/InputSystem.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
+#include <WindowManager/WindowManager.h>
 
 namespace SliceEditor
 {
@@ -74,56 +75,39 @@ namespace SliceEditor
 
 		engine.Init();
 
-		/*
-		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-        FloorTest.AddComponent<SliceEngine::Renderer>();
-        FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
-        FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-        FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
+		//SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
+		//FloorTest.AddComponent<SliceEngine::Renderer>();
+		//FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.mGUID = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		//FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.mGUID);
+		//FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
+		//FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
 
-        auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
+		//auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
 
-        // Build transformation matrix
-        glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-            * glm::mat4_cast(transform.rotation)
-            * glm::scale(glm::mat4(1.0f), transform.scale);
+		//// Recast Section Test
+		//// 
+		//// Build transformation matrix
+		//navMesh.Init();
 
-        auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-        auto &model = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().model).get();
-		*/
-		SliceEngine::GameObject FloorTest1 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-		FloorTest1.AddComponent<SliceEngine::Renderer>();
-		FloorTest1.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
-		FloorTest1.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-		FloorTest1.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
+		//glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+		//	* glm::mat4_cast(transform.rotation)
+		//	* glm::scale(glm::mat4(1.0f), transform.scale);
 
-		auto &transform1 = FloorTest1.GetComponent<SliceEngine::Transform>();
-		transform1.position = glm::vec3(-10.f, 5.f, -10.f);
+		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//if (FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.IsValid())
+		//{
+		//	auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
+		//	
+		//	if (navMesh.BuildFromModel(*model, transformMatrix))  
+		//	{
+		//		SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+		//	}
+		//	else
+		//	{
+		//		SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+		//	}
 
-		// Recast Section Test
-		// 
-		// Build transformation matrix
-		navMesh.Init();
-
-		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-			* glm::mat4_cast(transform.rotation)
-			* glm::scale(glm::mat4(1.0f), transform.scale);
-
-		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		if (FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.IsValid())
-		{
-			auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
-			
-			if (navMesh.BuildFromModel(*model, transformMatrix))  
-			{
-				SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
-			}
-			else
-			{
-				SLICE_LOG_ERROR("NAVMESH NOT BUILT");
-			}
-
-		}
+		//}
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
@@ -182,6 +166,7 @@ namespace SliceEditor
 	void Editor::Exit()
 	{
 		navMesh.Clear();
+		assetManager.CleanUpSceneTemp();
 		engine.Exit();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();

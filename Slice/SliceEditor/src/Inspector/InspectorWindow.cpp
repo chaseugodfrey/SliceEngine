@@ -16,11 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "InspectorWindow.h"
-#include "ComponentPropertiesGUI.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
+#include "ComponentPropertiesGUI.h"
 
 namespace SliceEditor
 {
@@ -175,6 +175,10 @@ namespace SliceEditor
 			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
 				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
+			}
+			else //Its a default model
+			{
+				modelFilename = model_guid_string;
 			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -371,10 +375,20 @@ namespace SliceEditor
 						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 						{
 							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//{
+							//	scriptRef->SetFieldValue(it.second.mName, data);
+							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//}
+							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 							}
 						}
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
@@ -449,45 +463,11 @@ namespace SliceEditor
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
-			ImGui::Text("Intensity");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
-			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
-			int current_light_type_index = static_cast<int>(light.type) - 1;
+			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
-			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
-			{
-				switch (current_light_type_index)
-				{
-				case 0:
-					light.type = SliceEngine::Light::Light_Directional;
-					break;
-				case 1:
-					light.type = SliceEngine::Light::Light_Point;
-					break;
-				case 2:
-					light.type = SliceEngine::Light::Light_Spot;
-					break;
-				}
-			}
-
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
+			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
 
 			ImGui::TreePop();
 		}
