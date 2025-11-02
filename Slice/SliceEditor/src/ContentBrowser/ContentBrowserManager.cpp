@@ -151,7 +151,7 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserManager::DeleteFile(DirectoryNode& entry)
+	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
 		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
 		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());

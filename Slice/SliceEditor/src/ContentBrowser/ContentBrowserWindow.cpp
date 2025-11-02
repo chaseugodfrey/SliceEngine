@@ -181,7 +181,7 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Delete Folder"))
 						{
-							mManager.DeleteFile(entry);
+							mManager.DeleteNode(entry);
 							selectedEntry = nullptr;
 							ImGui::EndPopup();
 							ImGui::EndTable();
@@ -262,7 +262,7 @@ namespace SliceEditor
 							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
 							//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
 							//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-							mManager.DeleteFile(entry);
+							mManager.DeleteNode(entry);
 							selectedEntry = nullptr;
 							ImGui::EndPopup();
 							break;
