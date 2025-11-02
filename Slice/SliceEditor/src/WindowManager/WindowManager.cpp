@@ -54,9 +54,18 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
 		AddWindow<NavigationWindow>();
+	}
+
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -121,7 +130,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -421,6 +430,10 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void WindowManager::DrawPreferenceSettings()
+	{
+	}
+
 	void WindowManager::DrawProjectSettings()
 	{
 		if (!projectSettingsPopupOpen)
@@ -490,5 +503,9 @@ namespace SliceEditor
 		projectSettingsPopupOpen = isOpen;
 
 	}
+
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }
