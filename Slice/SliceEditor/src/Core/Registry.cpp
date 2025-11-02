@@ -48,7 +48,8 @@ namespace SliceEditor
 
 	void Registry::Update()
 	{
-		GetManager<SessionManager>("Session")->Update();
+		for (auto& [key, manager] : mManagers)
+			manager->Update();
 	}
 	
 	std::unordered_map<std::string, std::unique_ptr<IBaseManager>> const& Registry::GetManagers()

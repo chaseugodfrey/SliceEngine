@@ -480,6 +480,16 @@ namespace SliceEngine
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
 
+		auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
+
+		// update root entity's child
+		//auto parentChildIt = map.find((uint32_t)parentSceneGraph.neighbours[SceneGraph::DOWN]);
+		//if (parentChildIt != map.end())
+		//{
+
+		//	parentSceneGraph.neighbours[SceneGraph::DOWN] = (Entity)parentChildIt->second;
+		//}
+
 		for (auto entity : view)
 		{
 			auto& scene_graph = mRegistry.get<SceneGraph>(entity);

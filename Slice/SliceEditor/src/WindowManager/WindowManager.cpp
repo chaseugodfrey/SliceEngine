@@ -59,6 +59,15 @@ namespace SliceEditor
 		//AddWindow<AnimationWindow>();
 	}
 
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
+	}
+
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
 	{
 		windowFactoryMap[name] = interfaceInstance;
@@ -66,16 +75,16 @@ namespace SliceEditor
 
 	void WindowManager::AddWindow(const std::string& name)
 	{
-		auto it = windowFactoryMap.find(name);
-		if (it != windowFactoryMap.end())
-		{
-			auto window = it->second->CreateEditorWindow();
-			list.push_back(std::move(window));
-		}
-		else
-		{
-			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
-		}
+		//auto it = windowFactoryMap.find(name);
+		//if (it != windowFactoryMap.end())
+		//{
+		//	auto window = it->second->CreateEditorWindow();
+		//	list.push_back(std::move(window));
+		//}
+		//else
+		//{
+		//	SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
+		//}
 	}
 
 	void WindowManager::Render()
@@ -121,7 +130,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -421,6 +430,10 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void WindowManager::DrawPreferenceSettings()
+	{
+	}
+
 	void WindowManager::DrawProjectSettings()
 	{
 		if (!projectSettingsPopupOpen)
@@ -490,5 +503,9 @@ namespace SliceEditor
 		projectSettingsPopupOpen = isOpen;
 
 	}
+
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }

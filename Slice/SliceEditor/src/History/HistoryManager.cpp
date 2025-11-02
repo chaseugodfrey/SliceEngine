@@ -12,6 +12,11 @@ namespace SliceEditor
 		EventManager::GetInstance()->Subscribe<RedoEvent, &HistoryManager::Redo>(this);
 	}
 
+	void HistoryManager::Update()
+	{
+
+	}
+
 	void HistoryManager::AddCommand(std::unique_ptr<Command> command)
 	{
 		undoStack.push(std::move(command));
