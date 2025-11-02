@@ -24,38 +24,33 @@ const int MAX_BONE_INFLUENCE = 4;
 uniform mat4 finalBonesMatrices[MAX_BONES];
 
 void main(){
-    mat4 norm_tform = mat4(0.0f);
-   /* 
-    vec4 final_pos = vec4(0.0f);
+    vec4 final_pos = vec4(v_position, 1.0f);
     mat4 bone_tform = mat4(0.0f);
+    bool is_bone_animated = false;
     for(int i = 0; i < MAX_BONE_INFLUENCE; ++i) {
         int bone_id = v_boneid[i];
 
         if(bone_id == -1) {
             continue;
         }
-        
-        if(bone_id >= MAX_BONES) {
-            final_pos = vec4(v_position, 1.0f);
-
-            break;  //something went wrong
-        }
-
+        is_bone_animated = true;
         bone_tform += finalBonesMatrices[bone_id] * v_weights[i];
-        norm_tform += finalBonesMatrices[bone_id];
     }
     
-    final_pos = bone_tform * vec4(v_position, 1.0f);
-   */
-   
     vec4 local_norm = vec4(v_normal, 1.0f);
-    //local_norm = norm_tform * local_norm;
-
 	mat4 MV = V * M;
+
+    if(is_bone_animated) {
+        final_pos = bone_tform * vec4(v_position, 1.0f);
+        //final_pos = finalBonesMatrices[1] * vec4(v_position, 1.0f);
+        local_norm = bone_tform * local_norm;
+        MV = V;
+    }
+
     mat3 N = mat3(vec3(MV[0]), vec3(MV[1]), vec3(MV[2])); 
     i_normal = normalize(N * local_norm.xyz);
 
-    vec4 VertexPositionInView = MV * vec4(v_position, 1.0);
+    vec4 VertexPositionInView = MV * vec4(final_pos);
     i_position = VertexPositionInView.xyz;
 
     gl_Position = P * VertexPositionInView; 

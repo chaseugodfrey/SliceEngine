@@ -98,17 +98,23 @@ namespace SliceEditor
 	};
 
 
+	// ANIMATIONS
+
+
+
 	// THEMES
 
 	enum EditorThemeType : int
 	{
 		DARK = 0,
-		MICROSOFT = 1
+		LIGHT = 1,
+		MICROSOFT = 2
 	};
 
-	constexpr std::array<const char*, 2> EditorThemes =
+	constexpr std::array<const char*, 3> EditorThemes =
 	{
 		"Dark",
+		"Light",
 		"Microsoft"
 	};
 
