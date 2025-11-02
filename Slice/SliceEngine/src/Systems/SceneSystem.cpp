@@ -29,7 +29,7 @@ namespace SliceEngine
 
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
-		isSceneUnloaded = false;
+		//isSceneUnloaded = false;
 
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
@@ -120,6 +120,7 @@ namespace SliceEngine
 		SLICE_LOG("Unloading Scenes.");
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
+		Core::GetInstance()->mFactory.UpdateDestroyed();
 
 		isSceneUnloaded = true;
 	}
@@ -128,8 +129,9 @@ namespace SliceEngine
 	void SceneSystem::ReloadScene()
 	{
 		// need function to clear everything on the scene
-		Core::GetInstance()->mFactory.ClearGameObjects();
-		Core::GetInstance()->mFactory.UpdateDestroyed();
+		//Core::GetInstance()->mFactory.ClearGameObjects();
+		//Core::GetInstance()->mFactory.UpdateDestroyed();
+		
 
 		std::filesystem::path CurrentScene = mCurrentScene;
 
@@ -140,7 +142,7 @@ namespace SliceEngine
 			mCurrentScene = CurrentSceneTemp;
 		}
 
-		LoadScene(mCurrentScene);
+		LoadSceneIntoQueue(mCurrentScene);
 		// reloads the scene
 		/*JSONSerializer::DeserializeScene(mCurrentScene);
 
