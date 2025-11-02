@@ -21,7 +21,13 @@ namespace SliceEditor
 
 	void AnimationWindow::Draw()
 	{
+		bool isAnimatorSelected = animationClipNames.size() > 0;
+
 		ImGui::Begin("Animation");
+
+		// disable if no selection
+		if (!isAnimatorSelected)
+			ImGui::BeginDisabled();
 
 #pragma region Animation Toolbar
 		ImGui::BeginGroup();
@@ -79,15 +85,11 @@ namespace SliceEditor
 		ImGui::Separator();
 		ImGui::BeginGroup();
 
-		bool isAnimatorSelected = animationClipNames.size() > 0;
 		std::string preview = "No Animations";
 
 		if (isAnimatorSelected)
 			preview = animationClipNames[animationClipIndex];
 
-		// disable if no selection
-		if (!isAnimatorSelected)
-			ImGui::BeginDisabled();
 
 		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
 		{
@@ -99,9 +101,6 @@ namespace SliceEditor
 				}
 			}
 		}
-
-		if (!isAnimatorSelected)
-			ImGui::EndDisabled();
 
 		ImGui::EndGroup();
 
@@ -126,6 +125,9 @@ namespace SliceEditor
 
 			ImGui::EndNeoSequencer();
 		}
+
+		if (!isAnimatorSelected)
+			ImGui::EndDisabled();
 
 		ImGui::End();
 	}
