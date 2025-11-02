@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include "WindowManager.h"
 #include "ICreateWindow.h"
 #include "../Core/Registry.h"
+#include "WindowTypes.h"
+
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
 #include <Scripting/ScriptSystem.h>
@@ -23,10 +25,8 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
-#include <Hierachy/HierarchyWindow.h>
-#include <Inspector/InspectorWindow.h>
-#include <SceneView/SceneViewWindow.h>
-#include <GameView/GameViewWindow.h>
+#include <Profiler/ProfilerManager.h>
+
 
 namespace SliceEditor
 {
@@ -55,6 +55,18 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
+		AddWindow<NavigationWindow>();
+	}
+
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -119,7 +131,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -134,14 +146,9 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
-			if (ImGui::MenuItem("Animation"))
+			if (ImGui::MenuItem("Content Browser"))
 			{
-
-			}
-
-			if (ImGui::MenuItem("Animator"))
-			{
-
+				registry.GetManager<ProfilerManager>("ContentBrowser")->CreateEditorWindow();
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -149,34 +156,39 @@ namespace SliceEditor
 
 			}
 
-			if (ImGui::MenuItem("Content Browser"))
-			{
-
-			}
-
 			if (ImGui::MenuItem("Game"))
 			{
-
+				AddWindow<GameViewWindow>();
 			}
 
-			if (ImGui::MenuItem("Hierachy"))
+			if (ImGui::MenuItem("Hierarchy"))
 			{
-
+				AddWindow<HierarchyWindow>();
 			}
 
 			if (ImGui::MenuItem("Inspector"))
 			{
-
+				AddWindow<InspectorWindow>();
 			}
 
 			if (ImGui::MenuItem("Scene"))
 			{
-
+				AddWindow<SceneViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
 			{
+				AddWindow("Profiler");
+			}
 
+			if (ImGui::MenuItem("Animation"))
+			{
+				AddWindow<AnimationWindow>(true);
+			}
+
+			if (ImGui::MenuItem("Animator"))
+			{
+				AddWindow<AnimatorWindow>(true);
 			}
 
 			ImGui::EndMenu();
@@ -190,7 +202,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					auto go = factory.CreateGO_Box();
+					EditorUtilities::GameObject_CreateBox();
 				}
 
 				ImGui::EndMenu();
@@ -198,7 +210,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = factory.CreateGO_Cam();
+				EditorUtilities::GameObject_CreateCam();
 			}
 
 			ImGui::EndMenu();
@@ -305,20 +317,20 @@ namespace SliceEditor
 			ImGui::OpenPopup("host_req");
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Reload Scripts", ImVec2{ 60,35 }))
-		{
-			if (SliceEngine::gScriptSystem)
-			{
-				SliceEngine::gScriptSystem->ReloadAssembly();
-			}
-		}
-		ImGui::SameLine();
 		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
 		{
 			ImGui::OpenPopup("connect_req");
 
 		}
 
+		ImGui::SameLine();
+		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
+		{
+			if (SliceEngine::gScriptSystem)
+			{
+				SliceEngine::gScriptSystem->ReloadAssembly();
+			}
+		}
 		if (ImGui::BeginPopup("host_req"))
 		{
 
@@ -419,6 +431,10 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void WindowManager::DrawPreferenceSettings()
+	{
+	}
+
 	void WindowManager::DrawProjectSettings()
 	{
 		if (!projectSettingsPopupOpen)
@@ -488,5 +504,9 @@ namespace SliceEditor
 		projectSettingsPopupOpen = isOpen;
 
 	}
+
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }

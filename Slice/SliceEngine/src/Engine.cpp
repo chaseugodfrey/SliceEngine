@@ -4,7 +4,7 @@
  email:			
  brief:			Main Engine
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GLFWWindowManager.h"
 #include "Core/Core.h"
 #include "Input/InputSystem.h"
-#include "AudioManager.h"
+#include "../src/Audio/AudioManager.h"
 #include "Systems/TransformSystem.h"
 #include <crtdbg.h>
 //#include "Graphics/ResourceManager.h"
@@ -34,6 +34,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Configuration/ProjectSettings.h"
 #include "Networking/NetworkSystem.h"
+#include "Systems/ParticleSystemManager.h"
+#include "Systems/PrefabSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -94,7 +96,7 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		mAudioManager->LoadSound("Assets/Audio/3DAudioTest.wav");
+		
 		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
 		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
@@ -107,7 +109,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+		Core::GetInstance()->InitSystem<ParticleSystemManager>();
+		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
+
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
@@ -168,20 +173,42 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		//JSONSerializer::Tests::RunTests(JSONSerializer::Tests::TEST3, false);
 		Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecond");
+		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
 		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
 		//Dlight.AddComponent<Light>();
-		//Dlight.GetComponent<Light>().type = Light::LightType::Directional;
+		//Dlight.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
+		//Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight2.AddComponent<Light>();
+		//Dlight2.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
+		//
+		//GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
+		//Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
+		//Dlight3.AddComponent<Light>();
+		//Dlight3.GetComponent<Light>().type = Light::LightType::Light_Directional;
+		//
+		//FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
+		
+		//Core::GetInstance()->GetSystem<PrefabSystem>().CreatePrefab((GUID)9528168868150986328);
+		//JSONSerializer::SerializePrefab(Dlight.GetEntity());
+
 		//for (int i = 0; i < 2; ++i)
 		//{
-		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light2");
+		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
 		//	light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
 		//	light.AddComponent<Light>();
+		//	light.GetComponent<Light>().type = Light::LightType::Light_Point;
+		//	if(i == 0)
+		//		light.GetComponent<Light>().color = glm::vec3(1.f, 0.f, 0.f);
+		//	else
+		//		light.GetComponent<Light>().color = glm::vec3(0.f, 1.f, 0.f);
 		//}
 	}
 
@@ -193,6 +220,7 @@ namespace SliceEngine
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -200,6 +228,46 @@ namespace SliceEngine
 			{
 				sScene->LoadNextScene();
 			}
+		}
+
+		while (sScene->mCurrentState != sScene->mNextState)
+		{
+			//Line to load resources
+			if (sScene->mNextState == SceneState::PLAY_SCENE)
+			{
+				sInputs->SetMode(InputMode::Game);
+				sInputs->SetEnabled(true);
+				if (!isPlaying)
+				{
+					SliceEngine::gScriptSystem->OnStart();
+					isPlaying = true;
+
+				}
+				sScene->mCurrentState = SceneState::PLAY_SCENE;
+			}
+
+			if (sScene->mNextState == SceneState::STOP_SCENE)
+			{
+				sInputs->SetMode(InputMode::Editor);
+				sInputs->SetEnabled(false);
+				sScene->ReloadScene();
+
+				gScriptSystem->OnEnd();
+
+				sScene->mCurrentState = SceneState::DEFAULT;
+				sScene->mNextState = SceneState::DEFAULT;
+			}
+
+			/*if (sScene->mNextState == SceneState::LOAD_NEXT_SCENE)
+			{
+				if (!sScene->CheckQueueEmpty())
+				{
+					if (sScene->isSceneUnloaded)
+					{
+						sScene->LoadNextScene();
+					}
+				}
+			}*/
 		}
 
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
@@ -217,7 +285,6 @@ namespace SliceEngine
 		frm.EndSystem("GLFW Poll Events");
 		// Main Body
 
-
 		frm.StartSystem("Input");
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
@@ -230,10 +297,14 @@ namespace SliceEngine
         
 		frm.StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		if (sInputs->GetMode() == InputMode::Game)
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
+		/*if (sInputs->GetMode() == InputMode::Game)
+		{
+			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+		}*/
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
@@ -245,11 +316,25 @@ namespace SliceEngine
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Physics");
-		if (sInputs->GetMode() == InputMode::Game)
+		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+			}
+		}*/
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+			{
+
+				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+
+				// Single world step
+				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm.getFixedDeltaTime()));
+
+				// Post-step: pull dynamic poses for rendering
+				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
 		}
 		frm.EndSystem("Physics");
@@ -257,6 +342,10 @@ namespace SliceEngine
 		frm.StartSystem("Graphics");
 		sRender->Render();
 		frm.EndSystem("Graphics");
+
+		frm.StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
+		frm.EndSystem("Particle System");
 
 		frm.EndFrame();
 		frm.CalculateSystemPercentages();
@@ -290,6 +379,7 @@ namespace SliceEngine
 
 	void Engine::LoadProjectSettings()
 	{
+		auto sScene = Core::GetInstance()->GetSceneSystem();
 		std::filesystem::path proj = "projectSettings.json";
 
 		ProjectSettings s;
@@ -326,7 +416,8 @@ namespace SliceEngine
 
 			else
 			{
-				Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+				sScene->LoadScene(sceneToLoad); // for now by filepath
+				sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
 			}
 		}
 	}

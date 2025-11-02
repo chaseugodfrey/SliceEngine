@@ -130,11 +130,14 @@ namespace SliceEditor
 
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
 
-			auto& selectedEntities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedEntities();
+			auto& selectedEntities = mManager.GetRegistry().GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 			for(auto& entity: selectedEntities)
 			{
-				DrawSceneGraphComponent(entity);
-				ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,5.0f);
+				if(auto entityNode = static_cast<EntityNode*>(entity))
+				{
+					DrawSceneGraphComponent(entityNode->entity);
+					ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 5.0f);
+				}
 			}
 			ImGui::EndChild();
 		}

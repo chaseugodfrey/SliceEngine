@@ -32,6 +32,14 @@ namespace SliceEngine
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+		std::string SerializePrefab(entt::entity entity);
+		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
+
+		Entity DeserializePrefab(std::filesystem::path const& filePath);
+
+		json SerializeSceneResources();
+		void DeserializeSceneResource(std::filesystem::path const& filePath);
+
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
 		// For generic values
@@ -50,7 +58,12 @@ namespace SliceEngine
 			if (value == GUID::null())
 				output[name][typeName][propName] = "";
 			else
+			{
 				output[name][typeName][propName] = std::to_string(value.GetGUID());
+				Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(value);
+			}
+
+
 		}
 
 		// For generic vectors

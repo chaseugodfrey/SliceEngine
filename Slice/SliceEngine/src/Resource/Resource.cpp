@@ -4,7 +4,7 @@
  email:			g.francis@digipen.edu
  brief:			Loads resources
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -13,8 +13,11 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Texture.h"
 #include "Shader.h"
+#include "Material.h"
 #include "Model.h"
 #include "Scene.h"
+#include "Audio.h"
+#include "Prefab.h"
 
 namespace SliceEngine
 {
@@ -55,6 +58,16 @@ namespace SliceEngine
 		resource.DestroyShader();	//calls glDeleteProgram
 	}
 
+	//Material
+	std::unique_ptr<SliceEngineTypes::Material> Type<SliceEngineTypes::Material>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::Material>( SliceEngineTypes::Material::LoadMaterial(path));
+	}
+
+	void Type<SliceEngineTypes::Material>::Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyMaterial();
+	}
 	//Model
 	std::unique_ptr<SliceEngineTypes::Model> Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -69,6 +82,15 @@ namespace SliceEngine
 			{
 			case DefaultResourceIDs::CUBE_DEFAULT:
 				m->LoadDefaultCubeModel();
+				break;
+			case DefaultResourceIDs::SPHERE_DEFAULT:
+				m->LoadDefaultSphereModel();
+				break;
+			case DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT:
+				m->LoadDefaultSphereModel(5,7);
+				break;
+			case DefaultResourceIDs::CAPSULE_DEFAULT:
+				m->LoadDefaultCapsuleModel();
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
@@ -109,5 +131,37 @@ namespace SliceEngine
 	{
 		// scene got nth to destroy that resource manager doesn't do for it
 		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
+	}
+
+	//Audio
+	std::unique_ptr<SliceEngineTypes::Audio> Type<SliceEngineTypes::Audio>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto audio = std::make_unique<SliceEngineTypes::Audio>();
+		
+		if (std::filesystem::exists(path))
+		{
+			audio->LoadAudioResource(path);
+		}
+		
+		return audio;
+	}
+
+	void Type<SliceEngineTypes::Audio>::Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyAudio();
+	}
+	
+	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+			std::filesystem::path file(path);
+			GUID guid = GUID::FromString(file.stem().string());
+			
+			auto prefab = std::make_unique<SliceEngineTypes::Prefab>(guid, path);
+			return prefab;
+	}
+
+	void Type<SliceEngineTypes::Prefab>::Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr)
+	{
+		// nth to destroy
 	}
 }

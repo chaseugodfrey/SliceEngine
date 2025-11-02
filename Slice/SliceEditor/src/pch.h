@@ -76,6 +76,10 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_stdlib.h>
 #include <ImGuizmo.h>
+#include <imgui_node_editor.h>
+#include <ImSequencer.h>
+#include <imgui_neo_internal.h>
+#include <imgui_neo_sequencer.h>
 
 // filewatcher
 #include <../thirdparty/filewatch/FileWatcher.h>
@@ -106,9 +110,9 @@
 #include <Core/Events.h>
 
 // Editor
-#include <History/Commands.h>
 #include <EditorCommonTypes.h>
 #include <EditorUtilities.h>
+#include <History/Commands.h>
 #include <Core/Registry.h>
 #include <Core/EditorEvents.h>
 

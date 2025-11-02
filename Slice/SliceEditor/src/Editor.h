@@ -25,25 +25,31 @@ struct GLFWwindow;
 #include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
 #include "EditorInputs.h"
+#include <Navigation/RecastNavmesh.h>
 
 namespace SliceEditor
 {
 	class Editor
 	{
 		SliceEngine::Engine engine;
+		AssetManager assetManager;
 		Registry registry;
 		EditorInputs inputs;
-		AssetManager assetManager;
-
+		RecastNavMesh navMesh;
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
 		void InitEditorState();
 		void InitWindowManager();
 		void HandleDrop(const std::filesystem::path path);
 
+		void Update();
 		void Render();
 
 	public:
+
+		Editor() : assetManager(), registry(assetManager)
+		{
+		}
 
 		// todo : push this to event manager
 		bool isNewSceneLoaded{};

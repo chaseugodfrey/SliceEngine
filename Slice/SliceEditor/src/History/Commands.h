@@ -34,6 +34,19 @@ namespace SliceEditor
 		}
 	};
 
+	class SelectNodeCommand : public Command
+	{
+		SelectionManager& sSelection;
+		std::unordered_set<SelectionNode*> oldNodes;
+		std::unordered_set<SelectionNode*> newNodes;
+	public:
+		SelectNodeCommand(SelectionManager& sys, std::unordered_set<SelectionNode*> oldN, std::unordered_set<SelectionNode*> newN) :
+			sSelection(sys), oldNodes(oldN), newNodes(newN) {}
+		~SelectNodeCommand() = default;
+		void Redo() override;
+		void Undo() override;
+	};
+
 	class SelectEntityCommand : public Command
 	{
 		SelectionManager& sSelection;

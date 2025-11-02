@@ -16,6 +16,7 @@ namespace SliceEditor
 		~HistoryManager() = default;
 
 		void Init() override;
+		void Update() override;
 		void AddCommand(std::unique_ptr<Command> command);
 		void AddCommandFromEvent(AddCommandEvent& event);
 		void SetStackSize(size_t size);

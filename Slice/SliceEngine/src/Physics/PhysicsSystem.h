@@ -13,11 +13,15 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include <iostream>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
 #include "CollisionLayer.h"
 #include "../Core/Events.h"
+#include "ContactListener.h"
 
 namespace 
 {
@@ -40,11 +44,12 @@ namespace SliceEngine
 		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
+		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
 		int collisionSteps{};
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider) const;
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
 
 		void Shutdown();
 
@@ -65,6 +70,8 @@ namespace SliceEngine
 		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
 
 		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
+
+		void HandleRemovedContacts();
 
 	public:
 
@@ -89,7 +96,21 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
-		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
+		glm::vec3 GetLinearVelocity(Entity entity);
+
+		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
+
+		void StepWorld(float dt);
+
+		void PostStepSync();
+
+		void AddForceToEntity(Entity entity, const JPH::Vec3& force);
+
+		void AddImpulseToEntity(Entity entity, const JPH::Vec3& impulse);
+
+		void AddVelocityChangeToEntity(Entity entity, const JPH::Vec3& deltaVelocity);
+
+		void AddAccelerationToEntity(Entity entity, const JPH::Vec3& acceleration);
 
 	};
 

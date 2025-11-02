@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include <fstream>
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
+#include "../Systems/SceneSystem.h"
 namespace SliceEngine
 {
     ScriptSystem* gScriptSystem = NULL;
@@ -44,6 +45,8 @@ namespace SliceEngine
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
         {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.Audio", ScriptFieldType::Audio},
+        {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
 
     ScriptSystem::ScriptSystem()
@@ -374,10 +377,17 @@ namespace SliceEngine
                     mEntityInstances[*entity] = scriptObj;
 
                     auto inputs = Core::GetInstance()->GetInputSystem();
+                    auto scene = Core::GetInstance()->GetSceneSystem();
 
-                    if (inputs->GetMode() == InputMode::Game)
+                    //if (inputs->GetMode() == InputMode::Game)
+                    //{
+                    //    //check if its running or in edit mode but for now just call
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
+
+                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
                     {
-                        //check if its running or in edit mode but for now just call
                         mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
                         mEntityInstances[*entity]->InvokeOnCreate();
                     }
@@ -437,6 +447,7 @@ namespace SliceEngine
 		auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
+
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
 
@@ -449,8 +460,12 @@ namespace SliceEngine
             // but again after M1 
 
             // for now we just invoke the moment it has been added
-			mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
-			mEntityInstances[entity]->InvokeOnCreate();
+            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+            {
+			    mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+			    mEntityInstances[entity]->InvokeOnCreate();
+
+            }
 		}
         else
         {
@@ -476,6 +491,8 @@ namespace SliceEngine
 
     void ScriptSystem::LoadEntityClasses()
     {
+        //loook here aloy
+
         // clear the map before using it
         mEntityClasses.clear();
 
@@ -527,7 +544,6 @@ namespace SliceEngine
 
 
                             rttr::variant var;
-
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, fieldName, field, var};
                         }

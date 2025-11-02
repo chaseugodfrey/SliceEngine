@@ -26,6 +26,11 @@ namespace SliceEditor
 		BuildTree();
 	}
 
+	void ContentBrowserManager::Update()
+	{
+
+	}
+
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Content Browser Window.");
@@ -57,6 +62,11 @@ namespace SliceEditor
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
 	{
 		node.children.clear();
+		selectedFolder = &node;
+	}
+
+	void ContentBrowserManager::SetSelectedFolder(DirectoryNode& node)
+	{
 		selectedFolder = &node;
 	}
 

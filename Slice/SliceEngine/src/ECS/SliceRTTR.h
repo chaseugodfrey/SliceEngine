@@ -34,6 +34,26 @@ namespace SliceEngine
 
 	RTTR_REGISTRATION
 	{
+	rttr::registration::class_<glm::vec3>("vec3")
+		.constructor<>()
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
+
+	rttr::registration::class_<glm::vec4>("vec4")
+		.constructor<>()
+		.property("x", &glm::vec4::x)
+		.property("y", &glm::vec4::y)
+		.property("z", &glm::vec4::z)
+		.property("w", &glm::vec4::w);
+
+	rttr::registration::class_<glm::quat>("quat")
+		.constructor<>()
+		.property("w", &glm::quat::w)
+		.property("x", &glm::quat::x)
+		.property("y", &glm::quat::y)
+		.property("z", &glm::quat::z);
+
 	rttr::registration::class_<std::vector<uint32_t>>("VectorUInt32")
 		.constructor<>()
 		.method("size", &std::vector<uint32_t>::size)
@@ -91,7 +111,7 @@ namespace SliceEngine
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
 		.property("model", &Renderer::model)
-		.property("texture", &Renderer::texture)
+		.property("material", &Renderer::material)
 		.property("renderTag", &Renderer::renderTag);
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -108,9 +128,9 @@ namespace SliceEngine
 		.property("scriptName", &Script::scriptName);
 	rttr::registration::enumeration<Light::LightType>("LightType")
 		(
-			rttr::value("Directional", Light::LightType::Directional),
-			rttr::value("Point", Light::LightType::Point),
-			rttr::value("Spot", Light::LightType::Spot)
+			rttr::value("Directional", Light::LightType::Light_Directional),
+			rttr::value("Point", Light::LightType::Light_Point),
+			rttr::value("Spot", Light::LightType::Light_Spot)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
@@ -121,6 +141,73 @@ namespace SliceEngine
 		.constructor<>()
 		.constructor<uint64_t>()
 		.property_readonly("Value", &GUID::GetGUID);
+
+	rttr::registration::class_<Particle>(typeid(Particle).name())
+		.constructor<>()
+		.property("active", &Particle::active)
+		.property("age", &Particle::age)
+		.property("position", &Particle::position)
+		.property("rotation", &Particle::rotation)
+		.property("scale", &Particle::scale)
+		.property("velocity", &Particle::velocity)
+		.property("colour", &Particle::colour);
+
+	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
+		.constructor<>()
+		// System settings
+		.property("duration", &ParticleSystem::duration)
+		.property("emissionRate", &ParticleSystem::emissionRate)
+		.property("coneAngle", &ParticleSystem::coneAngle)
+		.property("axis", &ParticleSystem::axis)
+		.property("isRepeating", &ParticleSystem::isRepeating)
+		.property("hasRandomParticleLifetime", &ParticleSystem::hasRandomParticleLifetime)
+		.property("lifetime", &ParticleSystem::lifetime)
+		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
+		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
+		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
+		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
+		.property("hasRandomInitialRotation", &ParticleSystem::hasRandomInitialRotation)
+		.property("rotation", &ParticleSystem::rotation)
+		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
+		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+		.property("hasRandomVelocity", &ParticleSystem::hasRandomVelocity)
+		.property("velocity", &ParticleSystem::velocity)
+		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
+		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
+		.property("fadeOverLifetime", &ParticleSystem::fadeOverLifetime)
+		.property("hasRandomScale", &ParticleSystem::hasRandomScale)
+		.property("scale", &ParticleSystem::scale)
+		.property("minRandomScale", &ParticleSystem::minRandomScale)
+		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
+		.property("hasRandomColour", &ParticleSystem::hasRandomColour)
+		.property("colour", &ParticleSystem::colour)
+		.property("minRandomColour", &ParticleSystem::minRandomColour)
+		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
+		.property("hasGravity", &ParticleSystem::hasGravity)
+		.property("gForce", &ParticleSystem::gForce)
+		.property("hasCollision", &ParticleSystem::hasCollision)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
+		.property("maxParticles", &ParticleSystem::maxParticles)
+		.property("oldestIndex", &ParticleSystem::oldestIndex)
+		.property("particles", &ParticleSystem::particles)
+		// Bursts
+		.property("hasBursts", &ParticleSystem::hasBursts)
+		.property("numBursts", &ParticleSystem::numBursts)
+		.property("bursts", &ParticleSystem::bursts);
+
+	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
+		.constructor<>()
+		.property("numParticles", &ParticleSystem::Burst::numParticles)
+		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
+		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
+		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
+		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<Animator>(typeid(Animator).name())
+		.constructor<>()
+		.property("animTime", &Animator::animTimer);
+
 	}
 }
 #endif
