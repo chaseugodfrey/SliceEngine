@@ -944,6 +944,32 @@ namespace SliceEngine
 		}
 	}
 
+	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddForce(colliderShape.bodyID, force);
+	}
+
+	void PhysicsSystem::AddImpulseToEntity(Entity entity, const JPH::Vec3& impulse)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddImpulse(colliderShape.bodyID, impulse);
+	}
+
+	void PhysicsSystem::AddVelocityChangeToEntity(Entity entity, const JPH::Vec3& deltaVelocity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().AddLinearVelocity(colliderShape.bodyID, deltaVelocity);
+	}
+
+	void PhysicsSystem::AddAccelerationToEntity(Entity entity, const JPH::Vec3& deltaVelocity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 accelerationDelta = deltaVelocity * static_cast<float>(1.f/60.f);
+
+		physicsSystem->GetBodyInterface().AddLinearVelocity(colliderShape.bodyID, accelerationDelta);
+	}
+
 	void PhysicsSystem::SubscribeToEvents()
 	{
 		// Get the EventManager instance and subscribe our member functions.
