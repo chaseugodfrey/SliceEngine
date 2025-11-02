@@ -96,7 +96,9 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
-		void SetLinearVelocity(Entity entity, JPH::Vec3 vel );
+		glm::vec3 GetLinearVelocity(Entity entity);
+
+		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
 
 	};
 

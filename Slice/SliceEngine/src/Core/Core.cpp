@@ -71,6 +71,8 @@ namespace SliceEngine
 
 	void Core::ExitCore()
 	{
+		mFactory.FactoryShutdown();
+		mResource->Shutdown();
 		mWindowManager.CloseWindow();
 		UnbindSystems();
 		glfwTerminate();

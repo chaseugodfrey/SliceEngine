@@ -75,10 +75,10 @@ namespace SliceEngine
 		* Hack number 2 i dont actually know why this is like this
 		*/
 		~ResourceManager() {
-			//for (auto& i : mInstances) {
+			for (auto& i : mInstances) {
 			//	i.second.destroyer(i.second.data, *this);
 			//	delete i.second.data;	//not sure but 50% sure this is supposed to be here
-			//}
+			}
 		}
 
 		void ReleaseResource(const GUID& guid);
@@ -96,6 +96,12 @@ namespace SliceEngine
 				//return Handle<T>();
 			}
 
+			if (assetGUID == (GUID)10819322238111217941)
+			{
+				SLICE_LOG_DEBUG("GETTING MATERIAL");
+			}
+
+
 			auto it = mInstances.find(assetGUID);
 			if (it != mInstances.end())
 			{
@@ -112,6 +118,11 @@ namespace SliceEngine
 			else if (mGUIDToResource.count((GUID)Type<T>::defaultResourceGUID))
 			{
 				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
+
+				if ((GUID)Type<T>::defaultResourceGUID == (GUID)10819322238111217941)
+				{
+					SLICE_LOG_DEBUG("GETTING MATERIAL");
+				}
 				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource." + std::to_string(assetGUID.GetGUID()));
 			}
 			else
@@ -119,6 +130,7 @@ namespace SliceEngine
 				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
 				return Handle<T>();
 			}
+
 
 			std::unique_ptr<T> data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)
@@ -183,6 +195,10 @@ namespace SliceEngine
 		void RegisterResourceAsset(const GUID& guid, const std::string& path);
 
 		void RegisterResourceAsset(const std::string& path);
+
+		void UpdateEntityResources();
+
+		void Shutdown();
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
 
@@ -234,7 +250,18 @@ namespace SliceEngine
 		
 		~Handle() 
 		{ 
-			//Release(); //not sure but im like 90% sure this is not supposed to be here
+			//std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
+			//if (!mManager)
+			//	return;
+
+			//for (const auto& [key, val] : mManager->mFileNameToGUID)
+			//{
+			//	if (val == mGUID)
+			//	{
+			//		std::cout << key << std::endl;
+			//	}
+			//}
+			Release(); //not sure but im like 90% sure this is not supposed to be here
 		}
 
 		Handle(const Handle& other) : mManager(other.mManager), mInstance(other.mInstance), mGUID(other.mGUID)
@@ -294,7 +321,14 @@ namespace SliceEngine
 
 		T* get()
 		{
-			return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
+			//return mInstance ? static_cast<T*>(mInstance->data.get()) : nullptr;
+
+			if (mInstance)
+			{
+				return static_cast<T*>(mInstance->data.get());
+			}
+			else
+				return nullptr;
 		}
 
 		const T* get() const
@@ -312,7 +346,6 @@ namespace SliceEngine
 			return mGUID;
 		}
 
-	private:
 		void AddRef()
 		{
 			if (mInstance)
@@ -346,12 +379,8 @@ namespace SliceEngine
 		ResourceManager* mManager;
 		detail::Instance* mInstance;
 		GUID mGUID;
+		std::string fileName;
 	};
 
 }
-
-
-#include "Resource.h"
-
-
 #endif

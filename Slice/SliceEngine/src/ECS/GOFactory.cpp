@@ -33,7 +33,7 @@ namespace SliceEngine
 
 	GOFactory::~GOFactory()
 	{
-
+		SLICE_LOG_DEBUG("test");
 	}
 
 	
@@ -404,6 +404,11 @@ namespace SliceEngine
 		tr.scale = scale;
 	}
 
+	void GOFactory::FactoryShutdown()
+	{
+		mRegistry.clear();
+	}
+
 
 	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
 	{
@@ -479,6 +484,16 @@ namespace SliceEngine
 	{
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
+
+		auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
+
+		// update root entity's child
+		//auto parentChildIt = map.find((uint32_t)parentSceneGraph.neighbours[SceneGraph::DOWN]);
+		//if (parentChildIt != map.end())
+		//{
+
+		//	parentSceneGraph.neighbours[SceneGraph::DOWN] = (Entity)parentChildIt->second;
+		//}
 
 		for (auto entity : view)
 		{
@@ -567,11 +582,12 @@ namespace SliceEngine
 	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
 		auto go = CreateGO(node.name);
 		SetParent(go.GetEntity(), parent);
+		auto rm = Core::GetInstance()->GetResourceManager();
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
 			auto& rc = go.GetComponent<Renderer>();
-			rc.model = model_guid;
+			rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 			rc.meshOffset = node.mesh_ref[0];
 			//rc.texture = (GUID)18349208178533231704;
 
@@ -587,7 +603,7 @@ namespace SliceEngine
 
 				sibling.AddComponent<Renderer>();
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
-				s_rc.model = model_guid;
+				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 				s_rc.meshOffset = node.mesh_ref[i];
 				//rc.texture = (GUID)18349208178533231704;
 			}

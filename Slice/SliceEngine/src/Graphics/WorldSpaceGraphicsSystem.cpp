@@ -39,7 +39,19 @@ namespace SliceEngine
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
 	{
+		auto rm = Core::GetInstance()->GetResourceManager();
+		auto& renderer = reg.get<Renderer>(entity);
+		if (!renderer.modelHandle.IsValid())
+		{
+			renderer.modelHandle = rm->get<SliceEngineTypes::Model>(renderer.modelHandle.mGUID);
+			// get model handle
+		}
 
+		if (!renderer.materialHandle.IsValid())
+		{
+			// get material handle
+			renderer.materialHandle = rm->get<SliceEngineTypes::Material>(renderer.materialHandle.mGUID);
+		}
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnExit(entt::registry& reg, Entity entity)
@@ -94,10 +106,13 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
 
-		auto rm = core->GetResourceManager();
-		auto& model = *rm->get<SliceEngineTypes::Model>(rc.model).get();
+		auto model = rc.modelHandle;
 		
-		auto& mesh = model.meshes[rc.meshOffset];
+		if (!model.IsValid()) return;
+
+		auto& mesh = model.get()->meshes[rc.meshOffset];
+		
+		/*model.meshes[rc.meshOffset];*/
 		glBindVertexArray(mesh.vao);
 
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
@@ -107,7 +122,7 @@ namespace SliceEngine
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
 		if (mHasRenderTexture)
 		{
-			auto material = rm->get<SliceEngineTypes::Material>(rc.material).get();
+			auto material = rc.materialHandle.get();//rm->get<SliceEngineTypes::Material>(rc.material).get();
 
 			uniformLoc = glGetUniformLocation(mShader, "aGID");
 			glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
@@ -116,7 +131,10 @@ namespace SliceEngine
 			uniformLoc = glGetUniformLocation(mShader, "uMetallic");
 			glUniform1f(uniformLoc, material->metallic);
 
-			auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);
+			//auto rm = Core::GetInstance()->GetResourceManager();
+			//auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);
+			auto albedoTex = material->albedo;
+
 			//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 
 			glBindTextureUnit(0, albedoTex.get()->texture_id);

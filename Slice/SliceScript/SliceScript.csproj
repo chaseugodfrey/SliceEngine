@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Core\Audio.cs" />
+    <Compile Include="Source\Core\AudioComponent.cs" />
     <Compile Include="Source\Core\Component.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\Input.cs" />
@@ -50,9 +51,11 @@
     <Compile Include="Source\Core\Prefab.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\Transform.cs" />
     <Compile Include="Source\Core\Vector2.cs" />
     <Compile Include="Source\Core\Vector3.cs" />
     <Compile Include="Source\TestEntity.cs" />
+    <Compile Include="Source\TestMovement.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

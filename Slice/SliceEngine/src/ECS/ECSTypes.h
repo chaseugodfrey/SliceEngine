@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include <variant>
 #include "../Physics/CollisionLayer.h"
 #include <rttr/rttr_enable.h>
+#include "Resource/Resource.h"
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 
@@ -106,8 +107,12 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		GUID model;
-		GUID material;
+		//GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID;
+		//GUID material = (GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID;
+
+		Handle<SliceEngineTypes::Model> modelHandle;
+		Handle<SliceEngineTypes::Material> materialHandle;
+
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
@@ -214,7 +219,6 @@ namespace SliceEngine
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
-		FMOD_VECTOR soundPos{};
 		float currentVolume = 0.3f;
 		bool isLoop = false;
 		bool isPaused = true;
