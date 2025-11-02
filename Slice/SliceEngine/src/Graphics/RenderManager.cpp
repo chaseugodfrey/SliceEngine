@@ -29,6 +29,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Model.h"
 
 // My Comments to (Ctrl + f): -TODO- MAYDO:
+#define IS_USE_BLOOM true
 
 namespace SliceEngine
 {
@@ -43,6 +44,8 @@ namespace SliceEngine
 		glDeleteBuffers(1, &mIVBO);
 
 		glDeleteTextures(GOUT_TOTAL, mColAttachment);
+		for (auto i : mBloomMips)
+			glDeleteTextures(1, &i.tex);
 
 		glDeleteBuffers(2, pboIds);
 	}
@@ -90,7 +93,7 @@ namespace SliceEngine
 		pboIdx[0] = 0;
 		pboIdx[1] = 1;
 
-		LinkFrameBufferSettings(FB_TOTAL, F_CLEAR);
+		LinkFrameBufferSettings(FB_TOTAL, 0);
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 	void RenderManager::CreateInstancingParams()
@@ -128,6 +131,25 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		mBloomMips.reserve(mMaxBloom + 1);
+		glm::ivec2 intMip{ maxWidth, maxHeight };
+		glm::vec2 mipDim{static_cast<glm::vec2>(intMip)};
+		for (int i{}; i < mMaxBloom + 1; ++i)
+		{
+			BloomMip bm;
+			bm.intSize = intMip;
+			bm.size = mipDim;
+			glCreateTextures(GL_TEXTURE_2D, 1, &bm.tex);
+			glTextureStorage2D(bm.tex, 1, GL_R11F_G11F_B10F, intMip.x, intMip.y);
+			glTextureParameterf(bm.tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameterf(bm.tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTextureParameterf(bm.tex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTextureParameterf(bm.tex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			mBloomMips.emplace_back(std::move(bm));
+			intMip /= 2;
+			mipDim /= 2.f;
+		}
 	}
 #pragma endregion
 
@@ -175,7 +197,7 @@ namespace SliceEngine
 		IDPick();
 
 		SetShader(S_POINT_SHADOW);
-		LinkFrameBufferSettings(FB_NIL, F_CLEAR);
+		LinkFrameBufferSettings(FB_NIL, 0);
 		LoadSettings(GPUSetting::SHADOW);
 		RenderPointShadowMaps();
 
@@ -184,15 +206,15 @@ namespace SliceEngine
 		{
 			CalculateVP(cam);
 			SetShader(S_SHADOW);
-			LinkFrameBufferSettings(FB_NIL, F_CLEAR);
+			LinkFrameBufferSettings(FB_NIL, 0);
 			LoadSettings(GPUSetting::SHADOW);
 			RenderDirectionalShadowMaps(cam);
 
 			SetShader(S_DEFERRED);
 			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, F_ID_POS_NOM_TEX);
+				LinkFrameBufferSettings(FB_DEFERRED, 4, mColAttachment[GOUT_DIF], mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM]);
 			else
-				LinkFrameBufferSettings(FB_DEFERRED, F_POS_NOM_TEX);
+				LinkFrameBufferSettings(FB_DEFERRED, 4, mColAttachment[GOUT_DIF], 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM]);
 			LoadSettings(GPUSetting::DEFAULT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
@@ -200,24 +222,26 @@ namespace SliceEngine
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, true);
 
 			SetShader(S_LIGHTING);
-			LinkFrameBufferSettings(FB_FINAL, F_TEX);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_FINAL]);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
-			LightingRender(cam);
+			RenderLighting(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
 			{
 				LoadSettings(GPUSetting::DEBUG);
 				RenderDebug(cam);
 			}
-
 			LoadSettings(GPUSetting::DEFAULT);
-			GammaCorrectionRender(cam);
+			if (IS_USE_BLOOM)
+				RenderBloom();
+
+			RenderGammaCorrection(cam);
 		}
 		
 		mObjPickedThisFrame = false;
-		LinkFrameBufferSettings(FB_TOTAL, F_CLEAR);
+		LinkFrameBufferSettings(FB_TOTAL, 0);
 		std::swap(pboIdx[0], pboIdx[1]);
 	}
 	void RenderManager::RenderDebug(Entity cam)
@@ -433,11 +457,11 @@ namespace SliceEngine
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, false);
 		}
 	}
-	void RenderManager::LightingRender(Entity cam)
+	void RenderManager::RenderLighting(Entity cam)
 	{
-		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_DIF]);
-		glBindTextureUnit(1, mColAttachment[GPU_OUT::GOUT_POS]);
-		glBindTextureUnit(2, mColAttachment[GPU_OUT::GOUT_NOM]);
+		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
+		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
+		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
 
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
@@ -502,12 +526,68 @@ namespace SliceEngine
 			}
 		}
 	}
-	void RenderManager::GammaCorrectionRender(Entity cam)
+	void RenderManager::RenderBloom()
+	{
+		// Extract the Bright
+		SetShader(S_BLOOM_SPLIT);
+		glDisable(GL_DEPTH_TEST);
+		glBindTextureUnit(0, mColAttachment[GOUT_FINAL]);
+		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// Downscaling
+		SetShader(S_DOWNSCALING);
+		glDisable(GL_BLEND);
+
+		glBindTextureUnit(0, mBloomMips[0].tex);
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
+		glUniform2f(uniformLoc, 1.f/mBloomMips[0].size.x, 1.f/mBloomMips[0].size.y);
+		for (int i{1}; i < mMaxBloom; ++i)
+		{
+			LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[i].tex);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			glViewport(0, 0, mBloomMips[i].intSize.x, mBloomMips[i].intSize.y);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			glUniform2f(uniformLoc, 1.f/mBloomMips[i].size.x, 1.f/mBloomMips[i].size.y);
+			glBindTextureUnit(0, mBloomMips[i].tex);
+		}
+
+		SetShader(S_UPSCALING);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_ADD);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
+		glUniform1f(uniformLoc, 0.005f);
+
+		for (int i{ mMaxBloom - 1 }; i > 0; --i)
+		{
+			glBindTextureUnit(0, mBloomMips[i].tex);
+			glViewport(0, 0, mBloomMips[i-1].intSize.x, mBloomMips[i-1].intSize.y);
+			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	}
+	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
 		SetShader(ShaderOpt::S_FINAL);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID, 0); // GL_COLOR_ATTACHMENT0 - First Out
+		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_FINAL]);
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uIsBloom");
+		if (IS_USE_BLOOM)
+		{
+			glUniform1i(uniformLoc, true);
+			glBindTextureUnit(1, mBloomMips[0].tex);
+		}
+		else
+			glUniform1i(uniformLoc, false);
 
 		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
 		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
@@ -590,7 +670,7 @@ namespace SliceEngine
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &lightP[0][0]);
 	}
 	// Binds Framebuffer and Links any internal Output textures
-	void RenderManager::LinkFrameBufferSettings(FBOType fbo, FBOSet settings)
+	void RenderManager::LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...)
 	{
 		if (fbo == FBOType::FB_TOTAL)
 		{
@@ -602,18 +682,12 @@ namespace SliceEngine
 			glBindFramebuffer(GL_FRAMEBUFFER, mFBO[fbo]);
 			mCurrFBO = fbo;
 		}
-		switch (fbo)
-		{
-		case FB_DEFERRED:
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, (settings & FBOSet::F_TEX) ? mColAttachment[GOUT_DIF] : 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, (settings & FBOSet::F_ID) ? mColAttachment[GOUT_ID] : 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, (settings & FBOSet::F_POS) ? mColAttachment[GOUT_POS] : 0, 0);
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, (settings & FBOSet::F_NOM) ? mColAttachment[GOUT_NOM] : 0, 0);
-			break;
-		case FB_FINAL:
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, (settings & FBOSet::F_TEX) ? mColAttachment[GOUT_FINAL] : 0, 0);
-			break;
-		}
+
+		va_list args;
+		va_start(args, numColAttachments);
+		for (int i{}; i < numColAttachments; ++i)
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, va_arg(args, GLuint), 0);
+		va_end(args);
 	}
 	// Does all the glEnable and Disables etc. Maybe can be more streamlined to check if certain settings are already there?
 	void RenderManager::LoadSettings(GPUSetting setting)

@@ -67,7 +67,7 @@ void main(void){
 			vec3 l = uLight.position - wPos; // Surface to Light
 			float dist = length(l);
 			vec4 lightCol = uLight.color;
-			lightCol.a *= 100 / (dist * dist); // Insensity is normalized, so scale up by 100?
+			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
 			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(uCamPos - wPos), dist);
 			l = l / dist;
