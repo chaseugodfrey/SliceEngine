@@ -351,7 +351,7 @@ namespace SliceEngine
 						<< " Property:  " << prop.get_name().to_string() << "\n"
 						<< " Expected Type: " << prop.get_type().get_name().to_string() << "\n"
 						<< " JSON Value: " << value.dump() << "\n"
-						<< "Fallback to string deserialization.";
+						<< " Falling back to string deserialization.";
 
 					SLICE_LOG_ERROR(oss.str());
 					Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);

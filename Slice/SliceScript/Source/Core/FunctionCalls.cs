@@ -34,6 +34,9 @@ namespace SliceEngine
         internal extern static void RigidBody_SetVelocity(uint entityID, ref Vector3 rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
