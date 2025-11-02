@@ -81,11 +81,11 @@ namespace SliceEngine
 			throw std::runtime_error("System does not exist: " + systemName);
 		}
 
+		ResourceManager* GetResourceManager();
+
 		InputSystem* GetInputSystem();
 
 		SceneSystem* GetSceneSystem();
-
-		ResourceManager* GetResourceManager();
 
 		RenderManager* GetRenderManager();
 
@@ -97,21 +97,21 @@ namespace SliceEngine
 
 		ProjectSettingsService* GetProjectSettingsService();
 
-		Registry& GetRegistry();
-
 		void UnbindSystems();
 
 		GOFactory mFactory;
+
+		Registry& GetRegistry();
 
 		NetworkSystem* GetNetwork();
 
 
 	private:
+		std::unique_ptr<ResourceManager> mResource;
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;
 		GLFWWindowManager mWindowManager;
 		std::unique_ptr<InputSystem> mInputPtr; // ptr to input system. core owns it. singleton access via core
 		std::unique_ptr<SceneSystem> mScenePtr;
-		std::unique_ptr<ResourceManager> mResource;
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;

@@ -140,7 +140,7 @@ namespace SliceEditor
 
 		}
 
-#pragma region Preferences
+		#pragma region Preferences
 
 		void SetTheme_Dark()
 		{
@@ -351,6 +351,6 @@ namespace SliceEditor
 			}
 		}
 
-#pragma regionend
+		#pragma endregion Preferences
 	}
 }
