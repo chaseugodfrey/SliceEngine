@@ -271,6 +271,7 @@ namespace SliceEditor
 		{
 		}
 	};
+	
 	struct SkeletonData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SKELETON;
@@ -305,6 +306,7 @@ namespace SliceEditor
 		{
 		}
 	};
+
 	struct AnimData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIMATION;
