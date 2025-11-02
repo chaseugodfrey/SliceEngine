@@ -82,7 +82,7 @@ namespace SliceEngine
 			std::vector<Animation> animations;
 
 			//Create anim package file
-			bool LoadAnimPackageResource(const char* file);
+			bool LoadAnimPackageResource(std::string const&);
 
 			std::string name;
 		private:
