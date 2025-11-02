@@ -579,8 +579,6 @@ namespace SliceEngine
 			glEnableVertexArrayAttrib(vao, 1);
 			glEnableVertexArrayAttrib(vao, 2);
 
-			glEnableVertexArrayAttrib(vao, 3);
-			glEnableVertexArrayAttrib(vao, 4);
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
@@ -595,6 +593,9 @@ namespace SliceEngine
 			glVertexArrayAttribBinding(vao, 2, 0);
 
 			if (!static_model) {
+
+				glEnableVertexArrayAttrib(vao, 3);
+				glEnableVertexArrayAttrib(vao, 4);
 				glCreateBuffers(1, &vbbo);
 				glNamedBufferStorage(vbbo, vert_bones.size() * sizeof(VertexBone), vert_bones.data(), 0);
 
@@ -607,6 +608,8 @@ namespace SliceEngine
 			}
 
 			glBindVertexArray(0);
+			drawCnt = indices.size();
+			drawMode = GL_TRIANGLES;
 		}
 
 
