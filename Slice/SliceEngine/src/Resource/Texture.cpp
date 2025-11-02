@@ -134,6 +134,20 @@ namespace SliceEngine {
             return { TextureName };
         }
 
+        Texture Texture::LoadColorTexture(float r, float g, float b, float a)
+        {
+            float col[4] = { r,g,b,a };
+            texture_id = 0;
+            glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
+            glTextureStorage2D(texture_id, 1, GL_RGBA32F, 1, 1);
+            glTextureSubImage2D(texture_id, 0, 0, 0, 1, 1, GL_RGBA, GL_FLOAT, col);
+            glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            return { texture_id };
+        }
+
         void Texture::DestroyTexture() {
             glDeleteTextures(1, &texture_id);
             return;

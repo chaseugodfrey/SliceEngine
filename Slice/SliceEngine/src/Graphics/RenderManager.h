@@ -51,14 +51,16 @@ namespace SliceEngine
 		void RenderDebug(Entity cam);
 		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
-		void LightingRender(Entity cam);
-		void GammaCorrectionRender(Entity cam);
+		void RenderLighting(Entity cam);
+		void RenderBloom();
+		void RenderGammaCorrection(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		void LinkTransformInstancing(GUID guid);
 
 	private:
 		const int mMaxInstance = 100;
+		const int mMaxBloom =  5;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float pointLightFar = 20.f;
@@ -75,14 +77,18 @@ namespace SliceEngine
 			{glm::vec3(0.f,0.f,1.f), glm::vec3(0.f,-1.f,0.f) },
 			{glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f,-1.f,0.f)}
 		};
-
-
+		struct BloomMip
+		{
+			glm::vec2 size;
+			glm::ivec2 intSize;
+			GLuint tex;
+		};
 		enum FBOType : unsigned char
 		{
-			FB_NIL = 0,
-			FB_DEFERRED,
-			FB_FINAL,
-			FB_TOTAL
+			FB_NIL = 0,		// 0 Outs
+			FB_DEFERRED,	// 4 Outs
+			FB_FINAL,		// 1 Out
+			FB_TOTAL		// NO BIND
 		};
 		enum ShaderOpt : uint64_t
 		{
@@ -93,7 +99,10 @@ namespace SliceEngine
 			S_LIGHTING		= 17353385404596894578,
 			S_FINAL			= 9302529766740298710,
 			S_INSTANCED		= 17697828682138082227,
-			S_DEBUG_LINE	= 13567802095736790143
+			S_DEBUG_LINE	= 13567802095736790143,
+			S_BLOOM_SPLIT	= 12702531725689492235,
+			S_DOWNSCALING	= 9611694325200796232,
+			S_UPSCALING		= 17037775471000192005
 		};
 
 		enum GPU_OUT : unsigned char
@@ -103,21 +112,10 @@ namespace SliceEngine
 			GOUT_NOM,
 			GOUT_ID,
 			GOUT_FINAL,
+			GOUT_POST,
 			GOUT_TOTAL
 		};
 
-		enum FBOSet : unsigned char
-		{
-			F_CLEAR				= 0x00,
-			F_ID				= 0b0000'0001,
-			F_POS				= 0b0000'0010,
-			F_NOM				= 0b0000'0100,
-			F_TEX				= 0b0000'1000,
-			F_POS_NOM			= 0b0000'0110,
-			F_POS_NOM_TEX		= 0b0000'1110,
-			F_ID_POS_NOM		= 0b0000'0111,
-			F_ID_POS_NOM_TEX	= 0b0000'1111
-		};
 		enum class GPUSetting : unsigned char
 		{
 			DEFAULT,
@@ -150,11 +148,12 @@ namespace SliceEngine
 		std::vector<glm::mat4> mInstanceVtx;
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
+		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPUSetting::TOTAL };
 		glm::mat4 V, P;
 
 		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
-		void LinkFrameBufferSettings(FBOType fbo, FBOSet setting);
+		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
