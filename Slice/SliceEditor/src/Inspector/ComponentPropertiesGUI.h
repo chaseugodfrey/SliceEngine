@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #define COMPONENT_PROPERTIES_H
 #include <History/HistoryManager.h>
 
-
 namespace SliceEditor
 {
 	class Registry;
@@ -46,6 +45,8 @@ namespace SliceEditor
 	bool StringInput(Registry& reg, const char* id, std::string& val);
 
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val);
+
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);

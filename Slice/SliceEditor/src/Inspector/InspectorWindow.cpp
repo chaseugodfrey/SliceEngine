@@ -16,11 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "InspectorWindow.h"
-#include "ComponentPropertiesGUI.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
+#include "ComponentPropertiesGUI.h"
 
 namespace SliceEditor
 {
@@ -371,10 +371,20 @@ namespace SliceEditor
 						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 						{
 							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//{
+							//	scriptRef->SetFieldValue(it.second.mName, data);
+							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//}
+							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 							}
 						}
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
