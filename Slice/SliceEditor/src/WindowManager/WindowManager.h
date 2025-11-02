@@ -34,6 +34,8 @@ namespace SliceEditor
 		void DrawProjectSettings();
 
 		bool projectSettingsPopupOpen{ false };
+		bool saveSceneAsPopupOpen{ false };
+		bool newScenePopupOpen{ false };
 		bool preferenceSettingsPopupOpen{ false };
 
 	public:

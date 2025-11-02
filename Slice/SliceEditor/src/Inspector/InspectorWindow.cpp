@@ -170,10 +170,11 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
+            std::string modelFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.model];
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
 			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -185,17 +186,19 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					rend.model = recievedPayload;
+					rend.modelHandle.mGUID = recievedPayload;
+					// update the handle after
 				}
 			}
 
 			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
 			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.material];
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
 			}
 			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -207,7 +210,8 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.material = recievedPayload;
+						rend.materialHandle.mGUID = recievedPayload;
+						// reload material handle here
 				}
 			}
 
