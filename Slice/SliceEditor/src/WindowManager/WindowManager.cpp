@@ -121,6 +121,28 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+				{
+					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
+					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
+
+
+					if (std::filesystem::exists(currentSceneTemp))
+					{
+						auto time1 = std::filesystem::last_write_time(currentScenePath);
+						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
+
+						if (time1 < time2)
+						{
+							std::filesystem::remove(currentScenePath);
+							currentSceneTemp.replace_extension(".scene");
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+							
+						}
+					}
+
+				}
+
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
