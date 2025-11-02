@@ -146,6 +146,12 @@ namespace SliceEditor
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
+			if (ImGui::MenuItem("Save Scene As"))
+			{
+				saveSceneAsPopupOpen = true;
+
+			}
+
 			ImGui::Separator();
 
 			if (ImGui::MenuItem("Project Settings"))
@@ -300,15 +306,7 @@ namespace SliceEditor
 					scene->Play();
 					
 				}
-				//else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
-				//{
-				//	//inputs->UnbindCallbacks();
-				//	inputs->SetMode(SliceEngine::InputMode::Editor);
-				//	inputs->SetEnabled(false);
-				//}
-					//SliceEngine::gScriptSystem->OnStart();
-					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
-				
+							
 				
 			}
 		}
@@ -576,10 +574,30 @@ namespace SliceEditor
 			{
 				if (!sceneName.empty())
 				{
+					// 1. Get the SceneSystem
+					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
+					
+
+					// 2. Construct the new path
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
+					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
+
+					// 3. Save the current hierarchy to the NEW path
+					sceneSystem->SaveScene(newScenePath);
+
+					// 4. Set the NEW path as the currently active scene
+					sceneSystem->SetCurrentScenePath(newScenePath);
+
+					SliceEngine::gScriptSystem->OnEnd();
+
+					// 5. Queue the new scene. This automatically calls UnloadCurrentScene(),
+					//    which clears the hierarchy and prepares for the new scene to be loaded on the next tick.
+					sceneSystem->LoadSceneIntoQueue(newScenePath);
+
+					
+					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+					saveSceneAsPopupOpen = false;
 				}
 			}
 
