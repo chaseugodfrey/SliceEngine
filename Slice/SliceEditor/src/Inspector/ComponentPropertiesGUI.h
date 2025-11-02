@@ -31,23 +31,30 @@ namespace SliceEditor
 
 	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f);
 	
+	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min = 0.f, float max = 0.f);
+
 	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
 	
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec);
 	
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
+	
+	bool StringInput(Registry& reg, const char* id, std::string& val);
+
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val);
+
 	/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
-	//void StringInput(const char* id, std::string& val, std::function<void(std::string)> setFunc = nullptr);
 	//void IntInputHeader(const char* property_label, const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInputHeader(const char* property_label, const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
 	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
 	//void DragColorInputHeader(const char* property_label, const char* id, glm::vec4& color);
-	//void StringInputHeader(const char* property_label, const char* id, std::string& val);
 	//void AssetDragDropInputHeader(const char* property_label, const char* id, std::string& val, std::function<void(std::string)> setFunc, const char* asset_type);
 	*/
 

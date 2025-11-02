@@ -75,16 +75,16 @@ namespace SliceEditor
 
 	void WindowManager::AddWindow(const std::string& name)
 	{
-		//auto it = windowFactoryMap.find(name);
-		//if (it != windowFactoryMap.end())
-		//{
-		//	auto window = it->second->CreateEditorWindow();
-		//	list.push_back(std::move(window));
-		//}
-		//else
-		//{
-		//	SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
-		//}
+		auto it = windowFactoryMap.find(name);
+		if (it != windowFactoryMap.end())
+		{
+			auto window = it->second->CreateEditorWindow();
+			list.push_back(std::move(window));
+		}
+		else
+		{
+			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
+		}
 	}
 
 	void WindowManager::Render()
