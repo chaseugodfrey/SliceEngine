@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace {
 	//some consts to help typing
-	constexpr uint16_t version_number = 2;	//i think having a vers number could be useful, maybe
+	constexpr uint16_t version_number = 4;	//i think having a vers number could be useful, maybe
 	constexpr uint64_t i_size = sizeof(unsigned int);
 	constexpr uint64_t f_size = sizeof(float);
 	const float PIF = 3.14159265359f;
@@ -84,67 +84,9 @@ namespace SliceEngine
 			return true;
 		}
 
-		/*
-		void Model::combine_setup_meshes(std::vector<Mesh> const& meshes) {
-			//the absolute simplest way, is to simply add up all the vertices and indices together
-			//most likely do this for now since this is just a temporary soln anyways
-			//premultiply the relative transform as well for each mesh - collapsing the hierachy
-			//in this case the transform has already pre-multiplied the pos and norm values
-			std::vector<Vertex> final_vertices{};
-			std::vector<unsigned int> final_indices{};
-			//get total vtx and idx cnt
-			int vtx_cnt{}, idx_cnt{};
-			for (auto const& m : meshes) {
-				vtx_cnt += static_cast<int>(m.vertices.size());
-				idx_cnt += static_cast<int>(m.indices.size());
-			}
-			final_vertices.reserve(vtx_cnt);
-			final_indices.reserve(idx_cnt);
-			int idx_offset = 0;	//offset to shift the indices values since we are combining the vertices all into 1 buffer
-			for (auto const& m : meshes) {
-				for (auto const& i : m.indices) {
-					final_indices.emplace_back(i + idx_offset);
-				}
-				final_vertices.insert(final_vertices.end(), m.vertices.begin(), m.vertices.end());
-				idx_offset = static_cast<int>(final_vertices.size());
-			}
-
-			//finally, setup the vbo, vao, ebo
-			drawCnt = static_cast<int>(final_indices.size());
-			drawMode = GL_TRIANGLES;
-
-			//vbo
-			glCreateBuffers(1, &vbo);
-			glNamedBufferStorage(vbo, final_vertices.size() * sizeof(Vertex), final_vertices.data(), 0);
-
-			//ebo
-			glCreateBuffers(1, &ebo);
-			glNamedBufferStorage(ebo, final_indices.size() * sizeof(unsigned int), final_indices.data(), 0);
-
-			//vao
-			glCreateVertexArrays(1, &vao);
-			glEnableVertexArrayAttrib(vao, 0);
-			glEnableVertexArrayAttrib(vao, 1);
-			glEnableVertexArrayAttrib(vao, 2);
-			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
-			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
-			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
-
-			glVertexArrayElementBuffer(vao, ebo);
-
-			//i learned recently
-			glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(Vertex));
-
-
-			glVertexArrayAttribBinding(vao, 0, 0);
-			glVertexArrayAttribBinding(vao, 1, 0);
-			glVertexArrayAttribBinding(vao, 2, 0);
-
-			glBindVertexArray(0);
-		}
-		*/
-		
 		void Model::unpack_data(char* const buffer, uint64_t& offset) {
+			//extract is static to decide
+			memcpy(&is_static, buffer + offset, 1); offset += 1;
 			uint32_t dest{};
 			//name
 			memcpy(&dest, buffer + offset, i_size); offset += i_size;
@@ -153,15 +95,24 @@ namespace SliceEngine
 			//meshes
 			memcpy(&dest, buffer + offset, i_size); offset += i_size;
 			meshes.resize(dest);
-			for (auto& m : meshes) {
-				m.unpack_data(buffer, offset);
-				m.setup_mesh();
+			if (is_static) {
+				for (auto& m : meshes) {
+					m.unpack_static_data(buffer, offset);
+					m.setup_mesh();
+				}
+			}
+			else {
+				for (auto& m : meshes) {
+					m.unpack_skin_data(buffer, offset);
+					m.setup_mesh();
+				}
 			}
 
 			//node hierachy
 			rootNode.unpack_data(buffer, offset);
 		}
-		void Mesh::unpack_data(char* const buffer, uint64_t& offset) {
+		void Mesh::unpack_static_data(char const* const buffer, uint64_t& offset) {
+			static_model = true;
 			uint32_t dest{};
 
 			//name
@@ -187,6 +138,40 @@ namespace SliceEngine
 			indices.resize(num_idx);
 			memcpy(vertices.data(), buffer + offset, vert_buffer_size); offset += vert_buffer_size;
 			memcpy(indices.data(), buffer + offset, idx_buffer_size); offset += idx_buffer_size;
+		}
+		void Mesh::unpack_skin_data(char const* const buffer, uint64_t& offset) {
+			static_model = false;
+			uint32_t dest{};
+
+			//name
+			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			name.resize(dest);
+			memcpy(name.data(), buffer + offset, dest); offset += dest;
+
+			uint32_t vert_size{}, idx_size{}, vb_size{};
+			uint32_t num_vert{}, num_idx{}, num_vb{};
+
+			//buffer details
+			memcpy(&vert_size, buffer + offset, i_size); offset += i_size;
+			memcpy(&num_vert, buffer + offset, i_size); offset += i_size;
+
+			memcpy(&idx_size, buffer + offset, i_size); offset += i_size;
+			memcpy(&num_idx, buffer + offset, i_size); offset += i_size;
+
+			memcpy(&vb_size, buffer + offset, i_size); offset += i_size;
+			memcpy(&num_vb, buffer + offset, i_size); offset += i_size;
+
+			//buffer
+			uint64_t vert_buffer_size = (uint64_t)vert_size * num_vert;
+			uint64_t idx_buffer_size = (uint64_t)idx_size * num_idx;
+			uint64_t vert_bone_buffer_size = (uint64_t)vb_size * num_vb;
+
+			vertices.resize(num_vert);
+			indices.resize(num_idx);
+			vert_bones.resize(num_vb);
+			memcpy(vertices.data(), buffer + offset, vert_buffer_size); offset += vert_buffer_size;
+			memcpy(indices.data(), buffer + offset, idx_buffer_size); offset += idx_buffer_size;
+			memcpy(vert_bones.data(), buffer + offset, vert_bone_buffer_size); offset += vert_bone_buffer_size;
 		}
 
 		void ModelNode::unpack_data(char* const buffer, uint64_t& offset) {
@@ -214,6 +199,7 @@ namespace SliceEngine
 			}
 		}
 
+#pragma region Load Primitive
 		void Model::LoadDefaultCubeModel()
 		{
 			meshes.resize(1);
@@ -564,10 +550,15 @@ namespace SliceEngine
 			return;
 		}
 
+#pragma endregion
+
 		void Model::DestroyModel() {
 			for (auto& m : meshes) {
 				if (m.ebo != 0) {
 					glDeleteBuffers(1, &m.ebo);
+				}
+				if (m.static_model) {
+					glDeleteBuffers(1, &m.vbbo);
 				}
 				glDeleteBuffers(1, &m.vbo);
 				glDeleteVertexArrays(1, &m.vao);
@@ -578,7 +569,6 @@ namespace SliceEngine
 			//vbo
 			glCreateBuffers(1, &vbo);
 			glNamedBufferStorage(vbo, vertices.size() * sizeof(Vertex), vertices.data(), 0);
-
 			//ebo
 			glCreateBuffers(1, &ebo);
 			glNamedBufferStorage(ebo, indices.size() * sizeof(unsigned int), indices.data(), 0);
@@ -588,9 +578,13 @@ namespace SliceEngine
 			glEnableVertexArrayAttrib(vao, 0);
 			glEnableVertexArrayAttrib(vao, 1);
 			glEnableVertexArrayAttrib(vao, 2);
+
+			glEnableVertexArrayAttrib(vao, 3);
+			glEnableVertexArrayAttrib(vao, 4);
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
+
 			glVertexArrayElementBuffer(vao, ebo);
 
 			//Today i learned u can just do this
@@ -600,8 +594,30 @@ namespace SliceEngine
 			glVertexArrayAttribBinding(vao, 1, 0);
 			glVertexArrayAttribBinding(vao, 2, 0);
 
-			drawCnt = indices.size();
-			drawMode = GL_TRIANGLES;
+			if (!static_model) {
+				glCreateBuffers(1, &vbbo);
+				glNamedBufferStorage(vbbo, vert_bones.size() * sizeof(VertexBone), vert_bones.data(), 0);
+
+				glVertexArrayAttribIFormat(vao, 3, 4, GL_INT, offsetof(VertexBone, boneIDs));
+				glVertexArrayAttribFormat(vao, 4, 4, GL_FLOAT, false, offsetof(VertexBone, weights));
+				glVertexArrayVertexBuffer(vao, 1, vbbo, 0, sizeof(VertexBone));
+
+				glVertexArrayAttribBinding(vao, 3, 1);
+				glVertexArrayAttribBinding(vao, 4, 1);
+			}
+
+			glBindVertexArray(0);
+		}
+
+
+		void VertexBone::SetVertexBone(int id, float weight) {
+			for (int i{}; i < MAX_BONE_INFLUENCE; ++i) {
+				if (boneIDs[i] < 0) {
+					boneIDs[i] = id;
+					weights[i] = weight;
+					return;
+				}
+			}
 		}
 	}
 }
