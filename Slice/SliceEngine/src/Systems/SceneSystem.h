@@ -27,6 +27,8 @@ namespace SliceEngine
 		PLAY_SCENE,
 		//Reload scene
 		RELOAD_SCENE,
+		//Pause scene
+		PAUSE_SCENE,
 		//
 		STOP_SCENE
 	};
@@ -47,6 +49,7 @@ namespace SliceEngine
 		void LoadScene(std::filesystem::path const filePath);
 		void LoadScene(uint32_t const index);
 		void LoadNextScene();
+		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
 		void SaveScene(std::filesystem::path const filePath);
 		void SaveCurrentScene();

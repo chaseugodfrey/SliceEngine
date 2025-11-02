@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ResourceManager.h"
 #include <fstream>
+#include "Core/Core.h"
 namespace SliceEngine
 {
 	void ResourceManager::InitResourceManager()
@@ -97,25 +98,72 @@ namespace SliceEngine
 
 	}
 
-	void ResourceManager::ReleaseResource(const GUID& guid)
+	/// <summary>
+	/// IDK whether we should just write one update loop to check for any changes
+	/// in resources
+	/// or manually call a function to update the resource when its changed
+	/// 
+	/// nvm chase said manually update
+	/// </summary>
+	void ResourceManager::UpdateEntityResources()
 	{
-		std::cout << "Resource being released " << guid.GetGUID() << " : ";
-		for(const auto& [key, val] : mFileNameToGUID)
+		auto& registry = Core::GetInstance()->GetRegistry();
+		auto entityView = registry.view<SliceEntity>();
+		for (auto entity : entityView)
 		{
-			if (val == guid)
+			// if it has renderer component
+			if (registry.any_of<Renderer>(entity))
 			{
-				std::cout << key << std::endl;
+				auto& rend = registry.get<Renderer>(entity);
+				// get the GUID of the current file name
+				GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+
+				// check if its the same GUID as its set
+				if (currGUID != rend.modelHandle.mGUID)
+				{
+					// if its not the same then reload
+					rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
+				}
 			}
 		}
+	}
+
+	void ResourceManager::ReleaseResource(const GUID& guid)
+	{
+		//std::cout << "Resource being released " << guid.GetGUID() << " : ";
+		//for(const auto& [key, val] : mFileNameToGUID)
+		//{
+		//	if (val == guid)
+		//	{
+		//		std::cout << key << std::endl;
+		//	}
+		//}
 		auto it = mInstances.find(guid);
 		if (it != mInstances.end())
 		{
 			it->second.refCount--;
 			if (it->second.refCount <= 0)
 			{
+				// store it in a local so that itll destrroy itself instead of a nested destroy when calling erase(it)
+				auto ToDestroy = std::move(it->second.data);
+
+				// erasing is safer now since the instance is empty after moving
 				mInstances.erase(it);
 			}
 		}
 	}
 
+	void ResourceManager::Shutdown()
+	{
+		std::vector<std::unique_ptr<void, std::function<void(void*)>>> dataToDestroy;
+		dataToDestroy.reserve(mInstances.size()); 
+
+		for (auto& pair : mInstances)
+		{
+			dataToDestroy.push_back(std::move(pair.second.data));
+		}
+	
+		mInstances.clear();
+		dataToDestroy.clear();
+	}
 }

@@ -170,10 +170,11 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
+            std::string modelFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.model];
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
 			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -185,17 +186,19 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					rend.model = recievedPayload;
+					rend.modelHandle.mGUID = recievedPayload;
+					// update the handle after
 				}
 			}
 
 			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
 			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.material];
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
 			}
 			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -207,7 +210,8 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.material = recievedPayload;
+						rend.materialHandle.mGUID = recievedPayload;
+						// reload material handle here
 				}
 			}
 
@@ -228,58 +232,20 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
 
-					ImGui::Text("Mass");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##mass", &rb.mass);
+					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
 
-					ImGui::Text("Gravity");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##gravity", &rb.gravityFactor);
+					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
+					
+					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
+					
+					DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
 
-					ImGui::Text("Is Kinematic");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isKinematic", &rb.isKinematic);
+					DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
 
-					ImGui::Text("Linear Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##linearDamp", &rb.linearDamping);
+					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
 
-					ImGui::Text("Angular Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
-
-					const char* currentLabel = arr[(int)rb.CollisionDetection];
-
-					ImGui::Text("Collision Detection");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								rb.CollisionDetection = (JPH::EMotionQuality)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
-
-					ImGui::Text("Friction");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##friction", &rb.friction);
+					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
+					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
 
 					ImGui::TreePop();
 				}
@@ -312,55 +278,17 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::ColliderShape>(entity);
 
-					ImGui::Text("Is Trigger");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isTrigger", &col.isTrigger);
-
-					ImGui::Text("Offset");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x/3.0f);
-					float buffer = col.offSet.GetX();
-					if (ImGui::DragFloat("##offset_x", &buffer))
+					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
+					
+					glm::vec3 glm3 = JPHtoGLM(col.offSet);
+					if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
 					{
-						col.offSet.SetX(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x / 2.0f);
-					buffer = col.offSet.GetY();
-					if (ImGui::DragFloat("##offset_y", &buffer))
-					{
-						col.offSet.SetY(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					buffer = col.offSet.GetZ();
-					if (ImGui::DragFloat("##offset_z", &buffer))
-					{
-						col.offSet.SetZ(buffer);
+						col.offSet = GLMtoJPH(glm3);
 					}
 
-					const char* currentLabel = arr[(int)col.layer];
+					static std::vector<std::string> colLayerNames { "Moving", "Non-Moving"};
 
-					ImGui::Text("Collision Layer");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								col.layer = (JPH::ObjectLayer)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
+					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 
 					ImGui::TreePop();
 				}

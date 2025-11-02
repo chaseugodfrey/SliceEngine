@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to SliceEngine",
+            "request": "attach",
+            "type": "mono",
+            "address": "127.0.0.1",
+            "port": 2550,
+            "trace": "verbose"
+        }
+    ]
+}

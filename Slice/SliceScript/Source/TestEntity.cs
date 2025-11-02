@@ -14,13 +14,13 @@ namespace SliceEngine
         public Audio testAudio = new Audio("TestSound.wav");
         public Prefab testPrefab = new Prefab("TestPrefab");
 
-        //Transform t;
+        Transform t;
 
         public override void OnCreate()
         {
             Console.WriteLine("TestEntity Created with ID: " + mID);
 
-            //t = GetComponent<Transform>();
+            t = GetComponent<Transform>();
         }
 
         public override void OnUpdate(float dt)
@@ -36,7 +36,7 @@ namespace SliceEngine
                 Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
-                //Position += direction * speed * dt;
+                t.Position += direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
 
@@ -45,7 +45,7 @@ namespace SliceEngine
                 Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
-                //Position -= direction * speed * dt;
+                t.Position -= direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
         }

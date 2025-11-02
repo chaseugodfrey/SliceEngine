@@ -243,14 +243,25 @@ namespace SliceEngine
 					isPlaying = true;
 
 				}
+				sScene->WriteTempFile();
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
+			if (sScene->mNextState == SceneState::PAUSE_SCENE)
+			{
+				sInputs->SetMode(InputMode::Editor);
+				sInputs->SetEnabled(false);
+				isPlaying = false;
+				sScene->mCurrentState = SceneState::PAUSE_SCENE;
+			}
+
+			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sScene->ReloadScene();
+				isPlaying = false;
 
 				gScriptSystem->OnEnd();
 

@@ -29,7 +29,7 @@ namespace SliceEngine
 
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
-		isSceneUnloaded = false;
+		//isSceneUnloaded = false;
 
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
@@ -67,6 +67,15 @@ namespace SliceEngine
 			mSceneQueue.pop();
 			mNextScene = "";
 		}
+	}
+
+	void SceneSystem::WriteTempFile()
+	{
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		
+		JSONSerializer::SerializeScene(CurrentSceneTemp);
 	}
 
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
@@ -111,6 +120,7 @@ namespace SliceEngine
 		SLICE_LOG("Unloading Scenes.");
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
+		Core::GetInstance()->mFactory.UpdateDestroyed();
 
 		isSceneUnloaded = true;
 	}
@@ -119,10 +129,20 @@ namespace SliceEngine
 	void SceneSystem::ReloadScene()
 	{
 		// need function to clear everything on the scene
-		Core::GetInstance()->mFactory.ClearGameObjects();
-		Core::GetInstance()->mFactory.UpdateDestroyed();
+		//Core::GetInstance()->mFactory.ClearGameObjects();
+		//Core::GetInstance()->mFactory.UpdateDestroyed();
+		
 
-		LoadScene(mCurrentScene);
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+
+		if (std::filesystem::exists(CurrentSceneTemp))
+		{
+			mCurrentScene = CurrentSceneTemp;
+		}
+
+		LoadSceneIntoQueue(mCurrentScene);
 		// reloads the scene
 		/*JSONSerializer::DeserializeScene(mCurrentScene);
 
@@ -137,16 +157,21 @@ namespace SliceEngine
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
+		
 	}
 
 	void SceneSystem::Pause()
 	{
 		//
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			mNextState = SceneState::PAUSE_SCENE;
+		}
 	}
 
 	void SceneSystem::Stop()
 	{
-		if (mCurrentState == SceneState::PLAY_SCENE)
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::PAUSE_SCENE)
 		{
 			
 			mNextState = SceneState::STOP_SCENE;
