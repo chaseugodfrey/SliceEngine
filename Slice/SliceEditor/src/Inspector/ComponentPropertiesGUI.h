@@ -21,6 +21,14 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	class Registry;
+	#pragma region JPH Helper
+
+	glm::vec3 JPHtoGLM(JPH::Vec3 vec3);
+
+	JPH::Vec3 GLMtoJPH(glm::vec3 vec3);
+
+	#pragma endregion
+
 	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f);
 	
 	bool BoolInput(Registry& reg, const char* id, bool& valselecte);

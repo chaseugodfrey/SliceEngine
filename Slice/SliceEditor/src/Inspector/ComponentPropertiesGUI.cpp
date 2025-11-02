@@ -26,6 +26,32 @@ using namespace std::string_literals;
 
 namespace SliceEditor
 {
+	#pragma region JPH Helper
+	glm::vec3 JPHtoGLM(JPH::Vec3 vec3)
+	{
+		glm::vec3 newVec;
+
+		newVec.x = vec3.GetX();
+		newVec.y = vec3.GetY();
+		newVec.z = vec3.GetZ();
+
+		return newVec;
+	}
+
+	JPH::Vec3 GLMtoJPH(glm::vec3 vec3)
+	{
+		JPH::Vec3 newVec;
+
+		newVec.SetX(vec3.x);
+		newVec.SetY(vec3.y);
+		newVec.SetZ(vec3.z);
+
+		return newVec;
+	}
+	#pragma endregion
+
+
+
 	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
 	{
 		static float oldVal{};

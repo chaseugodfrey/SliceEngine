@@ -274,55 +274,17 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::ColliderShape>(entity);
 
-					ImGui::Text("Is Trigger");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isTrigger", &col.isTrigger);
-
-					ImGui::Text("Offset");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x/3.0f);
-					float buffer = col.offSet.GetX();
-					if (ImGui::DragFloat("##offset_x", &buffer))
+					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
+					
+					glm::vec3 glm3 = JPHtoGLM(col.offSet);
+					if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
 					{
-						col.offSet.SetX(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x / 2.0f);
-					buffer = col.offSet.GetY();
-					if (ImGui::DragFloat("##offset_y", &buffer))
-					{
-						col.offSet.SetY(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					buffer = col.offSet.GetZ();
-					if (ImGui::DragFloat("##offset_z", &buffer))
-					{
-						col.offSet.SetZ(buffer);
+						col.offSet = GLMtoJPH(glm3);
 					}
 
-					const char* currentLabel = arr[(int)col.layer];
+					static std::vector<std::string> colLayerNames { "Moving", "Non-Moving"};
 
-					ImGui::Text("Collision Layer");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								col.layer = (JPH::ObjectLayer)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
+					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 
 					ImGui::TreePop();
 				}
