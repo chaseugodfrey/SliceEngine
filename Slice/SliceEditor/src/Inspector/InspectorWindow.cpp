@@ -176,6 +176,10 @@ namespace SliceEditor
 			{
 				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
 			}
+			else //Its a default model
+			{
+				modelFilename = model_guid_string;
+			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
 				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
