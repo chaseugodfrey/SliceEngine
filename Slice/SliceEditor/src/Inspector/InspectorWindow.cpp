@@ -50,7 +50,7 @@ namespace SliceEditor
 		{
 		case SelectionNode::SelectionType::ENTITY:
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
-		case SelectionNode::SelectionType::FILE:
+		case SelectionNode::SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
 		}
 
@@ -633,6 +633,25 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
+		std::string buffer{};
+		float f_buffer{};
+
+		ImGui::BeginGroup();
+		ImGui::Text("Material Name");
+		ImGui::Text("_____________");
+		ImGui::EndGroup();
+
+		ImGui::Text("Albedo");
+		ImGui::SameLine(150.0f);
+		ImGui::InputText("##albedo", &buffer, ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::Text("Roughness");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##roughness", &f_buffer, 1.0f, 0.0f, 1.0f);
+
+		ImGui::Text("Metallic");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##roughness", &f_buffer, 1.0f, 0.0f, 1.0f);
 
 	}
 

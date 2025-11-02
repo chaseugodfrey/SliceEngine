@@ -57,8 +57,9 @@ namespace SliceEditor
 	{
 		enum class SelectionType
 		{
+			FILE,
 			ENTITY,
-			FILE
+			MATERIAL
 		} type;
 		bool isSelected;
 	};
