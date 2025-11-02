@@ -21,18 +21,22 @@ namespace SliceEditor
 		bool isOpen;
 	};
 
-
 	class AnimationWindow : public EditorWindow
 	{
-		ImGui::FrameIndexType startFrame = 0;
-		ImGui::FrameIndexType endFrame = 100;
-		ImGui::FrameIndexType currentFrame = 0;
+		ImGui::FrameIndexType startFrame{0};
+		ImGui::FrameIndexType endFrame{30};
+		ImGui::FrameIndexType currentFrame{0};
 
 		std::vector<AnimationPropertyGroup> mPropertyGroups;
 
 		//
+		SliceEngine::Animator* mCurrentAnimator;
 		std::vector<const char*> animationClipNames;
 		size_t animationClipIndex;
+
+		bool CheckForAnimator();
+		void LoadDataFromAnimator(SliceEngine::Animator* component);
+		void ClearData();
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};
