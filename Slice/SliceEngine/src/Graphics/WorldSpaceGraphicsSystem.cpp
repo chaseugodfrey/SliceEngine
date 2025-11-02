@@ -19,7 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "WorldSpaceGraphicsSystem.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
-
+#include "glm/gtc/type_ptr.hpp"
 #include "../Core/Core.h"
 
 namespace SliceEngine
@@ -143,6 +143,44 @@ namespace SliceEngine
 		//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 
 		//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
+
+		/*
+		* mesh skinning
+		* NOTE: THIS IS TEMPORARY CODE TO SHOW FOR SUBMISSION,
+		* NEED TO FIGURE OUT A BETTER WAY TO DO THIS SPLIT
+		* 
+		* also only gona do this for deferred first just to test
+		* 
+		* ISSUES:
+		* BOTH SKIN AND STATIC MESH USE THE SAME SHADER(UNIFORM BRANCH IN SHADER CODE)
+		* EACH MESH SENDS THE ENTIRE SKELETON TRANSFORM TO THE GPU, WHICH MEANS UP TO 100 MAT4 PER MESH TO DRAW(ITS ALOT)
+		*/
+		uniformLoc = glGetUniformLocation(mShader, "skinned");
+		if (!model.get()->is_static) {
+			glUniform1ui(uniformLoc, 1);
+			auto const& bone = core->GetRegistry().get<Bone>(entity);
+			Entity root_entity = bone.skeleton_root;
+			if (core->GetRegistry().any_of<Animator>(root_entity)) {
+
+				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
+
+				uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
+				glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
+
+				glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+				uniformLoc = glGetUniformLocation(mShader, "inverse_root");
+				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+			}
+			else {
+				SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
+			}
+		}
+		else {
+			glUniform1ui(uniformLoc, 0);
+		}
+
+
+
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 

@@ -190,7 +190,7 @@ namespace SliceEngine
 		return anim;
 	}
 
-	void Type<SliceEngineTypes::Texture>::Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr)
+	void Type<SliceEngineTypes::AnimationPackage>::Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr)
 	{
 		//nothing to really delete too
 	}

@@ -228,6 +228,8 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
+		bool is_static{ true };
+
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
@@ -240,6 +242,7 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+			metaJson["static"] = is_static;
 
 			// specific properties to model goes here but we dh that yet
 

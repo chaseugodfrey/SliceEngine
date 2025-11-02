@@ -20,8 +20,8 @@ namespace SliceEngine
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
-		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(02020202));
-		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(03030303));
+		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(02020202020202020202));
+		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(03030303030303030303));
 
 		animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
@@ -95,6 +95,7 @@ namespace SliceEngine
 				auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
 
 				anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), glm::identity<glm::mat4>());
+				animator.SetInverseRoots();
 				anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
 			}
 		}

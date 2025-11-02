@@ -338,6 +338,8 @@ namespace SliceEngine
 		float current_time{};
 
 		std::vector<glm::mat4> final_tforms;
+		std::bitset<MAX_BONES> inverse_flags{};
+		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
@@ -348,14 +350,25 @@ namespace SliceEngine
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
 
-		/*void SetAnimationPackage(SliceEngine::GUID anim)
+		/*
+		void SetAnimationPackage(SliceEngine::GUID anim)
 		{
 			curr_anim_pkg.mGUID = anim;
 		}
 		void SetSkeleton(SliceEngineTypes::Skeleton* skele) 
 		{
 			skeleton = skele;
-		}*/
+		}
+		*/
+
+
+		void SetInverseRoots() {
+			for (unsigned int i{}; i < inverse_flags.size(); ++i) {
+				if (inverse_flags[i]) {
+					inverse_map[i] = glm::inverse(final_tforms[i]);
+				}
+			}
+		}
 
 		void PlayAnimation(unsigned int idx) 
 		{
