@@ -56,7 +56,7 @@ namespace SliceEditor
 
 			if (ImGui::BeginCombo("Theme", EditorThemes[preferences->Theme]))
 			{
-				for (int i = 0; i < 2; i++)
+				for (int i = 0; i < EditorThemes.size(); i++)
 				{
 					if (ImGui::Selectable(EditorThemes[i]))
 					{
