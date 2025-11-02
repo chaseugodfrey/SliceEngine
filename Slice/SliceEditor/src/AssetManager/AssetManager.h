@@ -88,7 +88,9 @@ namespace SliceEditor
 			{AssetType::Shader, ".shader"},
 			{AssetType::Audio, ".wav"},
 			{AssetType::Material, ".mat"},
-			{AssetType::Prefab, ".prefab"}
+			{AssetType::Prefab, ".prefab"},
+			{AssetType::Skeleton, ".skl"},
+			{AssetType::Animation, ".animpkg"}
 		};
 	private:
 		

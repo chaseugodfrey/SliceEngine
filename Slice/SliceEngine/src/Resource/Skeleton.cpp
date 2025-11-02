@@ -258,6 +258,7 @@ namespace SliceEngine
 				int parent = skeleton.bones[i].parentIndex;
 
 				final_tforms[i] = final_tforms[parent] * final_tforms[i];
+
 			}
 		}
 

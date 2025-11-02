@@ -20,7 +20,7 @@ namespace SliceEngine
 	//include the real one once done
 	struct Bone_Entity {};
 
-	class BoneSystem : BaseSystem<Bone_Entity, Bone, Transform>
+	class BoneSystem : public BaseSystem<Bone_Entity, Bone, Transform>
 	{
 	public:
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};

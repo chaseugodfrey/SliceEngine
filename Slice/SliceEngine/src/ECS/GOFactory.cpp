@@ -587,6 +587,7 @@ namespace SliceEngine
 		//if its the start of the tree, set it as the root
 		if (root == entt::null) {
 			root = go.GetEntity();
+			go.AddComponent<Animator>();
 		}
 		go.AddComponent<Bone>();
 		auto& bone = go.GetComponent<Bone>();

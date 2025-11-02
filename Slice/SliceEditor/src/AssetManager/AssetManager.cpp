@@ -183,9 +183,12 @@ namespace SliceEditor
 			// This should create the texture asset into the resource folder
 			CompileTextureAsset(metaPath);
 			break;
+		case AssetType::Skeleton:
+		case AssetType::Animation:
 		case AssetType::Model:
 			// Compile the model file and write into the resource folder
 			CompileFBXAsset(metaPath);
+			// if static
 			break;
 		case AssetType::Audio:
 			// idk audio yet

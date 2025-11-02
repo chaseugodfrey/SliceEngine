@@ -14,6 +14,10 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Skeleton.h"
 
 #include "../Core/Core.h"
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>	//just to get it working for now
+
 namespace SliceEngine
 {
 	void BoneSystem::Update_Scenegraph() const {
@@ -24,26 +28,31 @@ namespace SliceEngine
 		{
 			auto const& bone = core->GetRegistry().get<Bone>(entity);
 			Entity root_entity = bone.skeleton_root;
+			if (root_entity == entity) {
+				continue;
+			}
 			
 			if (!core->GetRegistry().any_of<Animator>(root_entity)) {
-				SLICE_LOG_ERROR("Invalid root entity for bone component");
+				//SLICE_LOG_ERROR("Invalid root entity for bone component");
 				continue;
 			}
 
-			auto const& animator = core->GetRegistry().get<Animator>(root_entity);
+			auto& animator = core->GetRegistry().get<Animator>(root_entity);
 			auto& transform = core->GetRegistry().get<Transform>(entity);
 
 			//some pseudo code
-			/*
-			* SliceEngineTypes::Frame const& frame = animator.skeleton.getframe(bone.frame_idx);
-			* transform.position = frame.position;
-			* transform.rotation = frame.rotation;
-			* transform.scale = frame.scale;
-			*/
-
+			glm::mat4 const& frame = animator.GetFinalTform()[bone.frame_idx];
+			glm::vec3 translation, scale, skew;
+			glm::vec4 perspective;
+			glm::quat rotation;
+			glm::decompose(frame, scale, rotation, translation, skew, perspective);
+			transform.position = translation;
+			transform.rotation = rotation;
+			transform.scale = scale;
+			
 			//if is a renderer, tell skeleton to calculate inverse for this index
 			if (core->GetRegistry().any_of<Renderer>(entity)) {
-				//animator.skeleton.setinverseflag(bone.frame_idx);
+				animator.inverse_flags.set(bone.frame_idx);
 			}
 		}
 	}
