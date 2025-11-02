@@ -133,7 +133,7 @@ namespace SliceEngine
 	{
 		enum LightType : unsigned char
 		{
-			Light_Directional = 1
+			Light_Directional = 0
 			,Light_Point
 			,Light_Spot
 		};
