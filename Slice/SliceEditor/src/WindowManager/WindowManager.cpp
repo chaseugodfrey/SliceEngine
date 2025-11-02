@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #include "WindowManager.h"
 #include "ICreateWindow.h"
 #include "../Core/Registry.h"
+#include "WindowTypes.h"
+
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
 #include <Scripting/ScriptSystem.h>
@@ -23,10 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
-#include <Hierachy/HierarchyWindow.h>
-#include <Inspector/InspectorWindow.h>
-#include <SceneView/SceneViewWindow.h>
-#include <GameView/GameViewWindow.h>
+
 
 namespace SliceEditor
 {
@@ -55,6 +54,18 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
+		AddWindow<NavigationWindow>();
+	}
+
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -119,7 +130,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -419,6 +430,10 @@ namespace SliceEditor
 		ImGui::End();
 	}
 
+	void WindowManager::DrawPreferenceSettings()
+	{
+	}
+
 	void WindowManager::DrawProjectSettings()
 	{
 		if (!projectSettingsPopupOpen)
@@ -488,5 +503,9 @@ namespace SliceEditor
 		projectSettingsPopupOpen = isOpen;
 
 	}
+
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }

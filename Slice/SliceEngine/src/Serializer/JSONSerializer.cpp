@@ -47,7 +47,8 @@ namespace SliceEngine
 			json output;
 
 			auto& registry = Core::GetInstance()->GetRegistry();
-
+			auto* rc = Core::GetInstance()->GetResourceManager();
+			rc->mGUIDToSerialize.clear(); // clear it all first to make sure its empty
 			auto entityView = registry.view<SliceEntity>();
 			for (auto entity : entityView)
 			{
@@ -55,6 +56,20 @@ namespace SliceEngine
 			}
 
 			SerializeFile(output, filePath);
+
+			// create the resource file for scene
+			// can't actually test until changing GUIDs is done 
+			json resourceOutput;
+
+			for (auto it = rc->mGUIDToSerialize.begin(); it != rc->mGUIDToSerialize.end(); it++)
+			{
+				resourceOutput += std::to_string((*it).GetGUID());
+			}
+
+			std::filesystem::path outPath(filePath);
+			std::string resourcePath = outPath.replace_extension(".resource").string();
+
+			SerializeFile(resourceOutput, resourcePath);
 		}
 
 		Entity DeserializePrefab(std::filesystem::path const& filePath)
@@ -265,6 +280,12 @@ namespace SliceEngine
 						continue;
 					}
 
+					//if (propVal.get_type() == rttr::type::get<GUID>())
+					//{
+					//	Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(propVal.get_value<GUID>());
+					//}
+
+
 
 					// To make it easy to see and add what types are supported. If added
 					// but the output is wrong, might need to create a specialized variant
@@ -291,95 +312,6 @@ namespace SliceEngine
 						std::string
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
-
-#pragma region Old Serialization Backup
-					//if (propVal.is_type<int>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<int>();
-					//}
-					//else if (propVal.is_type<unsigned int>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<unsigned int>();
-					//}
-					//else if (propVal.is_type<float>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<float>();
-					//}
-					//else if (propVal.is_type<double>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<double>();
-					//}
-					//else if (propVal.is_type<bool>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<bool>();
-					//}
-					//else if (propVal.is_type<uint64_t>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<uint64_t>();
-					//}
-					//else if (propVal.is_type<EntityID>())
-					//{
-					//	//EntityID eid();//propVal.get_value<EntityID>();
-					//	output[name][storage.type().name()][propName] = entity;
-					//}
-					//else if (propVal.is_type<std::array<uint64_t, 4>>())
-					//{
-					//	const auto& vec = propVal.get_value<std::array<uint64_t, 4>>();
-					//	for (size_t i{}; i < 4; ++i)
-					//	{
-					//		output[name][storage.type().name()][propName][i] = vec[i];
-					//	}
-					//}
-					//else if (propVal.is_type<std::array<Entity, 4>>())
-					//{
-					//	const auto& vec = propVal.get_value<std::array<Entity, 4>>();
-					//	for (size_t i{}; i < 4; ++i)
-					//	{
-					//		Entity e = vec[i];
-					//		if (e == entt::null)
-					//		{
-					//			output[name][storage.type().name()][propName][i] = nullptr;
-					//		}
-					//		else
-					//		{
-					//			output[name][storage.type().name()][propName][i] = static_cast<uint64_t>(e);
-					//		}
-					//	}
-					//}
-					//else if (propVal.is_type<std::string>())
-					//{
-					//	output[name][storage.type().name()][propName] = propVal.get_value<std::string>();
-					//}
-					//else if (propVal.is_type<std::vector<uint64_t>>())
-					//{
-					//	const auto& vec = propVal.get_value<std::vector<uint64_t>>();
-					//	for (const auto& elem : vec)
-					//	{
-					//		output[name][storage.type().name()][propName].push_back(elem);
-					//	}
-					//}
-					//else if (propVal.is_type<glm::vec2>())
-					//{
-					//	auto v = propVal.get_value<glm::vec2>();
-					//	output[name][storage.type().name()][propName] = { v.x, v.y};
-					//}
-					//else if (propVal.is_type<glm::vec3>())
-					//{
-					//	auto v = propVal.get_value<glm::vec3>();
-					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z };
-					//}
-					//else if (propVal.is_type<glm::vec4>())
-					//{
-					//	auto v = propVal.get_value<glm::vec4>();
-					//	output[name][storage.type().name()][propName] = { v.x, v.y, v.z, v.w };
-					//}
-					//else
-					//{
-					//	// fallback
-					//	output[name][storage.type().name()][propName] = propVal.to_string();
-					//}
-#pragma endregion
-
 				}
 			}
 
@@ -481,89 +413,9 @@ namespace SliceEngine
 								uint32_t oldID = value.get<uint32_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
 							}
-
-#pragma region Old Deserialization Backup
-							//if (prop.get_type() == rttr::type::get<int>())
-							//	prop.set_value(componentInstance, value.get<int>());
-							//else if (prop.get_type() == rttr::type::get<unsigned int>())
-							//	prop.set_value(componentInstance, value.get<unsigned int>());
-							//else if (prop.get_type() == rttr::type::get<float>())
-							//	prop.set_value(componentInstance, value.get<float>());
-							//else if (prop.get_type() == rttr::type::get<double>())
-							//	prop.set_value(componentInstance, value.get<double>());
-							//else if (prop.get_type() == rttr::type::get<bool>())
-							//	prop.set_value(componentInstance, value.get<bool>());
-							//else if (prop.get_type() == rttr::type::get<uint64_t>())
-							//	prop.set_value(componentInstance, value.get<uint64_t>());
-							//else if (prop.get_type() == rttr::type::get<std::string>())
-							//	prop.set_value(componentInstance, value.get<std::string>());
-							//else if (prop.get_type() == rttr::type::get<std::vector<uint64_t>>())
-							//{
-							//	std::vector<uint64_t> vec;
-							//	for (auto& v : value)
-							//	{
-							//		vec.push_back(v.get<uint64_t>());
-							//	}
-							//	prop.set_value(componentInstance, vec);
-							//}
-							//else if (prop.get_type() == rttr::type::get<EntityID>())
-							//{
-							//	uint64_t rawID = value.get<uint64_t>();								
-							//	prop.set_value(componentInstance, EntityID{ rawID });
-							//	sceneGraphMap[rawID] = entt::to_integral(node.GetEntity());
-							//}
-							//else if (prop.get_type() == rttr::type::get<std::array<uint64_t, 4>>())
-							//{
-							//	std::array<uint64_t, 4> arr;
-							//	arr = value;
-							//	prop.set_value(componentInstance, arr);
-							//}
-							//else if (prop.get_type() == rttr::type::get<std::array<Entity, 4>>())
-							//{
-							//	std::array<Entity, 4> arr;
-							//	for (size_t i = 0; i < arr.size(); ++i)
-							//	{
-							//		auto v = value[i];
-
-							//		if (v.is_null())
-							//		{
-							//			arr[i] = entt::null;
-							//		}
-							//		else
-							//		{
-							//			arr[i] = static_cast<Entity>(v.get<uint64_t>());
-							//		}
-							//	}
-							//	prop.set_value(componentInstance, arr);
-							//}
-							//else if (prop.get_type() == rttr::type::get<glm::vec2>())
-							//{
-							//	glm::vec2 vec{ value[0].get<float>(), value[1].get<float>() };
-							//	prop.set_value(componentInstance, vec);
-							//}
-							//else if (prop.get_type() == rttr::type::get<glm::vec3>())
-							//{
-							//	glm::vec3 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>() };
-							//	prop.set_value(componentInstance, vec);
-							//}
-							//else if (prop.get_type() == rttr::type::get<glm::vec4>())
-							//{
-							//	glm::vec4 vec{ value[0].get<float>(), value[1].get<float>(), value[2].get<float>(), value[3].get<float>() };
-							//	prop.set_value(componentInstance, vec);
-							//}
-							////else if (prop.get_type() == rttr::type::get<std::unordered_map<int, int>>())
-							////{
-							////	
-							////}
-
-							//else 
-							//{
-							//	// fallback: try string
-							//	prop.set_value(componentInstance, value.get<std::string>());
-							//}
-#pragma endregion
-							
 						}
+
+
 
 						AddComponentFromVariant(node, componentInstance, componentName);
 					}

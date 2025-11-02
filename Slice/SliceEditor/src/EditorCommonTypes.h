@@ -89,6 +89,35 @@ namespace SliceEditor
 		}
 
 	};
+
+	struct DroppedFile
+	{
+		AssetType assetType;
+		std::unique_ptr<MetaData> metaData;
+		std::filesystem::path filePath;
+	};
+
+
+	// THEMES
+
+	enum EditorThemeType : int
+	{
+		DARK = 0,
+		MICROSOFT = 1
+	};
+
+	constexpr std::array<const char*, 2> EditorThemes =
+	{
+		"Dark",
+		"Microsoft"
+	};
+
+	// PREFERENCES
+
+	struct Preferences
+	{
+		EditorThemeType Theme;
+	};
 }
 
 #endif

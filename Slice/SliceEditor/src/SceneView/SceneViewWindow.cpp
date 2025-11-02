@@ -123,7 +123,6 @@ namespace SliceEditor
 
 	void SceneViewWindow::Draw()
 	{
-
 		ImGui::Begin("Scene");
 
 		auto& io = ImGui::GetIO();
@@ -211,6 +210,8 @@ namespace SliceEditor
 				{
 					mCameraSpeed -= 0.01f;
 				}
+
+				mCameraSpeed = std::clamp(mCameraSpeed, 0.0f, 5.0f);
 			}
 
 			if (ImGui::IsKeyDown(ImGuiKey_W))
@@ -296,7 +297,27 @@ namespace SliceEditor
 			ImVec2(1, 0)
 		);
 
+
 #pragma endregion
+
+#pragma region Dropping Into the Scene Directly
+
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImVec2 p1 = p0 + ImVec2(scene_x,scene_y);
+		ImGuiID id = ImGui::GetCurrentWindow()->GetID("SceneCanvasPassive");
+		ImRect rect(p0, p1);
+
+		if (ImGui::BeginDragDropTargetCustom(rect,id))
+		{
+			if (ImGui::AcceptDragDropPayload("Model"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+				}
+			}
+		}
 
 #pragma region ImGuizmos
 		// ======= IMGUIZMO =======

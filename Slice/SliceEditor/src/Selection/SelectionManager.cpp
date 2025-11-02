@@ -34,6 +34,11 @@ namespace SliceEditor
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
 	}
 
+	void SelectionManager::Update()
+	{
+
+	}
+
 	void SelectionManager::RegisterListener(ISelectionListener* listener)
 	{
 		mListeners.push_back(listener);
@@ -48,6 +53,9 @@ namespace SliceEditor
 		//mSelectedEntities.insert(entity);
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
+
+		if (node->type == SelectionNode::SelectionType::ENTITY)
+			mSelectionType = SelectionType::ENTITY;
 
 		if (!suppressHistory)
 		{

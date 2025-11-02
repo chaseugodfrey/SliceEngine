@@ -35,9 +35,17 @@ namespace SliceEditor
 
 		void DisplayItems(DirectoryNode& node);
 
-		void DisplayButton(DirectoryNode* node, DirectoryNode& entry, bool isDirectory);
-
 		void RenameFilePopup(DirectoryNode& entry);
+
+		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
+
+	#pragma region Display Meta Data Functions
+		void DisplayTextureData(TextureData* data);
+		void DisplayFBXData(ModelData* data);
+		void DisplayMaterialData(MaterialData* data);
+		void DisplayAudioData(AudioData* data);
+		
+	#pragma endregion
 
 		void SelectFile(DirectoryNode& node);
 	};

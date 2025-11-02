@@ -55,7 +55,12 @@ namespace SliceEngine
 			if (value == GUID::null())
 				output[name][typeName][propName] = "";
 			else
+			{
 				output[name][typeName][propName] = std::to_string(value.GetGUID());
+				Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(value);
+			}
+
+
 		}
 
 		// For generic vectors
