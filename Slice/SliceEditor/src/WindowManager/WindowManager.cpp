@@ -51,13 +51,14 @@ namespace SliceEditor
 
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
+		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
 		//AddWindow<AnimationWindow>();
-		AddWindow<NavigationWindow>();
+		//dAddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -67,6 +68,9 @@ namespace SliceEditor
 			if (window->markForRemoval)
 				list.erase(std::remove(list.begin(), list.end(), window));
 		}
+		/*AddWindow<AnimatorWindow>();
+		AddWindow<AnimationWindow>();*/
+		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -119,28 +123,6 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
-				{
-					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension("_temp");
-
-				
-					if (std::filesystem::exists(currentScenePath) && std::filesystem::exists(currentSceneTemp))
-					{
-						auto time1 = std::filesystem::last_write_time(currentScenePath);
-						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
-
-						if (time1 < time2)
-						{
-							std::filesystem::remove(currentScenePath);
-							currentSceneTemp.replace_extension(".scene");
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
-
-						}
-					}
-
-				}
-
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 

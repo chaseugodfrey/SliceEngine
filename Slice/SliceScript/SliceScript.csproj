@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>.\</OutputPath>
-    <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\build\bin-int\EditorDebug\SliceScript\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <DefineConstants>
     </DefineConstants>
@@ -31,9 +31,9 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>.\</OutputPath>
-    <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>..\build\bin-int\EditorRelease\SliceScript\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
     <DefineConstants>
     </DefineConstants>
