@@ -61,6 +61,7 @@ namespace SliceEngine
 				,GL_COLOR_ATTACHMENT1
 				,GL_COLOR_ATTACHMENT2
 				,GL_COLOR_ATTACHMENT3
+				,GL_COLOR_ATTACHMENT4
 			};
 			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 		}
@@ -127,6 +128,10 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_DIF], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgb-Roughness + a-Metalic
+		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RGBA16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_16 rgba Final Image To Send to Camera Texture
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -212,9 +217,9 @@ namespace SliceEngine
 
 			SetShader(S_DEFERRED);
 			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, 4, mColAttachment[GOUT_DIF], mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM]);
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			else
-				LinkFrameBufferSettings(FB_DEFERRED, 4, mColAttachment[GOUT_DIF], 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM]);
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			LoadSettings(GPUSetting::DEFAULT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
@@ -462,6 +467,7 @@ namespace SliceEngine
 		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
 		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
 		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
+		glBindTextureUnit(3, mColAttachment[GOUT_ROUGH_METAL]);
 
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
@@ -492,7 +498,7 @@ namespace SliceEngine
 
 				SetDirectionalLightMtx(camT.position, lightT.position);
 
-				glBindTextureUnit(3, light.depthTex);
+				glBindTextureUnit(4, light.depthTex);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
@@ -514,7 +520,7 @@ namespace SliceEngine
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 
-				glBindTextureUnit(4, light.shadowCubeMap);
+				glBindTextureUnit(5, light.shadowCubeMap);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];

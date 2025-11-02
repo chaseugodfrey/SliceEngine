@@ -111,6 +111,7 @@ namespace SliceEngine
 			GOUT_POS,
 			GOUT_NOM,
 			GOUT_ID,
+			GOUT_ROUGH_METAL,
 			GOUT_FINAL,
 			GOUT_POST,
 			GOUT_TOTAL
