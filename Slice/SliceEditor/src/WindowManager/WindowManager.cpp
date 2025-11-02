@@ -293,7 +293,7 @@ namespace SliceEditor
 				//}
 					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
-				}
+				
 				
 			}
 		}
