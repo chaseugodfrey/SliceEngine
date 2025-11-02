@@ -29,6 +29,7 @@ namespace SliceEditor
 		IBaseManager(Registry& reg) : registry(reg) {};
 		virtual ~IBaseManager() = default;
 		virtual void Init() = 0;
+		virtual void Update() = 0;
 		Registry& GetRegistry() { return registry; }
 	};
 }

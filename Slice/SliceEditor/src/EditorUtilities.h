@@ -13,6 +13,10 @@ namespace SliceEditor
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
+	
+		// Preferences
+		EditorThemeType GetThemeTypeFromString(std::string themeName);
+		void SetTheme(EditorThemeType type);
 	}
 }
 

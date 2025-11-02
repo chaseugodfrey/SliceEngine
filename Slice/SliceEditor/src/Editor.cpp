@@ -73,6 +73,7 @@ namespace SliceEditor
 		assetManager.Init();
 
 		engine.Init();
+
 		SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
 		FloorTest.AddComponent<SliceEngine::Renderer>();
 		FloorTest.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
@@ -81,7 +82,11 @@ namespace SliceEditor
 
 		auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
 
+		// Recast Section Test
+		// 
 		// Build transformation matrix
+		navMesh.Init();
+
 		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
 			* glm::mat4_cast(transform.rotation)
 			* glm::scale(glm::mat4(1.0f), transform.scale);
@@ -240,7 +245,7 @@ namespace SliceEditor
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
 		//DirectoryNode node = *manager->selectedFolder;
-		manager->RebuildDirectory(*manager->rootNode);
+		//manager->RebuildDirectory(*manager->rootNode);
 		//manager->SetSelectedFolder(node);
 
 		//Create the Package for the ContentBrowser to read

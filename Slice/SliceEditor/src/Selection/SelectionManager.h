@@ -24,6 +24,7 @@ namespace SliceEditor
 
 	class SelectionManager : public IBaseManager
 	{
+
 		// to do:: make it non-static later
 		std::vector<ISelectionListener*> mListeners;
 		std::unordered_set<entt::entity> mSelectedEntities;
@@ -32,10 +33,14 @@ namespace SliceEditor
 		void UpdateManagers();
 
 	public:
+
+
+
 		SelectionManager(Registry& reg) : IBaseManager(reg) {};
 		~SelectionManager() = default;
 
 		void Init() override;
+		void Update() override;
 		void RegisterListener(ISelectionListener* listener);
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
@@ -46,9 +51,17 @@ namespace SliceEditor
 		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
 
-		// replace this with listener pattern
+		
 		std::unordered_set<entt::entity>& GetSelectedEntities();
 		std::unordered_set<SelectionNode*>& GetSelectedNodes();
+
+		enum class SelectionType
+		{
+			NONE,
+			ENTITY,
+			MATERIAL,
+			MIXED
+		} mSelectionType{};
 	};
 }
 

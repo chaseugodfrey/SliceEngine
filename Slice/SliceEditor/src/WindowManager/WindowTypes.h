@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Animator/AnimatorWindow.h>
 #include <Animation/AnimationWindow.h>
 #include <Navigation/NavigationWindow.h>
+#include <Preferences/PreferenceWindow.h>
 
 namespace SliceEditor
 {

@@ -53,6 +53,7 @@ namespace SliceEditor
 		~ProfilerManager() = default;
 
 		void Init();
+		void Update() override;
 
 		ImVec4 LogLevelToImVec4(Logger::LogLevel level);
 

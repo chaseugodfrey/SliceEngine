@@ -203,6 +203,11 @@ namespace SliceEngine
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
 		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<Animator>(typeid(Animator).name())
+		.constructor<>()
+		.property("animTime", &Animator::animTimer);
+
 	}
 }
 #endif
