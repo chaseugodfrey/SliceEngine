@@ -449,45 +449,11 @@ namespace SliceEditor
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
-			ImGui::Text("Intensity");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
-			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
-			int current_light_type_index = static_cast<int>(light.type) - 1;
+			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
-			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
-			{
-				switch (current_light_type_index)
-				{
-				case 0:
-					light.type = SliceEngine::Light::Light_Directional;
-					break;
-				case 1:
-					light.type = SliceEngine::Light::Light_Point;
-					break;
-				case 2:
-					light.type = SliceEngine::Light::Light_Spot;
-					break;
-				}
-			}
-
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
+			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
 
 			ImGui::TreePop();
 		}
