@@ -63,7 +63,7 @@ namespace SliceEngine
 		const int mMaxBloom =  5;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
-		const float pointLightFar = 40.f;
+		const float pointLightFar = 20.f;
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
