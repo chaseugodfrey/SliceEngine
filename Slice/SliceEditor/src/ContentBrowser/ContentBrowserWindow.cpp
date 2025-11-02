@@ -392,7 +392,7 @@ namespace SliceEditor
 			{
 				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
 				//ImGui::CloseCurrentPopup();
-				willOpen = false;
+				//willOpen = false;
 			}
 
 			ImGui::SameLine();
@@ -404,7 +404,7 @@ namespace SliceEditor
 					skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
 					mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton);
 				//	ImGui::CloseCurrentPopup();
-					willOpen = false;
+					//willOpen = false;
 				}
 
 				ImGui::SameLine();
@@ -415,7 +415,7 @@ namespace SliceEditor
 					animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
 					mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation);
 					//ImGui::CloseCurrentPopup();
-					willOpen = false;
+					//willOpen = false;
 				}
 
 				ImGui::SameLine();
