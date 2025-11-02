@@ -51,18 +51,10 @@ namespace SliceEditor
 			// Since this isn't unity style where meta files are alongside assets
 			// we need to compare wit hthe file name to GUID from the resource manager
 			// which holds the map of names to GUIDs to resource paths
-			if (mDescriptorMap.find(fileName) == mDescriptorMap.end())
-			{
-				// this file does not have a meta/descriptor file
-				// make one ig?
-				CreateDescriptorFile(dirEntry.path());
 
-				//bool compiled = CompileAsset(fileName);
-			}
-			else
-			{
-
-			}
+			// this file does not have a meta/descriptor file
+			// make one ig?
+			CreateDescriptorFile(dirEntry.path());
 
 
 		}
@@ -186,10 +178,12 @@ namespace SliceEditor
 			//mAssets[assetType].push_back(metaData->assetName);
 
 			// Update the descriptor map
-			mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
+			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
+			mGUIDtoFilename[metaData->guid] = filePath.filename().string();
 		
-			return  metaData->resourcePath;
+			return metaData->resourcePath;
 		}
+		return "";
 	}
 
 	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
@@ -200,7 +194,9 @@ namespace SliceEditor
 
 		//mAssets[assetType].push_back(metaData->assetName);
 		// Update the descriptor map
-		mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
+		//mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
+		mGUIDtoFilename[metaData->guid] = metaData->assetName;
+
 		switch (assetType)
 		{
 		case AssetType::Texture:
@@ -230,7 +226,7 @@ namespace SliceEditor
 
 		// register into resource manager
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
+		resourceMgr->RegisterResourceAsset(metaPath.string());
 
 	}
 
@@ -544,7 +540,7 @@ namespace SliceEditor
 							continue;
 						}
 
-						mDescriptorMap.insert_or_assign(assetName, guid);
+						//mDescriptorMap.insert_or_assign(assetName, guid);
 					}
 					catch (nlohmann::json::parse_error& e)
 					{

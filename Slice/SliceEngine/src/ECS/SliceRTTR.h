@@ -14,7 +14,10 @@ DigiPen Institute of Technology is prohibited.
 #include "../Graphics/WorldSpaceGraphicsSystem.h"
 #include "../Systems/TransformSystem.h"
 #include "../Systems/SoundSystem.h"
-
+#include "Resource/ResourceManager.h"
+#include "Resource/Resource.h"
+#include "Resource/Model.h"
+#include "Resource/Material.h"
 #include <rttr/registration.h>
 namespace SliceEngine
 {
@@ -77,6 +80,13 @@ namespace SliceEngine
 		.method("empty", &std::string::empty)
 		.method("c_str", &std::string::c_str);
 
+	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Texture>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Material>>("Material Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Material>::mGUID);
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()
@@ -110,8 +120,8 @@ namespace SliceEngine
 
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
-		.property("model", &Renderer::model)
-		.property("material", &Renderer::material)
+		.property("model", &Renderer::modelHandle)
+		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag);
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -203,6 +213,11 @@ namespace SliceEngine
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
 		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<Animator>(typeid(Animator).name())
+		.constructor<>()
+		.property("animTime", &Animator::animTimer);
+
 	}
 }
 #endif

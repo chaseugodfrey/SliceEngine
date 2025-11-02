@@ -99,58 +99,18 @@ namespace SliceEditor
 			}
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
-
 			ImGui::TreePop();
 		}
 	}
 
-	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
-	{
-		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-
-		entt::entity ent_display{};
-		ImGui::Text("Parent:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Child:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Previous Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Next Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-	}
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
-		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
-			if (ImGui::TreeNodeEx("AudioSource"))
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) 
+			{
+			if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
@@ -210,10 +170,15 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##mesh", &model_guid_string))
+			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
+            std::string modelFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID().GetGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID().GetGUID()];
+			}
+			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -221,17 +186,23 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					rend.model = recievedPayload;
+					rend.modelHandle.mGUID = recievedPayload;
+					// update the handle after
 				}
 			}
 
 			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string material_guid_string = std::to_string(rend.material.GetGUID());
-			if (ImGui::InputText("##material", &material_guid_string, ImGuiInputTextFlags_ReadOnly))
+            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
+			std::string materialFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID().GetGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID().GetGUID()];
+			}
+			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -239,7 +210,8 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
 						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.material = recievedPayload;
+						rend.materialHandle.mGUID = recievedPayload;
+						// reload material handle here
 				}
 			}
 
@@ -292,6 +264,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					if (ImGui::BeginCombo("##detection", currentLabel))
 					{
+
 						for (int i = 0; i < 2; i++)
 						{
 							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
@@ -486,9 +459,29 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayAnimator(entt::entity entity)
+	{
+		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
+
+		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::Animator>(entity);
+
+			ImGui::Text("Controller: ");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+
+			std::string anim_file{};
+			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::TreePop();
+		}
+	}
+
+
 	void InspectorWindow::DisplayLight(entt::entity entity)
 	{
-		if (ImGui::TreeNodeEx("Light", ImGuiTreeNodeFlags_DefaultOpen))
+		if (ImGui::TreeNodeEx("Light", mBaseFlags))
 		{
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
@@ -496,18 +489,7 @@ namespace SliceEditor
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 
-			ImGui::Text("Colour: ");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_r", &light.color.r, 0.01f, 0.0f, 1.0f, "R: %.2f");
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_g", &light.color.g, 0.01f, 0.0f, 1.0f, "G: %.2f");
-
-			ImGui::SameLine();
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##c_b", &light.color.b, 0.01f, 0.0f, 1.0f, "B: %.2f");
+			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
 			ImGui::Text("Intensity");
 			ImGui::SameLine(100.0f);
@@ -627,6 +609,14 @@ namespace SliceEditor
 				} 
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::Animator>())
+			{
+				if (ImGui::Selectable("Add Animator"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Animator>(entity);
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 	}
@@ -651,6 +641,11 @@ namespace SliceEditor
 
 			//DisplaySceneGraph();
 			//ImGui::Separator();
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
+			{
+				DisplayLight(node->entity);
+				ImGui::Separator();
+			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Renderer>(entity))
@@ -680,19 +675,19 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity))
+			{
+				DisplayAnimator(node->entity);
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Script>(entity))
 			{
 				DisplaySliceScript(node->entity);
 				ImGui::Separator();
 			}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
-			{
-				DisplayLight(node->entity);
-				ImGui::Separator();
-			}
-
+            
 			AddComponentButton(node->entity);
 		}
 
@@ -701,5 +696,31 @@ namespace SliceEditor
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
 
+	}
+
+	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
+	{
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+
+		entt::entity ent_display{};
+		ImGui::Text("Parent:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Child:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Previous Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Next Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 	}
 }

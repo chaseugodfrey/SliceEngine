@@ -31,7 +31,7 @@ namespace SliceEditor
 	{
 
 		ImGui::Begin("Animator");
-#pragma region Animator Toolbar
+#pragma region AnimatorSystem Toolbar
 		ImGui::BeginGroup();
 		ImGui::Text("Parameters");
 		if (ImGui::BeginMenuBar())

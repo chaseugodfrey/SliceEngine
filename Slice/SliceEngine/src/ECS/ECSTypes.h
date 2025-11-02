@@ -18,7 +18,9 @@ DigiPen Institute of Technology is prohibited.
 #include <variant>
 #include "../Physics/CollisionLayer.h"
 #include <rttr/rttr_enable.h>
+#include "Resource/Resource.h"
 #include "Resource/ResourceManager.h"
+#include "Animator/FSMSystem.h"
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -105,8 +107,12 @@ namespace SliceEngine
 	struct Renderer
 	{
 		// May need to change if rendering pipeline is diff
-		GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID;
-		GUID material = (GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID;
+		//GUID model = (GUID)Type<SliceEngineTypes::Model>::defaultResourceGUID;
+		//GUID material = (GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID;
+
+		Handle<SliceEngineTypes::Model> modelHandle;
+		Handle<SliceEngineTypes::Material> materialHandle;
+
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
 
@@ -320,6 +326,15 @@ namespace SliceEngine
 		float systemTimer{};					// system�s overall lifetime
 
 		float emissionAccumulator{};
+	};
+
+
+	struct Animator
+	{
+		FSMSystem stateMachine{};
+		float animTimer = 0.0f;
+
+		RTTR_ENABLE();
 	};
 }
 

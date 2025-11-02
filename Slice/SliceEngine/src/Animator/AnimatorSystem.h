@@ -98,20 +98,15 @@ namespace SliceEngine
 		glm::mat4 globalinv;
 	};
 
-	struct CAnimator
-	{
-		FSMSystem stateMachine;
-		float animTimer = 0.0f;
-	};
 
 	
 
 	struct animatorEntity {};
 
-	class Animator : BaseSystem<animatorEntity, CAnimator>
+	class AnimatorSystem : BaseSystem<animatorEntity, Animator>
 	{
 	public:
-		Animator();
+		AnimatorSystem();
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;

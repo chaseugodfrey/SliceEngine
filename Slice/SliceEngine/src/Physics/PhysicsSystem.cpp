@@ -911,6 +911,17 @@ namespace SliceEngine
 
 	}
 
+	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
+
+		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
+
+		return velocity;
+	}
+
+
 	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
