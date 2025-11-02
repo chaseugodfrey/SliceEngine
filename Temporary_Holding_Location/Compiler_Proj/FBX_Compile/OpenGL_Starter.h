@@ -8,9 +8,6 @@
 
 #include "Shader.h"
 
-void _CheckGLError(const char* file, int line);
-
-#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
 
 class OpenGL_Starter {
 	struct GL_Model {
@@ -33,8 +30,13 @@ private:
 	//GL_Model default_quad{};
 	Geometry::Model mdl;
 	Geometry::Model mdl_clone;
-	Geometry::Animation anim;
-	Geometry::Animator animator;
+	Geometry::AnimationPackage anim_package;
+	Geometry::AnimationPlayer animator;
+	Geometry::Skeleton skeleton;
+
+
+	Geometry::AnimationPackage anim_clone;
+	Geometry::Skeleton skeleton_clone;
 
 	GL_Shader default_shader;
 };
