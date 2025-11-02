@@ -113,6 +113,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Animator\AnimatorSystem.h" />
+    <ClInclude Include="src\Animator\BoneSystem.h" />
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Animator\AnimatorSystem.cpp" />
+    <ClCompile Include="src\Animator\BoneSystem.cpp" />
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />

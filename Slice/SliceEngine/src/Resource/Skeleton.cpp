@@ -120,6 +120,7 @@ namespace SliceEngine
 			memcpy(&this->neutral, buffer + offset, sizeof(glm::mat4)); offset += sizeof(glm::mat4);
 		}
 
+
 		/*
 		* Animation Package
 		*/
@@ -142,27 +143,27 @@ namespace SliceEngine
 				fs.read(header_buffer, header_size);
 			}
 			catch (...) {
-			//	SLICE_LOG_WARNING("Error reading file: " + file);
-			//	SLICE_LOG_WARNING("Error reading file: " + file);
+				//	SLICE_LOG_WARNING("Error reading file: " + file);
+				//	SLICE_LOG_WARNING("Error reading file: " + file);
 				fs.close();
 				return false;
 			}
 
 			if (fs.fail() || fs.eof()) {
-			//	SLICE_LOG_WARNING("Unknown file format: " + file);
+				//	SLICE_LOG_WARNING("Unknown file format: " + file);
 				fs.close();
 				return false;
 			}
 
 			if (header_buffer[0] != 'A' || header_buffer[1] != 'P' || header_buffer[2] != 'G') {
-			//	SLICE_LOG_WARNING("Not a proper skeleton file: " + file);
+				//	SLICE_LOG_WARNING("Not a proper skeleton file: " + file);
 				fs.close();
 				return false;
 			}
 			auto vers = version_number;
 			vers = *((decltype(version_number)*)(header_buffer + 3));
 			if (vers != version_number) {
-			//	SLICE_LOG_WARNING("Wrong version, please recompile: " + file);
+				//	SLICE_LOG_WARNING("Wrong version, please recompile: " + file);
 				fs.close();
 				return false;
 			}
@@ -269,25 +270,26 @@ namespace SliceEngine
 
 
 
-		void Transform::SetIdentity() {
+		void Frame::SetIdentity() {
 			scale = { 1.f,1.f,1.f };
 			position = { 0.f,0.f,0.f };
 			rotation = { 1.f, 0.f, 0.f, 0.f };
 		}
 
-		glm::mat4 Transform::ToMatrix() const {
+		glm::mat4 Frame::ToMatrix() const {
 			auto translate = glm::translate(glm::mat4(1.0f), position);
 			auto rotate = glm::toMat4(rotation);
 			auto scaling = glm::scale(glm::mat4(1.0f), scale);
 			return translate * rotate * scaling;
 		}
 
-		Transform Transform::Blend(Transform const& lhs, Transform const& rhs, float inter) {
-			Transform blended;
+		Frame Frame::Blend(Frame const& lhs, Frame const& rhs, float inter) {
+			Frame blended;
 			blended.position = glm::mix(lhs.position, rhs.position, inter);
 			blended.scale = glm::mix(lhs.scale, rhs.scale, inter);
 			blended.rotation = glm::normalize(glm::slerp(lhs.rotation, rhs.rotation, inter));
 			return blended;
 		}
+
 	}
 }

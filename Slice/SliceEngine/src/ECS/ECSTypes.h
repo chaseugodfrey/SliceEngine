@@ -336,6 +336,14 @@ namespace SliceEngine
 
 		RTTR_ENABLE();
 	};
+
+	struct Bone 
+	{
+		Entity skeleton_root{};
+		unsigned int frame_idx{};
+
+		RTTR_ENABLE();
+	};
 }
 
 #endif

@@ -47,8 +47,7 @@ namespace SliceEngine
 
 			bool LoadSkeletonResource(std::string const&);	//this one is new one
 		};
-
-		struct Transform {
+		struct Frame {
 			glm::vec3 scale{ 1.f,1.f,1.f };
 			glm::vec3 position{ 0.f,0.f,0.f };
 			glm::quat rotation{ 1.f, 0.f, 0.f, 0.f };
@@ -56,11 +55,11 @@ namespace SliceEngine
 			void SetIdentity();
 			glm::mat4 ToMatrix() const;
 
-			static Transform Blend(Transform const& lhs, Transform const& rhs, float inter);
+			static Frame Blend(Frame const& lhs, Frame const& rhs, float inter);
 		};
 
 		struct BoneKeyFrames {
-			std::vector<Transform> transforms;
+			std::vector<Frame> transforms;
 			bool animated{ false };
 		};
 		struct Animation {
@@ -89,6 +88,7 @@ namespace SliceEngine
 		private:
 			void unpack_data(char const* const buffer, uint64_t& offset);
 		};
+
 	}
 }
 
