@@ -28,6 +28,9 @@ namespace SliceEngine
 		{
 			auto const& bone = core->GetRegistry().get<Bone>(entity);
 			Entity root_entity = bone.skeleton_root;
+			if (root_entity == entity) {
+				continue;
+			}
 			
 			if (!core->GetRegistry().any_of<Animator>(root_entity)) {
 				SLICE_LOG_ERROR("Invalid root entity for bone component");

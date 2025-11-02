@@ -44,9 +44,9 @@ void main(void){
 
 	mat4 model_to_world = M;
 
-	//if(is_bone_animated) {
-	//	model_to_world = inverse_root * M * bone_tform;
-	//}
+	if(is_bone_animated) {
+		model_to_world = inverse_root * M * bone_tform;
+	}
 
 
 	//mat3 N = transpose(inverse(mat3(M)));
