@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
+#include <Profiler/ProfilerManager.h>
 
 
 namespace SliceEditor
@@ -75,16 +76,16 @@ namespace SliceEditor
 
 	void WindowManager::AddWindow(const std::string& name)
 	{
-		//auto it = windowFactoryMap.find(name);
-		//if (it != windowFactoryMap.end())
-		//{
-		//	auto window = it->second->CreateEditorWindow();
-		//	list.push_back(std::move(window));
-		//}
-		//else
-		//{
-		//	SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
-		//}
+		auto it = windowFactoryMap.find(name);
+		if (it != windowFactoryMap.end())
+		{
+			auto window = it->second->CreateEditorWindow();
+			list.push_back(std::move(window));
+		}
+		else
+		{
+			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
+		}
 	}
 
 	void WindowManager::Render()
@@ -145,14 +146,9 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
-			if (ImGui::MenuItem("Animation"))
+			if (ImGui::MenuItem("Content Browser"))
 			{
-
-			}
-
-			if (ImGui::MenuItem("Animator"))
-			{
-
+				registry.GetManager<ProfilerManager>("ContentBrowser")->CreateEditorWindow();
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -160,34 +156,39 @@ namespace SliceEditor
 
 			}
 
-			if (ImGui::MenuItem("Content Browser"))
-			{
-
-			}
-
 			if (ImGui::MenuItem("Game"))
 			{
-
+				AddWindow<GameViewWindow>();
 			}
 
-			if (ImGui::MenuItem("Hierachy"))
+			if (ImGui::MenuItem("Hierarchy"))
 			{
-
+				AddWindow<HierarchyWindow>();
 			}
 
 			if (ImGui::MenuItem("Inspector"))
 			{
-
+				AddWindow<InspectorWindow>();
 			}
 
 			if (ImGui::MenuItem("Scene"))
 			{
-
+				AddWindow<SceneViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
 			{
+				AddWindow("Profiler");
+			}
 
+			if (ImGui::MenuItem("Animation"))
+			{
+				AddWindow<AnimationWindow>(true);
+			}
+
+			if (ImGui::MenuItem("Animator"))
+			{
+				AddWindow<AnimatorWindow>(true);
 			}
 
 			ImGui::EndMenu();
@@ -201,7 +202,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					auto go = factory.CreateGO_Box();
+					EditorUtilities::GameObject_CreateBox();
 				}
 
 				ImGui::EndMenu();
@@ -209,7 +210,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = factory.CreateGO_Cam();
+				EditorUtilities::GameObject_CreateCam();
 			}
 
 			ImGui::EndMenu();
