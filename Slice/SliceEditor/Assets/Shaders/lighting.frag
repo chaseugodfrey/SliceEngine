@@ -14,9 +14,9 @@ const float PI = 3.14159265358979323846;
 const float EPSILON = 0.000001;
 // -TODO- Temporary material values
 const float ambient = 0.01;
-const int isDirectional = 1;
-const int isPoint 		= 2;
-const int isSpot 		= 3;
+const int isDirectional = 0;
+const int isPoint 		= 1;
+const int isSpot 		= 2;
 
 uniform mat4 uLightMtx; // Shadow Transform Matrix
 uniform Light uLight;
