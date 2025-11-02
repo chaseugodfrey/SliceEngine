@@ -57,8 +57,7 @@ namespace SliceEditor
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
-		//AddWindow<AnimationWindow>();
-		//dAddWindow<NavigationWindow>();
+		AddWindow<AnimationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -68,9 +67,6 @@ namespace SliceEditor
 			if (window->markForRemoval)
 				list.erase(std::remove(list.begin(), list.end(), window));
 		}
-		/*AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();*/
-		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
