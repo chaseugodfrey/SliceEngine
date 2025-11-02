@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "ContentBrowserWindow.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
@@ -136,6 +137,7 @@ namespace SliceEditor
 	{
 		static DirectoryNode* selectedEntry = nullptr;
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
@@ -220,6 +222,7 @@ namespace SliceEditor
 					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
+						selectionManager->SelectSingle(&entry);
 					}
 
 					//Drag and Drop Payload

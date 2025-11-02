@@ -578,6 +578,18 @@ namespace SliceEditor
 
 	}
 
+	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
+	{
+		std::optional<std::string> filename{};
+
+		auto it = mGUIDtoFilename.find(guid);
+		if (it == mGUIDtoFilename.end())
+			return filename;
+
+		filename.emplace(it->second);
+		return filename;
+	}
+
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
 	//{
 	//	auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>

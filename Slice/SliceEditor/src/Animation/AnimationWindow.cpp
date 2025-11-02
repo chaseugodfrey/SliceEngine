@@ -25,7 +25,7 @@ namespace SliceEditor
 		// Check if any entities selected
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
-		if (selectionManager->mSelectionType != SelectionManager::SelectionType::ENTITY)
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
 		{
 			ClearData();
 			return false;
@@ -171,6 +171,8 @@ namespace SliceEditor
 					animationClipIndex = i;
 				}
 			}
+
+			ImGui::EndCombo();
 		}
 
 		ImGui::EndGroup();

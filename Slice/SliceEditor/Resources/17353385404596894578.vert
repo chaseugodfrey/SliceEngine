@@ -15,9 +15,9 @@ uniform mat4 V; // View transform matrix
 uniform mat4 P; // Perspective transform matrix
 uniform Light uLight;
 
-const int isDirectional = 1;
-const int isPoint 		= 2;
-const int isSpot 		= 3;
+const int isDirectional = 0;
+const int isPoint 		= 1;
+const int isSpot 		= 2;
 
 void main(void){
 	if(uLight.type == isDirectional)

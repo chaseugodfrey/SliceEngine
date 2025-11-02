@@ -518,6 +518,26 @@ namespace SliceEditor
 		}
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
+			// now set the resource path
+			std::ifstream inFile{ desc_path };
+			if (inFile.fail())
+			{
+				return;
+			}
+
+			nlohmann::json metaJson = nlohmann::json::parse(inFile);
+			//guid = (SliceEngine::GUID)metaJson["guid"].get<uint64_t>();
+			//assetName = metaJson["assetName"];
+			//assetType = metaJson["assetType"];
+			//assetPath = metaJson["assetPath"];
+			//resourcePath = metaJson["resourcePath"];
+
+			// properties
+			roughness = metaJson["roughness"].get<float>();
+			metallic = metaJson["metallic"].get<float>();
+			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
+
+			inFile.close();
 		}
 	};
 }
