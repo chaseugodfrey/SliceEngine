@@ -35,38 +35,26 @@ namespace SliceEngine
 	};
 
 	//Base SoundTrack struct for sound files
-	struct SoundTrack
-	{
-		FMOD::Sound* sound = nullptr;
-		/**************Moved to Audio Source so to takeout *****************/
-		FMOD::Channel* channel = nullptr;
-		FMOD::Channel* previewChannel = nullptr;
-		/*******************************************************************/
-		float defaultSoundVolume = 1.0f;
-		float currentSoundVolume = 1.0f;
-		FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
-		FMOD_VECTOR vel = { 0.f,0.f,0.f };
-		SoundCategory category = SoundCategory::SFX;
-		bool is3D = true;
-		bool isLooping = false;
-		bool isPaused = false;
-		bool muffle = false;
-		Entity entityID;
+	//struct SoundTrack
+	//{
+	//	FMOD::Sound* sound = nullptr;
+	//	/**************Moved to Audio Source so to takeout *****************/
+	//	FMOD::Channel* channel = nullptr;
+	//	FMOD::Channel* previewChannel = nullptr;
+	//	/*******************************************************************/
+	//	float defaultSoundVolume = 1.0f;
+	//	float currentSoundVolume = 1.0f;
+	//	FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
+	//	FMOD_VECTOR vel = { 0.f,0.f,0.f };
+	//	bool is3D = true;
+	//	bool isLooping = false;
+	//	bool isPaused = false;
+	//	bool muffle = false;
+	//	Entity entityID;
 
 
-		virtual ~SoundTrack() = default;
-
-		virtual void ApplySettings()
-		{
-			if (channel)
-			{
-				channel->setVolume(currentSoundVolume);
-				channel->setMode(isLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
-				channel->set3DAttributes(&soundPos3D, &vel);
-				channel->set3DMinMaxDistance(0.1f, 0.6f);
-			}
-		}
-	};
+	//	virtual ~SoundTrack() = default;
+	//};
 
 	
 
@@ -83,30 +71,9 @@ namespace SliceEngine
 		FMOD::ChannelGroup* editorSounds;
 		
 		const int MAX_CHANNELS = 256;
-		std::unordered_map<std::string, std::unique_ptr<SoundTrack>> mLoadedSounds;
-		//To take out cause redundant
-		std::unordered_map<SoundCategory, float> mCategoryVolumes;
 
 		const float defaultVolume = 1.0f;
-
-
-
-	public:
-		//To take out cause redundant
-		enum InternalSound
-		{
-			SOUND_INGAME,
-			SOUND_INMENU,
-			SOUND_BGM,
-			SOUND_EDITOR,
-			SOUND_MAX_SOUNDS
-		};
-
-	private:
-
-		std::vector<std::unique_ptr<SoundTrack>> mSound[SOUND_MAX_SOUNDS];
-		std::unordered_map<Entity, std::unique_ptr<SoundTrack>> mSounds[SOUND_MAX_SOUNDS];
-		float mMasterVolume = 1.0f;
+		
 
 
 	public:
@@ -126,9 +93,9 @@ namespace SliceEngine
 		 * @param vector The input glm vector.
 		 * @return An equivalent FMOD_VECTOR.
 		 */
-		FMOD_VECTOR Vec3ToFMODVec3(glm::vec3& vector)
+		inline FMOD_VECTOR Vec3ToFMODVec3(glm::vec3 vector)
 		{
-			return FMOD_VECTOR{ vector.x,vector.y,vector.z };
+			return { vector.x,vector.y,vector.z };
 		}
 
 		/**
@@ -136,16 +103,10 @@ namespace SliceEngine
 		 * @param vector The input FMOD vector.
 		 * @return An equivalent glm::vec3.
 		 */
-		glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
+		inline glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
 		{
-			return glm::vec3{ vector.x, vector.y, vector.z };
+			return { vector.x, vector.y, vector.z };
 		}
-
-		/**
-		 * @brief Loads a sound file into memory and stores it for later playback.
-		 * @param soundFile The path or name of the sound file to load.
-		 */
-		void LoadSound(GUID soundFile);
 
 		/**
 		 * @brief Plays a sound associated with a specific entity.
@@ -158,9 +119,9 @@ namespace SliceEngine
 		 * @param volume Volume level (0.0–1.0).
 		 * @param id The entity owning this sound.
 		 * @param soundPos The world position for 3D sounds (default at origin).
-		 * @return True if playback started successfully, false otherwise.
+		 * @return a pointer to a channel if playback started successfully, nullptr otherwise.
 		 */
-		bool PlaySound(const std::string& soundName, SoundCategory category, InternalSound internalCategory, bool is3D, bool isPaused, bool isLoop, float volume, Entity& id, glm::vec3 soundPos = { 0.f,0.f,0.f });
+		FMOD::Channel* PlaySound(GUID soundName, bool isPaused, bool isLoop, float volume, glm::vec3 soundPos, glm::vec3 vel);
 
 		/**
 		 * @brief Plays a sound preview for the editor without affecting in-game channels.
@@ -168,7 +129,7 @@ namespace SliceEngine
 		 * @param is3D Whether the preview uses 3D spatialization.
 		 * @param id Entity associated with the sound.
 		 * @param soundPos Position for 3D preview playback.
-		 * @return True if preview playback started successfully, false otherwise.
+		 * @return a pointer to a channel if preview playback started successfully, nullptr otherwise.
 		 */
 		FMOD::Channel* PlayEditorPreview(GUID soundName, bool is3D);
 
@@ -188,10 +149,10 @@ namespace SliceEngine
 		 * @param id The entity whose sound position is being updated.
 		 * @param soundPos New 3D position.
 		 */
-		void SetSound3DPosition(Entity& id, glm::vec3 soundPos);
+		void SetSound3DPosition(FMOD::Channel* channel, bool is3D, glm::vec3 soundPos, glm::vec3 vel);
 
 		/** @brief Sets the global master volume for all sounds. */
-		glm::vec3 GetSound3DPosition(Entity& id);
+		void GetSound3DPosition(FMOD::Channel* channel);
 
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
@@ -202,77 +163,47 @@ namespace SliceEngine
 		 * @param internalCategory Internal group this category belongs to.
 		 * @param volume New volume level.
 		 */
-		void SetCategoryVolume(SoundCategory category, InternalSound internalCatergory, float volume);
+		void SetCategoryVolume(GUID soundName, float volume);
 
-		/**
-		 * @brief Gets the current volume for a specific sound category.
-		 * @param category Category to query.
-		 * @return Volume level of that category.
-		 */
-		float GetCategoryVolume(SoundCategory category) const;
+		float GetChannelVolume(FMOD::Channel* channel);
 
-		/**
-		 * @brief Updates the volume of a specific sound instance.
-		 * @param id Entity whose sound volume to update.
-		 * @param volume New volume value.
-		 */
-		void UpdateSoundVolume(Entity& id, float volume);
-
-		/**
-		 * @brief Retrieves the current volume of a specific sound instance.
-		 * @param id Entity whose sound volume to retrieve.
-		 * @return Current track volume.
-		 */
-		float GetCurrentTrackVolume(Entity& id);
-
-		/**
-		 * @brief Checks if a sound channel associated with an entity is null.
-		 * @param entity Entity to check.
-		 * @return True if the channel is null, false otherwise.
-		 */
-		bool IsChannelNull(Entity& entity);
+		void SetChannelVolume(FMOD::Channel* channel, float volume);
 
 		/**
 		 * @brief Checks if a sound channel is currently playing.
 		 * @param entity Entity to check.
 		 * @return True if the channel is active and playing.
 		 */
-		bool IsChannelPlaying(Entity& entity);
+		bool IsChannelPlaying(FMOD::Channel* channel);
 
-		/**
-		 * @brief Checks if a preview channel is currently playing in the editor.
-		 * @param entity Entity to check.
-		 * @return True if the preview channel is active.
-		 */
-		bool IsPreviewChannelPlaying(Entity& entity);
 
 		/**
 		 * @brief Checks if a sound is configured for 3D playback.
 		 * @param id Entity to check.
 		 * @return True if the sound uses 3D mode.
 		 */
-		bool IsFMOD3D(Entity& id);
+		bool IsFMOD3D(FMOD::Channel* channel);
 
 		/**
 		 * @brief Updates the FMOD mode (2D/3D) for a sound.
 		 * @param id Entity whose mode to change.
 		 * @param is3D True for 3D, false for 2D.
 		 */
-		void UpdateFMODMode(Entity& id, bool is3D);
+		void UpdateFMODMode(FMOD::Channel* channel, bool is3D);
 
 		/**
 		 * @brief Pauses or resumes a sound associated with an entity.
 		 * @param id Entity whose sound to pause or resume.
 		 * @param isPaused True to pause, false to resume.
 		 */
-		void UpdatePauseSound(Entity& id, bool isPaused);
+		void UpdatePauseSound(FMOD::Channel* channel, bool isPaused);
 
 		/**
 		 * @brief Retrieves whether a sound is currently paused.
 		 * @param id Entity to check.
 		 * @return True if paused.
 		 */
-		bool GetPauseState(Entity& id);
+		bool GetPauseState(FMOD::Channel* channel);
 
 		/**
 		 * @brief Stops a sound currently playing for a given entity.
@@ -290,29 +221,13 @@ namespace SliceEngine
 		 * @brief Stops all sounds in the specified internal sound group.
 		 * @param SoundCategory Internal sound group to stop.
 		 */
-		void StopAllSound(InternalSound SoundCategory);
+		void StopAllSound();
 
 		/** @brief Removes any stopped or invalid sounds from memory. */
 		//void CleanUpStoppedSounds();
 
 		/** @brief Switches sound context (e.g., between menu and gameplay). */
 		//void SwitchSound();
-
-	private:
-
-		/**
-		 * @brief Internal helper to update a SoundTrack’s effective volume.
-		 * @param track Pointer to the sound track to update.
-		 */
-		void UpdateSoundVolume(SoundTrack* track);
-
-		/**
-		 * @brief Calculates the final effective volume of a track, considering master and category levels.
-		 * @param track The sound track to evaluate.
-		 * @param category The sound category.
-		 * @return Computed effective volume.
-		 */
-		float CalculateFinalVolume(const SoundTrack* track, SoundCategory category) const;
 		
 
 	};

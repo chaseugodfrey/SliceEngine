@@ -31,6 +31,7 @@ namespace SliceEditor
 
         dtNavMeshQuery *GetNavMeshQuery() { return navQuery; }
         dtNavMesh *GetNavMesh() { return navMesh; }
+        void Init();
         void Clear();
 
     private:

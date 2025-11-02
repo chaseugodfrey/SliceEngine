@@ -100,40 +100,29 @@ namespace SliceEditor
 		auto &transform1 = FloorTest1.GetComponent<SliceEngine::Transform>();
 		transform1.position = glm::vec3(-10.f, 5.f, -10.f);
 
+		// Recast Section Test
+		// 
 		// Build transformation matrix
-		glm::mat4 transformMatrix1 = glm::translate(glm::mat4(1.0f), transform1.position)
-			* glm::mat4_cast(transform1.rotation)
-			* glm::scale(glm::mat4(1.0f), transform1.scale);
+		navMesh.Init();
+
+		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+			* glm::mat4_cast(transform.rotation)
+			* glm::scale(glm::mat4(1.0f), transform.scale);
 
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto &model1 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest1.GetComponent<SliceEngine::Renderer>().model).get();
-
-		SliceEngine::GameObject FloorTest2 = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-		FloorTest2.AddComponent<SliceEngine::Renderer>();
-		FloorTest2.GetComponent<SliceEngine::Renderer>().model = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
-		FloorTest2.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-		FloorTest2.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f);
-
-		auto &transform2 = FloorTest2.GetComponent<SliceEngine::Transform>();
-		transform2.position = glm::vec3(1.0f, 0.0f, 0.0f);
-
-		// Build transformation matrix
-		glm::mat4 transformMatrix2 = glm::translate(glm::mat4(1.0f), transform2.position)
-			* glm::mat4_cast(transform2.rotation)
-			* glm::scale(glm::mat4(1.0f), transform2.scale);
-
-		auto &model2 = *rm->get<SliceEngine::SliceEngineTypes::Model>(FloorTest2.GetComponent<SliceEngine::Renderer>().model).get();
-
-		std::vector<SliceEngine::SliceEngineTypes::Model> models = { model1, model2 };
-		std::vector<glm::mat4> transforms = { transformMatrix1, transformMatrix2 };
-
-		if (navMesh.BuildFromModel(models, transforms))
+		if (FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.IsValid())
 		{
-			SLICE_LOG_DEBUG("NAVMESH BUILT SUCCESSFULLY");
-		}
-		else
-		{
-			SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+			auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
+			
+			if (navMesh.BuildFromModel(*model, transformMatrix))  
+			{
+				SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
+			}
+			else
+			{
+				SLICE_LOG_ERROR("NAVMESH NOT BUILT");
+			}
+
 		}
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
@@ -275,7 +264,7 @@ namespace SliceEditor
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
 		//DirectoryNode node = *manager->selectedFolder;
-		manager->RebuildDirectory(*manager->rootNode);
+		//manager->RebuildDirectory(*manager->rootNode);
 		//manager->SetSelectedFolder(node);
 
 		//Create the Package for the ContentBrowser to read

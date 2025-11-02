@@ -16,6 +16,23 @@ namespace SliceEditor
 		Clear();
 	}
 
+	void RecastNavMesh::Init()
+	{
+		memset(&config, 0, sizeof(config));
+		config.cs = 0.2f;
+		config.ch = 0.2f;
+		config.walkableHeight = (int)ceilf(2.0f / config.ch);
+		config.walkableClimb = (int)floorf(0.5f / config.ch);
+		config.walkableRadius = (int)ceilf(0.4f / config.cs);
+		config.maxEdgeLen = (int)(12.0f / config.cs);
+		config.maxSimplificationError = 1.3f;
+		config.minRegionArea = (int)rcSqr(8);
+		config.mergeRegionArea = (int)rcSqr(20);
+		config.maxVertsPerPoly = 6;
+		config.detailSampleDist = config.cs * 6.0f;
+		config.detailSampleMaxError = config.ch * 1.0f;
+	}
+
 	void RecastNavMesh::Clear()
 	{
 		if (navQuery) dtFreeNavMeshQuery(navQuery);
@@ -165,20 +182,6 @@ namespace SliceEditor
 		//std::cout << "verts.size(): " << verts.size() << std::endl;
 
 		std::vector<int> recastIndices(indices.begin(), indices.end());
-
-		memset(&config, 0, sizeof(config));
-		config.cs = 0.2f; 
-		config.ch = 0.2f; 
-		config.walkableHeight = (int)ceilf(2.0f / config.ch);  
-		config.walkableClimb = (int)floorf(0.5f / config.ch);  
-		config.walkableRadius = (int)ceilf(0.4f / config.cs);  
-		config.maxEdgeLen = (int)(12.0f / config.cs);          
-		config.maxSimplificationError = 1.3f;
-		config.minRegionArea = (int)rcSqr(8);  
-		config.mergeRegionArea = (int)rcSqr(20);
-		config.maxVertsPerPoly = 6;
-		config.detailSampleDist = config.cs * 6.0f;
-		config.detailSampleMaxError = config.ch * 1.0f;
 
 		float bmin[3], bmax[3];
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);

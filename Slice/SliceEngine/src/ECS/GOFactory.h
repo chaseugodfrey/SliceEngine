@@ -173,6 +173,8 @@ namespace SliceEngine
 		void ClearGameObjects();
 		void UpdateTransformFromParent(Entity entity, Entity parent);
 
+		void FactoryShutdown();
+
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();
 		GameObject CreateGO_Cam();

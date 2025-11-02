@@ -516,7 +516,7 @@ namespace SliceEngine
 
 				glBindTextureUnit(4, light.shadowCubeMap);
 
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
 				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
@@ -790,8 +790,9 @@ namespace SliceEngine
 	{
 		if (sh != mCurrShader.first)
 		{
+			shaderHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)sh);
 			mCurrShader.first = sh;
-			mCurrShader.second = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)sh).get()->s;
+			mCurrShader.second = shaderHandle.get()->s;
 			glUseProgram(mCurrShader.second);
 		}
 	}
@@ -825,8 +826,9 @@ namespace SliceEngine
 	void RenderManager::LinkTransformInstancing(GUID guid)
 	{
 		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid).get();
-		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
+		auto modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid);
+		auto model = modelHandle.get();
+		auto& mdl = model->meshes[0];	//i call it mdl cuz im lazy to change the below
 
 		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
 

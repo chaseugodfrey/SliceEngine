@@ -96,6 +96,34 @@ namespace SliceEditor
 		std::unique_ptr<MetaData> metaData;
 		std::filesystem::path filePath;
 	};
+
+
+	// ANIMATIONS
+
+
+
+	// THEMES
+
+	enum EditorThemeType : int
+	{
+		DARK = 0,
+		LIGHT = 1,
+		MICROSOFT = 2
+	};
+
+	constexpr std::array<const char*, 3> EditorThemes =
+	{
+		"Dark",
+		"Light",
+		"Microsoft"
+	};
+
+	// PREFERENCES
+
+	struct Preferences
+	{
+		EditorThemeType Theme;
+	};
 }
 
 #endif

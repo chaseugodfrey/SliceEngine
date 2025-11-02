@@ -143,7 +143,7 @@ namespace SliceEngine
 		unsigned int mIDHovered{};
 
 		std::optional<GameObject> mainCam;
-
+		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<glm::mat4> mInstanceVtx;
 

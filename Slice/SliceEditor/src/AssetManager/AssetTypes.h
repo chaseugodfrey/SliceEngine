@@ -403,7 +403,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
 
-		SliceEngine::GUID albedo;
+		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		float roughness;
 		float metallic;

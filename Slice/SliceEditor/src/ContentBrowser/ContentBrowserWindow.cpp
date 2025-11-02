@@ -135,6 +135,7 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayItems(DirectoryNode& node)
 	{
 		static DirectoryNode* selectedEntry = nullptr;
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
@@ -206,7 +207,7 @@ namespace SliceEditor
 					std::string fileExt = filePath.extension().string();
 					bool canDrag = true;
 
-					if (mRegistry.GetAssetManager().mDescriptorMap.find(fileKey) == mRegistry.GetAssetManager().mDescriptorMap.end())
+					if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
 					{
 						canDrag = false;
 					}
@@ -225,7 +226,7 @@ namespace SliceEditor
 					if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 					{
 						//Check that the extension exists in the map
-						SliceEngine::GUID newGUID = SliceEngine::GUID(mRegistry.GetAssetManager().mDescriptorMap[fileKey]);
+						SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
 						std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
 						ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
 
@@ -379,6 +380,12 @@ namespace SliceEditor
 					DisplayFBXData(data);
 				}
 				break;
+
+			case AssetType::Audio:
+				if (auto* data = static_cast<AudioData*>(file.metaData.get()))
+				{
+					DisplayAudioData(data);
+				}
 			}
 
 			if (ImGui::Button("Compile"))
@@ -392,6 +399,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
+				mRegistry.GetAssetManager().CreateDescriptorFile(file.filePath);
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -510,8 +518,7 @@ namespace SliceEditor
 
 	}
 
-	void ContentBrowserWindow::DisplayFBXData(ModelData* data)
-	{}
+	void ContentBrowserWindow::DisplayFBXData(ModelData* data){}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)
 	{
@@ -533,6 +540,59 @@ namespace SliceEditor
 		if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
 		{
 			data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
+		}
+	}
+
+	void ContentBrowserWindow::DisplayAudioData(AudioData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
+		static std::vector<std::string> streamNames{ "CREATE_SAMPLE", "CREATE_STREAM"};
+		Label("Audio Stream: ");
+		if (ImGui::BeginCombo("##AudioStream: ", streamNames[(int)data->stream].c_str()))
+		{
+			for (int i = 0; i < streamNames.size(); ++i)
+			{
+				if (ImGui::Selectable(streamNames[i].c_str()))
+				{
+					data->stream = (AudioStream)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		static std::vector<std::string> dimensionNames{ "FMOD2D", "FMOD3D"};
+		Label("Audio Dimension: ");
+		if (ImGui::BeginCombo("##Audio_Dimension: ", dimensionNames[(int)data->dimension].c_str()))
+		{
+			for (int i = 0; i < dimensionNames.size(); ++i)
+			{
+				if (ImGui::Selectable(dimensionNames[i].c_str()))
+				{
+					data->dimension = (AudioDimension)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		static std::vector<std::string> audioCategoryNames{ "SFX", "BGM", "UI", "EditorSounds"};
+		Label("Audio Category: ");
+		if (ImGui::BeginCombo("##Audio_Category: ", audioCategoryNames[(int)data->category].c_str()))
+		{
+			for (int i = 0; i < audioCategoryNames.size(); ++i)
+			{
+				if (ImGui::Selectable(audioCategoryNames[i].c_str()))
+				{
+					data->category = (AudioCategory)i;
+				}
+			}
+			ImGui::EndCombo();
 		}
 	}
 #pragma endregion

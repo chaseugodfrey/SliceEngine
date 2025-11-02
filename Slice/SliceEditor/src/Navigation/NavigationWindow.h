@@ -2,6 +2,7 @@
 #define NAVIGATION_WINDOW_H
 
 #include "../WindowManager/EditorWindow.h"
+#include "RecastNavmesh.h"
 
 namespace SliceEditor
 {
@@ -10,6 +11,7 @@ namespace SliceEditor
 
 	class NavigationWindow : public EditorWindow
 	{
+		RecastNavMesh mCompiler;
 
 	public:
 

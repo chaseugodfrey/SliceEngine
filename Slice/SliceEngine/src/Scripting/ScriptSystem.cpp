@@ -22,15 +22,23 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/tabledefs.h>
+#include <mono/metadata/mono-debug.h>
 #include "ScriptFunctions.h"
 #include <filesystem>
 #include <fstream>
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
+#include "../Systems/SceneSystem.h"
 namespace SliceEngine
 {
     ScriptSystem* gScriptSystem = NULL;
+    namespace
+    {
 
+        // TODO: Change this to a global config setting for engine
+        static bool debug = true;
+    }
+    
     static std::unordered_map<std::string, ScriptFieldType> sFieldTypeMap =
     {
         {"System.Single", ScriptFieldType::Float},
@@ -161,6 +169,21 @@ namespace SliceEngine
         // while (true) {};
         mono_set_assemblies_path("thirdparty/Mono/bin");
 
+        //mRootDomain = rootDomain;
+        if (debug)
+        {
+            const char* argv[2] = {
+                "--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=n,loglevel=3,logfile=logs/MonoDebugger.log",
+                "--soft-breakpoints"
+            };
+
+            mono_jit_parse_options(2, (char**)argv);
+            mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+
+            // mono_debug_domain_create(mRootDomain);
+        }
+
+
         mRootDomain = mono_jit_init("SliceJITRuntime");
         if (mRootDomain == nullptr)
         {
@@ -169,9 +192,14 @@ namespace SliceEngine
             return;
         }
 
-        //mRootDomain = rootDomain;
+        if (debug)
+        {
+            mono_debug_domain_create(mRootDomain);
+        }
+
 
         LoadMonoAssembly("../SliceScript/SliceScript.dll");
+
 
 		PrintAssemblyTypes(mCoreAssembly);
         //MonoImage* image = mono_assembly_get_image(mCoreAssembly);
@@ -228,6 +256,11 @@ namespace SliceEngine
         // Create an app domain
         mAppDomain = mono_domain_create_appdomain(const_cast<char*>("SliceEngineAppDomain"), nullptr);
         mono_domain_set(mAppDomain, true);
+
+        if (debug)
+        {
+            mono_debug_domain_create(mAppDomain);
+        }
         mCoreAssembly = LoadCSharpAssembly(assemblyPath);
         if (mCoreAssembly == nullptr)
         {
@@ -243,6 +276,8 @@ namespace SliceEngine
             SLICE_LOG_ERROR("Unable to load core assembly image");
             assert("Unable to load");
         }
+
+
 
         AssemblyReloadPending = false;
     }
@@ -298,10 +333,32 @@ namespace SliceEngine
         }
 
         MonoAssembly* assembly = mono_assembly_load_from_full(image, assemblyPath.c_str(), &status, 0);
+
+        MonoImage* assemblyImage = mono_assembly_get_image(assembly);
+
+        if (debug)
+        {
+            std::filesystem::path pdbPath = assemblyPath;
+            pdbPath.replace_extension(".pdb");
+
+            SLICE_LOG_DEBUG("Attempting to load pdb: {}", pdbPath);
+
+            if (std::filesystem::exists(pdbPath))
+            {
+                uint32_t pdbFileSize = 0;
+                char* pdbFileData = ReadBytes(pdbPath.string(), &pdbFileSize);
+                mono_debug_open_image_from_memory(assemblyImage, (const mono_byte*)pdbFileData, pdbFileSize);
+
+                delete[] pdbFileData;
+
+            }
+
         mono_image_close(image);
 
         // Don't forget to free the file data
         delete[] fileData;
+
+        }
 
         return assembly;
 
@@ -376,10 +433,17 @@ namespace SliceEngine
                     mEntityInstances[*entity] = scriptObj;
 
                     auto inputs = Core::GetInstance()->GetInputSystem();
+                    auto scene = Core::GetInstance()->GetSceneSystem();
 
-                    if (inputs->GetMode() == InputMode::Game)
+                    //if (inputs->GetMode() == InputMode::Game)
+                    //{
+                    //    //check if its running or in edit mode but for now just call
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
+
+                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
                     {
-                        //check if its running or in edit mode but for now just call
                         mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
                         mEntityInstances[*entity]->InvokeOnCreate();
                     }
@@ -439,6 +503,7 @@ namespace SliceEngine
 		auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
+
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
 
@@ -451,8 +516,12 @@ namespace SliceEngine
             // but again after M1 
 
             // for now we just invoke the moment it has been added
-			mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
-			mEntityInstances[entity]->InvokeOnCreate();
+            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+            {
+			    mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+			    mEntityInstances[entity]->InvokeOnCreate();
+
+            }
 		}
         else
         {
@@ -468,7 +537,25 @@ namespace SliceEngine
     /// <param name="entity">Entity being removed</param>
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
-        
+        for (auto& it : mEntityInstances)
+        {
+            if (it.first == entity)
+            {
+                mono_gchandle_free(it.second->mHandle);
+
+                mEntityInstances.erase(it.first);
+                break;
+            }
+        }
+
+        for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
+        {
+            if (*it == entity)
+            {
+                entityAdded.erase(it);
+                break;
+            }
+        }
     }
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)

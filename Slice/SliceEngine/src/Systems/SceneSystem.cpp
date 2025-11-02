@@ -4,7 +4,7 @@
  email:			b.muhammadhafiz@digipen.edu
  brief:			Handles Scenes
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -14,15 +14,22 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	
+	void SceneSystem::Init()
+	{
+		//Will do all the loading of the resources based on the scene file
+
+	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
+		mNextScene = filePath;
 		UnloadCurrentScene();
 	}
 
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
-		isSceneUnloaded = false;
+		//isSceneUnloaded = false;
 
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
@@ -50,19 +57,49 @@ namespace SliceEngine
 
 	void SceneSystem::LoadNextScene()
 	{
-		auto scene_to_load = mSceneQueue.front();
+		/*auto scene_to_load = mSceneQueue.front();
 		mSceneQueue.pop();
-		LoadScene(scene_to_load);
+		LoadScene(scene_to_load);*/
+		if (mNextScene == mSceneQueue.front())
+		{
+			
+			LoadScene(mNextScene);
+			mSceneQueue.pop();
+			mNextScene = "";
+		}
+	}
+
+	void SceneSystem::WriteTempFile()
+	{
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		
+		JSONSerializer::SerializeScene(CurrentSceneTemp);
+	}
+
+	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
+	{
+		mCurrentScene = filePath;
 	}
 
 	void SceneSystem::SaveScene(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());
 
-		if (!std::filesystem::exists(filePath))
+		std::filesystem::path directory = filePath.parent_path();
+		if (!std::filesystem::exists(directory))
 		{
-			SLICE_LOG_ERROR("Filepath not found. Saving scene unsuccessful.");
-			return;
+			try
+			{
+				std::filesystem::create_directories(directory);
+				SLICE_LOG("Created directory: " + directory.string());
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to create directory: " + directory.string() + ". Error: " + e.what());
+				return; // Stop if we can't create the directory
+			}
 		}
 
 		SLICE_LOG("Saving scene...");
@@ -83,30 +120,63 @@ namespace SliceEngine
 		SLICE_LOG("Unloading Scenes.");
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
+		Core::GetInstance()->mFactory.UpdateDestroyed();
+
+		isSceneUnloaded = true;
 	}
 
 	// For play then unplay, should call this one to reload scene as per last save instead of using current information
 	void SceneSystem::ReloadScene()
 	{
 		// need function to clear everything on the scene
+		//Core::GetInstance()->mFactory.ClearGameObjects();
+		//Core::GetInstance()->mFactory.UpdateDestroyed();
+		
 
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+
+		if (std::filesystem::exists(CurrentSceneTemp))
+		{
+			mCurrentScene = CurrentSceneTemp;
+		}
+
+		LoadSceneIntoQueue(mCurrentScene);
 		// reloads the scene
-		JSONSerializer::DeserializeScene(mCurrentScene);
+		/*JSONSerializer::DeserializeScene(mCurrentScene);
+
+		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+		OnSceneLoadedEvent event;
+		event.isSceneLoaded = true;
+
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);*/
 	}
 
 	void SceneSystem::Play()
 	{
-		//
+		mNextState = SceneState::PLAY_SCENE;
+		
 	}
 
 	void SceneSystem::Pause()
 	{
 		//
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			mNextState = SceneState::PAUSE_SCENE;
+		}
 	}
 
 	void SceneSystem::Stop()
 	{
-		//
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			
+			mNextState = SceneState::STOP_SCENE;
+
+		}
 	}
 
 	bool SceneSystem::CheckQueueEmpty()
