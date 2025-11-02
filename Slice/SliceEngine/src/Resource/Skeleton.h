@@ -17,17 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include <vector>
 //#include <GL/glew.h>
 #include <string>
+#include <unordered_map>
 
-/*
-* I think can prob set these hard limits for now
-* according to quick google search, seems like usually max 4 bone per vert
-* and 100 bones per model is prob good nuff
-*
-* Unity says more then 4 might cook performance
-* and some forums usually dont mention more then 100 bones a model
-*/
-constexpr unsigned char MAX_BONES = 100;
-constexpr unsigned char MAX_BONE_INFLUENCE = 4;
 
 namespace SliceEngine
 {

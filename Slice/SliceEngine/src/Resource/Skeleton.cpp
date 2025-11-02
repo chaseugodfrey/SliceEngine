@@ -129,7 +129,7 @@ namespace SliceEngine
 
 			if (!fs)
 			{
-				SLICE_LOG_WARNING("Unable to open Obj:" + file);
+				//SLICE_LOG_WARNING("Unable to open Obj:" + file);
 				return false;
 			}
 
@@ -142,26 +142,27 @@ namespace SliceEngine
 				fs.read(header_buffer, header_size);
 			}
 			catch (...) {
-				SLICE_LOG_WARNING("Error reading file: " + file);
+			//	SLICE_LOG_WARNING("Error reading file: " + file);
+			//	SLICE_LOG_WARNING("Error reading file: " + file);
 				fs.close();
 				return false;
 			}
 
 			if (fs.fail() || fs.eof()) {
-				SLICE_LOG_WARNING("Unknown file format: " + file);
+			//	SLICE_LOG_WARNING("Unknown file format: " + file);
 				fs.close();
 				return false;
 			}
 
 			if (header_buffer[0] != 'A' || header_buffer[1] != 'P' || header_buffer[2] != 'G') {
-				SLICE_LOG_WARNING("Not a proper skeleton file: " + file);
+			//	SLICE_LOG_WARNING("Not a proper skeleton file: " + file);
 				fs.close();
 				return false;
 			}
 			auto vers = version_number;
 			vers = *((decltype(version_number)*)(header_buffer + 3));
 			if (vers != version_number) {
-				SLICE_LOG_WARNING("Wrong version, please recompile: " + file);
+			//	SLICE_LOG_WARNING("Wrong version, please recompile: " + file);
 				fs.close();
 				return false;
 			}

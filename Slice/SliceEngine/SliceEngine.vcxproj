@@ -152,6 +152,7 @@
     <ClInclude Include="src\Resource\ResourceManager.h" />
     <ClInclude Include="src\Resource\Scene.h" />
     <ClInclude Include="src\Resource\Shader.h" />
+    <ClInclude Include="src\Resource\Skeleton.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
     <ClInclude Include="src\Scripting\ScriptObject.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="src\Resource\ResourceManager.cpp" />
     <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
+    <ClCompile Include="src\Resource\Skeleton.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />

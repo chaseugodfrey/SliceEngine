@@ -20,9 +20,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-constexpr unsigned char MAX_BONES = 100;
-constexpr unsigned char MAX_BONE_INFLUENCE = 4;
-
 namespace SliceEngine
 {
 	//include the real one once done
