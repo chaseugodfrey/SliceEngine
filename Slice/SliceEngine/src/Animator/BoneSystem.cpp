@@ -33,7 +33,7 @@ namespace SliceEngine
 			}
 			
 			if (!core->GetRegistry().any_of<Animator>(root_entity)) {
-				SLICE_LOG_ERROR("Invalid root entity for bone component");
+				//SLICE_LOG_ERROR("Invalid root entity for bone component");
 				continue;
 			}
 

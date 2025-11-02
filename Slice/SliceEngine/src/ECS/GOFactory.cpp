@@ -554,15 +554,15 @@ namespace SliceEngine
 
 	GameObject GOFactory::CreateGO_Box()
 	{
-		//auto go = CreateGO("GameObject");
-		//go.AddComponent<Renderer>();
-		//go.AddComponent<ColliderShape>();
-		//go.AddComponent<RigidBody>();
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.AddComponent<ColliderShape>();
+		go.AddComponent<RigidBody>();
 
-		//return go;
+		return go;
 
 		//testing only
-		return CreateGO_Model((GUID)17518266545644652909);
+		//return CreateGO_Model((GUID)17518266545644652909);
 	}
 
 	GameObject GOFactory::CreateGO_Cam()

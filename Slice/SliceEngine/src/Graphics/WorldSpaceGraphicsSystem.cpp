@@ -172,7 +172,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
 			}
 			else {
-				SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
+			//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
 			}
 		}
 		else {
