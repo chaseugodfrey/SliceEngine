@@ -69,6 +69,11 @@ struct OnSceneLoadedEvent
 	bool isSceneLoaded;
 };
 
+struct OnSceneStopEvent
+{
+	bool isSceneStopped;
+};
+
 struct OnParent
 {
 	Entity parent;
