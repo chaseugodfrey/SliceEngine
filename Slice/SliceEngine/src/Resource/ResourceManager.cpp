@@ -168,4 +168,19 @@ namespace SliceEngine
 		mInstances.clear();
 		dataToDestroy.clear();
 	}
+
+	std::optional<std::filesystem::path> ResourceManager::GetResourcePath(std::string filename)
+	{
+		auto it = mFileNameToGUID.find(filename);
+		if (it != mFileNameToGUID.end())
+		{
+			auto it2 = mGUIDToResource.find(it->second);
+			if (it2 != mGUIDToResource.end())
+			{
+				return it2->second;
+			}
+		}
+
+		return {};
+	}
 }

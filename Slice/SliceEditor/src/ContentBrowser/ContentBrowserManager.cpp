@@ -80,7 +80,8 @@ namespace SliceEditor
 
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
-			if (entry.path().extension().string() == ".meta")
+			const auto extension = entry.path().extension().string();
+			if (extension == ".meta")
 			{
 				continue; //Ignore
 			}
@@ -91,6 +92,16 @@ namespace SliceEditor
 			child.path = entry.path();
 			child.parent = &node;
 			child.isDirectory = entry.is_directory();
+
+			SelectionType type{};
+
+			auto it = mExtensionToSelectionType.find(extension);
+			if (it != mExtensionToSelectionType.end())
+				type = it->second;
+			else
+				type = SelectionType::UNSUPPORTED;
+
+			child.type = type;
 
 			node.children.insert({ child.fileName, child });
 
