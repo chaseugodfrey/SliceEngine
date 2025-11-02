@@ -4,7 +4,7 @@
  email:			
  brief:			Main Engine
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -220,6 +220,7 @@ namespace SliceEngine
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -227,6 +228,46 @@ namespace SliceEngine
 			{
 				sScene->LoadNextScene();
 			}
+		}
+
+		while (sScene->mCurrentState != sScene->mNextState)
+		{
+			//Line to load resources
+			if (sScene->mNextState == SceneState::PLAY_SCENE)
+			{
+				sInputs->SetMode(InputMode::Game);
+				sInputs->SetEnabled(true);
+				if (!isPlaying)
+				{
+					SliceEngine::gScriptSystem->OnStart();
+					isPlaying = true;
+
+				}
+				sScene->mCurrentState = SceneState::PLAY_SCENE;
+			}
+
+			if (sScene->mNextState == SceneState::STOP_SCENE)
+			{
+				sInputs->SetMode(InputMode::Editor);
+				sInputs->SetEnabled(false);
+				sScene->ReloadScene();
+
+				gScriptSystem->OnEnd();
+
+				sScene->mCurrentState = SceneState::DEFAULT;
+				sScene->mNextState = SceneState::DEFAULT;
+			}
+
+			/*if (sScene->mNextState == SceneState::LOAD_NEXT_SCENE)
+			{
+				if (!sScene->CheckQueueEmpty())
+				{
+					if (sScene->isSceneUnloaded)
+					{
+						sScene->LoadNextScene();
+					}
+				}
+			}*/
 		}
 
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
@@ -256,10 +297,14 @@ namespace SliceEngine
         
 		frm.StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		if (sInputs->GetMode() == InputMode::Game)
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
+		/*if (sInputs->GetMode() == InputMode::Game)
+		{
+			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+		}*/
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
@@ -271,7 +316,14 @@ namespace SliceEngine
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Physics");
-		if (sInputs->GetMode() == InputMode::Game)
+		/*if (sInputs->GetMode() == InputMode::Game)
+		{
+			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+			{
+				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+			}
+		}*/
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
 			{
@@ -327,6 +379,7 @@ namespace SliceEngine
 
 	void Engine::LoadProjectSettings()
 	{
+		auto sScene = Core::GetInstance()->GetSceneSystem();
 		std::filesystem::path proj = "projectSettings.json";
 
 		ProjectSettings s;
@@ -363,7 +416,8 @@ namespace SliceEngine
 
 			else
 			{
-				Core::GetInstance()->GetSceneSystem()->LoadScene(sceneToLoad); // for now by filepath
+				sScene->LoadScene(sceneToLoad); // for now by filepath
+				sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
 			}
 		}
 	}

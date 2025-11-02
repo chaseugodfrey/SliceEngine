@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "SessionManager.h"
+#include <Core/EventManager.h>
 
 namespace SliceEditor
 {
@@ -88,6 +89,15 @@ namespace SliceEditor
 			{
 				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
 			}
+		}
+	}
+
+	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
+	{
+		if (event.isSceneLoaded)
+		{
+			mEntityNodes.clear();
+			CreateEntityNodes();
 		}
 	}
 

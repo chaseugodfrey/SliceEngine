@@ -37,6 +37,9 @@ namespace SliceEngine
 
 		Entity DeserializePrefab(std::filesystem::path const& filePath);
 
+		json SerializeSceneResources();
+		void DeserializeSceneResource(std::filesystem::path const& filePath);
+
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
 		// For generic values
