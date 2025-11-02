@@ -66,6 +66,9 @@ namespace SliceEditor
 			if (window->markForRemoval)
 				list.erase(std::remove(list.begin(), list.end(), window));
 		}
+		/*AddWindow<AnimatorWindow>();
+		AddWindow<AnimationWindow>();*/
+		AddWindow<NavigationWindow>();
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -261,6 +264,7 @@ namespace SliceEditor
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
+		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -293,6 +297,11 @@ namespace SliceEditor
 					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
 					inputs->SetEnabled(true);
 					SliceEngine::gScriptSystem->OnStart();
+					isPaused = false;
+					scene->Stop();
+					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					//inputs->SetEnabled(true);
+					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
 				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
@@ -305,9 +314,47 @@ namespace SliceEditor
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		if (!isPaused)
 		{
+			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
 
+				if (isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+					{
+						scene->Pause();
+
+					}
+				
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
+		}
+		else
+		{
+			if (ImGui::Button("Unpause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
+
+				if (!isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+
+					}
+
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
 		}
 
 		ImGui::SameLine();
