@@ -50,18 +50,6 @@ namespace SliceEditor
 		void ResetRootDirectory(DirectoryNode& node);
 
 		void CreateDirectory(DirectoryNode& node);
-
-
-		std::unique_ptr<filewatch::FileWatch<std::filesystem::path>> mFileWatcher;
-		std::queue<FileEvent> mFileEvents;
-		std::mutex mFileEventQueueMutex;
-
-		void ProcessFileEvents();
-		void HandleFileAdded(const std::filesystem::path& path);
-		void HandleFileRemoved(const std::filesystem::path& path);
-		void HandleFileModified(const std::filesystem::path& path);
-		DirectoryNode* FindNodeByPath(const std::filesystem::path& path);
-		void RemoveNodeFromTree(DirectoryNode& node);
 	
 	public:
 

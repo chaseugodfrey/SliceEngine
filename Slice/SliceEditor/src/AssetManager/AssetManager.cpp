@@ -66,6 +66,28 @@ namespace SliceEditor
 
 
 		}
+
+		mAssetFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(
+			mAssetDirectory.string(),
+			[](const std::string& path, const filewatch::Event changeType)
+			{
+				if (changeType == filewatch::Event::modified)
+				{
+					SLICE_LOG("Modified change detected in " + path);
+					
+				}
+				else if (changeType == filewatch::Event::removed)
+				{
+					SLICE_LOG("Removed change detected in " + path);
+				}
+				else if (changeType == filewatch::Event::added)
+				{
+					SLICE_LOG("Added change detected in " + path);
+				}
+
+			}
+		);
+
 		SLICE_LOG("Asset Manager Initialized");
 	}
 
@@ -534,206 +556,7 @@ namespace SliceEditor
 		}
 	}
 
-	std::filesystem::path AssetManager::FindMetaFileForAsset(const std::filesystem::path& assetPath)
-	{
-		if (!std::filesystem::exists(mResourcesDirectory))
-		{
-			return "";
-		}
-
-		for (auto& dirEntry : std::filesystem::recursive_directory_iterator(mResourcesDirectory))
-		{
-			if (dirEntry.is_regular_file() && dirEntry.path().extension() == ".meta")
-			{
-				std::ifstream inFile(dirEntry.path());
-				try
-				{
-					nlohmann::json metaData;
-					inFile >> metaData;
-					std::string jsonAssetPath = metaData["assetPath"].get<std::string>();
-
-					if (std::filesystem::equivalent(std::filesystem::path(jsonAssetPath), assetPath))
-					{
-						inFile.close();
-						return dirEntry.path();
-					}
-				}
-				catch (const std::exception& e)
-				{
-					const char* errorMessageCStr = e.what();
-					SLICE_LOG_ERROR("Failed to parse .meta file during search: " + std::string(errorMessageCStr));
-
-				}
-				inFile.close();
-			}
-		}
-		return "";
-	}
-
-	void AssetManager::DeleteResourceFiles(const std::filesystem::path& metaPath, nlohmann::json& metaData)
-	{
-		try
-		{
-			std::string resourcePathStr = metaData["resourcePath"].get<std::string>();
-			std::string assetTypeExt = metaData["assetType"].get<std::string>();
-			std::filesystem::path resourcePath(resourcePathStr);
-
-			if (std::filesystem::exists(resourcePath))
-			{
-				std::filesystem::remove(resourcePath);
-			}
-
-			if (assetTypeExt == ".shader")
-			{
-				resourcePath.replace_extension(".vert");
-				if (std::filesystem::exists(resourcePath))
-				{
-					std::filesystem::remove(resourcePath);
-				}
-
-				resourcePath.replace_extension(".frag");
-				if (std::filesystem::exists(resourcePath))
-				{
-					std::filesystem::remove(resourcePath);
-				}
-
-				resourcePath.replace_extension(".geom");
-				if (std::filesystem::exists(resourcePath))
-				{
-					std::filesystem::remove(resourcePath);
-				}
-			}
-
-			if (std::filesystem::exists(metaPath))
-			{
-				std::filesystem::remove(metaPath);
-			}
-		}
-		catch (const std::exception& e)
-		{
-			const char* errorMessageCstr = e.what();
-			SLICE_LOG_ERROR("Error deleting resource files: " + std::string(errorMessageCstr));
-		}
-	}
-
-	void AssetManager::HandleAssetRemoval(const std::filesystem::path & assetPath)
-	{
-		std::filesystem::path metaPath = FindMetaFileForAsset(assetPath);
-		if (metaPath.empty() || !std::filesystem::exists(metaPath))
-		{
-			return;
-		}
-
-		std::ifstream inFile(metaPath);
-		if (!inFile.is_open())
-		{
-			return;
-		}
-
-		try
-		{
-			nlohmann::json metaData;
-			inFile >> metaData;
-			inFile.close();
-
-			std::string assetName = metaData["assetName"].get<std::string>();
-			mDescriptorMap.erase(assetName);
-
-			DeleteResourceFiles(metaPath, metaData);
-
-		}
-		catch (const std::exception& e)
-		{
-			inFile.close();
-			const char* errorMessageCStr = e.what();
-			SLICE_LOG_ERROR("Failed to parse meta file for deletion: " + metaPath.string());
-			std::filesystem::remove(metaPath);
-		}
-	}
-
-	void AssetManager::RecompileAsset(const std::filesystem::path& assetPath)
-	{
-		std::filesystem::path metaPath = FindMetaFileForAsset(assetPath);
-		if (metaPath.empty() || !std::filesystem::exists(metaPath))
-		{
-			SLICE_LOG("File modified but no meta file found. Treating as new asset: " + assetPath.string());
-			CreateDescriptorFile(assetPath);
-			return;
-		}
-
-		std::ifstream inFile(metaPath);
-		nlohmann::json metaData;
-		try
-		{
-			inFile >> metaData;
-			inFile.close();
-
-			std::string ext = assetPath.extension().string();
-			auto it = mSupportedAssetTypes.find(ext);
-			if (it == mSupportedAssetTypes.end())
-			{
-				SLICE_LOG_WARNING("Unsupported asset type for recompile: " + assetPath.string());
-				return;
-			}
-
-			AssetType assetType = it->second.first;
-			std::string resourcePathStr = metaData["resourcePath"].get<std::string>();
-			std::filesystem::path resourcePath(resourcePathStr);
-
-			switch (assetType)
-			{
-			case AssetType::Texture:
-				CompileTextureAsset(metaPath);
-				break;
-			case AssetType::Model:
-				CompileFBXAsset(metaPath);
-				break;
-
-				// These types just copy the file over
-			case AssetType::Audio:
-			case AssetType::Scene:
-			case AssetType::Material:
-			case AssetType::Prefab:
-				std::filesystem::copy(assetPath, resourcePath, std::filesystem::copy_options::overwrite_existing);
-				break;
-
-				// Shader needs to copy multiple files
-			case AssetType::Shader:
-			{
-				std::filesystem::copy(assetPath, resourcePath, std::filesystem::copy_options::overwrite_existing);
-
-				std::filesystem::path parentPath = assetPath.parent_path();
-				std::string fileName = assetPath.stem().string();
-
-				std::filesystem::path vertPath = parentPath / (fileName + ".vert");
-				std::filesystem::path fragPath = parentPath / (fileName + ".frag");
-				std::filesystem::path geomPath = parentPath / (fileName + ".geom");
-
-				std::filesystem::path destVertPath = resourcePath;
-				destVertPath.replace_extension(".vert");
-				std::filesystem::path destFragPath = resourcePath;
-				destFragPath.replace_extension(".frag");
-				std::filesystem::path destGeomPath = resourcePath;
-				destGeomPath.replace_extension(".geom");
-
-				if (std::filesystem::exists(vertPath))
-					std::filesystem::copy(vertPath, destVertPath, std::filesystem::copy_options::overwrite_existing);
-				if (std::filesystem::exists(fragPath))
-					std::filesystem::copy(fragPath, destFragPath, std::filesystem::copy_options::overwrite_existing);
-				if (std::filesystem::exists(geomPath))
-					std::filesystem::copy(geomPath, destGeomPath, std::filesystem::copy_options::overwrite_existing);
-			}
-			break;
-			}
-			SLICE_LOG("Recompiled asset: " + assetPath.string());
-		}
-		catch (const std::exception& e)
-		{
-			inFile.close();
-			const char* errorMessageCStr = e.what();
-			SLICE_LOG_ERROR("Failed to parse meta file for recompile: " + metaPath.string() + " Error: " + std::string(errorMessageCStr));
-		}
-	}
+	
 
 	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
 	{
