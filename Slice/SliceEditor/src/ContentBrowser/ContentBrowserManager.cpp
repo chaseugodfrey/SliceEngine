@@ -26,6 +26,11 @@ namespace SliceEditor
 		BuildTree();
 	}
 
+	void ContentBrowserManager::Update()
+	{
+
+	}
+
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
 	{
 		SLICE_LOG("Creating Content Browser Window.");
@@ -132,8 +137,9 @@ namespace SliceEditor
 
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
+		
 		if (entry.path.extension() == ".scene")
-		{
+		{	//This is where you tell the editor which is the next scene to change to - yy
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}

@@ -57,19 +57,12 @@ namespace SliceEngine
 
 			SerializeFile(output, filePath);
 
-			// create the resource file for scene
-			// can't actually test until changing GUIDs is done 
-			json resourceOutput;
-
-			for (auto it = rc->mGUIDToSerialize.begin(); it != rc->mGUIDToSerialize.end(); it++)
-			{
-				resourceOutput += std::to_string((*it).GetGUID());
-			}
+			json GUIDFile = SerializeSceneResources();
 
 			std::filesystem::path outPath(filePath);
 			std::string resourcePath = outPath.replace_extension(".resource").string();
 
-			SerializeFile(resourceOutput, resourcePath);
+			SerializeFile(GUIDFile, resourcePath);
 		}
 
 		Entity DeserializePrefab(std::filesystem::path const& filePath)
@@ -177,9 +170,65 @@ namespace SliceEngine
 			return (Entity)it->second;
 		}
 
-		void  DeserializePrefabChild(json file)
+		json SerializeSceneResources()
 		{
+			auto& registry = Core::GetInstance()->GetRegistry();
+			auto resourceManager = Core::GetInstance()->GetResourceManager();
+			auto entityView = registry.view<SliceEntity>();
 
+			// Clean up the set before serializing
+			resourceManager->mGUIDToSerialize.clear();
+			for (auto entity : entityView)
+			{
+				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
+				{
+						if (component.get_type() == rttr::type::get< Renderer>())
+						{
+							std::cout << "test" << std::endl;
+						}
+						for (const auto& property : type.get_properties())
+						{
+							// this should be the component's property data
+							std::string propName = property.get_name().to_string();
+
+							rttr::variant propVal = property.get_value(component);
+
+							rttr::type propType = propVal.get_type();
+
+							// pull out all the GUIDs when looping through the components
+							if (propType == rttr::type::get<GUID>())
+							{
+								resourceManager->mGUIDToSerialize.insert(propVal.get_value<GUID>());
+							}
+
+							// for now, we'll ignore resources in c# scripts cause i have to loop through the scriptable data map
+						}
+				});
+			}
+
+			json GUIDFile;
+
+			for (auto guid : resourceManager->mGUIDToSerialize)
+			{
+				GUIDFile += guid.GetGUID();
+			}
+
+			return GUIDFile;
+		}
+
+		// idk what would be passed in when deserializing in scene system
+		void DeserializeSceneResource(std::filesystem::path const& filePath)
+		{
+			
+			std::filesystem::path outPath(filePath);
+			std::string resourcePath = outPath.replace_extension(".resource").string();
+
+			json sceneResource = DeserializeFile(resourcePath);
+
+			for (auto guid : sceneResource.items())
+			{
+				
+			}
 		}
 
 #pragma region PrefabSerializing
@@ -343,7 +392,9 @@ namespace SliceEngine
 
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath)
 		{
-			
+			DeserializeSceneResource(filePath);
+
+
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 
 			json input = DeserializeFile(filePath);

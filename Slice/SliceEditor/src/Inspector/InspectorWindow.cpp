@@ -99,58 +99,18 @@ namespace SliceEditor
 			}
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
-
 			ImGui::TreePop();
 		}
 	}
 
-	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
-	{
-		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-
-		entt::entity ent_display{};
-		ImGui::Text("Parent:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Child:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Previous Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-
-		ImGui::Text("Next Sibling:");
-		ImGui::SameLine(150.0f);
-		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
-	}
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
-		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) {
-			if (ImGui::TreeNodeEx("AudioSource"))
+		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) 
+			{
+			if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
 			{
 				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 
@@ -210,10 +170,14 @@ namespace SliceEditor
 			ImGui::Text("Mesh");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.model.GetGUID());
-			if (ImGui::InputText("##mesh", &model_guid_string))
+			std::string modelFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.model];
+			}
+			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -228,10 +192,14 @@ namespace SliceEditor
 			ImGui::Text("Material");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string material_guid_string = std::to_string(rend.material.GetGUID());
-			if (ImGui::InputText("##material", &material_guid_string, ImGuiInputTextFlags_ReadOnly))
+			std::string materialFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.model) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.material];
+			}
+			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
 			}
 
 			if (ImGui::BeginDragDropTarget())
@@ -292,6 +260,7 @@ namespace SliceEditor
 					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 					if (ImGui::BeginCombo("##detection", currentLabel))
 					{
+
 						for (int i = 0; i < 2; i++)
 						{
 							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
@@ -723,5 +692,31 @@ namespace SliceEditor
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
 
+	}
+
+	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
+	{
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+
+		entt::entity ent_display{};
+		ImGui::Text("Parent:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::UP];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Child:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::DOWN];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Previous Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::LEFT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+
+		ImGui::Text("Next Sibling:");
+		ImGui::SameLine(150.0f);
+		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 	}
 }

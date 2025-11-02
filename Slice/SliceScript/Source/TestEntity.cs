@@ -14,23 +14,38 @@ namespace SliceEngine
         public Audio testAudio = new Audio("TestSound.wav");
         public Prefab testPrefab = new Prefab("TestPrefab");
 
+        //Transform t;
+
         public override void OnCreate()
         {
             Console.WriteLine("TestEntity Created with ID: " + mID);
-            
-            
+
+            //t = GetComponent<Transform>();
         }
 
         public override void OnUpdate(float dt)
         {
             //Console.WriteLine("TestEntity Update called with dt: " + dt);
 
+
+            Console.WriteLine("ALOYSISU TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+
+
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
                 Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
-                Position += direction * speed * dt;
+                //Position += direction * speed * dt;
+                //Console.WriteLine("TestEntity Update called with dt: " + dt);
+            }
+
+            if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
+            {
+                Console.WriteLine("TestEntity Created with ID: " + mID);
+
+                //Vector3 pos = Position;
+                //Position -= direction * speed * dt;
                 //Console.WriteLine("TestEntity Update called with dt: " + dt);
             }
         }

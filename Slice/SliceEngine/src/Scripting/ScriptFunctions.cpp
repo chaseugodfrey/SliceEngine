@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "ScriptSystem.h"
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
+#include "../Physics/PhysicsSystem.h"
+#include "../Logger/Logger.h"
 
 namespace SliceEngine
 {
@@ -121,6 +123,89 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region RIGIDBODY FUNCTIONS
+
+	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3* outPosition)
+	{
+		//SLICE_LOG("Getting velocity from C++ for entity: {}", entity);
+
+		*outPosition = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity((Entity)entity);
+	}
+
+	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3* position)
+	{
+		//SLICE_LOG("Setting velocity from C++ for entity: {}", entity);
+
+		JPH::Vec3 vel(position->x, position->y, position->z);
+
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
+	}
+
+	static void RigidBody_AddForce(unsigned int entity, JPH::Vec3* force, int mode)
+	{
+		switch (mode)
+		{
+		case 0: // Force
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, *force);
+			break;
+		case 1: // Impulse
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, *force);
+			break;
+		case 2: // Velocity Change
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, *force);
+			break;
+		case 3: // Acceleration
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, *force);
+			break;
+		default:
+			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
+			break;
+		}
+	}
+
+#pragma endregion
+
+#pragma region AUDIO FUNCTIONS
+
+	static MonoString* Audio_GetSoundName(unsigned int entity)
+	{
+		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
+		
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+
+		std::string test;
+
+		for (auto pair : Core::GetInstance()->GetResourceManager()->mFileNameToGUID)
+		{
+			if(audio.soundGUID == pair.second)
+			{
+				test = pair.first;
+				break;
+			}
+		}
+
+		if(test == "")
+		{
+			return nullptr;
+		}
+
+		return mono_string_new(mono_domain_get(), test.c_str());
+		
+	}
+
+	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	//{
+	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+
+	//	std::string str = MonoToString(string);
+
+	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+	//	audio.soundName = str;
+
+	//}
+
+
+#pragma endregion
 
 
 	template <typename T>
@@ -184,6 +269,15 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Log);
 		ADD_INTERNAL_CALL(LogWarn);
 		ADD_INTERNAL_CALL(LogError);
+
+		//Physics
+		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
+		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
+		ADD_INTERNAL_CALL(RigidBody_AddForce);
+
+		// Audio
+		ADD_INTERNAL_CALL(Audio_GetSoundName);
+		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 	}
 
 }

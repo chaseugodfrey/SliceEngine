@@ -52,7 +52,7 @@ namespace SliceEditor
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
-		ImGui::SameLine(100.0f);
+		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
 		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
 

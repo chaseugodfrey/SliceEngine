@@ -27,16 +27,22 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		auto& map = mSession.GetEntityNodes();
-		auto node = map[entity].get();
-
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
+		auto& map = mSession.GetEntityNodes();
+		if (map.find(entity) == map.end())
+		{
+			return;
+		}
+		auto node = map[entity].get();
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
+
+
+		//Temporary Change
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
@@ -188,6 +194,24 @@ namespace SliceEditor
 	void HierarchyWindow::Draw()
 	{
 		ImGui::Begin("Hierarchy");
+
+		ImVec2 p0 = ImGui::GetCursorScreenPos();
+		ImVec2 p1 = p0 + ImVec2(p0.x + ImGui::GetContentRegionAvail().x, p0.y + ImGui::GetContentRegionAvail().y);
+		ImGuiID id = ImGui::GetCurrentWindow()->GetID("HierarchyDrop");
+		ImRect rect(p0, p1);
+
+		if (ImGui::BeginDragDropTargetCustom(rect, id))
+		{
+			if (ImGui::AcceptDragDropPayload("Model"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		DrawNodeGraph();
 

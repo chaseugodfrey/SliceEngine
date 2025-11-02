@@ -21,11 +21,11 @@ namespace SliceEditor
 
 	class EditorWindow
 	{
-
 	protected:
 		Registry& mRegistry;
 
 	public:
+		bool markForRemoval{ false };
 		virtual void Init() = 0;
 		virtual void Draw() = 0;
 		EditorWindow(Registry& registry) : mRegistry(registry) {}

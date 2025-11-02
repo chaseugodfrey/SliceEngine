@@ -25,24 +25,11 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettings.h>
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
-#include <Hierachy/HierarchyWindow.h>
-#include <Inspector/InspectorWindow.h>
-#include <SceneView/SceneViewWindow.h>
-#include <GameView/GameViewWindow.h>
-#include <Input/ActionMapping.h>
+#include <Profiler/ProfilerManager.h>
+
 
 namespace SliceEditor
 {
-	static int DetectGlfwKeyPress(GLFWwindow* window) 
-	{
-		// GLFW keys range
-		for (int k = GLFW_KEY_SPACE; k <= GLFW_KEY_LAST; ++k) 
-		{
-			if (glfwGetKey(window, k) == GLFW_PRESS) return k;
-		}
-		return -1;
-	}
-
 
 	void WindowManager::Init()
 	{
@@ -68,9 +55,18 @@ namespace SliceEditor
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
 		AddWindow<NavigationWindow>();
+	}
+
+	void WindowManager::Update()
+	{
+		for (auto& window : list)
+		{
+			if (window->markForRemoval)
+				list.erase(std::remove(list.begin(), list.end(), window));
+		}
 	}
 
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
@@ -123,6 +119,28 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+				{
+					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
+					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension("_temp");
+
+				
+					if (std::filesystem::exists(currentScenePath) && std::filesystem::exists(currentSceneTemp))
+					{
+						auto time1 = std::filesystem::last_write_time(currentScenePath);
+						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
+
+						if (time1 < time2)
+						{
+							std::filesystem::remove(currentScenePath);
+							currentSceneTemp.replace_extension(".scene");
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+
+						}
+					}
+
+				}
+
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
@@ -135,7 +153,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-
+				AddWindow<PreferenceWindow>(true);
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -150,14 +168,9 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
-			if (ImGui::MenuItem("Animation"))
+			if (ImGui::MenuItem("Content Browser"))
 			{
-
-			}
-
-			if (ImGui::MenuItem("Animator"))
-			{
-
+				registry.GetManager<ProfilerManager>("ContentBrowser")->CreateEditorWindow();
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -165,34 +178,39 @@ namespace SliceEditor
 
 			}
 
-			if (ImGui::MenuItem("Content Browser"))
-			{
-
-			}
-
 			if (ImGui::MenuItem("Game"))
 			{
-
+				AddWindow<GameViewWindow>();
 			}
 
-			if (ImGui::MenuItem("Hierachy"))
+			if (ImGui::MenuItem("Hierarchy"))
 			{
-
+				AddWindow<HierarchyWindow>();
 			}
 
 			if (ImGui::MenuItem("Inspector"))
 			{
-
+				AddWindow<InspectorWindow>();
 			}
 
 			if (ImGui::MenuItem("Scene"))
 			{
-
+				AddWindow<SceneViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
 			{
+				AddWindow("Profiler");
+			}
 
+			if (ImGui::MenuItem("Animation"))
+			{
+				AddWindow<AnimationWindow>(true);
+			}
+
+			if (ImGui::MenuItem("Animator"))
+			{
+				AddWindow<AnimatorWindow>(true);
 			}
 
 			ImGui::EndMenu();
@@ -206,7 +224,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					auto go = factory.CreateGO_Box();
+					EditorUtilities::GameObject_CreateBox();
 				}
 
 				ImGui::EndMenu();
@@ -214,7 +232,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Camera"))
 			{
-				auto go = factory.CreateGO_Cam();
+				EditorUtilities::GameObject_CreateCam();
 			}
 
 			ImGui::EndMenu();
@@ -252,6 +270,7 @@ namespace SliceEditor
 	void WindowManager::DrawPlayState()
 	{
 		auto* window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 
 		int xPos{}, yPos{}, width{}, height{};
 		glfwGetWindowPos(window, &xPos, &yPos);
@@ -266,6 +285,7 @@ namespace SliceEditor
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
+		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -295,9 +315,11 @@ namespace SliceEditor
 				isPlaying = !isPlaying;
 				if (isPlaying) // if its play, enable game input
 				{
-					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					inputs->SetEnabled(true);
-					SliceEngine::gScriptSystem->OnStart();
+					isPaused = false;
+					scene->Stop();
+					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					//inputs->SetEnabled(true);
+					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
 				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
@@ -310,15 +332,47 @@ namespace SliceEditor
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Action Mapping", ImVec2{ 60, 35 }))
+		if (!isPaused)
 		{
-			ImGui::OpenPopup("action_map_popup");
+			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
+
+				if (isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+					{
+						scene->Pause();
+
+					}
+				
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
 		}
-
-		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		else
 		{
+			if (ImGui::Button("Unpause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
 
+				if (!isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+
+					}
+
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
 		}
 
 		ImGui::SameLine();
@@ -436,232 +490,13 @@ namespace SliceEditor
 				ImGui::CloseCurrentPopup();
 			ImGui::EndPopup();
 		}
-
-		if( ImGui::BeginPopup("action_map_popup"))
-		{
-			//using namespace SliceEngine; // this allows us to access slicenegine classes without prefixing
-			auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
-			auto& AM = SliceEngine::GetActionMappingSystem();
-			auto* core = SliceEngine::Core::GetInstance();
-			auto* window = core->GetWindow();
-
-			//inputSys->//DrawImGuiActionMappingWindow();
-			//ImGui::EndPopup();
-
-			// create new base[?] map/action
-			static char newMap[64] = "Gameplay";
-			static char newAction[64] = "Jump";
-			static int newType = 0; // 0 = button, 1 = 2D value
-			static float dirX = 0.0f, dirY = 0.0f; // for 2D value but i don't think im gg be using this just yet
-
-			ImGui::TextUnformatted("Create/Add");
-			ImGui::Separator();
-			ImGui::InputText("Action Map Name", newMap, IM_ARRAYSIZE(newMap));
-			ImGui::InputText("Action Name", newAction, IM_ARRAYSIZE(newAction));
-			ImGui::RadioButton("Button", &newType, 0); ImGui::SameLine();
-			ImGui::RadioButton("1D Value", &newType, 2); ImGui::SameLine();
-			ImGui::RadioButton("2D Value", &newType, 1);
-
-			// for 2D value, input direction x and y
-			if( newType == 1)
-			{
-				ImGui::InputFloat("Direction X", &dirX);
-				ImGui::InputFloat("Direction Y", &dirY);
-			}
-			// for 1D value, input direction x only
-			else if( newType == 2)
-			{
-				ImGui::InputFloat("Direction X", &dirX);
-			}
-
-			// creating a new action map
-			if (ImGui::Button("Create Map"))
-			{
-				AM.CreateMap(newMap);
-				AM.enableMap(newMap, true); // enable map upon creation
-			}
-			ImGui::SameLine();
-			if( ImGui::Button("Add Action"))
-			{
-				AM.CreateMap(newMap); // ensure map exists but idk if this is necessary cus am i creating 2 maps?
-				if( newType == 0) // button
-				{
-					AM.AddButton(newMap, newAction);
-				}
-				else if( newType == 1) // 2D value
-				{
-					AM.AddValue2D(newMap, newAction);
-				}
-				else if( newType == 2) // 1D value
-				{
-					AM.AddValue1D(newMap, newAction);
-				}
-			}
-			
-			ImGui::Dummy({ 0,8 }); // spacing
-			ImGui::Separator();
-			ImGui::TextUnformatted("Current Action Maps");
-
-			// list all action maps and their actions + keybinds
-			for (auto& thisMap : AM.GetActionMaps())
-			{
-				auto& mapName = thisMap.first;
-				auto& map = thisMap.second;
-
-				// create header with enable toggle
-				bool enabled = map.enabled;
-				if (ImGui::CollapsingHeader(mapName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
-				{
-					// enable or disable
-					if(ImGui::Checkbox(("Enabled##"+mapName).c_str(), &enabled))
-					{
-						AM.enableMap(mapName, enabled); // enable or disable map based on checkbox
-					}
-					// list all actions in this map by creating a table of of the actions
-					if (ImGui::BeginTable(("table" + mapName).c_str(), 4, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
-					{
-						ImGui::TableSetupColumn("Action");
-						ImGui::TableSetupColumn("Type");
-						ImGui::TableSetupColumn("Bindings");
-						ImGui::TableSetupColumn("Bind...");
-						ImGui::TableHeadersRow();
-					}
-
-					// idk how this fixes things tbh but it does
-					// persistent per-row capture state [which rows are currently capturing]
-					// use unordered_map to map action names to bools
-					static std::unordered_map<std::string, bool> sCapturing;
-					
-					// loop through all actions in this map and list them
-					for (size_t i{}; i < map.definitions.size(); ++i)
-					{
-						const auto& definition = map.definitions[i];
-						ImGui::TableNextRow();
-
-						// action name
-						ImGui::TableSetColumnIndex(0);
-						ImGui::TextUnformatted(definition.name.c_str());
-
-						// action type
-						ImGui::TableSetColumnIndex(1);
-						if (definition.type == SliceEngine::ActionType::Button)
-						{
-							ImGui::TextUnformatted("Button");
-						}
-						else if (definition.type == SliceEngine::ActionType::Value2D)
-						{
-							ImGui::TextUnformatted("2D Value");
-						}
-						// for 1d values
-						else if(definition.type == SliceEngine::ActionType::Value1D)
-						{
-							ImGui::TextUnformatted("1D Value");
-						}
-
-						// current bindings
-						ImGui::TableSetColumnIndex(2);
-						{
-							if(definition.bindings.empty())
-							{
-								ImGui::TextDisabled("No Bindings");
-							}
-							else
-							{
-								// show key names using the inputsystem's keycode to name function
-								//for (size_t j{}; j < definition.bindings.size(); ++j)
-								//{
-									for (size_t bi = 0; bi < definition.bindings.size(); ++bi)
-									{
-										const auto& b = definition.bindings[bi];
-										const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
-										if (definition.type == SliceEngine::ActionType::Button)
-										{
-											ImGui::Text("%s", label);
-										}
-										else
-										{
-											ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
-										}
-									}
-								//}
-							}
-						}
-
-						// bind new key/UI
-						ImGui::TableSetColumnIndex(3);
-
-						// create unique key for this aciton's capture state
-						const std::string capKey = mapName + " : " + definition.name;
-						bool& captureInput = sCapturing[capKey]; // check if we're capturing input for this action
-
-						ImGui::PushID((int)i); // push id for button
-						if (!captureInput)
-						{
-							if (ImGui::Button("Bind"))
-							{
-								captureInput = true;
-							}
-						}
-						else
-						{
-							ImGui::TextDisabled("Press a key...");
-							// capture next key press
-							int key = DetectGlfwKeyPress(window);
-							if (key != -1)
-							{
-								if(definition.type == SliceEngine::ActionType::Button)
-								{
-									AM.BindButton(mapName, definition.name, key);
-								}
-								else if(definition.type == SliceEngine::ActionType::Value2D)
-								{
-									AM.Bind2D(mapName, definition.name, key, dirX, dirY);
-								}
-								else if(definition.type == SliceEngine::ActionType::Value1D)
-								{
-									AM.Bind1D(mapName, definition.name, key, dirX);
-								}
-								captureInput = false; // stop capturing after key press
-							}
-							// cancel button
-							ImGui::SameLine();
-							if (ImGui::Button("Cancel"))
-							{
-								captureInput = false;
-							}
-						}
-						ImGui::PopID();
-					}
-					ImGui::EndTable();
-				}
-			}
-			// ---------------- 1 ----------------
-			// write text header [Action Maps]
-			//std::string display = "Current Action Maps:";
-			//ImGui::Text(display.c_str());
-			// call action map lists and pull their names
-			// open action map list, call maps
-			// for each action map, create a collapsing header with its name
-
-			// ---------------- 2 ----------------
-			// user clicks on collapsing header
-			// open action map
-			// call that action map and pull all actions
-			// list all actions and then have a square/rectangle beside it to input keybind
-
-			// ---------------- 3 ----------------
-			// user keys in new keybind
-			// action: "jump" -> keybind: "spacebar"
-			// call parsing function to sort through glfw keycodes and match "spacebar" to its keycode
-			// call BindButton or Bind2D with action name and keycode
-			// bind the new keycode to that action
-
-			// ---------------- 4 ----------------
-			// create button at bottom of header to add either new action map or new action to existing map
-			ImGui::EndPopup();
-		}
+		
 
 		ImGui::End();
+	}
+
+	void WindowManager::DrawPreferenceSettings()
+	{
 	}
 
 	void WindowManager::DrawProjectSettings()
@@ -733,5 +568,9 @@ namespace SliceEditor
 		projectSettingsPopupOpen = isOpen;
 
 	}
+
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }
