@@ -119,6 +119,28 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+				{
+					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
+					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension("_temp");
+
+				
+					if (std::filesystem::exists(currentScenePath) && std::filesystem::exists(currentSceneTemp))
+					{
+						auto time1 = std::filesystem::last_write_time(currentScenePath);
+						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
+
+						if (time1 < time2)
+						{
+							std::filesystem::remove(currentScenePath);
+							currentSceneTemp.replace_extension(".scene");
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+
+						}
+					}
+
+				}
+
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
@@ -248,6 +270,7 @@ namespace SliceEditor
 	void WindowManager::DrawPlayState()
 	{
 		auto* window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 
 		int xPos{}, yPos{}, width{}, height{};
 		glfwGetWindowPos(window, &xPos, &yPos);
@@ -262,6 +285,7 @@ namespace SliceEditor
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
+		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -291,9 +315,11 @@ namespace SliceEditor
 				isPlaying = !isPlaying;
 				if (isPlaying) // if its play, enable game input
 				{
-					inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
-					inputs->SetEnabled(true);
-					SliceEngine::gScriptSystem->OnStart();
+					isPaused = false;
+					scene->Stop();
+					//inputs->SetMode(SliceEngine::InputMode::Game); // set input mode to game
+					//inputs->SetEnabled(true);
+					//SliceEngine::gScriptSystem->OnStart();
 					//inputs->BindCallbacksToWindow(SliceEngine::Core::GetInstance()->GetWindow()); // bind callbacks to window so game can receive input
 				}
 				else // else, keep input in editor mode and unbind callbacks, leaving it to imgui
@@ -306,9 +332,47 @@ namespace SliceEditor
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+		if (!isPaused)
 		{
+			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
 
+				if (isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
+					{
+						scene->Pause();
+
+					}
+				
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
+		}
+		else
+		{
+			if (ImGui::Button("Unpause", ImVec2{ 60, 35 }))
+			{
+				isPaused = !isPaused;
+
+				if (!isPaused)
+				{
+					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+
+					}
+
+					/*else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
+					{
+						scene->Play();
+					}*/
+				}
+			}
 		}
 
 		ImGui::SameLine();

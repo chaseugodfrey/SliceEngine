@@ -69,6 +69,15 @@ namespace SliceEngine
 		}
 	}
 
+	void SceneSystem::WriteTempFile()
+	{
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		
+		JSONSerializer::SerializeScene(CurrentSceneTemp);
+	}
+
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
 	{
 		mCurrentScene = filePath;
@@ -122,6 +131,15 @@ namespace SliceEngine
 		Core::GetInstance()->mFactory.ClearGameObjects();
 		Core::GetInstance()->mFactory.UpdateDestroyed();
 
+		std::filesystem::path CurrentScene = mCurrentScene;
+
+		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+
+		if (std::filesystem::exists(CurrentSceneTemp))
+		{
+			mCurrentScene = CurrentSceneTemp;
+		}
+
 		LoadScene(mCurrentScene);
 		// reloads the scene
 		/*JSONSerializer::DeserializeScene(mCurrentScene);
@@ -137,16 +155,21 @@ namespace SliceEngine
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
+		
 	}
 
 	void SceneSystem::Pause()
 	{
 		//
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			mNextState = SceneState::PAUSE_SCENE;
+		}
 	}
 
 	void SceneSystem::Stop()
 	{
-		if (mCurrentState == SceneState::PLAY_SCENE)
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::PAUSE_SCENE)
 		{
 			
 			mNextState = SceneState::STOP_SCENE;
