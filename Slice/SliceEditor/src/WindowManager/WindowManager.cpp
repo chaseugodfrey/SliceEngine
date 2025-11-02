@@ -280,6 +280,7 @@ namespace SliceEditor
 
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
