@@ -10,6 +10,9 @@ namespace SliceEditor
 
 	void SessionManager::Init()
 	{
+		auto* eventManager = EventManager::GetInstance();
+
+		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
 		OpenPreferences();
 	}
 

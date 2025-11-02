@@ -13,21 +13,16 @@ DigiPen Institute of Technology is prohibited.
 #include "ResourceManager.h"
 #include <cstdint>
 #include <string_view>
+#include "Texture.h"
+#include "Model.h"
+#include "Material.h"
+#include "Prefab.h"
+#include "Scene.h"
+#include "Shader.h"
+#include "Audio.h"
 
 namespace SliceEngine
 {
-	namespace SliceEngineTypes
-	{
-		class Texture;
-		class Model;
-		struct ModelNode;	//used to represent scene graph
-		class Shader;
-		class Audio;
-		class Scene;
-		class Prefab;
-		class Material;
-	}
-
 	namespace DefaultResourceIDs
 	{
 		constexpr uint64_t CUBE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCube");

@@ -197,6 +197,9 @@ namespace SliceEngine
 		{
 			p.rotation = ps.rotation;
 		}
+
+		if (ps.parentTransform)
+		p.rotation += ps.parentTransform->rotation;
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)
 	{
@@ -212,6 +215,10 @@ namespace SliceEngine
 		{
 			p.scale = ps.scale;
 		}
+		
+		// Should particles inherit the scale of its parent? no right?
+		// if (ps.parentTransform)
+		// p.scale += ps.parentTransform->scale;
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
