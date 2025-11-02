@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Input/InputSystem.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
+#include <WindowManager/WindowManager.h>
 
 namespace SliceEditor
 {
