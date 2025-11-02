@@ -172,9 +172,9 @@ namespace SliceEditor
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
             std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID().GetGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID().GetGUID()];
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
 			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -196,9 +196,9 @@ namespace SliceEditor
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
 			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID().GetGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID().GetGUID()];
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
 			}
 			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
 			{
