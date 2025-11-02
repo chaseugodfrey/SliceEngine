@@ -50,13 +50,13 @@ namespace SliceEditor
 
 		AddWindow("ContentBrowser");
 		AddWindow("Profiler");
+		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
-		/*AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();*/
-		AddWindow<NavigationWindow>();
+		//AddWindow<AnimatorWindow>();
+		//AddWindow<AnimationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -75,16 +75,16 @@ namespace SliceEditor
 
 	void WindowManager::AddWindow(const std::string& name)
 	{
-		auto it = windowFactoryMap.find(name);
-		if (it != windowFactoryMap.end())
-		{
-			auto window = it->second->CreateEditorWindow();
-			list.push_back(std::move(window));
-		}
-		else
-		{
-			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
-		}
+		//auto it = windowFactoryMap.find(name);
+		//if (it != windowFactoryMap.end())
+		//{
+		//	auto window = it->second->CreateEditorWindow();
+		//	list.push_back(std::move(window));
+		//}
+		//else
+		//{
+		//	SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
+		//}
 	}
 
 	void WindowManager::Render()
@@ -118,28 +118,6 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
-				{
-					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension("_temp");
-
-				
-					if (std::filesystem::exists(currentScenePath) && std::filesystem::exists(currentSceneTemp))
-					{
-						auto time1 = std::filesystem::last_write_time(currentScenePath);
-						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
-
-						if (time1 < time2)
-						{
-							std::filesystem::remove(currentScenePath);
-							currentSceneTemp.replace_extension(".scene");
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
-
-						}
-					}
-
-				}
-
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 			}
 
@@ -280,7 +258,6 @@ namespace SliceEditor
 
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
-		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
 
         static bool isPlaying = false;
@@ -330,15 +307,7 @@ namespace SliceEditor
 		ImGui::SameLine();
 		if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
 		{
-			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
-			{
-				scene->Pause();
 
-			}
-			else if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
-			{
-				scene->Play();
-			}
 		}
 
 		ImGui::SameLine();
@@ -535,83 +504,8 @@ namespace SliceEditor
 
 	}
 
-	void WindowManager::DrawSaveSceneAsPopup()
-	{
-		if (!saveSceneAsPopupOpen)
-		{
-			return;
-		}
-
-		static std::string sceneName = "";
-
-		bool isOpen;
-		if (ImGui::Begin("save scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			if (ImGui::InputText("New Scene Name", &sceneName))
-			{
-
-			}
-
-			if (ImGui::SmallButton("Save Scene"))
-			{
-				if (!sceneName.empty())
-				{
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
-				}
-			}
-
-			ImGui::End();
-		}
-
-		if (!isOpen)
-		{
-			saveSceneAsPopupOpen = false;
-		}
-	}
-
-	void WindowManager::DrawNewScenePopup()
-	{
-		if (!newScenePopupOpen)
-		{
-			return;
-		}
-
-		static std::string sceneName = "NewScene";
-
-		bool isOpen;
-		if (ImGui::Begin("new scene window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			if(ImGui::InputText("New Scene Name", &sceneName))
-			{
-
-			}
-
-			if (ImGui::SmallButton("Create Scene"))
-			{
-				if (!sceneName.empty())
-				{
-
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
-					SliceEngine::Core::GetInstance()->mFactory.UpdateDestroyed();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
-					newScenePopupOpen = false;
-					sceneName = "NewScene";
-				}
-			}
-
-			ImGui::End();
-		}
-
-		if (!isOpen)
-		{
-			newScenePopupOpen = false;
-		}
-	}
+	//void WindowManager::SetTheme_Microsoft()
+	//{
+	//}
 
 }

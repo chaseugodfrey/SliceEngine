@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
 #include "../Physics/PhysicsSystem.h"
+#include "../Logger/Logger.h"
 
 namespace SliceEngine
 {
@@ -140,6 +141,28 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
 	}
 
+	static void RigidBody_AddForce(unsigned int entity, JPH::Vec3* force, int mode)
+	{
+		switch (mode)
+		{
+		case 0: // Force
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, *force);
+			break;
+		case 1: // Impulse
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, *force);
+			break;
+		case 2: // Velocity Change
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, *force);
+			break;
+		case 3: // Acceleration
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, *force);
+			break;
+		default:
+			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
+			break;
+		}
+	}
+
 #pragma endregion
 
 #pragma region AUDIO FUNCTIONS
@@ -250,6 +273,7 @@ namespace SliceEngine
 		//Physics
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
+		ADD_INTERNAL_CALL(RigidBody_AddForce);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
