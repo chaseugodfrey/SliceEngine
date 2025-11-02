@@ -1,7 +1,9 @@
 #include <pch.h>
+#include "ECS/ECSTypes.h"
 #include "AnimatorSystem.h"
 #include <glm/gtc/matrix_transform.hpp> // For translate, rotate, scale
 #include <glm/gtc/quaternion.hpp>      // For quaternions
+#include "../Core/Core.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -10,12 +12,19 @@ namespace SliceEngine
 {
 	AnimatorSystem::AnimatorSystem() 
 	{
-		final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+		//final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
 	}
 
 	void AnimatorSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		Animator& animator = reg.get<Animator>(entity);
+
+		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(02020202));
+		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(03030303));
+
+		animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+
 		animator.stateMachine.InitState();
 
 		animator.animTimer = 0.0f;
@@ -39,6 +48,8 @@ namespace SliceEngine
 			animator.animTimer += dt;
 		}
 
+		UpdateAnimation(animator, dt);
+
 		/*
 		use .compare
 		if(animator.stateMachine.prevState != animator.stateMachine.currState->stateName)
@@ -50,23 +61,23 @@ namespace SliceEngine
 		*/
 	}
 
-	void AnimatorSystem::UpdateAnimation(float dt) 
+	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
-		current_time += dt;
+		animator.current_time += dt;
 
 		//Bone animation
-		if (is_bone) {
-			auto const& anim = curr_anim_pkg->animations[curr_anim_idx];
+		if (animator.is_bone) {
+			auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
 
-			while (current_time > anim.duration) {
-				current_time -= anim.duration;
-				curr_anim_idx = (curr_anim_idx + 1) % curr_anim_pkg->animations.size();
+			while (animator.current_time > anim.duration) {
+				animator.current_time -= anim.duration;
+				animator.curr_anim_idx = (animator.curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 				if (anim.duration <= 0.f) {
 					return;
 				}
 			}
 
-			anim.UpdateTransforms(final_tforms, current_time, *skeleton);
+			anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 		}
 		//non bone animation
 		else {
@@ -74,23 +85,18 @@ namespace SliceEngine
 		}
 	}
 	void AnimatorSystem::BoneUpdate() {
-		if (is_bone) {
-			auto const& anim = curr_anim_pkg->animations[curr_anim_idx];
+		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<Animator>();
+		for (auto entity : view)
+		{
+			Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<Animator>(entity);
 
-			anim.ApplyParentTransforms(final_tforms, *skeleton, glm::identity<glm::mat4>());
-			anim.ApplyInverseBind(final_tforms, *skeleton);
+
+			if (animator.is_bone) {
+				auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
+
+				anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), glm::identity<glm::mat4>());
+				anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+			}
 		}
 	}
-
-	void AnimatorSystem::SetAnimationPackage(SliceEngineTypes::AnimationPackage* anim)
-	{
-		curr_anim_pkg = anim;
-	}
-	void AnimatorSystem::SetSkeleton(SliceEngineTypes::Skeleton* skele) {
-		skeleton = skele;
-	}
-	void AnimatorSystem::PlayAnimation(unsigned int idx) {
-		curr_anim_idx = idx;
-	}
-
 }

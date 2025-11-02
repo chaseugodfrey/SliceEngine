@@ -24,7 +24,7 @@ namespace SliceEngine
 	//include the real one once done
 	struct animatorEntity {};
 
-	class AnimatorSystem : BaseSystem<animatorEntity, Animator>
+	class AnimatorSystem : public BaseSystem<animatorEntity, Animator>
 	{
 	public:
 		AnimatorSystem();
@@ -32,25 +32,8 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void UpdateAnimation(float dt);
+		void UpdateAnimation(Animator& animator,float dt);
 		void BoneUpdate();
-
-		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
-		void SetAnimationPackage(SliceEngineTypes::AnimationPackage*);
-		void SetSkeleton(SliceEngineTypes::Skeleton*);
-		void PlayAnimation(unsigned int);
-
-		std::vector<glm::mat4> const& GetFinalTform() const 
-		{
-			return final_tforms;
-		}
-		bool is_bone{ true };
-		float current_time{};
-	private:
-		std::vector<glm::mat4> final_tforms;
-		SliceEngineTypes::AnimationPackage* curr_anim_pkg{};
-		SliceEngineTypes::Skeleton* skeleton{};
-		unsigned int curr_anim_idx{};
 	};
 
 	
