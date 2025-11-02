@@ -270,6 +270,7 @@ namespace SliceEditor
 	void WindowManager::DrawPlayState()
 	{
 		auto* window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 
 		int xPos{}, yPos{}, width{}, height{};
 		glfwGetWindowPos(window, &xPos, &yPos);
