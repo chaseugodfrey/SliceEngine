@@ -361,19 +361,53 @@ namespace SliceEditor
 
 			else
 			{
-				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-				auto& script_class = script_map.at(script.scriptName);
-				auto& script_vars = script_class->mFields;
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
 
-				for (auto& var : script_vars)
+				if (scriptRef != nullptr)
 				{
-					ImGui::Text(var.first.c_str());
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					std::string temp{ 0 };
-					if (ImGui::InputText(("##" + var.first).c_str(), &temp))
+					const auto& fields = scriptRef->GetScriptClass()->mFields;
+					for (const auto& it : fields)
 					{
+						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+						{
+							float data = scriptRef->GetFieldValue<float>(it.second.mName);
+							if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+								scriptRef->SetFieldValue(it.second.mName, data);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
+						{
+							bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
+							if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+								scriptRef->SetFieldValue(it.second.mName, data);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
+						{
+							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+							char buffer[128];
+							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
+							buffer[sizeof(str)] = '\0';
 
+							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
+							{
+								scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+						{
+							int data = scriptRef->GetFieldValue<int>(it.second.mName);
+							if (DragIntInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+								scriptRef->SetFieldValue(it.second.mName, data);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
 					}
 				}
 
