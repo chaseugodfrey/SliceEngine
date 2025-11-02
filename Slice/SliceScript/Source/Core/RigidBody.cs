@@ -22,6 +22,7 @@ namespace SliceEngine
 
         public void AddForce(Vector3 force, ForceMode mode = ForceMode.Force)
         {
-            FunctionCalls.RigidBody_AddForce(Entity.mID, ref force, (int)mode);
+            FunctionCalls.RigidBody_AddForce(Entity.mID, out force, (int)mode);
         }
+    }
 }
