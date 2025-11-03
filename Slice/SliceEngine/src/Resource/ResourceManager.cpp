@@ -86,7 +86,7 @@ namespace SliceEngine
 			std::string assetName = metaData["assetName"].get<std::string>();
 			uint64_t guid = metaData["guid"].get<uint64_t>();
 			std::string assetPath = metaData["assetPath"].get<std::string>();
-			std::string resourcePath = metaData["resourcePath"].get<std::string>();
+			std::string resourcePath = metaData["resourcePath"];
 			// idk what the otehr two things are meant to be
 			mGUIDToPath[GUID(guid)] = assetPath;
 			mGUIDToResource[GUID(guid)] = resourcePath;
@@ -97,7 +97,7 @@ namespace SliceEngine
 			const char* errorMessageCStr = e.what();
 			SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 		}
-
+		inFile.close();
 	}
 
 	/// <summary>

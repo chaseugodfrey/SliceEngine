@@ -117,14 +117,25 @@ namespace SliceEngine
 			GOUT_TOTAL
 		};
 
-		enum class GPUSetting : unsigned char
+		enum GPUSetting : unsigned char
 		{
-			DEFAULT,
-			SHADOW,
-			SPE_ADDITION,
-			ADDITION,
-			DEBUG,
-			TOTAL
+			GPS_ENABLE_CULL_FACE	= 0b0000'0001,
+			GPS_ENABLE_BLEND		= 0b0000'0010,
+			GPS_ENABLE_DEPTH		= 0b0000'0100,
+
+			GPS_CULL_BACK_NOT_FRONT	= 0b0001'0000, // Else Cull Front
+			GPS_BLEND_ONE_ONE		= 0b0010'0000,
+			GPS_BLEND_SRC_ONEMINUS	= 0b0100'0000,
+			GPS_DEPTH_LESS			= 0b1000'0000,
+
+			GPS_NONE				= 0x00,
+			GPS_DEFAULT				= 0b1001'0101,
+			GPS_SHADOW				= 0b1000'0101,
+			GPS_SPE_ADDITION		= 0b0010'0011,
+			GPS_ADDITION			= 0b0011'0011,
+			GPS_DEBUG				= 0b1100'0110,
+			GPS_BLOOM				= 0b0001'0001,
+			GPS_BLOOM2				= 0b0011'0011
 		};
 		enum class BufferClearSetting : unsigned char
 		{
@@ -150,12 +161,13 @@ namespace SliceEngine
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		std::vector<BloomMip> mBloomMips;
-		GPUSetting mCurrGPUSetting{ GPUSetting::TOTAL };
+		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;
 
 		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
+		void QuickSetSettings(GPUSetting setting, bool toggleOn);
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
 
