@@ -307,6 +307,7 @@ namespace SliceEngine
 		{
 			Handle<T> handle;
 			handle.mGUID = value.getGUID();
+			SLICE_LOG_DEBUG("GUID Being deserialized : ", std::to_string(value.getGUID().GetGUID()));
 			prop.set_value(componentInstance, handle);
 		}
 
@@ -449,14 +450,19 @@ namespace SliceEngine
 	template <typename T>
 	inline void from_json(const json& j, Handle<T>& handle)
 	{
-		if (j.is_null())
+		// Check if the JSON is null or not an object with the "GUID" key
+		if (j.is_null() || !j.is_object() || !j.contains("GUID"))
 		{
 			handle = Handle<T>{};
 			return;
 		}
 
-		GUID guid = j.get<GUID>();
-		handle.mGUID = guid;
+		// Get the "GUID" key from the object, which is a string (or null).
+		// Then, deserialize that string value into the handle's mGUID member.
+		// This will correctly use your from_json(const json& j, GUID& guid) function.
+		j.at("GUID").get_to(handle.mGUID);
+		SLICE_LOG_DEBUG("GUID Being deserialized : ",  std::to_string(guid.GetGUID()));
+
 	}
 }
 

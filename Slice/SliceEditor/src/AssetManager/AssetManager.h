@@ -55,6 +55,8 @@ namespace SliceEditor
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
+		void CleanUpSceneTemp();
+		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
 		std::unordered_map <SliceEngine::GUID, std::string> mGUIDtoFilename; // Maps GUIDs to fileName
@@ -87,7 +89,9 @@ namespace SliceEditor
 			{AssetType::Shader, ".shader"},
 			{AssetType::Audio, ".wav"},
 			{AssetType::Material, ".mat"},
-			{AssetType::Prefab, ".prefab"}
+			{AssetType::Prefab, ".prefab"},
+			{AssetType::Skeleton, ".skl"},
+			{AssetType::Animation, ".animpkg"}
 		};
 	private:
 		

@@ -575,14 +575,24 @@ namespace SliceEngine
 	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
 		//Get the resource handle first
 		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
-
-		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null);
+		int skele_index = 0;
+		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null, entt::null, skele_index, model.is_static);
 	}
 
-	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent) {
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent, Entity root, int& index, bool is_static) {
 		auto go = CreateGO(node.name);
 		SetParent(go.GetEntity(), parent);
+
 		auto rm = Core::GetInstance()->GetResourceManager();
+		//if its the start of the tree, set it as the root
+		if (root == entt::null) {
+			root = go.GetEntity();
+			go.AddComponent<Animator>();
+		}
+		go.AddComponent<Bone>();
+		auto& bone = go.GetComponent<Bone>();
+		bone.skeleton_root = root;
+		bone.frame_idx = index;
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
@@ -605,13 +615,20 @@ namespace SliceEngine
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
 				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 				s_rc.meshOffset = node.mesh_ref[i];
+
+				if (is_static) {
+					sibling.AddComponent<Bone>();
+					auto& s_bone = sibling.GetComponent<Bone>();
+					s_bone.skeleton_root = root;
+					s_bone.frame_idx = index;
+				}
 				//rc.texture = (GUID)18349208178533231704;
 			}
 		}
 		
 
 		for (auto& child : node.children) {
-			CreateGO_ModelNode(child, model_guid, go.GetEntity());
+			CreateGO_ModelNode(child, model_guid, go.GetEntity(), root, ++index, is_static);
 		}
 		//set node local tform here, since setparent does some calculations to decompose relative mtx
 		//infact, do it after recursion, so everything has default values

@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Scene.h"
 #include "Shader.h"
 #include "Audio.h"
+#include "Skeleton.h"
 
 namespace SliceEngine
 {
@@ -32,6 +33,8 @@ namespace SliceEngine
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
+		
+		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
 	}
 
 
@@ -41,7 +44,7 @@ namespace SliceEngine
 		// for when we implement meta data files
 		//static SliceEngineTypes::Texture* Load(ResourceManager& resourceMgr, uint64_t resourceID);
 		// for now load with file name directly
-		constexpr static inline uint64_t defaultResourceGUID = 18349208178533231704;
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 
 		static std::unique_ptr<SliceEngineTypes::Texture> Load(ResourceManager& resourceMgr, const std::string& path);
 
@@ -113,6 +116,24 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::Prefab> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Skeleton>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::Skeleton> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Skeleton& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::AnimationPackage>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::AnimationPackage> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr);
 	};
 }
 

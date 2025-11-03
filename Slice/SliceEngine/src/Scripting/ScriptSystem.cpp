@@ -460,6 +460,7 @@ namespace SliceEngine
     void ScriptSystem::OnEnd()
     {
         mEntityInstances.clear();
+        entityAdded.clear();
     }
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)

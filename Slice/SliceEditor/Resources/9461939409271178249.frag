@@ -9,8 +9,11 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
+layout (location=4) out vec4 fMetalRoughData;
 
 layout (binding = 0) uniform sampler2D 	uTex;
+uniform float uRoughness;
+uniform float uMetallic;
 
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
@@ -19,4 +22,5 @@ void main(void){
 	fNormalData = normalize(vNom);
 	fFragColor = texture(uTex, vTex);
 	fGID = vGID;
+	fMetalRoughData.xy = vec2(uRoughness, uMetallic);
 }

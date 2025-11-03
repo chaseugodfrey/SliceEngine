@@ -183,9 +183,12 @@ namespace SliceEditor
 			// This should create the texture asset into the resource folder
 			CompileTextureAsset(metaPath);
 			break;
+		case AssetType::Skeleton:
+		case AssetType::Animation:
 		case AssetType::Model:
 			// Compile the model file and write into the resource folder
 			CompileFBXAsset(metaPath);
+			// if static
 			break;
 		case AssetType::Audio:
 			// idk audio yet
@@ -558,6 +561,33 @@ namespace SliceEditor
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		resourceMgr->RegisterResourceAsset(resourcePath);
 
+	}
+
+	void AssetManager::CleanUpSceneTemp()
+	{
+		std::filesystem::path mAssetDirectoryFolder = mAssetDirectory;
+		mAssetDirectoryFolder /= "Default";
+
+		for (const auto& file : std::filesystem::directory_iterator(mAssetDirectoryFolder))
+		{
+			if (file.is_regular_file() && file.path().extension() == ".temp")
+			{
+				remove(file);
+			}
+		}
+
+	}
+
+	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
+	{
+		std::optional<std::string> filename{};
+
+		auto it = mGUIDtoFilename.find(guid);
+		if (it == mGUIDtoFilename.end())
+			return filename;
+
+		filename.emplace(it->second);
+		return filename;
 	}
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 

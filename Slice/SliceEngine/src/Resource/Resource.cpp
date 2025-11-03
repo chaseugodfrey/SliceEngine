@@ -36,7 +36,27 @@ namespace SliceEngine
 		unsigned int texture_id = SliceEngineTypes::Texture::LoadTexture(path);
 		*/
 		
-		return  std::make_unique<SliceEngineTypes::Texture>(SliceEngineTypes::Texture::LoadTexture(path));
+		//return  std::make_unique<SliceEngineTypes::Texture>(SliceEngineTypes::Texture::LoadTexture(path));
+		auto t = std::make_unique<SliceEngineTypes::Texture>();
+		std::filesystem::path file(path);
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case DefaultResourceIDs::COLOR_DEADED_DEFAULT:
+				t->LoadColorTexture(0.8705882f, 0.678431f, 0.92941f, 1.f);
+				break;
+			default:
+				return nullptr;
+				break;
+			}
+		}
+		else
+			t->LoadTexture(path);
+		return t;
 	}
 
 	void Type<SliceEngineTypes::Texture>::Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr)
@@ -163,5 +183,35 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Prefab>::Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr)
 	{
 		// nth to destroy
+	}
+
+	//Skeleton
+	std::unique_ptr<SliceEngineTypes::Skeleton> Type<SliceEngineTypes::Skeleton>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto skele = std::make_unique<SliceEngineTypes::Skeleton>();
+		if (!skele->LoadSkeletonResource(path)) {
+			return nullptr;
+		}
+		return skele;
+	}
+
+	void Type<SliceEngineTypes::Skeleton>::Destroy(SliceEngineTypes::Skeleton& resource, ResourceManager& resourceMgr)
+	{
+		//resource.d();	//nothing to delete really
+	}
+
+	//Animation Package
+	std::unique_ptr<SliceEngineTypes::AnimationPackage> Type<SliceEngineTypes::AnimationPackage>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto anim = std::make_unique<SliceEngineTypes::AnimationPackage>();
+		if (!anim->LoadAnimPackageResource(path)) {
+			return nullptr;
+		}
+		return anim;
+	}
+
+	void Type<SliceEngineTypes::AnimationPackage>::Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
 	}
 }

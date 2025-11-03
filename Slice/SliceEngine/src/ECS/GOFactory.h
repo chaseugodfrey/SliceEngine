@@ -189,7 +189,7 @@ namespace SliceEngine
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
-		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent);
+		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent, Entity root, int& index, bool is_static);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
