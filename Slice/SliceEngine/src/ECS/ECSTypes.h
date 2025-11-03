@@ -332,6 +332,8 @@ namespace SliceEngine
 
 	struct Animator
 	{
+		bool isPlaying;
+
 		FSMSystem stateMachine{};
 		float animTimer = 0.0f;
 		bool is_bone{ true };
@@ -346,7 +348,8 @@ namespace SliceEngine
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 
-		unsigned int curr_anim_idx{};
+		bool toggle;
+
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
 
@@ -372,7 +375,7 @@ namespace SliceEngine
 
 		void PlayAnimation(unsigned int idx) 
 		{
-			curr_anim_idx = idx;
+			stateMachine.EFSM.currState->curr_anim_idx = idx;
 		}
 
 		std::vector<glm::mat4> const& GetFinalTform() const
@@ -389,6 +392,12 @@ namespace SliceEngine
 		unsigned int frame_idx{};
 
 		RTTR_ENABLE();
+	};
+
+	struct Timeline
+	{
+		float t_current, t_min{ 0.0f }, t_max{ 1.0f };
+		unsigned int f_current, f_max;
 	};
 }
 

@@ -28,6 +28,10 @@ namespace SliceEngine
 		animator.stateMachine.InitState();
 
 		animator.animTimer = 0.0f;
+
+		animator.isPlaying = true;
+		animator.stateMachine.EFSM.currState->isLoop = true;
+		animator.toggle = true;
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -48,6 +52,7 @@ namespace SliceEngine
 			animator.animTimer += dt;
 		}
 
+
 		UpdateAnimation(animator, dt);
 
 		/*
@@ -63,21 +68,44 @@ namespace SliceEngine
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
-		animator.current_time += dt;
+		if (!animator.isPlaying)
+			return;
 
 		//Bone animation
 		if (animator.is_bone) {
-			auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
+			auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-			while (animator.current_time > anim.duration) {
-				animator.current_time -= anim.duration;
-				animator.curr_anim_idx = (animator.curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-				if (anim.duration <= 0.f) {
-					return;
+			if(animator.toggle)
+			{
+				animator.current_time += dt;
+
+				if(animator.current_time > anim.duration)
+				{
+					//animator.current_time = 0.f;  
+					if(!animator.stateMachine.EFSM.currState->isLoop)
+					{
+						animator.isPlaying = false;
+					}
+					else
+					{
+						animator.isPlaying = true;
+					}
 				}
+				//while (animator.current_time > anim.duration) 
+				//{
+				//	animator.current_time -= anim.duration;
+				//	//animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+				//	if (anim.duration <= 0.f) 
+				//	{
+				//		return;
+				//	}
+				//}
+
+				//else
+					anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
+				
 			}
 
-			anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 		}
 		//non bone animation
 		else {
@@ -90,14 +118,22 @@ namespace SliceEngine
 		{
 			Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<Animator>(entity);
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			if (animator.isPlaying)
+			{
+				if (animator.toggle)
+				{
+					if (animator.is_bone) {
+						auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-			if (animator.is_bone) {
-				auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
-
-				anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
-				animator.SetInverseRoots();
-				anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+						anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
+						animator.SetInverseRoots();
+						anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+					}
+				}
 			}
+
+			animator.toggle = animator.stateMachine.EFSM.currState->isLoop;
 		}
+
 	}
 }

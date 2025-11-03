@@ -442,9 +442,20 @@ namespace SliceEditor
 			ImGui::Text("Controller: ");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::Text("A00");
+
+			ImGui::Text("Playing: ");
+			ImGui::SameLine(150.f);
+			ImGui::Checkbox("##anim_isPlaying", &animator.isPlaying);
+
 
 			std::string anim_file{};
 			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Text("Loop: ");
+			ImGui::SameLine(150.f);
+			ImGui::Checkbox("##anim_isLoop", &animator.stateMachine.EFSM.currState->isLoop);
+
 
 			ImGui::TreePop();
 		}

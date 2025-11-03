@@ -20,6 +20,33 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	void EntityOnEnter(entt::registry& reg, entt::entity entity)
+	{
+		auto core = Core::GetInstance();
+		auto view = core->GetRegistry().view<Bone_Entity>();
+
+		for (auto entity : view)
+		{
+			auto const& bone = core->GetRegistry().get<Bone>(entity);
+			Entity root_entity = bone.skeleton_root;
+			if (root_entity == entity) {
+				continue;
+			}
+
+			if (!core->GetRegistry().any_of<Animator>(root_entity)) {
+				//SLICE_LOG_ERROR("Invalid root entity for bone component");
+				continue;
+			}
+
+			auto& animator = core->GetRegistry().get<Animator>(root_entity);
+			auto& transform = core->GetRegistry().get<Transform>(entity);
+
+			if (Core::GetInstance()->GetRegistry().any_of<Renderer>(entity)) {
+				animator.inverse_flags.set(bone.frame_idx);
+			}
+		}
+	}
+
 	void BoneSystem::Update_Scenegraph() const {
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<Bone_Entity>();
@@ -39,6 +66,9 @@ namespace SliceEngine
 
 			auto& animator = core->GetRegistry().get<Animator>(root_entity);
 			auto& transform = core->GetRegistry().get<Transform>(entity);
+
+			if (!animator.isPlaying)
+				continue;
 
 			//some pseudo code
 			glm::mat4 const& frame = animator.GetFinalTform()[bone.frame_idx];
