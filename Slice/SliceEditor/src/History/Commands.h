@@ -34,6 +34,29 @@ namespace SliceEditor
 		}
 	};
 
+	template <typename T>
+	class ScriptFieldSetterCommand : public Command
+	{
+		std::function<void(std::string, T)> funcToExecute;
+		std::string fieldName;
+		T oldValue, newValue;
+
+	public:
+		ScriptFieldSetterCommand(std::function<void(std::string, T)>func,  std::string name, T oldV, T newV) :
+			funcToExecute(func), fieldName(name), oldValue(oldV), newValue(newV) {}
+		~ScriptFieldSetterCommand() = default;
+
+		void Redo() override
+		{
+			funcToExecute(fieldName, newValue);
+		}
+
+		void Undo() override
+		{
+			funcToExecute(fieldName, oldValue);
+		}
+	};
+
 	class SelectNodeCommand : public Command
 	{
 		SelectionManager& sSelection;

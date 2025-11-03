@@ -18,6 +18,17 @@ DigiPen Institute of Technology is prohibited.
 //#include <GL/glew.h>
 #include <string>
 
+/*
+* I think can prob set these hard limits for now
+* according to quick google search, seems like usually max 4 bone per vert
+* and 100 bones per model is prob good nuff
+*
+* Unity says more then 4 might cook performance
+* and some forums usually dont mention more then 100 bones a model
+*/
+constexpr unsigned char MAX_BONES = 100;
+constexpr unsigned char MAX_BONE_INFLUENCE = 4;
+
 namespace SliceEngine
 {
 	namespace SliceEngineTypes
@@ -63,6 +74,8 @@ namespace SliceEngine
 			ModelNode rootNode;
 			std::vector<Mesh> meshes;	//list of meshes, in the case of static model, max 1 mesh per material involved in the model
 
+			bool is_static{ true };
+
 			//void combine_setup_meshes(std::vector<Mesh> const& meshes);
 
 			//cant be static because of gl funcs i think
@@ -82,17 +95,28 @@ namespace SliceEngine
 			glm::vec3 normal{};
 			glm::vec2 uv{};
 		};
+		struct VertexBone {
+			int boneIDs[MAX_BONE_INFLUENCE]{ -1,-1,-1,-1 };
+			float weights[MAX_BONE_INFLUENCE]{ 0.f,0.f,0.f,0.f };
+
+			void SetVertexBone(int id, float weight);
+		};
 
 		struct Mesh {
+			bool static_model{true};
 			std::string name{};
 			std::vector<Vertex> vertices{};
 			std::vector<unsigned int> indices{};
+			std::vector<VertexBone> vert_bones{};
 
 			GLuint vao{}, vbo{};	//actual vbo vao and ebo to draw
 			GLuint ebo{};
+			GLuint vbbo{};			//vert bone buffer
+
 			GLuint drawCnt{};
 			GLenum drawMode{};
-			void unpack_data(char* const buffer, uint64_t& offset);
+			void unpack_static_data(char const* const buffer, uint64_t& offset);
+			void unpack_skin_data(char const* const buffer, uint64_t& offset);
 			void setup_mesh();	//allocate the handles vao, vbo, ebo as well as set drawcnt and drawmode
 		};
 	}

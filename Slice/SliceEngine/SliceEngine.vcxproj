@@ -113,6 +113,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Animator\AnimatorSystem.h" />
+    <ClInclude Include="src\Animator\BoneSystem.h" />
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="src\Resource\ResourceManager.h" />
     <ClInclude Include="src\Resource\Scene.h" />
     <ClInclude Include="src\Resource\Shader.h" />
+    <ClInclude Include="src\Resource\Skeleton.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
     <ClInclude Include="src\Scripting\ScriptObject.h" />
@@ -170,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Animator\AnimatorSystem.cpp" />
+    <ClCompile Include="src\Animator\BoneSystem.cpp" />
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
@@ -202,6 +205,7 @@
     <ClCompile Include="src\Resource\ResourceManager.cpp" />
     <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
+    <ClCompile Include="src\Resource\Skeleton.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />

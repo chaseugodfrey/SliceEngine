@@ -173,6 +173,85 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		static float oldVal{};
+
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<float>> command = std::make_unique<ScriptFieldSetterCommand<float>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, float min, float max)
+	{
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		static int oldVal{};
+
+		bool changed = ImGui::DragInt(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<int>> command = std::make_unique<ScriptFieldSetterCommand<int>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		static glm::vec3 oldVal{};
+
+		glm::vec3 tempVal = val;
+		ImGui::ColorEdit3(id, glm::value_ptr(tempVal), ImGuiColorEditFlags_NoInputs);
+
+		if (ImGui::IsItemActivated() && glm::all(glm::notEqual(val, tempVal)))
+		{
+			oldVal = val;
+			changed = true;
+		}
+
+		if (changed)
+		{
+			val = tempVal;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (glm::all(glm::notEqual(val,oldVal)))
+			{
+				std::unique_ptr<ValueCommand<glm::vec3>> command = std::make_unique<ValueCommand<glm::vec3>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+		return changed;
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;

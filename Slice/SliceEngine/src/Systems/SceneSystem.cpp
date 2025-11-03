@@ -72,7 +72,7 @@ namespace SliceEngine
 	void SceneSystem::WriteTempFile()
 	{
 		std::filesystem::path CurrentScene = mCurrentScene;
-
+		
 		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
 		
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
@@ -115,12 +115,22 @@ namespace SliceEngine
 		SaveScene(mCurrentScene);
 	}
 
+	void SceneSystem::SaveNextScene()
+	{
+		SaveScene(mNextScene);
+	}
+
 	void SceneSystem::UnloadCurrentScene()
 	{
 		SLICE_LOG("Unloading Scenes.");
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
 		Core::GetInstance()->mFactory.UpdateDestroyed();
+
+		OnSceneStopEvent event;
+		event.isSceneStopped = true;
+
+		EventManager::GetInstance()->Publish<OnSceneStopEvent>(event);
 
 		isSceneUnloaded = true;
 	}
@@ -131,7 +141,6 @@ namespace SliceEngine
 		// need function to clear everything on the scene
 		//Core::GetInstance()->mFactory.ClearGameObjects();
 		//Core::GetInstance()->mFactory.UpdateDestroyed();
-		
 
 		std::filesystem::path CurrentScene = mCurrentScene;
 
@@ -178,6 +187,8 @@ namespace SliceEngine
 
 		}
 	}
+
+	
 
 	bool SceneSystem::CheckQueueEmpty()
 	{

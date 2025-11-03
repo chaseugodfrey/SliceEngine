@@ -76,22 +76,46 @@ void OpenGL_Starter::Init() {
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
     const char* model_path = "../Asset/player.fbx";
-    assert(std::filesystem::exists(model_path));
-    mdl.Init(model_path);
-    //anim.Init(model_path, mdl);
-    //animator.PlayAnimation(&anim);
-    mdl.SaveModelToFile("../Asset/player_data.mdl");
+    //const char* model_path = "../Asset/dancing_vampire.dae";
+    const char* mdl_asset_path = "../Asset/player.mdl";
+    const char* anim_path = "../Asset/player_anim.animpkg";
+    const char* skel_path = "../Asset/player_skel.skl";
 
-    if (mdl_clone.LoadModelFromFile("../Asset/player_data.mdl")) {
+    assert(std::filesystem::exists(model_path));
+    //mdl.load_static_model(model_path);
+    skeleton.load(model_path);
+    skeleton.Save_Skeleton(skel_path);
+    skeleton_clone.Load_Skeleton(skel_path);
+
+    mdl.load_skinned_model(model_path, skeleton_clone);
+    mdl.SaveModelToFile(mdl_asset_path);
+    mdl_clone.LoadModelFromFile(mdl_asset_path);
+    mdl_clone.InitLoadedModel();
+
+    anim_package.Load(model_path, skeleton_clone);
+    anim_package.SavePackage(anim_path);
+
+    anim_clone.LoadPackage(anim_path);
+
+    animator.animations = &anim_clone;
+    animator.skeleton = &skeleton_clone;
+    animator.Play(0);
+    animator.root_node = &mdl_clone.root_node;
+    //anim.Init(model_path);
+    //animator.PlayAnimation(&anim);
+    //mdl.SaveModelToFile("../Asset/player_data.mdl");
+
+  /*  if (mdl_clone.LoadModelFromFile("../Asset/player_data.mdl")) {
         mdl_clone.InitLoadedModel();
         mdl_clone.SaveModelToFile("../Asset/player_data_clone.mdl");
-    }
+    }*/
   /*  if (mdl_clone.LoadModelFromFile("../Asset/cube.mdl")) {
         mdl_clone.InitLoadedModel();
     }*/
 
     //Shaders
-    const char* vert_name = "DefaultShader.vert";
+    //const char* vert_name = "DefaultShader.vert";
+    const char* vert_name = "SkinShader.vert";
     const char* frag_name = "DefaultShader.frag";
     //Read shader files
     default_shader.Compile_Link_Validate(vert_name, frag_name);
@@ -110,6 +134,7 @@ void OpenGL_Starter::Init() {
 }
 
 void OpenGL_Starter::Update() {
+    animator.Update(0);
     while (!glfwWindowShouldClose(window)) {
         static float time{-1.f};
         
@@ -123,7 +148,7 @@ void OpenGL_Starter::Update() {
             time = curr;
         }
 
-       // animator.UpdateAnimation(dt);
+        animator.Update(dt);
 
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -143,12 +168,19 @@ void OpenGL_Starter::Update() {
         uniform = default_shader.GetUniformLoc("light_pos");
         glUniform3fv(uniform, 1, glm::value_ptr(camera.Position));
 
-       /* uniform = default_shader.GetUniformLoc("finalBonesMatrices");
-        glUniformMatrix4fv(uniform, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform()[0]));*/
+        uniform = default_shader.GetUniformLoc("finalBonesMatrices");
+        glUniformMatrix4fv(uniform, MAX_BONES, false, glm::value_ptr(animator.final_transforms.data()[0]));
 
         // render the loaded model
         //std::cout << animator.current_time << std::endl;
+
+        /*
+        * animator.play
+        * animator.updatetransform(mdl)
+        * mdl.draw
+        */
         //mdl.Draw(default_shader);
+
         mdl_clone.Draw(default_shader);
 
         //float initialOffsetY = -0.5f;

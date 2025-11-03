@@ -17,7 +17,7 @@ namespace SliceEditor
 
 		ImGui::Begin("Navigation");
 
-		if (selectionManager->mSelectionType == SelectionManager::SelectionType::ENTITY)
+		if (selectionManager->mSelectionType == SelectionType::ENTITY)
 		{
 			auto& nodes = selectionManager->GetSelectedNodes();
 			if (!nodes.empty())

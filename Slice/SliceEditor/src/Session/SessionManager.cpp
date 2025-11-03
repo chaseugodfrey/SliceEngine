@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "SessionManager.h"
+#include "Selection/SelectionManager.h"
 #include <Core/EventManager.h>
 
 namespace SliceEditor
@@ -13,6 +14,7 @@ namespace SliceEditor
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
+		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
 		OpenPreferences();
 	}
 
@@ -101,6 +103,14 @@ namespace SliceEditor
 		{
 			mEntityNodes.clear();
 			CreateEntityNodes();
+		}
+	}
+
+	void SessionManager::OnSceneStop(const OnSceneStopEvent& event)
+	{
+		if (event.isSceneStopped)
+		{
+			EditorUtilities::Scene_Stop(*registry.GetManager<SelectionManager>("Selection"));
 		}
 	}
 

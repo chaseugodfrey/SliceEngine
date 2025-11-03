@@ -53,14 +53,48 @@ namespace SliceEditor
 		ID_MAX
 	};
 
+	enum class SelectionType : int
+	{
+		NONE = 0,
+		FOLDER = 1,
+		ENTITY = 2,
+		TEXTURE = 3,
+		MODEL = 4,
+		AUDIO = 5,
+		SCENE = 6,
+		SHADER = 7,
+		MATERIAL = 8,
+		PREFAB = 9,
+		TEXTFILE = 10,
+		MIXED = 11,
+		UNSUPPORTED = 12
+	};
+
 	struct SelectionNode
 	{
-		enum class SelectionType
-		{
-			ENTITY,
-			FILE
-		} type;
+		SelectionType type;
 		bool isSelected;
+	};
+
+	const std::unordered_map<std::string, SelectionType> mExtensionToSelectionType =
+	{
+			{"",  SelectionType::FOLDER },
+			{".png",  SelectionType::TEXTURE },
+			{".jpg", SelectionType::TEXTURE},
+			{".jpeg", SelectionType::TEXTURE},
+			{".dds", SelectionType::TEXTURE},
+			{".tga", SelectionType::TEXTURE},
+			{".gif", SelectionType::TEXTURE},
+			{".obj", SelectionType::MODEL},
+			{".fbx", SelectionType::MODEL},
+			{".wav", SelectionType::AUDIO},
+			{".mp3", SelectionType::AUDIO},
+			{".ogg", SelectionType::AUDIO},
+			{".scene", SelectionType::SCENE},
+			{".shader", SelectionType::SHADER},
+			{".mat", SelectionType::MATERIAL},
+			{".txt", SelectionType::TEXTFILE},
+			{".prefab", SelectionType::PREFAB}
 	};
 
 	struct EntityNode : SelectionNode
@@ -77,17 +111,10 @@ namespace SliceEditor
 	struct DirectoryNode : SelectionNode
 	{
 		std::string fileName;
-		bool isDirectory = false;
 		std::filesystem::path path;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
-
-		DirectoryNode()
-		{
-			type = SelectionType::FILE;
-			isSelected = false;	
-		}
-
+		bool isDirectory = false;
 	};
 
 	struct DroppedFile
