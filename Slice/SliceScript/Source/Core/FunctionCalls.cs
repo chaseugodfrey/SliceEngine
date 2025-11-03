@@ -57,5 +57,8 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void LogError(string msg);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_HasComponent(uint entityID, Type componentType);
+
     }
 }
