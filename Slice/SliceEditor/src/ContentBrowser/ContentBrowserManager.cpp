@@ -51,14 +51,14 @@ namespace SliceEditor
 		//rootNode->path = std::filesystem::path(ASSET_DIR);
 		rootNode->fileName = "Assets";
 		rootNode->isDirectory = true;
-		CreateDirectory(*rootNode);
+		CreateDirectoryNode(*rootNode);
 		selectedFolder = &*rootNode;
 	}
 
 	void ContentBrowserManager::RebuildDirectory(DirectoryNode& node)
 	{
 		ResetRootDirectory(node);
-		CreateDirectory(node);
+		CreateDirectoryNode(node);
 	}
 
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
@@ -72,7 +72,7 @@ namespace SliceEditor
 		selectedFolder = &node;
 	}
 
-	void ContentBrowserManager::CreateDirectory(DirectoryNode& node)
+	void ContentBrowserManager::CreateDirectoryNode(DirectoryNode& node)
 	{
 		if (node.path.has_extension())
 		{
@@ -106,7 +106,7 @@ namespace SliceEditor
 
 			node.children.insert({ child.fileName, child });
 
-			CreateDirectory(node.children[child.fileName]);
+			CreateDirectoryNode(node.children[child.fileName]);
 
 
 		}
@@ -167,7 +167,7 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserManager::DeleteFile(DirectoryNode& entry)
+	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
 		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
 		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());

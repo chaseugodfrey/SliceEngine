@@ -416,7 +416,12 @@ namespace SliceEditor
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
 						{
 							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							if (DragIntInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
 								scriptRef->SetFieldValue(it.second.mName, data);
 								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -460,6 +465,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity, false);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
+			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
