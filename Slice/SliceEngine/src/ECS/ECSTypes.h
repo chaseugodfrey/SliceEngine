@@ -116,6 +116,7 @@ namespace SliceEngine
 
 		unsigned short meshOffset{ 0 };
 		unsigned char renderTag;
+		bool skinned{ false };
 
 		RTTR_ENABLE();
 	};

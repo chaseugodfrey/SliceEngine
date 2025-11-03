@@ -20,6 +20,7 @@ const int isSpot 		= 2;
 
 uniform mat4 uLightMtx; // Shadow Transform Matrix
 uniform Light uLight;
+uniform float uFarPlane;
 uniform vec3 uCamPos;
 
 layout (binding = 0) uniform sampler2D 	uTex;
@@ -170,7 +171,7 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 	for(int i = 0; i < samples; ++i)
 	{
 		float closestDepth = texture(uShadowCubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-		closestDepth *= 20.0;
+		closestDepth *= uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
 	}
