@@ -203,7 +203,7 @@ namespace SliceEngine
 
 		SetShader(S_POINT_SHADOW);
 		LinkFrameBufferSettings(FB_NIL, 0);
-		LoadSettings(GPUSetting::SHADOW);
+		LoadSettings(GPS_SHADOW);
 		RenderPointShadowMaps();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
@@ -212,7 +212,7 @@ namespace SliceEngine
 			CalculateVP(cam);
 			SetShader(S_SHADOW);
 			LinkFrameBufferSettings(FB_NIL, 0);
-			LoadSettings(GPUSetting::SHADOW);
+			LoadSettings(GPS_SHADOW);
 			RenderDirectionalShadowMaps(cam);
 
 			SetShader(S_DEFERRED);
@@ -220,7 +220,7 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			else
 				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
-			LoadSettings(GPUSetting::DEFAULT);
+			LoadSettings(GPS_DEFAULT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);
@@ -235,10 +235,10 @@ namespace SliceEngine
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
 			{
-				LoadSettings(GPUSetting::DEBUG);
+				LoadSettings(GPS_DEBUG);
 				RenderDebug(cam);
 			}
-			LoadSettings(GPUSetting::DEFAULT);
+			LoadSettings(GPS_DEFAULT);
 			if (IS_USE_BLOOM)
 				RenderBloom();
 
@@ -491,7 +491,7 @@ namespace SliceEngine
 			{
 			case Light::LightType::Light_Directional:
 			{
-				LoadSettings(GPUSetting::ADDITION);
+				LoadSettings(GPS_ADDITION);
 
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
 				glUniform3f(uniformLoc, -lightT.position.x, -lightT.position.y, -lightT.position.z);
@@ -510,9 +510,9 @@ namespace SliceEngine
 			case Light::LightType::Light_Point:
 			{
 				if(glm::distance(camT.position, lightT.position) > pointLightFar * 0.5f)
-					LoadSettings(GPUSetting::ADDITION);
+					LoadSettings(GPS_ADDITION);
 				else
-					LoadSettings(GPUSetting::SPE_ADDITION);
+					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
 				M = glm::translate(M, lightT.position);
@@ -536,7 +536,7 @@ namespace SliceEngine
 	{
 		// Extract the Bright
 		SetShader(S_BLOOM_SPLIT);
-		glDisable(GL_DEPTH_TEST);
+		LoadSettings(GPS_BLOOM);
 		glBindTextureUnit(0, mColAttachment[GOUT_FINAL]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
@@ -544,7 +544,6 @@ namespace SliceEngine
 
 		// Downscaling
 		SetShader(S_DOWNSCALING);
-		glDisable(GL_BLEND);
 
 		glBindTextureUnit(0, mBloomMips[0].tex);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
@@ -561,9 +560,7 @@ namespace SliceEngine
 		}
 
 		SetShader(S_UPSCALING);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBlendEquation(GL_FUNC_ADD);
+		LoadSettings(GPS_BLOOM);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
 		glUniform1f(uniformLoc, 0.005f);
@@ -575,10 +572,6 @@ namespace SliceEngine
 			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
@@ -695,100 +688,107 @@ namespace SliceEngine
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, va_arg(args, GLuint), 0);
 		va_end(args);
 	}
-	// Does all the glEnable and Disables etc. Maybe can be more streamlined to check if certain settings are already there?
+	// Does all the glEnable and Disables etc.
 	void RenderManager::LoadSettings(GPUSetting setting)
 	{
-		if (mCurrGPUSetting == setting)
-			return;
+		GPUSetting changeInSettings{ static_cast<GPUSetting>(mCurrGPUSetting ^ setting) };
+		if (changeInSettings)
+		{
+			// glEnables
+			if (changeInSettings & GPS_ENABLE_CULL_FACE)
+			{
+				if (setting & GPS_ENABLE_CULL_FACE)
+					glEnable(GL_CULL_FACE);
+				else
+					glDisable(GL_CULL_FACE);
+			}
+			if (changeInSettings & GPS_ENABLE_BLEND)
+			{
+				if (setting & GPS_ENABLE_BLEND)
+					glEnable(GL_BLEND);
+				else
+					glDisable(GL_BLEND);
+			}
+			if (changeInSettings & GPS_ENABLE_DEPTH)
+			{
+				if (setting & GPS_ENABLE_DEPTH)
+					glEnable(GL_DEPTH_TEST);
+				else
+					glDisable(GL_DEPTH_TEST);
+			}
+			// Other Settings
+			if (changeInSettings & GPS_CULL_BACK_NOT_FRONT)
+			{
+				if (setting & GPS_CULL_BACK_NOT_FRONT)
+					glCullFace(GL_BACK);
+				else
+					glCullFace(GL_FRONT);
+			}
+			if (changeInSettings & GPS_BLEND_SRC_ONEMINUS & setting)
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			if (changeInSettings & GPS_BLEND_ONE_ONE & setting)
+				glBlendFunc(GL_ONE, GL_ONE);
+			if (changeInSettings & GPS_DEPTH_LESS & setting)
+				glDepthFunc(GL_LESS);
 
-		switch (mCurrGPUSetting)
-		{
-		case GPUSetting::DEFAULT:
-		{
-			break;
+			mCurrGPUSetting = setting;
 		}
-		case GPUSetting::SHADOW:
+	}
+	void RenderManager::QuickSetSettings(GPUSetting setting, bool toggleOn)
+	{
+		if (toggleOn)
 		{
-			glCullFace(GL_BACK);
-			break;
+			if (setting & mCurrGPUSetting)
+				return;
+			switch (setting)
+			{
+			case GPS_ENABLE_CULL_FACE:
+				glEnable(GL_CULL_FACE);
+				break;
+			case GPS_ENABLE_BLEND:
+				glEnable(GL_BLEND);
+				break;
+			case GPS_ENABLE_DEPTH:
+				glEnable(GL_DEPTH_TEST);
+				break;
+			case GPS_CULL_BACK_NOT_FRONT:
+				glCullFace(GL_BACK);
+				break;
+			case GPS_BLEND_ONE_ONE:
+				glBlendFunc(GL_ONE, GL_ONE);
+				if(mCurrGPUSetting & GPS_BLEND_SRC_ONEMINUS)
+					mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ GPS_BLEND_SRC_ONEMINUS);
+				break;
+			case GPS_BLEND_SRC_ONEMINUS:
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				if(mCurrGPUSetting & GPS_BLEND_ONE_ONE)
+					mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ GPS_BLEND_ONE_ONE);
+				break;
+			case GPS_DEPTH_LESS:
+				glDepthFunc(GL_LESS);
+				break;
+			}
+			mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting | setting);
 		}
-		case GPUSetting::DEBUG:
+		else
 		{
-			glEnable(GL_CULL_FACE);
-
-			glDisable(GL_BLEND);
-			break;
-		}
-		case GPUSetting::ADDITION:
-			__fallthrough;
-		case GPUSetting::SPE_ADDITION:
-		{
-			glEnable(GL_DEPTH_TEST);
-			//glDepthMask(GL_TRUE);
-			glDisable(GL_BLEND);
-			break;
-		}
-		}
-		mCurrGPUSetting = setting;
-		switch (mCurrGPUSetting)
-		{
-		case GPUSetting::DEFAULT:
-		{
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			break;
-		}
-		case GPUSetting::SHADOW:
-		{
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-			break;
-		}
-		case GPUSetting::DEBUG:
-		{
-			glDisable(GL_CULL_FACE);
-
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc(GL_LESS);
-
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			break;
-		}
-		case GPUSetting::ADDITION:
-		{
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-
-			glDisable(GL_DEPTH_TEST);
-			//glEnable(GL_DEPTH_TEST);
-			//glDepthFunc(GL_LESS);
-			//glDepthMask(GL_FALSE);
-
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
-			break;
-		}
-		case GPUSetting::SPE_ADDITION:
-		{
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
-
-			glDisable(GL_DEPTH_TEST);
-			//glEnable(GL_DEPTH_TEST);
-			//glDepthFunc(GL_GEQUAL);
-			//glDepthMask(GL_FALSE);
-
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
-			break;
-		}
+			switch (setting)
+			{
+			case GPS_ENABLE_CULL_FACE:
+				glDisable(GL_CULL_FACE);
+				break;
+			case GPS_ENABLE_BLEND:
+				glDisable(GL_BLEND);
+				break;
+			case GPS_ENABLE_DEPTH:
+				glDisable(GL_DEPTH_TEST);
+				break;
+			case GPS_CULL_BACK_NOT_FRONT:
+				glCullFace(GL_FRONT);
+				break;
+			}
+			if (mCurrGPUSetting & setting)
+				mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ setting);
 		}
 	}
 	// Changes Shader if not current
