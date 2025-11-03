@@ -464,6 +464,13 @@ namespace SliceEditor
 			ImGui::SameLine(150.f);
 			ImGui::Checkbox("##anim_isLoop", &animator.stateMachine.EFSM.currState->isLoop);
 
+			ImGui::Text("Next: ");
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+			{
+				animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+			}
+
 
 			ImGui::TreePop();
 		}
