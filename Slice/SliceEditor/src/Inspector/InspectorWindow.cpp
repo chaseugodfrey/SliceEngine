@@ -450,9 +450,27 @@ namespace SliceEditor
 			ImGui::Text("Controller: ");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			ImGui::Text("A00");
+
+			ImGui::Text("Playing: ");
+			ImGui::SameLine(150.f);
+			ImGui::Checkbox("##anim_isPlaying", &animator.isPlaying);
+
 
 			std::string anim_file{};
 			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+			ImGui::Text("Loop: ");
+			ImGui::SameLine(150.f);
+			ImGui::Checkbox("##anim_isLoop", &animator.stateMachine.EFSM.currState->isLoop);
+
+			ImGui::Text("Next: ");
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+			{
+				animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+			}
+
 
 			ImGui::TreePop();
 		}
@@ -653,10 +671,10 @@ namespace SliceEditor
 		
 		MaterialData mat;
 		std::filesystem::path mat_path = node->fileName;
-		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
-		if (metapath.has_value())
-			mat.Deserialize(metapath.value());
+		//if (metapath.has_value())
+		mat.DeserializeAsset(node->path);
 
 		std::string mat_file_name{};
 		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())

@@ -15,8 +15,6 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	struct Animations {};
-
 	enum class ComparisonOp
 	{
 		Equal,
@@ -46,7 +44,7 @@ namespace SliceEngine
 	{
 		// change to guid
 		std::string stateName;
-		Animations* currAnim;
+		unsigned int curr_anim_idx{};
 		bool isLoop;
 		//rttr::variant stateCon;
 
@@ -93,7 +91,7 @@ namespace SliceEngine
 
 		void OnExit();
 
-	private:
+	
 		CStateMachine EFSM;
 	};
 }
