@@ -34,8 +34,6 @@ namespace SliceEditor
 
 	public:
 
-
-
 		SelectionManager(Registry& reg) : IBaseManager(reg) {};
 		~SelectionManager() = default;
 
@@ -51,17 +49,10 @@ namespace SliceEditor
 		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
 
-		
 		std::unordered_set<entt::entity>& GetSelectedEntities();
 		std::unordered_set<SelectionNode*>& GetSelectedNodes();
 
-		enum class SelectionType
-		{
-			NONE,
-			ENTITY,
-			MATERIAL,
-			MIXED
-		} mSelectionType{};
+		SelectionType mSelectionType{};
 	};
 }
 

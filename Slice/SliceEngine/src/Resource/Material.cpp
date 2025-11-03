@@ -23,7 +23,7 @@ namespace SliceEngine
 		Material Material::LoadMaterial(std::string const& filepath) {
 			Material temp;
 			// figure out default textures
-			temp.albedo.mGUID = (GUID)10452617659721414527;
+			temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = 0.6f;
 			temp.metallic = 1.7f;

@@ -15,8 +15,10 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ContentBrowserManager.h"
 #include "ContentBrowserWindow.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
@@ -79,7 +81,8 @@ namespace SliceEditor
 
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
-			if (entry.path().extension().string() == ".meta")
+			const auto extension = entry.path().extension().string();
+			if (extension == ".meta")
 			{
 				continue; //Ignore
 			}
@@ -90,6 +93,16 @@ namespace SliceEditor
 			child.path = entry.path();
 			child.parent = &node;
 			child.isDirectory = entry.is_directory();
+
+			SelectionType type{};
+
+			auto it = mExtensionToSelectionType.find(extension);
+			if (it != mExtensionToSelectionType.end())
+				type = it->second;
+			else
+				type = SelectionType::UNSUPPORTED;
+
+			child.type = type;
 
 			node.children.insert({ child.fileName, child });
 
@@ -140,7 +153,10 @@ namespace SliceEditor
 		
 		if (entry.path.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			SliceEngine::gScriptSystem->OnEnd();
+			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
 		

@@ -4,6 +4,7 @@
 namespace SliceEditor
 {
 	class HistoryManager;
+	class SelectionManager;
 
 	namespace EditorUtilities
 	{
@@ -15,10 +16,14 @@ namespace SliceEditor
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
-	
+		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
+		void Scene_Stop(SelectionManager& selectionManager);
+
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);
 		void SetTheme(EditorThemeType type);
+
+		
 	}
 }
 

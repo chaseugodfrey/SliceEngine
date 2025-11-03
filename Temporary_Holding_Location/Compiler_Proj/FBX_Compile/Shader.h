@@ -9,5 +9,4 @@ struct GL_Shader {
 
 	unsigned int GetUniformLoc(const char*) const;
 };
-
 #endif

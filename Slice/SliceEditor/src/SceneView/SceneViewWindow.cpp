@@ -328,7 +328,7 @@ namespace SliceEditor
 
 		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 
-		if (!set.empty() && set.begin().operator*()->type == SelectionNode::SelectionType::ENTITY)
+		if (!set.empty() && set.begin().operator*()->type == SelectionType::ENTITY)
 		{
 			auto entt = static_cast<EntityNode*>(*set.begin())->entity;
 			// get cam view & perspective
