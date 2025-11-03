@@ -46,7 +46,13 @@ namespace SliceEditor
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
-		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
+		ImVec2 invisButtonSize = ImVec2(ImGui::GetContentRegionAvail().x, 2);
+		
+		if (invisButtonSize.x <= 0)
+		{
+			invisButtonSize.x = 50;
+		}
+		ImGui::InvisibleButton(("##" + name + "_order").c_str(), invisButtonSize);
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -200,6 +206,7 @@ namespace SliceEditor
 		ImGuiID id = ImGui::GetCurrentWindow()->GetID("HierarchyDrop");
 		ImRect rect(p0, p1);
 
+
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
 			if (ImGui::AcceptDragDropPayload("Model"))
@@ -212,6 +219,7 @@ namespace SliceEditor
 			}
 			ImGui::EndDragDropTarget();
 		}
+
 
 		DrawNodeGraph();
 
