@@ -196,6 +196,7 @@ namespace SliceEditor
 					// update the handle after
 
 				}
+				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::Text("Material");
@@ -220,6 +221,7 @@ namespace SliceEditor
 						rend.materialHandle.mGUID = recievedPayload;
 						// reload material handle here
 				}
+				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::TreePop();
@@ -685,6 +687,19 @@ namespace SliceEditor
 		ImGui::Text("Albedo");
 		ImGui::SameLine(150.0f);
 		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+			{
+				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+				//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+				//rend.modelHandle.mGUID = recievedPayload;
+				mat.albedo =recievedPayload;
+				// update the handle after
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		ImGui::Text("Roughness");
 		ImGui::SameLine(150.0f);
