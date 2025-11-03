@@ -28,7 +28,7 @@ namespace SliceEngine
             //Console.WriteLine("TestEntity Update called with dt: " + dt);
 
 
-            Console.WriteLine("ALOYSISU TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+            Console.WriteLine("i CHANGED THIS TEXT" +testAudio.soundName + ">");
 
 
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))

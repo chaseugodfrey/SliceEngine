@@ -13,19 +13,16 @@ namespace SliceEngine
 
         Transform t;
 
-        private float oscillateTime = 0.0f;
-        private float basePosY;
-
         public override void OnCreate()
         {
             t = GetComponent<Transform>();
-            basePosY = t.Position.y;
         }
 
         public override void OnUpdate(float dt)
         {
             if (Input.IsKeyPressed(Keys.KEY_1) || Input.IsKeyDown(Keys.KEY_1))
             {
+                Console.WriteLine("IM MOVING");
                 t.Position += direction * speed * dt;
             }
 
@@ -40,14 +37,6 @@ namespace SliceEngine
             {
                 float scaleSpeed = 1.0f;
                 t.Scale += new Vector3(scaleSpeed, scaleSpeed, scaleSpeed) * dt;
-            }
-
-            if (Input.IsKeyPressed(Keys.KEY_4) || Input.IsKeyDown(Keys.KEY_4))
-            {
-                //float frequency = 2.0f;   // cycles per second
-                //float amplitude = 1.0f;
-                //oscillateTime += dt;
-                //t.Position = basePosY + (float)Math.Sin(oscillateTime * frequency * 2.0f * Math.PI) * amplitude;
             }
         }
 
