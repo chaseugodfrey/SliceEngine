@@ -519,6 +519,8 @@ namespace SliceEngine
 				M = glm::scale(M, glm::vec3(pointLightFar, pointLightFar, pointLightFar));
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+				glUniform1f(uniformLoc, pointLightFar);
 
 				glBindTextureUnit(5, light.shadowCubeMap);
 
