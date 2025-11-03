@@ -222,18 +222,28 @@ namespace SliceEditor
 
 	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
+		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		static glm::vec3 oldVal{};
 
-		bool changed = ImGui::ColorEdit3(id, glm::value_ptr(val), ImGuiColorEditFlags_DisplayRGB);
+		glm::vec3 tempVal = val;
+		ImGui::ColorEdit3(id, glm::value_ptr(tempVal), ImGuiColorEditFlags_NoInputs);
 
-		if (ImGui::IsItemActivated())
+		if (ImGui::IsItemActivated() && glm::all(glm::notEqual(val, tempVal)))
+		{
 			oldVal = val;
+			changed = true;
+		}
+
+		if (changed)
+		{
+			val = tempVal;
+		}
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (changed)
+			if (glm::all(glm::notEqual(val,oldVal)))
 			{
 				std::unique_ptr<ValueCommand<glm::vec3>> command = std::make_unique<ValueCommand<glm::vec3>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
