@@ -110,7 +110,7 @@ project "SliceEditor"
  
     prebuildcommands {
         '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        -- '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
+        '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
     postbuildcommands {
