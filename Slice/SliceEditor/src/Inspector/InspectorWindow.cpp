@@ -671,10 +671,10 @@ namespace SliceEditor
 		
 		MaterialData mat;
 		std::filesystem::path mat_path = node->fileName;
-		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
-		if (metapath.has_value())
-			mat.Deserialize(metapath.value());
+		//if (metapath.has_value())
+		mat.DeserializeAsset(node->path);
 
 		std::string mat_file_name{};
 		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
