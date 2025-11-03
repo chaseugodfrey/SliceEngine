@@ -36,7 +36,7 @@ namespace SliceEngine
     {
 
         // TODO: Change this to a global config setting for engine
-        static bool debug = true;
+        static bool debug = false;
     }
     
     static std::unordered_map<std::string, ScriptFieldType> sFieldTypeMap =
@@ -289,6 +289,11 @@ namespace SliceEngine
             entityAdded.push_back(entity);
         }
 
+        for (auto& it : mEntityInstances)
+        {
+            mono_gchandle_free(it.second->mHandle);
+        }
+
         mEntityInstances.clear();
         mono_domain_set(mono_get_root_domain(), false);
 
@@ -459,6 +464,11 @@ namespace SliceEngine
 
     void ScriptSystem::OnEnd()
     {
+        for (auto& it : mEntityInstances)
+        {
+            mono_gchandle_free(it.second->mHandle);
+        }
+
         mEntityInstances.clear();
         entityAdded.clear();
     }
