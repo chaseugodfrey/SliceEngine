@@ -54,8 +54,8 @@ namespace SliceEditor
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
 
-		if (node->type == SelectionNode::SelectionType::ENTITY)
-			mSelectionType = SelectionType::ENTITY;
+		if (node->type == SelectionType::ENTITY)
+			mSelectionType = node->type;
 
 		if (!suppressHistory)
 		{
@@ -146,6 +146,7 @@ namespace SliceEditor
 		for (auto& node : mSelectedNodes)
 			node->isSelected = false;
 
+		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
 	}
 

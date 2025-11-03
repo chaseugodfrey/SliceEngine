@@ -184,4 +184,34 @@ namespace SliceEngine
 	{
 		// nth to destroy
 	}
+
+	//Skeleton
+	std::unique_ptr<SliceEngineTypes::Skeleton> Type<SliceEngineTypes::Skeleton>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto skele = std::make_unique<SliceEngineTypes::Skeleton>();
+		if (!skele->LoadSkeletonResource(path)) {
+			return nullptr;
+		}
+		return skele;
+	}
+
+	void Type<SliceEngineTypes::Skeleton>::Destroy(SliceEngineTypes::Skeleton& resource, ResourceManager& resourceMgr)
+	{
+		//resource.d();	//nothing to delete really
+	}
+
+	//Animation Package
+	std::unique_ptr<SliceEngineTypes::AnimationPackage> Type<SliceEngineTypes::AnimationPackage>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto anim = std::make_unique<SliceEngineTypes::AnimationPackage>();
+		if (!anim->LoadAnimPackageResource(path)) {
+			return nullptr;
+		}
+		return anim;
+	}
+
+	void Type<SliceEngineTypes::AnimationPackage>::Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
+	}
 }

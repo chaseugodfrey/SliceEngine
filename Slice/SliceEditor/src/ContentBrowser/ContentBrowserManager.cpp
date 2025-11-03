@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ContentBrowserManager.h"
 #include "ContentBrowserWindow.h"
+#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "Selection/SelectionManager.h"
@@ -50,14 +51,14 @@ namespace SliceEditor
 		//rootNode->path = std::filesystem::path(ASSET_DIR);
 		rootNode->fileName = "Assets";
 		rootNode->isDirectory = true;
-		CreateDirectory(*rootNode);
+		CreateDirectoryNode(*rootNode);
 		selectedFolder = &*rootNode;
 	}
 
 	void ContentBrowserManager::RebuildDirectory(DirectoryNode& node)
 	{
 		ResetRootDirectory(node);
-		CreateDirectory(node);
+		CreateDirectoryNode(node);
 	}
 
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
@@ -71,7 +72,7 @@ namespace SliceEditor
 		selectedFolder = &node;
 	}
 
-	void ContentBrowserManager::CreateDirectory(DirectoryNode& node)
+	void ContentBrowserManager::CreateDirectoryNode(DirectoryNode& node)
 	{
 		if (node.path.has_extension())
 		{
@@ -80,7 +81,8 @@ namespace SliceEditor
 
 		for (const auto& entry : std::filesystem::directory_iterator(node.path))
 		{
-			if (entry.path().extension().string() == ".meta")
+			const auto extension = entry.path().extension().string();
+			if (extension == ".meta")
 			{
 				continue; //Ignore
 			}
@@ -92,9 +94,19 @@ namespace SliceEditor
 			child.parent = &node;
 			child.isDirectory = entry.is_directory();
 
+			SelectionType type{};
+
+			auto it = mExtensionToSelectionType.find(extension);
+			if (it != mExtensionToSelectionType.end())
+				type = it->second;
+			else
+				type = SelectionType::UNSUPPORTED;
+
+			child.type = type;
+
 			node.children.insert({ child.fileName, child });
 
-			CreateDirectory(node.children[child.fileName]);
+			CreateDirectoryNode(node.children[child.fileName]);
 
 
 		}
@@ -142,6 +154,7 @@ namespace SliceEditor
 		if (entry.path.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
+			SliceEngine::gScriptSystem->OnEnd();
 			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
@@ -154,7 +167,7 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserManager::DeleteFile(DirectoryNode& entry)
+	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
 		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
 		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());

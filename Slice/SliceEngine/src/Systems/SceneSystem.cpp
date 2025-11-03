@@ -115,6 +115,11 @@ namespace SliceEngine
 		SaveScene(mCurrentScene);
 	}
 
+	void SceneSystem::SaveNextScene()
+	{
+		SaveScene(mNextScene);
+	}
+
 	void SceneSystem::UnloadCurrentScene()
 	{
 		SLICE_LOG("Unloading Scenes.");

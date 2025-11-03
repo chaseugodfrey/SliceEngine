@@ -1,0 +1,2 @@
+bloomSplit.vert
+bloomSplit.frag

@@ -48,9 +48,9 @@ namespace SliceEditor
 
 		switch (type)
 		{
-		case SelectionNode::SelectionType::ENTITY:
+		case SelectionType::ENTITY:
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
-		case SelectionNode::SelectionType::FILE:
+		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
 		}
 
@@ -416,7 +416,12 @@ namespace SliceEditor
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
 						{
 							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							if (DragIntInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
 								scriptRef->SetFieldValue(it.second.mName, data);
 								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -460,6 +465,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity, false);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
+			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
@@ -633,7 +639,39 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
+		std::string buffer{};
+		static float f_buffer{};
 
+		ImGui::BeginGroup();
+		ImGui::Text("Material Name: ");
+		ImGui::SameLine();
+		ImGui::Text(node->fileName.c_str());
+		ImGui::EndGroup();
+		
+		MaterialData mat;
+		std::filesystem::path mat_path = node->fileName;
+		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+
+		if (metapath.has_value())
+			mat.Deserialize(metapath.value());
+
+		std::string mat_file_name{};
+		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		{
+			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
+		}
+
+		ImGui::Text("Albedo");
+		ImGui::SameLine(150.0f);
+		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::Text("Roughness");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f);
+
+		ImGui::Text("Metallic");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
