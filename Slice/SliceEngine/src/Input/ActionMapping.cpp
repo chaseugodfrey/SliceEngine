@@ -15,6 +15,9 @@ DigiPen Institute of Technology is prohibited.
 #include "ActionMapping.h"
 #include "../Input/InputSystem.h"
 #include <cassert> // for assert
+#include <iostream> // for read and write to text file
+#include <fstream> // for file stream
+#include <string>
 
 namespace SliceEngine
 {
@@ -55,9 +58,20 @@ namespace SliceEngine
 	// action map creation
 	ActionMap& ActionMappingSystem::CreateMap(const std::string& mapName)
 	{
+		// if map already exists, return it
+		if (auto* existingMap = findMap(maps, mapName))
+		{
+			return *existingMap;
+		}
+		
+		
+		// else create new map and return it
 		auto& newMap = maps[mapName];
 		newMap.name = mapName;
+		// call the savetofile function here later to persist the new map
+		SaveToFile(mapName + "_actionmap.txt"); // simple filename based on map name
 		return newMap;
+
 	}
 
 	// adding actions
@@ -289,4 +303,34 @@ namespace SliceEngine
 		auto& state = map->states[actionIndex];
 		return { state.valueX, state.valueY };
 	}
+
+	// file I/O
+	// do save to file first so we know how to load from file later
+	void SaveToFile(const std::string& filename)
+	{
+		std::ofstream outfile(filename);
+		if (!outfile)
+		{
+			std::cerr << "error opening file for writing: " << filename << std::endl;
+			return;
+		}
+
+		// write action maps, actions, and bindings to file
+		// user will bind action in window manager, so just need to save the data structure
+
+	}
+
+	void LoadFromFile(const std::string& filename)
+	{
+		std::ifstream infile(filename);
+		if (!infile)
+		{
+			std::cerr << "Error opening file for reading: " << filename << std::endl;
+			return;
+		}
+
+		// read file line by line and parse action maps, actions, and bindings
+	}
+
+
 }

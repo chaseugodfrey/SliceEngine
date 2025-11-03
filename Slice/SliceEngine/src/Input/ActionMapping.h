@@ -98,6 +98,10 @@ namespace SliceEngine
 		// this explicit default constructor is to ensure input system pointer is provided
 		explicit ActionMappingSystem(InputSystem* input) : inputSys(input) {}
 
+		// function to read and write action mappings to file so that they persist between sessions
+		void LoadFromFile(const std::string& filename);
+		void SaveToFile(const std::string& filename);
+
 		// functions to add action maps, actions, and bindings
 		ActionMap& CreateMap(const std::string& mapName);
 		// add action to map
