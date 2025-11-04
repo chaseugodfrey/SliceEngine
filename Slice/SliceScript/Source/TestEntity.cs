@@ -18,7 +18,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            Console.WriteLine("TestEntity Created with ID: " + mID);
+            //Console.WriteLine("TestEntity Created with ID: " + mID);
 
             t = GetComponent<Transform>();
         }
@@ -28,12 +28,12 @@ namespace SliceEngine
             //Console.WriteLine("TestEntity Update called with dt: " + dt);
 
 
-            Console.WriteLine("ALOYSUUS TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+            //Console.WriteLine("ALOYSUUS TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
 
 
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
-                Console.WriteLine("TestEntity Created with ID: " + mID);
+                //Console.WriteLine("TestEntity Created with ID: " + mID);
 
                 //Vector3 pos = Position;
                 t.Position += direction * speed * dt;

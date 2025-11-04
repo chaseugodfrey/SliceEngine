@@ -91,7 +91,7 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);
+			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
 			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
 			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
 			{

@@ -60,24 +60,24 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) || Input.IsKeyDown(Keys.KEY_E))
             {
                 t.Scale -= new Vector3(scaleSpeed, scaleSpeed, scaleSpeed) * dt;
-            }
+            }            
 
-            // Rotate around X-axis (Pitch)
             if (Input.IsKeyPressed(Keys.KEY_Z) || Input.IsKeyDown(Keys.KEY_Z))
             {
-                t.Rotation += new Vector3(rotationSpeed * dt, 0.0f, 0.0f);
+                float rotationSpeedFrame = rotationSpeed * dt;
+                t.Rotate(rotationSpeedFrame, new Vector3(1, 0, 0)); // X-axis pitch
             }
 
-            // Rotate around Y-axis (Yaw)
             if (Input.IsKeyPressed(Keys.KEY_X) || Input.IsKeyDown(Keys.KEY_X))
             {
-                t.Rotation += new Vector3(0.0f, rotationSpeed * dt, 0.0f);
+                float rotationSpeedFrame = rotationSpeed * dt;
+                t.Rotate(rotationSpeedFrame, new Vector3(0, 1, 0)); // Y-axis yaw
             }
 
-            // Rotate around Z-axis (Roll)
             if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C))
             {
-                t.Rotation += new Vector3(0.0f, 0.0f, rotationSpeed * dt);
+                float rotationSpeedFrame = rotationSpeed * dt;
+                t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1)); // Z-axis roll
             }
         }
 
