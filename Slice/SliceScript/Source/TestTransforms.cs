@@ -50,6 +50,18 @@ namespace SliceEngine
                 t.Position += right * moveSpeed * dt;
             }
 
+            // Up (Spacebar)
+            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
+            {
+                t.Position += new Vector3(0, 1, 0) * moveSpeed * dt;
+            }
+
+            // Down (Ctrl)
+            if (Input.IsKeyPressed(Keys.KEY_CTRL) || Input.IsKeyDown(Keys.KEY_CTRL))
+            {
+                t.Position -= new Vector3(0, 1, 0) * moveSpeed * dt;
+            }
+
             // Scale Up
             if (Input.IsKeyPressed(Keys.KEY_Q) || Input.IsKeyDown(Keys.KEY_Q))
             {
