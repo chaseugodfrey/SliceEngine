@@ -3,7 +3,7 @@
 namespace SliceEngine
 {
     public class Transform : Component
-    {       
+    { 
         public Vector3 Position
         {
             get
@@ -33,23 +33,38 @@ namespace SliceEngine
             }
         }
 
+
+        private Quaternion rotationQuat;
+
         public Vector3 Rotation
         {
             get
             {
                 FunctionCalls.Transform_GetRotation(Entity.mID, out Vector3 rotation);
+                rotationQuat = Quaternion.FromEuler(rotation);
                 return rotation;
             }
             set
-            {
+            {                
                 FunctionCalls.Transform_SetRotation(Entity.mID, ref value);
+                rotationQuat = Quaternion.FromEuler(value);
             }
         }
 
-        public Quaternion RotationQuat { get; set; } = Quaternion.Identity;
+        public Quaternion RotationQuat
+        {
+            get => rotationQuat;
+            set
+            {
+                rotationQuat = value;
+                Vector3 euler = rotationQuat.ToEuler();
+                FunctionCalls.Transform_SetRotation(Entity.mID, ref euler);
+            }
+        }
+
 
         public void Rotate(float angleDegrees, Vector3 axis)
-        {
+        {            
             if (axis == Vector3.Zero)
                 return; // No rotation if axis is zero
 

@@ -57,7 +57,7 @@ namespace SliceEngine
             }
 
             // Down (Ctrl)
-            if (Input.IsKeyPressed(Keys.KEY_CTRL) || Input.IsKeyDown(Keys.KEY_CTRL))
+            if (Input.IsKeyPressed(Keys.KEY_3) || Input.IsKeyDown(Keys.KEY_3))
             {
                 t.Position -= new Vector3(0, 1, 0) * moveSpeed * dt;
             }
