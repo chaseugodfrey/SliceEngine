@@ -14,26 +14,26 @@ const float PI = 3.14159265358979323846;
 const float EPSILON = 0.000001;
 // -TODO- Temporary material values
 const float ambient = 0.01;
-const int isDirectional = 1;
-const int isPoint 		= 2;
-const int isSpot 		= 3;
+const int isDirectional = 0;
+const int isPoint 		= 1;
+const int isSpot 		= 2;
 
 uniform mat4 uLightMtx; // Shadow Transform Matrix
 uniform Light uLight;
+uniform float uFarPlane;
 uniform vec3 uCamPos;
-uniform float uRoughness;
-uniform float uMetallic;
 
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
-layout (binding = 3) uniform sampler2D 	uShadowTex;			// Only for shadow mapping (spot / directional light)
-layout (binding = 4) uniform samplerCube 	uShadowCubeMap; // Only for shadow mapping (point light)
+layout (binding = 3) uniform sampler2D 	uRoughMetalTex;
+layout (binding = 4) uniform sampler2D 	uShadowTex;			// Only for shadow mapping (spot / directional light)
+layout (binding = 5) uniform samplerCube 	uShadowCubeMap; // Only for shadow mapping (point light)
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
-vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif);
+vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
 
 /***************************************************
 * Out: fFragColor (Addictive)
@@ -43,6 +43,7 @@ void main(void){
 	vec3 wPos = texelFetch(uPosTex, p, 0).xyz;// In World Space
 	vec3 nom = texelFetch(uNomTex, p, 0).xyz;
 	vec4 dif = texelFetch(uTex, p, 0);
+	vec4 roughMetal = texelFetch(uRoughMetalTex, p, 0);
 
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
@@ -59,7 +60,7 @@ void main(void){
 
 			vec3 l = normalize(-uLight.direction);// Surface to Light
 			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords);
-			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb);
+			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
 			fFragColor = vec4(ambient, 1.0f);
 		}
 		else if(uLight.type == isPoint)
@@ -67,11 +68,11 @@ void main(void){
 			vec3 l = uLight.position - wPos; // Surface to Light
 			float dist = length(l);
 			vec4 lightCol = uLight.color;
-			lightCol.a *= 100 / (dist * dist); // Insensity is normalized, so scale up by 100?
+			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
 			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(uCamPos - wPos), dist);
 			l = l / dist;
-			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb)), 1.0f);
+			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
 	}
 	else if(!any(notEqual(nom, vec3(0.0f))) && uLight.type == isDirectional)
@@ -106,7 +107,7 @@ float GeomSmith(float nDotL, float rough)
 	return nDotL / d;
 }
 
-vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif)
+vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal)
 {
 	vec3 h = normalize(v + l);
 	float nDotH = clamp(dot(n, h), 0.0, 1.0);
@@ -115,15 +116,15 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif)
 	float nDotL = clamp(dot(n, l), 0.0, 1.0);
 	float nDotV = abs(dot(n, v)) + 1e-5;
 	
-	//vec3 specBrdf = 0.25f * GgxDistribution(nDotH, uRoughness) * SchlickFresnel(lDotH, dif, uMetallic) *  GeomSmith(nDotL, uRoughness) * GeomSmith(nDotV, uRoughness);
+	//vec3 specBrdf = 0.25f * GgxDistribution(nDotH, rough) * SchlickFresnel(lDotH, dif, metal) *  GeomSmith(nDotL, rough) * GeomSmith(nDotV, rough);
 	//return (dif + PI * specBrdf) * lightCol * nDotL;
 
-	vec3 F = SchlickFresnel(vDotH, dif, uMetallic);
+	vec3 F = SchlickFresnel(vDotH, dif, metal);
 	vec3 kD = 1.0 - F;
-	vec3 specBRDF_nom = GgxDistribution(nDotH, uRoughness) *
+	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
 					F *
-					GeomSmith(nDotL, uRoughness) *
-					GeomSmith(nDotV, uRoughness);
+					GeomSmith(nDotL, rough) *
+					GeomSmith(nDotV, rough);
 	float specBRDF_denom = 4.0 * nDotV * nDotL + 1e-5;
 	vec3 specBPDF = specBRDF_nom / specBRDF_denom;
 	vec3 diffuseBRDF = kD * dif / PI;
@@ -170,7 +171,7 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 	for(int i = 0; i < samples; ++i)
 	{
 		float closestDepth = texture(uShadowCubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
-		closestDepth *= 20.0;
+		closestDepth *= uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
 	}

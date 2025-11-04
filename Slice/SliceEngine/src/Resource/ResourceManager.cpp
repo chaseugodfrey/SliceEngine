@@ -39,6 +39,8 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::QUAD_DEFAULT] = std::to_string(DefaultResourceIDs::QUAD_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT] = std::to_string(DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
+
+		mGUIDToResource[(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT] = std::to_string(DefaultResourceIDs::COLOR_DEADED_DEFAULT);
 	}
 
 	void ResourceManager::ReloadResource(const GUID& guid)
@@ -84,7 +86,7 @@ namespace SliceEngine
 			std::string assetName = metaData["assetName"].get<std::string>();
 			uint64_t guid = metaData["guid"].get<uint64_t>();
 			std::string assetPath = metaData["assetPath"].get<std::string>();
-			std::string resourcePath = metaData["resourcePath"].get<std::string>();
+			std::string resourcePath = metaData["resourcePath"];
 			// idk what the otehr two things are meant to be
 			mGUIDToPath[GUID(guid)] = assetPath;
 			mGUIDToResource[GUID(guid)] = resourcePath;
@@ -95,7 +97,7 @@ namespace SliceEngine
 			const char* errorMessageCStr = e.what();
 			SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 		}
-
+		inFile.close();
 	}
 
 	/// <summary>
@@ -165,5 +167,20 @@ namespace SliceEngine
 	
 		mInstances.clear();
 		dataToDestroy.clear();
+	}
+
+	std::optional<std::filesystem::path> ResourceManager::GetResourcePath(std::string filename)
+	{
+		auto it = mFileNameToGUID.find(filename);
+		if (it != mFileNameToGUID.end())
+		{
+			auto it2 = mGUIDToResource.find(it->second);
+			if (it2 != mGUIDToResource.end())
+			{
+				return it2->second;
+			}
+		}
+
+		return {};
 	}
 }

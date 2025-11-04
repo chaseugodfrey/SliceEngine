@@ -43,7 +43,6 @@ namespace SliceEditor
 
 
 		//Temporary Change
-
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
 		ImGui::InvisibleButton(("##" + name + "_order").c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 2));
@@ -94,15 +93,7 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (node->isSelected)
-				{
-
-				}
-
-				else
-				{
-					//mSelection->UpdateSelected(node.entity);
-				}
+				mSelection.SelectSingleAdd(node);
 			}
 
 			else

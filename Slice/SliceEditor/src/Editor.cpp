@@ -109,9 +109,6 @@ namespace SliceEditor
 
 		//}
 
-
-
-
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
 

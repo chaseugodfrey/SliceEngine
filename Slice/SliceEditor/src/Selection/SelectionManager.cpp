@@ -54,8 +54,8 @@ namespace SliceEditor
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
 
-		if (node->type == SelectionNode::SelectionType::ENTITY)
-			mSelectionType = SelectionType::ENTITY;
+		if (node->type == SelectionType::ENTITY)
+			mSelectionType = node->type;
 
 		if (!suppressHistory)
 		{
@@ -76,22 +76,34 @@ namespace SliceEditor
 		SelectSingle(node.get(), suppressHistory);
 	}
 
+	void SelectionManager::SelectSingleAdd(SelectionNode* node, bool suppressHistory)
+	{
+		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
+
+		auto it = mSelectedNodes.find(node);
+		if (it == std::end(mSelectedNodes))
+		{
+			node->isSelected = true;
+			mSelectedNodes.insert(node);
+		}
+
+		else
+		{
+			node->isSelected = false;
+			mSelectedNodes.erase(it);
+		}
+
+		if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
+
+	}
+
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
 	{
-		auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-		if (it == std::end(mSelectedEntities))
-		{
-			//if (!suppressHistory)
-			//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
+		auto session = registry.GetManager<SessionManager>("Session");
+		auto& node = session->GetEntityNodes().at(entity);
+		SelectSingleAdd(node.get(), suppressHistory);
 
-			mSelectedEntities.insert(entity);
-		}
-
-		std::unordered_set<entt::entity> set{ entity };
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateSelected(set);
-		}
 	}
 
 	void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
@@ -146,6 +158,7 @@ namespace SliceEditor
 		for (auto& node : mSelectedNodes)
 			node->isSelected = false;
 
+		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
 	}
 

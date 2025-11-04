@@ -2,9 +2,9 @@ project "SliceScript"
     kind "SharedLib"
     language "C#"
     dotnetframework "4.7.2"
-    targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
-    objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
-   -- targetdir ("")
+    -- targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
+    -- objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
+    targetdir ("")
 
     files
     {
@@ -20,10 +20,9 @@ project "SliceScript"
 
     filter "configurations:EditorDebug"
         optimize "Off"
-        symbols "On"
-       -- buildoptions {"/debug:portable"}
-
+        symbols "Default"
+    
     filter "configurations:EditorRelease"
-        optimize "On"
-        symbols "On"
-        --buildoptions {"/debug:portable"}
+        optimize "Off"
+        symbols "Default"
+       

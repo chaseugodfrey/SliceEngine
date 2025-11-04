@@ -34,8 +34,6 @@ namespace SliceEditor
 
 	public:
 
-
-
 		SelectionManager(Registry& reg) : IBaseManager(reg) {};
 		~SelectionManager() = default;
 
@@ -45,6 +43,7 @@ namespace SliceEditor
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
+		void SelectSingleAdd(SelectionNode* node, bool suppressHistory = false);
 		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
 		void SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory = false);
 		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
@@ -54,13 +53,7 @@ namespace SliceEditor
 		std::unordered_set<entt::entity>& GetSelectedEntities();
 		std::unordered_set<SelectionNode*>& GetSelectedNodes();
 
-		enum class SelectionType
-		{
-			NONE,
-			ENTITY,
-			MATERIAL,
-			MIXED
-		} mSelectionType{};
+		SelectionType mSelectionType{};
 	};
 }
 
