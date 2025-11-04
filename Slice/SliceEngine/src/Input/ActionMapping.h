@@ -99,8 +99,8 @@ namespace SliceEngine
 		explicit ActionMappingSystem(InputSystem* input) : inputSys(input) {}
 
 		// function to read and write action mappings to file so that they persist between sessions
-		void LoadFromFile(const std::string& filename);
-		void SaveToFile(const std::string& filename);
+		bool SaveToJson(const std::string& path) const;
+		bool LoadFromJson(const std::string& path);
 
 		// functions to add action maps, actions, and bindings
 		ActionMap& CreateMap(const std::string& mapName);

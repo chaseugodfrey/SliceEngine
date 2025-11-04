@@ -18,6 +18,8 @@ DigiPen Institute of Technology is prohibited.
 #include <iostream> // for read and write to text file
 #include <fstream> // for file stream
 #include <string>
+#include <json.hpp> // for json serialization
+using nlohmann::json;
 
 namespace SliceEngine
 {
@@ -69,7 +71,6 @@ namespace SliceEngine
 		auto& newMap = maps[mapName];
 		newMap.name = mapName;
 		// call the savetofile function here later to persist the new map
-		SaveToFile(mapName + "_actionmap.txt"); // simple filename based on map name
 		return newMap;
 
 	}
@@ -306,31 +307,159 @@ namespace SliceEngine
 
 	// file I/O
 	// do save to file first so we know how to load from file later
-	void SaveToFile(const std::string& filename)
+	bool ActionMappingSystem::SaveToJson(const std::string& path) const
 	{
-		std::ofstream outfile(filename);
-		if (!outfile)
+		try 
 		{
-			std::cerr << "error opening file for writing: " << filename << std::endl;
-			return;
+			json root;
+			root["version"] = 1;
+			root["maps"] = json::array();
+
+			for (const auto& kv : maps) 
+			{
+				const auto& mapName = kv.first;
+				const auto& map = kv.second;
+
+				json jMap;
+				jMap["name"] = mapName;
+				jMap["enabled"] = map.enabled;
+				jMap["actions"] = json::array();
+
+				for (size_t i = 0; i < map.definitions.size(); ++i) 
+				{
+					const auto& def = map.definitions[i];
+
+					json jAct;
+					jAct["name"] = def.name;
+					// type should be button, value1d, value2d
+					jAct["type"] = (def.type == ActionType::Button) ? "button" : (def.type == ActionType::Value1D) ? "value1d" : "value2d";
+
+					json jBinds = json::array();
+					for (const auto& b : def.bindings) 
+					{
+						json jBind;
+						jBind["key"] = b.keyCode;
+						// value2d or value1d
+						if (def.type == ActionType::Value2D) 
+						{ 
+							jBind["x"] = b.x;
+							jBind["y"] = b.y;
+						} 
+						if (def.type == ActionType::Value1D) 
+						{ 
+							jBind["scale"] = b.scaleX; // only scaleX used for 1D
+						}
+						jBinds.push_back(jBind);
+					}
+					jAct["bindings"] = std::move(jBinds);
+					jMap["actions"].push_back(std::move(jAct));
+				}
+
+				root["maps"].push_back(std::move(jMap));
+			}
+
+			// write to file
+			std::ofstream out(path, std::ios::binary | std::ios::trunc);
+			if (!out) return false;
+			out << root.dump(2); // pretty print, write json to file with indentation of 2 spaces
+			return true;
 		}
-
-		// write action maps, actions, and bindings to file
-		// user will bind action in window manager, so just need to save the data structure
-
+		catch (...) // catch all exceptions
+		{
+			return false;
+		}
 	}
 
-	void LoadFromFile(const std::string& filename)
+	bool ActionMappingSystem::LoadFromJson(const std::string& path)
 	{
-		std::ifstream infile(filename);
-		if (!infile)
+		try 
 		{
-			std::cerr << "Error opening file for reading: " << filename << std::endl;
-			return;
+			std::ifstream in(path, std::ios::binary);
+			if (!in) return false;
+
+			json root; in >> root;
+			if (!root.is_object() || !root.contains("maps"))
+			{
+				return false;
+			}
+
+			// clear and rebuild (simplest behavior for editor “Open Project”)
+			maps.clear();
+
+			auto jMaps = root["maps"];
+			if (!jMaps.is_array())
+			{
+				return false;
+			}
+
+			// loop through maps
+			for (const auto& jMap : jMaps) 
+			{
+				// validate map object
+				if (!jMap.contains("name") || !jMap.contains("actions")) continue;
+				std::string mapName = jMap.value("name", "");
+				bool enabled = jMap.value("enabled", true);
+
+				CreateMap(mapName);
+
+				const auto& jActions = jMap["actions"];
+				if (!jActions.is_array()) continue;
+
+				for (const auto& jAct : jActions) 
+				{
+					std::string actName = jAct.value("name", "");
+					std::string typeStr = jAct.value("type", "button");
+					ActionType type = (typeStr == "button") ? ActionType::Button :
+						(typeStr == "value1d") ? ActionType::Value1D :
+						(typeStr == "value2d") ? ActionType::Value2D :
+						ActionType::Button; // default to button if unknown
+
+					if (type == ActionType::Button)
+					{
+						AddButton(mapName, actName);
+					}
+					else if (type == ActionType::Value1D)
+					{
+						AddValue1D(mapName, actName);
+					}
+					else if (type == ActionType::Value2D)
+					{
+						AddValue2D(mapName, actName);
+					}
+
+					const auto& jBinds = jAct["bindings"];
+					if (jBinds.is_array()) {
+						for (const auto& jBind : jBinds) 
+						{
+							int   key = jBind.value("key", 0);
+							if (type == ActionType::Button)
+							{
+								BindButton(mapName, actName, key);
+							}
+							else if (type == ActionType::Value1D)
+							{
+								float scale = jBind.value("scale", 1.0f);
+								Bind1D(mapName, actName, key, scale);
+							}
+							else if (type == ActionType::Value2D)
+							{
+								float x = jBind.value("x", 0.0f);
+								float y = jBind.value("y", 0.0f);
+								Bind2D(mapName, actName, key, x, y);
+							}
+						}
+					}
+				}
+
+				enableMap(mapName, enabled);
+			}
+
+			return true;
 		}
-
-		// read file line by line and parse action maps, actions, and bindings
+		catch (...) 
+		{
+			return false;
+		}
 	}
-
 
 }
