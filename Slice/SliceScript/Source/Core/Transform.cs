@@ -3,7 +3,7 @@
 namespace SliceEngine
 {
     public class Transform : Component
-    {
+    {       
         public Vector3 Position
         {
             get
@@ -44,6 +44,23 @@ namespace SliceEngine
             {
                 FunctionCalls.Transform_SetRotation(Entity.mID, ref value);
             }
+        }
+
+        public void Rotate(float angleDegrees, Vector3 axis)
+        {
+            Vector3 rotation = this.Rotation;
+
+            // Assuming axis is exactly along X, Y, or Z
+            if (axis.x != 0) rotation.x += angleDegrees;
+            if (axis.y != 0) rotation.y += angleDegrees;
+            if (axis.z != 0) rotation.z += angleDegrees;
+
+            // Optional: keep angles between 0-360
+            rotation.x = rotation.x % 360f;
+            rotation.y = rotation.y % 360f;
+            rotation.z = rotation.z % 360f;
+
+            this.Rotation = rotation;
         }
 
     }

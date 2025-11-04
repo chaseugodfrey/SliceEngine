@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Input/InputSystem.h"
 #include "../Physics/PhysicsSystem.h"
 #include "../Logger/Logger.h"
+#include "../Graphics/TransformHelper.h"
 
 namespace SliceEngine
 {
@@ -76,12 +77,15 @@ namespace SliceEngine
 	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		glm::vec3 euler = SliceEngine::QuatToVec3(transform.rotation);
+		*outRotation = euler;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
 	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 

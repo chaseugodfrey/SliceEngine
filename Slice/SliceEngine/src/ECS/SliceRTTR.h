@@ -177,6 +177,7 @@ namespace SliceEngine
 		.property("coneAngle", &ParticleSystem::coneAngle)
 		.property("axis", &ParticleSystem::axis)
 		.property("isRepeating", &ParticleSystem::isRepeating)
+		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
 		.property("hasRandomParticleLifetime", &ParticleSystem::hasRandomParticleLifetime)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
