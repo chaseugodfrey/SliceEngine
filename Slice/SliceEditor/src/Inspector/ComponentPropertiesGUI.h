@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #define COMPONENT_PROPERTIES_H
 #include <History/HistoryManager.h>
 
-
 namespace SliceEditor
 {
 	class Registry;
@@ -47,6 +46,11 @@ namespace SliceEditor
 
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val);
 
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+
+	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 	/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
@@ -54,7 +58,6 @@ namespace SliceEditor
 	//void DragIntInputHeader(const char* property_label, const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
 	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
-	//void DragColorInputHeader(const char* property_label, const char* id, glm::vec4& color);
 	//void AssetDragDropInputHeader(const char* property_label, const char* id, std::string& val, std::function<void(std::string)> setFunc, const char* asset_type);
 	*/
 

@@ -1,5 +1,6 @@
 #include <pch.h>
 #include "AnimationWindow.h"
+#include "Selection/SelectionManager.h"
 
 namespace SliceEditor
 {
@@ -19,17 +20,82 @@ namespace SliceEditor
 		mPropertyGroups.push_back(transformGroup);
 	}
 
+	bool AnimationWindow::CheckForAnimator()
+	{
+		// Check if any entities selected
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+		{
+			ClearData();
+			return false;
+		}
+
+		auto& nodes = selectionManager->GetSelectedNodes();
+		Entity entity = entt::null;
+
+		// if entities present
+		if (nodes.size() > 0)
+		{
+			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
+			entity = entityNode->entity;
+
+			// check if first entity has animator component
+			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
+
+			// if anim exists
+			if (anim)
+			{
+				// if current animator is null or mismatch
+				// ignore if anim == mCurrentAnimator
+				// either case, return true
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
+					LoadDataFromAnimator(anim);
+
+				return true;
+			}
+
+			// if retrieved ptr is null, unload animator and destroy data
+			else
+			{
+				ClearData();
+				return false;
+			}
+		}
+
+		// if no entities present
+		else
+		{
+			ClearData();
+			return false;
+		}
+	}
+
+	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component)
+	{
+		mCurrentAnimator = component;
+	}
+
+	void AnimationWindow::ClearData()
+	{
+		if (!mCurrentAnimator)
+			return;
+
+		mCurrentAnimator = nullptr;
+	}
+
 	void AnimationWindow::Draw()
 	{
-		bool isAnimatorSelected = animationClipNames.size() > 0;
+		bool hasAnimator = CheckForAnimator();
 
 		ImGui::Begin("Animation");
 
 		// disable if no selection
-		if (!isAnimatorSelected)
+		if (!hasAnimator)
 			ImGui::BeginDisabled();
 
 #pragma region Animation Toolbar
+
 		ImGui::BeginGroup();
 
 		static bool loop = false;
@@ -82,14 +148,19 @@ namespace SliceEditor
 		}
 
 #pragma endregion
+
 		ImGui::Separator();
+
+#pragma region Animation Timeline
 		ImGui::BeginGroup();
 
 		std::string preview = "No Animations";
 
-		if (isAnimatorSelected)
-			preview = animationClipNames[animationClipIndex];
-
+		if (hasAnimator)
+		{
+			if (animationClipNames.size() > 0)
+				preview = animationClipNames[animationClipIndex];
+		}
 
 		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
 		{
@@ -100,6 +171,8 @@ namespace SliceEditor
 					animationClipIndex = i;
 				}
 			}
+
+			ImGui::EndCombo();
 		}
 
 		ImGui::EndGroup();
@@ -126,7 +199,9 @@ namespace SliceEditor
 			ImGui::EndNeoSequencer();
 		}
 
-		if (!isAnimatorSelected)
+#pragma endregion
+
+		if (!hasAnimator)
 			ImGui::EndDisabled();
 
 		ImGui::End();

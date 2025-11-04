@@ -20,9 +20,6 @@ struct GLFWwindow;
 
 #include "Engine.h"
 #include "Core/Registry.h"
-#include "History/HistoryManager.h"
-#include "WindowManager/WindowManager.h"
-#include "Selection/SelectionManager.h"
 #include "AssetManager/AssetManager.h"
 #include "EditorInputs.h"
 #include <Navigation/RecastNavmesh.h>

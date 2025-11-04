@@ -16,11 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "InspectorWindow.h"
-#include "ComponentPropertiesGUI.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
+#include "ComponentPropertiesGUI.h"
 
 namespace SliceEditor
 {
@@ -48,9 +48,9 @@ namespace SliceEditor
 
 		switch (type)
 		{
-		case SelectionNode::SelectionType::ENTITY:
+		case SelectionType::ENTITY:
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
-		case SelectionNode::SelectionType::FILE:
+		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
 		}
 
@@ -175,6 +175,10 @@ namespace SliceEditor
 			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
 				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
+			}
+			else //Its a default model
+			{
+				modelFilename = model_guid_string;
 			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
@@ -371,10 +375,20 @@ namespace SliceEditor
 						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 						{
 							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//{
+							//	scriptRef->SetFieldValue(it.second.mName, data);
+							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//}
+							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 							}
 						}
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
@@ -402,7 +416,12 @@ namespace SliceEditor
 						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
 						{
 							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							if (DragIntInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								{
+									sp->SetFieldValue(name, val);
+								};
+
+							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 							{
 								scriptRef->SetFieldValue(it.second.mName, data);
 								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -446,48 +465,15 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity, false);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
+			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
-			ImGui::Text("Intensity");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
-			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
-			int current_light_type_index = static_cast<int>(light.type) - 1;
+			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
-			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
-			{
-				switch (current_light_type_index)
-				{
-				case 0:
-					light.type = SliceEngine::Light::Light_Directional;
-					break;
-				case 1:
-					light.type = SliceEngine::Light::Light_Point;
-					break;
-				case 2:
-					light.type = SliceEngine::Light::Light_Spot;
-					break;
-				}
-			}
-
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
+			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
 
 			ImGui::TreePop();
 		}
@@ -653,7 +639,39 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
+		std::string buffer{};
+		static float f_buffer{};
 
+		ImGui::BeginGroup();
+		ImGui::Text("Material Name: ");
+		ImGui::SameLine();
+		ImGui::Text(node->fileName.c_str());
+		ImGui::EndGroup();
+		
+		MaterialData mat;
+		std::filesystem::path mat_path = node->fileName;
+		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+
+		if (metapath.has_value())
+			mat.Deserialize(metapath.value());
+
+		std::string mat_file_name{};
+		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		{
+			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
+		}
+
+		ImGui::Text("Albedo");
+		ImGui::SameLine(150.0f);
+		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::Text("Roughness");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f);
+
+		ImGui::Text("Metallic");
+		ImGui::SameLine(150.0f);
+		ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)

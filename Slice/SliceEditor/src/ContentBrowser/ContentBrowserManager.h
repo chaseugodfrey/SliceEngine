@@ -32,7 +32,7 @@ namespace SliceEditor
 
 		void ResetRootDirectory(DirectoryNode& node);
 
-		void CreateDirectory(DirectoryNode& node);
+		void CreateDirectoryNode(DirectoryNode& node);
 
 	
 	public:
@@ -62,7 +62,7 @@ namespace SliceEditor
 
 		void OpenFile(DirectoryNode& entry);
 
-		void DeleteFile(DirectoryNode& entry);
+		void DeleteNode(DirectoryNode& entry);
 		
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 	};

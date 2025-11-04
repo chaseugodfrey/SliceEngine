@@ -28,8 +28,6 @@ namespace SliceEditor
 			std::filesystem::create_directory(mAssetDirectory);
 		}
 
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-
 		//Searching Descriptor Folder and Assigning to "Assets"
 		//Looping through Assets to see who does not have a descriptor file (very sad. nobody is describing it.)
 		for (auto it = std::filesystem::recursive_directory_iterator(mAssetDirectory);
@@ -58,6 +56,10 @@ namespace SliceEditor
 
 
 		}
+
+		AddDefaultModelsToMap();
+
+
 		SLICE_LOG("Asset Manager Initialized");
 	}
 
@@ -181,9 +183,12 @@ namespace SliceEditor
 			// This should create the texture asset into the resource folder
 			CompileTextureAsset(metaPath);
 			break;
+		case AssetType::Skeleton:
+		case AssetType::Animation:
 		case AssetType::Model:
 			// Compile the model file and write into the resource folder
 			CompileFBXAsset(metaPath);
+			// if static
 			break;
 		case AssetType::Audio:
 			// idk audio yet
@@ -265,6 +270,17 @@ namespace SliceEditor
 		}
 
 		return nullptr;
+	}
+
+	void AssetManager::AddDefaultModelsToMap()
+	{
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT] = "Cube";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT] = "Sphere";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT] = "Low Poly Sphere";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT] = "Capsule";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 	}
 	
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
@@ -545,6 +561,33 @@ namespace SliceEditor
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		resourceMgr->RegisterResourceAsset(resourcePath);
 
+	}
+
+	void AssetManager::CleanUpSceneTemp()
+	{
+		std::filesystem::path mAssetDirectoryFolder = mAssetDirectory;
+		mAssetDirectoryFolder /= "Default";
+
+		for (const auto& file : std::filesystem::directory_iterator(mAssetDirectoryFolder))
+		{
+			if (file.is_regular_file() && file.path().extension() == ".temp")
+			{
+				remove(file);
+			}
+		}
+
+	}
+
+	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
+	{
+		std::optional<std::string> filename{};
+
+		auto it = mGUIDtoFilename.find(guid);
+		if (it == mGUIDtoFilename.end())
+			return filename;
+
+		filename.emplace(it->second);
+		return filename;
 	}
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 

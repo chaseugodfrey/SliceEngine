@@ -80,6 +80,10 @@ namespace SliceEngine
 		.method("empty", &std::string::empty)
 		.method("c_str", &std::string::c_str);
 
+	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
+
 	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Texture>::mGUID);

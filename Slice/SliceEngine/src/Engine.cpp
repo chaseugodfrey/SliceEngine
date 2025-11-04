@@ -36,6 +36,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
+#include "Animator/AnimatorSystem.h"
+#include "Animator/BoneSystem.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -112,6 +114,8 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
+		Core::GetInstance()->InitSystem<AnimatorSystem>();
+		Core::GetInstance()->InitSystem<BoneSystem>();
 
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
@@ -220,6 +224,8 @@ namespace SliceEngine
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		auto& sBone = core->GetSystem<BoneSystem>();
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -268,17 +274,6 @@ namespace SliceEngine
 				sScene->mCurrentState = SceneState::DEFAULT;
 				sScene->mNextState = SceneState::DEFAULT;
 			}
-
-			/*if (sScene->mNextState == SceneState::LOAD_NEXT_SCENE)
-			{
-				if (!sScene->CheckQueueEmpty())
-				{
-					if (sScene->isSceneUnloaded)
-					{
-						sScene->LoadNextScene();
-					}
-				}
-			}*/
 		}
 
 		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
@@ -312,10 +307,7 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
-		/*if (sInputs->GetMode() == InputMode::Game)
-		{
-			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
-		}*/
+		
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
@@ -349,6 +341,10 @@ namespace SliceEngine
 			}
 		}
 		frm.EndSystem("Physics");
+
+		sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sBone.Update_Scenegraph();
+		sAnimator.BoneUpdate();
 
 		frm.StartSystem("Graphics");
 		sRender->Render();
