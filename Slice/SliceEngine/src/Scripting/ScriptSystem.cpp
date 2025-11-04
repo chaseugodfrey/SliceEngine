@@ -355,15 +355,13 @@ namespace SliceEngine
                 mono_debug_open_image_from_memory(assemblyImage, (const mono_byte*)pdbFileData, pdbFileSize);
 
                 delete[] pdbFileData;
-
             }
+        }
 
         mono_image_close(image);
 
         // Don't forget to free the file data
         delete[] fileData;
-
-        }
 
         return assembly;
 

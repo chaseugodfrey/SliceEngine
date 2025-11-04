@@ -43,6 +43,7 @@ namespace SliceEditor
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
+		void SelectSingleAdd(SelectionNode* node, bool suppressHistory = false);
 		void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
 		void SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory = false);
 		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);

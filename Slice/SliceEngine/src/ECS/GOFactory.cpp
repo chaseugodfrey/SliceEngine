@@ -589,16 +589,23 @@ namespace SliceEngine
 			root = go.GetEntity();
 			go.AddComponent<Animator>();
 		}
-		go.AddComponent<Bone>();
-		auto& bone = go.GetComponent<Bone>();
-		bone.skeleton_root = root;
-		bone.frame_idx = index;
+
+		if (!is_static)
+		{
+			go.AddComponent<Bone>();
+			auto& bone = go.GetComponent<Bone>();
+			bone.skeleton_root = root;
+			bone.frame_idx = index;
+		}
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
 			auto& rc = go.GetComponent<Renderer>();
 			rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 			rc.meshOffset = node.mesh_ref[0];
+
+			if (!is_static)
+				rc.skinned = true;
 			//rc.texture = (GUID)18349208178533231704;
 
 			//add siblings if a single node has multiple mesh refs
@@ -616,11 +623,12 @@ namespace SliceEngine
 				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
 				s_rc.meshOffset = node.mesh_ref[i];
 
-				if (is_static) {
+				if (!is_static) {
 					sibling.AddComponent<Bone>();
 					auto& s_bone = sibling.GetComponent<Bone>();
 					s_bone.skeleton_root = root;
 					s_bone.frame_idx = index;
+					s_rc.skinned = true;
 				}
 				//rc.texture = (GUID)18349208178533231704;
 			}

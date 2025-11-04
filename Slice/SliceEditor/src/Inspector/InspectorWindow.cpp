@@ -190,8 +190,11 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					rend.modelHandle.mGUID = recievedPayload;
+					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
 					// update the handle after
+
 				}
 			}
 

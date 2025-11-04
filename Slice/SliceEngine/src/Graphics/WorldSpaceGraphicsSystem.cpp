@@ -156,7 +156,7 @@ namespace SliceEngine
 		* EACH MESH SENDS THE ENTIRE SKELETON TRANSFORM TO THE GPU, WHICH MEANS UP TO 100 MAT4 PER MESH TO DRAW(ITS ALOT)
 		*/
 		uniformLoc = glGetUniformLocation(mShader, "skinned");
-		if (!model.get()->is_static) {
+		if (rc.skinned && !model.get()->is_static) {
 			glUniform1ui(uniformLoc, 1);
 			auto const& bone = core->GetRegistry().get<Bone>(entity);
 			Entity root_entity = bone.skeleton_root;

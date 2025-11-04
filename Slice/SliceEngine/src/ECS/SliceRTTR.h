@@ -126,7 +126,10 @@ namespace SliceEngine
 		.constructor<>()
 		.property("model", &Renderer::modelHandle)
 		.property("material", &Renderer::materialHandle)
-		.property("renderTag", &Renderer::renderTag);
+		.property("renderTag", &Renderer::renderTag)
+		//.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("meshOffset", &Renderer::meshOffset);
+		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
 		.property("width", &Camera::width)
