@@ -114,8 +114,9 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
-		unsigned short meshOffset{ 0 };
+		unsigned char meshOffset{ 0 };
 		unsigned char renderTag;
+		bool skinned{ false };
 
 		RTTR_ENABLE();
 	};

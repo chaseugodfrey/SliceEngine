@@ -20,7 +20,7 @@ namespace SliceEditor
 	{
 		memset(&config, 0, sizeof(config));
 		config.cs = 0.2f;
-		config.ch = 0.2f;
+		config.ch = 0.01f;
 		config.walkableHeight = (int)ceilf(2.0f / config.ch);
 		config.walkableClimb = (int)floorf(0.5f / config.ch);
 		config.walkableRadius = (int)ceilf(0.4f / config.cs);
@@ -55,6 +55,11 @@ namespace SliceEditor
 		detailMesh = nullptr;
 
 		ReleaseDebugMesh();
+	}
+
+	rcConfig& RecastNavMesh::GetConfig()
+	{
+		return config;
 	}
 
 	void RecastNavMesh::ReleaseDebugMesh()
@@ -345,9 +350,11 @@ namespace SliceEditor
 		return true;
 	}
 
-	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model> &model, const std::vector<glm::mat4> &transform)
+	// its 256b 
+	// maybe i adjust this to be model*
+	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model*> models, const std::vector<glm::mat4> &transform)
 	{
-		if (model.size() != transform.size())
+		if (models.size() != transform.size())
 		{
 			std::cerr << "ERROR: Model and transform count mismatch in RecastNavMesh::BuildFromModel\n";
 			return false;
@@ -359,9 +366,9 @@ namespace SliceEditor
 		std::vector<unsigned int> indices;
 
 		size_t vertexOffset = 0;
-		for (size_t i = 0; i < model.size(); ++i)
+		for (size_t i = 0; i < models.size(); ++i)
 		{
-			const auto &mdl = model[i];
+			const auto &mdl = *models[i];
 			const auto &baseTransform = transform[i];
 
 			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
@@ -380,19 +387,6 @@ namespace SliceEditor
 		}
 
 		std::vector<int> recastIndices(indices.begin(), indices.end());
-		memset(&config, 0, sizeof(config));
-		config.cs = 0.2f;
-		config.ch = 0.2f;
-		config.walkableHeight = (int)ceilf(2.0f / config.ch);
-		config.walkableClimb = (int)floorf(0.5f / config.ch);
-		config.walkableRadius = (int)ceilf(0.4f / config.cs);
-		config.maxEdgeLen = (int)(12.0f / config.cs);
-		config.maxSimplificationError = 1.3f;
-		config.minRegionArea = (int)rcSqr(8);
-		config.mergeRegionArea = (int)rcSqr(20);
-		config.maxVertsPerPoly = 6;
-		config.detailSampleDist = config.cs * 6.0f;
-		config.detailSampleMaxError = config.ch * 1.0f;
 
 		float bmin[3], bmax[3];
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
