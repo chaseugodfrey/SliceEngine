@@ -46,21 +46,24 @@ namespace SliceEngine
             }
         }
 
+        public Quaternion RotationQuat { get; set; } = Quaternion.Identity;
+
         public void Rotate(float angleDegrees, Vector3 axis)
         {
-            Vector3 rotation = this.Rotation;
+            if (axis == Vector3.Zero)
+                return; // No rotation if axis is zero
 
-            // Assuming axis is exactly along X, Y, or Z
-            if (axis.x != 0) rotation.x += angleDegrees;
-            if (axis.y != 0) rotation.y += angleDegrees;
-            if (axis.z != 0) rotation.z += angleDegrees;
+            Quaternion delta = Quaternion.FromAxisAngle(axis.Normalize(), angleDegrees);
 
-            // Optional: keep angles between 0-360
-            rotation.x = rotation.x % 360f;
-            rotation.y = rotation.y % 360f;
-            rotation.z = rotation.z % 360f;
+            RotationQuat = delta * RotationQuat;
 
-            this.Rotation = rotation;
+            RotationQuat.Normalize();
+
+            Vector3 rotation = RotationQuat.ToEuler();
+
+            FunctionCalls.Transform_SetRotation(Entity.mID, ref rotation);
+
+            Rotation = rotation;
         }
 
     }

@@ -60,25 +60,13 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) || Input.IsKeyDown(Keys.KEY_E))
             {
                 t.Scale -= new Vector3(scaleSpeed, scaleSpeed, scaleSpeed) * dt;
-            }            
-
-            if (Input.IsKeyPressed(Keys.KEY_Z) || Input.IsKeyDown(Keys.KEY_Z))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(1, 0, 0)); // X-axis pitch
             }
 
-            if (Input.IsKeyPressed(Keys.KEY_X) || Input.IsKeyDown(Keys.KEY_X))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(0, 1, 0)); // Y-axis yaw
-            }
+            float rotationSpeedFrame = rotationSpeed * dt;
 
-            if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1)); // Z-axis roll
-            }
+            if (Input.IsKeyPressed(Keys.KEY_Z) || Input.IsKeyDown(Keys.KEY_Z)) t.Rotate(rotationSpeedFrame, new Vector3(1, 0, 0));
+            if (Input.IsKeyPressed(Keys.KEY_X) || Input.IsKeyDown(Keys.KEY_X)) t.Rotate(rotationSpeedFrame, new Vector3(0, 1, 0));
+            if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C)) t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1));
         }
 
     }
