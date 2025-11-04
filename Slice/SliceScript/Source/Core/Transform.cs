@@ -66,5 +66,21 @@ namespace SliceEngine
             Rotation = rotation;
         }
 
+        public void LookAt(Vector3 targetPosition)
+        {
+            Vector3 direction = targetPosition - Position;
+            if (direction.Distance(targetPosition) < 1e-6f)
+                return; // no rotation if positions are the same
+
+            Rotation = Quaternion.LookRotation(direction, new Vector3(0, 1, 0)).ToEuler();
+        }
+        public void LookAt(Vector3 targetPosition, Vector3 up)
+        {
+            Vector3 direction = targetPosition - Position;
+            if (direction.LengthSquared() < 1e-6f)
+                return;
+
+            Rotation = Quaternion.LookRotation(direction, up).ToEuler();
+        }
     }
 }
