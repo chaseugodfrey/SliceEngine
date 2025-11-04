@@ -227,6 +227,21 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region ANIMATION FUNCTIONS
+	static void ChangeAnim(unsigned int entityID, unsigned int animID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			auto& anim = GO.GetComponent<Animator>();
+			anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
+		}
+		else
+		{
+			SLICE_LOG_DEBUG("Entity does not have animator");
+		}
+	}
+#pragma endregion
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -300,6 +315,9 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+
+		// Animator
+		ADD_INTERNAL_CALL(ChangeAnim);
 	}
 
 }
