@@ -574,7 +574,7 @@ namespace SliceEditor
 			{
 				if (!sceneName.empty())
 				{
-					// 1. Get the SceneSystem
+					
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
 
@@ -582,21 +582,18 @@ namespace SliceEditor
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
-					// 3. Save the current hierarchy to the NEW path
+					
 					sceneSystem->SaveScene(newScenePath);
 
-					// 4. Set the NEW path as the currently active scene
+					
 					sceneSystem->SetCurrentScenePath(newScenePath);
 
 					SliceEngine::gScriptSystem->OnEnd();
 
-					// 5. Queue the new scene. This automatically calls UnloadCurrentScene(),
-					//    which clears the hierarchy and prepares for the new scene to be loaded on the next tick.
+					
 					sceneSystem->LoadSceneIntoQueue(newScenePath);
 
-					
-					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+				
 					saveSceneAsPopupOpen = false;
 				}
 			}

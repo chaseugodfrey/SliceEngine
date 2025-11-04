@@ -15,6 +15,21 @@ namespace SliceEditor
 {
 	class Command;
 
+	enum class FileAction
+	{
+		Added,
+		Removed,
+		Modified,
+		Moved
+	};
+
+	struct AssetFileChangedEvent
+	{
+		FileAction action;
+		std::filesystem::path filePath;
+		std::filesystem::path newFilePath;
+	};
+
 	struct UndoEvent
 	{
 

@@ -59,28 +59,61 @@ namespace SliceEditor
 
 		mAssetFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(
 			mAssetDirectory.string(),
-			[](const std::string& path, const filewatch::Event changeType)
+			[this](const std::string& path, const filewatch::Event changeType)
 			{
-				if (changeType == filewatch::Event::modified)
-				{
-					SLICE_LOG("Modified change detected in " + path);
-					
-				}
-				else if (changeType == filewatch::Event::removed)
-				{
-					SLICE_LOG("Removed change detected in " + path);
-				}
-				else if (changeType == filewatch::Event::added)
-				{
-					SLICE_LOG("Added change detected in " + path);
-				}
-
+				OnAssetFileSystemEvent(path, changeType);
 			}
 		);
 		AddDefaultModelsToMap();
 
 
 		SLICE_LOG("Asset Manager Initialized");
+	}
+
+	void AssetManager::UpdateFolder()
+	{
+		std::vector<RawFileEvent> rawEvents;
+		
+
+		{
+			std::lock_guard<std::mutex> lock(mEventQueueMutex);
+			while (!mRawFileQueue.empty())
+			{
+				rawEvents.push_back(mRawFileQueue.front());
+				mRawFileQueue.pop();
+			}
+		}
+
+		if (rawEvents.empty())
+		{
+			return;
+		}
+
+		std::vector<AssetFileChangedEvent> processedEvents;
+		for (const auto& event : rawEvents)
+		{
+			switch (event.changeType)
+			{
+				case filewatch::Event::added:
+				{
+					processedEvents.push_back({ FileAction::Added, event.filePath.generic_string()});
+					CreateDescriptorFile(event.filePath.generic_string());
+					break;
+				}
+				case filewatch::Event::removed:
+				{
+					processedEvents.push_back({ FileAction::Removed, event.filePath.generic_string() });
+				}
+
+			}
+		}
+
+		for (const auto& event : processedEvents)
+		{
+			AssetFileChangedEvent currEvent = event;
+			EventManager::GetInstance()->Publish<AssetFileChangedEvent>(currEvent);
+		}
+
 	}
 
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
@@ -582,6 +615,23 @@ namespace SliceEditor
 
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		resourceMgr->RegisterResourceAsset(resourcePath);
+
+	}
+
+	void AssetManager::OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType)
+	{
+
+		std::string fullPath = mAssetDirectory.string() + "/" + path;
+
+		std::filesystem::path filePath(fullPath);
+
+		if (filePath.extension() == ".meta")
+		{
+			return;
+		}
+
+		std::lock_guard<std::mutex> lock(mEventQueueMutex);
+		mRawFileQueue.push({ filePath, changeType });
 
 	}
 
