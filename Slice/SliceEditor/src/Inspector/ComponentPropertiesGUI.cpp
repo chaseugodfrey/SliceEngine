@@ -16,7 +16,6 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ComponentPropertiesGUI.h"
 #include <Core/Registry.h>
-#include <History/HistoryManager.h>
 #include "../EditorCommonTypes.h"
 
 #include <Graphics/TransformHelper.h>
@@ -27,11 +26,37 @@ using namespace std::string_literals;
 
 namespace SliceEditor
 {
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, std::function<void(float)> setFunc, float min, float max)
+	#pragma region JPH Helper
+	glm::vec3 JPHtoGLM(JPH::Vec3 vec3)
+	{
+		glm::vec3 newVec;
+
+		newVec.x = vec3.GetX();
+		newVec.y = vec3.GetY();
+		newVec.z = vec3.GetZ();
+
+		return newVec;
+	}
+
+	JPH::Vec3 GLMtoJPH(glm::vec3 vec3)
+	{
+		JPH::Vec3 newVec;
+
+		newVec.SetX(vec3.x);
+		newVec.SetY(vec3.y);
+		newVec.SetZ(vec3.z);
+
+		return newVec;
+	}
+	#pragma endregion
+
+
+
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format,ImGuiSliderFlags_AlwaysClamp);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -41,6 +66,127 @@ namespace SliceEditor
 			if (std::abs(oldVal - val) > FLT_EPSILON)
 			{	
 				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min, float max)
+	{
+		static int oldVal{};
+
+		bool changed = ImGui::DragInt(id, &val, 1.0f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ValueCommand<int>> command = std::make_unique<ValueCommand<int>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool BoolInput(Registry& reg, const char* id, bool& val)
+	{
+
+		bool changed = ImGui::Checkbox(id, &val);
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (changed)
+			{
+				std::unique_ptr<ValueCommand<bool>> command = std::make_unique<ValueCommand<bool>>(val, !val, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool StringInput(Registry& reg, const char* id, std::string& val)
+	{
+		static std::string oldVal{};
+		bool changed = ImGui::InputText(id, &val);
+
+		if (ImGui::IsItemActivated())
+		{
+			oldVal = val;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (changed)
+			{
+				std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = BoolInput(reg, id, val) || changed;
+
+		return changed;
+	}
+
+	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format, float min, float max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = DragIntInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = StringInput(reg, id, val) || changed;
+
+		return changed;
+	}
+
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+		static float oldVal{};
+
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<float>> command = std::make_unique<ScriptFieldSetterCommand<float>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}

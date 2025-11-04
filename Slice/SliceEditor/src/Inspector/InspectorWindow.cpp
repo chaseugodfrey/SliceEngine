@@ -16,11 +16,11 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "InspectorWindow.h"
-#include "ComponentPropertiesGUI.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
+#include "ComponentPropertiesGUI.h"
 
 namespace SliceEditor
 {
@@ -176,6 +176,10 @@ namespace SliceEditor
 			{
 				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
 			}
+			else //Its a default model
+			{
+				modelFilename = model_guid_string;
+			}
 			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
 			{
 				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
@@ -232,58 +236,20 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
 
-					ImGui::Text("Mass");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##mass", &rb.mass);
+					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
 
-					ImGui::Text("Gravity");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##gravity", &rb.gravityFactor);
+					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
+					
+					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
+					
+					DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
 
-					ImGui::Text("Is Kinematic");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isKinematic", &rb.isKinematic);
+					DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
 
-					ImGui::Text("Linear Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##linearDamp", &rb.linearDamping);
+					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
 
-					ImGui::Text("Angular Damping");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##angularDamp", &rb.angularDamping);
-
-					const char* currentLabel = arr[(int)rb.CollisionDetection];
-
-					ImGui::Text("Collision Detection");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (rb.CollisionDetection == (JPH::EMotionQuality)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								rb.CollisionDetection = (JPH::EMotionQuality)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
-
-					ImGui::Text("Friction");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::DragFloat("##friction", &rb.friction);
+					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
+					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
 
 					ImGui::TreePop();
 				}
@@ -316,55 +282,17 @@ namespace SliceEditor
 				{
 					DisplayComponentHeader<SliceEngine::ColliderShape>(entity);
 
-					ImGui::Text("Is Trigger");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Checkbox("##isTrigger", &col.isTrigger);
-
-					ImGui::Text("Offset");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x/3.0f);
-					float buffer = col.offSet.GetX();
-					if (ImGui::DragFloat("##offset_x", &buffer))
+					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
+					
+					glm::vec3 glm3 = JPHtoGLM(col.offSet);
+					if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
 					{
-						col.offSet.SetX(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x / 2.0f);
-					buffer = col.offSet.GetY();
-					if (ImGui::DragFloat("##offset_y", &buffer))
-					{
-						col.offSet.SetY(buffer);
-					}
-					ImGui::SameLine();
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					buffer = col.offSet.GetZ();
-					if (ImGui::DragFloat("##offset_z", &buffer))
-					{
-						col.offSet.SetZ(buffer);
+						col.offSet = GLMtoJPH(glm3);
 					}
 
-					const char* currentLabel = arr[(int)col.layer];
+					static std::vector<std::string> colLayerNames { "Moving", "Non-Moving"};
 
-					ImGui::Text("Collision Layer");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					if (ImGui::BeginCombo("##detection", currentLabel))
-					{
-						for (int i = 0; i < 2; i++)
-						{
-							bool isSelected = (col.layer == (JPH::ObjectLayer)i);
-							if (ImGui::Selectable(arr[i], isSelected))
-							{
-								col.layer = (JPH::ObjectLayer)i;
-							}
-
-							// Highlight current item
-							if (isSelected)
-								ImGui::SetItemDefaultFocus();
-						}
-						ImGui::EndCombo();
-					}
+					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 
 					ImGui::TreePop();
 				}
@@ -437,19 +365,63 @@ namespace SliceEditor
 
 			else
 			{
-				auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-				auto& script_class = script_map.at(script.scriptName);
-				auto& script_vars = script_class->mFields;
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
 
-				for (auto& var : script_vars)
+				if (scriptRef != nullptr)
 				{
-					ImGui::Text(var.first.c_str());
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					std::string temp{ 0 };
-					if (ImGui::InputText(("##" + var.first).c_str(), &temp))
+					const auto& fields = scriptRef->GetScriptClass()->mFields;
+					for (const auto& it : fields)
 					{
+						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+						{
+							float data = scriptRef->GetFieldValue<float>(it.second.mName);
+							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//{
+							//	scriptRef->SetFieldValue(it.second.mName, data);
+							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//}
+							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+								{
+									sp->SetFieldValue(name, val);
+								};
 
+							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
+						{
+							bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
+							if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+								scriptRef->SetFieldValue(it.second.mName, data);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
+						{
+							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+							char buffer[128];
+							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
+							buffer[sizeof(str)] = '\0';
+
+							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
+							{
+								scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
+						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+						{
+							int data = scriptRef->GetFieldValue<int>(it.second.mName);
+							if (DragIntInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							{
+								scriptRef->SetFieldValue(it.second.mName, data);
+								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							}
+						}
 					}
 				}
 
@@ -491,45 +463,11 @@ namespace SliceEditor
 
 			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
-			ImGui::Text("Intensity");
-			ImGui::SameLine(100.0f);
-			ImGui::SetNextItemWidth(50.0f);
-			ImGui::DragFloat("##i", &light.intensity, 0.01f, 0.0f, 10.0f, "%.2f");
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
-			const char* light_types[] = { "Directional Light", "Point Light", "Spot Light" };
-			int current_light_type_index = static_cast<int>(light.type) - 1;
+			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
-			if (ImGui::Combo("Light Type: ", &current_light_type_index, light_types, IM_ARRAYSIZE(light_types)))
-			{
-				switch (current_light_type_index)
-				{
-				case 0:
-					light.type = SliceEngine::Light::Light_Directional;
-					break;
-				case 1:
-					light.type = SliceEngine::Light::Light_Point;
-					break;
-				case 2:
-					light.type = SliceEngine::Light::Light_Spot;
-					break;
-				}
-			}
-
-			// for testing purposes
-			ImGui::BeginDisabled();
-			ImGui::Text("Parent: ");
-			auto& scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
-			auto parent_entity = scene_graph.neighbours[SliceEngine::SceneGraph::UP];
-			std::string name{ "--" };
-
-			if (parent_entity != SliceEngine::FactoryInstance.GetRootEntity())
-			{
-				auto go = SliceEngine::FactoryInstance.GetGOByEntity(parent_entity);
-				name = go.GetName();
-			}
-
-			ImGui::Text(name.c_str());
-			ImGui::EndDisabled();
+			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
 
 			ImGui::TreePop();
 		}

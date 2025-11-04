@@ -169,6 +169,21 @@ namespace SliceEngine
         // while (true) {};
         mono_set_assemblies_path("thirdparty/Mono/bin");
 
+        //mRootDomain = rootDomain;
+        if (debug)
+        {
+            const char* argv[2] = {
+                "--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=n,loglevel=3,logfile=logs/MonoDebugger.log",
+                "--soft-breakpoints"
+            };
+
+            mono_jit_parse_options(2, (char**)argv);
+            mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+
+            // mono_debug_domain_create(mRootDomain);
+        }
+
+
         mRootDomain = mono_jit_init("SliceJITRuntime");
         if (mRootDomain == nullptr)
         {
@@ -177,19 +192,11 @@ namespace SliceEngine
             return;
         }
 
-        //mRootDomain = rootDomain;
         if (debug)
         {
-            const char* argv[2] = {
-                "--debugger-agent=transport=dt_socket,address=127.0.0.1:2550,server=y,suspend=y,loglevel=3,logfile=logs/MonoDebugger.log",
-                "--soft-breakpoints"
-            };
-
-            mono_jit_parse_options(2, (char**)argv);
-            mono_debug_init(MONO_DEBUG_FORMAT_MONO);
-
             mono_debug_domain_create(mRootDomain);
         }
+
 
         LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
@@ -249,6 +256,11 @@ namespace SliceEngine
         // Create an app domain
         mAppDomain = mono_domain_create_appdomain(const_cast<char*>("SliceEngineAppDomain"), nullptr);
         mono_domain_set(mAppDomain, true);
+
+        if (debug)
+        {
+            mono_debug_domain_create(mAppDomain);
+        }
         mCoreAssembly = LoadCSharpAssembly(assemblyPath);
         if (mCoreAssembly == nullptr)
         {
@@ -264,6 +276,8 @@ namespace SliceEngine
             SLICE_LOG_ERROR("Unable to load core assembly image");
             assert("Unable to load");
         }
+
+
 
         AssemblyReloadPending = false;
     }
@@ -319,6 +333,9 @@ namespace SliceEngine
         }
 
         MonoAssembly* assembly = mono_assembly_load_from_full(image, assemblyPath.c_str(), &status, 0);
+
+        MonoImage* assemblyImage = mono_assembly_get_image(assembly);
+
         if (debug)
         {
             std::filesystem::path pdbPath = assemblyPath;
@@ -330,7 +347,7 @@ namespace SliceEngine
             {
                 uint32_t pdbFileSize = 0;
                 char* pdbFileData = ReadBytes(pdbPath.string(), &pdbFileSize);
-                mono_debug_open_image_from_memory(image, (const mono_byte*)pdbFileData, pdbFileSize);
+                mono_debug_open_image_from_memory(assemblyImage, (const mono_byte*)pdbFileData, pdbFileSize);
 
                 delete[] pdbFileData;
 
@@ -443,6 +460,7 @@ namespace SliceEngine
     void ScriptSystem::OnEnd()
     {
         mEntityInstances.clear();
+        entityAdded.clear();
     }
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
