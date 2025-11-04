@@ -683,6 +683,10 @@ namespace SliceEditor
 		{
 			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
 		}
+		else
+		{
+			mat_file_name = "GUID not in map";
+		}
 
 		ImGui::Text("Albedo");
 		ImGui::SameLine(150.0f);
