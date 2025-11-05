@@ -532,11 +532,11 @@ namespace SliceEditor
 			}
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
-			//guid = (SliceEngine::GUID)metaJson["guid"].get<uint64_t>();
-			//assetName = metaJson["assetName"];
-			//assetType = metaJson["assetType"];
-			//assetPath = metaJson["assetPath"];
-			//resourcePath = metaJson["resourcePath"];
+			guid = (SliceEngine::GUID)metaJson["guid"].get<uint64_t>();
+			assetName = metaJson["assetName"];
+			assetType = metaJson["assetType"];
+			assetPath = metaJson["assetPath"];
+			resourcePath = metaJson["resourcePath"];
 
 			// properties
 			roughness = metaJson["roughness"].get<float>();
@@ -544,6 +544,40 @@ namespace SliceEditor
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
+		}
+
+		void DeserializeAsset(const std::filesystem::path& desc_path)
+		{
+			// now set the resource path
+			std::ifstream inFile{ desc_path };
+			if (inFile.fail())
+			{
+				return;
+			}
+
+			nlohmann::json metaJson = nlohmann::json::parse(inFile);
+			// properties
+			roughness = metaJson[0]["roughness"].get<float>();
+			metallic = metaJson[0]["metalic"].get<float>();
+			albedo = (SliceEngine::GUID)metaJson[0]["albedo"].get<uint64_t>();
+
+			inFile.close();
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+			nlohmann::json metaJson;
+			// specific properties to shader goes here but we dh that yet
+			metaJson["albedo"] = albedo.GetGUID();
+			metaJson["roughness"] = roughness;
+			metaJson["metallic"] = metallic;
+
+			std::ofstream output(desc_path);
+
+			if (output.is_open())
+			{
+				output << metaJson.dump(4);
+			}
 		}
 	};
 

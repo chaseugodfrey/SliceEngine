@@ -9,7 +9,7 @@ namespace SliceEngine
     public class SliceBehaviour : Component
     {
         public uint mID;
-        public Transform transform;
+        //public Transform transform;
 
         protected SliceBehaviour()
         {
@@ -33,6 +33,11 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+        public bool HasComponent<T>() where T : Component, new()
+        {
+            Type componentType = typeof(T);
+            return FunctionCalls.Entity_HasComponent(mID, componentType);
+        }
         public T GetComponent<T>() where T : Component, new()
         {
             T component = new T() { Entity = this };

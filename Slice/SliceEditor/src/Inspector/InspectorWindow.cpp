@@ -91,7 +91,7 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);
+			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
 			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
 			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
 			{
@@ -685,10 +685,10 @@ namespace SliceEditor
 		
 		MaterialData mat;
 		std::filesystem::path mat_path = node->fileName;
-		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
-		if (metapath.has_value())
-			mat.Deserialize(metapath.value());
+		//if (metapath.has_value())
+		mat.DeserializeAsset(node->path);
 
 		std::string mat_file_name{};
 		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
