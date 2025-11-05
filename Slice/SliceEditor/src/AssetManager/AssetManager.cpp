@@ -170,6 +170,7 @@ namespace SliceEditor
 	}
 
 	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
+	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
 
@@ -214,8 +215,11 @@ namespace SliceEditor
 		}
 
 		// register into resource manager
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		resourceMgr->RegisterResourceAsset(metaPath.string());
+		if (AddToRM)
+		{
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			resourceMgr->RegisterResourceAsset(metaPath.string());
+		}
 
 	}
 
@@ -644,6 +648,7 @@ namespace SliceEditor
 				break;
 			}
 
+			counter++;
 		}
 
 		std::unique_ptr<MetaData> meta;
@@ -678,7 +683,6 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(meta.get(), type);
 	}
 
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)

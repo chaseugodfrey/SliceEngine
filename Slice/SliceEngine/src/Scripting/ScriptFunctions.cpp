@@ -238,7 +238,7 @@ namespace SliceEngine
 		if (GO.HasComponent<Animator>())
 		{
 			auto& anim = GO.GetComponent<Animator>();
-			anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
+		//	anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
 		}
 		else
 		{
