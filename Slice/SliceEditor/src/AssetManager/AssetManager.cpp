@@ -607,27 +607,78 @@ namespace SliceEditor
 	/// Call this to create a default asset in asset window 
 	/// </summary>
 	/// <param name="metaData"></param>
-	void AssetManager::CreateDefaultAsset(MetaData* metaData)
+	void AssetManager::CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type)
 	{
-		AssetType type;
-		for (auto it : mAssetExtensions)
+		//AssetType type = AssetType::Unsupported;
+
+		if (mDefaultNames.find(type) == mDefaultNames.end())
 		{
-			if (it.second == metaData->assetType)
+			SLICE_LOG_ERROR("Creating default does not exist for this type");
+			return;
+		}
+
+		std::string ext = mAssetExtensions[type];
+
+		std::string baseName = mDefaultNames[type];
+		std::string fileName;
+		std::filesystem::path filePath;
+		int counter = 0;
+		// handle file name checking for duplicates
+		while (true)
+		{
+			if (counter == 0)
 			{
-				type = it.first;
+				fileName = baseName + ext;
+			}
+			else
+			{
+				fileName = baseName + "_" + std::to_string(counter) + ext;
+			}
+
+			filePath = folderPath / fileName;
+
+			// if this file doesn't exist
+			if (!std::filesystem::exists(filePath))
+			{
+				// this will be the file path that we will create our asset in
+				break;
+			}
+
+		}
+
+		std::unique_ptr<MetaData> meta;
+		switch (type)
+		{
+			case AssetType::Material:
+			{
+				meta = std::make_unique<MaterialData>();
+				// Create a file in asset folder
+				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
+				// create a default asset file at the file path
+				derived->SerializeAsset(filePath); 
+
+				break;
+			}
+			case AssetType::Controller:
+			{
+				meta = std::make_unique<StateMachineData>();
+				// Create a file in asset folder
+				StateMachineData* derived = dynamic_cast<StateMachineData*>(meta.get());
+				// create a default asset file at the file path
+				//derived->SerializeAsset(filePath);
+
+				break;
+			}
+			default:
+			{
+				SLICE_LOG_ERROR("CAN'T CREATE DEFAULT FOR UNSUPPORTED TYPES");
 				break;
 			}
 		}
-		
-		switch (type)
-		{
-		case AssetType::Material:
-		{
 
-			break;
-		}
-		
-		}
+		// then now we initialize the other meta data variables
+		meta->InitMetaData(filePath, type, ext);
+		CreateResource(meta.get(), type);
 	}
 
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)

@@ -57,7 +57,7 @@ namespace SliceEditor
 		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void CleanUpSceneTemp();
-		void CreateDefaultAsset(MetaData* metaData);
+		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
@@ -96,6 +96,12 @@ namespace SliceEditor
 			{AssetType::Skeleton, ".skl"},
 			{AssetType::Animation, ".animpkg"},
 			{AssetType::Controller, ".controller" }
+		};
+
+		std::unordered_map<AssetType, std::string> mDefaultNames =
+		{
+			{AssetType::Material, "DefaultMaterial"},
+			{AssetType::Controller, "DefaultController"}
 		};
 	private:
 		
