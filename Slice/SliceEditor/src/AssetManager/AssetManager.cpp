@@ -687,6 +687,49 @@ namespace SliceEditor
 		CreateResource(meta.get(), type);
 	}
 
+	void AssetManager::RecompileAsset(MetaData* metaData)
+	{
+		// get the asset type
+		AssetType type = AssetType::Unsupported;
+		for (auto it : mAssetExtensions)
+		{
+			if (it.second == metaData->assetType)
+			{
+				type = it.first;
+				break;
+			}
+		}
+
+		// if the meta data is modified, create resource modifies the resource file
+		// but we also have to reflect it in the asset manager for files such as material, controller, etc
+		// things that aren't imported resources.
+
+		// before calling create resource
+		// we need to update the file in asset folder since create resource copies it to resource
+		// for some like material/shader/etc
+
+		switch (type)
+		{
+		case AssetType::Material:
+		{
+			MaterialData* derived = dynamic_cast<MaterialData*>(metaData);
+			// recreate resource file at the file path
+			derived->SerializeAsset(metaData->assetPath);
+
+			break;
+		}
+		case AssetType::Controller:
+		{
+
+			break;
+		}
+		
+		}
+
+		// update the meta file with the new meta data and resource file
+		CreateResource(metaData, type);
+	}
+
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
 	{
 		std::optional<std::string> filename{};
