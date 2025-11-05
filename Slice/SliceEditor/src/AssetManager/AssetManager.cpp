@@ -578,6 +578,33 @@ namespace SliceEditor
 
 	}
 
+	/// <summary>
+	/// Call this to create a default asset in asset window 
+	/// </summary>
+	/// <param name="metaData"></param>
+	void AssetManager::CreateDefaultAsset(MetaData* metaData)
+	{
+		AssetType type;
+		for (auto it : mAssetExtensions)
+		{
+			if (it.second == metaData->assetType)
+			{
+				type = it.first;
+				break;
+			}
+		}
+		
+		switch (type)
+		{
+		case AssetType::Material:
+		{
+
+			break;
+		}
+		
+		}
+	}
+
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
 	{
 		std::optional<std::string> filename{};
@@ -589,6 +616,8 @@ namespace SliceEditor
 		filename.emplace(it->second);
 		return filename;
 	}
+
+	
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
 	//{

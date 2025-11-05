@@ -56,6 +56,7 @@ namespace SliceEditor
 		void CompileSceneAsset(SceneData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void CleanUpSceneTemp();
+		void CreateDefaultAsset(MetaData* metaData);
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
