@@ -103,6 +103,7 @@ namespace SliceEditor
 				case filewatch::Event::removed:
 				{
 					processedEvents.push_back({ FileAction::Removed, event.filePath.generic_string() });
+					break;
 				}
 
 			}
