@@ -129,6 +129,9 @@ namespace SliceEditor
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
 				break;
+			case AssetType::Controller:
+				CompileStateMachineAsset(static_cast<StateMachineData*>(metaData.get()));
+				break;
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
 				break;
@@ -199,6 +202,9 @@ namespace SliceEditor
 		case AssetType::Scene:
 			CompileSceneAsset(static_cast<SceneData*>(metaData));
 			break;
+		case AssetType::Controller:
+			CompileStateMachineAsset(static_cast<StateMachineData*>(metaData));
+			break;
 		case AssetType::Shader:
 			CompileShaderAsset(static_cast<ShaderData*>(metaData));
 			break;
@@ -247,6 +253,10 @@ namespace SliceEditor
 		case AssetType::Scene:
 			metaData = std::make_unique<SceneData>();
 			typeID = ResourceTypeIDs::SCENE;
+			break;
+		case AssetType::Controller:
+			metaData = std::make_unique<StateMachineData>();
+			typeID = ResourceTypeIDs::CONTROLLER;
 			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
@@ -422,6 +432,21 @@ namespace SliceEditor
 	}
 
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+
+	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 

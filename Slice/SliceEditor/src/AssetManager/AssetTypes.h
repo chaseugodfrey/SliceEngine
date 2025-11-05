@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <filesystem>
 #include "../../SliceEngine/src/Resource/ResourceManager.h"
+#include "../../SliceEngine/src/Animator/FSMSystem.h"
 
 namespace SliceEditor
 {
@@ -32,6 +33,7 @@ namespace SliceEditor
 		Shader,
 		Material,
 		Prefab,
+		Controller,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -90,6 +92,7 @@ namespace SliceEditor
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
+		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 
 	}
 
@@ -136,6 +139,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Prefab:
 				typeID = ResourceTypeIDs::PREFAB;
+				break;
+			case AssetType::Controller:
+				typeID = ResourceTypeIDs::CONTROLLER;
 				break;
 			case AssetType::Material:
 				typeID = ResourceTypeIDs::MATERIAL;
@@ -538,6 +544,112 @@ namespace SliceEditor
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
+		}
+	};
+
+	struct StateMachineData : public MetaData
+	{
+
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
+
+		std::map<std::string, rttr::variant> parameters;
+		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
+		std::string entryState;
+
+		NLOHMANN_JSON_SERIALIZE_ENUM(SliceEngine::SliceEngineTypes::ComparisonOp, {
+			{SliceEngine::SliceEngineTypes::ComparisonOp::Equal, "Equal"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::NotEqual, "NotEqual"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::GreaterThan, "GreaterThan"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::LessThan, "LessThan"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::GreaterOrEqual, "GreaterOrEqual"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::LessOrEqual, "LessOrEqual"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue, "IsTrue"},
+			{SliceEngine::SliceEngineTypes::ComparisonOp::IsFalse, "IsFalse"}
+				})
+
+		void to_json(nlohmann::json& j, const rttr::variant& var)
+		{
+			rttr::type type = var.get_type();
+
+			if (type == rttr::type::get<int>()) {
+				j = var.get_value<int>();
+			}
+			else if (type == rttr::type::get<float>()) {
+				j = var.get_value<float>();
+			}
+			else if (type == rttr::type::get<double>()) {
+				j = var.get_value<double>();
+			}
+			else if (type == rttr::type::get<bool>()) {
+				j = var.get_value<bool>();
+			}
+			else if (type == rttr::type::get<std::string>()) {
+				j = var.get_value<std::string>();
+			}
+			else {
+				// Handle unknown types, e.g., serialize as null or throw
+				j = nullptr;
+			}
+		}
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Transition& t)
+		{
+			j["targetState"] = t.targetState;
+			to_json(j["condition"], t.condition);
+			j["parameterName"] = t.parameterName;
+			j["comparisonOP"] = t.operation;
+		}
+
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::State& s)
+		{
+			j["stateName"] = s.stateName;
+			j["currAnimIdx"] = s.curr_anim_idx;
+			j["hasExitTime"] = s.hasExitTime;
+			j["exitTime"] = s.exitTime;
+			j["entryTime"] = s.entryTime;
+
+			for (auto it : s.transitions)
+			{
+				to_json(j["transition"], it);
+			}
+		}
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+			metaJson["entryState"] = entryState;
+
+			for (auto it : parameters)
+			{
+				//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
+				to_json(metaJson["parameters"][it.first], it.second);
+			}
+			
+			for (auto it : stateMap)
+			{
+				to_json(metaJson["stateMap"][it.first], it.second);
+			}
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
 		}
 	};
 }

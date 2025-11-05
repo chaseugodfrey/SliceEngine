@@ -54,6 +54,7 @@ namespace SliceEditor
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void CleanUpSceneTemp();
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
@@ -76,7 +77,8 @@ namespace SliceEditor
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".mat", {AssetType::Material, "Material"}},
-			{".prefab", {AssetType::Prefab, "Prefab"}}
+			{".prefab", {AssetType::Prefab, "Prefab"}},
+			{".controller",{AssetType::Controller, "Controller"}}
 			//{".vert", AssetType::Shader},
 			//{".frag", AssetType::Shader}
 		};
@@ -91,7 +93,8 @@ namespace SliceEditor
 			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"},
 			{AssetType::Skeleton, ".skl"},
-			{AssetType::Animation, ".animpkg"}
+			{AssetType::Animation, ".animpkg"},
+			{AssetType::Controller, ".controller" }
 		};
 	private:
 		
