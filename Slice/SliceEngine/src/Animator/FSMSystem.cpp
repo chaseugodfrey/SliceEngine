@@ -12,8 +12,19 @@ namespace SliceEngine
 	void FSMSystem::InitState()
 	{
 		EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(static_cast<GUID>(0));
-		EFSM->currState = &EFSM->stateMap[EFSM->entryState];
-		EFSM->stateCon = false;
+		if(EFSM.IsValid())
+		{
+			if (EFSM->stateMap.size() == 0)
+			{
+				EFSM->currState = nullptr;
+			}
+			else
+			{
+				EFSM->currState = &EFSM->stateMap[EFSM->entryState];
+			}
+
+			EFSM->stateCon = false;
+		}
 	}
 	void FSMSystem::CheckStates()
 	{
