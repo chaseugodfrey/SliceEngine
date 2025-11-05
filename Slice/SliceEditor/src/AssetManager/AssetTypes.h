@@ -632,7 +632,6 @@ namespace SliceEditor
 			j["parameterName"] = t.parameterName;
 			j["comparisonOP"] = t.operation;
 		}
-
 		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::State& s)
 		{
 			j["stateName"] = s.stateName;
@@ -684,6 +683,31 @@ namespace SliceEditor
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
 
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+			nlohmann::json metaJson;
+			// specific properties to shader goes here but we dh that yet
+			metaJson["entryState"] = entryState;
+
+			for (auto it : parameters)
+			{
+				//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
+				to_json(metaJson["parameters"][it.first], it.second);
+			}
+
+			for (auto it : stateMap)
+			{
+				to_json(metaJson["stateMap"][it.first], it.second);
+			}
+
+			std::ofstream output(desc_path);
+
+			if (output.is_open())
+			{
+				output << metaJson.dump(4);
+			}
 		}
 	};
 }
