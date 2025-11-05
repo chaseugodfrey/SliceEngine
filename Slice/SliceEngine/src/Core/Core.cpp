@@ -64,6 +64,8 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Light>();
 		mFactory.RegisterComponent<ParticleSystem>();
 		mFactory.RegisterComponent<Prefab>();
+		mFactory.RegisterComponent<Animator>();
+		mFactory.RegisterComponent<Bone>();
 
 
 		mResource->InitResourceManager();
