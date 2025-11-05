@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class GameObject : SliceBehaviour
+    // if GO is component, it cannot getcomponent, if GO is SliceBehaviour, it will show up under scripts when it shouldnt :(
+    public class GameObject : Component
     {
         public string tag
         { 

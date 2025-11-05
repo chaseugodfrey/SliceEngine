@@ -3,7 +3,8 @@
 namespace SliceEngine
 {
     public class Transform : Component
-    { 
+    {
+
         public Vector3 Position
         {
             get
@@ -40,9 +41,7 @@ namespace SliceEngine
         {
             get
             {
-                FunctionCalls.Transform_GetRotation(Entity.mID, out Vector3 rotation);
-                rotationQuat = Quaternion.FromEuler(rotation);
-                return rotation;
+                return rotationQuat.ToEuler();
             }
             set
             {                
@@ -64,7 +63,7 @@ namespace SliceEngine
 
 
         public void Rotate(float angleDegrees, Vector3 axis)
-        {            
+        {       
             if (axis == Vector3.Zero)
                 return; // No rotation if axis is zero
 
