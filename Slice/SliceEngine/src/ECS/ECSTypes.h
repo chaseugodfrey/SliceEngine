@@ -34,6 +34,7 @@ namespace SliceEngine
 	struct SliceEntity 
 	{
 		std::string mName;
+		std::string mTag;
 		bool active;
 
 		SliceEntity() : active(true) {}

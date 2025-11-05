@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,12 +16,15 @@ namespace SliceEngine
         public Prefab testPrefab = new Prefab("TestPrefab");
 
         Transform t;
+        GameObject go;
 
         public override void OnCreate()
         {
             //Console.WriteLine("TestEntity Created with ID: " + mID);
 
             t = GetComponent<Transform>();
+
+            //t = go.GetComponent<Transform>();
         }
 
         public override void OnUpdate(float dt)
