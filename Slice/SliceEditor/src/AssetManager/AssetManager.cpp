@@ -59,6 +59,7 @@ namespace SliceEditor
 
 		AddDefaultModelsToMap();
 
+	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
 		SLICE_LOG("Asset Manager Initialized");
 	}
@@ -169,7 +170,6 @@ namespace SliceEditor
 		return "";
 	}
 
-	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
 	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
@@ -610,7 +610,8 @@ namespace SliceEditor
 	/// <summary>
 	/// Call this to create a default asset in asset window 
 	/// </summary>
-	/// <param name="metaData"></param>
+	/// <param name="folderPath">File path to where the asset should be created</param>
+	/// <param name="type">Type of asset being created</param>
 	void AssetManager::CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type)
 	{
 		//AssetType type = AssetType::Unsupported;
@@ -661,7 +662,7 @@ namespace SliceEditor
 				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
 				// create a default asset file at the file path
 				derived->SerializeAsset(filePath); 
-
+				
 				break;
 			}
 			case AssetType::Controller:
@@ -683,6 +684,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
+		CreateResource(meta.get(), type);
 	}
 
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
