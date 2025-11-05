@@ -92,63 +92,89 @@ namespace SliceEditor
 		}
 
 		std::vector<AssetFileChangedEvent> processedEvents;
-		for (const auto& event : rawEvents)
+
+		if (rawEvents.size() > 1)
 		{
-			//auto& previousEvent = 
-			switch (event.changeType)
+			if (rawEvents.begin()->changeType == filewatch::Event::removed && rawEvents.at(1).changeType == filewatch::Event::added)
+			{
+
+				std::string fileName = rawEvents.begin()->filePath.stem().string();
+				SliceEngine::GUID fileGUID;
+
+				if (fileName == rawEvents.at(1).filePath.stem().string())
+				{
+					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+					auto path = resourceMgr->GetResourcePath(fileName);
+					if (path.has_value())
+					{
+						std::filesystem::path metaFilePath = path.value();
+						metaFilePath.replace_extension(".meta");
+
+						if (std::filesystem::exists(metaFilePath))
+						{
+							try
+							{
+								// 2. Read the JSON content
+								std::ifstream inFile(metaFilePath);
+								nlohmann::json metaJson;
+								inFile >> metaJson;
+								inFile.close();
+
+								std::filesystem::path newAssetPath = rawEvents.at(3).filePath;
+								metaJson["assetPath"] = newAssetPath.string();
+
+								// 4. Write back to file
+								std::ofstream outFile(metaFilePath);
+								outFile << metaJson.dump(4); // 4 spaces for pretty printing
+								outFile.close();
+
+								SLICE_LOG("Updated meta file for moved asset: " + fileName);
+							}
+							catch (const std::exception& e)
+							{
+								SLICE_LOG_ERROR("Failed to update meta file for " + fileName + ": " + e.what());
+							}
+						}
+					}
+					else
+					{
+						SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
+					}
+					
+					
+				}
+
+				
+
+				
+			}
+			
+		}
+		else
+		{
+			switch (rawEvents.begin()->changeType)
 			{
 				case filewatch::Event::added:
 				{
-					//Skip .mat and .controller files
-					if (event.filePath.extension() == ".mat" || event.filePath.extension() == ".controller")
+					if (rawEvents.begin()->filePath.extension() == ".mat" || rawEvents.begin()->filePath.extension() == ".controller")
 					{
 						break;
 					}
-					processedEvents.push_back({ FileAction::Added, event.filePath.generic_string()});
 
-					//CreateDescriptorFile(event.filePath.generic_string());
+					CreateDescriptorFile(rawEvents.begin()->filePath.generic_string());
+					processedEvents.push_back({ FileAction::Added, rawEvents.begin()->filePath.generic_string() });
+
 					break;
 				}
 				case filewatch::Event::removed:
 				{
-					processedEvents.push_back({ FileAction::Removed, event.filePath.generic_string() });
-					
-					//auto it = std::find_if(mGUIDtoFilename.begin(), mGUIDtoFilename.end(), [&](const std::pair<SliceEngine::GUID, std::string>& pair)
-					//	{
-					//		return pair.second == event.filePath.filename();
-					//	});
-					//if (it != mGUIDtoFilename.end())
-					//{
-					//	//remove(it)
-					//	remove(mResourcesDirectory + it->first.strin)
-					//}
-					//SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(event.filePath.filename().string());
-					//Check if the resource is still there, if it is call the destroy function for that resource and 
-					/*if (mGUIDtoFilename.find(fileGUID) != mGUIDtoFilename.end())
-					{
-						
-					}*/
+					//Do resource removing and blah blah here but gideon said hold off on it first
 					break;
 				}
-				case filewatch::Event::renamed_new:
-				{
-					SLICE_LOG("Renamed new event " + event.filePath.string());
-					break;
-				}
-				case filewatch::Event::renamed_old:
-				{
-					SLICE_LOG("Renamed old event " + event.filePath.string());
-					break;
-				}
-				case filewatch::Event::modified:
-				{
-					//processedEvents.push_back({ FileAction::Modified, event.filePath.generic_string() });
-					SLICE_LOG("Modify event " + event.filePath.string());
-					break;
-				}
-
 			}
 		}
+
+		
 
 		for (const auto& event : processedEvents)
 		{
