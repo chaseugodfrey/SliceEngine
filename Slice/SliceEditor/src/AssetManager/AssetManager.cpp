@@ -80,6 +80,8 @@ namespace SliceEditor
 			while (!mRawFileQueue.empty())
 			{
 				rawEvents.push_back(mRawFileQueue.front());
+				
+				//SLICE_LOG("event added " + filewatch::event_to_string(mRawFileQueue.front()->changeType));
 				mRawFileQueue.pop();
 			}
 		}
@@ -92,17 +94,56 @@ namespace SliceEditor
 		std::vector<AssetFileChangedEvent> processedEvents;
 		for (const auto& event : rawEvents)
 		{
+			//auto& previousEvent = 
 			switch (event.changeType)
 			{
 				case filewatch::Event::added:
 				{
+					//Skip .mat and .controller files
+					if (event.filePath.extension() == ".mat" || event.filePath.extension() == ".controller")
+					{
+						break;
+					}
 					processedEvents.push_back({ FileAction::Added, event.filePath.generic_string()});
-					CreateDescriptorFile(event.filePath.generic_string());
+
+					//CreateDescriptorFile(event.filePath.generic_string());
 					break;
 				}
 				case filewatch::Event::removed:
 				{
 					processedEvents.push_back({ FileAction::Removed, event.filePath.generic_string() });
+					
+					//auto it = std::find_if(mGUIDtoFilename.begin(), mGUIDtoFilename.end(), [&](const std::pair<SliceEngine::GUID, std::string>& pair)
+					//	{
+					//		return pair.second == event.filePath.filename();
+					//	});
+					//if (it != mGUIDtoFilename.end())
+					//{
+					//	//remove(it)
+					//	remove(mResourcesDirectory + it->first.strin)
+					//}
+					//SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(event.filePath.filename().string());
+					//Check if the resource is still there, if it is call the destroy function for that resource and 
+					/*if (mGUIDtoFilename.find(fileGUID) != mGUIDtoFilename.end())
+					{
+						
+					}*/
+					break;
+				}
+				case filewatch::Event::renamed_new:
+				{
+					SLICE_LOG("Renamed new event " + event.filePath.string());
+					break;
+				}
+				case filewatch::Event::renamed_old:
+				{
+					SLICE_LOG("Renamed old event " + event.filePath.string());
+					break;
+				}
+				case filewatch::Event::modified:
+				{
+					//processedEvents.push_back({ FileAction::Modified, event.filePath.generic_string() });
+					SLICE_LOG("Modify event " + event.filePath.string());
 					break;
 				}
 
