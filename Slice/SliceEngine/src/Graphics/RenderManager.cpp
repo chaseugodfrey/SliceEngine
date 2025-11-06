@@ -101,8 +101,8 @@ namespace SliceEngine
 	{
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
-		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mIVBO);
+		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIVBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -168,7 +168,6 @@ namespace SliceEngine
 
 		return newCam;
 	}
-	
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 	void RenderManager::SetMainGameCamera(GameObject cam)
 	{
@@ -178,7 +177,6 @@ namespace SliceEngine
 	{
 		return mainCam;
 	}
-
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
@@ -255,9 +253,13 @@ namespace SliceEngine
 			UpdateCamVP();
 			BindCameraDepth(cam);
 
-			auto& frustrum = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT).get();
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT).get();
+			auto& mdl = model.meshes[0];
+			glBindVertexArray(mdl.vao);
+
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
 			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+			int count{};
 			for (auto& entity : cams)
 			{
 				if (entity == cam) continue;
@@ -265,52 +267,13 @@ namespace SliceEngine
 				auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 				auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
 
-				transform.transform = glm::mat4x4(1.f);
-				transform.transform = glm::translate(transform.transform, transform.position);
-				glm::mat4 Rot = glm::mat4_cast(transform.rotation);
-
-				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
-				transform.transform *= Rot;
-				transform.transform = glm::scale(transform.transform, transform.scale);
-
-				glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
-
-				float tanT = tanf(glm::radians(camera.pov) * 0.5f);
-
-				float nn = camera.near;
-				float nh = nn * tanT;
-				float nw = nh / camera.height * camera.width;
-				float ff = camera.far;
-				float fh = ff * tanT;
-				float fw = fh / camera.height * camera.width;
-
-				frustrum.vtx[0] = glm::vec3(-nw, -nh, nn);
-				frustrum.vtx[1] = glm::vec3(nw, -nh, nn);
-				frustrum.vtx[2] = glm::vec3(nw, nh, nn);
-				frustrum.vtx[3] = glm::vec3(-nw, nh, nn);
-				frustrum.vtx[4] = glm::vec3(-nw, -nh, nn);
-
-				frustrum.vtx[5] = glm::vec3(-fw, -fh, ff);// C
-				frustrum.vtx[6] = glm::vec3(fw, -fh, ff);
-				frustrum.vtx[7] = glm::vec3(fw, fh, ff);
-				frustrum.vtx[8] = glm::vec3(-fw, fh, ff);
-				frustrum.vtx[9] = glm::vec3(-fw, -fh, ff);
-
-				frustrum.vtx[10] = glm::vec3(fw, -fh, ff);
-				frustrum.vtx[11] = glm::vec3(nw, -nh, nn); // C
-				frustrum.vtx[12] = glm::vec3(nw, nh, nn);
-				frustrum.vtx[13] = glm::vec3(fw, fh, ff); // C
-				frustrum.vtx[14] = glm::vec3(-fw, fh, ff);
-				frustrum.vtx[15] = glm::vec3(-nw, nh, nn); // C
-
-				// Frustrum Rendering
-				glNamedBufferSubData(frustrum.meshes[0].vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
-
-				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
-
-				glBindVertexArray(frustrum.meshes[0].vao);
-				glDrawArraysInstanced(frustrum.meshes[0].drawMode, 0, frustrum.meshes[0].drawCnt, 1);
+				mInstanceVtx[count].mtx = transform.transform *
+					glm::inverse(glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far)) *
+					glm::scale(glm::mat4(1.0f), glm::vec3(2.f));
+				++count;
 			}
+			glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * count, mInstanceVtx.data());
+			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
 		}
 		
 		// Draw Instance Debug Box
@@ -352,27 +315,27 @@ namespace SliceEngine
 						if (i != 0)
 							continue;
 						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
-						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
 					{
 						if (i != 1)
 							continue;
 						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
-						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(sphereData.radius * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(sphereData.radius * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
 					{
 						if (i != 2)
 							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
-						mInstanceVtx[num] = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
 					}
 
 					num++;
 					if (num == mMaxInstance)
 					{
-						glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+						glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data() + offset);
 						glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 						offset += num;
 						num = 0;
@@ -380,7 +343,7 @@ namespace SliceEngine
 				}
 				if (num != 0)
 				{
-					glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4) * num, mInstanceVtx.data() + offset);
+					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data() + offset);
 					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 				}
 			}
@@ -832,29 +795,29 @@ namespace SliceEngine
 		}
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
-	void RenderManager::LinkTransformInstancing(GUID guid)
-	{
-		//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
-		auto modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid);
-		auto model = modelHandle.get();
-		auto& mdl = model->meshes[0];	//i call it mdl cuz im lazy to change the below
-
-		// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
-
-		// Link drawing models with instancing vbo
-		for (int i{}; i < 4; ++i)
-		{
-			glBindVertexArray(mdl.vao);
-			int idx = 12 + i; // 12 ~ 15
-			glEnableVertexArrayAttrib(mdl.vao, idx);
-			glVertexArrayVertexBuffer(mdl.vao, idx, mIVBO, sizeof(glm::vec4) * i, sizeof(glm::mat4));
-			glVertexArrayAttribIFormat(mdl.vao, idx, 4, GL_FLOAT, 0);
-			glVertexArrayAttribBinding(mdl.vao, idx, idx);
-
-			glVertexAttribDivisor(idx, 1);
-		}
-		glBindVertexArray(0);
-	}
+	//void RenderManager::LinkTransformInstancing(GUID guid)
+	//{
+	//	//std::string tempFilePath = "Assets/Models/" + mdlName + ".txt";
+	//	auto modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(guid);
+	//	auto model = modelHandle.get();
+	//	auto& mdl = model->meshes[0];	//i call it mdl cuz im lazy to change the below
+	//
+	//	// auto& mdl = Core::GetInstance()->GetResourceManager()->GetModel(mdlName);
+	//
+	//	// Link drawing models with instancing vbo
+	//	for (int i{}; i < 4; ++i)
+	//	{
+	//		glBindVertexArray(mdl.vao);
+	//		int idx = 12 + i; // 12 ~ 15
+	//		glEnableVertexArrayAttrib(mdl.vao, idx);
+	//		glVertexArrayVertexBuffer(mdl.vao, idx, mIVBO, sizeof(glm::vec4) * i, sizeof(glm::mat4));
+	//		glVertexArrayAttribIFormat(mdl.vao, idx, 4, GL_FLOAT, 0);
+	//		glVertexArrayAttribBinding(mdl.vao, idx, idx);
+	//
+	//		glVertexAttribDivisor(idx, 1);
+	//	}
+	//	glBindVertexArray(0);
+	//}
 #pragma endregion
 
 #pragma region IDPick

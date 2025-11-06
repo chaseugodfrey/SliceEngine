@@ -56,10 +56,10 @@ namespace SliceEngine
 		void RenderGammaCorrection(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
-		void LinkTransformInstancing(GUID guid);
+		//void LinkTransformInstancing(GUID guid);
 
 	private:
-		const int mMaxInstance = 100;
+		const int mMaxInstance = 500;
 		const int mMaxBloom =  5;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
@@ -82,6 +82,11 @@ namespace SliceEngine
 			glm::vec2 size;
 			glm::ivec2 intSize;
 			GLuint tex;
+		};
+		struct InstanceData
+		{
+			glm::mat4 mtx;
+			glm::ivec4 mat;
 		};
 		enum FBOType : unsigned char
 		{
@@ -157,7 +162,7 @@ namespace SliceEngine
 		std::optional<GameObject> mainCam;
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<ShaderOpt, GLuint> mCurrShader;
-		std::vector<glm::mat4> mInstanceVtx;
+		std::vector<InstanceData> mInstanceVtx;
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		std::vector<BloomMip> mBloomMips;
