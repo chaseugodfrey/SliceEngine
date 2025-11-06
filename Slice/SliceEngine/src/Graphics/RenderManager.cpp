@@ -102,10 +102,7 @@ namespace SliceEngine
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mInstanceVtx.size() * sizeof(glm::mat4), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		LinkTransformInstancing((GUID)DefaultResourceIDs::CUBE_DEFAULT);
-		LinkTransformInstancing((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
-		LinkTransformInstancing((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
-		LinkTransformInstancing((GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mIVBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
