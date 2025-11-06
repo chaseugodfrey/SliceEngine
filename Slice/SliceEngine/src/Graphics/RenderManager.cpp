@@ -23,12 +23,15 @@ DigiPen Institute of Technology is prohibited.
 #include "CameraSystem.h"
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
+#include "Systems/ParticleSystemManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
 // My Comments to (Ctrl + f): -TODO- MAYDO:
+// -TODO- Currently not using mat in the InstanceData struct (original intention is to keep track of which textures to use)
+// -TODO- Make Gather Render Commands, and then draw using these commands instead lol
 #define IS_USE_BLOOM true
 
 namespace SliceEngine
@@ -102,7 +105,7 @@ namespace SliceEngine
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mIVBO);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mIVBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -192,7 +195,8 @@ namespace SliceEngine
 #pragma region Render
 	void RenderManager::Render()
 	{
-		Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
+		//Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
+		//GatherDrawCalls();// Does nothing atm
 
 		IDPick();
 
@@ -227,6 +231,13 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			RenderLighting(cam);
+
+			SetShader(S_PARTICLES);
+			// Use Same FrameBufferSettings & Don't Clear Buffer
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			LoadSettings(GPS_DEFAULT);
+			RenderAfterLighting(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
 			{
@@ -498,6 +509,40 @@ namespace SliceEngine
 			}
 		}
 	}
+	void RenderManager::RenderAfterLighting(Entity cam)
+	{
+		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get()->meshes[0];
+		glBindVertexArray(mdl.vao);
+		int cnt{};
+		GLuint lastTexID{};
+		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
+		{
+			if (ptx.textureID != lastTexID)
+			{
+				if (cnt)
+				{
+					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
+					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
+				}
+				cnt = 0;
+				lastTexID = ptx.textureID;
+				glBindTextureUnit(0, lastTexID);
+			}
+			mInstanceVtx[cnt].mtx = ptx.transform;
+			++cnt;
+			if (cnt == mMaxInstance)
+			{
+				glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
+				glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
+				cnt = 0;
+			}
+		}
+		if (cnt)
+		{
+			glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
+			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
+		}
+	}
 	void RenderManager::RenderBloom()
 	{
 		// Extract the Bright
@@ -602,6 +647,10 @@ namespace SliceEngine
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
 
 		glViewport(0, 0, camera.width, camera.height);
+	}
+	void RenderManager::GatherDrawCalls()
+	{
+
 	}
 	bool RenderManager::UniformExists(const char* str, GLint& ref)
 	{
