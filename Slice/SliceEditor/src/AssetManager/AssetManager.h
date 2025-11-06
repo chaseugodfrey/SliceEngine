@@ -64,6 +64,7 @@ namespace SliceEditor
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
 		std::unordered_map <SliceEngine::GUID, std::string> mGUIDtoFilename; // Maps GUIDs to fileName
+		std::unordered_map<std::string, SliceEngine::GUID> mFilenameToGUID; // cause asset manager initializes first
 		std::unordered_map <std::string, std::pair<AssetType,std::string>> mSupportedAssetTypes = 
 		{
 			{".png",  {AssetType::Texture, "Texture"}},
