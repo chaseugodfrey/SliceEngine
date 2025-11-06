@@ -2,6 +2,7 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <../src/Systems/SceneSystem.h>
 
 namespace SliceEditor
@@ -145,6 +146,11 @@ namespace SliceEditor
 		void Scene_Stop(SelectionManager& selectionManager)
 		{
 			selectionManager.ClearSelection(true);
+		}
+
+		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
+		{
+			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
 		}
 
 

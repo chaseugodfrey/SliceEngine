@@ -141,7 +141,7 @@ namespace SliceEditor
 						SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
 					}
 					
-					
+					processedEvents.push_back({ FileAction::Moved, rawEvents.begin()->filePath, rawEvents.at(1).filePath });
 				}
 
 				

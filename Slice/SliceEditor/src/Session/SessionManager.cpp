@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "SessionManager.h"
 #include "Selection/SelectionManager.h"
+#include "ContentBrowser/ContentBrowserManager.h"
 #include <Core/EventManager.h>
 
 namespace SliceEditor
@@ -15,6 +16,7 @@ namespace SliceEditor
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
 		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
+		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		OpenPreferences();
 	}
 
@@ -111,6 +113,14 @@ namespace SliceEditor
 		if (event.isSceneStopped)
 		{
 			EditorUtilities::Scene_Stop(*registry.GetManager<SelectionManager>("Selection"));
+		}
+	}
+
+	void SessionManager::OnAssetFileChanged(const AssetFileChangedEvent& event)
+	{
+		if (event.action == FileAction::Moved)
+		{
+			EditorUtilities::ContentBrowser_Refresh(*registry.GetManager<ContentBrowserManager>("ContentBrowser"));
 		}
 	}
 
