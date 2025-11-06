@@ -23,6 +23,8 @@ namespace SliceEngine
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
             animator.ChangeAnim(13);
+
+            Console.WriteLine("hehehehehtest time x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
         }
 
         public override void OnUpdate(float dt)
@@ -62,6 +64,18 @@ namespace SliceEngine
                 animator.ChangeAnim(13);
             }
 
+            // Up (Spacebar)
+            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
+            {
+                t.Position += new Vector3(0, 1, 0) * moveSpeed * dt;
+            }
+
+            // Down (Ctrl)
+            if (Input.IsKeyPressed(Keys.KEY_3) || Input.IsKeyDown(Keys.KEY_3))
+            {
+                t.Position -= new Vector3(0, 1, 0) * moveSpeed * dt;
+            }
+
             // Scale Up
             if (Input.IsKeyPressed(Keys.KEY_Q) || Input.IsKeyDown(Keys.KEY_Q))
             {
@@ -72,25 +86,13 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) || Input.IsKeyDown(Keys.KEY_E))
             {
                 t.Scale -= new Vector3(scaleSpeed, scaleSpeed, scaleSpeed) * dt;
-            }            
-
-            if (Input.IsKeyPressed(Keys.KEY_Z) || Input.IsKeyDown(Keys.KEY_Z))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(1, 0, 0)); // X-axis pitch
             }
 
-            if (Input.IsKeyPressed(Keys.KEY_X) || Input.IsKeyDown(Keys.KEY_X))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(0, 1, 0)); // Y-axis yaw
-            }
+            float rotationSpeedFrame = rotationSpeed * dt;
 
-            if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C))
-            {
-                float rotationSpeedFrame = rotationSpeed * dt;
-                t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1)); // Z-axis roll
-            }
+            if (Input.IsKeyPressed(Keys.KEY_Z) || Input.IsKeyDown(Keys.KEY_Z)) t.Rotate(rotationSpeedFrame, new Vector3(1, 0, 0));
+            if (Input.IsKeyPressed(Keys.KEY_X) || Input.IsKeyDown(Keys.KEY_X)) t.Rotate(rotationSpeedFrame, new Vector3(0, 1, 0));
+            if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C)) t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1));
         }
 
     }

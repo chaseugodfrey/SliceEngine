@@ -177,6 +177,8 @@ namespace SliceEngine
 
 		// todo : bring to prefab factory
 		GameObject CreateGO_Box();
+		GameObject CreateGO_Sphere();
+		GameObject CreateGO_Capsule();
 		GameObject CreateGO_Cam();
 		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 

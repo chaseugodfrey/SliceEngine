@@ -34,6 +34,7 @@ namespace SliceEngine
 	struct SliceEntity 
 	{
 		std::string mName;
+		std::string mTag;
 		bool active;
 
 		SliceEntity() : active(true) {}
@@ -211,6 +212,11 @@ namespace SliceEngine
 		JPH::ShapeRefC shape;									// Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
+
+		ColliderShape() = default;
+		ColliderShape(BoxData data) : shapeData(data) {};
+		ColliderShape(SphereData data) : shapeData(data) {};
+		ColliderShape(CapsuleData data) : shapeData(data) {};
 
 		RTTR_ENABLE();
 	};
