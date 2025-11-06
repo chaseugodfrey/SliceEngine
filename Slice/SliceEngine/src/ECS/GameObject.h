@@ -122,6 +122,8 @@ namespace SliceEngine
 
 		std::string GetName();
 		const std::string GetName() const;
+
+		void SetTag(std::string& const tag);
 		std::string GetTag();
 		const std::string GetTag() const;
 

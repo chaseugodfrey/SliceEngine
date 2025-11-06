@@ -40,7 +40,27 @@ namespace SliceEngine
 
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
-	
+
+#pragma region ENTITY FUNCTIONS
+	//static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
+	//{
+	//	std::string cStrName = MonoToString(tag);
+
+	//	std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
+
+
+	//	MonoDomain* domain = mono_domain_get();
+	//	MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+	//	for (size_t i = 0; i < entityIDs.size(); ++i)
+	//	{
+	//		mono_array_set(monoArray, uint32_t, i, entityIDs[i]);
+	//	}
+
+	//	return monoArray;
+	//}
+#pragma endregion
+
 #pragma region TRANSFORM FUNCTIONS
 
 	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
