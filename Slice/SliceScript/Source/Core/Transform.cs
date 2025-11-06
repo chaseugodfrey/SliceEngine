@@ -5,6 +5,19 @@ namespace SliceEngine
     public class Transform : Component
     {
 
+        // Required for GetComponent<T>() where T : new()
+        public Transform() { }
+        public Transform(SliceBehaviour entity)
+        {
+            Entity = entity;
+            // Initialize rotationQuat from the current rotation
+            FunctionCalls.Transform_GetPosition(Entity.mID, out Vector3 pos);
+            FunctionCalls.Transform_GetScale(Entity.mID, out Vector3 scale);
+            FunctionCalls.Transform_GetRotation(Entity.mID, out Vector3 euler);
+            Position = pos;
+            Scale = scale;
+            rotationQuat = Quaternion.FromEuler(euler);
+        }
         public Vector3 Position
         {
             get
