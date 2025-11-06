@@ -222,7 +222,13 @@ namespace SliceEditor
 
 		if (ImGui::BeginPopupContextItem("window_popup"))
 		{
-			if (ImGui::Selectable("Add GameObject"))
+			if (ImGui::BeginMenu("Create"))
+			{
+				EditorUtilities::MenuList_CreateGameObjects();
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::MenuItem("Add GameObject"))
 			{
 				EditorUtilities::GameObject_CreateEmpty(entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}

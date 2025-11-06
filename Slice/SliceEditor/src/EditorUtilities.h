@@ -21,6 +21,10 @@ namespace SliceEditor
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
 
+		// Global Popup
+		void MenuList_CreateFiles();
+		void MenuList_CreateGameObjects();
+
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);
 		void SetTheme(EditorThemeType type);
