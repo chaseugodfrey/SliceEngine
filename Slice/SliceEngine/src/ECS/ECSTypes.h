@@ -34,6 +34,7 @@ namespace SliceEngine
 	struct SliceEntity 
 	{
 		std::string mName;
+		std::string mTag;
 		bool active;
 
 		SliceEntity() : active(true) {}
@@ -239,11 +240,20 @@ namespace SliceEngine
 		bool active{ false };
 		float age{};             // how long this particle has been alive
 		
+		glm::vec3 finalPosition{};	// including parent transform position if localspace
 		glm::vec3 position{};
 		glm::quat rotation{};
 		glm::vec3 scale{};
 		glm::vec3 velocity{};    // derived from speed + angle
 		glm::vec4 colour{};       // if you want per-particle tint
+	};
+
+	struct ParticleRenderPart
+	{
+		glm::mat4 transform{}; // has position, rotation, scale calculated
+		glm::vec4 colour{};
+		GLuint textureID{};
+
 	};
 	struct ParticleSystem
 	{
@@ -258,6 +268,7 @@ namespace SliceEngine
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread
 
 		bool isRepeating{ false };
+		bool isLocalSpace{ false };				// false means world space
 
 		bool hasRandomParticleLifetime{ false };
 		float lifetime{};
@@ -321,6 +332,7 @@ namespace SliceEngine
 		std::vector<Burst> bursts{};
 
 		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
+		GLuint textureID;
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
