@@ -91,7 +91,9 @@ namespace SliceEditor
 			return;
 		}
 
-		std::vector<AssetFileChangedEvent> processedEvents;
+		//std::vector<AssetFileChangedEvent> processedEvents;
+
+		AssetFileChangedEvent processedEvents = { false };
 
 		if (rawEvents.size() > 1)
 		{
@@ -141,7 +143,7 @@ namespace SliceEditor
 						SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
 					}
 					
-					processedEvents.push_back({true});
+					processedEvents = {true};
 				}
 
 				
@@ -200,7 +202,7 @@ namespace SliceEditor
 
 							SLICE_LOG("Updated meta file for renamed asset: " + oldFilePath.filename().string());
 
-
+							processedEvents = { true };
 						}
 						catch (const std::exception& e)
 						{
@@ -214,7 +216,7 @@ namespace SliceEditor
 				}
 				
 
-				processedEvents.push_back({ true });
+				
 				
 			}
 			
@@ -231,7 +233,7 @@ namespace SliceEditor
 					}
 
 					CreateDescriptorFile(rawEvents.begin()->filePath.generic_string());
-					processedEvents.push_back({ true });
+					processedEvents = { true };
 
 					break;
 				}
@@ -244,13 +246,9 @@ namespace SliceEditor
 			}
 		}
 
+	
+			EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 		
-
-		for (const auto& event : processedEvents)
-		{
-			AssetFileChangedEvent currEvent = event;
-			EventManager::GetInstance()->Publish<AssetFileChangedEvent>(currEvent);
-		}
 
 	}
 
