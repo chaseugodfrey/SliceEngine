@@ -367,11 +367,19 @@ namespace SliceEngine
 			SetShader(S_BASIC);
 			UpdateCamVP();
 			BindCameraDepth(cam);
-			auto& navDat = Core::GetInstance()->debugMesh;
-			if (navDat.vao != 0)
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uColor");
+			auto& navDat = Core::GetInstance()->debugNavMesh;
+			if (navDat[0].vao != 0)
 			{
-				glBindVertexArray(navDat.vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat.drawCnt);
+				glUniform4f(uniformLoc, 0.f, 0.f, 0.7f, 0.4f);
+				glBindVertexArray(navDat[0].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat[0].drawCnt);
+			}
+			if (navDat[1].vao != 0)
+			{
+				glUniform4f(uniformLoc, 0.f, 0.2f, 0.25f, 0.85f);
+				glBindVertexArray(navDat[1].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat[1].drawCnt);
 			}
 		}
 
