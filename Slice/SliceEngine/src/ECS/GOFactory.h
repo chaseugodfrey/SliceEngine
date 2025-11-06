@@ -153,6 +153,7 @@ namespace SliceEngine
 		GameObject CloneGO(GameObject const& go);
 		GameObject GetGOByEntity(Entity entity);
 		GameObject GetGOByName(std::string name);
+		std::vector<Entity> GetEntitiesWithTag(std::string const& tag);
 		Entity GetRootEntity();
 		void UpdateName(std::string newName, Entity entity);
 		void Destroy(GameObject& go);
