@@ -354,8 +354,9 @@ namespace SliceEngine
 						<< " JSON Value: " << value.dump() << "\n"
 						<< " Falling back to string deserialization.";
 
+					std::string defaultStr = value.get<std::string>();
 					SLICE_LOG_ERROR(oss.str());
-					Deserialize<std::string>(componentInstance, prop, value, propName, componentName, entity);
+					Deserialize<std::string>(componentInstance, prop, defaultStr, propName, componentName, entity);
 				}
 
 			}

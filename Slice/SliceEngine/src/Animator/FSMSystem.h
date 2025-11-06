@@ -14,6 +14,7 @@ prior written consent of DigiPen Institute of Technology is prohibited.
 #define	FSMSYSTEM_H
 
 #include "../Resource/StateMachine.h"
+#include <rttr/rttr_enable.h>
 
 namespace SliceEngine
 {
@@ -31,6 +32,8 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::StateMachine> EFSM;
 		//StateMachine EFSM;
+
+		RTTR_ENABLE();
 	};
 }
 
