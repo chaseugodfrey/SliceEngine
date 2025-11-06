@@ -144,7 +144,6 @@
     <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
-    <ClInclude Include="src\Resource\StateMachine.h" />
     <ClInclude Include="src\Resource\Audio.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Material.h" />
@@ -155,6 +154,7 @@
     <ClInclude Include="src\Resource\Scene.h" />
     <ClInclude Include="src\Resource\Shader.h" />
     <ClInclude Include="src\Resource\Skeleton.h" />
+    <ClInclude Include="src\Resource\StateMachine.h" />
     <ClInclude Include="src\Resource\Texture.h" />
     <ClInclude Include="src\Scripting\ScriptFunctions.h" />
     <ClInclude Include="src\Scripting\ScriptObject.h" />
@@ -198,7 +198,6 @@
     <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
-    <ClCompile Include="src\Resource\StateMachine.cpp" />
     <ClCompile Include="src\Resource\Audio.cpp" />
     <ClCompile Include="src\Resource\Material.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
@@ -208,6 +207,7 @@
     <ClCompile Include="src\Resource\Scene.cpp" />
     <ClCompile Include="src\Resource\Shader.cpp" />
     <ClCompile Include="src\Resource\Skeleton.cpp" />
+    <ClCompile Include="src\Resource\StateMachine.cpp" />
     <ClCompile Include="src\Resource\Texture.cpp" />
     <ClCompile Include="src\Scripting\ScriptFunctions.cpp" />
     <ClCompile Include="src\Scripting\ScriptObject.cpp" />
