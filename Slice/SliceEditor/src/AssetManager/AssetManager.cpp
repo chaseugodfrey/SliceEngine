@@ -101,7 +101,7 @@ namespace SliceEditor
 			{
 
 				std::string fileName = rawEvents.begin()->filePath.stem().string();
-				GUID fileGUID;
+				
 
 				if (fileName == rawEvents.at(1).filePath.stem().string())
 				{
@@ -219,6 +219,10 @@ namespace SliceEditor
 				
 				
 			}
+			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType)
+			{
+
+			}
 			
 		}
 		else
@@ -241,6 +245,11 @@ namespace SliceEditor
 				{
 
 					//Do resource removing and blah blah here but gideon said hold off on it first
+					break;
+				}
+				case filewatch::Event::modified:
+				{
+					SLICE_LOG("Modify event " + rawEvents.begin()->filePath.string());
 					break;
 				}
 			}
