@@ -27,6 +27,17 @@ namespace SliceEngine
 			IsFalse
 		};
 
+		NLOHMANN_JSON_SERIALIZE_ENUM(ComparisonOp, {
+			{ComparisonOp::Equal, "Equal"},
+			{ComparisonOp::NotEqual, "NotEqual"},
+			{ComparisonOp::GreaterThan, "GreaterThan"},
+			{ComparisonOp::LessThan, "LessThan"},
+			{ComparisonOp::GreaterOrEqual, "GreaterOrEqual"},
+			{ComparisonOp::LessOrEqual, "LessOrEqual"},
+			{ComparisonOp::IsTrue, "IsTrue"},
+			{ComparisonOp::IsFalse, "IsFalse"}
+			})
+
 		struct Transition
 		{
 			std::string targetState;
@@ -74,8 +85,10 @@ namespace SliceEngine
 			void SetFloat(const std::string& name, float value) { parameters[name] = value; }
 			void SetInt(const std::string& name, int value) { parameters[name] = value; }
 
-			bool LoadStateMachineResource(std::string const&);
+			static StateMachine LoadStateMachineResource(std::string const&);
 		};
+
+
 	}
 }
 

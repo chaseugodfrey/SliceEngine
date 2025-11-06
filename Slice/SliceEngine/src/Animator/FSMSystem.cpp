@@ -6,6 +6,7 @@ namespace SliceEngine
 {
 	void FSMSystem::OnExit()
 	{
+		if (!EFSM.IsValid()) return;
 		EFSM->currState = nullptr;
 	}
 
@@ -28,6 +29,8 @@ namespace SliceEngine
 	}
 	void FSMSystem::CheckStates()
 	{
+		if (!EFSM.IsValid()) return;
+
 
 		if (!EFSM->currState) return;
 
@@ -49,6 +52,8 @@ namespace SliceEngine
 	}
 	void FSMSystem::UpdateState()
 	{
+		if (!EFSM.IsValid()) return;
+
 		if (!EFSM->stateCon)
 		{
 			return;

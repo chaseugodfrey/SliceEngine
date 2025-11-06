@@ -266,9 +266,9 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
-		case AssetType::Material:
-			metaData = std::make_unique<MaterialData>();
+	case AssetType::Material:
 			typeID = ResourceTypeIDs::MATERIAL;
+			metaData = std::make_unique<MaterialData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
@@ -671,7 +671,7 @@ namespace SliceEditor
 				// Create a file in asset folder
 				StateMachineData* derived = dynamic_cast<StateMachineData*>(meta.get());
 				// create a default asset file at the file path
-				//derived->SerializeAsset(filePath);
+				derived->SerializeAsset(filePath);
 
 				break;
 			}

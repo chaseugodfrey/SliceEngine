@@ -20,6 +20,8 @@ namespace SliceEngine
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+		animator.stateMachine.EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+
 		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
 		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
 
@@ -62,6 +64,8 @@ namespace SliceEngine
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
+		if (!animator.stateMachine.EFSM.IsValid()) return;
+
 		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
@@ -120,6 +124,9 @@ namespace SliceEngine
 		{
 			Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<Animator>(entity);
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
+
+			if (!animator.stateMachine.EFSM.IsValid()) return;
+
 			if (animator.timeline.isPlaying)
 			{
 				

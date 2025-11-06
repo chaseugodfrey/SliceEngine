@@ -107,7 +107,7 @@ namespace SliceEditor
 		std::string resourcePath;
 		
 		//MetaData() = default;
-		//~MetaData() = default;
+		virtual ~MetaData() = default;
 
 		void InitMetaData(const std::filesystem::path path, AssetType type, const std::string& typeName)
 		{
@@ -577,6 +577,7 @@ namespace SliceEditor
 			if (output.is_open())
 			{
 				output << metaJson.dump(4);
+				output.close();
 			}
 		}
 	};
@@ -590,16 +591,10 @@ namespace SliceEditor
 		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
 		std::string entryState;
 
-		NLOHMANN_JSON_SERIALIZE_ENUM(SliceEngine::SliceEngineTypes::ComparisonOp, {
-			{SliceEngine::SliceEngineTypes::ComparisonOp::Equal, "Equal"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::NotEqual, "NotEqual"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::GreaterThan, "GreaterThan"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::LessThan, "LessThan"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::GreaterOrEqual, "GreaterOrEqual"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::LessOrEqual, "LessOrEqual"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue, "IsTrue"},
-			{SliceEngine::SliceEngineTypes::ComparisonOp::IsFalse, "IsFalse"}
-				})
+		StateMachineData() = default;
+		~StateMachineData() = default;
+
+
 
 		void to_json(nlohmann::json& j, const rttr::variant& var)
 		{
@@ -640,9 +635,19 @@ namespace SliceEditor
 			j["exitTime"] = s.exitTime;
 			j["entryTime"] = s.entryTime;
 
-			for (auto it : s.transitions)
+			j["transitions"] = nlohmann::json::array();
+
+			for (const auto& it : s.transitions)
 			{
-				to_json(j["transition"], it);
+				nlohmann::json tempTransJson;
+
+				// 4. Call your "working" Style 2 to_json to populate it
+				to_json(tempTransJson, it);
+
+				// 5. Add the populated object to the array
+				j["transitions"].push_back(tempTransJson);
+
+				//to_json(j["transition"], it);
 			}
 		}
 
@@ -661,7 +666,6 @@ namespace SliceEditor
 
 			for (auto it : parameters)
 			{
-				//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
 				to_json(metaJson["parameters"][it.first], it.second);
 			}
 			
@@ -707,6 +711,7 @@ namespace SliceEditor
 			if (output.is_open())
 			{
 				output << metaJson.dump(4);
+				output.close();
 			}
 		}
 	};

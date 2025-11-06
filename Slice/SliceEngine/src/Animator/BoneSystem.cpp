@@ -69,6 +69,8 @@ namespace SliceEngine
 			auto& animator = core->GetRegistry().get<Animator>(root_entity);
 			auto& transform = core->GetRegistry().get<Transform>(entity);
 
+			if (!animator.stateMachine.EFSM.IsValid()) return;
+
 			if (!animator.timeline.isPlaying)
 				continue;
 

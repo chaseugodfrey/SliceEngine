@@ -218,11 +218,7 @@ namespace SliceEngine
 	//Controller
 	std::unique_ptr<SliceEngineTypes::StateMachine> Type<SliceEngineTypes::StateMachine>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		auto anim = std::make_unique<SliceEngineTypes::StateMachine>();
-		if (!anim->LoadStateMachineResource(path)) {
-			return nullptr;
-		}
-		return anim;
+		return std::make_unique<SliceEngineTypes::StateMachine>(SliceEngineTypes::StateMachine::LoadStateMachineResource(path));
 	}
 
 	void Type<SliceEngineTypes::StateMachine>::Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr)

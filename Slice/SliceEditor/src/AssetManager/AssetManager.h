@@ -105,9 +105,9 @@ namespace SliceEditor
 			{AssetType::Material, "DefaultMaterial"},
 			{AssetType::Controller, "DefaultController"}
 		};
+			std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 	private:
 		
-		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
