@@ -315,7 +315,7 @@ namespace SliceEngine
 
 		frm.StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm.getFixedDeltaTime()));
-		sTransform.UpdateWorldTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		sTransform.UpdateTransforms();
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Physics");

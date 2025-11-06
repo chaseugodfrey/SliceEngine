@@ -113,6 +113,11 @@ namespace SliceEditor
 		return new_transform;
 	}
 
+	void SceneViewWindow::UpdateCam()
+	{
+
+	}
+
 	void SceneViewWindow::Init()
 	{
 		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();

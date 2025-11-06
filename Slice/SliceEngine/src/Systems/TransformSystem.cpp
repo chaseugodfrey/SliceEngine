@@ -10,6 +10,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "TransformSystem.h"
+#include <Core/Core.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -44,7 +45,25 @@ namespace SliceEngine
 		tr.transform_local = M;
 	}
 
-	void TransformSystem::UpdateWorldTransforms(entt::entity entity, const glm::mat4& parentWorld)
+	void TransformSystem::UpdateTransforms()
+	{
+		UpdateSceneTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		UpdateEngineEntityTransforms();
+	}
+
+	void TransformSystem::UpdateEngineEntityTransforms()
+	{
+		auto entities = mRegistry->view<EngineEntity>();
+
+		for (auto entity : entities)
+		{
+			auto& tr = mRegistry->get<Transform>(entity);
+			tr.transform = tr.transform_local;
+		}
+
+	}
+
+	void TransformSystem::UpdateSceneTransforms(entt::entity entity, const glm::mat4& parentWorld)
 	{
 		auto& tr = mRegistry->get<Transform>(entity);
 		tr.transform = parentWorld * tr.transform_local;
@@ -53,7 +72,7 @@ namespace SliceEngine
 	        entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 	        while (child != entt::null) 
 			{
-	            UpdateWorldTransforms(child, tr.transform);
+	            UpdateSceneTransforms(child, tr.transform);
 	            child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 	        }
 	    }
