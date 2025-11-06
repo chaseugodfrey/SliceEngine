@@ -758,7 +758,7 @@ namespace SliceEngine
 			}
 			lock2.ReleaseLock();
 
-			if (pass = true)
+			if (pass)
 			{
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
@@ -865,6 +865,7 @@ namespace SliceEngine
 		else if (!isRigibody)
 		{
 			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			//bodySettings.mFriction = 0.6f;
 		}
 
 		//Set as sensor for triggers

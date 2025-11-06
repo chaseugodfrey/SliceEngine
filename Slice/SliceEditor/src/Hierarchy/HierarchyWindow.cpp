@@ -43,7 +43,6 @@ namespace SliceEditor
 
 
 		//Temporary Change
-
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
 		ImVec2 invisButtonSize = ImVec2(ImGui::GetContentRegionAvail().x, 2);
@@ -100,15 +99,7 @@ namespace SliceEditor
 		{
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				if (node->isSelected)
-				{
-
-				}
-
-				else
-				{
-					//mSelection->UpdateSelected(node.entity);
-				}
+				mSelection.SelectSingleAdd(node);
 			}
 
 			else
@@ -239,7 +230,13 @@ namespace SliceEditor
 
 		if (ImGui::BeginPopupContextItem("window_popup"))
 		{
-			if (ImGui::Selectable("Add GameObject"))
+			if (ImGui::BeginMenu("Create"))
+			{
+				EditorUtilities::MenuList_CreateGameObjects();
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::MenuItem("Add GameObject"))
 			{
 				EditorUtilities::GameObject_CreateEmpty(entt::null, mRegistry.GetManager<HistoryManager>("History"));
 			}

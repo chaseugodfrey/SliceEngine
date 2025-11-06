@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Shader.h"
 #include "Audio.h"
 #include "Skeleton.h"
+#include "StateMachine.h"
 
 namespace SliceEngine
 {
@@ -134,6 +135,15 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::AnimationPackage> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::StateMachine>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::StateMachine> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr);
 	};
 }
 

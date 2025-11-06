@@ -91,7 +91,7 @@ namespace SliceEditor
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);
+			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
 			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
 			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
 			{
@@ -447,32 +447,46 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			DisplayComponentHeader<SliceEngine::Animator>(entity);
-
-			ImGui::Text("Controller: ");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::Text("A00");
-
-			ImGui::Text("Playing: ");
-			ImGui::SameLine(150.f);
-			ImGui::Checkbox("##anim_isPlaying", &animator.isPlaying);
-
-
-			std::string anim_file{};
-			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
-
-			ImGui::Text("Loop: ");
-			ImGui::SameLine(150.f);
-			ImGui::Checkbox("##anim_isLoop", &animator.stateMachine.EFSM.currState->isLoop);
-
-			ImGui::Text("Next: ");
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+			if (animator.stateMachine.EFSM.IsValid())
 			{
-				animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-			}
+				DisplayComponentHeader<SliceEngine::Animator>(entity);
 
+				ImGui::Text("Controller: ");
+				ImGui::SameLine(150.0f);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::Text("A00");
+
+				ImGui::Text("Playing: ");
+				ImGui::SameLine(150.f);
+				ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+
+
+				std::string anim_file{};
+				ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Loop: ");
+				ImGui::SameLine(150.f);
+				ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+
+				ImGui::Text("Next: ");
+				ImGui::SameLine(150.f);
+				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+				{
+					animator.stateMachine.EFSM->currState->curr_anim_idx = (animator.stateMachine.EFSM->currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+				}
+
+				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM->currState->curr_anim_idx);
+
+				ImGui::Text("Prev: ");
+				ImGui::SameLine(150.f);
+				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+				{
+					if (animator.stateMachine.EFSM->currState->curr_anim_idx == 0)
+						animator.stateMachine.EFSM->currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
+					else
+						animator.stateMachine.EFSM->currState->curr_anim_idx--;
+				}
+			}
 
 			ImGui::TreePop();
 		}

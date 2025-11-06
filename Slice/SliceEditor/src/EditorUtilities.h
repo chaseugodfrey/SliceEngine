@@ -10,6 +10,8 @@ namespace SliceEditor
 	{
 		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateBox(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateModel(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history = nullptr);
 		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
@@ -18,6 +20,10 @@ namespace SliceEditor
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
+
+		// Global Popup
+		void MenuList_CreateFiles();
+		void MenuList_CreateGameObjects();
 
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);

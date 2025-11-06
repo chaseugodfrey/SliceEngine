@@ -20,7 +20,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	void EntityOnEnter(entt::registry& reg, entt::entity entity)
+	void BoneSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<Bone_Entity>();
@@ -44,6 +44,8 @@ namespace SliceEngine
 			if (Core::GetInstance()->GetRegistry().any_of<Renderer>(entity)) {
 				animator.inverse_flags.set(bone.frame_idx);
 			}
+
+			animator.SetInverseRoots();
 		}
 	}
 
@@ -67,7 +69,9 @@ namespace SliceEngine
 			auto& animator = core->GetRegistry().get<Animator>(root_entity);
 			auto& transform = core->GetRegistry().get<Transform>(entity);
 
-			if (!animator.isPlaying)
+			if (!animator.stateMachine.EFSM.IsValid()) return;
+
+			if (!animator.timeline.isPlaying)
 				continue;
 
 			//some pseudo code

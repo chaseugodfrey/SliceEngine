@@ -49,15 +49,15 @@ namespace SliceEditor
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
 
-		AddWindow("ContentBrowser");
-		AddWindow("Profiler");
-		AddWindow<NavigationWindow>();
+		AddWindow<ContentBrowserWindow>("ContentBrowser", true);
+		AddWindow<ProfilerWindow>("Profiler", true);
+		AddWindow<NavigationWindow>(true);
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>();
+		AddWindow<AnimationWindow>(true);
 	}
 
 	void WindowManager::Update()
@@ -72,20 +72,6 @@ namespace SliceEditor
 	void WindowManager::RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance)
 	{
 		windowFactoryMap[name] = interfaceInstance;
-	}
-
-	void WindowManager::AddWindow(const std::string& name)
-	{
-		auto it = windowFactoryMap.find(name);
-		if (it != windowFactoryMap.end())
-		{
-			auto window = it->second->CreateEditorWindow();
-			list.push_back(std::move(window));
-		}
-		else
-		{
-			SLICE_LOG_ERROR(std::string("No registered window with name: ") + name.c_str());
-		}
 	}
 
 	void WindowManager::Render()
@@ -178,7 +164,7 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Content Browser"))
 			{
-				registry.GetManager<ProfilerManager>("ContentBrowser")->CreateEditorWindow();
+				AddWindow<ContentBrowserWindow>("ContentBrowser", true);
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -208,7 +194,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Profiler"))
 			{
-				AddWindow("Profiler");
+				AddWindow<ProfilerWindow>("Profiler", true);
 			}
 
 			if (ImGui::MenuItem("Animation"))
@@ -228,24 +214,9 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
-			if (ImGui::BeginMenu("3D Object"))
-			{
-				if (ImGui::MenuItem("Box"))
-				{
-					EditorUtilities::GameObject_CreateBox();
-				}
-
-				ImGui::EndMenu();
-			}
-
-			if (ImGui::MenuItem("Camera"))
-			{
-				EditorUtilities::GameObject_CreateCam();
-			}
-
+			EditorUtilities::MenuList_CreateGameObjects();
 			ImGui::EndMenu();
 		}
-
 #pragma region Custom Title Bar (Disabled for now)
 		//// todo : custom title bar!!!
 		//ImGui::SetCursorPosX(ImGui::GetWindowContentRegionMax().x - 30);
@@ -307,7 +278,6 @@ namespace SliceEditor
 					
 				}
 							
-				
 			}
 		}
 		else
@@ -359,17 +329,16 @@ namespace SliceEditor
 			}
 		}
 
-		ImGui::SameLine();
-		if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
-		{
-			ImGui::OpenPopup("host_req");
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
-		{
-			ImGui::OpenPopup("connect_req");
-
-		}
+		//ImGui::SameLine();
+		//if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
+		//{
+		//	ImGui::OpenPopup("host_req");
+		//}
+		//ImGui::SameLine();
+		//if (ImGui::Button("Connect", ImVec2{ 60, 35 }))
+		//{
+		//	ImGui::OpenPopup("connect_req");
+		//}
 
 		ImGui::SameLine();
 		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
@@ -379,9 +348,9 @@ namespace SliceEditor
 				SliceEngine::gScriptSystem->ReloadAssembly();
 			}
 		}
+
 		if (ImGui::BeginPopup("host_req"))
 		{
-
 			ImGui::Text("Input Port: ");
 			ImGui::SameLine();
 			static std::string bindport;

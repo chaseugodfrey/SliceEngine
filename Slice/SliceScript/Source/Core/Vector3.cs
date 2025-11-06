@@ -85,6 +85,16 @@ namespace SliceEngine
             );
         }
 
+        public float LengthSquared()
+        {
+            return x * x + y * y + z * z;
+        }
+
+        public float Length()
+        {
+            return (float)Math.Sqrt(LengthSquared());
+        }
+
         public override int GetHashCode()
         {
             // A common way to combine hash codes on older frameworks

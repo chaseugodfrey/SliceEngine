@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <filesystem>
 #include "../../SliceEngine/src/Resource/ResourceManager.h"
+#include "../../SliceEngine/src/Animator/FSMSystem.h"
 
 namespace SliceEditor
 {
@@ -32,6 +33,7 @@ namespace SliceEditor
 		Shader,
 		Material,
 		Prefab,
+		Controller,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -90,6 +92,7 @@ namespace SliceEditor
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
+		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 
 	}
 
@@ -104,7 +107,7 @@ namespace SliceEditor
 		std::string resourcePath;
 		
 		//MetaData() = default;
-		//~MetaData() = default;
+		virtual ~MetaData() = default;
 
 		void InitMetaData(const std::filesystem::path path, AssetType type, const std::string& typeName)
 		{
@@ -136,6 +139,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Prefab:
 				typeID = ResourceTypeIDs::PREFAB;
+				break;
+			case AssetType::Controller:
+				typeID = ResourceTypeIDs::CONTROLLER;
 				break;
 			case AssetType::Material:
 				typeID = ResourceTypeIDs::MATERIAL;
@@ -571,6 +577,151 @@ namespace SliceEditor
 			if (output.is_open())
 			{
 				output << metaJson.dump(4);
+				output.close();
+			}
+		}
+	};
+
+	struct StateMachineData : public MetaData
+	{
+
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
+
+		std::map<std::string, rttr::variant> parameters;
+		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
+		std::string entryState;
+
+		StateMachineData() = default;
+		~StateMachineData() = default;
+
+
+
+		void to_json(nlohmann::json& j, const rttr::variant& var)
+		{
+			rttr::type type = var.get_type();
+
+			if (type == rttr::type::get<int>()) {
+				j = var.get_value<int>();
+			}
+			else if (type == rttr::type::get<float>()) {
+				j = var.get_value<float>();
+			}
+			else if (type == rttr::type::get<double>()) {
+				j = var.get_value<double>();
+			}
+			else if (type == rttr::type::get<bool>()) {
+				j = var.get_value<bool>();
+			}
+			else if (type == rttr::type::get<std::string>()) {
+				j = var.get_value<std::string>();
+			}
+			else {
+				// Handle unknown types, e.g., serialize as null or throw
+				j = nullptr;
+			}
+		}
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Transition& t)
+		{
+			j["targetState"] = t.targetState;
+			to_json(j["condition"], t.condition);
+			j["parameterName"] = t.parameterName;
+			j["comparisonOP"] = t.operation;
+		}
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::State& s)
+		{
+			j["stateName"] = s.stateName;
+			j["currAnimIdx"] = s.curr_anim_idx;
+			j["hasExitTime"] = s.hasExitTime;
+			j["exitTime"] = s.exitTime;
+			j["entryTime"] = s.entryTime;
+
+			j["transitions"] = nlohmann::json::array();
+
+			for (const auto& it : s.transitions)
+			{
+				nlohmann::json tempTransJson;
+
+				// 4. Call your "working" Style 2 to_json to populate it
+				to_json(tempTransJson, it);
+
+				// 5. Add the populated object to the array
+				j["transitions"].push_back(tempTransJson);
+
+				//to_json(j["transition"], it);
+			}
+		}
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+			metaJson["entryState"] = entryState;
+
+			for (auto it : parameters)
+			{
+				to_json(metaJson["parameters"][it.first], it.second);
+			}
+			
+			for (auto it : stateMap)
+			{
+				to_json(metaJson["stateMap"][it.first], it.second);
+			}
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+			nlohmann::json metaJson;
+			// specific properties to shader goes here but we dh that yet
+			//metaJson["entryState"] = entryState;
+			metaJson["entryState"] = "Idle";
+
+			for (auto it : parameters)
+			{
+				//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
+				to_json(metaJson["parameters"][it.first], it.second);
+			}
+
+			for (auto it : stateMap)
+			{
+				to_json(metaJson["stateMap"][it.first], it.second);
+			}
+
+			SliceEngine::SliceEngineTypes::State tmpState;
+			tmpState.curr_anim_idx = 13;
+			tmpState.stateName = "Idle";
+			tmpState.hasExitTime = false;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+
+			to_json(metaJson["stateMap"]["Idle"], tmpState);
+
+			std::ofstream output(desc_path);
+
+			if (output.is_open())
+			{
+				output << metaJson.dump(4);
+				output.close();
 			}
 		}
 	};

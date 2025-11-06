@@ -113,6 +113,11 @@ namespace SliceEditor
 		return new_transform;
 	}
 
+	void SceneViewWindow::UpdateCam()
+	{
+
+	}
+
 	void SceneViewWindow::Init()
 	{
 		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();
@@ -214,20 +219,24 @@ namespace SliceEditor
 				mCameraSpeed = std::clamp(mCameraSpeed, 0.0f, 5.0f);
 			}
 
-			if (ImGui::IsKeyDown(ImGuiKey_W))
+			else
 			{
-				mGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				if (ImGui::IsKeyDown(ImGuiKey_W))
+				{
+					mGuizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_E))
+				{
+					mGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
+				}
+
+				if (ImGui::IsKeyDown(ImGuiKey_R))
+				{
+					mGuizmoOperation = ImGuizmo::OPERATION::SCALE;
+				}
 			}
 
-			if (ImGui::IsKeyDown(ImGuiKey_E))
-			{
-				mGuizmoOperation = ImGuizmo::OPERATION::ROTATE;
-			}
-
-			if (ImGui::IsKeyDown(ImGuiKey_R))
-			{
-				mGuizmoOperation = ImGuizmo::OPERATION::SCALE;
-			}
 
 			//static ImVec2 rotate_anchor{};
 			static bool isRotating = false;
@@ -483,7 +492,7 @@ namespace SliceEditor
 				{
 					if (io.KeyCtrl)
 					{
-
+						mSelection->SelectSingleAdd(selectedEntity);
 					}
 
 					else

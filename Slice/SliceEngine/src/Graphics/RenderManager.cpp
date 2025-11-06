@@ -268,15 +268,15 @@ namespace SliceEngine
 				auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 				auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
 
-				transform.transform = glm::mat4x4(1.f);
-				transform.transform = glm::translate(transform.transform, transform.position);
-				glm::mat4 Rot = glm::mat4_cast(transform.rotation);
+				//transform.transform = glm::mat4x4(1.f);
+				//transform.transform = glm::translate(transform.transform, transform.position);
+				//glm::mat4 Rot = glm::mat4_cast(transform.rotation);
 
 				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
-				transform.transform *= Rot;
-				transform.transform = glm::scale(transform.transform, transform.scale);
+				//transform.transform *= Rot;
+				//transform.transform = glm::scale(transform.transform, transform.scale);
 
-				glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
+				//glm::vec3 dirFacing = Rot * glm::vec4(0.f, 0.f, 1.f, 1.f);
 
 				float tanT = tanf(glm::radians(camera.pov) * 0.5f);
 
@@ -309,7 +309,9 @@ namespace SliceEngine
 				// Frustrum Rendering
 				glNamedBufferSubData(frustrum.meshes[0].vbo, 0, frustrum.vtx.size() * sizeof(glm::vec3), frustrum.vtx.data());
 
-				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &transform.transform[0][0]);
+				glm::mat4 camMtx = glm::rotate(transform.transform, -PI05F, glm::vec3(0.f,1.f,0.f));
+
+				glNamedBufferSubData(mIVBO, 0, sizeof(glm::mat4), &camMtx[0][0]);
 
 				glBindVertexArray(frustrum.meshes[0].vao);
 				glDrawArraysInstanced(frustrum.meshes[0].drawMode, 0, frustrum.meshes[0].drawCnt, 1);
@@ -613,15 +615,15 @@ namespace SliceEngine
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
-		glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
-		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
+		auto& worldTr = camTrans.transform;
+
+		glm::vec3 camPosition{ worldTr[3] }, target{1.f, 0.f, 0.f}, up{0.f, 1.f, 0.f};
+		glm::mat3 rot = glm::mat3(worldTr);
 
 		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
-		glm::vec3 forward = camTrans.rotation * glm::vec3(1.0f, 0.0f, 0.0f);
-		glm::vec3 upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 forward = glm::normalize(rot * target);
 
-
-		V = glm::lookAt(camTrans.position, camTrans.position + forward , upVec);
+		V = glm::lookAt(camPosition, camPosition + forward, up);
 
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}
