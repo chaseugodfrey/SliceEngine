@@ -19,7 +19,8 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
-	{}
+	{
+	}
 
 	void ContentBrowserWindow::Init()
 	{
@@ -44,7 +45,7 @@ namespace SliceEditor
 		/*Asset Directory*/
 		ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
 
-		if(left_region.x > 0 && left_region.y > 0)
+		if (left_region.x > 0 && left_region.y > 0)
 		{
 			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
 			{
@@ -60,13 +61,22 @@ namespace SliceEditor
 		/*Folder Directory*/
 		ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
 
-		if(right_region.x > 0 && right_region.y > 0)
+		if (right_region.x > 0 && right_region.y > 0)
 		{
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
 
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
+			}
+
+			ImGui::OpenPopupOnItemClick("menu_create");
+
+			if (ImGui::BeginPopupContextItem("menu_create"))
+			{
+				EditorUtilities::MenuList_CreateFiles();
+
+				ImGui::EndPopup();
 			}
 		}
 

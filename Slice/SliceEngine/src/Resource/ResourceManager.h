@@ -96,10 +96,10 @@ namespace SliceEngine
 				//return Handle<T>();
 			}
 
-			if (assetGUID == (GUID)10819322238111217941)
-			{
-				SLICE_LOG_DEBUG("GETTING MATERIAL");
-			}
+			//if (assetGUID == (GUID)10819322238111217941)
+			//{
+			//	SLICE_LOG_DEBUG("GETTING MATERIAL");
+			//}
 
 
 			auto it = mInstances.find(assetGUID);

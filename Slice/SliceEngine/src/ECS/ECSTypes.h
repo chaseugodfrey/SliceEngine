@@ -213,6 +213,11 @@ namespace SliceEngine
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
+		ColliderShape() = default;
+		ColliderShape(BoxData data) : shapeData(data) {};
+		ColliderShape(SphereData data) : shapeData(data) {};
+		ColliderShape(CapsuleData data) : shapeData(data) {};
+
 		RTTR_ENABLE();
 	};
 
@@ -342,13 +347,20 @@ namespace SliceEngine
 		float emissionAccumulator{};
 	};
 
+	struct Timeline
+	{
+		int32_t f_current, f_min{ 0 }, f_max{ 60 };
+		bool isPlaying, isLoop;
+	};
 
 	struct Animator
 	{
-		FSMSystem stateMachine{};
-		float animTimer = 0.0f;
-		bool is_bone{ true };
+		FSMSystem stateMachine;
+
 		float current_time{};
+		Timeline timeline;
+
+		bool is_bone{ true };
 
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
@@ -359,7 +371,6 @@ namespace SliceEngine
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 
-		unsigned int curr_anim_idx{};
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
 
@@ -385,7 +396,7 @@ namespace SliceEngine
 
 		void PlayAnimation(unsigned int idx) 
 		{
-			curr_anim_idx = idx;
+			stateMachine.EFSM->currState->curr_anim_idx = idx;
 		}
 
 		std::vector<glm::mat4> const& GetFinalTform() const
@@ -403,6 +414,8 @@ namespace SliceEngine
 
 		RTTR_ENABLE();
 	};
+
+	
 }
 
 #endif
