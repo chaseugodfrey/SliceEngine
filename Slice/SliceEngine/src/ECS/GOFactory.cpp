@@ -132,7 +132,7 @@ namespace SliceEngine
 
 		return newGO;
 	}
-
+	
 	GameObject GOFactory::GetGOByName(std::string name)
 	{
 		auto it = mNameToEntity.find(name);

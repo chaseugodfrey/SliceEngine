@@ -50,6 +50,8 @@ namespace SliceEngine
 		return std::string(); // blank str
 	}
 
+
+
 	void GameObject::Destroy()
 	{
 

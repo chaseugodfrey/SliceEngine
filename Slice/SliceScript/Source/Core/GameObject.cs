@@ -10,12 +10,18 @@ namespace SliceEngine
     // if GO is component, it cannot getcomponent, if GO is SliceBehaviour, it will show up under scripts when it shouldnt :(
     public class GameObject : Component
     {
-        public string tag
-        { 
-            get
+        public string name
+        {
+            get => name;
+            set
             {
-                return tag;
+                name = value;
             }
+        }
+
+        public string tag
+        {
+            get => tag;
             set
             {
                 tag = value;
