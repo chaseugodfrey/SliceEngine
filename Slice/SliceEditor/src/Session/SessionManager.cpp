@@ -118,7 +118,7 @@ namespace SliceEditor
 
 	void SessionManager::OnAssetFileChanged(const AssetFileChangedEvent& event)
 	{
-		if (event.action == FileAction::Moved)
+		if (event.assetChangeSuccess == true)
 		{
 			EditorUtilities::ContentBrowser_Refresh(*registry.GetManager<ContentBrowserManager>("ContentBrowser"));
 		}

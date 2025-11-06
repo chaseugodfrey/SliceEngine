@@ -29,19 +29,6 @@ namespace SliceEditor
 	struct DirectoryNode;
 	class Registry;
 
-	enum class FileEventType
-	{
-		ADDED,
-		REMOVED,
-		MODIFIED
-	};
-
-	struct FileEvent
-	{
-		std::filesystem::path path;
-		FileEventType type;
-	};
-
 	class ContentBrowserManager : public IBaseManager, public ICreateWindow
 	{
 

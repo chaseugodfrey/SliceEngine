@@ -25,9 +25,7 @@ namespace SliceEditor
 
 	struct AssetFileChangedEvent
 	{
-		FileAction action;
-		std::filesystem::path filePath;
-		std::filesystem::path newFilePath;
+		bool assetChangeSuccess;
 	};
 
 	struct UndoEvent

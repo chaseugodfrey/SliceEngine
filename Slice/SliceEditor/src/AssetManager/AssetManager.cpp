@@ -99,7 +99,7 @@ namespace SliceEditor
 			{
 
 				std::string fileName = rawEvents.begin()->filePath.stem().string();
-				SliceEngine::GUID fileGUID;
+				GUID fileGUID;
 
 				if (fileName == rawEvents.at(1).filePath.stem().string())
 				{
@@ -114,7 +114,7 @@ namespace SliceEditor
 						{
 							try
 							{
-								// 2. Read the JSON content
+								
 								std::ifstream inFile(metaFilePath);
 								nlohmann::json metaJson;
 								inFile >> metaJson;
@@ -123,7 +123,7 @@ namespace SliceEditor
 								std::filesystem::path newAssetPath = rawEvents.at(3).filePath;
 								metaJson["assetPath"] = newAssetPath.string();
 
-								// 4. Write back to file
+								
 								std::ofstream outFile(metaFilePath);
 								outFile << metaJson.dump(4); // 4 spaces for pretty printing
 								outFile.close();
@@ -141,11 +141,80 @@ namespace SliceEditor
 						SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
 					}
 					
-					processedEvents.push_back({ FileAction::Moved, rawEvents.begin()->filePath, rawEvents.at(1).filePath });
+					processedEvents.push_back({true});
 				}
 
 				
 
+				
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::renamed_old && rawEvents.at(1).changeType == filewatch::Event::renamed_new)
+			{
+				std::filesystem::path oldFilePath(rawEvents.begin()->filePath);
+				std::filesystem::path newFilePath(rawEvents.at(1).filePath);
+				
+				SliceEngine::GUID fileGUID;
+
+				//rename old 0
+				//rename new 1
+				//modify 2
+
+				//Check if the files are in the same folder and if files are the same extension
+				if (oldFilePath.parent_path().string() == newFilePath.parent_path().string() && oldFilePath.extension() == newFilePath.extension())
+				{
+					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+
+					//Find the resource meta file using the old file name
+					auto path = resourceMgr->GetResourcePath(oldFilePath.stem().string());
+					if (path.has_value())
+					{
+						std::filesystem::path metaFilePath = path.value();
+						metaFilePath.replace_extension(".meta");
+
+						std::string guidString = metaFilePath.stem().string();
+						fileGUID = SliceEngine::GUID::FromString(guidString);
+						// 2. Use the helper to create the GUID object
+						
+
+						try
+						{
+							std::ifstream inFile(metaFilePath);
+							nlohmann::json metaJson;
+							inFile >> metaJson;
+							inFile.close();
+
+							std::filesystem::path newAssetPath = newFilePath;
+							std::string newAssetName = newFilePath.stem().string();
+
+							metaJson["assetName"] = newAssetName;
+							metaJson["assetPath"] = newAssetPath;
+							
+
+							std::ofstream outFile(metaFilePath);
+							outFile << metaJson.dump(4); // 4 spaces for pretty printing
+							outFile.close();
+
+							mGUIDtoFilename[fileGUID] = newFilePath.filename().string();
+							resourceMgr->mFileNameToGUID.erase(oldFilePath.stem().string());
+							resourceMgr->mFileNameToGUID.emplace(std::pair< std::string, SliceEngine::GUID>(newFilePath.stem().string(), fileGUID));
+
+							SLICE_LOG("Updated meta file for renamed asset: " + oldFilePath.filename().string());
+
+
+						}
+						catch (const std::exception& e)
+						{
+							SLICE_LOG_ERROR("Failed to update meta file for " + oldFilePath.filename().string() + ": " + e.what());
+						}
+					}
+					else
+					{
+						SLICE_LOG_WARNING("Could not find resource path for renamed old file: " + newFilePath.filename().string());
+					}
+				}
+				
+
+				processedEvents.push_back({ true });
 				
 			}
 			
@@ -162,12 +231,13 @@ namespace SliceEditor
 					}
 
 					CreateDescriptorFile(rawEvents.begin()->filePath.generic_string());
-					processedEvents.push_back({ FileAction::Added, rawEvents.begin()->filePath.generic_string() });
+					processedEvents.push_back({ true });
 
 					break;
 				}
 				case filewatch::Event::removed:
 				{
+
 					//Do resource removing and blah blah here but gideon said hold off on it first
 					break;
 				}
