@@ -693,7 +693,8 @@ namespace SliceEditor
 		{
 			nlohmann::json metaJson;
 			// specific properties to shader goes here but we dh that yet
-			metaJson["entryState"] = entryState;
+			//metaJson["entryState"] = entryState;
+			metaJson["entryState"] = "Idle";
 
 			for (auto it : parameters)
 			{
@@ -705,6 +706,15 @@ namespace SliceEditor
 			{
 				to_json(metaJson["stateMap"][it.first], it.second);
 			}
+
+			SliceEngine::SliceEngineTypes::State tmpState;
+			tmpState.curr_anim_idx = 13;
+			tmpState.stateName = "Idle";
+			tmpState.hasExitTime = false;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+
+			to_json(metaJson["stateMap"]["Idle"], tmpState);
 
 			std::ofstream output(desc_path);
 

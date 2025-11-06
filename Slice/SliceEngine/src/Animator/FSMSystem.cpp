@@ -12,7 +12,7 @@ namespace SliceEngine
 
 	void FSMSystem::InitState()
 	{
-		EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(static_cast<GUID>(0));
+		EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(static_cast<GUID>(9857886709116471337));
 		if(EFSM.IsValid())
 		{
 			if (EFSM->stateMap.size() == 0)
