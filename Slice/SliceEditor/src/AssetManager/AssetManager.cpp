@@ -170,7 +170,7 @@ namespace SliceEditor
 		return "";
 	}
 
-	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
+	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
 
@@ -221,6 +221,7 @@ namespace SliceEditor
 			resourceMgr->RegisterResourceAsset(metaPath.string());
 		}
 
+		return metaPath;
 	}
 
 	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
