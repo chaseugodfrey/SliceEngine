@@ -76,6 +76,24 @@ namespace SliceEngine
             }
             return false;
         }
+        public static Vector3 Cross(Vector3 a, Vector3 b)
+        {
+            return new Vector3(
+                a.y * b.z - a.z * b.y,
+                a.z * b.x - a.x * b.z,
+                a.x * b.y - a.y * b.x
+            );
+        }
+
+        public float LengthSquared()
+        {
+            return x * x + y * y + z * z;
+        }
+
+        public float Length()
+        {
+            return (float)Math.Sqrt(LengthSquared());
+        }
 
         public override int GetHashCode()
         {

@@ -33,10 +33,14 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
-        public T GetComponent<T>() where T : Component, new()
+        public T GetComponent<T>() where T : Component
         {
-            T component = new T() { Entity = this };
-            return component;
+            var ctor = typeof(T).GetConstructor(new[] { typeof(SliceBehaviour) });
+            if (ctor == null)
+                throw new InvalidOperationException(
+                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(SliceBehaviour)})");
+
+            return (T)ctor.Invoke(new object[] { this });
         }
     }
 }

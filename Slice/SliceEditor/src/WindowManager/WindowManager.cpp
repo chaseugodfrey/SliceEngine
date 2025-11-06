@@ -245,6 +245,26 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateBox();
 				}
 
+				if (ImGui::MenuItem("Sphere"))
+				{
+					EditorUtilities::GameObject_CreateSphere();
+				}
+
+				if (ImGui::MenuItem("Capsule"))
+				{
+					EditorUtilities::GameObject_CreateCapsule();
+				}
+
+				if (ImGui::MenuItem("Quad"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				if (ImGui::MenuItem("Plane"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -317,7 +337,6 @@ namespace SliceEditor
 					
 				}
 							
-				
 			}
 		}
 		else
