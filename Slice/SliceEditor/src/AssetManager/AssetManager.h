@@ -51,16 +51,20 @@ namespace SliceEditor
 		std::string CreateDescriptorFile(const std::filesystem::path filePath);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
-		void CreateResource(MetaData* metaData, AssetType assetType);
+		void CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
+		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
+		void RecompileAsset(MetaData* metaData);
+
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
@@ -81,7 +85,8 @@ namespace SliceEditor
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".mat", {AssetType::Material, "Material"}},
-			{".prefab", {AssetType::Prefab, "Prefab"}}
+			{".prefab", {AssetType::Prefab, "Prefab"}},
+			{".controller",{AssetType::Controller, "Controller"}}
 			//{".vert", AssetType::Shader},
 			//{".frag", AssetType::Shader}
 		};
@@ -96,11 +101,18 @@ namespace SliceEditor
 			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"},
 			{AssetType::Skeleton, ".skl"},
-			{AssetType::Animation, ".animpkg"}
+			{AssetType::Animation, ".animpkg"},
+			{AssetType::Controller, ".controller" }
 		};
+
+		std::unordered_map<AssetType, std::string> mDefaultNames =
+		{
+			{AssetType::Material, "DefaultMaterial"},
+			{AssetType::Controller, "DefaultController"}
+		};
+			std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 	private:
 		
-		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 

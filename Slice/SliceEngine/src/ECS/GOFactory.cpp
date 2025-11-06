@@ -560,9 +560,28 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+	}
+	
+	GameObject GOFactory::CreateGO_Sphere()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<RigidBody>();
 
-		//testing only
-		//return CreateGO_Model((GUID)17518266545644652909);
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Capsule()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
 	}
 
 	GameObject GOFactory::CreateGO_Cam()

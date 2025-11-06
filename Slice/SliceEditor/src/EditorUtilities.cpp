@@ -42,6 +42,38 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Sphere();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Capsule();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
@@ -153,6 +185,106 @@ namespace SliceEditor
 			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
 		}
 
+		void MenuList_CreateFiles()
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				if (ImGui::MenuItem("Folder"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Material"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Animation Clip"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Animator Controller"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Shader"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		void MenuList_CreateGameObjects()
+		{
+			if (ImGui::MenuItem("Camera"))
+			{
+				EditorUtilities::GameObject_CreateCam();
+			}
+
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				if (ImGui::MenuItem("Sphere"))
+				{
+					EditorUtilities::GameObject_CreateSphere();
+				}
+
+				if (ImGui::MenuItem("Capsule"))
+				{
+					EditorUtilities::GameObject_CreateCapsule();
+				}
+
+				if (ImGui::MenuItem("Quad"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				if (ImGui::MenuItem("Plane"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("UI"))
+			{
+				if (ImGui::MenuItem("Canvas"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Text"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Image"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Button"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Slider"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
 
 		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
 		{

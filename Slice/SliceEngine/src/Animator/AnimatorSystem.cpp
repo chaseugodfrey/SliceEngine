@@ -20,6 +20,8 @@ namespace SliceEngine
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+		animator.stateMachine.EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+
 		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
 		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
 
@@ -27,7 +29,9 @@ namespace SliceEngine
 
 		animator.stateMachine.InitState();
 
-		animator.animTimer = 0.0f;
+		animator.timeline.isPlaying = true;
+		animator.timeline.isLoop = true;
+
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -44,9 +48,6 @@ namespace SliceEngine
 
 		animator.stateMachine.UpdateState();
 
-		{
-			animator.animTimer += dt;
-		}
 
 		UpdateAnimation(animator, dt);
 
@@ -63,25 +64,58 @@ namespace SliceEngine
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
-		animator.current_time += dt;
+		if (!animator.stateMachine.EFSM.IsValid()) return;
 
-		//Bone animation
-		if (animator.is_bone) {
-			auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
-
-			while (animator.current_time > anim.duration) {
-				animator.current_time -= anim.duration;
-				animator.curr_anim_idx = (animator.curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-				if (anim.duration <= 0.f) {
-					return;
+		if (animator.timeline.isPlaying)
+		{
+			//Bone animation
+			if (animator.is_bone) {
+				auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM->currState->curr_anim_idx];
+				if (anim.duration <= 0.0f)
+				{
+					// This is a static pose. Don't advance time, just hold frame 0.
+					animator.current_time = 0.0f;
 				}
+				else
+				{
+					animator.current_time += dt;
+
+					if (animator.current_time > anim.duration)
+					{
+
+						if (!animator.timeline.isLoop)
+						{
+							animator.timeline.isPlaying = false;
+							return;
+						}
+						else
+						{
+							animator.timeline.isPlaying = true;
+							animator.current_time = std::fmod(animator.current_time, anim.duration);
+
+						}
+					}
+					//while (animator.current_time > anim.duration) 
+					//{
+					//	animator.current_time -= anim.duration;
+					//	//animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+					//	if (anim.duration <= 0.f) 
+					//	{
+					//		return;
+					//	}
+					//}
+
+
+				}
+				//anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
+				float safe_time = std::min(animator.current_time, anim.duration);
+				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
+
 			}
+			//non bone animation
+			else {
 
-			anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
-		}
-		//non bone animation
-		else {
-
+			}
 		}
 	}
 	void AnimatorSystem::BoneUpdate() {
@@ -91,13 +125,22 @@ namespace SliceEngine
 			Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<Animator>(entity);
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
-			if (animator.is_bone) {
-				auto const& anim = animator.curr_anim_pkg.animations[animator.curr_anim_idx];
+			if (!animator.stateMachine.EFSM.IsValid()) return;
 
-				anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
-				animator.SetInverseRoots();
-				anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+			if (animator.timeline.isPlaying)
+			{
+				
+				if (animator.is_bone) {
+					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM->currState->curr_anim_idx];
+
+					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
+					animator.SetInverseRoots();
+					anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+				}
+				
 			}
+
 		}
+
 	}
 }

@@ -17,7 +17,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <ContentBrowser/ContentBrowserWindow.h>
 #include <Profiler/ProfilerWindow.h>
-#include <Hierachy/HierarchyWindow.h>
+#include <Hierarchy/HierarchyWindow.h>
 #include <Inspector/InspectorWindow.h>
 #include <SceneView/SceneViewWindow.h>
 #include <GameView/GameViewWindow.h>

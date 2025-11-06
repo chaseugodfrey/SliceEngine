@@ -284,6 +284,17 @@ namespace SliceEngine
 
     void ScriptSystem::ReloadAssembly()
     {
+        // temporary until we find a btr way
+        // cause itll freeze the engine for a bit
+        // mayb a pop up window to show its recompiling or smth by having this threaded
+
+        int buildResult = system("dotnet build \"../SliceScript/SliceScript.csproj\"");
+
+        if (buildResult != 0)
+        {
+            return;
+        }
+
         for (auto [entity, instance] : mEntityInstances)
         {
             entityAdded.push_back(entity);

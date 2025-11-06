@@ -144,6 +144,7 @@
     <ClInclude Include="src\Physics\ContactListener.h" />
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
+    <ClInclude Include="src\Resource\StateMachine.h" />
     <ClInclude Include="src\Resource\Audio.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Material.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\Physics\ContactListener.cpp" />
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
+    <ClCompile Include="src\Resource\StateMachine.cpp" />
     <ClCompile Include="src\Resource\Audio.cpp" />
     <ClCompile Include="src\Resource\Material.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />

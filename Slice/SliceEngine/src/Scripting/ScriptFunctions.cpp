@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Input/InputSystem.h"
 #include "../Physics/PhysicsSystem.h"
 #include "../Logger/Logger.h"
+#include "../Graphics/TransformHelper.h"
 
 namespace SliceEngine
 {
@@ -36,6 +37,8 @@ namespace SliceEngine
 
 		return result;
 	}
+
+	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
 
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
@@ -74,12 +77,15 @@ namespace SliceEngine
 	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		glm::vec3 euler = SliceEngine::QuatToVec3(transform.rotation);
+		*outRotation = euler;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
 	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
@@ -96,7 +102,7 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
-#pragma region Console Logging functions
+#pragma region CONSOLE LOGGING FUNCTIONS
 
 	static void Log(MonoString* string)
 	{
@@ -207,7 +213,39 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region ENTITY FUNCTIONS
+	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType* componentType)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		MonoType* monoType = mono_reflection_type_get_type(componentType);
 
+		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
+		{
+			// component not registered
+			SLICE_LOG_ERROR("Component Not Registered");
+			assert("Component not registered");
+		}
+
+		return mGameObjectHasComponentFuncs[monoType](GO);
+
+	}
+#pragma endregion
+
+#pragma region ANIMATION FUNCTIONS
+	static void ChangeAnim(unsigned int entityID, unsigned int animID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			auto& anim = GO.GetComponent<Animator>();
+		//	anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
+		}
+		else
+		{
+			SLICE_LOG_DEBUG("Entity does not have animator");
+		}
+	}
+#pragma endregion
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -225,8 +263,7 @@ namespace SliceEngine
 			return;
 		}
 		// Old method of storing has component functions
-		// mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
-
+		 mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
 	}
 
 		/// <summary>
@@ -236,9 +273,10 @@ namespace SliceEngine
 	{
 		// if we hotload and need to rerun the linking and reinit mono
 		// then we might need to clear the map before registering again
-		//mGameObjectHasComponentFuncs.clear();
+		mGameObjectHasComponentFuncs.clear();
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
+		RegisterComponent< Animator>();
 		//RegisterComponent<Collider2D>();
 		//RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
@@ -253,6 +291,9 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		// Entity 
+		ADD_INTERNAL_CALL(Entity_HasComponent);
+
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
@@ -278,6 +319,9 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+
+		// Animator
+		ADD_INTERNAL_CALL(ChangeAnim);
 	}
 
 }

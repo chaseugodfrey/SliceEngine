@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Resource.h"
 #include "Resource/Model.h"
 #include "Resource/Material.h"
+#include "Animator/FSMSystem.h"
 #include <rttr/registration.h>
 namespace SliceEngine
 {
@@ -80,10 +81,6 @@ namespace SliceEngine
 		.method("empty", &std::string::empty)
 		.method("c_str", &std::string::c_str);
 
-	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
-		.constructor<>()
-		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
-
 	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Texture>::mGUID);
@@ -91,6 +88,18 @@ namespace SliceEngine
 	rttr::registration::class_<Handle<SliceEngineTypes::Material>>("Material Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Material>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
+
+	rttr::registration::class_<FSMSystem>("stateMachine")
+		.constructor<>()
+		.property("EFSM", &FSMSystem::EFSM);
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()
@@ -177,6 +186,7 @@ namespace SliceEngine
 		.property("coneAngle", &ParticleSystem::coneAngle)
 		.property("axis", &ParticleSystem::axis)
 		.property("isRepeating", &ParticleSystem::isRepeating)
+		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
 		.property("hasRandomParticleLifetime", &ParticleSystem::hasRandomParticleLifetime)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
@@ -223,7 +233,8 @@ namespace SliceEngine
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
-		.property("animTime", &Animator::animTimer);
+		.property("current_time", &Animator::current_time)
+		.property("stateMachine", &Animator::stateMachine);
 
 	}
 }

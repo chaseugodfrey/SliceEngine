@@ -66,6 +66,7 @@ namespace SliceEditor
 		);
 		AddDefaultModelsToMap();
 
+	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
 		SLICE_LOG("Asset Manager Initialized");
 	}
@@ -327,6 +328,9 @@ namespace SliceEditor
 			case AssetType::Scene:
 				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
 				break;
+			case AssetType::Controller:
+				CompileStateMachineAsset(static_cast<StateMachineData*>(metaData.get()));
+				break;
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
 				break;
@@ -364,7 +368,7 @@ namespace SliceEditor
 		return "";
 	}
 
-	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType)
+	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
 
@@ -397,6 +401,9 @@ namespace SliceEditor
 		case AssetType::Scene:
 			CompileSceneAsset(static_cast<SceneData*>(metaData));
 			break;
+		case AssetType::Controller:
+			CompileStateMachineAsset(static_cast<StateMachineData*>(metaData));
+			break;
 		case AssetType::Shader:
 			CompileShaderAsset(static_cast<ShaderData*>(metaData));
 			break;
@@ -406,8 +413,11 @@ namespace SliceEditor
 		}
 
 		// register into resource manager
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		resourceMgr->RegisterResourceAsset(metaPath.string());
+		if (AddToRM)
+		{
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			resourceMgr->RegisterResourceAsset(metaPath.string());
+		}
 
 	}
 
@@ -446,13 +456,17 @@ namespace SliceEditor
 			metaData = std::make_unique<SceneData>();
 			typeID = ResourceTypeIDs::SCENE;
 			break;
+		case AssetType::Controller:
+			metaData = std::make_unique<StateMachineData>();
+			typeID = ResourceTypeIDs::CONTROLLER;
+			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
-		case AssetType::Material:
-			metaData = std::make_unique<MaterialData>();
+	case AssetType::Material:
 			typeID = ResourceTypeIDs::MATERIAL;
+			metaData = std::make_unique<MaterialData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
@@ -634,6 +648,21 @@ namespace SliceEditor
 		}
 	}
 
+	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+
 	void AssetManager::ScanResourceFolder()
 	{
 		for (auto& dirEntry : std::filesystem::recursive_directory_iterator(mResourcesDirectory))
@@ -795,6 +824,129 @@ namespace SliceEditor
 
 	}
 
+	/// <summary>
+	/// Call this to create a default asset in asset window 
+	/// </summary>
+	/// <param name="folderPath">File path to where the asset should be created</param>
+	/// <param name="type">Type of asset being created</param>
+	void AssetManager::CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type)
+	{
+		//AssetType type = AssetType::Unsupported;
+
+		if (mDefaultNames.find(type) == mDefaultNames.end())
+		{
+			SLICE_LOG_ERROR("Creating default does not exist for this type");
+			return;
+		}
+
+		std::string ext = mAssetExtensions[type];
+
+		std::string baseName = mDefaultNames[type];
+		std::string fileName;
+		std::filesystem::path filePath;
+		int counter = 0;
+		// handle file name checking for duplicates
+		while (true)
+		{
+			if (counter == 0)
+			{
+				fileName = baseName + ext;
+			}
+			else
+			{
+				fileName = baseName + "_" + std::to_string(counter) + ext;
+			}
+
+			filePath = folderPath / fileName;
+
+			// if this file doesn't exist
+			if (!std::filesystem::exists(filePath))
+			{
+				// this will be the file path that we will create our asset in
+				break;
+			}
+
+			counter++;
+		}
+
+		std::unique_ptr<MetaData> meta;
+		switch (type)
+		{
+			case AssetType::Material:
+			{
+				meta = std::make_unique<MaterialData>();
+				// Create a file in asset folder
+				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
+				// create a default asset file at the file path
+				derived->SerializeAsset(filePath); 
+				
+				break;
+			}
+			case AssetType::Controller:
+			{
+				meta = std::make_unique<StateMachineData>();
+				// Create a file in asset folder
+				StateMachineData* derived = dynamic_cast<StateMachineData*>(meta.get());
+				// create a default asset file at the file path
+				derived->SerializeAsset(filePath);
+
+				break;
+			}
+			default:
+			{
+				SLICE_LOG_ERROR("CAN'T CREATE DEFAULT FOR UNSUPPORTED TYPES");
+				break;
+			}
+		}
+
+		// then now we initialize the other meta data variables
+		meta->InitMetaData(filePath, type, ext);
+		CreateResource(meta.get(), type);
+	}
+
+	void AssetManager::RecompileAsset(MetaData* metaData)
+	{
+		// get the asset type
+		AssetType type = AssetType::Unsupported;
+		for (auto it : mAssetExtensions)
+		{
+			if (it.second == metaData->assetType)
+			{
+				type = it.first;
+				break;
+			}
+		}
+
+		// if the meta data is modified, create resource modifies the resource file
+		// but we also have to reflect it in the asset manager for files such as material, controller, etc
+		// things that aren't imported resources.
+
+		// before calling create resource
+		// we need to update the file in asset folder since create resource copies it to resource
+		// for some like material/shader/etc
+
+		switch (type)
+		{
+		case AssetType::Material:
+		{
+			MaterialData* derived = dynamic_cast<MaterialData*>(metaData);
+			// recreate resource file at the file path
+			derived->SerializeAsset(metaData->assetPath);
+
+			break;
+		}
+		case AssetType::Controller:
+		{
+
+			break;
+		}
+		
+		}
+
+		// update the meta file with the new meta data and resource file
+		CreateResource(metaData, type);
+	}
+
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)
 	{
 		std::optional<std::string> filename{};
@@ -806,6 +958,8 @@ namespace SliceEditor
 		filename.emplace(it->second);
 		return filename;
 	}
+
+	
 
 	//std::string AssetManager::TimeToString(std::filesystem::file_time_type ftime) 
 	//{

@@ -57,5 +57,11 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void LogError(string msg);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_HasComponent(uint entityID, Type componentType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ChangeAnim(uint entityID, uint animID);
+
     }
 }
