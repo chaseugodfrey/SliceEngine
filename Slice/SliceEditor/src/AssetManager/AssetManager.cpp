@@ -132,6 +132,9 @@ namespace SliceEditor
 								outFile.close();
 
 								SLICE_LOG("Updated meta file for moved asset: " + fileName);
+
+								processedEvents = { true };
+								EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 							}
 							catch (const std::exception& e)
 							{
@@ -144,7 +147,7 @@ namespace SliceEditor
 						SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
 					}
 					
-					processedEvents = {true};
+					
 				}
 
 				
@@ -204,6 +207,7 @@ namespace SliceEditor
 							SLICE_LOG("Updated meta file for renamed asset: " + oldFilePath.filename().string());
 
 							processedEvents = { true };
+							EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 						}
 						catch (const std::exception& e)
 						{
@@ -220,9 +224,73 @@ namespace SliceEditor
 				
 				
 			}
-			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType)
+			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
 			{
+				//Get the file path of the modified path
+				/*std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
 
+				SliceEngine::GUID fileGUID;
+
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+
+				if (path.has_value())
+				{
+					try
+					{
+						std::string guidString = path.value().stem().string();
+						fileGUID = SliceEngine::GUID::FromString(guidString);
+
+						resourceMgr->ReloadResource(fileGUID);
+
+						processedEvents = { true };
+						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
+;					}
+					catch (const std::exception& e)
+					{
+						SLICE_LOG_ERROR("Failed to update resource file for " + modifiedFilePath.filename().string() + ": " + e.what());
+					}
+				}*/
+				//Reload the resource with the new data
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::added)
+			{
+				if (rawEvents.begin()->filePath.extension() == ".mat" || rawEvents.begin()->filePath.extension() == ".controller")
+				{
+					return;
+				}
+
+				CreateDescriptorFile(rawEvents.begin()->filePath);
+				processedEvents = { true };
+				SLICE_LOG("Added event at " + rawEvents.begin()->filePath.filename().string());
+				EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::removed)
+			{
+				std::filesystem::path removedFilePath(rawEvents.begin()->filePath);
+
+				SliceEngine::GUID fileGUID;
+
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				auto path = resourceMgr->GetResourcePath(removedFilePath.stem().string());
+
+				if (path.has_value())
+				{
+					try
+					{
+						fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
+
+						resourceMgr->ReleaseResource(fileGUID);
+
+						mGUIDtoFilename.erase(fileGUID);
+
+						resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
+						//resourceMgr->mGUIDToResource.erase()
+						
+					}
+				}
+
+				SLICE_LOG("Removed event at " + rawEvents.begin()->filePath.string());
 			}
 			
 		}
@@ -239,6 +307,8 @@ namespace SliceEditor
 
 					CreateDescriptorFile(rawEvents.begin()->filePath.generic_string());
 					processedEvents = { true };
+					SLICE_LOG("Added event at " + rawEvents.begin()->filePath.filename().string());
+					EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 
 					break;
 				}
@@ -246,18 +316,41 @@ namespace SliceEditor
 				{
 
 					//Do resource removing and blah blah here but gideon said hold off on it first
+					SLICE_LOG("Removed event at " + rawEvents.begin()->filePath.string());
 					break;
 				}
 				case filewatch::Event::modified:
 				{
-					SLICE_LOG("Modify event " + rawEvents.begin()->filePath.string());
+					/*std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
+
+					SliceEngine::GUID fileGUID;
+
+					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+					auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+
+					if (path.has_value())
+					{
+						try
+						{
+							std::string guidString = path.value().stem().string();
+							fileGUID = SliceEngine::GUID::FromString(guidString);
+
+							resourceMgr->ReloadResource(fileGUID);
+
+							processedEvents = { true };
+							;
+						}
+						catch (const std::exception& e)
+						{
+							SLICE_LOG_ERROR("Failed to update resource file for " + modifiedFilePath.filename().string() + ": " + e.what());
+						}
+					}*/
+					SLICE_LOG("Modified event at " + rawEvents.begin()->filePath.string());
+
 					break;
 				}
 			}
 		}
-
-	
-			EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 		
 
 	}
