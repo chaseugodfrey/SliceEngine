@@ -50,7 +50,7 @@ namespace SliceEngine
 		return std::string(); // blank str
 	}
 
-	void GameObject::SetTag(std::string& const tag)
+	void GameObject::SetTag(std::string const& tag)
 	{
 		if (HasComponent<SliceEntity>())
 		{
