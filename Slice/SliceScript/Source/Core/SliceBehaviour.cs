@@ -8,22 +8,26 @@ namespace SliceEngine
 {
     public class SliceBehaviour : Component
     {
-        public uint mID;
+      //  public uint mID;
         //public Transform transform;
 
         protected SliceBehaviour()
         {
-            mID = 0;
+            gameObject = new GameObject(0);
+            //mID = 0;
         }
         
         ~SliceBehaviour()
         {
-            mID = 0;
+            gameObject.mID = 0;
+           // mID = 0;
         }
 
         internal SliceBehaviour(uint id)
         {
-            mID = id;
+            gameObject.mID = id;
+           // mID = id;
+          //  Entity.mID = mID;
         }
 
         public virtual void OnAwake() { }
@@ -36,7 +40,7 @@ namespace SliceEngine
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
-            return FunctionCalls.Entity_HasComponent(mID, componentType);
+            return FunctionCalls.Entity_HasComponent(gameObject.mID, componentType);
         }
         public T GetComponent<T>() where T : Component
         {
@@ -45,7 +49,9 @@ namespace SliceEngine
                 throw new InvalidOperationException(
                     $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(SliceBehaviour)})");
 
-            return (T)ctor.Invoke(new object[] { this });
+            T component = (T)ctor.Invoke(new object[] { this });
+            component.gameObject = gameObject;
+            return component;
         }
     }
 }
