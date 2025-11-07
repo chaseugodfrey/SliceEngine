@@ -45,7 +45,7 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 		mAudioManager = std::make_unique<AudioManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
-		//mNetwork = std::make_unique<NetworkSystem>();
+		mNetwork = std::make_unique<NetworkSystem>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
@@ -127,10 +127,10 @@ namespace SliceEngine
 		return mWindowManager.GetWindow();
 	}
 
-	/*NetworkSystem* Core::GetNetwork()
+	NetworkSystem* Core::GetNetwork()
 	{
 		return mNetwork.get();
-	}*/
+	}
 
 	ProjectSettingsService* Core::GetProjectSettingsService()
 	{

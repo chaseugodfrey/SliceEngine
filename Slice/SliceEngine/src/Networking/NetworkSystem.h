@@ -10,8 +10,8 @@ Reproduction or disclosure of this file or its contents without the
 prior written consent of DigiPen Institute of Technology is prohibited.
 */
 
-#ifdef NETWORKSYSTEM_H
-//#define	NETWORKSYSTEM_H
+#ifndef NETWORKSYSTEM_H
+#define	NETWORKSYSTEM_H
 
 #include <mutex>
 #include <unordered_map>

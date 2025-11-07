@@ -6,7 +6,6 @@
 #include "../Systems/FramerateManager.h"
 #include "../ECS/GOFactory.h"
 
-#ifdef NETWORKING_H
 namespace SliceEngine
 {
     namespace
@@ -769,5 +768,3 @@ namespace SliceEngine
         }
     }
 }
-
-#endif

@@ -349,101 +349,101 @@ namespace SliceEditor
 			}
 		}
 
-		//if (ImGui::BeginPopup("host_req"))
-		//{
-		//	ImGui::Text("Input Port: ");
-		//	ImGui::SameLine();
-		//	static std::string bindport;
-		//	if (ImGui::InputText("##port_in", &bindport))
-		//	{
-		//	}
+		if (ImGui::BeginPopup("host_req"))
+		{
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string bindport;
+			if (ImGui::InputText("##port_in", &bindport))
+			{
+			}
 
-		//	if (ImGui::Button("Bind"))
-		//	{
-		//		/*std::string portNumber{};
+			if (ImGui::Button("Bind"))
+			{
+				/*std::string portNumber{};
 
-		//		std::ifstream pfile("Assets/port.txt");
-		//		if (!pfile)
-		//		{
-		//			std::cerr << "cannot open client file" << std::endl;
-		//		}
-		//		std::getline(pfile, portNumber);
+				std::ifstream pfile("Assets/port.txt");
+				if (!pfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(pfile, portNumber);
 
-		//		pfile.close();*/
-		//		SliceEngine::OnNetworkBindPort(bindport);
-		//		ImGui::CloseCurrentPopup();
-		//	}
-		//	ImGui::SameLine();
-		//	if (ImGui::Button("Close"))
-		//		ImGui::CloseCurrentPopup();
+				pfile.close();*/
+				SliceEngine::OnNetworkBindPort(bindport);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
 
-		//	ImGui::EndPopup();
-		//}
+			ImGui::EndPopup();
+		}
 
-		//if (ImGui::BeginPopup("connect_req"))
-		//{
-		//	SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
+		if (ImGui::BeginPopup("connect_req"))
+		{
+			SliceEngine::NetworkSystem* netw = SliceEngine::Core::GetInstance()->GetNetwork();
 
-		//	std::string display = "Current IP: ";
-		//	if (netw->data.IP.empty())
-		//	{
-		//		display += "Bind First";
-		//	}
-		//	else
-		//	{
-		//		display += netw->data.IP;
-		//	}
-		//	ImGui::Text(display.c_str());
+			std::string display = "Current IP: ";
+			if (netw->data.IP.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.IP;
+			}
+			ImGui::Text(display.c_str());
 
-		//	display = "Current Port: ";
-		//	if (netw->data.port.empty())
-		//	{
-		//		display += "Bind First";
-		//	}
-		//	else
-		//	{
-		//		display += netw->data.port;
-		//	}
-		//	ImGui::Text(display.c_str());
+			display = "Current Port: ";
+			if (netw->data.port.empty())
+			{
+				display += "Bind First";
+			}
+			else
+			{
+				display += netw->data.port;
+			}
+			ImGui::Text(display.c_str());
 
 
-		//	ImGui::Text("Input IP: ");
-		//	ImGui::SameLine();
-		//	static std::string ip;
-		//	if (ImGui::InputText("##ip_in", &ip))
-		//	{
-		//		// changed
-		//	}
+			ImGui::Text("Input IP: ");
+			ImGui::SameLine();
+			static std::string ip;
+			if (ImGui::InputText("##ip_in", &ip))
+			{
+				// changed
+			}
 
-		//	ImGui::Text("Input Port: ");
-		//	ImGui::SameLine();
-		//	static std::string port;
-		//	if (ImGui::InputText("##new_port_in", &port))
-		//	{
-		//		// changed
-		//	}
+			ImGui::Text("Input Port: ");
+			ImGui::SameLine();
+			static std::string port;
+			if (ImGui::InputText("##new_port_in", &port))
+			{
+				// changed
+			}
 
-		//	if (ImGui::Button("Connect"))
-		//	{
-		//		/*std::pair<std::string, std::string> clientNumber{};
-		//		std::ifstream cfile("Assets/client.txt");
-		//		if (!cfile)
-		//		{
-		//			std::cerr << "cannot open client file" << std::endl;
-		//		}
-		//		std::getline(cfile, clientNumber.first);
-		//		std::getline(cfile, clientNumber.second);
+			if (ImGui::Button("Connect"))
+			{
+				/*std::pair<std::string, std::string> clientNumber{};
+				std::ifstream cfile("Assets/client.txt");
+				if (!cfile)
+				{
+					std::cerr << "cannot open client file" << std::endl;
+				}
+				std::getline(cfile, clientNumber.first);
+				std::getline(cfile, clientNumber.second);
 
-		//		cfile.close();*/
-		//		SliceEngine::OnNetworkClientConnect(ip, port);
-		//		ImGui::CloseCurrentPopup();
-		//	}
-		//	ImGui::SameLine();
-		//	if (ImGui::Button("Close"))
-		//		ImGui::CloseCurrentPopup();
-		//	ImGui::EndPopup();
-		//}
-
+				cfile.close();*/
+				SliceEngine::OnNetworkClientConnect(ip, port);
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Close"))
+				ImGui::CloseCurrentPopup();
+			ImGui::EndPopup();
+		}
+		
 
 		ImGui::End();
 	}

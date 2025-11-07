@@ -167,8 +167,8 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-		//auto mNetwork = Core::GetInstance()->GetNetwork();
-		//mNetwork->Init();
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Init();
 		//NetworkingThread::printAddr();
 
 		//test();
@@ -379,8 +379,8 @@ namespace SliceEngine
 		Core::GetInstance()->ExitCore();
 		mAudioManager->Exit();
 
-		//auto mNetwork = Core::GetInstance()->GetNetwork();
-		//mNetwork->Exit();
+		auto mNetwork = Core::GetInstance()->GetNetwork();
+		mNetwork->Exit();
 
 		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
