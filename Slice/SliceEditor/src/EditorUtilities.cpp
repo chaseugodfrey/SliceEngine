@@ -185,7 +185,7 @@ namespace SliceEditor
 			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
 		}
 
-		void MenuList_CreateFiles()
+		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
@@ -196,7 +196,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Material"))
 				{
-
+					CreateFile_MaterialFile(reg, descPath);
 				}
 
 				if (ImGui::MenuItem("Animation Clip"))
@@ -284,6 +284,11 @@ namespace SliceEditor
 
 				ImGui::EndMenu();
 			}
+		}
+
+		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath)
+		{
+			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
 		}
 
 		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)

@@ -6,6 +6,7 @@ namespace SliceEditor
 	class HistoryManager;
 	class SelectionManager;
 	class ContentBrowserManager;
+	class Registry;
 
 	namespace EditorUtilities
 	{
@@ -24,8 +25,12 @@ namespace SliceEditor
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
 
 		// Global Popup
-		void MenuList_CreateFiles();
+		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
 		void MenuList_CreateGameObjects();
+
+
+		//File Creation
+		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath);
 
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);

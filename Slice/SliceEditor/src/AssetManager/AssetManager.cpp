@@ -28,6 +28,8 @@ namespace SliceEditor
 			std::filesystem::create_directory(mAssetDirectory);
 		}
 
+
+
 		//Searching Descriptor Folder and Assigning to "Assets"
 		//Looping through Assets to see who does not have a descriptor file (very sad. nobody is describing it.)
 		for (auto it = std::filesystem::recursive_directory_iterator(mAssetDirectory);
@@ -46,13 +48,13 @@ namespace SliceEditor
 
 			std::string fileName = dirEntry.path().filename().stem().stem().string();
 
-			// Since this isn't unity style where meta files are alongside assets
-			// we need to compare wit hthe file name to GUID from the resource manager
-			// which holds the map of names to GUIDs to resource paths
+			if (mFilenameToGUID.find(fileName) == mFilenameToGUID.end())
+			{
+				// this file does not have a meta/descriptor file
+				// make one ig?
+				CreateDescriptorFile(dirEntry.path());
+			}
 
-			// this file does not have a meta/descriptor file
-			// make one ig?
-			CreateDescriptorFile(dirEntry.path());
 
 
 		}
@@ -487,14 +489,14 @@ namespace SliceEditor
 
 			// Update the descriptor map
 			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
-			mGUIDtoFilename[metaData->guid] = filePath.filename().string();
-		
+			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
+			mFilenameToGUID[filePath.filename().stem().string()] = metaData->guid;
 			return metaData->resourcePath;
 		}
 		return "";
 	}
 
-	void AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
+	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
 
@@ -504,6 +506,7 @@ namespace SliceEditor
 		// Update the descriptor map
 		//mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
 		mGUIDtoFilename[metaData->guid] = metaData->assetName;
+		mFilenameToGUID[metaData->assetName] = metaData->guid;
 
 		switch (assetType)
 		{
@@ -545,6 +548,7 @@ namespace SliceEditor
 			resourceMgr->RegisterResourceAsset(metaPath.string());
 		}
 
+		return metaPath;
 	}
 
 	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
@@ -619,6 +623,9 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
+
+
 	}
 	
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
@@ -885,6 +892,11 @@ namespace SliceEditor
 							// idk about shaders
 
 							continue;
+						}
+						else
+						{
+							mGUIDtoFilename[(SliceEngine::GUID)guid] = assetName;
+							mFilenameToGUID[assetName] = (SliceEngine::GUID)guid;
 						}
 
 						//mDescriptorMap.insert_or_assign(assetName, guid);

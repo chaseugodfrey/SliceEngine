@@ -74,7 +74,7 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopupContextItem("menu_create"))
 			{
-				EditorUtilities::MenuList_CreateFiles();
+				EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
 
 				ImGui::EndPopup();
 			}
@@ -403,36 +403,27 @@ namespace SliceEditor
 
 			if (ImGui::Button("Compile"))
 			{
+				if (assetType == AssetType::Model)
+				{
+					auto* data = static_cast<ModelData*>(file.metaData.get());
+					if (data->is_static == false) //It has skele and anim
+					{
+						//Create the skeleton and animation first
+						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+
+						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+					}
+				}
 				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
-				//ImGui::CloseCurrentPopup();
-				//willOpen = false;
+				ImGui::CloseCurrentPopup();
+				willOpen = false;
 			}
 
 			ImGui::SameLine();
-			if (assetType == AssetType::Model)
-			{
-				if (ImGui::Button("Compile Skl"))
-				{
-					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
-					skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-					mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton);
-				//	ImGui::CloseCurrentPopup();
-					//willOpen = false;
-				}
-
-				ImGui::SameLine();
-
-				if (ImGui::Button("Compile Anim"))
-				{
-					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
-					animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-					mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation);
-					//ImGui::CloseCurrentPopup();
-					//willOpen = false;
-				}
-
-				ImGui::SameLine();
-			}
 
 			if (ImGui::Button("Cancel"))
 			{

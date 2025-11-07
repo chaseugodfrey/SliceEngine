@@ -245,6 +245,8 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
 		bool is_static{ false };
+		std::string skeleMetaPath{};
+		std::string animMetaPath{};
 
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
@@ -260,9 +262,11 @@ namespace SliceEditor
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
 			metaJson["static"] = is_static;
+			metaJson["skeleMetaPath"] = skeleMetaPath;
+			metaJson["animMetaPath"] = animMetaPath;
 
 			// specific properties to model goes here but we dh that yet
-
+			
 			// now create the meta file
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())
@@ -557,9 +561,9 @@ namespace SliceEditor
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
 			// properties
-			roughness = metaJson[0]["roughness"].get<float>();
-			metallic = metaJson[0]["metalic"].get<float>();
-			albedo = (SliceEngine::GUID)metaJson[0]["albedo"].get<uint64_t>();
+			roughness = metaJson["roughness"].get<float>();
+			metallic = metaJson["metallic"].get<float>();
+			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
 		}
