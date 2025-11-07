@@ -38,6 +38,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/PrefabSystem.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
+#include "Systems/CoroutineManager.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -307,7 +308,6 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
-		
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode

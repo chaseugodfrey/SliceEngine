@@ -61,6 +61,9 @@ namespace SliceEngine
         internal extern static bool Entity_HasComponent(uint entityID, Type componentType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_FindEntitiesWithTag(string tag);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void ChangeAnim(uint entityID, uint animID);
 
     }

@@ -17,6 +17,25 @@ namespace SliceEngine
 
         public Quaternion(float x, float y, float z, float w) { X = x; Y = y; Z = z; W = w; }
 
+        public Quaternion Conjugate()
+        {
+            return new Quaternion(-X, -Y, -Z, W);
+        }
+
+        public static Vector3 operator *(Quaternion q, Vector3 v)
+        {
+            // Rotate vector v by quaternion q
+            // Formula: v' = q * (0, v) * q⁻¹
+
+            Quaternion vQuat = new Quaternion(v.x, v.y, v.z, 0);
+
+            Quaternion qConjugate = q.Conjugate();
+
+            Quaternion result = q * vQuat * qConjugate;
+
+            return new Vector3(result.X, result.Y, result.Z);
+        }
+
         // Create from axis-angle (axis must be normalized)
         public static Quaternion FromAxisAngle(Vector3 axis, float angleDegrees)
         {

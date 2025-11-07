@@ -114,6 +114,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
+		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName);
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
 		.property("isKinematic", &RigidBody::isKinematic)
