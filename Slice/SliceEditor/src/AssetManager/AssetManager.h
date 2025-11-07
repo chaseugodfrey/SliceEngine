@@ -48,7 +48,7 @@ namespace SliceEditor
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
-		std::string CreateDescriptorFile(const std::filesystem::path filePath);
+		std::string CreateDescriptorFile(const std::filesystem::path filePath, MetaData* meta = nullptr, AssetType type = AssetType::Unsupported);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
 		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
@@ -64,6 +64,7 @@ namespace SliceEditor
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void RecompileAsset(MetaData* metaData);
+		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
@@ -128,7 +129,12 @@ namespace SliceEditor
 
 		std::unique_ptr<filewatch::FileWatch<std::string>> mAssetFileWatcher;
 
-		bool mReloadPending = false;
+		void HandleAssetAdded(RawFileEvent& addEvent);
+		void HandleAssetRemoved(RawFileEvent& removeEvent);
+		void HandleAssetRenamed(std::vector<RawFileEvent>& events);
+		void HandleAssetModified(std::vector<RawFileEvent>& events);
+		void HandleAssetMoved(std::vector<RawFileEvent>& events);
+		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 
