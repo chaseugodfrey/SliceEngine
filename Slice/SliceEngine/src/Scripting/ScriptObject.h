@@ -97,7 +97,6 @@ namespace SliceEngine
 		MonoMethod* mConstruct = nullptr;
 		MonoMethod* mOnCreate = nullptr;
 		MonoMethod* mOnUpdate = nullptr;
-		MonoMethod* mOnNonEntityUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
 
 		// Standard object functions

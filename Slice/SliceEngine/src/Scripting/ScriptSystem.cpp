@@ -119,6 +119,10 @@ namespace SliceEngine
         // PrintAssemblyTypes(mCoreAssembly);
         // retrieve the main Entity class
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
+        mCoroutineManager->Instantiate();
+        mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+        SLICE_LOG("mCoroutine");
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -322,10 +326,10 @@ namespace SliceEngine
 
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
-        *mCoroutineManager = ScriptClass("SliceEngine", "CoroutineManager");
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
-        
+        SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
     }
 
@@ -418,6 +422,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnUpdate(float dt)
     {
+        mCoroutineInstance->InvokeOnNonEntityUpdate(dt);
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
@@ -597,7 +603,7 @@ namespace SliceEngine
         const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
         int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
         MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
-
+        //MonoClass* testClass = mono_class_from_name(image, "SliceEngine", "CoroutineManager");
         for (int32_t i = 0; i < numTypes; i++)
         {
             uint32_t cols[MONO_TYPEDEF_SIZE];
@@ -624,7 +630,7 @@ namespace SliceEngine
             {
                 std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
                 mEntityClasses[className] = script;
-                 
+
                 MonoClass* currentClass = monoClass;
                 while (currentClass)
                 {
@@ -642,7 +648,7 @@ namespace SliceEngine
 
                             rttr::variant var;
                             // Store it in the script's field map
-                            script->mFields[fieldName] = { fieldType, fieldName, field, var};
+                            script->mFields[fieldName] = { fieldType, fieldName, field, var };
                         }
                     }
 
@@ -656,7 +662,6 @@ namespace SliceEngine
 
 
         }
-
     }
 
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type)
