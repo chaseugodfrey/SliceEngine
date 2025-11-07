@@ -126,6 +126,7 @@ namespace SliceEngine
 		// These are the other functions that every other script that inherits Entity will have
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
+		mOnNonEntityUpdate = scClass->GetMethod("mOnNonEntityUpdate", 1);
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
@@ -188,6 +189,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnNonEntityUpdate(float dt)
+	{
+		if (mOnNonEntityUpdate)
+		{
+			void* param = &dt;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnNonEntityUpdate, &param);
 		}
 	}
 

@@ -21,7 +21,7 @@ namespace SliceEngine
 		public:
 			//ngl no idea whr to put this so ill put this for now
 			//just a wrapper for containing funcs ig
-			static Texture LoadTexture(std::string const&);
+			static void LoadTexture(Texture* t, std::string const&);
 			Texture LoadColorTexture(float r, float g, float b, float a);
 			void DestroyTexture();
 

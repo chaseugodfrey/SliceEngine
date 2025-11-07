@@ -74,6 +74,23 @@ namespace SliceEngine
             }
         }
 
+        public void Translate(Vector3 translation, bool localSpace = false)
+        {
+            Vector3 pos = Position;
+
+            if (localSpace)
+            {
+                // Convert local translation to world space
+                Vector3 rotatedTranslation = RotationQuat * translation;
+                pos += rotatedTranslation;
+            }
+            else
+            {
+                pos += translation;
+            }
+
+            Position = pos;
+        }
 
         public void Rotate(float angleDegrees, Vector3 axis)
         {       
