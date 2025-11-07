@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
 #include "ComponentPropertiesGUI.h"
+#include "../../SliceEngine/src/Serializer/JSONSerializer.h"
 
 namespace SliceEditor
 {
@@ -49,6 +50,11 @@ namespace SliceEditor
 		switch (type)
 		{
 		case SelectionType::ENTITY:
+			if (ImGui::Button("Prefab Create"))
+			{
+				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+			}
+
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
@@ -722,16 +728,13 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		ImGui::Text("Roughness");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f,"%.2f", ImGuiSliderFlags_AlwaysClamp))
+		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}
 
-		ImGui::Text("Metallic");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f,"%.2f",ImGuiSliderFlags_AlwaysClamp))
+		
+		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}

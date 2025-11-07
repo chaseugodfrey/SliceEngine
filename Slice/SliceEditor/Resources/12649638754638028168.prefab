@@ -1,0 +1,50 @@
+[
+    {
+        "GameObject_1": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0"
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    3,
+                    5
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.TestEntity"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    0.6627029180526733,
+                    -0.03940753638744354
+                ],
+                "rotation": [
+                    0.6791204810142517,
+                    -0.7340268492698669,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]
