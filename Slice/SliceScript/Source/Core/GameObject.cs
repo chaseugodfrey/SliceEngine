@@ -48,5 +48,10 @@ namespace SliceEngine
 
             return entity;
         }
+
+        public GameObject FindGameObjectsWithName(string name)
+        {
+
+        }
     }
 }
