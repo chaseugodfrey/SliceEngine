@@ -323,6 +323,8 @@ namespace SliceEngine
 
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
+        mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+        
         //PrintAssemblyTypes(mCoreAssembly);
     }
 
@@ -419,7 +421,7 @@ namespace SliceEngine
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
             scriptRef->InvokeOnUpdate(dt);
-        }
+        }     
     }
 
     void ScriptSystem::OnFixedUpdate(float dt)

@@ -43,26 +43,6 @@ namespace SliceEngine
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
 
-#pragma region ENTITY FUNCTIONS
-	static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
-	{
-		std::string cStrName = MonoToString(tag);
-
-		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
-
-
-		MonoDomain* domain = mono_domain_get();
-		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
-
-		for (size_t i = 0; i < entityIDs.size(); ++i)
-		{
-			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
-		}
-
-		return monoArray;
-	}
-#pragma endregion
-
 #pragma region TRANSFORM FUNCTIONS
 
 	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
@@ -113,7 +93,6 @@ namespace SliceEngine
 
 	static bool IsKeyPressed(Keys keyCode)
 	{
-
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
@@ -249,6 +228,24 @@ namespace SliceEngine
 		return mGameObjectHasComponentFuncs[monoType](GO);
 
 	}
+
+	static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
+	{
+		std::string cStrName = MonoToString(tag);
+
+		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
+
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -313,6 +310,7 @@ namespace SliceEngine
 	{
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
+		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -320,7 +318,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
-		ADD_INTERNAL_CALL(Transform_SetRotation);
+		ADD_INTERNAL_CALL(Transform_SetRotation);		
 
 		// Key input
 		ADD_INTERNAL_CALL(IsKeyPressed);
