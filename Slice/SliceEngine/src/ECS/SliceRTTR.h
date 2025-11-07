@@ -137,7 +137,7 @@ namespace SliceEngine
 		.property("model", &Renderer::modelHandle)
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
-		//.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
 		.property("meshOffset", &Renderer::meshOffset);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
@@ -236,6 +236,11 @@ namespace SliceEngine
 		.constructor<>()
 		.property("current_time", &Animator::current_time)
 		.property("stateMachine", &Animator::stateMachine);
+
+	rttr::registration::class_<Bone>(typeid(Bone).name())
+		.constructor<>()
+		.property("skeleton_root", &Bone::skeleton_root)
+		.property("frame_idx", &Bone::frame_idx);
 
 	}
 }

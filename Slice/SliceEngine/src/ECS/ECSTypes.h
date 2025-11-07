@@ -355,7 +355,10 @@ namespace SliceEngine
 
 	struct Animator
 	{
+
+		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
 		FSMSystem stateMachine;
+		//FSMSystem stateMachine;
 
 		float current_time{};
 		Timeline timeline;
@@ -393,10 +396,15 @@ namespace SliceEngine
 				}
 			}
 		}
+		void SetInverseRoot(unsigned int idx) 
+		{
+			assert(idx < final_tforms.size());
+			inverse_map[idx] = glm::inverse(final_tforms[idx]);
+		}
 
 		void PlayAnimation(unsigned int idx) 
 		{
-			stateMachine.EFSM->currState->curr_anim_idx = idx;
+			stateMachine.EFSM.currState->curr_anim_idx = idx;
 		}
 
 		std::vector<glm::mat4> const& GetFinalTform() const
