@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace SliceEngine
 {
-    public static class CoroutineManager
+    public class CoroutineManager : SliceBehaviour
     {
         private static readonly List<IEnumerator> coroutines = new List<IEnumerator>();
         private static readonly List<IEnumerator> newCoroutines = new List<IEnumerator>();
@@ -22,7 +22,7 @@ namespace SliceEngine
             newCoroutines.Clear();
         }
 
-        public static void Update(float deltaTime)
+        public override void OnUpdate(float dt)
         {
             // Add new coroutines started this frame
             if (newCoroutines.Count > 0)
@@ -31,6 +31,7 @@ namespace SliceEngine
                 newCoroutines.Clear();
             }
 
+            
             // Step all coroutines
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
@@ -40,6 +41,8 @@ namespace SliceEngine
                 if (!alive)
                     coroutines.RemoveAt(i);
             }
+
+            Console.WriteLine("Coroutines is running");
         }
 
         // Called from C++ each frame

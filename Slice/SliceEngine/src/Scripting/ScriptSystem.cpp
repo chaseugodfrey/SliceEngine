@@ -117,9 +117,8 @@ namespace SliceEngine
        ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
-         // retrieve the main Entity class
+        // retrieve the main Entity class
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
-
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -323,6 +322,8 @@ namespace SliceEngine
 
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
+        *mCoroutineManager = ScriptClass("SliceEngine", "CoroutineManager");
+        mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
         
         //PrintAssemblyTypes(mCoreAssembly);
