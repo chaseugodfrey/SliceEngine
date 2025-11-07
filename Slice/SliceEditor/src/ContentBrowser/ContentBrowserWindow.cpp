@@ -74,7 +74,7 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopupContextItem("menu_create"))
 			{
-				EditorUtilities::MenuList_CreateFiles();
+				EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
 
 				ImGui::EndPopup();
 			}

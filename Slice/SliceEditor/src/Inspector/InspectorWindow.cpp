@@ -217,8 +217,11 @@ namespace SliceEditor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
-						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.materialHandle.mGUID = recievedPayload;
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
+					// update the handle after
 						// reload material handle here
 				}
 				ImGui::EndDragDropTarget();
@@ -711,9 +714,9 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
 			{
 				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-				//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-				//rend.modelHandle.mGUID = recievedPayload;
+				auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 				mat.albedo =recievedPayload;
+				mat.SerializeAsset(node->path);
 				// update the handle after
 			}
 			ImGui::EndDragDropTarget();
@@ -721,11 +724,17 @@ namespace SliceEditor
 
 		ImGui::Text("Roughness");
 		ImGui::SameLine(150.0f);
-		ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f);
+		if (ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f,"%.2f", ImGuiSliderFlags_AlwaysClamp))
+		{
+			mat.SerializeAsset(node->path);
+		}
 
 		ImGui::Text("Metallic");
 		ImGui::SameLine(150.0f);
-		ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f);
+		if (ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f,"%.2f",ImGuiSliderFlags_AlwaysClamp))
+		{
+			mat.SerializeAsset(node->path);
+		}
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
