@@ -27,5 +27,26 @@ namespace SliceEngine
             component.gameObject = this;
             return component;
         }
+
+        public GameObject[] FindGameObjectsWithTag(string tag)
+        {
+            uint[] entityIDs = FunctionCalls.Entity_FindGameObjectsWithTag(tag);
+
+            GameObject[] gameObjects = new GameObject[entityIDs.Length];
+
+            for (int i = 0; i < entityIDs.Length; i++)
+            {
+                gameObjects[i] = new GameObject(entityIDs[i]);
+            }
+
+            return gameObjects;
+        }
+
+        public GameObject CreateGameObject(string prefabName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+
+            return entity;
+        }
     }
 }
