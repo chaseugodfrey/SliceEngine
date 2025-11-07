@@ -160,7 +160,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath, MetaData* meta, AssetType type)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -174,20 +174,8 @@ namespace SliceEditor
 
 		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
+		metaData = CreateDefaultMeta(filePath);
 
-		if (meta == nullptr)
-		{
-			
-			metaData = CreateDefaultMeta(filePath);
-
-		}
-		else
-		{
-			metaData.reset(meta);
-		}
-
-
-		
 
 		if (metaData)
 		{				
@@ -1009,61 +997,12 @@ namespace SliceEditor
 				{
 					try
 					{	
-
-						std::ifstream inFile(metaFilePath);
-						if (!inFile.is_open())
-						{
-							SLICE_LOG_ERROR("Could not open .meta file for modified asset: " + metaFilePath.string());
-							return;
-						}
-
-						nlohmann::json metaJson;
-						inFile >> metaJson;
-						inFile.close();
-
-						std::string assetTypeString = metaJson["assetType"].get<std::string>();
-						AssetType assetType = AssetType::Unsupported;
-
-						// We look up the enum in mAssetExtensions
-						for (const auto& pair : mAssetExtensions)
-						{
-							if (pair.second == assetTypeString)
-							{
-								assetType = pair.first;
-								break;
-							}
-						}
-
-						if (assetType == AssetType::Unsupported)
-						{
-							SLICE_LOG_ERROR("Unknown asset type in .meta file: " + assetTypeString);
-							return;
-						}
-
-						MetaData* metaData = nullptr;
-						switch (assetType)
-						{
-						case AssetType::Texture:    metaData = new TextureData();    break;
-						case AssetType::Model:      metaData = new ModelData();      break;
-						case AssetType::Audio:      metaData = new AudioData();      break;
-						case AssetType::Scene:      metaData = new SceneData();      break;
-						case AssetType::Controller: metaData = new StateMachineData(); break;
-						case AssetType::Shader:     metaData = new ShaderData();     break;
-						case AssetType::Material:   metaData = new MaterialData();   break;
-						case AssetType::Prefab:     metaData = new PrefabData();     break;
-							// Add Skeleton/Animation if they are concrete types
-						default:
-							SLICE_LOG_ERROR("Cannot reload unhandled asset type: " + assetTypeString);
-							return;
-						}
-
-						metaData->Deserialize(metaFilePath);
 						
 						std::filesystem::remove(path.value());
 
 						//CreateResource(metaData, assetType);
 
-						CreateDescriptorFile(modifiedFilePath, metaData);
+						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResource(fileGUID);
 
 						SLICE_LOG("Modified event at " + events.begin()->filePath.string());
