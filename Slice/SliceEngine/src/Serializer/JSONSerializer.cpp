@@ -10,6 +10,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "JSONSerializer.h"
+#include "Animator/BoneSystem.h"
 
 namespace SliceEngine
 {
@@ -350,6 +351,7 @@ namespace SliceEngine
 						float, 
 						double, 
 						bool, 
+						Entity,
 						uint32_t,
 						uint64_t,
 						GUID,
@@ -448,6 +450,7 @@ namespace SliceEngine
 								float,
 								double,
 								bool,
+								Entity,
 								uint64_t,
 								GUID,
 								Handle<SliceEngineTypes::Model>,
@@ -480,16 +483,28 @@ namespace SliceEngine
 				}
 			}
 
-			//// Remapping Entity IDs after all GOs have been deserialized
-			//auto& registry = Core::GetInstance()->GetRegistry();
-			//auto& factory = Core::GetInstance()->mFactory;
-			//auto entityView = registry.view<SliceEntity>();
-			//for (auto entity : entityView)
-			//{
-			//	if (!registry.any_of<SceneGraph>(entity))
-			//	{
-			//		continue;
-			//	}
+	
+
+			// Remapping Entity IDs after all GOs have been deserialized
+			auto& registry = Core::GetInstance()->GetRegistry();
+			auto& factory = Core::GetInstance()->mFactory;
+			auto entityView = registry.view<Bone>();
+			for (auto entity : entityView)
+			{
+				/*if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}*/
+
+				auto& boneComponent = registry.get<Bone>(entity);
+
+				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+			}
+
+			for (auto entity : entityView)
+			{
+				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+			}
 
 			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
 			//	

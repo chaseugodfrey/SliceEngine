@@ -74,6 +74,18 @@ namespace SliceEditor
 	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component)
 	{
 		mCurrentAnimator = component;
+
+		
+		animationClips.reserve(mCurrentAnimator->curr_anim_pkg.animations.size());
+		animationClips.clear();
+
+		for (auto& anim : mCurrentAnimator->curr_anim_pkg.animations)
+		{
+			animationClips.push_back(&anim);
+		}
+
+		// add 0 check for size()
+		mCurrentClipIndex = 0;
 	}
 
 	void AnimationWindow::ClearData()
@@ -158,17 +170,34 @@ namespace SliceEditor
 
 		if (hasAnimator)
 		{
-			if (animationClipNames.size() > 0)
-				preview = animationClipNames[animationClipIndex];
+			if (animationClips.size() > 0)
+			{
+				if (animationClips[mCurrentClipIndex]->name.empty())
+				{
+					preview = std::to_string(mCurrentClipIndex);
+				}
+				else
+				{
+					preview = animationClips[mCurrentClipIndex]->name;
+				}
+				
+
+			}
 		}
 
 		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
 		{
-			for (size_t i = 0; i < animationClipNames.size(); i++)
+			for (size_t i = 0; i < animationClips.size(); i++)
 			{
-				if (ImGui::Selectable(animationClipNames[i]))
+				std::string anim_name = animationClips[i]->name;
+				if (anim_name.empty())
 				{
-					animationClipIndex = i;
+					anim_name = std::to_string(i);
+				}
+
+				if (ImGui::Selectable(anim_name.c_str()))
+				{
+					mCurrentClipIndex = i;
 				}
 			}
 
