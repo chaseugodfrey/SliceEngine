@@ -227,7 +227,7 @@ namespace SliceEditor
 			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
 			{
 				//Get the file path of the modified path
-				/*std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
+				std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
 
 				SliceEngine::GUID fileGUID;
 
@@ -243,6 +243,7 @@ namespace SliceEditor
 
 						resourceMgr->ReloadResource(fileGUID);
 
+						SLICE_LOG("Modified event at " + rawEvents.begin()->filePath.string());
 						processedEvents = { true };
 						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 ;					}
@@ -250,7 +251,7 @@ namespace SliceEditor
 					{
 						SLICE_LOG_ERROR("Failed to update resource file for " + modifiedFilePath.filename().string() + ": " + e.what());
 					}
-				}*/
+				}
 				//Reload the resource with the new data
 			}
 			else if (rawEvents.begin()->changeType == filewatch::Event::added)
@@ -339,6 +340,8 @@ namespace SliceEditor
 							resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
 							//resourceMgr->mGUIDToResource.erase()
 
+							processedEvents = { true };
+							EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 						}
 						catch (const std::exception& e)
 						{
@@ -351,7 +354,7 @@ namespace SliceEditor
 				}
 				case filewatch::Event::modified:
 				{
-					/*std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
+					std::filesystem::path modifiedFilePath(rawEvents.begin()->filePath);
 
 					SliceEngine::GUID fileGUID;
 
@@ -368,13 +371,13 @@ namespace SliceEditor
 							resourceMgr->ReloadResource(fileGUID);
 
 							processedEvents = { true };
-							;
+							EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processedEvents);
 						}
 						catch (const std::exception& e)
 						{
 							SLICE_LOG_ERROR("Failed to update resource file for " + modifiedFilePath.filename().string() + ": " + e.what());
 						}
-					}*/
+					}
 					SLICE_LOG("Modified event at " + rawEvents.begin()->filePath.string());
 
 					break;
