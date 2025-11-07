@@ -51,7 +51,9 @@ namespace SliceEngine
 
         public GameObject FindGameObjectsWithName(string name)
         {
+            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(name));
 
+            return entity;
         }
     }
 }
