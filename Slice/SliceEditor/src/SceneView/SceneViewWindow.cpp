@@ -363,6 +363,7 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
+			ImGui::EndDragDropTarget();
 		}
 
 #pragma region ImGuizmos
