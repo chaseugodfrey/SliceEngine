@@ -450,7 +450,7 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			if (animator.stateMachine.EFSM.IsValid())
+			//if (animator.stateMachine.EFSM.IsValid())
 			{
 				DisplayComponentHeader<SliceEngine::Animator>(entity);
 
@@ -475,19 +475,19 @@ namespace SliceEditor
 				ImGui::SameLine(150.f);
 				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
 				{
-					animator.stateMachine.EFSM->currState->curr_anim_idx = (animator.stateMachine.EFSM->currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+					animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 				}
 
-				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM->currState->curr_anim_idx);
+				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 				ImGui::Text("Prev: ");
 				ImGui::SameLine(150.f);
 				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
 				{
-					if (animator.stateMachine.EFSM->currState->curr_anim_idx == 0)
-						animator.stateMachine.EFSM->currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
+					if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+						animator.stateMachine.EFSM.currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
 					else
-						animator.stateMachine.EFSM->currState->curr_anim_idx--;
+						animator.stateMachine.EFSM.currState->curr_anim_idx--;
 				}
 			}
 

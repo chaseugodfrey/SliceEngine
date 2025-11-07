@@ -634,10 +634,14 @@ namespace SliceEngine
 
 		if (!is_static)
 		{
-			go.AddComponent<Bone>();
-			auto& bone = go.GetComponent<Bone>();
-			bone.skeleton_root = root;
-			bone.frame_idx = index;
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
 		}
 
 		if (!node.mesh_ref.empty()) {
@@ -666,10 +670,14 @@ namespace SliceEngine
 				s_rc.meshOffset = node.mesh_ref[i];
 
 				if (!is_static) {
-					sibling.AddComponent<Bone>();
-					auto& s_bone = sibling.GetComponent<Bone>();
-					s_bone.skeleton_root = root;
-					s_bone.frame_idx = index;
+					Bone tmpSibling;
+					tmpSibling.skeleton_root = root;
+					tmpSibling.frame_idx = index;
+
+					sibling.AddComponent<Bone>(tmpSibling);
+					//auto& s_bone = sibling.GetComponent<Bone>();
+					//s_bone.skeleton_root = root;
+					//s_bone.frame_idx = index;
 					s_rc.skinned = true;
 				}
 				//rc.texture = (GUID)18349208178533231704;

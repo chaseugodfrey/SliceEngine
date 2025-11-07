@@ -31,8 +31,10 @@ namespace SliceEditor
 
 		//
 		SliceEngine::Animator* mCurrentAnimator;
-		std::vector<const char*> animationClipNames;
-		size_t animationClipIndex;
+		
+		// have animation* from animator 
+		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
+		size_t mCurrentClipIndex;
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component);

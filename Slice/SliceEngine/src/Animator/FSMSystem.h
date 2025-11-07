@@ -22,7 +22,7 @@ namespace SliceEngine
 	{
 	public:
 
-		void InitState();
+		void InitState(SliceEngineTypes::AnimationPackage);
 		void CheckStates();
 		void UpdateState();
 
@@ -30,7 +30,7 @@ namespace SliceEngine
 
 		void OnExit();
 
-		Handle<SliceEngineTypes::StateMachine> EFSM;
+		SliceEngineTypes::StateMachine EFSM;
 		//StateMachine EFSM;
 
 		RTTR_ENABLE();
