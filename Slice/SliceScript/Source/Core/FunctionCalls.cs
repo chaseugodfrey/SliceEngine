@@ -61,10 +61,13 @@ namespace SliceEngine
         internal extern static bool Entity_HasComponent(uint entityID, Type componentType);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ChangeAnim(uint entityID, uint animID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void ChangeAnim(uint entityID, uint animID);
+        internal extern static uint CreateNewGameObject(string prefabName);
 
     }
 }

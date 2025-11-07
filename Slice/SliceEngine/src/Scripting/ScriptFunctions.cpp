@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Physics/PhysicsSystem.h"
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
+#include "../Systems/PrefabSystem.h"
 
 namespace SliceEngine
 {
@@ -246,6 +247,23 @@ namespace SliceEngine
 
 		return monoArray;
 	}
+
+	static unsigned int CreateNewGameObject(MonoString* prefabName)
+	{
+		std::string cStrName = MonoToString(prefabName);
+
+		auto& prefabSys = Core::GetInstance()->GetSystem<PrefabSystem>();
+		auto rm = Core::GetInstance()->GetResourceManager();
+		auto it = rm->mFileNameToGUID.find(cStrName);
+		if (it != rm->mFileNameToGUID.end())
+		{
+			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
+			return(unsigned int)newGO.GetEntity();
+		}
+			//mono_free(cStrName);
+
+		return entt::null;
+	}
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -311,6 +329,7 @@ namespace SliceEngine
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
+		ADD_INTERNAL_CALL(CreateNewGameObject);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
