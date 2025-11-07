@@ -1,26 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    // if GO is component, it cannot getcomponent, if GO is SliceBehaviour, it will show up under scripts when it shouldnt :(
-    public class GameObject : Component
+    public class GameObject
     {
-        public string tag
-        { 
-            get
-            {
-                return tag;
-            }
-            set
-            {
-                tag = value;
-            }
+        public uint mID;
+
+        public GameObject(uint id)
+        {
+            mID = id;
         }
 
+        public bool HasComponent<T>() where T : Component, new()
+        {
+            Type componentType = typeof(T);
+            return FunctionCalls.Entity_HasComponent(mID, componentType);
+        }
+        public T GetComponent<T>() where T : Component
+        {
+            var ctor = typeof(T).GetConstructor(new[] { typeof(SliceBehaviour) });
+            if (ctor == null)
+                throw new InvalidOperationException(
+                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(SliceBehaviour)})");
+
+            T component = (T)ctor.Invoke(new object[] { this });
+            component.gameObject = this;
+            return component;
+        }
     }
 }

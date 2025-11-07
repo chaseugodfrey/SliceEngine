@@ -34,7 +34,7 @@ namespace SliceEngine
 	struct SliceEntity 
 	{
 		std::string mName;
-		std::string mTag;
+		std::string mTag{ "default" };
 		bool active;
 
 		SliceEntity() : active(true) {}
@@ -347,13 +347,20 @@ namespace SliceEngine
 		float emissionAccumulator{};
 	};
 
+	struct Timeline
+	{
+		int32_t f_current, f_min{ 0 }, f_max{ 60 };
+		bool isPlaying, isLoop;
+	};
 
 	struct Animator
 	{
-		FSMSystem stateMachine{};
-		float animTimer = 0.0f;
-		bool is_bone{ true };
+		FSMSystem stateMachine;
+
 		float current_time{};
+		Timeline timeline;
+
+		bool is_bone{ true };
 
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
@@ -364,7 +371,6 @@ namespace SliceEngine
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 
-		unsigned int curr_anim_idx{};
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
 
@@ -390,7 +396,7 @@ namespace SliceEngine
 
 		void PlayAnimation(unsigned int idx) 
 		{
-			curr_anim_idx = idx;
+			stateMachine.EFSM->currState->curr_anim_idx = idx;
 		}
 
 		std::vector<glm::mat4> const& GetFinalTform() const
@@ -408,6 +414,8 @@ namespace SliceEngine
 
 		RTTR_ENABLE();
 	};
+
+	
 }
 
 #endif

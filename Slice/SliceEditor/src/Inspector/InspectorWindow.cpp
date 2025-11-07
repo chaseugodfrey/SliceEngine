@@ -196,6 +196,7 @@ namespace SliceEditor
 					// update the handle after
 
 				}
+				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::Text("Material");
@@ -216,10 +217,14 @@ namespace SliceEditor
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
 				{
-						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-						rend.materialHandle.mGUID = recievedPayload;
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
+					// update the handle after
 						// reload material handle here
 				}
+				ImGui::EndDragDropTarget();
 			}
 
 			ImGui::TreePop();
@@ -445,14 +450,46 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			DisplayComponentHeader<SliceEngine::Animator>(entity);
+			if (animator.stateMachine.EFSM.IsValid())
+			{
+				DisplayComponentHeader<SliceEngine::Animator>(entity);
 
-			ImGui::Text("Controller: ");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::Text("Controller: ");
+				ImGui::SameLine(150.0f);
+				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+				ImGui::Text("A00");
 
-			std::string anim_file{};
-			ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+				ImGui::Text("Playing: ");
+				ImGui::SameLine(150.f);
+				ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+
+
+				std::string anim_file{};
+				ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+				ImGui::Text("Loop: ");
+				ImGui::SameLine(150.f);
+				ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+
+				ImGui::Text("Next: ");
+				ImGui::SameLine(150.f);
+				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+				{
+					animator.stateMachine.EFSM->currState->curr_anim_idx = (animator.stateMachine.EFSM->currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+				}
+
+				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM->currState->curr_anim_idx);
+
+				ImGui::Text("Prev: ");
+				ImGui::SameLine(150.f);
+				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+				{
+					if (animator.stateMachine.EFSM->currState->curr_anim_idx == 0)
+						animator.stateMachine.EFSM->currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
+					else
+						animator.stateMachine.EFSM->currState->curr_anim_idx--;
+				}
+			}
 
 			ImGui::TreePop();
 		}
@@ -653,28 +690,51 @@ namespace SliceEditor
 		
 		MaterialData mat;
 		std::filesystem::path mat_path = node->fileName;
-		auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
+		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
-		if (metapath.has_value())
-			mat.Deserialize(metapath.value());
+		//if (metapath.has_value())
+		mat.DeserializeAsset(node->path);
 
 		std::string mat_file_name{};
 		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 		{
 			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
 		}
+		else
+		{
+			mat_file_name = "GUID not in map";
+		}
 
 		ImGui::Text("Albedo");
 		ImGui::SameLine(150.0f);
 		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+			{
+				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+				auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+				mat.albedo =recievedPayload;
+				mat.SerializeAsset(node->path);
+				// update the handle after
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		ImGui::Text("Roughness");
 		ImGui::SameLine(150.0f);
-		ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f);
+		if (ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f,"%.2f", ImGuiSliderFlags_AlwaysClamp))
+		{
+			mat.SerializeAsset(node->path);
+		}
 
 		ImGui::Text("Metallic");
 		ImGui::SameLine(150.0f);
-		ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f);
+		if (ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f,"%.2f",ImGuiSliderFlags_AlwaysClamp))
+		{
+			mat.SerializeAsset(node->path);
+		}
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)

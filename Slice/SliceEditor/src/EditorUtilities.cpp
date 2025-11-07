@@ -179,6 +179,111 @@ namespace SliceEditor
 			selectionManager.ClearSelection(true);
 		}
 
+		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				if (ImGui::MenuItem("Folder"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Material"))
+				{
+					CreateFile_MaterialFile(reg, descPath);
+				}
+
+				if (ImGui::MenuItem("Animation Clip"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Animator Controller"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Shader"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		void MenuList_CreateGameObjects()
+		{
+			if (ImGui::MenuItem("Camera"))
+			{
+				EditorUtilities::GameObject_CreateCam();
+			}
+
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				if (ImGui::MenuItem("Sphere"))
+				{
+					EditorUtilities::GameObject_CreateSphere();
+				}
+
+				if (ImGui::MenuItem("Capsule"))
+				{
+					EditorUtilities::GameObject_CreateCapsule();
+				}
+
+				if (ImGui::MenuItem("Quad"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				if (ImGui::MenuItem("Plane"))
+				{
+					EditorUtilities::GameObject_CreateBox();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("UI"))
+			{
+				if (ImGui::MenuItem("Canvas"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Text"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Image"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Button"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Slider"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath)
+		{
+			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
+		}
 
 		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
 		{

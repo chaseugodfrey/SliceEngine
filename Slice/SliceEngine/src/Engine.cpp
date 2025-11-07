@@ -39,6 +39,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
+#include "Systems/CoroutineManager.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -86,7 +87,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		EnableMemoryLeakChecking(-1);
+		//EnableMemoryLeakChecking(92083);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -315,7 +316,6 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
-		
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
@@ -347,12 +347,14 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
+
+
+			sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
+			sBone.Update_Scenegraph();
+			sAnimator.BoneUpdate();
 		}
 		frm.EndSystem("Physics");
 
-		sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
-		sBone.Update_Scenegraph();
-		sAnimator.BoneUpdate();
 
 		frm.StartSystem("Graphics");
 		sRender->Render();

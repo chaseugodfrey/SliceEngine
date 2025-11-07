@@ -9,20 +9,20 @@ namespace SliceEngine
             get
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
-                FunctionCalls.RigidBody_GetVelocity(Entity.mID, out Vector3 position);
+                FunctionCalls.RigidBody_GetVelocity(gameObject.mID, out Vector3 position);
                 return position;
             }
             set
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
 
-                FunctionCalls.RigidBody_SetVelocity(Entity.mID, ref value);
+                FunctionCalls.RigidBody_SetVelocity(gameObject.mID, ref value);
             }
         }
 
         public void AddForce(Vector3 force, ForceMode mode = ForceMode.Force)
         {
-            FunctionCalls.RigidBody_AddForce(Entity.mID, out force, (int)mode);
+            FunctionCalls.RigidBody_AddForce(gameObject.mID, out force, (int)mode);
         }
     }
 }

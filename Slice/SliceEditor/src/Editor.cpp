@@ -23,6 +23,16 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
+
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
+
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
@@ -67,6 +77,7 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
+		EnableMemoryLeakChecking(-1);
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
@@ -75,6 +86,8 @@ namespace SliceEditor
 		assetManager.Init();
 
 		engine.Init();
+
+		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, AssetType::Controller);
 
 		//SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
 		//FloorTest.AddComponent<SliceEngine::Renderer>();

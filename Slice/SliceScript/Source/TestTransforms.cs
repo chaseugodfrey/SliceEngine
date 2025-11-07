@@ -13,6 +13,7 @@ namespace SliceEngine
         public float scaleSpeed = 0.5f;
 
         Transform t;
+        Animator animator;
 
         Vector3 direction = new Vector3(-1.0f, 0.0f, 0.0f);
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
@@ -20,6 +21,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             t = GetComponent<Transform>();
+           // t = GetComponent<Transform>();
 
             Console.WriteLine("hehehehehtest time x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
         }
@@ -32,24 +34,33 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
                 t.Position += direction * moveSpeed * dt;
+                // animator.ChangeAnim(21);
             }
 
             // Left
             if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
             {
                 t.Position -= right * moveSpeed * dt;
+              //  animator.ChangeAnim(21);
             }
 
             // Backward
             if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
             {
                 t.Position -= direction * moveSpeed * dt;
+            //    animator.ChangeAnim(21);
             }
 
             // Right
             if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
             {
                 t.Position += right * moveSpeed * dt;
+             //   animator.ChangeAnim(21);
+            }
+
+            if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
+            {
+              //  animator.ChangeAnim(13);
             }
 
             // Up (Spacebar)

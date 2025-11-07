@@ -5,6 +5,7 @@ namespace SliceEditor
 {
 	class HistoryManager;
 	class SelectionManager;
+	class Registry;
 
 	namespace EditorUtilities
 	{
@@ -20,6 +21,14 @@ namespace SliceEditor
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
+
+		// Global Popup
+		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
+		void MenuList_CreateGameObjects();
+
+
+		//File Creation
+		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath);
 
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);

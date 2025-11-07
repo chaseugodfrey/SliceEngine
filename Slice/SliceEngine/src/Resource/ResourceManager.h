@@ -96,10 +96,10 @@ namespace SliceEngine
 				//return Handle<T>();
 			}
 
-			if (assetGUID == (GUID)10819322238111217941)
-			{
-				SLICE_LOG_DEBUG("GETTING MATERIAL");
-			}
+			//if (assetGUID == (GUID)10819322238111217941)
+			//{
+			//	SLICE_LOG_DEBUG("GETTING MATERIAL");
+			//}
 
 
 			auto it = mInstances.find(assetGUID);
@@ -119,10 +119,8 @@ namespace SliceEngine
 			{
 				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
 
-				if ((GUID)Type<T>::defaultResourceGUID == (GUID)10819322238111217941)
-				{
-					SLICE_LOG_DEBUG("GETTING MATERIAL");
-				}
+				assetGUID = (GUID)Type<T>::defaultResourceGUID;
+
 				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource." + std::to_string(assetGUID.GetGUID()));
 			}
 			else

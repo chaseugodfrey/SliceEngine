@@ -38,9 +38,11 @@ namespace SliceEngine
 		return result;
 	}
 
+	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
+
 	// Define to make it easier to add internal function calls
 	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
-	
+
 #pragma region TRANSFORM FUNCTIONS
 
 	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
@@ -91,7 +93,6 @@ namespace SliceEngine
 
 	static bool IsKeyPressed(Keys keyCode)
 	{
-
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
@@ -100,7 +101,7 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
-#pragma region Console Logging functions
+#pragma region CONSOLE LOGGING FUNCTIONS
 
 	static void Log(MonoString* string)
 	{
@@ -211,7 +212,57 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region ENTITY FUNCTIONS
+	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType* componentType)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		MonoType* monoType = mono_reflection_type_get_type(componentType);
 
+		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
+		{
+			// component not registered
+			SLICE_LOG_ERROR("Component Not Registered");
+			assert("Component not registered");
+		}
+
+		return mGameObjectHasComponentFuncs[monoType](GO);
+
+	}
+
+	static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
+	{
+		std::string cStrName = MonoToString(tag);
+
+		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
+
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
+#pragma endregion
+
+#pragma region ANIMATION FUNCTIONS
+	static void ChangeAnim(unsigned int entityID, unsigned int animID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			auto& anim = GO.GetComponent<Animator>();
+		//	anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
+		}
+		else
+		{
+			SLICE_LOG_DEBUG("Entity does not have animator");
+		}
+	}
+#pragma endregion
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -229,8 +280,7 @@ namespace SliceEngine
 			return;
 		}
 		// Old method of storing has component functions
-		// mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
-
+		 mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
 	}
 
 		/// <summary>
@@ -240,9 +290,10 @@ namespace SliceEngine
 	{
 		// if we hotload and need to rerun the linking and reinit mono
 		// then we might need to clear the map before registering again
-		//mGameObjectHasComponentFuncs.clear();
+		mGameObjectHasComponentFuncs.clear();
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
+		RegisterComponent< Animator>();
 		//RegisterComponent<Collider2D>();
 		//RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
@@ -257,13 +308,17 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		// Entity 
+		ADD_INTERNAL_CALL(Entity_HasComponent);
+		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
+
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
-		ADD_INTERNAL_CALL(Transform_SetRotation);
+		ADD_INTERNAL_CALL(Transform_SetRotation);		
 
 		// Key input
 		ADD_INTERNAL_CALL(IsKeyPressed);
@@ -282,6 +337,9 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+
+		// Animator
+		ADD_INTERNAL_CALL(ChangeAnim);
 	}
 
 }

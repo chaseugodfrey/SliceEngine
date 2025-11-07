@@ -55,7 +55,7 @@ namespace SliceEngine
 			}
 		}
 		else
-			t->LoadTexture(path);
+			SliceEngineTypes::Texture::LoadTexture(t.get(), path);
 		return t;
 	}
 
@@ -211,6 +211,17 @@ namespace SliceEngine
 	}
 
 	void Type<SliceEngineTypes::AnimationPackage>::Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
+	}
+
+	//Controller
+	std::unique_ptr<SliceEngineTypes::StateMachine> Type<SliceEngineTypes::StateMachine>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::StateMachine>(SliceEngineTypes::StateMachine::LoadStateMachineResource(path));
+	}
+
+	void Type<SliceEngineTypes::StateMachine>::Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr)
 	{
 		//nothing to really delete too
 	}

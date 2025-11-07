@@ -15,11 +15,11 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine {
     namespace SliceEngineTypes {
-        Texture Texture::LoadTexture(std::string const& filepath) {
+        void Texture::LoadTexture(Texture* t, std::string const& filepath) {
 
             gli::texture Texture = gli::load(filepath);
             if (Texture.empty())
-                return {};
+                return;
 
             gli::gl GL(gli::gl::PROFILE_GL33);
             gli::gl::format const Format = GL.translate(Texture.format(), Texture.swizzles());
@@ -131,7 +131,8 @@ namespace SliceEngine {
                         default: assert(0); break;
                         }
                     }
-            return { TextureName };
+
+            t->texture_id = TextureName;
         }
 
         Texture Texture::LoadColorTexture(float r, float g, float b, float a)
