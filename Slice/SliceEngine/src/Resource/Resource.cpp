@@ -55,7 +55,7 @@ namespace SliceEngine
 			}
 		}
 		else
-			t->LoadTexture(path);
+			SliceEngineTypes::Texture::LoadTexture(t.get(), path);
 		return t;
 	}
 
