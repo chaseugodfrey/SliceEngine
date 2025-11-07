@@ -6,7 +6,7 @@ namespace SliceEngine
     {
         public void ChangeAnim(uint animIndex)
         {
-            FunctionCalls.ChangeAnim(Entity.mID, animIndex);
+            FunctionCalls.ChangeAnim(gameObject.mID, animIndex);
         }
     }
 }
