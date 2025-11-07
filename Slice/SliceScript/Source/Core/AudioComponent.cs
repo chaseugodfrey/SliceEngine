@@ -17,7 +17,7 @@ namespace SliceEngine
             get
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
-                string audioName = FunctionCalls.Audio_GetSoundName(Entity.mID);
+                string audioName = FunctionCalls.Audio_GetSoundName(gameObject.mID);
                 return new Audio(audioName);
             }
             //set
