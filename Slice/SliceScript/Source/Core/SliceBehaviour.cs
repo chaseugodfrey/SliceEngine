@@ -53,5 +53,12 @@ namespace SliceEngine
             component.gameObject = gameObject;
             return component;
         }
+
+        public GameObject CreateGameObject(string prefabName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+
+            return entity;
+        }
     }
 }

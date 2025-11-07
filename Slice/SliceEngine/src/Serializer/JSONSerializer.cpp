@@ -181,6 +181,12 @@ namespace SliceEngine
 		{
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
+			// TODO: ask hafiz if theres a btr way for this
+			// im just gonna duck tape this for now
+			std::vector<rttr::variant> delayedComponentInstance;
+			std::vector<std::string> delayedComponentName;
+			std::vector<GameObject> delayedGO;
+
 			json prefab = DeserializeFile(filePath);
 			auto& factory = Core::GetInstance()->mFactory;
 
@@ -243,6 +249,15 @@ namespace SliceEngine
 							}
 						}
 
+						// if its a script component, dont add it now
+						if (componentName == typeid(Script).name())
+						{
+							delayedComponentInstance.push_back(componentInstance);
+							delayedComponentName.push_back(componentName);
+							delayedGO.push_back(newObj);
+							continue;
+						}
+
 						AddComponentFromVariant(newObj, componentInstance, componentName);
 					}
 				}
@@ -298,6 +313,12 @@ namespace SliceEngine
 				}
 			}
 
+			// only once all the fixing of entity IDs and stuff is done, then we add the component
+			for (size_t i = 0; i < delayedComponentInstance.size(); ++i)
+			{
+				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
+			}
+
 			return (Entity)rootEntity->second;
 		}
 #pragma endregion
@@ -320,6 +341,14 @@ namespace SliceEngine
 				if (!componentType)
 				{
 					SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+					continue;
+				}
+
+				// NOTE: Any components that you want to be serialized last
+				// then skip them here
+				// script has to be done last cause some construct/create functions retrieve other components
+				if (componentType == rttr::type::get<Script>())
+				{
 					continue;
 				}
 
@@ -383,6 +412,60 @@ namespace SliceEngine
 						std::string
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
+				}
+			}
+
+			// for now jus scripts
+			// idk if i have to do this for more stuff
+			if (registry.any_of<Script>(entity))
+			{
+				entt::id_type type_id = entt::type_id<Script>().hash();
+				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+				if (it != Core::GetInstance()->mFactory.mComponentGetters.end())
+				{
+					rttr::variant componentData = it->second(registry, entity);
+					rttr::type componentType = rttr::type::get<Script>();
+
+					for (const auto& property : componentType.get_properties())
+					{
+						// this should be the component's property data
+						std::string propName = property.get_name().to_string();
+
+						rttr::variant propVal = property.get_value(componentData);
+
+						std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
+						if (!propVal.is_valid())
+						{
+							continue;
+						}
+
+						SerializeProp
+							<
+							int,
+							unsigned int,
+							unsigned char,
+							float,
+							double,
+							bool,
+							Entity,
+							uint32_t,
+							uint64_t,
+							GUID,
+							Handle<SliceEngineTypes::Model>,
+							Handle<SliceEngineTypes::Material>,
+							std::array<uint64_t, 4>,
+							std::array<Entity, 4>,
+							std::vector<uint64_t>,
+							glm::vec2,
+							glm::vec3,
+							glm::vec4,
+							glm::quat,
+							std::string
+							>
+							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
+					}
+
 				}
 			}
 
