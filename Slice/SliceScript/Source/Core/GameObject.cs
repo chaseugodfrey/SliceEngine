@@ -30,7 +30,7 @@ namespace SliceEngine
 
         public GameObject[] FindGameObjectsWithTag(string tag)
         {
-            uint[] entityIDs = FunctionCalls.Entity_FindGameObjectsWithTag(tag);
+            uint[] entityIDs = FunctionCalls.Entity_FindEntitiesWithTag(tag);
 
             GameObject[] gameObjects = new GameObject[entityIDs.Length];
 
