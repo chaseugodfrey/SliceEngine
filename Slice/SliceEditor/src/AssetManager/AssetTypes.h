@@ -561,9 +561,9 @@ namespace SliceEditor
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
 			// properties
-			roughness = metaJson[0]["roughness"].get<float>();
-			metallic = metaJson[0]["metalic"].get<float>();
-			albedo = (SliceEngine::GUID)metaJson[0]["albedo"].get<uint64_t>();
+			roughness = metaJson["roughness"].get<float>();
+			metallic = metaJson["metallic"].get<float>();
+			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
 		}
