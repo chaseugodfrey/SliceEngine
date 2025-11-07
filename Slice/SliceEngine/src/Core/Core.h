@@ -34,7 +34,7 @@ namespace SliceEngine
 	class SceneSystem;
 	class PhysicsSystem;
 	class PrefabSystem;
-	struct NetworkSystem;
+	//struct NetworkSystem;
 
 	class Core : public Singleton<Core>
 	{
@@ -103,7 +103,7 @@ namespace SliceEngine
 
 		Registry& GetRegistry();
 
-		NetworkSystem* GetNetwork();
+		//NetworkSystem* GetNetwork();
 
 		struct debugMesh
 		{
@@ -122,7 +122,7 @@ namespace SliceEngine
 		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
 		
-		std::unique_ptr<NetworkSystem> mNetwork;
+		//std::unique_ptr<NetworkSystem> mNetwork;
 		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
 	};
 
