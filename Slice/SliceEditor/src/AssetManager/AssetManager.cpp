@@ -288,6 +288,10 @@ namespace SliceEditor
 						//resourceMgr->mGUIDToResource.erase()
 						
 					}
+					catch (const std::exception& e)
+					{
+						SLICE_LOG_ERROR("Failed to remove resource for " + removedFilePath.filename().string() + ": " + e.what());
+					}
 				}
 
 				SLICE_LOG("Removed event at " + rawEvents.begin()->filePath.string());
@@ -315,7 +319,33 @@ namespace SliceEditor
 				case filewatch::Event::removed:
 				{
 
-					//Do resource removing and blah blah here but gideon said hold off on it first
+					std::filesystem::path removedFilePath(rawEvents.begin()->filePath);
+
+					SliceEngine::GUID fileGUID;
+
+					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+					auto path = resourceMgr->GetResourcePath(removedFilePath.stem().string());
+
+					if (path.has_value())
+					{
+						try
+						{
+							fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
+
+							resourceMgr->ReleaseResource(fileGUID);
+
+							mGUIDtoFilename.erase(fileGUID);
+
+							resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
+							//resourceMgr->mGUIDToResource.erase()
+
+						}
+						catch (const std::exception& e)
+						{
+							SLICE_LOG_ERROR("Failed to remove resource for " + removedFilePath.filename().string() + ": " + e.what());
+						}
+					}
+
 					SLICE_LOG("Removed event at " + rawEvents.begin()->filePath.string());
 					break;
 				}
