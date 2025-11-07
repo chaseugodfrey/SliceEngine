@@ -6,45 +6,65 @@ namespace SliceEngine
 {
 	void FSMSystem::OnExit()
 	{
-		if (!EFSM.IsValid()) return;
-		EFSM->currState = nullptr;
+		EFSM.currState = nullptr;
 	}
 
-	void FSMSystem::InitState()
+	void FSMSystem::InitState(SliceEngineTypes::AnimationPackage anim_pkg)
 	{
-		EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(static_cast<GUID>(9857886709116471337));
-		if(EFSM.IsValid())
+		//EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(static_cast<GUID>(9857886709116471337));
 		{
-			if (EFSM->stateMap.size() == 0)
+			if (anim_pkg.animations.size() != 0)
 			{
-				EFSM->currState = nullptr;
+				EFSM.stateMap.reserve(anim_pkg.animations.size());
+
+				std::string anim_name;
+				SliceEngineTypes::State tmpState;
+
+				for (unsigned int i = 0; i < anim_pkg.animations.size(); i++)
+				{
+					anim_name  = anim_pkg.animations[i].name;
+					if (anim_name.empty())
+					{
+						anim_name = std::to_string(i);
+					}
+
+					tmpState.curr_anim_idx = i;
+					tmpState.stateName = anim_name;
+
+					EFSM.stateMap[anim_name] = tmpState;
+				}
+			}
+
+			if (EFSM.stateMap.size() == 0)
+			{
+				EFSM.currState = nullptr;
 			}
 			else
 			{
-				EFSM->currState = &EFSM->stateMap[EFSM->entryState];
+				EFSM.currState = &EFSM.stateMap[EFSM.entryState];
 			}
 
-			EFSM->stateCon = false;
+			EFSM.stateCon = false;
 		}
 	}
 	void FSMSystem::CheckStates()
 	{
-		if (!EFSM.IsValid()) return;
+		//if (!EFSM.IsValid()) return;
 
 
-		if (!EFSM->currState) return;
+		if (!EFSM.currState) return;
 
-		for (const SliceEngineTypes::Transition& transition : EFSM->currState->transitions)
+		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
 			
-			if (EFSM->parameters.find(transition.parameterName) != EFSM->parameters.end())
+			if (EFSM.parameters.find(transition.parameterName) != EFSM.parameters.end())
 			{
-				const rttr::variant& currentParamValue = EFSM->parameters[transition.parameterName];
+				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
 
 				if (EvalCon(currentParamValue, transition.operation, transition.condition))
 				{
-					EFSM->nextState = transition.targetState;
-					EFSM->stateCon = true;
+					EFSM.nextState = transition.targetState;
+					EFSM.stateCon = true;
 					break;
 				}
 			}
@@ -52,16 +72,16 @@ namespace SliceEngine
 	}
 	void FSMSystem::UpdateState()
 	{
-		if (!EFSM.IsValid()) return;
+		//if (!EFSM.IsValid()) return;
 
-		if (!EFSM->stateCon)
+		if (!EFSM.stateCon)
 		{
 			return;
 		}
 
 		bool safeToChange = false;
 
-		if(EFSM->currState->hasExitTime)
+		if(EFSM.currState->hasExitTime)
 		{
 			//if(stateMachine.currState.exitTime >= (current anim time))
 			{
@@ -76,18 +96,18 @@ namespace SliceEngine
 		if(safeToChange)
 		{
 
-			if (EFSM->stateMap.find(EFSM->nextState) != EFSM->stateMap.end())
+			if (EFSM.stateMap.find(EFSM.nextState) != EFSM.stateMap.end())
 			{
-				EFSM->prevState = EFSM->currState->stateName;
-				EFSM->currState = &EFSM->stateMap[EFSM->nextState];
+				EFSM.prevState = EFSM.currState->stateName;
+				EFSM.currState = &EFSM.stateMap[EFSM.nextState];
 			}
 			else
 			{
 				std::cout << "wassup error" << std::endl;
 			}
 
-			EFSM->stateCon = false;
-			EFSM->nextState.clear();
+			EFSM.stateCon = false;
+			EFSM.nextState.clear();
 		}
 	}
 
