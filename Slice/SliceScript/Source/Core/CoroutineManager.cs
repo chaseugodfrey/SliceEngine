@@ -7,7 +7,13 @@ namespace SliceEngine
 {
     public class CoroutineManager
     {
-        private static readonly List<IEnumerator> coroutines = new List<IEnumerator>();
+        private class CoroutineState
+        {
+            public IEnumerator Enumerator;
+            public object CurrentYield;
+        }
+
+        private static readonly List<CoroutineState> coroutines = new List<CoroutineState>();
         private static readonly List<IEnumerator> newCoroutines = new List<IEnumerator>();
 
         public static void StartCoroutine(IEnumerator routine)
@@ -27,24 +33,54 @@ namespace SliceEngine
             if (coroutines.Count == 0 && newCoroutines.Count == 0)
                 return;
 
-            // Add new coroutines started this frame
-            if (newCoroutines.Count > 0)
+            foreach (var r in newCoroutines)
             {
-                coroutines.AddRange(newCoroutines);
-                newCoroutines.Clear();
+                coroutines.Add(new CoroutineState { Enumerator = r, CurrentYield = null });
             }
+            newCoroutines.Clear();
 
-            
+
             // Step all coroutines
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
-                var c = coroutines[i];
+                var state = coroutines[i];
+                var e = state.Enumerator;
 
-                bool alive = c.MoveNext();
+                if (state.CurrentYield is WaitForSeconds wait)
+                {
+                    // Tick the wait
+                    if (!wait.Tick(dt))
+                        continue; // still waiting, skip this frame
+                }
+
+                // Move to next yield
+                bool alive = e.MoveNext();
+
                 if (!alive)
+                {
+                    // Coroutine finished
                     coroutines.RemoveAt(i);
+                    continue;
+                }
+
+                state.CurrentYield = e.Current;
             }
 
+        }
+    }
+    public class WaitForSeconds
+    {
+        public float TimeRemaining { get; private set; }
+
+        public WaitForSeconds(float seconds)
+        {
+            TimeRemaining = seconds;
+        }
+
+        public bool Tick(float dt)
+        {
+            TimeRemaining -= dt;
+            return TimeRemaining <= 0.0f;
         }
     }
 }

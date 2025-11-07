@@ -16,14 +16,12 @@ namespace SliceEngine
         public Prefab testPrefab = new Prefab("TestPrefab");
 
         Transform t;
-        SliceBehaviour go;
 
         public override void OnCreate()
         {
             //Console.WriteLine("TestEntity Created with ID: " + mID);
 
             t = GetComponent<Transform>();
-            go = t.gameObject;
         }
 
         public override void OnUpdate(float dt)
