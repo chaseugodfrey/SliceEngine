@@ -98,11 +98,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
 			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
-			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
-			{
-				tr.rotation = SliceEngine::Vec3ToQuat(euler);
-			}
+			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
 			ImGui::TreePop();
@@ -125,33 +121,29 @@ namespace SliceEditor
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
 
-				ImGui::Text("Volume");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				float volume = as.currentVolume;
-				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
+				if (SliderFloatInputHeader(mRegistry, "Volume","##currVol",volume, "%.1f",0.0,1.0))
+				{
 					as.currentVolume = volume; // mark dirty via patch
+				}
 
-				ImGui::Text("Is Loop");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool loop = as.isLoop;
-				if (ImGui::Checkbox("##isloop", &loop))
+				if (BoolInputHeader(mRegistry,"Is Loop", "##looping", loop))
+				{
 					as.isLoop = loop;
+				}
 
-				ImGui::Text("Is 3D");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool is3D = as.is3D;
-				if (ImGui::Checkbox("##is3d", &is3D))
+				if (BoolInputHeader(mRegistry, "Is 3D", "##is3D", is3D))
+				{
 					as.is3D = is3D;
+				}
 
-				ImGui::Text("Is Paused");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool paused = as.isPaused;
-				if (ImGui::Checkbox("##ispaused", &paused))
+				if (BoolInputHeader(mRegistry, "Is Paused", "##isPaused", paused))
+				{
 					as.isPaused = paused;
+				}
 
 				ImGui::Text("Play Preview");
 				ImGui::SameLine(150);
@@ -252,7 +244,7 @@ namespace SliceEditor
 
 					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
 
-					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
+					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.0, FLT_MAX);
 					
 					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 					
@@ -262,8 +254,12 @@ namespace SliceEditor
 
 					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
 
+					DragFreezeOptionsInputHeader(mRegistry, "Freeze Position", "##freezePos", rb.freezePosition);
+
+					DragFreezeOptionsInputHeader(mRegistry, "Freeze Rotation", "##freezeRot", rb.freezeRotation);
+
 					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
-					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
+					ComboHeader<JPH::EMotionQuality>(mRegistry, "Col Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
 
 					ImGui::TreePop();
 				}
@@ -512,8 +508,6 @@ namespace SliceEditor
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
-
-			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
 			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 

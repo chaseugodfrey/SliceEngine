@@ -105,7 +105,8 @@ namespace SliceEngine
 		.constructor<>()
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
-		.property("scale", &Transform::scale);
+		.property("scale", &Transform::scale)
+		.property("euler_hint", &Transform::eulerAnglesHint);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -117,6 +118,7 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName);
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+		.constructor<>()
 		.property("isKinematic", &RigidBody::isKinematic)
 		.property("gravityFactor", &RigidBody::gravityFactor)
 		.property("CollisionDetection", &RigidBody::CollisionDetection)
@@ -127,6 +129,7 @@ namespace SliceEngine
 		.property("angularDamping", &RigidBody::angularDamping);
 
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+		.constructor<>()
 		.property("layer", &ColliderShape::layer)
 		.property("ShapeData", &ColliderShape::shapeData)
 		.property("offSet", &ColliderShape::offSet)
@@ -139,6 +142,17 @@ namespace SliceEngine
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
 		.property("meshOffset", &Renderer::meshOffset);
+
+	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
+		.constructor<>()
+		.property("soundGUID", &AudioSource::soundGUID)
+		.property("channel", &AudioSource::channel)
+		.property("previewChannel", &AudioSource::previewChannel)
+		.property("currentVolume", &AudioSource::currentVolume)
+		.property("isLoop", &AudioSource::isLoop)
+		.property("isPaused", &AudioSource::isPaused)
+		.property("is3D", &AudioSource::is3D)
+		.property("playPreview", &AudioSource::playPreview);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()

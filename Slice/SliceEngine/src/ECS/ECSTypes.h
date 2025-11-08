@@ -89,6 +89,8 @@ namespace SliceEngine
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
 
+		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
+
 		RTTR_ENABLE();
     };
 

@@ -16,7 +16,7 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_S))
 			{
-
+				EditorUtilities::Scene_Save();
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_D))

@@ -18,9 +18,9 @@ DigiPen Institute of Technology is prohibited.
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
 
-#include <Graphics/TransformHelper.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include <Graphics/TransformHelper.h>
 
 using namespace std::string_literals;
 
@@ -65,6 +65,27 @@ namespace SliceEditor
 		{
 			if (std::abs(oldVal - val) > FLT_EPSILON)
 			{	
+				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
+	{
+		static float oldVal{};
+
+		bool changed = ImGui::SliderFloat(id, &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
 				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
@@ -149,6 +170,16 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = SliderFloatInput(reg, id, val, format, min, max) || changed;
 
 		return changed;
 	}
@@ -252,6 +283,64 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler)
+	{
+		static glm::vec3 oldVal{};
+
+		std::function<void(glm::vec3)> func
+			= [&](glm::vec3 newEuler)
+		{
+			euler = newEuler;
+			quat = SliceEngine::Vec3ToQuat(euler);
+			};
+
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f", ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		if (changed)
+			quat = SliceEngine::Vec3ToQuat(euler);
+
+		return changed;
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;
@@ -267,6 +356,31 @@ namespace SliceEditor
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
 		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f") || changed;
+
+		return changed;
+	}
+
+	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::Text("X:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_x"s).c_str(), options.freezeX) || changed;
+
+		ImGui::SameLine();
+		ImGui::Text("Y:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_y"s).c_str(), options.freezeY) || changed;
+
+		ImGui::SameLine();
+		ImGui::Text("Z:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_z"s).c_str(), options.freezeZ) || changed;
 
 		return changed;
 	}
