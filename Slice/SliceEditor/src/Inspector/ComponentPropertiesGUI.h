@@ -35,6 +35,8 @@ namespace SliceEditor
 	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
 	
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec);
+
+	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 	
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 

@@ -271,6 +271,31 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::Text("X:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_x"s).c_str(), options.freezeX) || changed;
+
+		ImGui::SameLine();
+		ImGui::Text("Y:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_y"s).c_str(), options.freezeY) || changed;
+
+		ImGui::SameLine();
+		ImGui::Text("Z:");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = BoolInput(reg, (id + "_z"s).c_str(), options.freezeZ) || changed;
+
+		return changed;
+	}
+
 }
 
 

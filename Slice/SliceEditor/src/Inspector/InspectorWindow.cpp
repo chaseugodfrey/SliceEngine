@@ -262,8 +262,12 @@ namespace SliceEditor
 
 					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
 
+					DragFreezeOptionsInputHeader(mRegistry, "Freeze Position", "##freezePos", rb.freezePosition);
+
+					DragFreezeOptionsInputHeader(mRegistry, "Freeze Rotation", "##freezeRot", rb.freezeRotation);
+
 					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
-					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
+					ComboHeader<JPH::EMotionQuality>(mRegistry, "Col Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
 
 					ImGui::TreePop();
 				}
