@@ -42,7 +42,7 @@ namespace SliceEngine
             Type componentType = typeof(T);
             return FunctionCalls.Entity_HasComponent(gameObject.mID, componentType);
         }
-        public T GetComponent<T>() where T : Component
+        public new T GetComponent<T>() where T : Component
         {
             var ctor = typeof(T).GetConstructor(new[] { typeof(SliceBehaviour) });
             if (ctor == null)
@@ -52,6 +52,13 @@ namespace SliceEngine
             T component = (T)ctor.Invoke(new object[] { this });
             component.gameObject = gameObject;
             return component;
+        }
+
+        public GameObject CreateGameObject(string prefabName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+
+            return entity;
         }
     }
 }

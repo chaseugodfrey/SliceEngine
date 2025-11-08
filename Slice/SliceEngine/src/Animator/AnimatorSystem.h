@@ -34,6 +34,7 @@ namespace SliceEngine
 
 		void UpdateAnimation(Animator& animator,float dt);
 		void BoneUpdate();
+		void InitSystem();
 	};
 
 	

@@ -254,6 +254,7 @@ namespace SliceEngine
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
+					sAnimator.InitSystem();
 					isPlaying = true;
 
 				}
@@ -347,14 +348,13 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
-
-
-			sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
-			sBone.Update_Scenegraph();
-			sAnimator.BoneUpdate();
+			
 		}
 		frm.EndSystem("Physics");
 
+		sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
+		sBone.Update_Scenegraph();
+		sAnimator.BoneUpdate();
 
 		frm.StartSystem("Graphics");
 		sRender->Render();

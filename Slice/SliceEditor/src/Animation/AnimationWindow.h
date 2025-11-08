@@ -29,8 +29,12 @@ namespace SliceEditor
 
 		std::vector<AnimationPropertyGroup> mPropertyGroups;
 
+		SliceEngine::Timeline mTimeline;
+		float mCurrentTime;
+
 		//
 		SliceEngine::Animator* mCurrentAnimator;
+		//SliceEngine::Transform* mCurrentTransform;
 		
 		// have animation* from animator 
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
@@ -38,7 +42,12 @@ namespace SliceEditor
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component);
+		void LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip);
 		void ClearData();
+
+		void UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip,float time);
+		void UpdateBoneScene(Entity ent);
+		void UpdateBones(Entity ent);
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};

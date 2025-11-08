@@ -60,6 +60,8 @@ namespace SliceEngine
 			float exitTime;
 			float entryTime;
 
+			bool isLoop;
+
 			std::vector<Transition> transitions;
 
 			bool operator==(const State& other) const

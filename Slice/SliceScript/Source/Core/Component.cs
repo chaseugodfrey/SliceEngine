@@ -23,17 +23,14 @@ namespace SliceEngine
       //      //}
       //  }
        
-      //  // Alias for Unity-like style
-      ////  public SliceBehaviour gameObject => Entity;
+        // Whether the entity is active in the scene
+        public bool activeSelf => this?.activeSelf ?? false;
 
-      //  // Whether the entity is active in the scene
-        public bool ActiveSelf => this?.ActiveSelf ?? false;
-
-        //  // Whether this component is enabled (can override in derived types)
-        //  public bool Enabled { get; set; } = true;
+        // Whether this component is enabled (can override in derived types)
+        public bool enabled { get; set; } = true;
 
         // Transform shortcut (like Unity's transform)
-        //public Transform Transform => gameObject?.GetComponent<Transform>();
+        public Transform transform => gameObject?.GetComponent<Transform>();
 
         // Get another component on the same entity
         public T GetComponent<T>() where T : Component
@@ -41,17 +38,17 @@ namespace SliceEngine
             return gameObject?.GetComponent<T>();
         }
 
-        //  // Get component in children
-        //  public T GetComponentInChildren<T>() where T : Component
-        //  {
-        //      return Entity?.GetComponentInChildren<T>();
-        //  }
+        // Get component in children
+        //public T GetComponentInChildren<T>() where T : Component
+        //{
+        //    return gameObject.GetComponentInChildren<T>();
+        //}
 
-        //  // Send a message to the entity (optional Unity-like behavior)
-        //  public void SendMessage(string methodName, object parameter = null)
-        //  {
-        //      Entity?.SendMessage(methodName, parameter);
-        //  }        
+        // Send a message to the entity
+        //public void SendMessage(string methodName, object parameter = null)
+        //{
+        //    gameObject.SendMessage(methodName, parameter);
+        //}
     }
 }
 
