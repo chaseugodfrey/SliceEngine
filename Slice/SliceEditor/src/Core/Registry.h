@@ -53,7 +53,7 @@ namespace SliceEditor
 		{
 			auto it = mManagers.find(std::string(name));
 			if (it != mManagers.end())
-				return dynamic_cast<IManager*>(it->second.get());
+				return static_cast<IManager*>(it->second.get());
 			return nullptr;
 		}
 

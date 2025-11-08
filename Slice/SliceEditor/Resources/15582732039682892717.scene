@@ -1,57 +1,6 @@
 [
     {
-        "FloorQuad": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4651861510357422797"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 5,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    4,
-                    2
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "FloorQuad",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    -0.7071067690849304,
-                    0.7071067690849304,
-                    -0.0,
-                    0.0
-                ],
-                "scale": [
-                    10.0,
-                    10.0,
-                    10.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject_1": {
+        "GameObject_2": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -64,31 +13,23 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
+                "entity_id": 1048578,
                 "neighbours": [
                     0,
                     4294967295,
-                    3,
-                    5
+                    1048581,
+                    4294967295
                 ]
             },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.TestEntity"
-            },
             "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_1",
+                "mName": "GameObject_2",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
                 "position": [
                     0.0,
-                    1.5,
-                    0.0
+                    1.0,
+                    1.2000000476837158
                 ],
                 "rotation": [
                     1.0,
@@ -116,12 +57,12 @@
                 "type": "Directional"
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 1048579,
                 "neighbours": [
                     0,
                     4294967295,
                     4294967295,
-                    4
+                    1048580
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -129,11 +70,6 @@
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
                 "position": [
                     0.0,
                     0.9396434426307678,
@@ -154,7 +90,7 @@
         }
     },
     {
-        "GameObject_2": {
+        "GameObject_1": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -167,28 +103,26 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2,
+                "entity_id": 1048580,
                 "neighbours": [
                     0,
                     4294967295,
-                    5,
-                    4294967295
+                    1048579,
+                    1048581
                 ]
             },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.TestEntity"
+            },
             "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_2",
+                "mName": "GameObject_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
                 "position": [
                     0.0,
-                    0.0,
-                    1.2069244384765625
+                    1.0,
+                    -1.2000000476837158
                 ],
                 "rotation": [
                     1.0,
@@ -200,6 +134,52 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        }
+    },
+    {
+        "FloorQuad": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4651861510357422797"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048581,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048580,
+                    1048578
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "FloorQuad",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.7071067690849304,
+                    0.7071067690849304,
+                    -0.0,
+                    0.0
+                ],
+                "scale": [
+                    10.0,
+                    10.0,
+                    10.0
                 ]
             }
         }

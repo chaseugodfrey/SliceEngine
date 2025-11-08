@@ -7,9 +7,9 @@ namespace SliceEngine
 
         // Required for GetComponent<T>() where T : new()
         public Transform() { }
-        public Transform(SliceBehaviour entity)
+        public Transform(GameObject entity)
         {
-            gameObject = entity.gameObject;
+            gameObject = entity;
             // Initialize rotationQuat from the current rotation
             FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 pos);
             FunctionCalls.Transform_GetScale(gameObject.mID, out Vector3 scale);
