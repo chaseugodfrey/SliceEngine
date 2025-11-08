@@ -128,10 +128,26 @@ namespace SliceEngine
 		.property("linearDamping", &RigidBody::linearDamping)
 		.property("angularDamping", &RigidBody::angularDamping);
 
+	//Collider Shapes
+	rttr::registration::class_<ColliderShape::BoxData>("BoxData")
+		.constructor<>()
+		.property("scale", &ColliderShape::BoxData::scale);
+
+	rttr::registration::class_<ColliderShape::SphereData>("SphereData")
+		.constructor<>()
+		.property("radius", &ColliderShape::SphereData::radius);
+
+	rttr::registration::class_<ColliderShape::CapsuleData>("CapsuleData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("layer", &ColliderShape::layer)
-		.property("ShapeData", &ColliderShape::shapeData)
+		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
+		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
+		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger);
 

@@ -375,6 +375,18 @@ namespace SliceEngine
 					// this should be the component's property data
 					std::string propName = property.get_name().to_string();
 
+					if (componentType == rttr::type::get<ColliderShape>())
+					{
+						size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+
+						if ((propName == "boxData" && activeIndex != 0) ||
+							(propName == "sphereData" && activeIndex != 1) ||
+							(propName == "capsuleData" && activeIndex != 2))
+						{
+							continue;
+						}
+					}
+
 					rttr::variant propVal = property.get_value(componentData);
 
 					std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
@@ -416,7 +428,10 @@ namespace SliceEngine
 						glm::vec3, 
 						glm::vec4,
 						glm::quat,
-						std::string
+						std::string,
+						ColliderShape::BoxData,
+						ColliderShape::SphereData,
+						ColliderShape::CapsuleData
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -468,7 +483,10 @@ namespace SliceEngine
 							glm::vec3,
 							glm::vec4,
 							glm::quat,
-							std::string
+							std::string,
+							ColliderShape::BoxData,
+							ColliderShape::SphereData,
+							ColliderShape::CapsuleData
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}

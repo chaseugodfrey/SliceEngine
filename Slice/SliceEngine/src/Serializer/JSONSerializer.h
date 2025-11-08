@@ -142,6 +142,39 @@ namespace SliceEngine
 			output[name][typeName][propName] = { v.x, v.y, v.z };
 		}
 
+		// For JPH::Vec3
+		template<>
+		inline void Serialize<JPH::Vec3>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const JPH::Vec3& v, const Entity& entity)
+		{
+			output[name][typeName][propName] = { v.GetX(), v.GetY(), v.GetZ()};
+		}
+
+		// For ColliderShape::BoxData
+		template<>
+		inline void Serialize<ColliderShape::BoxData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::BoxData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["scale"] = { data.scale.GetX(), data.scale.GetY(), data.scale.GetZ() };
+		}
+
+		// For ColliderShape::SphereData
+		template<>
+		inline void Serialize<ColliderShape::SphereData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::SphereData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["radius"] = data.radius;
+		}
+
+		// For ColliderShape::CapsuleData
+		template<>
+		inline void Serialize<ColliderShape::CapsuleData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::CapsuleData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["radius"] = data.radius;
+			output[name][typeName][propName]["height"] = data.height;
+		}
+
 		// For glm::vec4
 		template<>
 		inline void Serialize<glm::vec4>(json& output, const std::string& name, const std::string_view& typeName,
@@ -361,6 +394,8 @@ namespace SliceEngine
 
 			}
 		}
+
+
 
 
 #pragma endregion
