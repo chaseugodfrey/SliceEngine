@@ -28,6 +28,7 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	class MetaData;
+	
 
 	class AssetManager
 	{

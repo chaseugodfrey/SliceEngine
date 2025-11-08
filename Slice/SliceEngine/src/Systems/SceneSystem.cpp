@@ -83,6 +83,16 @@ namespace SliceEngine
 		mCurrentScene = filePath;
 	}
 
+	void SceneSystem::SetDefaultScenePath(std::filesystem::path const& filePath)
+	{
+		mDefaultScene = filePath;
+	}
+
+	std::filesystem::path SceneSystem::GetDefaultScenePath()
+	{
+		return mDefaultScene;
+	}
+
 	void SceneSystem::SaveScene(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());

@@ -51,6 +51,8 @@ namespace SliceEngine
 		void LoadNextScene();
 		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
+		void SetDefaultScenePath(std::filesystem::path const& filePath);
+		
 		void SaveScene(std::filesystem::path const filePath);
 		void SaveCurrentScene();
 		void SaveNextScene();
@@ -65,6 +67,7 @@ namespace SliceEngine
 		bool CheckQueueEmpty();
 
 		std::filesystem::path GetCurrentScenePath();
+		std::filesystem::path GetDefaultScenePath();
 		bool isSceneUnloaded{};
 
 	private:
