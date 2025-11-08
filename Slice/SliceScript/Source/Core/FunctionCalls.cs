@@ -67,6 +67,9 @@ namespace SliceEngine
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_FindEntityWithName(string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
     }

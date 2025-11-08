@@ -38,6 +38,8 @@ namespace SliceEngine
 
 			metaFile >> metaData;
 
+			metaFile.close();
+
 			SliceEditor::AudioData audioData;
 
 			audioData.stream = metaData["stream"].get<SliceEditor::AudioStream>();

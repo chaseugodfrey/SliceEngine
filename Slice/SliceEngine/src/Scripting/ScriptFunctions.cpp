@@ -264,6 +264,12 @@ namespace SliceEngine
 
 		return entt::null;
 	}
+	static uint32_t Entity_FindEntityWithName(MonoString* name)
+	{
+		std::string cStrName = MonoToString(name);
+		auto go = FactoryInstance.GetGOByName(cStrName);
+		return static_cast<uint32_t>(go.GetEntity());
+	}
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -330,6 +336,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

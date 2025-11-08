@@ -240,6 +240,17 @@ namespace SliceEngine
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 
+							// DEBUG: Check if position.x is being read correctly
+							//if (componentName == typeid(Transform).name() && propName == "position")
+							//{
+							//	auto posValue = prop.get_value(componentInstance);
+							//	if (posValue.can_convert<glm::vec3>())
+							//	{
+							//		glm::vec3 pos = posValue.convert<glm::vec3>();
+							//		std::cout << "Position read: x=" << pos.x << ", y=" << pos.y << ", z=" << pos.z << std::endl;
+							//	}
+							//}
+
 							// Anything that needs a second pass
 							// scene graph map stuff
 							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())

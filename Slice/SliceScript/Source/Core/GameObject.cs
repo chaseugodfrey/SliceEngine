@@ -49,11 +49,11 @@ namespace SliceEngine
             return entity;
         }
 
-        public GameObject FindGameObjectsWithName(string name)
+        public GameObject FindGameObjectWithName(string name)
         {
-            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(name));
+            uint entityID = FunctionCalls.Entity_FindEntityWithName(name);
 
-            return entity;
+            return new GameObject(entityID);
         }
     }
 }
