@@ -9,10 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SliceScript</RootNamespace>
     <AssemblyName>SliceScript</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorDebug|x64' ">
     <PlatformTarget>x64</PlatformTarget>
@@ -22,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -35,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -57,22 +54,22 @@
     <Compile Include="Source\Core\Keys.cs" />
     <Compile Include="Source\Core\Prefab.cs" />
     <Compile Include="Source\Core\Quaternion.cs" />
-    <Compile Include="Source\Core\SliceRandom.cs" />
     <Compile Include="Source\Core\RigidBody.cs" />
     <Compile Include="Source\Core\Scene.cs" />
     <Compile Include="Source\Core\SceneManager.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\SliceRandom.cs" />
     <Compile Include="Source\Core\Transform.cs" />
     <Compile Include="Source\Core\Utilities.cs" />
     <Compile Include="Source\Core\Vector2.cs" />
     <Compile Include="Source\Core\Vector3.cs" />
-    <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\EnemyChase.cs" />
-    <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
+    <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
+    <Compile Include="Source\Player.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
