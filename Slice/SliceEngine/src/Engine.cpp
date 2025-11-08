@@ -178,7 +178,7 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		Core::GetInstance()->mFactory.TestLoop();
+		//Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 

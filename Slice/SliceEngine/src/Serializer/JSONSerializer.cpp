@@ -78,10 +78,6 @@ namespace SliceEngine
 			{
 				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
 				{
-						if (component.get_type() == rttr::type::get< Renderer>())
-						{
-							std::cout << "test" << std::endl;
-						}
 						for (const auto& property : type.get_properties())
 						{
 							// this should be the component's property data
@@ -351,7 +347,7 @@ namespace SliceEngine
 				rttr::type componentType = rttr::type::get_by_name(componentName);
 				if (!componentType)
 				{
-					SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+					//SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
 					continue;
 				}
 
