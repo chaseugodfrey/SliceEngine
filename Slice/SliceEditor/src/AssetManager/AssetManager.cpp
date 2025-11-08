@@ -1019,7 +1019,7 @@ namespace SliceEditor
 						//CreateResource(metaData, assetType);
 
 						CreateDescriptorFile(modifiedFilePath);
-						resourceMgr->ReloadResource(fileGUID);
+						resourceMgr->ReloadResourceInPlace(fileGUID);
 
 						SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 						/*AssetFileChangedEvent processEvent = { true };

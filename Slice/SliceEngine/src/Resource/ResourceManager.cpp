@@ -54,16 +54,28 @@ namespace SliceEngine
 
 		auto& instance = it->second;
 
-		//if (!instance.reload)
-		//{
-		//	SLICE_LOG_WARNING("Resource has no reload function");
-		//	return;
-		//}
+		if (!instance.reload)
+		{
+			SLICE_LOG_WARNING("Resource has no reload function");
+			return;
+		}
 
-		//// recompile the new data
-		//auto newData = instance.reload(*this, instance.filePath);
+		// recompile the new data
+		auto newData = instance.reload(*this, instance.filePath);
 
-		//instance.data = std::move(newData);
+		instance.data = std::move(newData);
+	}
+
+	void ResourceManager::ReloadResourceInPlace(const GUID& guid)
+	{
+		auto it = mInstances.find(guid);
+		if (it == mInstances.end())
+		{
+			SLICE_LOG_WARNING("Attempted to reload a resource that does not exist");
+			return;
+		}
+
+		auto& instance = it->second;
 
 		if (!instance.reload_in_place)
 		{

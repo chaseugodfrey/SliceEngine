@@ -191,6 +191,8 @@ namespace SliceEngine
 
 		void ReloadResource(const GUID& guid);
 
+		void ReloadResourceInPlace(const GUID& guid);
+
 		template<typename T>
 		Handle<T> get(const std::string& fileName)
 		{
