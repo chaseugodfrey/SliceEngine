@@ -230,38 +230,38 @@ namespace SliceEditor
 			}
 		}
 
-		void MenuList_CreateGameObjects()
+		void MenuList_CreateGameObjects(HistoryManager* history)
 		{
 			if (ImGui::MenuItem("Camera"))
 			{
-				EditorUtilities::GameObject_CreateCam();
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
 			}
 
 			if (ImGui::BeginMenu("3D Object"))
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Sphere"))
 				{
-					EditorUtilities::GameObject_CreateSphere();
+					EditorUtilities::GameObject_CreateSphere(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Capsule"))
 				{
-					EditorUtilities::GameObject_CreateCapsule();
+					EditorUtilities::GameObject_CreateCapsule(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Quad"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Plane"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				ImGui::EndMenu();

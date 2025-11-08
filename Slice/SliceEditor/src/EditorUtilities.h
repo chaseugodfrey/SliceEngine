@@ -28,7 +28,7 @@ namespace SliceEditor
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
-		void MenuList_CreateGameObjects();
+		void MenuList_CreateGameObjects(HistoryManager* history = nullptr);
 
 
 		//File Creation
