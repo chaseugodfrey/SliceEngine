@@ -97,7 +97,6 @@ namespace SliceEngine
 		MonoMethod* mConstruct = nullptr;
 		MonoMethod* mOnCreate = nullptr;
 		MonoMethod* mOnUpdate = nullptr;
-		MonoMethod* mOnNonEntityUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
 
 		// Standard object functions
@@ -175,12 +174,6 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="dt">Delta time</param>
 		void InvokeOnFixedUpdate(float dt);
-
-		/// <summary>
-		/// Calls the OnUpdate function. This is done every loop when the game is in runtime for every entity
-		/// </summary>
-		/// <param name="dt">Delta time</param>
-		void InvokeOnNonEntityUpdate(float dt);
 
 		/// <summary>
 		/// Call when obj is clicked, if it has a script with an onClick function then itll run it

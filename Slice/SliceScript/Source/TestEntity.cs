@@ -16,14 +16,14 @@ namespace SliceEngine
         public Prefab testPrefab = new Prefab("TestPrefab");
 
         Transform t;
-        SliceBehaviour go;
+      //  SliceBehaviour go;
 
         public override void OnCreate()
         {
             //Console.WriteLine("TestEntity Created with ID: " + mID);
-
             t = GetComponent<Transform>();
-            go = t.gameObject;
+            t = t.gameObject.GetComponent<Transform>();
+          //  go = t.gameObject;
         }
 
         public override void OnUpdate(float dt)
@@ -32,6 +32,10 @@ namespace SliceEngine
 
 
             //Console.WriteLine("ALOYSUUS TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+            if(Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            {
+                gameObject.CreateGameObject("GameObject_1");
+            }
 
 
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
@@ -45,7 +49,7 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
             {
-                Console.WriteLine("TestEntity Created with ID: " + mID);
+                Console.WriteLine("TestEntity Created with ID: " + gameObject.mID);
 
                 //Vector3 pos = Position;
                 t.Position -= direction * speed * dt;

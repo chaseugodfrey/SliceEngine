@@ -415,8 +415,14 @@ namespace SliceEngine
 		auto& tr = mRegistry.get<Transform>(entity);
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
-		auto mat = glm::inverse(tr_par.transform) * tr.transform;
-		
+		// Build the world transform matrix from the current position/rotation/scale
+		glm::mat4 worldTransform = glm::translate(glm::mat4(1.0f), tr.position) *
+			glm::mat4_cast(tr.rotation) *
+			glm::scale(glm::mat4(1.0f), tr.scale);
+
+		// Convert world transform to local space relative to parent
+		auto mat = glm::inverse(tr_par.transform) * worldTransform;
+
 		glm::vec3 translation, scale, skew;
 		glm::vec4 perspective;
 		glm::quat rotation;
@@ -634,10 +640,14 @@ namespace SliceEngine
 
 		if (!is_static)
 		{
-			go.AddComponent<Bone>();
-			auto& bone = go.GetComponent<Bone>();
-			bone.skeleton_root = root;
-			bone.frame_idx = index;
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
 		}
 
 		if (!node.mesh_ref.empty()) {
@@ -666,10 +676,14 @@ namespace SliceEngine
 				s_rc.meshOffset = node.mesh_ref[i];
 
 				if (!is_static) {
-					sibling.AddComponent<Bone>();
-					auto& s_bone = sibling.GetComponent<Bone>();
-					s_bone.skeleton_root = root;
-					s_bone.frame_idx = index;
+					Bone tmpSibling;
+					tmpSibling.skeleton_root = root;
+					tmpSibling.frame_idx = index;
+
+					sibling.AddComponent<Bone>(tmpSibling);
+					//auto& s_bone = sibling.GetComponent<Bone>();
+					//s_bone.skeleton_root = root;
+					//s_bone.frame_idx = index;
 					s_rc.skinned = true;
 				}
 				//rc.texture = (GUID)18349208178533231704;

@@ -27,6 +27,7 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
 		void Update_Scenegraph() const;
+		void Update_Bones(entt::registry& reg, entt::entity entity);
 	};
 
 	

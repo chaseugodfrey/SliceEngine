@@ -4,6 +4,8 @@
 #include <Selection/SelectionManager.h>
 #include <ContentBrowser/ContentBrowserManager.h>
 #include <../src/Systems/SceneSystem.h>
+#include <../src/Systems/PrefabSystem.h>
+
 
 namespace SliceEditor
 {
@@ -104,6 +106,11 @@ namespace SliceEditor
 			}
 
 			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history)
+		{
+			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)

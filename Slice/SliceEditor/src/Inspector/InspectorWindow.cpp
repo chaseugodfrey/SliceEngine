@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
 #include "ComponentPropertiesGUI.h"
+#include "../../SliceEngine/src/Serializer/JSONSerializer.h"
 
 namespace SliceEditor
 {
@@ -49,6 +50,11 @@ namespace SliceEditor
 		switch (type)
 		{
 		case SelectionType::ENTITY:
+			if (ImGui::Button("Prefab Create"))
+			{
+				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+			}
+
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
@@ -450,7 +456,7 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			if (animator.stateMachine.EFSM.IsValid())
+			//if (animator.stateMachine.EFSM.IsValid())
 			{
 				DisplayComponentHeader<SliceEngine::Animator>(entity);
 
@@ -475,19 +481,19 @@ namespace SliceEditor
 				ImGui::SameLine(150.f);
 				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
 				{
-					animator.stateMachine.EFSM->currState->curr_anim_idx = (animator.stateMachine.EFSM->currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+					animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 				}
 
-				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM->currState->curr_anim_idx);
+				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 				ImGui::Text("Prev: ");
 				ImGui::SameLine(150.f);
 				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
 				{
-					if (animator.stateMachine.EFSM->currState->curr_anim_idx == 0)
-						animator.stateMachine.EFSM->currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
+					if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+						animator.stateMachine.EFSM.currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
 					else
-						animator.stateMachine.EFSM->currState->curr_anim_idx--;
+						animator.stateMachine.EFSM.currState->curr_anim_idx--;
 				}
 			}
 
@@ -722,16 +728,13 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		ImGui::Text("Roughness");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f,"%.2f", ImGuiSliderFlags_AlwaysClamp))
+		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}
 
-		ImGui::Text("Metallic");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f,"%.2f",ImGuiSliderFlags_AlwaysClamp))
+		
+		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}

@@ -17,21 +17,21 @@ namespace SliceEngine
 
 	void AnimatorSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto core = Core::GetInstance();
+
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
-		animator.stateMachine.EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+		//animator.stateMachine.EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
 
-		animator.Handle_skeleton = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
-		animator.Handle_curr_anim_pkg = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
+		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
+		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
 
 		animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+		animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 
-		animator.stateMachine.InitState();
-
-		animator.timeline.isPlaying = true;
-		animator.timeline.isLoop = true;
-
+		animator.stateMachine.InitState(animator.curr_anim_pkg);
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -64,13 +64,13 @@ namespace SliceEngine
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
-		if (!animator.stateMachine.EFSM.IsValid()) return;
+		//if (!animator.stateMachine.EFSM.IsValid()) return;
 
 		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
 			if (animator.is_bone) {
-				auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM->currState->curr_anim_idx];
+				auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 				if (anim.duration <= 0.0f)
 				{
 					// This is a static pose. Don't advance time, just hold frame 0.
@@ -125,13 +125,13 @@ namespace SliceEngine
 			Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<Animator>(entity);
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
-			if (!animator.stateMachine.EFSM.IsValid()) return;
+			//if (!animator.stateMachine.EFSM.IsValid()) return;
 
 			if (animator.timeline.isPlaying)
 			{
 				
 				if (animator.is_bone) {
-					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM->currState->curr_anim_idx];
+					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
 					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
 					animator.SetInverseRoots();
@@ -142,5 +142,24 @@ namespace SliceEngine
 
 		}
 
+	}
+
+
+	void AnimatorSystem::InitSystem()
+	{
+		auto core = Core::GetInstance();
+
+		for (auto entity : core->GetRegistry().view<Animator>())
+		{
+			Animator& animator = core->GetRegistry().get<Animator>(entity);
+
+			animator.stateMachine.InitState(animator.curr_anim_pkg);
+
+			animator.timeline.isPlaying = true;
+
+
+			animator.timeline.isLoop = animator.stateMachine.EFSM.currState->isLoop;
+
+		}
 	}
 }

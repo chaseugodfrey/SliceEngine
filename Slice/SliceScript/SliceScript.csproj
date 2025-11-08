@@ -22,8 +22,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -35,8 +34,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -52,6 +50,7 @@
     <Compile Include="Source\Core\CoroutineManager.cs" />
     <Compile Include="Source\Core\ForceMode.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
+    <Compile Include="Source\Core\GameObject.cs" />
     <Compile Include="Source\Core\Input.cs" />
     <Compile Include="Source\Core\Keys.cs" />
     <Compile Include="Source\Core\Prefab.cs" />
@@ -63,7 +62,9 @@
     <Compile Include="Source\Core\Utilities.cs" />
     <Compile Include="Source\Core\Vector2.cs" />
     <Compile Include="Source\Core\Vector3.cs" />
+    <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\TestCoroutine.cs" />
     <Compile Include="Source\TestEntity.cs" />
     <Compile Include="Source\TestTransforms.cs" />
   </ItemGroup>

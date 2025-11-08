@@ -20,8 +20,8 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            ///t =gameObject.GetComponent<Transform>();
             t = GetComponent<Transform>();
+           // t = GetComponent<Transform>();
 
             Console.WriteLine("hehehehehtest time x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
         }

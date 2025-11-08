@@ -119,6 +119,10 @@ namespace SliceEngine
         // PrintAssemblyTypes(mCoreAssembly);
         // retrieve the main Entity class
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
+        mCoroutineManager->Instantiate();
+        mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+        SLICE_LOG("mCoroutine");
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -322,10 +326,10 @@ namespace SliceEngine
 
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
-        *mCoroutineManager = ScriptClass("SliceEngine", "CoroutineManager");
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
-        
+        SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
     }
 
@@ -418,6 +422,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnUpdate(float dt)
     {
+        mCoroutineInstance->InvokeOnUpdate(dt);
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
@@ -586,77 +592,93 @@ namespace SliceEngine
         
 	}
 
-    void ScriptSystem::LoadEntityClasses()
-    {
-        //loook here aloy
-
-        // clear the map before using it
-        mEntityClasses.clear();
-
-        MonoImage* image = mono_assembly_get_image(mCoreAssembly);
-        const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
-        int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
-
-        for (int32_t i = 0; i < numTypes; i++)
+        void ScriptSystem::LoadEntityClasses()
         {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
+            //loook here aloy
 
-            const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
-            const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
+            // clear the map before using it
+            mEntityClasses.clear();
 
-            MonoClass* monoClass = mono_class_from_name(image, nameSpace, name);
+            MonoImage* image = mono_assembly_get_image(mCoreAssembly);
+            const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
+            int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
+            MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
+            //MonoClass* testClass = mono_class_from_name(image, "SliceEngine", "CoroutineManager");
+            for (int32_t i = 0; i < numTypes; i++)
+            {               
 
-            // don't reload entity class
-            if (monoClass == entityClass) continue;
+                uint32_t cols[MONO_TYPEDEF_SIZE];
+                mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
-            std::string className;
-            if (strlen(nameSpace))
-            {
-                className = std::format("{}.{}", nameSpace, name);
-            }
-            else
-                className = name;
+                const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
+                const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
 
-            bool isEntityScript = mono_class_is_subclass_of(monoClass, entityClass, false);
-            if (isEntityScript)
-            {
-                std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
-                mEntityClasses[className] = script;
-                 
-                MonoClass* currentClass = monoClass;
-                while (currentClass)
+                // To protect against compiler generated types
+                if (name[0] == '<')
+                    continue;
+
+                // To protect against private nested classes being embroiled in this
+                uint32_t flags = cols[MONO_TYPEDEF_FLAGS];
+                uint32_t visibility = flags & TYPE_ATTRIBUTE_VISIBILITY_MASK;
+
+                // Skip compiler-generated or nested types (names starting with '<')
+                if (name[0] == '<')
+                    continue;
+
+                // Skip all nested types (nested types have visibility values 0x02–0x06)
+                if (visibility >= TYPE_ATTRIBUTE_NESTED_PUBLIC && visibility <= TYPE_ATTRIBUTE_NESTED_FAM_OR_ASSEM)
+                    continue;
+
+                MonoClass* monoClass = mono_class_from_name(image, nameSpace, name);
+
+                // don't reload entity class
+                if (monoClass == entityClass) continue;
+
+                std::string className;
+                if (strlen(nameSpace))
                 {
-                    // get all the fields from the c# script (i.e variables from c# script side)
-                    void* iterator = nullptr;
-                    while (MonoClassField* field = mono_class_get_fields(currentClass, &iterator))
-                    {
-                        std::string fieldName = mono_field_get_name(field);
-                        // Only access public variables from the mono class
-                        if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
-                        {
-                            MonoType* type = mono_field_get_type(field);
-                            ScriptFieldType fieldType = GetScriptFieldType(type);
-
-
-                            rttr::variant var;
-                            // Store it in the script's field map
-                            script->mFields[fieldName] = { fieldType, fieldName, field, var};
-                        }
-                    }
-
-                    currentClass = mono_class_get_parent(currentClass);
-                    if (currentClass == entityClass)
-                        break;
+                    className = std::format("{}.{}", nameSpace, name);
                 }
+                else
+                    className = name;
+
+                bool isEntityScript = mono_class_is_subclass_of(monoClass, entityClass, false);
+                if (isEntityScript)
+                {
+                    std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
+                    mEntityClasses[className] = script;
+
+                    MonoClass* currentClass = monoClass;
+                    while (currentClass)
+                    {
+                        // get all the fields from the c# script (i.e variables from c# script side)
+                        void* iterator = nullptr;
+                        while (MonoClassField* field = mono_class_get_fields(currentClass, &iterator))
+                        {
+                            std::string fieldName = mono_field_get_name(field);
+                            // Only access public variables from the mono class
+                            if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
+                            {
+                                MonoType* type = mono_field_get_type(field);
+                                ScriptFieldType fieldType = GetScriptFieldType(type);
+
+
+                                rttr::variant var;
+                                // Store it in the script's field map
+                                script->mFields[fieldName] = { fieldType, fieldName, field, var };
+                            }
+                        }
+
+                        currentClass = mono_class_get_parent(currentClass);
+                        if (currentClass == entityClass)
+                            break;
+                    }
+                }
+
+                //printf("%s.%s\n", nameSpace, name);
+
+
             }
-
-            //printf("%s.%s\n", nameSpace, name);
-
-
-        }
-
     }
 
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type)

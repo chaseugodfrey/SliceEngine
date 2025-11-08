@@ -9,11 +9,11 @@ namespace SliceEngine
         public Transform() { }
         public Transform(SliceBehaviour entity)
         {
-            Entity = entity;
+            gameObject = entity.gameObject;
             // Initialize rotationQuat from the current rotation
-            FunctionCalls.Transform_GetPosition(Entity.mID, out Vector3 pos);
-            FunctionCalls.Transform_GetScale(Entity.mID, out Vector3 scale);
-            FunctionCalls.Transform_GetRotation(Entity.mID, out Vector3 euler);
+            FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 pos);
+            FunctionCalls.Transform_GetScale(gameObject.mID, out Vector3 scale);
+            FunctionCalls.Transform_GetRotation(gameObject.mID, out Vector3 euler);
             Position = pos;
             Scale = scale;
             rotationQuat = Quaternion.FromEuler(euler);
@@ -23,14 +23,14 @@ namespace SliceEngine
             get
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
-                FunctionCalls.Transform_GetPosition(Entity.mID, out Vector3 position);
+                FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 position);
                 return position;
             }
             set
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
 
-                FunctionCalls.Transform_SetPosition(Entity.mID, ref value);
+                FunctionCalls.Transform_SetPosition(gameObject.mID, ref value);
             }
         }
 
@@ -38,12 +38,12 @@ namespace SliceEngine
         {
             get
             {
-                FunctionCalls.Transform_GetScale(Entity.mID, out Vector3 scale);
+                FunctionCalls.Transform_GetScale(gameObject.mID, out Vector3 scale);
                 return scale;
             }
             set
             {
-                FunctionCalls.Transform_SetScale(Entity.mID, ref value);
+                FunctionCalls.Transform_SetScale(gameObject.mID, ref value);
             }
         }
 
@@ -58,7 +58,7 @@ namespace SliceEngine
             }
             set
             {                
-                FunctionCalls.Transform_SetRotation(Entity.mID, ref value);
+                FunctionCalls.Transform_SetRotation(gameObject.mID, ref value);
                 rotationQuat = Quaternion.FromEuler(value);
             }
         }
@@ -70,7 +70,7 @@ namespace SliceEngine
             {
                 rotationQuat = value;
                 Vector3 euler = rotationQuat.ToEuler();
-                FunctionCalls.Transform_SetRotation(Entity.mID, ref euler);
+                FunctionCalls.Transform_SetRotation(gameObject.mID, ref euler);
             }
         }
 
@@ -105,7 +105,7 @@ namespace SliceEngine
 
             Vector3 rotation = RotationQuat.ToEuler();
 
-            FunctionCalls.Transform_SetRotation(Entity.mID, ref rotation);
+            FunctionCalls.Transform_SetRotation(gameObject.mID, ref rotation);
 
             Rotation = rotation;
         }
