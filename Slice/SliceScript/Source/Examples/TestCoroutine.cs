@@ -10,19 +10,19 @@ namespace SliceEngine
     public class TestCoroutine : SliceBehaviour
     {
         public override void OnCreate()
-        {
+        {            
             RunTests();
         }
 
         public override void OnUpdate(float dt)
         {
-
+            SliceRandom.RangeDouble(0, 0);
         }
 
         public static void RunTests()
         {
             CoroutineManager.StopAllCoroutines();
-            CoroutineManager.StartCoroutine(TimedRoutine());
+            CoroutineManager.StartCoroutine(ParentRoutine());
 
             for (int i = 0; i < 5; i++)
             {
@@ -55,14 +55,14 @@ namespace SliceEngine
         {
             Console.WriteLine("ParentRoutine started");
             CoroutineManager.StartCoroutine(ChildRoutine());
-            yield return null;
+            yield return new WaitForSeconds(2.0f);
             Console.WriteLine("ParentRoutine finished");
         }
 
         private static IEnumerator ChildRoutine()
         {
             Console.WriteLine("ChildRoutine started");
-            yield return null;
+            yield return new WaitForSeconds(2.0f);
             Console.WriteLine("ChildRoutine finished");
         }
     }
