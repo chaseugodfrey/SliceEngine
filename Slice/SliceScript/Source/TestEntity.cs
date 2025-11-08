@@ -32,6 +32,10 @@ namespace SliceEngine
 
 
             //Console.WriteLine("ALOYSUUS TEST SCRIPT IS HERE OLOLOLO<" +testAudio.soundName + ">");
+            if(Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            {
+                gameObject.CreateGameObject("GameObject_1");
+            }
 
 
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
