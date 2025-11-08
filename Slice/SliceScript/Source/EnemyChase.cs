@@ -20,16 +20,15 @@ namespace SliceEngine
             player = gameObject.FindGameObjectWithName("Player");
             playerT = player.GetComponent<Transform>();
 
-            //Console.WriteLine("hehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
-
+            Console.WriteLine("ALOYSISU OIEVRE HERHhehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
 
         }
 
         public override void OnUpdate(float dt)
         {
-            //Vector3 direction_diff = playerT.Position - enemyT.Position;
+            Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-            //enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
+            enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
 
         }
 
