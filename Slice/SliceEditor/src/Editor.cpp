@@ -149,6 +149,7 @@ namespace SliceEditor
 		{
 			registry.Update();
 			inputs.Update();
+			assetManager.UpdateFolder();
 			engine.Update();
 			Render();
 			engine.EndFrame();

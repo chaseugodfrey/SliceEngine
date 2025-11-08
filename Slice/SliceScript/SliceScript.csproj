@@ -55,17 +55,21 @@
     <Compile Include="Source\Core\Prefab.cs" />
     <Compile Include="Source\Core\Quaternion.cs" />
     <Compile Include="Source\Core\RigidBody.cs" />
+    <Compile Include="Source\Core\Scene.cs" />
+    <Compile Include="Source\Core\SceneManager.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\SliceRandom.cs" />
     <Compile Include="Source\Core\Transform.cs" />
     <Compile Include="Source\Core\Utilities.cs" />
     <Compile Include="Source\Core\Vector2.cs" />
     <Compile Include="Source\Core\Vector3.cs" />
     <Compile Include="Source\EnemyChase.cs" />
+    <Compile Include="Source\Examples\TestCoroutine.cs" />
+    <Compile Include="Source\Examples\TestEntity.cs" />
+    <Compile Include="Source\Examples\TestRandomness.cs" />
+    <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\Player.cs" />
-    <Compile Include="Source\TestCoroutine.cs" />
-    <Compile Include="Source\TestEntity.cs" />
-    <Compile Include="Source\TestTransforms.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

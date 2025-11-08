@@ -64,6 +64,10 @@ namespace SliceEngine
 		resource.DestroyTexture();	//calls glDeleteTextures
 	}
 
+	void Type<SliceEngineTypes::Texture>::Reload(SliceEngineTypes::Texture* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	//Shader
 	std::unique_ptr<SliceEngineTypes::Shader> Type<SliceEngineTypes::Shader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -78,6 +82,10 @@ namespace SliceEngine
 		resource.DestroyShader();	//calls glDeleteProgram
 	}
 
+	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	//Material
 	std::unique_ptr<SliceEngineTypes::Material> Type<SliceEngineTypes::Material>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -88,6 +96,57 @@ namespace SliceEngine
 	{
 		resource.DestroyMaterial();
 	}
+
+	void Type<SliceEngineTypes::Material>::Reload(SliceEngineTypes::Material* materialToReload, ResourceManager& mgr, const std::string& path)
+	{
+		std::ifstream file(path);
+		if (!file.is_open())
+		{
+			SLICE_LOG_ERROR("Could not open material file for reload: " + path);
+			return;
+		}
+
+		nlohmann::json materialJson;
+		try
+		{
+			materialJson = nlohmann::json::parse(file);
+		}
+		catch (nlohmann::json::parse_error& e)
+		{
+			SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path);
+			return;
+		}
+
+		try
+		{
+			
+			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
+			float newRoughness = materialJson["roughness"].get<float>();
+			float newMetallic = materialJson["metallic"].get<float>();
+
+			
+			materialToReload->roughness = newRoughness;
+			materialToReload->metallic = newMetallic;
+
+			
+			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
+
+			
+			if (oldAlbedoGUID != newAlbedoGUID)
+			{
+				materialToReload->albedo = mgr.get<SliceEngineTypes::Texture>(newAlbedoGUID);
+			}
+			else
+			{
+				// The texture is the same. DO NOTHING to the handle.
+			}
+		}
+		catch (nlohmann::json::exception& e)
+		{
+			SLICE_LOG_ERROR("Error parsing reloaded material properties from file: " + path + ". " + e.what());
+		}
+	}
+
 	//Model
 	std::unique_ptr<SliceEngineTypes::Model> Type<SliceEngineTypes::Model>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -141,6 +200,10 @@ namespace SliceEngine
 		resource.DestroyModel();	//calls glDeleteBuffer, glDeleteVertexArray
 	}
 
+	void Type<SliceEngineTypes::Model>::Reload(SliceEngineTypes::Model* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		auto scene = std::make_unique<SliceEngineTypes::Scene>(path);
@@ -151,6 +214,10 @@ namespace SliceEngine
 	{
 		// scene got nth to destroy that resource manager doesn't do for it
 		//resource.DestroyScene();	//calls glDeleteBuffer, glDeleteVertexArray
+	}
+
+	void Type<SliceEngineTypes::Scene>::Reload(SliceEngineTypes::Scene* resource, ResourceManager& mgr, const std::string& path)
+	{
 	}
 
 	//Audio
@@ -170,6 +237,10 @@ namespace SliceEngine
 	{
 		resource.DestroyAudio();
 	}
+
+	void Type<SliceEngineTypes::Audio>::Reload(SliceEngineTypes::Audio* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
 	
 	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -183,6 +254,10 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Prefab>::Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr)
 	{
 		// nth to destroy
+	}
+
+	void Type<SliceEngineTypes::Prefab>::Reload(SliceEngineTypes::Prefab* resource, ResourceManager& mgr, const std::string& path)
+	{
 	}
 
 	//Skeleton
@@ -200,6 +275,10 @@ namespace SliceEngine
 		//resource.d();	//nothing to delete really
 	}
 
+	void Type<SliceEngineTypes::Skeleton>::Reload(SliceEngineTypes::Skeleton* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	//Animation Package
 	std::unique_ptr<SliceEngineTypes::AnimationPackage> Type<SliceEngineTypes::AnimationPackage>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -215,6 +294,10 @@ namespace SliceEngine
 		//nothing to really delete too
 	}
 
+	void Type<SliceEngineTypes::AnimationPackage>::Reload(SliceEngineTypes::AnimationPackage* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	//Controller
 	std::unique_ptr<SliceEngineTypes::StateMachine> Type<SliceEngineTypes::StateMachine>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -224,5 +307,8 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::StateMachine>::Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr)
 	{
 		//nothing to really delete too
+	}
+	void Type<SliceEngineTypes::StateMachine>::Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path)
+	{
 	}
 }

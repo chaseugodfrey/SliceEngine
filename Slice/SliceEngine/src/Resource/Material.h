@@ -35,6 +35,7 @@ namespace SliceEngine
 			//and compile
 			static Material LoadMaterial(std::string const&);
 			void DestroyMaterial();
+
 		};
 	}
 }
