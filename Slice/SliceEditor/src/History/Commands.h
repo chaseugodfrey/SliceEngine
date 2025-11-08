@@ -34,6 +34,28 @@ namespace SliceEditor
 		}
 	};
 
+	template<typename T>
+	class FunctionSetsValueCommand : public Command
+	{
+		T oldValue, newValue;
+		std::function<void(T)> funcToExecute;
+
+	public:
+
+		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func) : oldValue(oldV), newValue(newV), funcToExecute(func) {}
+		~FunctionSetsValueCommand() = default;
+
+		void Redo() override
+		{
+			funcToExecute(newValue);
+		}
+
+		void Undo() override
+		{
+			funcToExecute(oldValue);
+		}
+	};
+
 	template <typename T>
 	class ScriptFieldSetterCommand : public Command
 	{

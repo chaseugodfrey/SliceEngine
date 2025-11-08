@@ -405,7 +405,7 @@ namespace SliceEditor
 						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.position);
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.rotation);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.eulerAnglesHint);
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.scale);
@@ -413,9 +413,10 @@ namespace SliceEditor
 					}
 				}
 
-				glm::vec3 scale, translation, skew;
+				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
 				glm::quat rot;
+				static glm::vec3 prev_euler{};
 
 				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
@@ -427,8 +428,10 @@ namespace SliceEditor
 				
 				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
 				{
+					euler = SliceEngine::QuatToVec3(rot);
 					tmp_tr.rotation = rot;
-					mGizmoTracker->endValue = rot;
+					tmp_tr.eulerAnglesHint = euler;
+					mGizmoTracker->endValue = euler;
 				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
@@ -446,15 +449,22 @@ namespace SliceEditor
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position,mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
+					{
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, std::get<glm::quat>(mGizmoTracker->startValue), std::get<glm::quat>(mGizmoTracker->endValue)));
+							std::make_unique<FunctionSetsValueCommand<glm::vec3>>(mGizmoTracker->startValue, mGizmoTracker->endValue,
+								[&](glm::vec3 newEuler)
+								{
+									tmp_tr.eulerAnglesHint = newEuler;
+									tmp_tr.rotation = EulerToQuaternion(newEuler);
+								}));
+						}
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();

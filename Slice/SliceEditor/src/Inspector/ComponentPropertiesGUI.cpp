@@ -18,9 +18,9 @@ DigiPen Institute of Technology is prohibited.
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
 
-#include <Graphics/TransformHelper.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include <Graphics/TransformHelper.h>
 
 using namespace std::string_literals;
 
@@ -280,6 +280,64 @@ namespace SliceEditor
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
+		return changed;
+	}
+
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler)
+	{
+		static glm::vec3 oldVal{};
+
+		std::function<void(glm::vec3)> func
+			= [&](glm::vec3 newEuler)
+		{
+			euler = newEuler;
+			quat = SliceEngine::Vec3ToQuat(euler);
+			};
+
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f", ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+
+		if (ImGui::IsItemActivated())
+			oldVal = euler;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			std::unique_ptr<FunctionSetsValueCommand<glm::vec3>> command = std::make_unique<FunctionSetsValueCommand<glm::vec3>>(oldVal, euler, func);
+			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+		}
+
+		if (changed)
+			quat = SliceEngine::Vec3ToQuat(euler);
+
 		return changed;
 	}
 
