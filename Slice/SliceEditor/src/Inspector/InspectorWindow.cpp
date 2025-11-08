@@ -131,26 +131,23 @@ namespace SliceEditor
 					as.currentVolume = volume; // mark dirty via patch
 				}
 
-				ImGui::Text("Is Loop");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool loop = as.isLoop;
-				if (ImGui::Checkbox("##isloop", &loop))
+				if (BoolInputHeader(mRegistry,"Is Loop", "##looping", loop))
+				{
 					as.isLoop = loop;
+				}
 
-				ImGui::Text("Is 3D");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool is3D = as.is3D;
-				if (ImGui::Checkbox("##is3d", &is3D))
+				if (BoolInputHeader(mRegistry, "Is 3D", "##is3D", is3D))
+				{
 					as.is3D = is3D;
+				}
 
-				ImGui::Text("Is Paused");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				bool paused = as.isPaused;
-				if (ImGui::Checkbox("##ispaused", &paused))
+				if (BoolInputHeader(mRegistry, "Is Paused", "##isPaused", paused))
+				{
 					as.isPaused = paused;
+				}
 
 				ImGui::Text("Play Preview");
 				ImGui::SameLine(150);
