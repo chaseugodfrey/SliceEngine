@@ -232,7 +232,7 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
-				EditorUtilities::MenuList_CreateGameObjects();
+				EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"));
 				ImGui::EndMenu();
 			}
 

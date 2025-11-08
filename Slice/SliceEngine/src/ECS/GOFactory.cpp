@@ -930,13 +930,12 @@ namespace SliceEngine
 			}
 
 			// Each component for this GameObject is here
-			std::cout << storage.type().name() << std::endl;
 			std::string componentName(storage.type().name());
 
 			rttr::type componentType = rttr::type::get_by_name(componentName);
 			if (!componentType)
 			{
-				SLICE_LOG_ERROR("Component is not registered");
+				//SLICE_LOG_ERROR("Component is not registered");
 				continue;
 			}
 
