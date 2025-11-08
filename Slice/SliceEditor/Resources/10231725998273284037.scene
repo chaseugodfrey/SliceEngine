@@ -1,75 +1,5 @@
 [
     {
-        "GameObject_3": {
-            "struct SliceEngine::ColliderShape": {
-                "capsuleData": {
-                    "height": 0.5,
-                    "radius": 0.5
-                },
-                "isTrigger": false,
-                "layer": "1",
-                "offSet": ""
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "12802300298583430329"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::RigidBody": {
-                "CollisionDetection": "",
-                "angularDamping": 0.05000000074505806,
-                "friction": 0.5,
-                "gravityFactor": 1.0,
-                "isKinematic": false,
-                "linearDamping": 0.05000000074505806,
-                "mass": 1.0,
-                "restituition": 0.0
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 7,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    5,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_3",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
         "GameObject_2": {
             "struct SliceEngine::Renderer": {
                 "material": {
@@ -88,8 +18,11 @@
                     0,
                     4294967295,
                     2,
-                    7
+                    4294967295
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Spawner"
             },
             "struct SliceEngine::SliceEntity": {
                 "mName": "GameObject_2",
@@ -102,9 +35,9 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.0,
-                    1.2069244384765625
+                    2.7968387603759766,
+                    0.5736812353134155,
+                    1.9503237009048462
                 ],
                 "rotation": [
                     1.0,
