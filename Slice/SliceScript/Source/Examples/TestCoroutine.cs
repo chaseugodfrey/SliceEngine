@@ -10,13 +10,13 @@ namespace SliceEngine
     public class TestCoroutine : SliceBehaviour
     {
         public override void OnCreate()
-        {
+        {            
             RunTests();
         }
 
         public override void OnUpdate(float dt)
         {
-
+            SliceRandom.RangeDouble(0, 0);
         }
 
         public static void RunTests()
