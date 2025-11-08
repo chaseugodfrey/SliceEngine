@@ -18,9 +18,10 @@ namespace SliceEngine
         {
             enemyT = GetComponent<Transform>();
             player = gameObject.FindGameObjectWithName("Player");
+            Console.WriteLine("ALOYSISU OIEVRE HERHhehehehehtest time x<");
             playerT = player.GetComponent<Transform>();
 
-            //Console.WriteLine("hehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
+            Console.WriteLine("ALOYSISU OIEVRE HERHhehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
 
 
         }
