@@ -105,7 +105,8 @@ namespace SliceEngine
 		.constructor<>()
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
-		.property("scale", &Transform::scale);
+		.property("scale", &Transform::scale)
+		.property("euler_hint", &Transform::eulerAnglesHint);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()

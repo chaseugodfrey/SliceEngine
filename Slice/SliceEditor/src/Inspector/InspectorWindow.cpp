@@ -98,11 +98,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
 			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
-			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
-			{
-				tr.rotation = SliceEngine::Vec3ToQuat(euler);
-			}
+			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
 			ImGui::TreePop();
