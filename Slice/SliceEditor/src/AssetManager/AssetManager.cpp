@@ -947,12 +947,16 @@ namespace SliceEditor
 					sScene->SetCurrentScenePath(newFilePath.string());
 				}
 
-				std::filesystem::path tempFilePath = oldFilePath;
-				tempFilePath.replace_extension(".temp");
+				std::filesystem::path oldTempPath = oldFilePath;
+				oldTempPath.replace_extension(".temp");
 
-				if (std::filesystem::exists(tempFilePath))
+
+				if (std::filesystem::exists(oldTempPath))
 				{
-					tempFilePath.replace_filename(newFilePath.stem());
+					std::filesystem::path newTempPath = newFilePath;
+					newTempPath.replace_extension(".temp");
+
+					std::filesystem::rename(oldTempPath, newTempPath);
 				}
 
 			
