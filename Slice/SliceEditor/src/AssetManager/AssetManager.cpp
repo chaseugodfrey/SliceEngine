@@ -114,6 +114,7 @@ namespace SliceEditor
 			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
 			{
 				HandleAssetModified(rawEvents);
+				//SLICE_LOG("Modifying file: " + rawEvents.begin()->filePath.string());
 			}
 			else if (rawEvents.begin()->changeType == filewatch::Event::added)
 			{
@@ -144,7 +145,7 @@ namespace SliceEditor
 				case filewatch::Event::modified:
 				{
 					HandleAssetModified(rawEvents);
-
+					//SLICE_LOG("Modifying file single event: " + rawEvents.begin()->filePath.string());
 					break;
 				}
 			}
@@ -1021,8 +1022,8 @@ namespace SliceEditor
 						resourceMgr->ReloadResource(fileGUID);
 
 						SLICE_LOG("Modified event at " + events.begin()->filePath.string());
-						AssetFileChangedEvent processEvent = { true };
-						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
+						/*AssetFileChangedEvent processEvent = { true };
+						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);*/
 					
 					
 				

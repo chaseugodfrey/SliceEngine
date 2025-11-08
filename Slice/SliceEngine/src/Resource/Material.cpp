@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include <sstream>
 #include "Core/Core.h"
 
+
 namespace SliceEngine
 {
 	namespace SliceEngineTypes {
@@ -58,5 +59,7 @@ namespace SliceEngine
 		void Material::DestroyMaterial() {
 			albedo.Release();
 		}
+
+		
 	}
 }

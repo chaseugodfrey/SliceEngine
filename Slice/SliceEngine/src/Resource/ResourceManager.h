@@ -41,6 +41,8 @@ namespace SliceEngine
 			int refCount = 1;
 			std::string filePath;
 			std::function<std::unique_ptr<void, std::function<void(void*)>>(ResourceManager&, const std::string&)> reload;
+
+			std::function<void(void* data, ResourceManager&, const std::string&)> reload_in_place;
 		};
 	}
 
@@ -167,6 +169,21 @@ namespace SliceEngine
 
 					return std::unique_ptr<void, std::function<void(void*)>>(newData.release(), newDeleter);
 			};
+
+			instance.reload_in_place = [this](void* data, ResourceManager& mgr, const std::string& path)
+				{
+					if (!data)
+					{
+						SLICE_LOG_ERROR("Cannot reload resource: data is null");
+						return;
+					}
+
+					// Cast the void pointer back to the correct resource type
+					T* resourceToReload = static_cast<T*>(data);
+
+					// Call the specific Reload function for this resource type
+					Type<T>::Reload(resourceToReload, mgr, path);
+				};
 			
 
 			return Handle<T>(*this, &instance, assetGUID);
