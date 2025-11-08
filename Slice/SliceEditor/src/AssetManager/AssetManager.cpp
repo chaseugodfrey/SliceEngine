@@ -983,7 +983,10 @@ namespace SliceEditor
 	{
 		std::filesystem::path modifiedFilePath(events.begin()->filePath);
 
-		
+		if (modifiedFilePath.extension() == ".temp")
+		{
+			return;
+		}
 
 		SliceEngine::GUID fileGUID;
 
@@ -1021,9 +1024,7 @@ namespace SliceEditor
 						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
-						SLICE_LOG("Modified event at " + events.begin()->filePath.string());
-						/*AssetFileChangedEvent processEvent = { true };
-						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);*/
+						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 					
 					
 				
@@ -1037,7 +1038,7 @@ namespace SliceEditor
 			}
 			else
 			{
-				SLICE_LOG_ERROR("Could not read hash files" + hashA.value() + hashB.value());
+				SLICE_LOG_ERROR("Could not read hash files");
 			}
 		}
 	}
