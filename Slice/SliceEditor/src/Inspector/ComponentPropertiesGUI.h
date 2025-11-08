@@ -29,6 +29,8 @@ namespace SliceEditor
 	#pragma endregion
 
 	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f);
+
+	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min = 0.f, float max = 0.f);
 
@@ -39,6 +41,8 @@ namespace SliceEditor
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 	
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	
+	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	

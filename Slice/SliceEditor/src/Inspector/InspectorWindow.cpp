@@ -125,12 +125,11 @@ namespace SliceEditor
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
 
-				ImGui::Text("Volume");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 				float volume = as.currentVolume;
-				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
+				if (SliderFloatInputHeader(mRegistry, "Volume","##currVol",volume, "%.1f",0.0,1.0))
+				{
 					as.currentVolume = volume; // mark dirty via patch
+				}
 
 				ImGui::Text("Is Loop");
 				ImGui::SameLine(150);
@@ -252,7 +251,7 @@ namespace SliceEditor
 
 					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
 
-					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
+					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.0, FLT_MAX);
 					
 					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 					
@@ -516,8 +515,6 @@ namespace SliceEditor
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
-
-			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
 			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 

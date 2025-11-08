@@ -73,6 +73,27 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
+	{
+		static float oldVal{};
+
+		bool changed = ImGui::SliderFloat(id, &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (std::abs(oldVal - val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ValueCommand<float>> command = std::make_unique<ValueCommand<float>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min, float max)
 	{
 		static int oldVal{};
@@ -149,6 +170,16 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = SliderFloatInput(reg, id, val, format, min, max) || changed;
 
 		return changed;
 	}
