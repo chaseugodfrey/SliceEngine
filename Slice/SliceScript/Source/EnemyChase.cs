@@ -18,19 +18,17 @@ namespace SliceEngine
         {
             enemyT = GetComponent<Transform>();
             player = gameObject.FindGameObjectWithName("Player");
-            Console.WriteLine("ALOYSISU OIEVRE HERHhehehehehtest time x<");
             playerT = player.GetComponent<Transform>();
 
             Console.WriteLine("ALOYSISU OIEVRE HERHhehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
-
 
         }
 
         public override void OnUpdate(float dt)
         {
-            //Vector3 direction_diff = playerT.Position - enemyT.Position;
+            Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-            //enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
+            enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
 
         }
 
