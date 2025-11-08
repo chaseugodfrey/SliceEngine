@@ -911,6 +911,18 @@ namespace SliceEditor
 		//Check if the files are in the same folder and if files are the same extension
 		if (oldFilePath.parent_path().string() == newFilePath.parent_path().string() && oldFilePath.extension() == newFilePath.extension())
 		{
+
+			if (oldFilePath.extension() == ".scene")
+			{
+				std::filesystem::path oldTempFile = oldFilePath;
+				oldTempFile.replace_extension(".temp");
+
+				if (std::filesystem::exists(oldTempFile))
+				{
+					oldTempFile.replace_filename(newFilePath.stem());
+				}
+			}
+
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
 			//Find the resource meta file using the old file name
@@ -919,6 +931,9 @@ namespace SliceEditor
 			{
 				std::filesystem::path metaFilePath = path.value();
 				metaFilePath.replace_extension(".meta");
+
+				
+
 
 				std::string guidString = metaFilePath.stem().string();
 				fileGUID = SliceEngine::GUID::FromString(guidString);

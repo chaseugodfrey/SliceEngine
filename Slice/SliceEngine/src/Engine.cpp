@@ -389,6 +389,8 @@ namespace SliceEngine
 	void Engine::LoadProjectSettings()
 	{
 		auto sScene = Core::GetInstance()->GetSceneSystem();
+		auto sResourceManager = Core::GetInstance()->GetResourceManager();
+
 		std::filesystem::path proj = "projectSettings.json";
 
 		ProjectSettings s;
@@ -425,8 +427,12 @@ namespace SliceEngine
 
 			else
 			{
+
+				
 				sScene->LoadScene(sceneToLoad); // for now by filepath
 				sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+
+				
 			}
 		}
 	}
