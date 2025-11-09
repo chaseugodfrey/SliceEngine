@@ -50,6 +50,7 @@ namespace SliceEditor
 
         void ReleaseDebugMesh();
         void LoadDebugMesh();
+        float distancePtLine2d(const float* pt, const float* p, const float* q);
 	};
 }
 #endif

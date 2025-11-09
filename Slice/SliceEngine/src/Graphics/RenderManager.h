@@ -46,20 +46,22 @@ namespace SliceEngine
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
 		void BindCameraDepth(Entity cam);
+		void GatherDrawCalls();
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
 		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderLighting(Entity cam);
+		void RenderAfterLighting(Entity cam);
 		void RenderBloom();
 		void RenderGammaCorrection(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
-		void LinkTransformInstancing(GUID guid);
+		//void LinkTransformInstancing(GUID guid);
 
 	private:
-		const int mMaxInstance = 100;
+		const int mMaxInstance = 500;
 		const int mMaxBloom =  5;
 		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
@@ -83,6 +85,18 @@ namespace SliceEngine
 			glm::ivec2 intSize;
 			GLuint tex;
 		};
+		struct InstanceData
+		{
+			glm::mat4 mtx;
+			glm::ivec4 mat;
+		};
+		struct RenderCmd
+		{
+			Handle<SliceEngineTypes::Model> mdl;
+			Handle<SliceEngineTypes::Material> mat;
+			glm::mat4 mtx;
+		};
+#pragma region Enums
 		enum FBOType : unsigned char
 		{
 			FB_NIL = 0,		// 0 Outs
@@ -97,6 +111,7 @@ namespace SliceEngine
 			S_POINT_SHADOW	= 16403285895328080424,
 			S_DEFERRED		= 9461939409271178249,
 			S_LIGHTING		= 17353385404596894578,
+			S_PARTICLES		= 15022037422749583333,
 			S_FINAL			= 9302529766740298710,
 			S_INSTANCED		= 17697828682138082227,
 			S_DEBUG_LINE	= 13567802095736790143,
@@ -104,7 +119,6 @@ namespace SliceEngine
 			S_DOWNSCALING	= 9611694325200796232,
 			S_UPSCALING		= 17037775471000192005
 		};
-
 		enum GPU_OUT : unsigned char
 		{
 			GOUT_DIF = 0,
@@ -116,7 +130,6 @@ namespace SliceEngine
 			GOUT_POST,
 			GOUT_TOTAL
 		};
-
 		enum GPUSetting : unsigned char
 		{
 			GPS_ENABLE_CULL_FACE	= 0b0000'0001,
@@ -130,6 +143,7 @@ namespace SliceEngine
 
 			GPS_NONE				= 0x00,
 			GPS_DEFAULT				= 0b1001'0101,
+			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SHADOW				= 0b1000'0101,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
@@ -142,7 +156,7 @@ namespace SliceEngine
 			COLOR_ONLY,
 			ALL
 		};
-
+#pragma endregion
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mIVBO{};
@@ -157,7 +171,7 @@ namespace SliceEngine
 		std::optional<GameObject> mainCam;
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<ShaderOpt, GLuint> mCurrShader;
-		std::vector<glm::mat4> mInstanceVtx;
+		std::vector<InstanceData> mInstanceVtx;
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		std::vector<BloomMip> mBloomMips;
