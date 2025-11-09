@@ -201,8 +201,6 @@ namespace SliceEngine
 		}
 	}
 
-	
-
 	bool SceneSystem::CheckQueueEmpty()
 	{
 		return mSceneQueue.empty();
@@ -211,5 +209,10 @@ namespace SliceEngine
 	std::filesystem::path SceneSystem::GetCurrentScenePath()
 	{
 		return mCurrentScene;
+	}
+
+	std::string SceneSystem::GetCurrentSceneName()
+	{
+		return mCurrentScene.stem().string();
 	}
 }

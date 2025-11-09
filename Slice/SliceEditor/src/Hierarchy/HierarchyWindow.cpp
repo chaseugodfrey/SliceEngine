@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Session/SessionManager.h"
 #include "History/HistoryManager.h"
 #include "Selection/SelectionManager.h"
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
@@ -125,7 +126,9 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawSceneNode()
 	{
-		if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
+		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+
+		if (ImGui::TreeNodeEx(scene.c_str(), ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Separator();
 

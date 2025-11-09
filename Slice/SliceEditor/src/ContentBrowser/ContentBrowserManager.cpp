@@ -27,12 +27,34 @@ namespace SliceEditor
 	void ContentBrowserManager::Init()
 	{
 		SLICE_LOG("Initializing Content Browser Data.");
+		LoadDefaultIcons();
 		BuildTree();
 	}
 
 	void ContentBrowserManager::Update()
 	{
 
+	}
+
+	void ContentBrowserManager::LoadDefaultIcons()
+	{
+		auto resouceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
+		for (int i = 1; i < iconNames.size(); i++)
+		{
+			auto textureHandle = resouceManager->get<SliceEngine::SliceEngineTypes::Texture>(iconNames[i]);
+			if (textureHandle.IsValid())
+				defaultIconMap.emplace(i, textureHandle);
+		}
+	}
+
+	std::optional<SliceEngine::Handle<Texture>> ContentBrowserManager::GetDefaultIconHandle(SelectionType type)
+	{
+		int typeByInt = static_cast<int>(type);
+		auto it = defaultIconMap.find(typeByInt);
+		if (it == defaultIconMap.end())
+			return std::nullopt;
+
+		return it->second;
 	}
 
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
