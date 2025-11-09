@@ -268,7 +268,15 @@ namespace SliceEngine
 	{
 		std::string cStrName = MonoToString(name);
 		auto go = FactoryInstance.GetGOByName(cStrName);
-		return static_cast<uint32_t>(go.GetEntity());
+
+		if (go.IsValid())
+		{
+			return static_cast<uint32_t>(go.GetEntity());
+		}
+		else
+		{
+			return 0;
+		}
 	}
 #pragma endregion
 
