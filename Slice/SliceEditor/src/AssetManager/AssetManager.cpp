@@ -200,22 +200,33 @@ namespace SliceEditor
 			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			
 			// get the file path to the meta file
-			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
-
-
+			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);;
 			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
 			{
 			case AssetType::Texture:
 				// This should create the texture asset into the resource folder
-				metaPath = metaData->Serialize(mResourcesDirectory);
 				CompileTextureAsset(metaPath);
 				break;
 			case AssetType::Model:
-				// Compile the model file and write into the resource folder
+			{
+				auto* data = static_cast<ModelData*>(metaData.get());
+				if (data->is_static == false)
+				{
+					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton,false).string();
+
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, false).string();
+				}
+				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
+
 				break;
+			}
 			case AssetType::Audio:
 				// idk audio yet
 				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
@@ -268,7 +279,6 @@ namespace SliceEditor
 	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
-
 		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
 		//mAssets[assetType].push_back(metaData->assetName);
@@ -309,6 +319,7 @@ namespace SliceEditor
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
 			break;
 		}
+
 
 		// register into resource manager
 		if (AddToRM)
