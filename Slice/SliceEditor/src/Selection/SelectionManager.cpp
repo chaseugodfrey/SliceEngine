@@ -32,6 +32,8 @@ namespace SliceEditor
 	{
 		mSelectedEntities.clear();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
+		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &SelectionManager::DeleteSelectedObjects>(this);
+
 	}
 
 	void SelectionManager::Update()
@@ -160,6 +162,21 @@ namespace SliceEditor
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
+	}
+
+	void SelectionManager::DeleteSelectedObjects()
+	{
+		//Another hack. Replicate the mSelectedNodes temporarily
+		auto mSelectedNodesCopy = mSelectedNodes;
+
+		for(auto* node : mSelectedNodesCopy)
+		{
+			if(node->type == SelectionType::ENTITY)
+			{
+				EntityNode& entityNode = *static_cast<EntityNode*>(node);
+				EditorUtilities::GameObject_Destroy(entityNode.entity);
+			}
+		}
 	}
 
 	std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()

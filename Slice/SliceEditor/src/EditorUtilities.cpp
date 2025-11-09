@@ -176,6 +176,11 @@ namespace SliceEditor
 			}
 		}
 
+		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
+		{
+
+		}
+		
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager)
 		{
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(path);
@@ -308,10 +313,6 @@ namespace SliceEditor
 			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
 		}
 
-		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
-		{
-
-		}
 
 #pragma region Preferences
 

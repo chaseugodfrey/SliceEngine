@@ -111,7 +111,7 @@ namespace SliceEditor
 				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
 					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
+					std::filesystem::path currentSceneTemp = currentScenePath.replace_extension(".temp"); //SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
 
 
 					if (std::filesystem::exists(currentSceneTemp))
@@ -121,6 +121,7 @@ namespace SliceEditor
 						currentSceneTemp.replace_extension(".scene");
 						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
 							
+						
 					}
 
 				}
