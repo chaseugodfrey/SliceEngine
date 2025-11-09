@@ -340,7 +340,8 @@ namespace SliceEngine
 		{
 			Handle<T> handle;
 			handle.mGUID = value.getGUID();
-			SLICE_LOG_DEBUG("GUID Being deserialized : ", std::to_string(value.getGUID().GetGUID()));
+			std::string msg = "GUID Being deserialized : " + std::to_string(value.getGUID().GetGUID());
+			SLICE_LOG_DEBUG(msg);
 			prop.set_value(componentInstance, handle);
 		}
 
@@ -548,7 +549,8 @@ namespace SliceEngine
 		// Then, deserialize that string value into the handle's mGUID member.
 		// This will correctly use your from_json(const json& j, GUID& guid) function.
 		j.at("GUID").get_to(handle.mGUID);
-		SLICE_LOG_DEBUG("GUID Being deserialized : ",  std::to_string(guid.GetGUID()));
+		std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
+		SLICE_LOG_DEBUG(msg);
 
 	}
 }
