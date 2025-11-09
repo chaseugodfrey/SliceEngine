@@ -43,7 +43,7 @@ namespace SliceEngine
 			}
 			catch (nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Invalid material JSON file");
+				SLICE_LOG_ERROR("Invalid material JSON file" + std::string(e.what()));
 
 				return temp;
 			}

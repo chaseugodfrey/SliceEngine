@@ -424,7 +424,7 @@ namespace SliceEngine
 					float u = static_cast<float>(j) / sectorCount;
 					float theta = u * 2.0f * PIF;
 
-					float cosPhi = std::cos(phi);
+					//float cosPhi = std::cos(phi); if there is an come here rain
 					float sinPhi = std::sin(phi);
 					float cosTheta = std::cos(theta);
 					float sinTheta = std::sin(theta);

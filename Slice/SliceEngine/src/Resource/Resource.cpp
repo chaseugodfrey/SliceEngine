@@ -113,7 +113,7 @@ namespace SliceEngine
 		}
 		catch (nlohmann::json::parse_error& e)
 		{
-			SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path);
+			SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path + e.what());
 			return;
 		}
 
