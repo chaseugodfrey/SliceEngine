@@ -54,10 +54,48 @@ namespace SliceEditor
 
 			ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
 
+			// win as in the scene Window
+			ImVec2 winScreenTL{ pos.x, pos.y };
+			ImVec2 winOffset{ 0.f,0.f };
+			ImVec2 totalWinScreenDim = ImGui::GetContentRegionAvail();
+			ImVec2 winScreenDim = totalWinScreenDim;
+			float winScreenAR = winScreenDim.x / winScreenDim.y;
+			// worldSpace as in what the camera renders (i'm going to change this val when I crop out parts of the image when streching the height)
+			ImVec2 worldSpaceDim{ static_cast<float>(cam.width) , static_cast<float>(cam.height) };
+			float worldSpaceAR = worldSpaceDim.x / worldSpaceDim.y;
+			float worldSpaceOffsetX{ 0.f };
+
+			ImVec2 uvCropMin{ 0.f, 1.f }; // it's like this cuz it's flipped
+			ImVec2 uvCropMax{ 1.f, 0.f };
+
+			if (winScreenAR > worldSpaceAR) // Stretch the width
+			{
+				winScreenDim.x = totalWinScreenDim.y * worldSpaceAR;
+				winOffset.x = (totalWinScreenDim.x - winScreenDim.x) / 2.f;
+			}
+			else if (winScreenAR < worldSpaceAR) // Stretch the height
+			{
+				winScreenDim.y = totalWinScreenDim.x / worldSpaceAR;
+				winOffset.y = (totalWinScreenDim.y - winScreenDim.y) / 2.f;
+
+				// world space: y & x dim stays the same
+				float wouldBeWinWidth = totalWinScreenDim.y * worldSpaceAR;
+				float percentScreenShown = totalWinScreenDim.x / wouldBeWinWidth;
+				uvCropMin.x += 0.5f - 0.5f * percentScreenShown;
+				uvCropMax.x -= 0.5f - 0.5f * percentScreenShown;
+
+				worldSpaceOffsetX = uvCropMin.x * worldSpaceDim.x;
+				worldSpaceDim.x *= percentScreenShown;
+			}
+
+			pos += winOffset;
+			float scene_x = pos.x + winScreenDim.x; // Refers to the bottom right point of the scene window in screen space
+			float scene_y = pos.y + winScreenDim.y;
+			// Drawing cam texture
 			ImGui::GetWindowDrawList()->AddImage(
 				tex,
 				ImVec2(pos.x, pos.y),
-				ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetContentRegionAvail().y),
+				ImVec2(scene_x, scene_y),
 				ImVec2(0, 1),
 				ImVec2(1, 0)
 			);

@@ -60,7 +60,7 @@ namespace SliceEngine
 			float exitTime = 0.0f;
 			float entryTime =0.0f;
 
-			bool isLoop;
+			bool isLoop {false};
 
 			std::vector<Transition> transitions;
 
@@ -81,11 +81,7 @@ namespace SliceEngine
 			std::string prevState;
 
 			bool stateCon = false;
-			std::map<std::string, rttr::variant> parameters;
-
-			void SetBool(const std::string& name, bool value) { parameters[name] = value; }
-			void SetFloat(const std::string& name, float value) { parameters[name] = value; }
-			void SetInt(const std::string& name, int value) { parameters[name] = value; }
+			std::unordered_map<std::string, rttr::variant> parameters;
 
 			static StateMachine LoadStateMachineResource(std::string const&);
 		};
