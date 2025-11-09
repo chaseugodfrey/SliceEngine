@@ -39,6 +39,8 @@ namespace SliceEngine
 
         public virtual void OnCollideEnter(uint other) {  }
 
+        public virtual void OnCollideStay(uint other) { }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
