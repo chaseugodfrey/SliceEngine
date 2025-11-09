@@ -72,5 +72,7 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
+        //[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        //internal extern static void Load_Scene(Scene scene);
     }
 }
