@@ -60,7 +60,7 @@ namespace SliceEngine
 			float exitTime = 0.0f;
 			float entryTime =0.0f;
 
-			bool isLoop{};
+			bool isLoop;
 
 			std::vector<Transition> transitions;
 
