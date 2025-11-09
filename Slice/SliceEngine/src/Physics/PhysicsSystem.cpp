@@ -193,6 +193,13 @@ namespace SliceEngine
 		{
 			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
 			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				body.SetCollideKinematicVsNonDynamic(true);
+
+			}
 		}
 
 	}
@@ -441,6 +448,7 @@ namespace SliceEngine
 			JPH::MassProperties massProps = shape->GetMassProperties();
 
 			massProps.ScaleToMass(rigidBody.mass);
+			body.SetCollideKinematicVsNonDynamic(true);
 
 			//handle freeze position
 			JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
@@ -864,6 +872,7 @@ namespace SliceEngine
 			{
 				bodySettings.mFriction = rigidBody.friction;
 				bodySettings.mRestitution = rigidBody.restitution;
+				bodySettings.mCollideKinematicVsNonDynamic = true;
 			}
 		}
 		else if (!isRigibody)
