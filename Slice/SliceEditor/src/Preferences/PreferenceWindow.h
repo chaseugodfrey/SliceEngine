@@ -11,7 +11,7 @@ namespace SliceEditor
 		void SetThemeColor(ImVec4 col);
 
 	public:
-		PreferenceWindow(Registry& reg) : EditorWindow(reg) {};
+		PreferenceWindow(Registry& reg) : EditorWindow(reg) { preferences = nullptr; };
 		~PreferenceWindow() = default;
 		void Init() override;
 		void Draw() override final;

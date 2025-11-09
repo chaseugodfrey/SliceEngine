@@ -65,6 +65,7 @@ namespace SliceEngine
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
+		isRunning = false;
 	}
 	Engine::~Engine()
 	{

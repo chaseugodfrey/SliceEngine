@@ -733,8 +733,8 @@ namespace SliceEngine
 			// do this later aloysius
 			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
 
-			JPH::uint64 ent1;
-			JPH::uint64 ent2;
+			JPH::uint64 ent1{};
+			JPH::uint64 ent2{};
 
 			ColliderShape colliderShape1;
 			ColliderShape colliderShape2;

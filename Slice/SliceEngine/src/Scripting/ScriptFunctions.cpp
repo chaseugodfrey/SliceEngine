@@ -286,7 +286,7 @@ namespace SliceEngine
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
 		{
-			auto& anim = GO.GetComponent<Animator>();
+			//auto& anim = GO.GetComponent<Animator>();
 		//	anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
 		}
 		else

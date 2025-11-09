@@ -86,7 +86,7 @@ namespace SliceEngine
 			channel->setMode(FMOD_2D);
 		}
 
-		FMOD_RESULT result;
+		FMOD_RESULT result = FMOD_OK;
 
 		switch (audioClip->GetCategory())
 		{
