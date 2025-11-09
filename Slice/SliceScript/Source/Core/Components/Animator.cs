@@ -4,6 +4,11 @@ namespace SliceEngine
 {
     public class Animator : Component
     {
+        public Animator() { }
+        public Animator(GameObject entity)
+        {
+            gameObject = entity;
+        }
         public void ChangeAnim(uint animIndex)
         {
             FunctionCalls.ChangeAnim(gameObject.mID, animIndex);
