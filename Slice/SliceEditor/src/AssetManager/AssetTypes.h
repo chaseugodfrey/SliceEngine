@@ -244,7 +244,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
-		bool is_static{ false };
+		bool is_static{ true };
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 

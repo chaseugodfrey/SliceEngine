@@ -65,19 +65,24 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
+				//Pop-up General Context for File Creation
+				if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+				{
+					ImGui::OpenPopup("menu_create");
+				}
+
+				if (ImGui::BeginPopupContextWindow("menu_create"))
+				{
+					EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+
+					ImGui::EndPopup();
+				}
+
 				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
 			}
 
-			ImGui::OpenPopupOnItemClick("menu_create");
-
-			if (ImGui::BeginPopupContextItem("menu_create"))
-			{
-				EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
-
-				ImGui::EndPopup();
-			}
 		}
 
 		if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
@@ -181,6 +186,7 @@ namespace SliceEditor
 						{
 							SelectFile(entry);
 							selectedEntry = nullptr;
+							ImGui::EndPopup();
 							ImGui::EndTable(); //Setting the Pre-mature Table End
 							return;
 						}
