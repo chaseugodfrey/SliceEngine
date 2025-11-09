@@ -94,7 +94,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min, float max)
+	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min, int max)
 	{
 		static int oldVal{};
 
@@ -227,7 +227,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, float min, float max)
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
