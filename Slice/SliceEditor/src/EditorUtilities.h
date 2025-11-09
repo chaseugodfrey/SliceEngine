@@ -23,11 +23,12 @@ namespace SliceEditor
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
+		void Scene_Save();
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
-		void MenuList_CreateGameObjects();
+		void MenuList_CreateGameObjects(HistoryManager* history = nullptr);
 
 
 		//File Creation

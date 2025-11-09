@@ -18,10 +18,10 @@ namespace SliceEngine
         }
         public T GetComponent<T>() where T : Component
         {
-            var ctor = typeof(T).GetConstructor(new[] { typeof(SliceBehaviour) });
+            var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
             if (ctor == null)
                 throw new InvalidOperationException(
-                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(SliceBehaviour)})");
+                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(GameObject)})");
 
             T component = (T)ctor.Invoke(new object[] { this });
             component.gameObject = this;
@@ -52,6 +52,9 @@ namespace SliceEngine
         public GameObject FindGameObjectWithName(string name)
         {
             uint entityID = FunctionCalls.Entity_FindEntityWithName(name);
+
+            if (entityID == 0)
+                return null;
 
             return new GameObject(entityID);
         }

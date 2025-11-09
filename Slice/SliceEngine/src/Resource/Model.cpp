@@ -424,7 +424,7 @@ namespace SliceEngine
 					float u = static_cast<float>(j) / sectorCount;
 					float theta = u * 2.0f * PIF;
 
-					float cosPhi = std::cos(phi);
+					//float cosPhi = std::cos(phi); if there is an come here rain
 					float sinPhi = std::sin(phi);
 					float cosTheta = std::cos(theta);
 					float sinTheta = std::sin(theta);
@@ -528,25 +528,61 @@ namespace SliceEngine
 		void Model::LoadDefaultFrustrumModel()
 		{
 			meshes.resize(1);
-			auto& m = meshes[0];
-			m.drawMode = GL_LINE_LOOP;
-			m.drawCnt = 16;
-			vtx.resize(m.drawCnt);
-
-			glCreateBuffers(1, &m.vbo);
-			glNamedBufferStorage(m.vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), GL_DYNAMIC_STORAGE_BIT);
-			glCreateVertexArrays(1, &m.vao);
-			// layout=0
-			glEnableVertexArrayAttrib(m.vao, 0);
-			glVertexArrayVertexBuffer(m.vao, 0, m.vbo, 0, sizeof(glm::vec3));
-			glVertexArrayAttribFormat(m.vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(m.vao, 0, 0);
+			auto& mesh = meshes[0];
+			vtx.reserve(8);
+			vtx.emplace_back(-0.5f, -0.5f, -0.5f); // 0: Near-Bottom-Left
+			vtx.emplace_back(0.5f, -0.5f, -0.5f); // 1: Near-Bottom-Right
+			vtx.emplace_back(0.5f, 0.5f, -0.5f); // 2: Near-Top-Right
+			vtx.emplace_back(-0.5f, 0.5f, -0.5f); // 3: Near-Top-Left
+			// Far face (Z = +0.5)
+			vtx.emplace_back(-0.5f, -0.5f, 0.5f); // 4: Far-Bottom-Left
+			vtx.emplace_back(0.5f, -0.5f, 0.5f); // 5: Far-Bottom-Right
+			vtx.emplace_back(0.5f, 0.5f, 0.5f); // 6: Far-Top-Right
+			vtx.emplace_back(-0.5f, 0.5f, 0.5f);  // 7: Far-Top-Left
 			
+			std::vector<unsigned int> idx;
+			idx.reserve(24);
+			idx.emplace_back(0); idx.emplace_back(1);
+			idx.emplace_back(1); idx.emplace_back(2);
+			idx.emplace_back(2); idx.emplace_back(3);
+			idx.emplace_back(3); idx.emplace_back(0);
+
+			idx.emplace_back(4); idx.emplace_back(5);
+			idx.emplace_back(5); idx.emplace_back(6);
+			idx.emplace_back(6); idx.emplace_back(7);
+			idx.emplace_back(7); idx.emplace_back(4);
+
+			idx.emplace_back(0); idx.emplace_back(4);
+			idx.emplace_back(1); idx.emplace_back(5);
+			idx.emplace_back(2); idx.emplace_back(6);
+			idx.emplace_back(3); idx.emplace_back(7);
+
+			mesh.setup_mesh();
+			//vbo
+			glCreateBuffers(1, &mesh.vbo);
+			glNamedBufferStorage(mesh.vbo, vtx.size() * sizeof(glm::vec3), vtx.data(), 0);
+			//ebo
+			glCreateBuffers(1, &mesh.ebo);
+			glNamedBufferStorage(mesh.ebo, idx.size() * sizeof(unsigned int), idx.data(), 0);
+
+			//vao
+			glCreateVertexArrays(1, &mesh.vao);
+			glEnableVertexArrayAttrib(mesh.vao, 0);
+			glVertexArrayAttribFormat(mesh.vao, 0, 3, GL_FLOAT, false, 0);
+			glVertexArrayVertexBuffer(mesh.vao, 0, mesh.vbo, 0, sizeof(glm::vec3));
+			glVertexArrayAttribBinding(mesh.vao, 0, 0);
+
+			glVertexArrayElementBuffer(mesh.vao, mesh.ebo);
+
+			glBindVertexArray(0);
+			mesh.drawCnt = static_cast<GLuint>(idx.size());
+			mesh.drawMode = GL_LINES;
+
 			//rootNode.local_transform = glm::identity<glm::mat4>();
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
-			
+
 			return;
 		}
 
@@ -608,7 +644,7 @@ namespace SliceEngine
 			}
 
 			glBindVertexArray(0);
-			drawCnt = indices.size();
+			drawCnt = static_cast<GLuint>(indices.size());
 			drawMode = GL_TRIANGLES;
 		}
 

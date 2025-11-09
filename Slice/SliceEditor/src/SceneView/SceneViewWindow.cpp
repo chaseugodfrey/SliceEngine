@@ -15,8 +15,8 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "SceneViewWindow.h"
-#include "../../SliceEngine/src/Graphics/RenderManager.h"
-#include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include <Graphics/RenderManager.h>
+#include <Graphics/CameraSystem.h>
 #include <Graphics/TransformHelper.h>
 
 #include "Core/Registry.h"
@@ -161,7 +161,7 @@ namespace SliceEditor
 		float mouse_relative_x = io.MousePos.x - scene_window_pos.x; // Correct, refers to the mouse position (in screen space), starting with (0,0) at the top left of the section you want
 		float mouse_relative_y = io.MousePos.y - scene_window_pos.y;
 
-		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width; // Converts from idk coordinates, to relative to the whole window (not just scene part) coordinates
+		//float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width; // Converts from idk coordinates, to relative to the whole window (not just scene part) coordinates
 		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
 		mouse_scaled_y = camObj->camera.height - mouse_scaled_y;
 
@@ -377,20 +377,23 @@ namespace SliceEditor
 
 		if (!set.empty() && set.begin().operator*()->type == SelectionType::ENTITY)
 		{
-			auto entt = static_cast<EntityNode*>(*set.begin())->entity;
+			// get entities & transform components
+			auto entity = static_cast<EntityNode*>(*set.begin())->entity;
+			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+			auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+			auto parentEntity = sceneGraph.neighbours[sceneGraph.UP];
+
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
 			glm::mat4 P = glm::perspective(
 				glm::radians(camObj->camera.pov), worldSpaceDim.x / worldSpaceDim.y, camObj->camera.near, camObj->camera.far);
 
-			// get entities & transform components
-			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
 			ImGuizmo::SetRect(pos.x, pos.y, scene_x - pos.x, scene_y - pos.y);
 
 			// get transforms
-			glm::mat4 world_tr = tmp_tr.transform;
+			glm::mat4 world_tr = tr.transform;
 			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
 			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mGuizmoOperation, mGuizmoMode, glm::value_ptr(world_tr));
@@ -402,38 +405,49 @@ namespace SliceEditor
 					switch (mGuizmoOperation)
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.position);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.position);
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.rotation);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.eulerAnglesHint);
 						break;
 					case ImGuizmo::OPERATION::SCALE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.scale);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.scale);
 						break;
 					}
 				}
 
-				glm::vec3 scale, translation, skew;
+				glm::mat4 parentWorldTr{ 1 };
+				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
 				glm::quat rot;
+				static glm::vec3 prev_euler{};
+
+				if (parentEntity != entt::null)
+				{
+					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+					parentWorldTr = parentTr.transform;
+					world_tr *= glm::inverse(parentWorldTr);
+				}
 
 				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
-					tmp_tr.position = translation;
+					tr.position = translation;
 					mGizmoTracker->endValue = translation;
 				}
 				
 				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
 				{
-					tmp_tr.rotation = rot;
-					mGizmoTracker->endValue = rot;
+					euler = SliceEngine::QuatToVec3(rot);
+					tr.rotation = rot;
+					tr.eulerAnglesHint = euler;
+					mGizmoTracker->endValue = euler;
 				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
 				{
-					tmp_tr.scale = scale;
+					tr.scale = scale;
 					mGizmoTracker->endValue = scale;
 				}
 			}
@@ -446,15 +460,22 @@ namespace SliceEditor
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.position,mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
+					{
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::quat>>(tmp_tr.rotation, std::get<glm::quat>(mGizmoTracker->startValue), std::get<glm::quat>(mGizmoTracker->endValue)));
+							std::make_unique<FunctionSetsValueCommand<glm::vec3>>(mGizmoTracker->startValue, mGizmoTracker->endValue,
+								[&](glm::vec3 newEuler)
+								{
+									tr.eulerAnglesHint = newEuler;
+									tr.rotation = EulerToQuaternion(newEuler);
+								}));
+						}
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.scale, std::get<glm::vec3>(mGizmoTracker->startValue), std::get<glm::vec3>(mGizmoTracker->endValue)));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();

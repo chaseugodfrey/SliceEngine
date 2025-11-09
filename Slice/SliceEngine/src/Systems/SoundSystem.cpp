@@ -29,7 +29,7 @@ namespace SliceEngine
 
 	void SoundSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto& audioComp = reg.get<AudioSource>(entity);
+		//auto& audioComp = reg.get<AudioSource>(entity);
 		
 		
 

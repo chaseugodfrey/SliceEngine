@@ -244,7 +244,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
-		bool is_static{ false };
+		bool is_static{ true };
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 
@@ -255,7 +255,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -293,7 +293,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -328,7 +328,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -499,8 +499,8 @@ namespace SliceEditor
 
 		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
 		//GUID normalMap;
-		float roughness;
-		float metallic;
+		float roughness = 0.0f;
+		float metallic = 0.0f;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -638,6 +638,7 @@ namespace SliceEditor
 			j["hasExitTime"] = s.hasExitTime;
 			j["exitTime"] = s.exitTime;
 			j["entryTime"] = s.entryTime;
+			j["isLoop"] = s.isLoop;
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -696,29 +697,92 @@ namespace SliceEditor
 		void SerializeAsset(const std::filesystem::path& desc_path)
 		{
 			nlohmann::json metaJson;
-			// specific properties to shader goes here but we dh that yet
-			//metaJson["entryState"] = entryState;
+
 			metaJson["entryState"] = "Idle";
 
-			for (auto it : parameters)
-			{
-				//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
-				to_json(metaJson["parameters"][it.first], it.second);
-			}
+			//for (auto it : parameters)
+			//{
+			//	//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
+			//	to_json(metaJson["parameters"][it.first], it.second);
+			//}
 
-			for (auto it : stateMap)
-			{
-				to_json(metaJson["stateMap"][it.first], it.second);
-			}
+			//for (auto it : stateMap)
+			//{
+			//	to_json(metaJson["stateMap"][it.first], it.second);
+			//}
+
+			rttr::variant tmpVar;
+			tmpVar = false;
+
+			to_json(metaJson["parameters"]["Attack"], tmpVar);
+
+			to_json(metaJson["parameters"]["Run"], tmpVar);
+
+			to_json(metaJson["parameters"]["Idle"], tmpVar);
 
 			SliceEngine::SliceEngineTypes::State tmpState;
+			SliceEngine::SliceEngineTypes::Transition tmpTran;
+
+
 			tmpState.curr_anim_idx = 13;
 			tmpState.stateName = "Idle";
 			tmpState.hasExitTime = false;
 			tmpState.entryTime = 0;
 			tmpState.exitTime = 1;
+			tmpState.isLoop = true;
+
+			tmpTran.targetState = "Attack";
+			tmpTran.parameterName = "Attack";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "Run";
+			tmpTran.parameterName = "Run";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
 
 			to_json(metaJson["stateMap"]["Idle"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.curr_anim_idx = 21;
+			tmpState.stateName = "Run";
+			tmpState.hasExitTime = false;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = true;
+
+			tmpTran.targetState = "Attack";
+			tmpTran.parameterName = "Attack";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "Idle";
+			tmpTran.parameterName = "Idle";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["Run"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.curr_anim_idx = 6;
+			tmpState.stateName = "Attack";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "Idle";
+			tmpTran.parameterName = "Idle";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "Run";
+			tmpTran.parameterName = "Run";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["Attack"], tmpState);
+			tmpState.transitions.clear();
 
 			std::ofstream output(desc_path);
 

@@ -78,10 +78,6 @@ namespace SliceEngine
 			{
 				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
 				{
-						if (component.get_type() == rttr::type::get< Renderer>())
-						{
-							std::cout << "test" << std::endl;
-						}
 						for (const auto& property : type.get_properties())
 						{
 							// this should be the component's property data
@@ -236,7 +232,10 @@ namespace SliceEngine
 								glm::vec3,
 								glm::vec4,
 								glm::quat,
-								std::string
+								std::string,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 
@@ -351,7 +350,7 @@ namespace SliceEngine
 				rttr::type componentType = rttr::type::get_by_name(componentName);
 				if (!componentType)
 				{
-					SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
+					//SLICE_LOG_ERROR(std::string(storage.type().name()) + " is not registered");
 					continue;
 				}
 
@@ -378,6 +377,18 @@ namespace SliceEngine
 				{
 					// this should be the component's property data
 					std::string propName = property.get_name().to_string();
+
+					if (componentType == rttr::type::get<ColliderShape>())
+					{
+						size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+
+						if ((propName == "boxData" && activeIndex != 0) ||
+							(propName == "sphereData" && activeIndex != 1) ||
+							(propName == "capsuleData" && activeIndex != 2))
+						{
+							continue;
+						}
+					}
 
 					rttr::variant propVal = property.get_value(componentData);
 
@@ -420,7 +431,10 @@ namespace SliceEngine
 						glm::vec3, 
 						glm::vec4,
 						glm::quat,
-						std::string
+						std::string,
+						ColliderShape::BoxData,
+						ColliderShape::SphereData,
+						ColliderShape::CapsuleData
 					>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -472,7 +486,10 @@ namespace SliceEngine
 							glm::vec3,
 							glm::vec4,
 							glm::quat,
-							std::string
+							std::string,
+							ColliderShape::BoxData,
+							ColliderShape::SphereData,
+							ColliderShape::CapsuleData
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -572,7 +589,10 @@ namespace SliceEngine
 								glm::vec3,
 								glm::vec4,
 								glm::quat,
-								std::string
+								std::string,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
@@ -597,7 +617,7 @@ namespace SliceEngine
 
 			// Remapping Entity IDs after all GOs have been deserialized
 			auto& registry = Core::GetInstance()->GetRegistry();
-			auto& factory = Core::GetInstance()->mFactory;
+			//auto& factory = Core::GetInstance()->mFactory;
 			auto entityView = registry.view<Bone>();
 			for (auto entity : entityView)
 			{

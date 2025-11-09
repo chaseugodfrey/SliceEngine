@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Networking/NetworkSystem.h>
 #include <Profiler/ProfilerManager.h>
 #include <Input/ActionMapping.h>
+#include <History/HistoryManager.h>
 
 
 namespace SliceEditor
@@ -59,15 +60,15 @@ namespace SliceEditor
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
 
-		AddWindow<ContentBrowserWindow>("ContentBrowser", true);
-		AddWindow<ProfilerWindow>("Profiler", true);
-		AddWindow<NavigationWindow>(true);
+		AddWindow<ContentBrowserWindow>("ContentBrowser");
+		AddWindow<ProfilerWindow>("Profiler");
+		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>(true);
+		AddWindow<AnimationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -120,21 +121,17 @@ namespace SliceEditor
 				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
 					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
+					std::filesystem::path currentSceneTemp = currentScenePath.replace_extension(".temp"); //SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
 
 
 					if (std::filesystem::exists(currentSceneTemp))
 					{
-						auto time1 = std::filesystem::last_write_time(currentScenePath);
-						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
-
-						if (time1 < time2)
-						{
-							std::filesystem::remove(currentScenePath);
-							currentSceneTemp.replace_extension(".scene");
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+						
+						std::filesystem::remove(currentScenePath);
+						currentSceneTemp.replace_extension(".scene");
+						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
 							
-						}
+						
 					}
 
 				}
@@ -157,7 +154,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-				AddWindow<PreferenceWindow>(true);
+				AddWindow<PreferenceWindow>();
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -174,7 +171,7 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Content Browser"))
 			{
-				AddWindow<ContentBrowserWindow>("ContentBrowser", true);
+				AddWindow<ContentBrowserWindow>("ContentBrowser");
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -204,27 +201,27 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Profiler"))
 			{
-				AddWindow<ProfilerWindow>("Profiler", true);
+				AddWindow<ProfilerWindow>("Profiler");
 			}
 
 			if (ImGui::MenuItem("Animation"))
 			{
-				AddWindow<AnimationWindow>(true);
+				AddWindow<AnimationWindow>();
 			}
 
 			if (ImGui::MenuItem("Animator"))
 			{
-				AddWindow<AnimatorWindow>(true);
+				AddWindow<AnimatorWindow>();
 			}
 
 			ImGui::EndMenu();
 		}
 
-		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//auto& factory = SliceEngine::Core::GetInstance()->mFactory;
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
-			EditorUtilities::MenuList_CreateGameObjects();
+			EditorUtilities::MenuList_CreateGameObjects(registry.GetManager<HistoryManager>("History"));
 			ImGui::EndMenu();
 		}
 #pragma region Custom Title Bar (Disabled for now)
@@ -359,6 +356,8 @@ namespace SliceEditor
 		//	ImGui::OpenPopup("connect_req");
 		//}
 
+		ImGui::BeginDisabled(isPlaying);
+
 		ImGui::SameLine();
 		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
 		{
@@ -367,6 +366,8 @@ namespace SliceEditor
 				SliceEngine::gScriptSystem->ReloadAssembly();
 			}
 		}
+
+		ImGui::EndDisabled();
 
 		if (ImGui::BeginPopup("host_req"))
 		{

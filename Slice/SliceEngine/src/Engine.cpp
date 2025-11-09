@@ -73,6 +73,7 @@ namespace SliceEngine
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
+		isRunning = false;
 	}
 	Engine::~Engine()
 	{
@@ -138,37 +139,11 @@ namespace SliceEngine
 		//auto mResource = Core::GetInstance()->GetResourceManager();
 		Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
-		//mResource->RegisterResourceAsset((GUID)1001, "Assets/Models/player_mdl.mdl");	//testing loading model
-		//mResource->RegisterFileAsset("Assets/Shaders/basic.txt");
-		//mResource->RegisterFileAsset("Assets/Shaders/deferredLighting.txt");
-		//mResource->RegisterFileAsset("Assets/Shaders/instanced.txt");
-		//mResource->RegisterFileAsset("Assets/Shaders/debugLine.txt");
-		//mResource->RegisterFileAsset("Assets/Models/Cube.txt");
-		//mResource->RegisterFileAsset("Assets/Models/FrustrumFake.txt");
-		//mResource->RegisterFileAsset("Assets/Models/CubeWireframe.txt");
-		//mResource->RegisterFileAsset("Assets/Models/Line.txt");
-		//mResource->RegisterFileAsset("Assets/Models/Quad.txt");
-		//mResource->RegisterFileAsset("Assets/Textures/5271507727521808385.txt");
-		
-		/*mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		mResource->LoadModel("Assets/Models/Cube.txt");*/
-		// mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		// mResource->LoadShader("Assets/Shaders/instanced.vert", "Assets/Shaders/instanced.frag");
-		// mResource->LoadShader("Assets/Shaders/debugLine.vert", "Assets/Shaders/debugLine.frag");
-		// mResource->LoadModel("Assets/Models/Cube.txt");
-		// mResource->LoadModel("Assets/Models/FrustrumFake.txt");
-		// mResource->LoadModel("Assets/Models/CubeWireframe.txt");
-		// mResource->LoadModel("Assets/Models/Line.txt");
-		
-		//mResource->LoadShader("Assets/Shaders/basic.vert", "Assets/Shaders/basic.frag");
-		//mResource->LoadModel("Assets/Models/Cube.txt");
-
-		//mRender = std::make_unique<RenderManager>();
 		Core::GetInstance()->InitSystem<CameraSystem>();
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
-		mRender->CreateCamera();
+		//mRender->CreateCamera();
 		
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
@@ -177,51 +152,13 @@ namespace SliceEngine
 		auto mNetwork = Core::GetInstance()->GetNetwork();
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
+	
+	}
 
-		//test();
-
-		
-		/*GameObject testing = Core::GetInstance()->mFactory.CreateGO("testing");
-
-		testing.AddComponent<Renderer>();
-		testing.AddComponent<AudioSource>();*/
-		Core::GetInstance()->mFactory.TestLoop();
+	void Engine::SceneInit()
+	{
 		LoadProjectSettings();
-		//Core::GetInstance()->mFactory.TestLoop();
 
-		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
-		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		//Dlight.AddComponent<Light>();
-		//Dlight.GetComponent<Light>().type = Light::LightType::Light_Directional;
-		//
-		//GameObject Dlight2 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child");
-		//Dlight2.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		//Dlight2.AddComponent<Light>();
-		//Dlight2.GetComponent<Light>().type = Light::LightType::Light_Directional;
-		//
-		//FactoryInstance.SetParent(Dlight2.GetEntity(), Dlight.GetEntity());
-		//
-		//GameObject Dlight3 = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest_Child2");
-		//Dlight3.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
-		//Dlight3.AddComponent<Light>();
-		//Dlight3.GetComponent<Light>().type = Light::LightType::Light_Directional;
-		//
-		//FactoryInstance.SetParent(Dlight3.GetEntity(), Dlight.GetEntity());
-		
-		//Core::GetInstance()->GetSystem<PrefabSystem>().CreatePrefab((GUID)9528168868150986328);
-		//JSONSerializer::SerializePrefab(Dlight.GetEntity());
-
-		//for (int i = 0; i < 2; ++i)
-		//{
-		//	GameObject light = Core::GetInstance()->mFactory.CreateGO("light" + i);
-		//	light.GetComponent<Transform>().position = glm::vec3(i * 1.f, 5.f, i * 1.f);
-		//	light.AddComponent<Light>();
-		//	light.GetComponent<Light>().type = Light::LightType::Light_Point;
-		//	if(i == 0)
-		//		light.GetComponent<Light>().color = glm::vec3(1.f, 0.f, 0.f);
-		//	else
-		//		light.GetComponent<Light>().color = glm::vec3(0.f, 1.f, 0.f);
-		//}
 	}
 
 	void Engine::Update()
@@ -258,7 +195,13 @@ namespace SliceEngine
 					isPlaying = true;
 
 				}
-				sScene->WriteTempFile();
+
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
@@ -441,10 +384,13 @@ namespace SliceEngine
 				if (path.has_value())
 				{
 					SLICE_LOG("Scene File Path" + path.value().string());
+					sScene->SetDefaultScenePath(sceneFilePath);
+					sScene->LoadScene(sceneFilePath);
+					sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
 				}
 				
-				sScene->LoadScene(sceneToLoad); // for now by filepath
-				sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+				//sScene->LoadScene(sceneToLoad); // for now by filepath
+				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
 
 				
 			}

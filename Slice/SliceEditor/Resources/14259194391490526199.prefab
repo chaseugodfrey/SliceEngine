@@ -1,6 +1,18 @@
 [
     {
-        "GameObject_1": {
+        "EnemyTest": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "isTrigger": false,
+                "layer": "1",
+                "offSet": ""
+            },
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -13,37 +25,42 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
+                "entity_id": 66,
                 "neighbours": [
                     0,
                     4294967295,
-                    3,
-                    5
+                    11,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.TestEntity"
+                "scriptName": "SliceEngine.EnemyChase"
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_1",
+                "mName": "EnemyTest",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
                 "position": [
                     0.0,
-                    0.5492136478424072,
-                    -1.4976634979248047
+                    0.6629384756088257,
+                    -1.2437362670898438
                 ],
                 "rotation": [
-                    0.6791204810142517,
-                    -0.7340268492698669,
+                    1.0,
+                    0.0,
                     0.0,
                     0.0
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.5,
+                    0.5,
+                    0.5
                 ]
             }
         }

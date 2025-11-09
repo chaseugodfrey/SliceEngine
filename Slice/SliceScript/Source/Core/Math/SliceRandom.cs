@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SliceEngine
 {
     /// <summary>
-    /// Provides an instance of randomness with a separete seed from its static equivelant
+    /// Provides an instance of randomness with a separate seed from its static equivelant
     /// </summary>
     public class SliceRandomInstance
     {
@@ -35,7 +35,7 @@ namespace SliceEngine
         /// Gets the underlying Random instance.
         /// Read-only; cannot be modified from outside.
         /// </summary>
-        public Random rng
+        public Random RNG
         {
             get { return _rng; } // getter only
         }
@@ -71,7 +71,7 @@ namespace SliceEngine
         /// <returns>A double in the range [0.0, 1.0).</returns>
         public static double ValueDouble(SliceRandomInstance instance)
         {
-            return instance.rng.NextDouble(); // [0.0, 1.0)
+            return instance.RNG.NextDouble(); // [0.0, 1.0)
         }
 
 
@@ -89,7 +89,7 @@ namespace SliceEngine
         /// <returns>A float in the range [0.0, 1.0).</returns>
         public static float ValueFloat(SliceRandomInstance instance)
         {
-            return (float)instance.rng.NextDouble(); // [0.0, 1.0)
+            return (float)instance.RNG.NextDouble(); // [0.0, 1.0)
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace SliceEngine
         /// <returns>An integer in the range [min, max).</returns>
         public static int RangeInt(SliceRandomInstance instance, int min, int max)
         {
-            return instance.rng.Next(min, max); // [min, max)
+            return instance.RNG.Next(min, max); // [min, max)
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace SliceEngine
         /// <returns>A float in the range [min, max).</returns>
         public static float RangeFloat(SliceRandomInstance instance, float min, float max)
         {
-            return min + (float)instance.rng.NextDouble() * (max - min); // [min, max)
+            return min + (float)instance.RNG.NextDouble() * (max - min); // [min, max)
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace SliceEngine
         /// <returns>A double in the range [min, max).</returns>
         public static double RangeDouble(SliceRandomInstance instance, double min, double max)
         {
-            return min + instance.rng.NextDouble() * (max - min); // [min, max)
+            return min + instance.RNG.NextDouble() * (max - min); // [min, max)
         }
     }
 }

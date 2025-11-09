@@ -89,6 +89,8 @@ namespace SliceEngine
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
 
+		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
+
 		RTTR_ENABLE();
     };
 
@@ -116,7 +118,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 
 		unsigned char meshOffset{ 0 };
-		unsigned char renderTag;
+		unsigned char renderTag{};
 		bool skinned{ false };
 
 		RTTR_ENABLE();
@@ -217,6 +219,32 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+
+	private:
+		inline static const BoxData defaultBoxData{};
+		inline static const SphereData defaultSphereData{};
+		inline static const CapsuleData defaultCapsuleData{};		
+	public:
+		// Getters
+		const BoxData& GetBoxData() const {
+			return std::holds_alternative<BoxData>(shapeData) ?
+				std::get<BoxData>(shapeData) : defaultBoxData;
+		}
+
+		const SphereData& GetSphereData() const {
+			return std::holds_alternative<SphereData>(shapeData) ?
+				std::get<SphereData>(shapeData) : defaultSphereData;
+		}
+
+		const CapsuleData& GetCapsuleData() const {
+			return std::holds_alternative<CapsuleData>(shapeData) ?
+				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
+		}
+
+		// Setters
+		void SetBoxData(const BoxData& data) { shapeData = data; }
+		void SetSphereData(const SphereData& data) { shapeData = data; }
+		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};
@@ -349,8 +377,8 @@ namespace SliceEngine
 
 	struct Timeline
 	{
-		int32_t f_current, f_min{ 0 }, f_max{ 60 };
-		bool isPlaying, isLoop;
+		int32_t f_current{}, f_min{ 0 }, f_max{ 60 };
+		bool isPlaying{}, isLoop{};
 	};
 
 	struct Animator

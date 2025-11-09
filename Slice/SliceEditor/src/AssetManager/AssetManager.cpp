@@ -18,6 +18,10 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+#include <algorithm>
+
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -197,8 +201,6 @@ namespace SliceEditor
 			
 			// get the file path to the meta file
 			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
-
-
 			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
@@ -208,9 +210,23 @@ namespace SliceEditor
 				CompileTextureAsset(metaPath);
 				break;
 			case AssetType::Model:
-				// Compile the model file and write into the resource folder
+			{
+				auto* data = static_cast<ModelData*>(metaData.get());
+				if (data->is_static == false)
+				{
+					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton,false).string();
+
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, false).string();
+				}
+				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
+
 				break;
+			}
 			case AssetType::Audio:
 				// idk audio yet
 				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
@@ -263,7 +279,6 @@ namespace SliceEditor
 	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
 
-
 		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 
 		//mAssets[assetType].push_back(metaData->assetName);
@@ -304,6 +319,7 @@ namespace SliceEditor
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
 			break;
 		}
+
 
 		// register into resource manager
 		if (AddToRM)
@@ -720,7 +736,22 @@ namespace SliceEditor
 		{
 			if (file.is_regular_file() && file.path().extension() == ".temp")
 			{
-				remove(file);
+				std::filesystem::remove(file);
+			}
+		}
+
+		std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
+		mScenesDirectoryFolder /= "Scenes";
+
+		// Check if this directory exists before iterating
+		if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
+		{
+			for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
+			{
+				if (file.is_regular_file() && file.path().extension() == ".temp")
+				{
+					std::filesystem::remove(file.path());
+				}
 			}
 		}
 
@@ -851,9 +882,15 @@ namespace SliceEditor
 
 	void AssetManager::HandleAssetAdded(RawFileEvent& addEvent)
 	{
-		if (addEvent.filePath.extension() == ".mat" || addEvent.filePath.extension() == ".controller")
+		for (auto& [key, value] : mSupportedAssetTypes)
 		{
-			return;
+			if (addEvent.filePath.extension() == key)
+			{
+				if (value.first == AssetType::Texture || value.first == AssetType::Model || value.first == AssetType::Controller || value.first == AssetType::Material)
+				{
+					return;
+				}
+			}
 		}
 
 		CreateDescriptorFile(addEvent.filePath);
@@ -915,13 +952,47 @@ namespace SliceEditor
 
 			if (oldFilePath.extension() == ".scene")
 			{
-				std::filesystem::path oldTempFile = oldFilePath;
-				oldTempFile.replace_extension(".temp");
-
-				if (std::filesystem::exists(oldTempFile))
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+				if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem())
 				{
-					oldTempFile.replace_filename(newFilePath.stem());
+					sScene->SetDefaultScenePath(newFilePath);
+					auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+					auto& s = gSettings->Edit(); 
+
+					for (auto& it : s.scenes)
+					{
+						std::filesystem::path scenePath(it);
+						if (scenePath.stem() == oldFilePath.stem())
+						{
+							it = newFilePath.string();
+						}
+					}
+
+					s.startupScene = newFilePath.string();
+
+					gSettings->Save();
 				}
+
+				std::filesystem::path mCurrentPath = sScene->GetCurrentScenePath();
+
+				if (oldFilePath.stem() == mCurrentPath.stem() && oldFilePath.extension() == mCurrentPath.extension())
+				{
+					sScene->SetCurrentScenePath(newFilePath.string());
+				}
+
+				std::filesystem::path oldTempPath = oldFilePath;
+				oldTempPath.replace_extension(".temp");
+
+
+				if (std::filesystem::exists(oldTempPath))
+				{
+					std::filesystem::path newTempPath = newFilePath;
+					newTempPath.replace_extension(".temp");
+
+					std::filesystem::rename(oldTempPath, newTempPath);
+				}
+
+			
 			}
 
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();

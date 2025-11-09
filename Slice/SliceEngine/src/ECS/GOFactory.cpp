@@ -514,7 +514,7 @@ namespace SliceEngine
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
 
-		auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
+		//auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
 
 		// update root entity's child
 		//auto parentChildIt = map.find((uint32_t)parentSceneGraph.neighbours[SceneGraph::DOWN]);
@@ -607,7 +607,7 @@ namespace SliceEngine
 		auto go = CreateGO("GameObject");
 		go.AddComponent<Renderer>();
 		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
-		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<ColliderShape>(ColliderShape::CapsuleData{});
 		go.AddComponent<RigidBody>();
 
 		return go;
@@ -654,7 +654,7 @@ namespace SliceEngine
 			go.AddComponent<Renderer>();
 			auto& rc = go.GetComponent<Renderer>();
 			rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
-			rc.meshOffset = node.mesh_ref[0];
+			rc.meshOffset = static_cast<unsigned char>(node.mesh_ref[0]);
 
 			if (!is_static)
 				rc.skinned = true;
@@ -673,7 +673,7 @@ namespace SliceEngine
 				sibling.AddComponent<Renderer>();
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
 				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
-				s_rc.meshOffset = node.mesh_ref[i];
+				s_rc.meshOffset = static_cast<unsigned char>(node.mesh_ref[i]);
 
 				if (!is_static) {
 					Bone tmpSibling;
@@ -930,13 +930,12 @@ namespace SliceEngine
 			}
 
 			// Each component for this GameObject is here
-			std::cout << storage.type().name() << std::endl;
 			std::string componentName(storage.type().name());
 
 			rttr::type componentType = rttr::type::get_by_name(componentName);
 			if (!componentType)
 			{
-				SLICE_LOG_ERROR("Component is not registered");
+				//SLICE_LOG_ERROR("Component is not registered");
 				continue;
 			}
 

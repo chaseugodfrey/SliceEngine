@@ -2,6 +2,14 @@
 
 namespace SliceEngine
 {
+    public enum ForceMode
+    {
+        Force,
+        Impulse,
+        VelocityChange,
+        Acceleration
+    }
+
     public class RigidBody : Component
     {
         public Vector3 Velocity

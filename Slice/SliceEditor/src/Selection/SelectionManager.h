@@ -49,6 +49,7 @@ namespace SliceEditor
 		void UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory = false);
 		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
+		void DeleteSelectedObjects();
 
 		std::unordered_set<entt::entity>& GetSelectedEntities();
 		std::unordered_set<SelectionNode*>& GetSelectedNodes();

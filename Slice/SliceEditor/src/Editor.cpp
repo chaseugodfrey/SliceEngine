@@ -136,6 +136,7 @@ namespace SliceEditor
 		InitManagers();
 		InitWindowManager();
 
+		engine.SceneInit();
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
@@ -167,8 +168,8 @@ namespace SliceEditor
 		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
 		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
 		ImGuiIO& io = ImGui::GetIO();
-		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
-		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		input->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
 
 		registry.GetManager<WindowManager>("Windows")->Render();
 

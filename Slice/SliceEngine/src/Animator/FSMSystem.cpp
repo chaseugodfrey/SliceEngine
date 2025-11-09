@@ -49,9 +49,6 @@ namespace SliceEngine
 	}
 	void FSMSystem::CheckStates()
 	{
-		//if (!EFSM.IsValid()) return;
-
-
 		if (!EFSM.currState) return;
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
@@ -60,6 +57,16 @@ namespace SliceEngine
 			if (EFSM.parameters.find(transition.parameterName) != EFSM.parameters.end())
 			{
 				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
+
+				if (currentParamValue.is_type<bool>())
+				{
+					// 2. If true, safely get the value
+					bool value = currentParamValue.get_value<bool>();
+					if (value)
+					{
+						value = false;
+					}
+				}
 
 				if (EvalCon(currentParamValue, transition.operation, transition.condition))
 				{
@@ -70,7 +77,7 @@ namespace SliceEngine
 			}
 		}
 	}
-	void FSMSystem::UpdateState()
+	void FSMSystem::UpdateState(float &CTime)
 	{
 		//if (!EFSM.IsValid()) return;
 
@@ -83,7 +90,7 @@ namespace SliceEngine
 
 		if(EFSM.currState->hasExitTime)
 		{
-			//if(stateMachine.currState.exitTime >= (current anim time))
+			if(EFSM.currState->exitTime <= current_time)
 			{
 				safeToChange = true;
 			}
@@ -108,9 +115,15 @@ namespace SliceEngine
 
 			EFSM.stateCon = false;
 			EFSM.nextState.clear();
+
+			CTime = 0.0f;
 		}
 	}
 
+	void FSMSystem::UpdateCurrentTime(float cTime)
+	{
+		current_time = cTime;
+	}
 
 	bool FSMSystem::EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare)
 	{
@@ -136,5 +149,21 @@ namespace SliceEngine
 		return false;
 	}
 	
+	void FSMSystem::SetFloat(const std::string& name, float value)
+	{
+		EFSM.parameters[name] = value;
+	}
+	void FSMSystem::SetInt(const std::string& name, int value)
+	{
+		EFSM.parameters[name] = value;
+	}
+	void FSMSystem::SetLoop(bool loop)
+	{
+		EFSM.currState->isLoop = loop;
+	}
+	void FSMSystem::SetBool(const std::string& name, bool value)
+	{
+		EFSM.parameters[name] = value;
+	}
 }
 

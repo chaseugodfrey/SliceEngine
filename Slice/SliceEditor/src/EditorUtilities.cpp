@@ -176,6 +176,11 @@ namespace SliceEditor
 			}
 		}
 
+		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
+		{
+
+		}
+		
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager)
 		{
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(path);
@@ -185,6 +190,11 @@ namespace SliceEditor
 		void Scene_Stop(SelectionManager& selectionManager)
 		{
 			selectionManager.ClearSelection(true);
+		}
+
+		void Scene_Save()
+		{
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 		}
 
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
@@ -225,38 +235,43 @@ namespace SliceEditor
 			}
 		}
 
-		void MenuList_CreateGameObjects()
+		void MenuList_CreateGameObjects(HistoryManager* history)
 		{
+			if (ImGui::MenuItem("Empty"))
+			{
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
-				EditorUtilities::GameObject_CreateCam();
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
 			}
 
 			if (ImGui::BeginMenu("3D Object"))
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Sphere"))
 				{
-					EditorUtilities::GameObject_CreateSphere();
+					EditorUtilities::GameObject_CreateSphere(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Capsule"))
 				{
-					EditorUtilities::GameObject_CreateCapsule();
+					EditorUtilities::GameObject_CreateCapsule(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Quad"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Plane"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				ImGui::EndMenu();
@@ -298,10 +313,6 @@ namespace SliceEditor
 			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
 		}
 
-		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
-		{
-
-		}
 
 #pragma region Preferences
 

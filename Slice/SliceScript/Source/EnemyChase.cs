@@ -12,25 +12,34 @@ namespace SliceEngine
 
         Transform enemyT;
         GameObject player;
-        Transform playerT;
+        Transform playerT = null;
 
         public override void OnCreate()
         {
             enemyT = GetComponent<Transform>();
-            player = gameObject.FindGameObjectWithName("Player");
-            playerT = player.GetComponent<Transform>();
+            player = gameObject.FindGameObjectWithName("RootNode");
 
-            //Console.WriteLine("hehehehehtest time x<" + playerT.Position.x + ">y<" + playerT.Position.y + ">z<" + playerT.Position.z);
-
+            if (player != null)
+            {
+                playerT = player.GetComponent<Transform>();
+            }
 
         }
 
         public override void OnUpdate(float dt)
         {
-            //Vector3 direction_diff = playerT.Position - enemyT.Position;
+            if (playerT != null)
+            {
+                Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-            //enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
+                enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
+            }
 
+        }
+
+        public override void OnCollisionEnter(GameObject other)
+        {
+            SliceLog.Log("Colliding with " + other.mID);
         }
 
     }

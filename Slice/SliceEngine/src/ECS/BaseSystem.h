@@ -45,8 +45,11 @@ namespace SliceEngine
 		void Bind(entt::registry& reg) override
 		{
 			mRegistry = &reg;
-			(reg.on_construct<Required>().connect<&BaseSystem::SystemOnEnter>(*this), ...);
-			(reg.on_destroy<Required>().connect<&BaseSystem::SystemOnExit>(*this), ...);
+			(reg.on_construct<Required>().connect<&BaseSystem::OnRequiredAdded>(*this), ...);
+			(reg.on_destroy<Required>().connect<&BaseSystem::OnRequiredRemoved>(*this), ...);
+
+			reg.on_construct<SystemTag>().connect<&BaseSystem::OnTagAdded>(*this);
+			reg.on_destroy<SystemTag>().connect<&BaseSystem::OnTagRemoved>(*this);
 		}
 
 		void Unbind() override
@@ -54,8 +57,11 @@ namespace SliceEngine
 			if (!mRegistry)
 				return;
 
-			(mRegistry->on_construct<Required>().disconnect<&BaseSystem::SystemOnEnter>(*this), ...);
-			(mRegistry->on_destroy<Required>().disconnect<&BaseSystem::SystemOnExit>(*this), ...);
+			(mRegistry->on_construct<Required>().disconnect<&BaseSystem::OnRequiredAdded>(*this), ...);
+			(mRegistry->on_destroy<Required>().disconnect<&BaseSystem::OnRequiredRemoved>(*this), ...);
+
+			mRegistry->on_construct<SystemTag>().disconnect<&BaseSystem::OnTagAdded>(*this);
+			mRegistry->on_destroy<SystemTag>().disconnect<&BaseSystem::OnTagRemoved>(*this);			
 			mRegistry = nullptr;
 		}
 
@@ -71,7 +77,7 @@ namespace SliceEngine
 
 		~BaseSystem()
 		{
-			Unbind();
+			//Unbind();
 		}
 
 		virtual void EntityOnEnter(entt::registry& reg, entt::entity entity) = 0;
@@ -82,22 +88,48 @@ namespace SliceEngine
 
 		entt::registry* mRegistry{};
 	private:
-		void SystemOnEnter(entt::registry& reg, entt::entity entity)
+
+		void PrintComponents(entt::registry& reg, entt::entity entity)
+		{
+			std::cout << "--- Components on Entity " << static_cast<uint32_t>(entity) << " ---" << std::endl;
+
+			// Go through every registered component
+			for (auto&& [type_id, storage] : reg.storage())
+			{
+				if (!storage.contains(entity))
+				{
+					continue; // entity does not have this component
+				}
+
+				std::cout << " - " << storage.type().name() << std::endl;
+			}
+			std::cout << "-------------------------------------------" << std::endl;
+		}
+
+		void OnRequiredAdded(entt::registry& reg, entt::entity entity)
 		{
 			if (reg.all_of<Required...>(entity) && !reg.any_of<SystemTag>(entity))
 			{
 				reg.emplace<SystemTag>(entity);
-				EntityOnEnter(reg, entity);
 			}
 		}
 
-		void SystemOnExit(entt::registry& reg, entt::entity entity)
+		void OnRequiredRemoved(entt::registry& reg, entt::entity entity)
 		{
 			if (reg.any_of<SystemTag>(entity))
 			{
-				EntityOnExit(reg, entity);
 				reg.remove<SystemTag>(entity);
 			}
+		}
+
+		void OnTagAdded(entt::registry& reg, entt::entity entity)
+		{
+			EntityOnEnter(reg, entity);
+		}
+
+		void OnTagRemoved(entt::registry& reg, entt::entity entity)
+		{
+			EntityOnExit(reg, entity);
 		}
 
 	};
@@ -124,6 +156,7 @@ namespace SliceEngine
 		{
 
 		}
+
 	private:
 		entt::registry* mRegistry{};
 	};

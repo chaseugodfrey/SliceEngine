@@ -64,21 +64,25 @@ namespace SliceEditor
 
 	void RecastNavMesh::ReleaseDebugMesh()
 	{
-		if (SliceEngine::Core::GetInstance()->debugMesh.vao)
+		auto& dNavMesh = SliceEngine::Core::GetInstance()->debugNavMesh;
+		for (int i{}; i < 2; ++i)
 		{
-			glDeleteVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
-			SliceEngine::Core::GetInstance()->debugMesh.vao = 0;
+			if (dNavMesh[i].vao)
+			{
+				glDeleteVertexArrays(1, &dNavMesh[i].vao);
+				dNavMesh[i].vao = 0;
+			}
+			if (dNavMesh[i].vbo)
+			{
+				glDeleteBuffers(1, &dNavMesh[i].vbo);
+				dNavMesh[i].vbo = 0;
+			}
+			//if (dNavMesh[i].ebo)
+			//{
+			//	glDeleteBuffers(1, &dNavMesh[i].ebo);
+			//	dNavMesh[i].ebo = 0;
+			//}
 		}
-		if (SliceEngine::Core::GetInstance()->debugMesh.vbo)
-		{
-			glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
-			SliceEngine::Core::GetInstance()->debugMesh.vbo = 0;
-		}
-		//if (SliceEngine::Core::GetInstance()->debugMesh.ebo)
-		//{
-		//	glDeleteBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
-		//	SliceEngine::Core::GetInstance()->debugMesh.ebo = 0;
-		//}
 
 	}
 
@@ -91,13 +95,14 @@ namespace SliceEditor
 		if (tNavMesh)
 		{
 			std::vector<float> vertices;
+			std::vector<float> verticesBoundaries;
 			//std::vector<unsigned short> indices;
 			for (int t{}; t < tNavMesh->getMaxTiles(); ++t)
 			{
 				const dtMeshTile* tile = tNavMesh->getTile(t);
 				if (!tile->header) continue;
 
-				dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
+				//dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
@@ -105,46 +110,138 @@ namespace SliceEditor
 						continue;
 					const dtPolyDetail* pd = &tile->detailMeshes[i];
 
+					// The Blue Floor
 					for (int j{}; j < pd->triCount; ++j)
 					{
-						const unsigned char* t = &tile->detailTris[(pd->triBase + j) * 4];
+						const unsigned char* z = &tile->detailTris[(pd->triBase + j) * 4];
 						for (int k{}; k < 3; ++k)
 						{
-							if (t[k] < p->vertCount)
+							if (z[k] < p->vertCount)
 							{
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3]);
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 1]);
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 2]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 1]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 2]);
 							}			 
 							else		 
 							{			 
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 1]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 2]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 1]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 2]);
+							}
+						}
+					}
+					// The Dark Blue Boundaries
+					for (int j{}, nj{ static_cast<int>(p->vertCount) }; j < nj; ++j)
+					{
+						// if Inner
+						// else
+						if (p->neis[j] != 0)
+							continue;
+
+						const float* v0 = &tile->verts[p->verts[j] * 3];
+						const float* v1 = &tile->verts[p->verts[(j + 1) % nj] * 3];
+
+						for (int k{}; k < pd->triCount; ++k)
+						{
+							const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+							const float* tv[3];
+							for (int m{}; m < 3; ++m)
+							{
+								if (t[m] < p->vertCount)
+									tv[m] = &tile->verts[p->verts[t[m]] * 3];
+								else
+									tv[m] = &tile->detailVerts[(pd->vertBase + (t[m] - p->vertCount)) * 3];
+							}
+							for (int m{}, n{ 2 }; m < 3; n = m++)
+							{
+								if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+									continue;
+								static const float thr = 0.01f * 0.01f;
+								if (distancePtLine2d(tv[n], v0, v1) < thr &&
+									distancePtLine2d(tv[m], v0, v1) < thr)
+								{
+									glm::vec2 dir(tv[m][0] - tv[n][0], tv[m][2] - tv[n][2]);
+									dir = glm::normalize(dir) * 0.03f;
+									std::swap(dir.x, dir.y);
+
+									verticesBoundaries.push_back(tv[n][0] - dir.x);
+									verticesBoundaries.push_back(tv[n][1] + 0.005f);
+									verticesBoundaries.push_back(tv[n][2] - dir.y);
+
+									verticesBoundaries.push_back(tv[n][0] + dir.x);
+									verticesBoundaries.push_back(tv[n][1] + 0.005f);
+									verticesBoundaries.push_back(tv[n][2] + dir.y);
+
+									verticesBoundaries.push_back(tv[m][0] + dir.x);
+									verticesBoundaries.push_back(tv[m][1] + 0.005f);
+									verticesBoundaries.push_back(tv[m][2] + dir.y);
+
+									verticesBoundaries.push_back(tv[m][0] + dir.x);
+									verticesBoundaries.push_back(tv[m][1] + 0.01f);
+									verticesBoundaries.push_back(tv[m][2] + dir.y);
+									
+									verticesBoundaries.push_back(tv[m][0] - dir.x);
+									verticesBoundaries.push_back(tv[m][1] + 0.01f);
+									verticesBoundaries.push_back(tv[m][2] - dir.y);
+									
+									verticesBoundaries.push_back(tv[n][0] + dir.x);
+									verticesBoundaries.push_back(tv[n][1] + 0.01f);
+									verticesBoundaries.push_back(tv[n][2] + dir.y);
+								}
 							}
 						}
 					}
 				}
 			}
+			// ********************************************* Debug mesh *********************************************
+			auto& dNavMesh = SliceEngine::Core::GetInstance()->debugNavMesh;
 			//vbo
-			glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.vbo);
-			glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.vbo, vertices.size() * sizeof(float), vertices.data(), 0);
+			glCreateBuffers(1, &dNavMesh[0].vbo);
+			glNamedBufferStorage(dNavMesh[0].vbo, vertices.size() * sizeof(float), vertices.data(), 0);
 
 			//ebo
-			//glCreateBuffers(1, &SliceEngine::Core::GetInstance()->debugMesh.ebo);
-			//glNamedBufferStorage(SliceEngine::Core::GetInstance()->debugMesh.ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
+			//glCreateBuffers(1, &dNavMesh[0].ebo);
+			//glNamedBufferStorage(dNavMesh[0].ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
 
 			//vao
-			glCreateVertexArrays(1, &SliceEngine::Core::GetInstance()->debugMesh.vao);
-			glEnableVertexArrayAttrib(SliceEngine::Core::GetInstance()->debugMesh.vao, 0);
-			glVertexArrayAttribFormat(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 3, GL_FLOAT, false, 0);
-			//glVertexArrayElementBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, SliceEngine::Core::GetInstance()->debugMesh.ebo);
+			glCreateVertexArrays(1, &dNavMesh[0].vao);
+			glEnableVertexArrayAttrib(dNavMesh[0].vao, 0);
+			glVertexArrayAttribFormat(dNavMesh[0].vao, 0, 3, GL_FLOAT, false, 0);
+			//glVertexArrayElementBuffer(dNavMesh[0].vao, dNavMesh[0].ebo);
 
-			glVertexArrayVertexBuffer(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, SliceEngine::Core::GetInstance()->debugMesh.vbo, 0, sizeof(float) * 3);
-			glVertexArrayAttribBinding(SliceEngine::Core::GetInstance()->debugMesh.vao, 0, 0);
+			glVertexArrayVertexBuffer(dNavMesh[0].vao, 0, dNavMesh[0].vbo, 0, sizeof(float) * 3);
+			glVertexArrayAttribBinding(dNavMesh[0].vao, 0, 0);
 
-			SliceEngine::Core::GetInstance()->debugMesh.drawCnt = vertices.size() / 3;
+			dNavMesh[0].drawCnt = static_cast<uint32_t>(vertices.size() / 3);
+			// ********************************************* Boundaries *********************************************
+			glCreateBuffers(1, &dNavMesh[1].vbo);
+			glNamedBufferStorage(dNavMesh[1].vbo, verticesBoundaries.size() * sizeof(float), verticesBoundaries.data(), 0);
+
+			//vao
+			glCreateVertexArrays(1, &dNavMesh[1].vao);
+			glEnableVertexArrayAttrib(dNavMesh[1].vao, 0);
+			glVertexArrayAttribFormat(dNavMesh[1].vao, 0, 3, GL_FLOAT, false, 0);
+			//glVertexArrayElementBuffer(dNavMesh[0].vao, dNavMesh[0].ebo);
+
+			glVertexArrayVertexBuffer(dNavMesh[1].vao, 0, dNavMesh[1].vbo, 0, sizeof(float) * 3);
+			glVertexArrayAttribBinding(dNavMesh[1].vao, 0, 0);
+
+			dNavMesh[1].drawCnt = static_cast<uint32_t>(verticesBoundaries.size() / 3);
 		}
+	}
+
+	float RecastNavMesh::distancePtLine2d(const float* pt, const float* p, const float* q)
+	{
+		float pqx = q[0] - p[0];
+		float pqz = q[2] - p[2];
+		float dx = pt[0] - p[0];
+		float dz = pt[2] - p[2];
+		float d = pqx * pqx + pqz * pqz;
+		float t = pqx * dx + pqz * dz;
+		if (d != 0) t /= d;
+		dx = p[0] + t * pqx - pt[0];
+		dz = p[2] + t * pqz - pt[2];
+		return dx * dx + dz * dz;
 	}
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)

@@ -30,15 +30,15 @@ namespace SliceEditor
 		std::vector<AnimationPropertyGroup> mPropertyGroups;
 
 		SliceEngine::Timeline mTimeline;
-		float mCurrentTime;
+		float mCurrentTime{ 0.0f };
 
 		//
-		SliceEngine::Animator* mCurrentAnimator;
+		SliceEngine::Animator* mCurrentAnimator{ nullptr };
 		//SliceEngine::Transform* mCurrentTransform;
 		
 		// have animation* from animator 
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
-		size_t mCurrentClipIndex;
+		size_t mCurrentClipIndex{ 0 };
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component);

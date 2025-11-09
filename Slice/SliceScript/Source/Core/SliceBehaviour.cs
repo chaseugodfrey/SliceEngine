@@ -37,6 +37,14 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+
+        public virtual void OnCollisionEnter(GameObject other) { }
+        private void OnCollideEnter(uint other)
+        {
+            GameObject otherObject = new GameObject(other);
+            OnCollisionEnter(otherObject);
+        }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
@@ -44,12 +52,12 @@ namespace SliceEngine
         }
         public new T GetComponent<T>() where T : Component
         {
-            var ctor = typeof(T).GetConstructor(new[] { typeof(SliceBehaviour) });
+            var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
             if (ctor == null)
                 throw new InvalidOperationException(
-                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(SliceBehaviour)})");
+                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(GameObject)})");
 
-            T component = (T)ctor.Invoke(new object[] { this });
+            T component = (T)ctor.Invoke(new object[] { this.gameObject });
             component.gameObject = gameObject;
             return component;
         }
