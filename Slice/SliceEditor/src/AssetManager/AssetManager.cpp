@@ -918,6 +918,11 @@ namespace SliceEditor
 		{
 			try
 			{
+				
+				std::filesystem::path metaFilePath = path.value();
+
+				metaFilePath.replace_extension(".meta");
+
 				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
 				resourceMgr->ReleaseResource(fileGUID);
@@ -926,6 +931,10 @@ namespace SliceEditor
 
 				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
 				//resourceMgr->mGUIDToResource.erase()
+
+
+				std::filesystem::remove(metaFilePath);
+				std::filesystem::remove(path.value());
 
 				AssetFileChangedEvent processEvent = { true };
 				EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
