@@ -211,7 +211,7 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
-		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//auto& factory = SliceEngine::Core::GetInstance()->mFactory;
 
 		if (ImGui::BeginMenu("GameObject"))
 		{

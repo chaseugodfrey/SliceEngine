@@ -118,7 +118,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 
 		unsigned char meshOffset{ 0 };
-		unsigned char renderTag;
+		unsigned char renderTag{};
 		bool skinned{ false };
 
 		RTTR_ENABLE();
@@ -377,8 +377,8 @@ namespace SliceEngine
 
 	struct Timeline
 	{
-		int32_t f_current, f_min{ 0 }, f_max{ 60 };
-		bool isPlaying, isLoop;
+		int32_t f_current{}, f_min{ 0 }, f_max{ 60 };
+		bool isPlaying{}, isLoop{};
 	};
 
 	struct Animator

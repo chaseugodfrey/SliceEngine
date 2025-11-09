@@ -30,7 +30,7 @@ namespace SliceEditor
 		std::vector<AnimationPropertyGroup> mPropertyGroups;
 
 		SliceEngine::Timeline mTimeline;
-		float mCurrentTime;
+		float mCurrentTime{};
 
 		//
 		SliceEngine::Animator* mCurrentAnimator;

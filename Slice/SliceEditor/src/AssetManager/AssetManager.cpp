@@ -724,24 +724,24 @@ namespace SliceEditor
 		{
 			if (file.is_regular_file() && file.path().extension() == ".temp")
 			{
-				std::filesystem::remove(file.path());
+				std::filesystem::remove(file);
 			}
 		}
 
-		std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
-		mScenesDirectoryFolder /= "Scenes";
+		//std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
+		//mScenesDirectoryFolder /= "Scenes";
 
-		// Check if this directory exists before iterating
-		if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
-		{
-			for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
-			{
-				if (file.is_regular_file() && file.path().extension() == ".temp")
-				{
-					std::filesystem::remove(file.path());
-				}
-			}
-		}
+		//// Check if this directory exists before iterating
+		//if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
+		//{
+		//	for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
+		//	{
+		//		if (file.is_regular_file() && file.path().extension() == ".temp")
+		//		{
+		//			std::filesystem::remove(file.path());
+		//		}
+		//	}
+		//}
 
 	}
 

@@ -482,7 +482,10 @@ namespace SliceEditor
 		}
 
 		Label("Generate Mips: ");
-		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips));
+		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
+		{
+
+		}
 
 		Label("Mip Count: ");
 		int mip = data->mip_count;
@@ -493,7 +496,10 @@ namespace SliceEditor
 		}
 
 		Label("Has Alpha: ");
-		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha));
+		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha))
+		{
+
+		}
 
 		Label("Alpha_Threshold: ");
 		int threshold = data->alpha_threshold;

@@ -255,7 +255,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -293,7 +293,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -328,7 +328,7 @@ namespace SliceEditor
 
 			nlohmann::json metaJson;
 
-			uint64_t g = guid.GetGUID();
+			//uint64_t g = guid.GetGUID();
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
 			metaJson["assetType"] = assetType;
@@ -499,8 +499,8 @@ namespace SliceEditor
 
 		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
 		//GUID normalMap;
-		float roughness;
-		float metallic;
+		float roughness = 0.0f;
+		float metallic = 0.0f;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{

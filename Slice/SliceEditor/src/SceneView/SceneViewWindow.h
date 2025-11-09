@@ -34,8 +34,8 @@ namespace SliceEditor
 		struct GizmoUseTracker
 		{
 			ImGuizmo::OPERATION operation;
-			glm::vec3 startValue;
-			glm::vec3 endValue;
+			glm::vec3 startValue{};
+			glm::vec3 endValue{};
 
 			GizmoUseTracker(ImGuizmo::OPERATION op, glm::vec3 ref) : operation(op), startValue(ref) {}
 		};
