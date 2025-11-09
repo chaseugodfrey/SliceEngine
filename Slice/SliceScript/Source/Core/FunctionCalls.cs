@@ -83,6 +83,8 @@ namespace SliceEngine
         
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetFloat(uint entity, string parameter, float val);
-        
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Destroy(uint entity);
     }
 }
