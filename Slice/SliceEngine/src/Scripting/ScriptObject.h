@@ -33,7 +33,7 @@ namespace SliceEngine
 		UInt,
 		Vector2,
 		Vector3,
-		Entity,
+		GameObject,
 		String,
 		Audio,
 		Prefab

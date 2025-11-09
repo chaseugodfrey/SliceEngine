@@ -166,16 +166,20 @@ namespace SliceEditor
 
 	void SelectionManager::DeleteSelectedObjects()
 	{
-		//Another hack. Replicate the mSelectedNodes temporarily
-		auto mSelectedNodesCopy = mSelectedNodes;
-
-		for(auto* node : mSelectedNodesCopy)
+	
+		std::vector<entt::entity> deleteList;
+		for (auto* node : mSelectedNodes)
 		{
-			if(node->type == SelectionType::ENTITY)
+			if (node->type == SelectionType::ENTITY)
 			{
 				EntityNode& entityNode = *static_cast<EntityNode*>(node);
-				EditorUtilities::GameObject_Destroy(entityNode.entity);
+				deleteList.push_back(entityNode.entity);
 			}
+		}
+
+		for(auto entity : deleteList)
+		{
+			EditorUtilities::GameObject_Destroy(entity);
 		}
 	}
 

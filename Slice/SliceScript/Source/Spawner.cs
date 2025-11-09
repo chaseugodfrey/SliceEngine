@@ -1,53 +1,43 @@
 ﻿using System;
-
+using System.Collections;
 
 namespace SliceEngine
 {
     public class Spawner : SliceBehaviour
     {
-        public float spawnTime = 5.0f;
-        public int spawnCount = 4;
-        public string enemyPrefab = "GameObject_1";
-        float spawnTimer = 0.0f;
-        float internalSpawnTimer = 0.0f;
-        int spawnCounter = 0; 
-        bool enemySpawn = false;
+        public float spawnTime = 5.0f;     // delay before wave starts
+        public int spawnCount = 4;         // how many enemies per wave
+        public string enemyPrefab = "EnemyTest";
+        public float spawnInterval = 1.0f; // delay between spawns
+
+        #pragma warning disable CS0414
+        private bool spawning = false;
+        #pragma warning restore CS0414
+
         public override void OnCreate()
         {
-            
+            CoroutineManager.StartCoroutine(SpawnLoop());
         }
 
-        public override void OnUpdate(float dt)
+        private IEnumerator SpawnLoop()
         {
-            // theres probably a btr way to do this
-            // but im kinda lazy to think abt it now
-            // mayb see if hafis can change spawning to a coroutine or smth
-
-            spawnTimer += dt;
-
-            if (spawnTimer  > spawnTime && enemySpawn == false)
+            while (true)
             {
-                enemySpawn = true;
-                spawnCounter = 0;
-                
-            }
+                // Wait before the next wave
+                yield return new WaitForSeconds(spawnTime);
 
-            if (enemySpawn)
-            {
-                internalSpawnTimer += dt;
+                spawning = true;
+                Console.WriteLine("Starting spawn wave...");
 
-                if (internalSpawnTimer > 1.0f)
+                // Spawn N enemies with interval
+                for (int i = 0; i < spawnCount; i++)
                 {
                     CreateGameObject(enemyPrefab);
-                    internalSpawnTimer = 0.0f;
-                    spawnCounter++;
+                    yield return new WaitForSeconds(spawnInterval);
                 }
 
-                if (spawnCounter >= spawnCount)
-                {
-                    enemySpawn = false;
-                    spawnTimer = 0.0f;
-                }
+                spawning = false;
+                Console.WriteLine("Wave complete!");
             }
         }
     }

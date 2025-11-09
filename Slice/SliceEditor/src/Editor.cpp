@@ -135,6 +135,7 @@ namespace SliceEditor
 		InitManagers();
 		InitWindowManager();
 
+		engine.SceneInit();
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
