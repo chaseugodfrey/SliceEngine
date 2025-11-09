@@ -200,7 +200,7 @@ namespace SliceEditor
 			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			
 			// get the file path to the meta file
-			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);;
+			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
 			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
