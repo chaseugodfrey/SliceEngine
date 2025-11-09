@@ -65,9 +65,11 @@ namespace SliceEditor
 		SHADER = 7,
 		MATERIAL = 8,
 		PREFAB = 9,
-		TEXTFILE = 10,
-		MIXED = 11,
-		UNSUPPORTED = 12
+		ANIMATION = 10,
+		ANIMATOR = 11,
+		TEXTFILE = 12,
+		MIXED = 13,
+		UNSUPPORTED = 14
 	};
 
 	struct SelectionNode
