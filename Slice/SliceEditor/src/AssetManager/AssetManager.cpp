@@ -2,7 +2,7 @@
  file:        AssetManager.cpp
 
  author:	  Gideon Nicholas Francis
- co-author:   Nic Lai
+ co-author:   Nic Lai, Lee Yong Yee
 
  email:       g.francis@digipen.edu
 

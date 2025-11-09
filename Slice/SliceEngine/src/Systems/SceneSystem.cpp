@@ -1,6 +1,7 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			SceneSystem.cpp
  author:		Hafiz
+ co-author:		Lee Yong Yee
  email:			b.muhammadhafiz@digipen.edu
  brief:			Handles Scenes
 
