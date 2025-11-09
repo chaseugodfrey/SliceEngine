@@ -2,7 +2,7 @@
  file:        AssetManager.cpp
 
  author:	  Gideon Nicholas Francis
- co-author:   Nic Lai
+ co-author:   Nic Lai, Lee Yong Yee
 
  email:       g.francis@digipen.edu
 
@@ -165,7 +165,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -271,6 +271,13 @@ namespace SliceEditor
 			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
 			mFilenameToGUID[filePath.filename().stem().string()] = metaData->guid;
+
+			if (AddToRM)
+			{
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				resourceMgr->RegisterResourceAsset(metaPath.string());
+			}
+
 			return metaData->resourcePath;
 		}
 		return "";
@@ -893,7 +900,13 @@ namespace SliceEditor
 			}
 		}
 
-		CreateDescriptorFile(addEvent.filePath);
+		if (addEvent.filePath.extension() == ".temp")
+		{
+			return;
+		}
+
+		
+		CreateDescriptorFile(addEvent.filePath, true);
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 
 		AssetFileChangedEvent processEvent = { true };
@@ -913,6 +926,11 @@ namespace SliceEditor
 		{
 			try
 			{
+				
+				std::filesystem::path metaFilePath = path.value();
+
+				metaFilePath.replace_extension(".meta");
+
 				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
 				resourceMgr->ReleaseResource(fileGUID);
@@ -921,6 +939,10 @@ namespace SliceEditor
 
 				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
 				//resourceMgr->mGUIDToResource.erase()
+
+
+				std::filesystem::remove(metaFilePath);
+				std::filesystem::remove(path.value());
 
 				AssetFileChangedEvent processEvent = { true };
 				EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
@@ -1138,7 +1160,20 @@ namespace SliceEditor
 						inFile >> metaJson;
 						inFile.close();
 
-						std::filesystem::path newAssetPath = events.at(3).filePath;
+						std::filesystem::path newAssetPath = "";
+						std::string oldPath = metaJson["assetPath"].get<std::string>();
+
+						for (auto it : events)
+						{
+							if (it.changeType == filewatch::Event::added)
+							{
+								newAssetPath = it.filePath;
+								break;
+								
+							}
+						}
+
+						//std::filesystem::path newAssetPath = events.at(3).filePath;
 						metaJson["assetPath"] = newAssetPath.string();
 
 
