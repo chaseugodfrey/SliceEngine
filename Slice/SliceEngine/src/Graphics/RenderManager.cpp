@@ -429,6 +429,9 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
+		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
+		glViewport(0, 0, shadowDim, shadowDim);
+
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();

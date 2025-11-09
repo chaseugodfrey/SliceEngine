@@ -363,7 +363,7 @@ namespace SliceEngine
         {
             std::filesystem::path pdbPath = assemblyPath;
             pdbPath.replace_extension(".pdb");
-
+			std::string msg = "Attempting to load pdb: {}" + pdbPath.string();
             SLICE_LOG_DEBUG("Attempting to load pdb: {}", pdbPath);
 
             if (std::filesystem::exists(pdbPath))
@@ -455,7 +455,7 @@ namespace SliceEngine
 
                     mEntityInstances[*entity] = scriptObj;
 
-                    auto inputs = Core::GetInstance()->GetInputSystem();
+                    //auto inputs = Core::GetInstance()->GetInputSystem();
                     auto scene = Core::GetInstance()->GetSceneSystem();
 
                     //if (inputs->GetMode() == InputMode::Game)

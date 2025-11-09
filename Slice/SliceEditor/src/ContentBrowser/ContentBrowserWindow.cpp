@@ -65,19 +65,24 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
+				//Pop-up General Context for File Creation
+				if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+				{
+					ImGui::OpenPopup("menu_create");
+				}
+
+				if (ImGui::BeginPopupContextWindow("menu_create"))
+				{
+					EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+
+					ImGui::EndPopup();
+				}
+
 				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
 			}
 
-			ImGui::OpenPopupOnItemClick("menu_create");
-
-			if (ImGui::BeginPopupContextItem("menu_create"))
-			{
-				EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
-
-				ImGui::EndPopup();
-			}
 		}
 
 		if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
@@ -181,6 +186,7 @@ namespace SliceEditor
 						{
 							SelectFile(entry);
 							selectedEntry = nullptr;
+							ImGui::EndPopup();
 							ImGui::EndTable(); //Setting the Pre-mature Table End
 							return;
 						}
@@ -269,6 +275,41 @@ namespace SliceEditor
 						{
 							mManager.openRenameFile = true;
 						}
+
+						if (ImGui::MenuItem("Re-compile File"))
+						{
+							//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
+							DroppedFile file;
+
+							file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+							file.filePath = entry.path;
+							switch (file.assetType)
+							{
+							case AssetType::Texture:
+								file.metaData = std::make_unique<TextureData>();
+								break;
+							case AssetType::Model:
+								file.metaData = std::make_unique<ModelData>();
+								break;
+							case AssetType::Audio:
+								file.metaData = std::make_unique<AudioData>();
+								break;
+							case AssetType::Scene:
+								file.metaData = std::make_unique<SceneData>();
+								break;
+							case AssetType::Shader:
+								file.metaData = std::make_unique<ShaderData>();
+								break;
+							case AssetType::Prefab:
+								file.metaData = std::make_unique<PrefabData>();
+								break;
+							}
+							//Default Init the MetaData base class
+							file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+							mManager.mPendingDrops.push(std::move(file));
+						}
+
 						if (ImGui::MenuItem("Delete File"))
 						{
 							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
