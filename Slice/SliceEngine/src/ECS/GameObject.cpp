@@ -78,6 +78,7 @@ namespace SliceEngine
 
 	void GameObject::Destroy()
 	{
+		std::cout << "Destryoing entity in gameobject cpp: " << (uint32_t)mEntity << std::endl;
 
 		mRegistry.destroy(mEntity);
 

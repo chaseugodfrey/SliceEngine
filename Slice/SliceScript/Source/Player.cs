@@ -8,10 +8,11 @@ namespace SliceEngine
     public class Player : SliceBehaviour
     {
         public float moveSpeed = 2.5f;
+        public float rotationSpeed = 50.0f;
         Animator animator;
         Transform t;
 
-        public Vector3 direction = new Vector3(-1.0f, 0.0f, 0.0f);
+        public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
 
         public override void OnCreate()
@@ -22,13 +23,16 @@ namespace SliceEngine
         }
 
         public override void OnUpdate(float dt)
-        {
-            Vector3 right = Vector3.Cross(up, direction).Normalize();
+        { 
+            //Vector3 right = Vector3.Cross(up, direction).Normalize();
+            float rotationSpeedFrame = rotationSpeed * dt;
 
-            // Forwards
+
             // Forwards
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
+                //t.Position += direction * moveSpeed * dt;
+
                 t.Position += direction * moveSpeed * dt;
 
                 // animator.ChangeAnim(21);
@@ -40,7 +44,15 @@ namespace SliceEngine
             // Left
             if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
             {
-                t.Position -= right * moveSpeed * dt;
+                //t.Position -= right * moveSpeed * dt;
+                Vector3 rotationAxis = new Vector3(0, 1, 0); // Y-axis
+                //t.Rotate(rotationSpeedFrame, rotationAxis);
+                Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+
+                this.direction = rotation * this.direction;
+                this.up = rotation * this.up;
+
+              
                 //  animator.ChangeAnim(21);
                 animator.SetBool("Run", true);
                 animator.SetBool("Idle", false);
@@ -50,6 +62,8 @@ namespace SliceEngine
             // Backward
             if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
             {
+                //t.Position -= direction * moveSpeed * dt;
+
                 t.Position -= direction * moveSpeed * dt;
                 //    animator.ChangeAnim(21);
                 animator.SetBool("Run", true);
@@ -60,12 +74,21 @@ namespace SliceEngine
             // Right
             if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
             {
-                t.Position += right * moveSpeed * dt;
+                //t.Position += right * moveSpeed * dt;
                 //   animator.ChangeAnim(21);
+                Vector3 rotationAxis = new Vector3(0, -1, 0); // Y-axis
+                //t.Rotate(rotationSpeedFrame, rotationAxis);
+                Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+
+                this.direction = rotation * this.direction;
+                this.up = rotation * this.up;
+
                 animator.SetBool("Run", true);
                 animator.SetBool("Attack", false);
                 animator.SetBool("Idle", false);
             }
+
+            t.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
 
             if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
             {
@@ -89,6 +112,12 @@ namespace SliceEngine
                 animator.SetBool("Run", false);
                 animator.SetBool("Attack", true);
             }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+           // SliceLog.Log("OADMOSMODASM");
+           // gameObject.Destroy();
         }
     }
 }

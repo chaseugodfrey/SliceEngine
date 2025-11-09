@@ -58,7 +58,6 @@ namespace SliceEngine
 		void SaveNextScene();
 		void UnloadCurrentScene();
 		void ReloadScene();		
-		void GetCurrentScene();
 
 		void Play();
 		void Pause();
@@ -68,6 +67,7 @@ namespace SliceEngine
 
 		std::filesystem::path GetCurrentScenePath();
 		std::filesystem::path GetDefaultScenePath();
+		std::string GetCurrentSceneName();
 		bool isSceneUnloaded{};
 
 	private:

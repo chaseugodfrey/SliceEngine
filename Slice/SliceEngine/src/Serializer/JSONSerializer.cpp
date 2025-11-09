@@ -221,6 +221,7 @@ namespace SliceEngine
 								float,
 								double,
 								bool,
+								Entity,
 								uint64_t,
 								GUID,
 								Handle<SliceEngineTypes::Model>,
@@ -290,7 +291,13 @@ namespace SliceEngine
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
 			}
 
+			// idk check if the name in goFactory map is correct atm
+			// if its not a valid name then set the name
+			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
+			//{
+			//}
 			rootGO.SetName(rootGO.GetName());
+			
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
@@ -327,6 +334,31 @@ namespace SliceEngine
 			for (size_t i = 0; i < delayedComponentInstance.size(); ++i)
 			{
 				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
+			}
+
+			// Remapping Entity IDs after all GOs have been deserialized
+			//auto& registry = Core::GetInstance()->GetRegistry();
+			//auto& factory = Core::GetInstance()->mFactory;
+			if (rootGO.HasComponent<Bone>())
+			{
+				auto entityView = registry.view<Bone>();
+				for (auto entity : entityView)
+				{
+					/*if (!registry.any_of<Bone>(entity))
+					{
+						continue;
+					}*/
+
+					auto& boneComponent = registry.get<Bone>(entity);
+
+					boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+				}
+
+				for (auto entity : entityView)
+				{
+					Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+				}
+
 			}
 
 			return (Entity)rootEntity->second;
