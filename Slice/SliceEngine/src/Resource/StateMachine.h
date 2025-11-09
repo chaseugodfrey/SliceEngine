@@ -56,9 +56,9 @@ namespace SliceEngine
 			std::string stateName;
 			unsigned int curr_anim_idx{};
 
-			bool hasExitTime;
-			float exitTime;
-			float entryTime;
+			bool hasExitTime{};
+			float exitTime = 0.0f;
+			float entryTime =0.0f;
 			float fullTime;
 
 			bool isLoop {false};

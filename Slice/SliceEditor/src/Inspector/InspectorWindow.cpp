@@ -240,9 +240,9 @@ namespace SliceEditor
 				reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
 					{
 
-						DragFloatInputHeader(mRegistry, "Mass", "##mass", rb.mass, "%.3f", 0.1, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "Mass", "##mass", rb.mass, "%.3f", 0.1f, FLT_MAX);
 
-						DragFloatInputHeader(mRegistry, "Gravity", "##gravity", rb.gravityFactor, "%.3f", 0.0, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "Gravity", "##gravity", rb.gravityFactor, "%.3f", 0.0f, FLT_MAX);
 
 						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
@@ -250,7 +250,7 @@ namespace SliceEditor
 
 						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
 
-						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1f, FLT_MAX);
 
 						DragFreezeOptionsInputHeader(mRegistry, "Freeze Position", "##freezePos", rb.freezePosition);
 
@@ -484,7 +484,7 @@ namespace SliceEditor
 				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
 				{
 					if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
-						animator.stateMachine.EFSM.currState->curr_anim_idx = animator.curr_anim_pkg.animations.size() - 1;
+						animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
 					else
 						animator.stateMachine.EFSM.currState->curr_anim_idx--;
 				}
@@ -710,7 +710,7 @@ namespace SliceEditor
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
 			{
 				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-				auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+				//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 				mat.albedo =recievedPayload;
 				mat.SerializeAsset(node->path);
 				// update the handle after

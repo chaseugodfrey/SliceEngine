@@ -211,7 +211,7 @@ namespace SliceEditor
 			ImGui::EndMenu();
 		}
 
-		auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+		//auto& factory = SliceEngine::Core::GetInstance()->mFactory;
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
@@ -341,6 +341,8 @@ namespace SliceEditor
 		//	ImGui::OpenPopup("connect_req");
 		//}
 
+		ImGui::BeginDisabled(isPlaying);
+
 		ImGui::SameLine();
 		if (ImGui::Button("Reload Scripts",ImVec2{0,35}))
 		{
@@ -349,6 +351,8 @@ namespace SliceEditor
 				SliceEngine::gScriptSystem->ReloadAssembly();
 			}
 		}
+
+		ImGui::EndDisabled();
 
 		if (ImGui::BeginPopup("host_req"))
 		{

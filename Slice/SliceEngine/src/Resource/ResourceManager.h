@@ -77,10 +77,10 @@ namespace SliceEngine
 		* Hack number 2 i dont actually know why this is like this
 		*/
 		~ResourceManager() {
-			for (auto& i : mInstances) {
-			//	i.second.destroyer(i.second.data, *this);
-			//	delete i.second.data;	//not sure but 50% sure this is supposed to be here
-			}
+			//for (auto& i : mInstances) {
+			////	i.second.destroyer(i.second.data, *this);
+			////	delete i.second.data;	//not sure but 50% sure this is supposed to be here
+			//}
 		}
 
 		void ReleaseResource(const GUID& guid);
