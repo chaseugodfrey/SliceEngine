@@ -350,6 +350,10 @@ namespace SliceEngine
 		 mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
 	}
 
+#pragma region SCENE FUNCTIONS
+
+
+#pragma endregion
 		/// <summary>
 	/// Register the component. Clear the map before registering
 	/// </summary>
