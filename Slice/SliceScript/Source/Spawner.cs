@@ -7,7 +7,7 @@ namespace SliceEngine
     {
         public float spawnTime = 5.0f;     // delay before wave starts
         public int spawnCount = 4;         // how many enemies per wave
-        public string enemyPrefab = "GameObject_1";
+        public string enemyPrefab = "EnemyTest";
         public float spawnInterval = 1.0f; // delay between spawns
 
         #pragma warning disable CS0414
