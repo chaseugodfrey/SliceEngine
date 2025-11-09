@@ -1143,7 +1143,20 @@ namespace SliceEditor
 						inFile >> metaJson;
 						inFile.close();
 
-						std::filesystem::path newAssetPath = events.at(3).filePath;
+						std::filesystem::path newAssetPath = "";
+						std::string oldPath = metaJson["assetPath"].get<std::string>();
+
+						for (auto it : events)
+						{
+							if (it.changeType == filewatch::Event::added)
+							{
+								newAssetPath = it.filePath;
+								break;
+								
+							}
+						}
+
+						//std::filesystem::path newAssetPath = events.at(3).filePath;
 						metaJson["assetPath"] = newAssetPath.string();
 
 
