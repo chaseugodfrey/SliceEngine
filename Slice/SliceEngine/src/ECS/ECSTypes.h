@@ -364,13 +364,12 @@ namespace SliceEngine
 
 		std::vector<Burst> bursts{};
 
-		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
 		GLuint textureID;
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
 		bool isActive{ true };
-		float systemTimer{};					// system�s overall lifetime
+		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
 	};
