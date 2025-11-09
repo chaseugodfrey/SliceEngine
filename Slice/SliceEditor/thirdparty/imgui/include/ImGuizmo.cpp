@@ -762,7 +762,7 @@ namespace IMGUIZMO_NAMESPACE
 
       ImGuiWindow* mAlternativeWindow = nullptr;
       ImVector<ImGuiID> mIDStack;
-      ImGuiID mEditingID = -1;
+      ImGuiID mEditingID = static_cast<ImGuiID>(-1);
       OPERATION mOperation = OPERATION(-1);
 
       bool mAllowAxisFlip = true;
