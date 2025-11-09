@@ -232,7 +232,10 @@ namespace SliceEngine
 								glm::vec3,
 								glm::vec4,
 								glm::quat,
-								std::string
+								std::string,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 

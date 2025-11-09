@@ -51,7 +51,7 @@ namespace SliceEngine
         {"System.String", ScriptFieldType::String},
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
-        {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.GameObject", ScriptFieldType::GameObject},
         {"SliceEngine.Audio", ScriptFieldType::Audio},
         {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
@@ -76,35 +76,6 @@ namespace SliceEngine
     {
         // CleanUp();
     }
-
-    //void ScriptSystem::EntityDestroyed(Entity id)
-    //{
-    //    // If an entity is destroyed, remove it from mEntityInstances
-    //    // can also take this part to call ondestroy if we do that
-    //    // mEntityInstances is usually cleared at the end of playing
-    //    // but if entity is destroyed in run time then we have to clear it from the map
-    //    for (auto& it : mEntityInstances)
-    //    {
-    //        if (it.first == id)
-    //        {
-    //            // can call ondestroy here maybe if we do that
-    //            //CM_CORE_INFO("Destroying entity {}", id);
-    //            mono_gchandle_free(it.second->mHandle);
-    //            // erase it from the map
-    //            mEntityInstances.erase(it.first);
-    //            break;
-    //        }
-    //    }
-
-    //    for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
-    //    {
-    //        if (*it == id)
-    //        {
-    //            entityAdded.erase(it);
-    //            break;
-    //        }
-    //    }
-    //}
 
     void ScriptSystem::Init()
     {
@@ -364,7 +335,7 @@ namespace SliceEngine
             std::filesystem::path pdbPath = assemblyPath;
             pdbPath.replace_extension(".pdb");
 			std::string msg = "Attempting to load pdb: {}" + pdbPath.string();
-            SLICE_LOG_DEBUG("Attempting to load pdb: {}", pdbPath);
+            SLICE_LOG_DEBUG(msg);
 
             if (std::filesystem::exists(pdbPath))
             {
@@ -465,11 +436,11 @@ namespace SliceEngine
                     //    mEntityInstances[*entity]->InvokeOnCreate();
                     //}
 
-                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
-                    {
-                        mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
-                        mEntityInstances[*entity]->InvokeOnCreate();
-                    }
+                    //if (scene->mCurrentState == SceneState::PLAY_SCENE)
+                    //{
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
 
                     UpdateScriptComponent(*entity);
                     entityAdded.erase(entity);
@@ -493,7 +464,7 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
-	/*	auto& scriptComponent = mRegistry->get<Script>(entity);
+		auto& scriptComponent = mRegistry->get<Script>(entity);
 
         auto& scriptRef = mEntityInstances[entity];
         const auto& fields = scriptRef->GetScriptClass()->mFields;
@@ -503,7 +474,7 @@ namespace SliceEngine
             {
                 if (it.second.mType == ScriptFieldType::String)
                 {
-                    std::string str = std::get<std::string>(scriptComponent.scriptableFieldMap[it.first]);
+                    std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
                     scriptRef->SetFieldValue<std::string>(it.second.mName, str);
                 }
                 else
@@ -512,13 +483,45 @@ namespace SliceEngine
                 }
             }
 
-        }*/
+        }
 
     }
 
     void ScriptSystem::UpdateScriptComponent(Entity entity)
     {
+        Script& scriptComponent = mRegistry->get<Script>(entity);
 
+        // if it has script instances attached to this entity
+        if (mEntityInstances.count(entity) > 0)
+        {
+            auto& scriptRef = mEntityInstances[entity];
+            const auto& fields = scriptRef->GetScriptClass()->mFields;
+            scriptComponent.scriptableFieldMap.clear();
+
+            for (const auto& it : fields)
+            {
+                if (it.second.mType == ScriptFieldType::Float)
+                {
+                    float var = scriptRef->GetFieldValue<float>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Bool)
+                {
+                    bool var = scriptRef->GetFieldValue<bool>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::String)
+                {
+                    std::string var = scriptRef->GetFieldValue<std::string>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Int)
+                {
+                    int var = scriptRef->GetFieldValue<int>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+            }
+        }
     }
 
     void ScriptSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -535,11 +538,12 @@ namespace SliceEngine
 
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
-
-			// Update the script variables from the script component to the script instance
-            // useful for seeing variables in the inspector
-            // but after M1 or after tuesday
-
+            
+            // Update the variables in script instance with variables 
+            // in the script component
+            UpdateScriptVariables(entity);
+            // idk incase it isnt populated the first time
+            UpdateScriptComponent(entity);
             // Check if an entity is created on runtime
 			// if it is then we have to invoke the construct and oncreate
             // but again after M1 

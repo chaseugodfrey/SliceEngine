@@ -15,8 +15,8 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "SceneViewWindow.h"
-#include "../../SliceEngine/src/Graphics/RenderManager.h"
-#include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include <Graphics/RenderManager.h>
+#include <Graphics/CameraSystem.h>
 #include <Graphics/TransformHelper.h>
 
 #include "Core/Registry.h"
@@ -377,20 +377,23 @@ namespace SliceEditor
 
 		if (!set.empty() && set.begin().operator*()->type == SelectionType::ENTITY)
 		{
-			auto entt = static_cast<EntityNode*>(*set.begin())->entity;
+			// get entities & transform components
+			auto entity = static_cast<EntityNode*>(*set.begin())->entity;
+			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+			auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+			auto parentEntity = sceneGraph.neighbours[sceneGraph.UP];
+
 			// get cam view & perspective
 			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
 			glm::mat4 P = glm::perspective(
 				glm::radians(camObj->camera.pov), worldSpaceDim.x / worldSpaceDim.y, camObj->camera.near, camObj->camera.far);
 
-			// get entities & transform components
-			auto& tmp_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entt);
 
 			// set gizmo limits to window
 			ImGuizmo::SetRect(pos.x, pos.y, scene_x - pos.x, scene_y - pos.y);
 
 			// get transforms
-			glm::mat4 world_tr = tmp_tr.transform;
+			glm::mat4 world_tr = tr.transform;
 			//glm::mat4 new_world_tr = ConvertToEulerMatrix(world_tr);
 
 			ImGuizmo::Manipulate(glm::value_ptr(V), glm::value_ptr(P), mGuizmoOperation, mGuizmoMode, glm::value_ptr(world_tr));
@@ -402,41 +405,49 @@ namespace SliceEditor
 					switch (mGuizmoOperation)
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.position);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.position);
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.eulerAnglesHint);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.eulerAnglesHint);
 						break;
 					case ImGuizmo::OPERATION::SCALE:
-						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tmp_tr.scale);
+						mGizmoTracker = GizmoUseTracker(mGuizmoOperation, tr.scale);
 						break;
 					}
 				}
 
+				glm::mat4 parentWorldTr{ 1 };
 				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
 				glm::quat rot;
 				static glm::vec3 prev_euler{};
 
+				if (parentEntity != entt::null)
+				{
+					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+					parentWorldTr = parentTr.transform;
+					world_tr *= glm::inverse(parentWorldTr);
+				}
+
 				glm::decompose(world_tr, scale, rot, translation, skew, persp);
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
-					tmp_tr.position = translation;
+					tr.position = translation;
 					mGizmoTracker->endValue = translation;
 				}
 				
 				if (mGuizmoOperation == ImGuizmo::OPERATION::ROTATE)
 				{
 					euler = SliceEngine::QuatToVec3(rot);
-					tmp_tr.rotation = rot;
-					tmp_tr.eulerAnglesHint = euler;
+					tr.rotation = rot;
+					tr.eulerAnglesHint = euler;
 					mGizmoTracker->endValue = euler;
 				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::SCALE)
 				{
-					tmp_tr.scale = scale;
+					tr.scale = scale;
 					mGizmoTracker->endValue = scale;
 				}
 			}
@@ -449,7 +460,7 @@ namespace SliceEditor
 					{
 					case ImGuizmo::OPERATION::TRANSLATE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position,mGizmoTracker->startValue, mGizmoTracker->endValue));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.position,mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					case ImGuizmo::OPERATION::ROTATE:
 					{
@@ -457,14 +468,14 @@ namespace SliceEditor
 							std::make_unique<FunctionSetsValueCommand<glm::vec3>>(mGizmoTracker->startValue, mGizmoTracker->endValue,
 								[&](glm::vec3 newEuler)
 								{
-									tmp_tr.eulerAnglesHint = newEuler;
-									tmp_tr.rotation = EulerToQuaternion(newEuler);
+									tr.eulerAnglesHint = newEuler;
+									tr.rotation = EulerToQuaternion(newEuler);
 								}));
 						}
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tmp_tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();
