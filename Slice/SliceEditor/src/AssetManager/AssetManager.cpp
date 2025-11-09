@@ -893,6 +893,11 @@ namespace SliceEditor
 			}
 		}
 
+		if (addEvent.filePath.extension() == ".temp")
+		{
+			return;
+		}
+
 		CreateDescriptorFile(addEvent.filePath);
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 

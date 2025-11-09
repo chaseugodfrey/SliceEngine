@@ -116,16 +116,11 @@ namespace SliceEditor
 
 					if (std::filesystem::exists(currentSceneTemp))
 					{
-						auto time1 = std::filesystem::last_write_time(currentScenePath);
-						auto time2 = std::filesystem::last_write_time(currentSceneTemp);
-
-						if (time1 < time2)
-						{
-							std::filesystem::remove(currentScenePath);
-							currentSceneTemp.replace_extension(".scene");
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
+						
+						std::filesystem::remove(currentScenePath);
+						currentSceneTemp.replace_extension(".scene");
+						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
 							
-						}
 					}
 
 				}
