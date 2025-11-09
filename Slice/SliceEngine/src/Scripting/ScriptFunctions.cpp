@@ -286,7 +286,7 @@ namespace SliceEngine
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
 		{
-			auto& anim = GO.GetComponent<Animator>();
+			//auto& anim = GO.GetComponent<Animator>();
 		//	anim.stateMachine.EFSM.currState->curr_anim_idx = animID;
 		}
 		else
@@ -294,6 +294,41 @@ namespace SliceEngine
 			SLICE_LOG_DEBUG("Entity does not have animator");
 		}
 	}
+
+	static void SetBool(unsigned int entityID, MonoString* string, bool val)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+
+			GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+		}
+
+	}
+
+	static void SetInt(unsigned int entityID, MonoString* string, int val)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+			GO.GetComponent<Animator>().stateMachine.SetInt(cStrName, val);
+
+		}
+	}
+
+	static void SetFloat(unsigned int entityID, MonoString* string, float val)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+			GO.GetComponent<Animator>().stateMachine.SetFloat(cStrName, val);
+
+		}
+	}
+
 #pragma endregion
 	template <typename T>
 	static void RegisterComponent()
@@ -374,6 +409,10 @@ namespace SliceEngine
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);
+		ADD_INTERNAL_CALL(SetBool);
+		ADD_INTERNAL_CALL(SetInt);
+		ADD_INTERNAL_CALL(SetFloat);
+
 	}
 
 }

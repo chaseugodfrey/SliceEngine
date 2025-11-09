@@ -46,7 +46,7 @@ namespace SliceEngine
 
 		animator.stateMachine.CheckStates();
 
-		animator.stateMachine.UpdateState();
+		animator.stateMachine.UpdateState(animator.current_time);
 
 
 		UpdateAnimation(animator, dt);
@@ -86,13 +86,15 @@ namespace SliceEngine
 						if (!animator.timeline.isLoop)
 						{
 							animator.timeline.isPlaying = false;
+							animator.current_time = 0.0f;
+							animator.stateMachine.UpdateCurrentTime(animator.current_time);
+
 							return;
 						}
 						else
 						{
 							animator.timeline.isPlaying = true;
 							animator.current_time = std::fmod(animator.current_time, anim.duration);
-
 						}
 					}
 					//while (animator.current_time > anim.duration) 
@@ -110,7 +112,7 @@ namespace SliceEngine
 				//anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
-
+				animator.stateMachine.UpdateCurrentTime(animator.current_time);
 			}
 			//non bone animation
 			else {

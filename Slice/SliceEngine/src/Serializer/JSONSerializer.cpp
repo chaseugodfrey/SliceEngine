@@ -614,7 +614,7 @@ namespace SliceEngine
 
 			// Remapping Entity IDs after all GOs have been deserialized
 			auto& registry = Core::GetInstance()->GetRegistry();
-			auto& factory = Core::GetInstance()->mFactory;
+			//auto& factory = Core::GetInstance()->mFactory;
 			auto entityView = registry.view<Bone>();
 			for (auto entity : entityView)
 			{

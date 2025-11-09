@@ -44,6 +44,7 @@ namespace SliceEngine
             j.at("hasExitTime").get_to(s.hasExitTime);
             j.at("exitTime").get_to(s.exitTime);
             j.at("entryTime").get_to(s.entryTime);
+            j.at("isLoop").get_to(s.isLoop);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 
@@ -81,7 +82,7 @@ namespace SliceEngine
 			}
 			catch (nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Invalid controller JSON file");
+				SLICE_LOG_ERROR("Invalid controller JSON file" + std::string(e.what()));
 
 				return temp;
 			}

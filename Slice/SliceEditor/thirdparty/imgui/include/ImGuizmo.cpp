@@ -762,7 +762,7 @@ namespace IMGUIZMO_NAMESPACE
 
       ImGuiWindow* mAlternativeWindow = nullptr;
       ImVector<ImGuiID> mIDStack;
-      ImGuiID mEditingID = -1;
+      ImGuiID mEditingID = static_cast<ImGuiID>(-1);
       OPERATION mOperation = OPERATION(-1);
 
       bool mAllowAxisFlip = true;
@@ -772,7 +772,7 @@ namespace IMGUIZMO_NAMESPACE
       {
          if (mIDStack.empty())
          {
-            mIDStack.push_back(-1);
+            mIDStack.push_back(static_cast<ImGuiID>(-1) );
          }
          return mIDStack.back();
       }
@@ -1908,7 +1908,7 @@ namespace IMGUIZMO_NAMESPACE
 
          if (!io.MouseDown[0]) {
             gContext.mbUsingBounds = false;
-            gContext.mEditingID = -1;
+            gContext.mEditingID = static_cast<ImGuiID>(-1);
          }
          if (gContext.mbUsingBounds)
          {
@@ -2491,7 +2491,7 @@ namespace IMGUIZMO_NAMESPACE
          if (!io.MouseDown[0])
          {
             gContext.mbUsing = false;
-            gContext.mEditingID = -1;
+            gContext.mEditingID = static_cast<ImGuiID>(-1);
          }
          type = gContext.mCurrentOperation;
       }
@@ -2556,7 +2556,7 @@ namespace IMGUIZMO_NAMESPACE
    {
       if (gContext.mIDStack.empty())
       {
-         gContext.mIDStack.push_back(-1);
+         gContext.mIDStack.push_back(static_cast<ImGuiID>(-1) );
       }
       gContext.mIDStack.back() = id;
    }

@@ -640,7 +640,7 @@ namespace
 				(DT_DETAIL_EDGE_BOUNDARY << 0) |
 				(DT_DETAIL_EDGE_BOUNDARY << 2) |
 				(DT_DETAIL_EDGE_BOUNDARY << 4);
-			if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
+			if (!(onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE))) // get rid of ! if breaks lol
 				continue;
 
 			const float* v[3];
