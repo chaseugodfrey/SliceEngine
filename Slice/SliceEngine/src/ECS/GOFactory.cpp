@@ -607,7 +607,7 @@ namespace SliceEngine
 		auto go = CreateGO("GameObject");
 		go.AddComponent<Renderer>();
 		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
-		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<ColliderShape>(ColliderShape::CapsuleData{});
 		go.AddComponent<RigidBody>();
 
 		return go;

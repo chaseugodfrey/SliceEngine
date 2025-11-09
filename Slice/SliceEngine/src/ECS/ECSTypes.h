@@ -220,6 +220,32 @@ namespace SliceEngine
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
 
+	private:
+		inline static const BoxData defaultBoxData{};
+		inline static const SphereData defaultSphereData{};
+		inline static const CapsuleData defaultCapsuleData{};		
+	public:
+		// Getters
+		const BoxData& GetBoxData() const {
+			return std::holds_alternative<BoxData>(shapeData) ?
+				std::get<BoxData>(shapeData) : defaultBoxData;
+		}
+
+		const SphereData& GetSphereData() const {
+			return std::holds_alternative<SphereData>(shapeData) ?
+				std::get<SphereData>(shapeData) : defaultSphereData;
+		}
+
+		const CapsuleData& GetCapsuleData() const {
+			return std::holds_alternative<CapsuleData>(shapeData) ?
+				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
+		}
+
+		// Setters
+		void SetBoxData(const BoxData& data) { shapeData = data; }
+		void SetSphereData(const SphereData& data) { shapeData = data; }
+		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+
 		RTTR_ENABLE();
 	};
 

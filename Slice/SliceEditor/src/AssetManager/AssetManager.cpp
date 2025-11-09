@@ -18,6 +18,10 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+#include <algorithm>
+
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -720,7 +724,22 @@ namespace SliceEditor
 		{
 			if (file.is_regular_file() && file.path().extension() == ".temp")
 			{
-				remove(file);
+				std::filesystem::remove(file.path());
+			}
+		}
+
+		std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
+		mScenesDirectoryFolder /= "Scenes";
+
+		// Check if this directory exists before iterating
+		if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
+		{
+			for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
+			{
+				if (file.is_regular_file() && file.path().extension() == ".temp")
+				{
+					std::filesystem::remove(file.path());
+				}
 			}
 		}
 
@@ -915,13 +934,47 @@ namespace SliceEditor
 
 			if (oldFilePath.extension() == ".scene")
 			{
-				std::filesystem::path oldTempFile = oldFilePath;
-				oldTempFile.replace_extension(".temp");
-
-				if (std::filesystem::exists(oldTempFile))
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+				if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem())
 				{
-					oldTempFile.replace_filename(newFilePath.stem());
+					sScene->SetDefaultScenePath(newFilePath);
+					auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+					auto& s = gSettings->Edit(); 
+
+					for (auto& it : s.scenes)
+					{
+						std::filesystem::path scenePath(it);
+						if (scenePath.stem() == oldFilePath.stem())
+						{
+							it = newFilePath.string();
+						}
+					}
+
+					s.startupScene = newFilePath.string();
+
+					gSettings->Save();
 				}
+
+				std::filesystem::path mCurrentPath = sScene->GetCurrentScenePath();
+
+				if (oldFilePath.stem() == mCurrentPath.stem() && oldFilePath.extension() == mCurrentPath.extension())
+				{
+					sScene->SetCurrentScenePath(newFilePath.string());
+				}
+
+				std::filesystem::path oldTempPath = oldFilePath;
+				oldTempPath.replace_extension(".temp");
+
+
+				if (std::filesystem::exists(oldTempPath))
+				{
+					std::filesystem::path newTempPath = newFilePath;
+					newTempPath.replace_extension(".temp");
+
+					std::filesystem::rename(oldTempPath, newTempPath);
+				}
+
+			
 			}
 
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
