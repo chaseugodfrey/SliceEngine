@@ -278,6 +278,7 @@ namespace SliceEditor
 
 						if (ImGui::MenuItem("Re-compile File"))
 						{
+							//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 							DroppedFile file;
 
 							file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
