@@ -228,6 +228,18 @@ namespace SliceEditor
 
 	}
 
+	void InspectorWindow::DisplayCamera(entt::entity entity)
+	{
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
+		
+		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplayRigidbody(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
@@ -619,8 +631,12 @@ namespace SliceEditor
 			DisplayTransform(node->entity);
 			ImGui::Separator();
 
-			//DisplaySceneGraph();
-			//ImGui::Separator();
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Camera>(entity))
+			{
+				DisplayCamera(node->entity);
+				ImGui::Separator();
+			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
 			{
 				DisplayLight(node->entity);
