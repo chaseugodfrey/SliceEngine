@@ -209,6 +209,7 @@ namespace SliceEditor
 			{
 			case AssetType::Texture:
 				// This should create the texture asset into the resource folder
+				metaPath = metaData->Serialize(mResourcesDirectory);
 				CompileTextureAsset(metaPath);
 				break;
 			case AssetType::Model:
