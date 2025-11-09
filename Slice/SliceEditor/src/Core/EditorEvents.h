@@ -62,6 +62,11 @@ namespace SliceEditor
 	{
 		std::string fileName;
 	};
+
+	struct DeleteSelectedEntities
+	{
+
+	};
 }
 
 #endif

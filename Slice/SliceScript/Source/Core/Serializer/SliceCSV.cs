@@ -9,6 +9,8 @@ namespace SliceEngine
 {
     /// <summary>
     /// Provides lightweight CSV loading and data lookup for designer-authored tables.
+    /// Might need rework for very large csvs that may need to be multi-threaded or be
+    /// compacted into precompiled binaries
     /// </summary>
     public class SliceCSV
     {
@@ -27,6 +29,7 @@ namespace SliceEngine
             _headers.Clear();
             _rows.Clear();
 
+            // This guy will cause the whole program to stall if the csv is very large (10+MB)
             var lines = File.ReadAllLines(filePath);
             if (lines.Length == 0)
                 return;

@@ -86,6 +86,15 @@ namespace SliceEngine
                 t.Position += new Vector3(0, 1, 0) * moveSpeed * dt;
             }
 
+
+            // Scale Down
+            if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
+            {
+                animator.SetBool("Idle", false);
+                animator.SetBool("Run", false);
+                animator.SetBool("Attack", true);
+            }
+
             // Down (Ctrl)
             if (Input.IsKeyPressed(Keys.KEY_3) || Input.IsKeyDown(Keys.KEY_3))
             {
@@ -102,14 +111,6 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) || Input.IsKeyDown(Keys.KEY_E))
             {
                 t.Scale -= new Vector3(scaleSpeed, scaleSpeed, scaleSpeed) * dt;
-            }
-
-            // Scale Down
-            if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
-            {
-                animator.SetBool("Idle", false);
-                animator.SetBool("Run", false);
-                animator.SetBool("Attack",true);
             }
 
             float rotationSpeedFrame = rotationSpeed * dt;
