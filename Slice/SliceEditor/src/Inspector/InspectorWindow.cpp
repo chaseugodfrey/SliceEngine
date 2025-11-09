@@ -115,10 +115,21 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-						/*ImGui::Text("Audio Clip");
-						ImGui::SameLine(150);
+
+						ImGui::Text("Audio Clip");
+						ImGui::SameLine(150.0f);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-						ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
+						std::string audioGUID_string = std::to_string(as.soundGUID.GetGUID());
+						std::string audioFilename;
+						if (mRegistry.GetAssetManager().mGUIDtoFilename.find(as.soundGUID) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+						{
+							audioFilename = mRegistry.GetAssetManager().mGUIDtoFilename[as.soundGUID];
+						}
+						else
+						{
+							audioFilename = audioGUID_string;
+						}
+						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
 						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
 						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
 						BoolInputHeader(mRegistry, "Is 3D", "##is3D", as.is3D);
