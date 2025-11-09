@@ -14,7 +14,7 @@ namespace SliceEngine
 		bool operator()(const Handle<SliceEngineTypes::Prefab>& lhs,
 			const Handle<SliceEngineTypes::Prefab>& rhs) const
 		{
-			return lhs.getGUID() < rhs.getGUID();
+			return lhs.getGUID().GetGUID() < rhs.getGUID().GetGUID();
 		}
 	};
 
