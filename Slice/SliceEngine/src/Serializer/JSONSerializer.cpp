@@ -336,6 +336,27 @@ namespace SliceEngine
 				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
 			}
 
+			// Remapping Entity IDs after all GOs have been deserialized
+			//auto& registry = Core::GetInstance()->GetRegistry();
+			//auto& factory = Core::GetInstance()->mFactory;
+			auto entityView = registry.view<Bone>();
+			for (auto entity : entityView)
+			{
+				/*if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}*/
+
+				auto& boneComponent = registry.get<Bone>(entity);
+
+				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+			}
+
+			for (auto entity : entityView)
+			{
+				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+			}
+
 			return (Entity)rootEntity->second;
 		}
 #pragma endregion
