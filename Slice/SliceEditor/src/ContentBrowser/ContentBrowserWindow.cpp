@@ -275,6 +275,40 @@ namespace SliceEditor
 						{
 							mManager.openRenameFile = true;
 						}
+
+						if (ImGui::MenuItem("Re-compile File"))
+						{
+							DroppedFile file;
+
+							file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+							file.filePath = entry.path;
+							switch (file.assetType)
+							{
+							case AssetType::Texture:
+								file.metaData = std::make_unique<TextureData>();
+								break;
+							case AssetType::Model:
+								file.metaData = std::make_unique<ModelData>();
+								break;
+							case AssetType::Audio:
+								file.metaData = std::make_unique<AudioData>();
+								break;
+							case AssetType::Scene:
+								file.metaData = std::make_unique<SceneData>();
+								break;
+							case AssetType::Shader:
+								file.metaData = std::make_unique<ShaderData>();
+								break;
+							case AssetType::Prefab:
+								file.metaData = std::make_unique<PrefabData>();
+								break;
+							}
+							//Default Init the MetaData base class
+							file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+							mManager.mPendingDrops.push(std::move(file));
+						}
+
 						if (ImGui::MenuItem("Delete File"))
 						{
 							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
