@@ -16,7 +16,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            StartCoroutine(SpawnLoop());
+            StartCoroutine(SpawnLoop());            
         }
 
         private IEnumerator SpawnLoop()
@@ -27,13 +27,15 @@ namespace SliceEngine
                 yield return new WaitForSeconds(spawnTime);
 
                 spawning = true;
-                Console.WriteLine("Starting spawn wave...");
-
+                Console.WriteLine("Starting spawn wave...");                
                 // Spawn N enemies with interval
                 for (int i = 0; i < spawnCount; i++)
                 {
                     CreateGameObject(enemyPrefab);
                     yield return new WaitForSeconds(spawnInterval);
+
+                    //Doing this will stop the coroutine after the first spawn
+                    //GetComponent<SliceBehaviour>().activeSelf = false;
                 }
 
                 spawning = false;

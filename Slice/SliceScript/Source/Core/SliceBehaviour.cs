@@ -9,8 +9,8 @@ namespace SliceEngine
 {
     public class SliceBehaviour : Component
     {
-      //  public uint mID;
-        //public Transform transform;
+        // public uint mID;
+        // public Transform transform;
 
         protected SliceBehaviour()
         {
