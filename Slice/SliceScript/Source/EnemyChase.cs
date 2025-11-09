@@ -37,9 +37,10 @@ namespace SliceEngine
 
         }
 
-        public override void OnCollisionEnter(GameObject other)
+        public override void OnCollideEnter(uint other)
         {
-            SliceLog.Log("Colliding with " + other.mID);
+            SliceLog.Log("OADMOSMODASM");
+            gameObject.Destroy();
         }
 
     }

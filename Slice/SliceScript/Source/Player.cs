@@ -90,5 +90,11 @@ namespace SliceEngine
                 animator.SetBool("Attack", true);
             }
         }
+
+        public override void OnCollideEnter(uint other)
+        {
+           // SliceLog.Log("OADMOSMODASM");
+           // gameObject.Destroy();
+        }
     }
 }

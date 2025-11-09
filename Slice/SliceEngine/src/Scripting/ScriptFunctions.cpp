@@ -278,6 +278,11 @@ namespace SliceEngine
 			return 0;
 		}
 	}
+
+	static void Destroy(unsigned int entity)
+	{
+		FactoryInstance.Destroy((Entity)entity);
+	}
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -384,6 +389,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
+		ADD_INTERNAL_CALL(Destroy);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

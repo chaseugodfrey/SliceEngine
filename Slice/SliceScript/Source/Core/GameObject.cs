@@ -58,5 +58,10 @@ namespace SliceEngine
 
             return new GameObject(entityID);
         }
+
+        public void Destroy()
+        {
+            FunctionCalls.Destroy(mID);
+        }
     }
 }

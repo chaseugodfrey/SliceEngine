@@ -733,6 +733,8 @@ namespace SliceEngine
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
+            
+            std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
             scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
 		}
     }
