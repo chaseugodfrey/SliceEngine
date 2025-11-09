@@ -51,7 +51,7 @@ namespace SliceEngine
         {"System.String", ScriptFieldType::String},
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
-        {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.GameObject", ScriptFieldType::GameObject},
         {"SliceEngine.Audio", ScriptFieldType::Audio},
         {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
@@ -76,35 +76,6 @@ namespace SliceEngine
     {
         // CleanUp();
     }
-
-    //void ScriptSystem::EntityDestroyed(Entity id)
-    //{
-    //    // If an entity is destroyed, remove it from mEntityInstances
-    //    // can also take this part to call ondestroy if we do that
-    //    // mEntityInstances is usually cleared at the end of playing
-    //    // but if entity is destroyed in run time then we have to clear it from the map
-    //    for (auto& it : mEntityInstances)
-    //    {
-    //        if (it.first == id)
-    //        {
-    //            // can call ondestroy here maybe if we do that
-    //            //CM_CORE_INFO("Destroying entity {}", id);
-    //            mono_gchandle_free(it.second->mHandle);
-    //            // erase it from the map
-    //            mEntityInstances.erase(it.first);
-    //            break;
-    //        }
-    //    }
-
-    //    for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
-    //    {
-    //        if (*it == id)
-    //        {
-    //            entityAdded.erase(it);
-    //            break;
-    //        }
-    //    }
-    //}
 
     void ScriptSystem::Init()
     {
@@ -493,32 +464,43 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
-	/*	auto& scriptComponent = mRegistry->get<Script>(entity);
+		auto& scriptComponent = mRegistry->get<Script>(entity);
 
         auto& scriptRef = mEntityInstances[entity];
         const auto& fields = scriptRef->GetScriptClass()->mFields;
         for (const auto& it : fields)
         {
-            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+           /* if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
             {
                 if (it.second.mType == ScriptFieldType::String)
                 {
-                    std::string str = std::get<std::string>(scriptComponent.scriptableFieldMap[it.first]);
+                    std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
                     scriptRef->SetFieldValue<std::string>(it.second.mName, str);
                 }
                 else
                 {
                     scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
                 }
-            }
+            }*/
 
-        }*/
+        }
 
     }
 
     void ScriptSystem::UpdateScriptComponent(Entity entity)
     {
+        Script& scriptComponent = mRegistry->get<Script>(entity);
 
+        // if it has script instances attached to this entity
+        if (mEntityInstances.count(entity) > 0)
+        {
+            auto& scriptRef = mEntityInstances[entity];
+            const auto& fields = scriptRef->GetScriptClass()->mFields;
+            for (const auto& it : fields)
+            {
+                
+            }
+        }
     }
 
     void ScriptSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
