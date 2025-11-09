@@ -776,6 +776,11 @@ namespace SliceEditor
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpState.transitions.push_back(tmpTran);
 
+			tmpTran.targetState = "Run";
+			tmpTran.parameterName = "Run";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
 			to_json(metaJson["stateMap"]["Attack"], tmpState);
 			tmpState.transitions.clear();
 
