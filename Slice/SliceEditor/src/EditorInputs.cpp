@@ -9,6 +9,12 @@ namespace SliceEditor
 			return;
 
 		auto& io = ImGui::GetIO();
+		//Normal Inputs
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+		{
+			EventManager::GetInstance()->Publish<DeleteSelectedEntities>();
+		}
+
 
 		// ctrl inputs
 

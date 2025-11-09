@@ -26,19 +26,25 @@ namespace SliceEngine
             Vector3 right = Vector3.Cross(up, direction).Normalize();
 
             // Forwards
+            // Forwards
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
                 t.Position += direction * moveSpeed * dt;
+
                 // animator.ChangeAnim(21);
                 animator.SetBool("Run", true);
+                animator.SetBool("Idle", false);
+                animator.SetBool("Attack", false);
             }
 
             // Left
             if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
             {
                 t.Position -= right * moveSpeed * dt;
-                animator.SetBool("Run", true);
                 //  animator.ChangeAnim(21);
+                animator.SetBool("Run", true);
+                animator.SetBool("Idle", false);
+                animator.SetBool("Attack", false);
             }
 
             // Backward
@@ -47,6 +53,8 @@ namespace SliceEngine
                 t.Position -= direction * moveSpeed * dt;
                 //    animator.ChangeAnim(21);
                 animator.SetBool("Run", true);
+                animator.SetBool("Idle", false);
+                animator.SetBool("Attack", false);
             }
 
             // Right
@@ -55,23 +63,30 @@ namespace SliceEngine
                 t.Position += right * moveSpeed * dt;
                 //   animator.ChangeAnim(21);
                 animator.SetBool("Run", true);
+                animator.SetBool("Attack", false);
+                animator.SetBool("Idle", false);
             }
 
             if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
             {
                 //  animator.ChangeAnim(13);
                 animator.SetBool("Idle", true);
+                animator.SetBool("Attack", false);
+                animator.SetBool("Run", false);
             }
 
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
                 t.Position += new Vector3(0, 1, 0) * moveSpeed * dt;
-
             }
 
+
+            // Scale Down
             if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
             {
+                animator.SetBool("Idle", false);
+                animator.SetBool("Run", false);
                 animator.SetBool("Attack", true);
             }
         }

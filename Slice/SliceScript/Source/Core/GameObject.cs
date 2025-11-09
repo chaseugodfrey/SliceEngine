@@ -53,6 +53,9 @@ namespace SliceEngine
         {
             uint entityID = FunctionCalls.Entity_FindEntityWithName(name);
 
+            if (entityID == 0)
+                return null;
+
             return new GameObject(entityID);
         }
     }
