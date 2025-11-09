@@ -772,7 +772,7 @@ namespace IMGUIZMO_NAMESPACE
       {
          if (mIDStack.empty())
          {
-            mIDStack.push_back(-1);
+            mIDStack.push_back(static_cast<ImGuiID>(-1) );
          }
          return mIDStack.back();
       }
@@ -2556,7 +2556,7 @@ namespace IMGUIZMO_NAMESPACE
    {
       if (gContext.mIDStack.empty())
       {
-         gContext.mIDStack.push_back(-1);
+         gContext.mIDStack.push_back(static_cast<ImGuiID>(-1) );
       }
       gContext.mIDStack.back() = id;
    }

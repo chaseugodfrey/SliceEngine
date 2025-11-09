@@ -30,7 +30,7 @@ namespace SliceEditor
 
 	void PreferenceWindow::SetThemeColor(ImVec4 col)
 	{
-		ImGuiStyle& style = ImGui::GetStyle();
+		//ImGuiStyle& style = ImGui::GetStyle();
 
 		//style.Colors[ImGuiCol_Header] = col;
 		//style.Colors[ImGuiCol_Tab] = col;
