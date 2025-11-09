@@ -165,7 +165,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath)
+	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -271,6 +271,13 @@ namespace SliceEditor
 			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
 			mFilenameToGUID[filePath.filename().stem().string()] = metaData->guid;
+
+			if (AddToRM)
+			{
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				resourceMgr->RegisterResourceAsset(metaPath.string());
+			}
+
 			return metaData->resourcePath;
 		}
 		return "";
@@ -898,7 +905,8 @@ namespace SliceEditor
 			return;
 		}
 
-		CreateDescriptorFile(addEvent.filePath);
+		
+		CreateDescriptorFile(addEvent.filePath, true);
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 
 		AssetFileChangedEvent processEvent = { true };
