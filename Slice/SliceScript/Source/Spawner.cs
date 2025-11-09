@@ -16,7 +16,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            CoroutineManager.StartCoroutine(SpawnLoop());
+            StartCoroutine(SpawnLoop());
         }
 
         private IEnumerator SpawnLoop()

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -67,6 +68,17 @@ namespace SliceEngine
             GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
 
             return entity;
+        }
+
+        public void StartCoroutine(IEnumerator routine)
+        {
+            if (routine != null)
+                CoroutineManager.StartCoroutine(routine, this);
+        }
+
+        public void StopAllCoroutines()
+        {
+            CoroutineManager.StopAllCoroutines(this);
         }
     }
 }
