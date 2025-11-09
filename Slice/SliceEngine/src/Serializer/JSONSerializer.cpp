@@ -339,22 +339,25 @@ namespace SliceEngine
 			// Remapping Entity IDs after all GOs have been deserialized
 			//auto& registry = Core::GetInstance()->GetRegistry();
 			//auto& factory = Core::GetInstance()->mFactory;
-			auto entityView = registry.view<Bone>();
-			for (auto entity : entityView)
+			if(rootGO.HasComponent<Bone>())
 			{
-				/*if (!registry.any_of<Bone>(entity))
+				auto entityView = registry.view<Bone>();
+				for (auto entity : entityView)
 				{
-					continue;
-				}*/
+					/*if (!registry.any_of<Bone>(entity))
+					{
+						continue;
+					}*/
 
-				auto& boneComponent = registry.get<Bone>(entity);
+					auto& boneComponent = registry.get<Bone>(entity);
 
-				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
-			}
+					boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+				}
 
-			for (auto entity : entityView)
-			{
-				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+				for (auto entity : entityView)
+				{
+					Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+				}
 			}
 
 			return (Entity)rootEntity->second;
