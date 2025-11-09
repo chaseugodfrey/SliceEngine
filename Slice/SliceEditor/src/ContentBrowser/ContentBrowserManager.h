@@ -28,9 +28,30 @@ namespace SliceEditor
 {
 	struct DirectoryNode;
 	class Registry;
+	using Texture = SliceEngine::SliceEngineTypes::Texture;
 
 	class ContentBrowserManager : public IBaseManager, public ICreateWindow
 	{
+		// hard coded for now
+		const std::vector<std::string> iconNames = 
+		{
+			"",
+			"FolderIcon",
+			"",
+			"",
+			"",
+			"AudioIcon",
+			"SceneIcon",
+			"ShaderIcon",
+			"MaterialIcon",
+			"PrefabIcon",
+			"AnimationIcon",
+			"AnimatorIcon",
+			"FontIcon",
+			"TxtIcon"
+		};
+
+		std::unordered_map<int, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture>> defaultIconMap;
 
 		void BuildTree();
 
@@ -38,7 +59,6 @@ namespace SliceEditor
 
 		void CreateDirectoryNode(DirectoryNode& node);
 
-	
 	public:
 
 		ContentBrowserManager(Registry& reg) : IBaseManager(reg), selectedFolder(nullptr) {};
@@ -57,6 +77,10 @@ namespace SliceEditor
 
 		void Init() override;
 		void Update() override;
+
+		void LoadDefaultIcons();
+
+		std::optional<SliceEngine::Handle<Texture>> GetDefaultIconHandle(SelectionType);
 
 		void RebuildDirectory(DirectoryNode& node);
 

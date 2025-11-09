@@ -2,7 +2,7 @@
  file:        AssetManager.cpp
 
  author:	  Gideon Nicholas Francis
- co-author:   Nic Lai
+ co-author:   Nic Lai, Lee Yong Yee
 
  email:       g.francis@digipen.edu
 
@@ -900,6 +900,12 @@ namespace SliceEditor
 			}
 		}
 
+		if (addEvent.filePath.extension() == ".temp")
+		{
+			return;
+		}
+
+		
 		CreateDescriptorFile(addEvent.filePath, true);
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 
@@ -920,6 +926,11 @@ namespace SliceEditor
 		{
 			try
 			{
+				
+				std::filesystem::path metaFilePath = path.value();
+
+				metaFilePath.replace_extension(".meta");
+
 				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
 				resourceMgr->ReleaseResource(fileGUID);
@@ -928,6 +939,10 @@ namespace SliceEditor
 
 				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
 				//resourceMgr->mGUIDToResource.erase()
+
+
+				std::filesystem::remove(metaFilePath);
+				std::filesystem::remove(path.value());
 
 				AssetFileChangedEvent processEvent = { true };
 				EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
@@ -1145,7 +1160,20 @@ namespace SliceEditor
 						inFile >> metaJson;
 						inFile.close();
 
-						std::filesystem::path newAssetPath = events.at(3).filePath;
+						std::filesystem::path newAssetPath = "";
+						std::string oldPath = metaJson["assetPath"].get<std::string>();
+
+						for (auto it : events)
+						{
+							if (it.changeType == filewatch::Event::added)
+							{
+								newAssetPath = it.filePath;
+								break;
+								
+							}
+						}
+
+						//std::filesystem::path newAssetPath = events.at(3).filePath;
 						metaJson["assetPath"] = newAssetPath.string();
 
 

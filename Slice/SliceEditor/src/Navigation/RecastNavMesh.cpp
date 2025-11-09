@@ -1,3 +1,16 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        RecastNavMesh.cpp
+
+ author:	  Crystal Koh Qiao Wei
+
+ email:       k.crystalqiaowei@digipen.edu
+
+ brief:		  Responsible for initialising and updating the RecastNavMesh
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "RecastNavMesh.h"
 #include <cstring>
