@@ -15,8 +15,6 @@ layout (binding = 0) uniform sampler2D 	uTex;
 uniform float uRoughness;
 uniform float uMetallic;
 
-// if doing instance rendering, save bindings 12~15 // could lower to 13~15
-
 void main(void){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
