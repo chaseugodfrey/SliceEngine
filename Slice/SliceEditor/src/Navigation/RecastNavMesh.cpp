@@ -239,7 +239,7 @@ namespace SliceEditor
 			glVertexArrayVertexBuffer(dNavMesh[1].vao, 0, dNavMesh[1].vbo, 0, sizeof(float) * 3);
 			glVertexArrayAttribBinding(dNavMesh[1].vao, 0, 0);
 
-			dNavMesh[1].drawCnt = verticesBoundaries.size() / 3;
+			dNavMesh[1].drawCnt = static_cast<uint32_t>(verticesBoundaries.size() / 3);
 		}
 	}
 
