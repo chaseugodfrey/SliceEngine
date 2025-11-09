@@ -107,17 +107,17 @@ namespace SliceEngine
 				bone_map[bone.name].idx = i;
 			}
 		}
-		void Bone::unpack_data(char const* const buffer, uint64_t& offset) {
+		void Bone::unpack_data(char const* const buffer, uint64_t& offSet) {
 			uint32_t dest{};
 			//name
-			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			memcpy(&dest, buffer + offSet, i_size); offSet += i_size;
 			name.resize(dest);
-			memcpy(name.data(), buffer + offset, dest); offset += dest;
+			memcpy(name.data(), buffer + offSet, dest); offSet += dest;
 			//parent index
-			memcpy(&parentIndex, buffer + offset, i_size); offset += i_size;
+			memcpy(&parentIndex, buffer + offSet, i_size); offSet += i_size;
 			//offset, neutral
-			memcpy(&this->offset, buffer + offset, sizeof(glm::mat4)); offset += sizeof(glm::mat4);
-			memcpy(&this->neutral, buffer + offset, sizeof(glm::mat4)); offset += sizeof(glm::mat4);
+			memcpy(&this->offset, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
+			memcpy(&this->neutral, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
 		}
 
 
