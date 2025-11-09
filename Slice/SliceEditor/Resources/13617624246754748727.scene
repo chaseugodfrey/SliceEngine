@@ -1,5 +1,78 @@
 [
     {
+        "Obstacle6": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "isTrigger": false,
+                "layer": "1",
+                "offSet": ""
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4412061832024819835"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::RigidBody": {
+                "CollisionDetection": "",
+                "angularDamping": 0.05000000074505806,
+                "friction": 0.5,
+                "gravityFactor": 1.0,
+                "isKinematic": false,
+                "linearDamping": 0.05000000074505806,
+                "mass": 1.0,
+                "restituition": 0.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 22,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    21,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Obstacle6",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -10.050999641418457,
+                    1.5789999961853027,
+                    2.1019999980926514
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.7000000476837158,
+                    1.0,
+                    12.5
+                ]
+            }
+        }
+    },
+    {
         "Obstacle5": {
             "struct SliceEngine::Renderer": {
                 "material": {
@@ -13,12 +86,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145757,
+                "entity_id": 21,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194322,
-                    4294967295
+                    20,
+                    22
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -32,9 +105,9 @@
                     0.0
                 ],
                 "position": [
-                    11.304981231689453,
-                    3.2206225395202637,
-                    11.615342140197754
+                    -9.135456085205078,
+                    6.199999809265137,
+                    -12.400309562683105
                 ],
                 "rotation": [
                     1.0,
@@ -44,14 +117,14 @@
                 ],
                 "scale": [
                     1.0,
-                    5.900000095367432,
+                    11.699999809265137,
                     1.0
                 ]
             }
         }
     },
     {
-        "Obstacle4": {
+        "Obstcale4": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -64,16 +137,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194322,
+                "entity_id": 20,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194323,
-                    3145757
+                    19,
+                    21
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Obstacle4",
+                "mName": "Obstcale4",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -83,9 +156,9 @@
                     0.0
                 ],
                 "position": [
-                    -0.5861419439315796,
-                    1.5,
-                    -4.61863374710083
+                    -0.30000001192092896,
+                    1.899999976158142,
+                    -7.193613052368164
                 ],
                 "rotation": [
                     1.0,
@@ -94,9 +167,9 @@
                     0.0
                 ],
                 "scale": [
-                    9.300000190734863,
-                    1.7999999523162842,
-                    6.0
+                    9.0,
+                    2.0,
+                    4.699999809265137
                 ]
             }
         }
@@ -115,12 +188,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194323,
+                "entity_id": 19,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194324,
-                    4194322
+                    1048584,
+                    20
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -134,9 +207,9 @@
                     0.0
                 ],
                 "position": [
-                    11.733426094055176,
-                    1.0861709117889404,
-                    -11.648348808288574
+                    10.204803466796875,
+                    1.2999999523162842,
+                    -11.26928997039795
                 ],
                 "rotation": [
                     1.0,
@@ -145,15 +218,15 @@
                     0.0
                 ],
                 "scale": [
-                    7.0,
+                    3.700000047683716,
                     1.0,
-                    5.099999904632568
+                    5.599999904632568
                 ]
             }
         }
     },
     {
-        "Obstacle2": {
+        "Obstacle1": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -166,16 +239,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194324,
+                "entity_id": 18,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291473,
-                    4194323
+                    1048583,
+                    1048584
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Obstacle2",
+                "mName": "Obstacle1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -185,9 +258,9 @@
                     0.0
                 ],
                 "position": [
-                    -0.2762068510055542,
-                    2.980736017227173,
-                    13.413718223571777
+                    -0.6579999923706055,
+                    1.7999999523162842,
+                    13.207391738891602
                 ],
                 "rotation": [
                     1.0,
@@ -196,15 +269,15 @@
                     0.0
                 ],
                 "scale": [
-                    -6.099999904632568,
-                    3.799999952316284,
-                    2.5
+                    7.699999809265137,
+                    3.700000047683716,
+                    3.5
                 ]
             }
         }
     },
     {
-        "Waypoint10": {
+        "Waypoint4": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -217,16 +290,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242901,
+                "entity_id": 17,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291458,
-                    6291473
+                    16,
+                    1048578
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint10",
+                "mName": "Waypoint4",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -236,9 +309,9 @@
                     0.0
                 ],
                 "position": [
-                    -6.936600208282471,
-                    1.250072717666626,
-                    6.518290042877197
+                    10.440908432006836,
+                    0.8355576395988464,
+                    7.710011005401611
                 ],
                 "rotation": [
                     1.0,
@@ -255,7 +328,7 @@
         }
     },
     {
-        "Waypoint9": {
+        "Waypoint3": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -268,16 +341,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291458,
+                "entity_id": 16,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291459,
-                    5242901
+                    15,
+                    17
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint9",
+                "mName": "Waypoint3",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -287,9 +360,9 @@
                     0.0
                 ],
                 "position": [
-                    -6.738973617553711,
-                    1.239730954170227,
-                    0.7667989730834961
+                    7.248874187469482,
+                    0.9286327958106995,
+                    12.901495933532715
                 ],
                 "rotation": [
                     1.0,
@@ -306,7 +379,7 @@
         }
     },
     {
-        "Waypoint8": {
+        "Waypoint2": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -319,16 +392,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291459,
+                "entity_id": 15,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291460,
-                    6291458
+                    14,
+                    16
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint8",
+                "mName": "Waypoint2",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -338,9 +411,9 @@
                     0.0
                 ],
                 "position": [
-                    -9.26223087310791,
-                    1.3904576301574707,
-                    -7.347651481628418
+                    0.1417844295501709,
+                    1.0011451244354248,
+                    9.054095268249512
                 ],
                 "rotation": [
                     1.0,
@@ -350,14 +423,14 @@
                 ],
                 "scale": [
                     1.0,
-                    1.0,
+                    0.9999999403953552,
                     1.0
                 ]
             }
         }
     },
     {
-        "Waypoint7": {
+        "Waypoint1": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -370,16 +443,16 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291460,
+                "entity_id": 14,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291461,
-                    6291459
+                    13,
+                    15
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint7",
+                "mName": "Waypoint1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -389,9 +462,9 @@
                     0.0
                 ],
                 "position": [
-                    -2.5268173217773438,
-                    1.2551655769348145,
-                    -11.84518814086914
+                    -9.27703857421875,
+                    0.8840956091880798,
+                    11.67962646484375
                 ],
                 "rotation": [
                     1.0,
@@ -402,316 +475,6 @@
                 "scale": [
                     1.0,
                     1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint6": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291461,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291462,
-                    6291460
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint6",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    5.421943187713623,
-                    1.3892271518707275,
-                    -10.614876747131348
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint5": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291462,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291472,
-                    6291461
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint5",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    9.395049095153809,
-                    1.0007997751235962,
-                    -4.716753959655762
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject_2": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4412061832024819835"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291463,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291466,
-                    6291468
-                ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Spawner"
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_2",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    3.3096959590911865,
-                    0.817346453666687,
-                    1.2069244384765625
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject": {
-            "struct SliceEngine::Light": {
-                "color": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "intensity": 0.5,
-                "type": "Directional"
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291464,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    4294967295,
-                    6291465
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.9396434426307678,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject_1": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4412061832024819835"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291465,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291464,
-                    6291466
-                ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.TestEntity"
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "GameObject_1",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    1.5,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "FloorQuad": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4651861510357422797"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291466,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291465,
-                    6291463
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "FloorQuad",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    -0.7071067690849304,
-                    0.7071067690849304,
-                    -0.0,
-                    0.0
-                ],
-                "scale": [
-                    24.7723388671875,
-                    31.97980499267578,
                     1.0
                 ]
             }
@@ -731,12 +494,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291468,
+                "entity_id": 13,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291463,
-                    6291469
+                    1048577,
+                    14
                 ]
             },
             "struct SliceEngine::Script": {
@@ -772,29 +535,29 @@
         }
     },
     {
-        "Waypoint1": {
+        "FloorQuad": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
                 },
                 "meshOffset": "0",
                 "model": {
-                    "GUID": "18229435044585338891"
+                    "GUID": "4651861510357422797"
                 },
                 "renderTag": "0",
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291469,
+                "entity_id": 12,
                 "neighbours": [
                     0,
                     4294967295,
-                    6291468,
-                    6291470
+                    11,
+                    1048577
                 ]
             },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint1",
+                "mName": "FloorQuad",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -804,179 +567,26 @@
                     0.0
                 ],
                 "position": [
-                    -9.27703857421875,
-                    0.8840956091880798,
-                    11.67962646484375
-                ],
-                "rotation": [
-                    1.0,
                     0.0,
                     0.0,
                     0.0
                 ],
+                "rotation": [
+                    -0.7071067690849304,
+                    0.7071067690849304,
+                    -0.0,
+                    0.0
+                ],
                 "scale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    24.7723388671875,
+                    31.97980499267578,
+                    9.999996185302734
                 ]
             }
         }
     },
     {
-        "Waypoint2": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291470,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291469,
-                    6291471
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint2",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.1417844295501709,
-                    1.0011451244354248,
-                    9.054095268249512
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    0.9999999403953552,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint3": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291471,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291470,
-                    6291472
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint3",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    7.248874187469482,
-                    0.9286327958106995,
-                    12.901495933532715
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint4": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291472,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6291471,
-                    6291462
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mName": "Waypoint4",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    10.440908432006836,
-                    0.8355576395988464,
-                    7.710011005401611
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Obstacle1": {
+        "GameObject_1": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -989,16 +599,19 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291473,
+                "entity_id": 11,
                 "neighbours": [
                     0,
                     4294967295,
-                    5242901,
-                    4194324
+                    10,
+                    12
                 ]
             },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.TestEntity"
+            },
             "struct SliceEngine::SliceEntity": {
-                "mName": "Obstacle1",
+                "mName": "GameObject_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1008,9 +621,9 @@
                     0.0
                 ],
                 "position": [
-                    -9.40780258178711,
                     0.0,
-                    3.398364543914795
+                    1.5,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -1020,8 +633,468 @@
                 ],
                 "scale": [
                     1.0,
-                    4.900000095367432,
-                    9.300000190734863
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "intensity": 0.5,
+                "type": "Directional"
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 10,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    4294967295,
+                    11
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.9396434426307678,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_2": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4412061832024819835"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048577,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    12,
+                    13
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Spawner"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "GameObject_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    3.3096959590911865,
+                    0.817346453666687,
+                    1.2069244384765625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint5": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048578,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    17,
+                    1048579
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint5",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    9.395049095153809,
+                    1.0007997751235962,
+                    -4.716753959655762
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint6": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048579,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048578,
+                    1048580
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint6",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    5.421943187713623,
+                    1.3892271518707275,
+                    -10.614876747131348
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint7": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048580,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048579,
+                    1048581
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint7",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -2.5268173217773438,
+                    1.2551655769348145,
+                    -11.84518814086914
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint8": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048581,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048580,
+                    1048582
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint8",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -9.26223087310791,
+                    1.3904576301574707,
+                    -7.347651481628418
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint9": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048582,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048581,
+                    1048583
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint9",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -6.738973617553711,
+                    1.239730954170227,
+                    0.7667989730834961
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint10": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048583,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    1048582,
+                    18
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Waypoint10",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -6.936600208282471,
+                    1.250072717666626,
+                    6.518290042877197
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Obstacle2": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4412061832024819835"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048584,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    18,
+                    19
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mName": "Obstacle2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    10.20966911315918,
+                    3.947999954223633,
+                    12.149064064025879
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    6.800000190734863,
+                    1.0
                 ]
             }
         }
