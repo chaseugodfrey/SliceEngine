@@ -15,16 +15,10 @@ namespace SliceEngine
         public static event Action<Scene> SceneUnloaded;
         public static event Action<Scene> ActiveSceneChanged;
 
-        // -------------------------------------------------------------------
-        // Scene Loading
-        // -------------------------------------------------------------------
-
         public static void LoadScene(string name)
         {
-            // Hook into engine backend call if you have one:
             // FunctionCalls.Scene_Load(name);
 
-            // Simulate finding scene index (in real use, lookup from registry)
             int index = _loadedScenes.Count;
             var scene = new Scene(name, index);
 
@@ -49,9 +43,6 @@ namespace SliceEngine
             Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
         }
 
-        // -------------------------------------------------------------------
-        // Scene Unloading
-        // -------------------------------------------------------------------
 
         public static void UnloadScene(Scene scene)
         {
@@ -61,10 +52,6 @@ namespace SliceEngine
                 Console.WriteLine($"[SceneManager] Unloaded scene: {scene.name}");
             }
         }
-
-        // -------------------------------------------------------------------
-        // Active Scene
-        // -------------------------------------------------------------------
 
         public static Scene GetActiveScene()
         {
@@ -82,10 +69,6 @@ namespace SliceEngine
             Console.WriteLine($"[SceneManager] Active scene set to: {scene.name}");
         }
 
-        // -------------------------------------------------------------------
-        // Restart / Reload
-        // -------------------------------------------------------------------
-
         public static void RestartScene()
         {
             if (_activeScene == null)
@@ -98,10 +81,6 @@ namespace SliceEngine
             SceneUnloaded?.Invoke(_activeScene);
             SceneLoaded?.Invoke(_activeScene);
         }
-
-        // -------------------------------------------------------------------
-        // Utilities
-        // -------------------------------------------------------------------
 
         public static IEnumerable<Scene> GetLoadedScenes()
         {
