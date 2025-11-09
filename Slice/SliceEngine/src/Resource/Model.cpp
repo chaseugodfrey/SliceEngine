@@ -575,7 +575,7 @@ namespace SliceEngine
 			glVertexArrayElementBuffer(mesh.vao, mesh.ebo);
 
 			glBindVertexArray(0);
-			mesh.drawCnt = idx.size();
+			mesh.drawCnt = static_cast<GLuint>(idx.size());
 			mesh.drawMode = GL_LINES;
 
 			//rootNode.local_transform = glm::identity<glm::mat4>();
