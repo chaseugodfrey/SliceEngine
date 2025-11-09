@@ -74,8 +74,11 @@ namespace SliceEngine
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
 		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
-		
+
+
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
+
+		
 	}
 
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)

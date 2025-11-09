@@ -942,7 +942,7 @@ namespace SliceEditor
 
 				std::filesystem::path mCurrentPath = sScene->GetCurrentScenePath();
 
-				if (oldFilePath.stem() == mCurrentPath.stem())
+				if (oldFilePath.stem() == mCurrentPath.stem() && oldFilePath.extension() == mCurrentPath.extension())
 				{
 					sScene->SetCurrentScenePath(newFilePath.string());
 				}

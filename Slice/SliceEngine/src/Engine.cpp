@@ -251,7 +251,13 @@ namespace SliceEngine
 					isPlaying = true;
 
 				}
-				sScene->WriteTempFile();
+
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
