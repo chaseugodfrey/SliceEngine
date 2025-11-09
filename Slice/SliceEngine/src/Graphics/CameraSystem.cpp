@@ -47,6 +47,9 @@ namespace SliceEngine
 	{
 		auto& cam = reg.get<Camera>(entity);
 
+		if (auto temp = reg.try_get<EngineEntity>(entity))
+			return;
+
 		glDeleteTextures(1, &cam.textureID);
 		//glDeleteTextures(1, &mScene.picker_id);
 		glDeleteTextures(1, &cam.depthTex);

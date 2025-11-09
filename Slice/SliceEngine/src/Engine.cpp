@@ -161,7 +161,7 @@ namespace SliceEngine
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
-		mRender->CreateCamera();
+		//mRender->CreateCamera();
 		
 
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
