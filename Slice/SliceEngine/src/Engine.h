@@ -48,6 +48,7 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
+		void SceneInit();
 
 		void Update();
 		void EndFrame();

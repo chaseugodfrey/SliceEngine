@@ -436,11 +436,11 @@ namespace SliceEngine
                     //    mEntityInstances[*entity]->InvokeOnCreate();
                     //}
 
-                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
-                    {
-                        mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
-                        mEntityInstances[*entity]->InvokeOnCreate();
-                    }
+                    //if (scene->mCurrentState == SceneState::PLAY_SCENE)
+                    //{
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
 
                     UpdateScriptComponent(*entity);
                     entityAdded.erase(entity);
@@ -470,7 +470,7 @@ namespace SliceEngine
         const auto& fields = scriptRef->GetScriptClass()->mFields;
         for (const auto& it : fields)
         {
-           /* if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
             {
                 if (it.second.mType == ScriptFieldType::String)
                 {
@@ -481,7 +481,7 @@ namespace SliceEngine
                 {
                     scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
                 }
-            }*/
+            }
 
         }
 
@@ -496,9 +496,30 @@ namespace SliceEngine
         {
             auto& scriptRef = mEntityInstances[entity];
             const auto& fields = scriptRef->GetScriptClass()->mFields;
+            scriptComponent.scriptableFieldMap.clear();
+
             for (const auto& it : fields)
             {
-                
+                if (it.second.mType == ScriptFieldType::Float)
+                {
+                    float var = scriptRef->GetFieldValue<float>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Bool)
+                {
+                    bool var = scriptRef->GetFieldValue<bool>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::String)
+                {
+                    std::string var = scriptRef->GetFieldValue<std::string>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Int)
+                {
+                    int var = scriptRef->GetFieldValue<int>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
             }
         }
     }
@@ -517,11 +538,12 @@ namespace SliceEngine
 
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
-
-			// Update the script variables from the script component to the script instance
-            // useful for seeing variables in the inspector
-            // but after M1 or after tuesday
-
+            
+            // Update the variables in script instance with variables 
+            // in the script component
+            UpdateScriptVariables(entity);
+            // idk incase it isnt populated the first time
+            UpdateScriptComponent(entity);
             // Check if an entity is created on runtime
 			// if it is then we have to invoke the construct and oncreate
             // but again after M1 
