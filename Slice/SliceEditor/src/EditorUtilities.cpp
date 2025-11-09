@@ -237,6 +237,11 @@ namespace SliceEditor
 
 		void MenuList_CreateGameObjects(HistoryManager* history)
 		{
+			if (ImGui::MenuItem("Empty"))
+			{
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
+			}
+
 			if (ImGui::MenuItem("Camera"))
 			{
 				EditorUtilities::GameObject_CreateCam(entt::null, history);

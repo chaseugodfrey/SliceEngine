@@ -59,7 +59,6 @@ namespace SliceEngine
 			bool hasExitTime{};
 			float exitTime = 0.0f;
 			float entryTime =0.0f;
-			float fullTime;
 
 			bool isLoop {false};
 

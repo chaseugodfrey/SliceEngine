@@ -364,7 +364,7 @@ namespace SliceEngine
             std::filesystem::path pdbPath = assemblyPath;
             pdbPath.replace_extension(".pdb");
 			std::string msg = "Attempting to load pdb: {}" + pdbPath.string();
-            SLICE_LOG_DEBUG("Attempting to load pdb: {}", pdbPath);
+            SLICE_LOG_DEBUG(msg);
 
             if (std::filesystem::exists(pdbPath))
             {
