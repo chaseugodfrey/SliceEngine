@@ -236,7 +236,7 @@ namespace SliceEngine
 			// Use Same FrameBufferSettings & Don't Clear Buffer
 			UpdateCamVP();
 			BindCameraDepth(cam);
-			LoadSettings(GPS_DEFAULT);
+			LoadSettings(GPS_PARTICLES);
 			RenderAfterLighting(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
@@ -279,6 +279,7 @@ namespace SliceEngine
 				auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
 
 				mInstanceVtx[count].mtx = transform.transform *
+					glm::rotate(glm::mat4(1.0f), -PI05F, glm::vec3(0.f, 1.f, 0.f)) *
 					glm::inverse(glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far)) *
 					glm::scale(glm::mat4(1.0f), glm::vec3(2.f));
 				++count;
@@ -525,6 +526,8 @@ namespace SliceEngine
 		GLuint lastTexID{};
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
+			if (ptx.textureID == 0)
+				ptx.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)(DefaultResourceIDs::COLOR_DEADED_DEFAULT))->texture_id;
 			if (ptx.textureID != lastTexID)
 			{
 				if (cnt)
