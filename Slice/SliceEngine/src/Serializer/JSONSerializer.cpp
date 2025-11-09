@@ -221,6 +221,7 @@ namespace SliceEngine
 								float,
 								double,
 								bool,
+								Entity,
 								uint64_t,
 								GUID,
 								Handle<SliceEngineTypes::Model>,
@@ -290,7 +291,13 @@ namespace SliceEngine
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
 			}
 
-			rootGO.SetName(rootGO.GetName());
+			// idk check if the name in goFactory map is correct atm
+			// if its not a valid name then set the name
+			if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
+			{
+				rootGO.SetName(rootGO.GetName());
+			}
+			
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();

@@ -433,6 +433,20 @@ namespace SliceEngine
 		tr.scale = scale;
 	}
 
+	bool GOFactory::CheckValidName(Entity entity)
+	{
+		auto& name = mRegistry.get<SliceEntity>(entity).mName;
+
+		if (mNameToEntity.find(name) != mNameToEntity.end())
+		{
+			if (mNameToEntity[name] == entity)
+			{
+				return true;
+			}
+		}
+		return true;
+	}
+
 	void GOFactory::FactoryShutdown()
 	{
 		mRegistry.clear();
