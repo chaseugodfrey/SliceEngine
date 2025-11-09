@@ -111,7 +111,7 @@ namespace SliceEngine
 			uint32_t vbo;
 			uint32_t drawCnt;
 		};
-		debugMesh debugMesh;
+		debugMesh debugNavMesh[2];
 	private:
 		std::unique_ptr<ResourceManager> mResource;
 		std::unordered_map<std::string, std::unique_ptr<IBaseSystem>> mSystems;

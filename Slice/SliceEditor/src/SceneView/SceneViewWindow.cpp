@@ -161,7 +161,7 @@ namespace SliceEditor
 		float mouse_relative_x = io.MousePos.x - scene_window_pos.x; // Correct, refers to the mouse position (in screen space), starting with (0,0) at the top left of the section you want
 		float mouse_relative_y = io.MousePos.y - scene_window_pos.y;
 
-		float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width; // Converts from idk coordinates, to relative to the whole window (not just scene part) coordinates
+		//float mouse_scaled_x = mouse_relative_x / window_size.x * screen_width; // Converts from idk coordinates, to relative to the whole window (not just scene part) coordinates
 		float mouse_scaled_y = mouse_relative_y / window_size.y * screen_height;
 		mouse_scaled_y = camObj->camera.height - mouse_scaled_y;
 
