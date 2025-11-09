@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,11 @@ namespace SliceEngine
         public Scene(string name)
         {
             this.name = name;
+        }
+        public Scene(string _name, int _index)
+        {
+            name = _name;
+            buildIndex = _index;
         }
 
         public bool isValid()

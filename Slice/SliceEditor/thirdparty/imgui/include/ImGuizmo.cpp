@@ -1908,7 +1908,7 @@ namespace IMGUIZMO_NAMESPACE
 
          if (!io.MouseDown[0]) {
             gContext.mbUsingBounds = false;
-            gContext.mEditingID = -1;
+            gContext.mEditingID = static_cast<ImGuiID>(-1);
          }
          if (gContext.mbUsingBounds)
          {
@@ -2491,7 +2491,7 @@ namespace IMGUIZMO_NAMESPACE
          if (!io.MouseDown[0])
          {
             gContext.mbUsing = false;
-            gContext.mEditingID = -1;
+            gContext.mEditingID = static_cast<ImGuiID>(-1);
          }
          type = gContext.mCurrentOperation;
       }

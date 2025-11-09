@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,34 +44,37 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\Core\Animator.cs" />
-    <Compile Include="Source\Core\Audio.cs" />
-    <Compile Include="Source\Core\AudioComponent.cs" />
-    <Compile Include="Source\Core\Component.cs" />
-    <Compile Include="Source\Core\CoroutineManager.cs" />
-    <Compile Include="Source\Core\ForceMode.cs" />
+    <Compile Include="Source\Core\Components\Animator.cs" />
+    <Compile Include="Source\Core\Components\Audio.cs" />
+    <Compile Include="Source\Core\Components\AudioComponent.cs" />
+    <Compile Include="Source\Core\Components\Component.cs" />
+    <Compile Include="Source\Core\Components\Prefab.cs" />
+    <Compile Include="Source\Core\Components\RigidBody.cs" />
+    <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
-    <Compile Include="Source\Core\Input.cs" />
-    <Compile Include="Source\Core\Keys.cs" />
-    <Compile Include="Source\Core\Prefab.cs" />
-    <Compile Include="Source\Core\Quaternion.cs" />
-    <Compile Include="Source\Core\RigidBody.cs" />
-    <Compile Include="Source\Core\Scene.cs" />
-    <Compile Include="Source\Core\SceneManager.cs" />
+    <Compile Include="Source\Core\Math\Quaternion.cs" />
+    <Compile Include="Source\Core\Math\SliceRandom.cs" />
+    <Compile Include="Source\Core\Math\Vector2.cs" />
+    <Compile Include="Source\Core\Math\Vector3.cs" />
+    <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
+    <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
-    <Compile Include="Source\Core\SliceRandom.cs" />
-    <Compile Include="Source\Core\Transform.cs" />
+    <Compile Include="Source\Core\Systems\CoroutineManager.cs" />
+    <Compile Include="Source\Core\Systems\Input.cs" />
+    <Compile Include="Source\Core\Systems\Keys.cs" />
+    <Compile Include="Source\Core\Systems\Scene.cs" />
+    <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Utilities.cs" />
-    <Compile Include="Source\Core\Vector2.cs" />
-    <Compile Include="Source\Core\Vector3.cs" />
     <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
+    <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

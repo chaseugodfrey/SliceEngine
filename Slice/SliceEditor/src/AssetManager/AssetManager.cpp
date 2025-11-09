@@ -740,20 +740,20 @@ namespace SliceEditor
 			}
 		}
 
-		//std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
-		//mScenesDirectoryFolder /= "Scenes";
+		std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
+		mScenesDirectoryFolder /= "Scenes";
 
-		//// Check if this directory exists before iterating
-		//if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
-		//{
-		//	for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
-		//	{
-		//		if (file.is_regular_file() && file.path().extension() == ".temp")
-		//		{
-		//			std::filesystem::remove(file.path());
-		//		}
-		//	}
-		//}
+		// Check if this directory exists before iterating
+		if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
+		{
+			for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
+			{
+				if (file.is_regular_file() && file.path().extension() == ".temp")
+				{
+					std::filesystem::remove(file.path());
+				}
+			}
+		}
 
 	}
 
@@ -882,9 +882,15 @@ namespace SliceEditor
 
 	void AssetManager::HandleAssetAdded(RawFileEvent& addEvent)
 	{
-		if (addEvent.filePath.extension() == ".mat" || addEvent.filePath.extension() == ".controller")
+		for (auto& [key, value] : mSupportedAssetTypes)
 		{
-			return;
+			if (addEvent.filePath.extension() == key)
+			{
+				if (value.first == AssetType::Texture || value.first == AssetType::Model || value.first == AssetType::Controller || value.first == AssetType::Material)
+				{
+					return;
+				}
+			}
 		}
 
 		CreateDescriptorFile(addEvent.filePath);

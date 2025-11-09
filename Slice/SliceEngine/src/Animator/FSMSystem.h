@@ -24,13 +24,20 @@ namespace SliceEngine
 
 		void InitState(SliceEngineTypes::AnimationPackage);
 		void CheckStates();
-		void UpdateState();
+		void UpdateState(float& CTime);
+		void UpdateCurrentTime(float cTime);
 
 		bool EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare);
 
 		void OnExit();
 
+		void SetBool(const std::string& name, bool value);
+		void SetFloat(const std::string& name, float value);
+		void SetInt(const std::string& name, int value);
+		void SetLoop(bool loop);
+
 		SliceEngineTypes::StateMachine EFSM;
+		float current_time{ 0.0f };
 		//StateMachine EFSM;
 
 		RTTR_ENABLE();

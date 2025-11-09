@@ -65,6 +65,7 @@ namespace SliceEngine
 
 	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
 	{
+		isRunning = false;
 	}
 	Engine::~Engine()
 	{
@@ -181,6 +182,16 @@ namespace SliceEngine
 		//Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
+
+		//GameObject particleSpawner = Core::GetInstance()->mFactory.CreateGO("Spawner");
+		//particleSpawner.AddComponent<ParticleSystem>();
+		//auto& ps = particleSpawner.GetComponent<ParticleSystem>();
+		//ps.duration = 1000.0f;
+		//ps.scale = glm::vec3(0.1f);
+		//ps.velocity = glm::vec3(1.0f, 1.0f, 0.0f);
+		//ps.emissionRate = 5.0f;
+		//ps.lifetime = 2.0f;
+		//ps.destroyOnExpire = true;
 
 		//GameObject Dlight = Core::GetInstance()->mFactory.CreateGO("lightTheSecondPrefabTest");
 		//Dlight.GetComponent<Transform>().position = glm::vec3(0.f, 5.f, 2.f);
