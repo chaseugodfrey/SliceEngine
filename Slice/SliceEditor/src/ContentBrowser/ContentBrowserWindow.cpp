@@ -65,7 +65,7 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
-
+				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
 			}
@@ -151,7 +151,6 @@ namespace SliceEditor
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
-
 			//Section for Folders
 			for (auto& [name, entry] : node.children)
 			{

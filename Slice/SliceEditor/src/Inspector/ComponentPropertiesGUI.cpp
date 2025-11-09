@@ -105,7 +105,7 @@ namespace SliceEditor
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (std::abs(oldVal - val) > FLT_EPSILON)
+			if (oldVal != val)
 			{
 				std::unique_ptr<ValueCommand<int>> command = std::make_unique<ValueCommand<int>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
@@ -117,7 +117,6 @@ namespace SliceEditor
 
 	bool BoolInput(Registry& reg, const char* id, bool& val)
 	{
-
 		bool changed = ImGui::Checkbox(id, &val);
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
