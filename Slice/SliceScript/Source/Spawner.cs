@@ -10,7 +10,9 @@ namespace SliceEngine
         public string enemyPrefab = "GameObject_1";
         public float spawnInterval = 1.0f; // delay between spawns
 
+        #pragma warning disable CS0414
         private bool spawning = false;
+        #pragma warning restore CS0414
 
         public override void OnCreate()
         {
