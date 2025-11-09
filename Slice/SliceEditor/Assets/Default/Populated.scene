@@ -1,18 +1,6 @@
 [
     {
         "Obstacle6": {
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                },
-                "isTrigger": false,
-                "layer": "1",
-                "offSet": ""
-            },
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -23,16 +11,6 @@
                 },
                 "renderTag": "0",
                 "skinned": false
-            },
-            "struct SliceEngine::RigidBody": {
-                "CollisionDetection": "",
-                "angularDamping": 0.05000000074505806,
-                "friction": 0.5,
-                "gravityFactor": 1.0,
-                "isKinematic": false,
-                "linearDamping": 0.05000000074505806,
-                "mass": 1.0,
-                "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
                 "entity_id": 22,
@@ -156,7 +134,7 @@
                     0.0
                 ],
                 "position": [
-                    -0.30000001192092896,
+                    -0.6667695045471191,
                     1.899999976158142,
                     -7.193613052368164
                 ],
@@ -167,7 +145,7 @@
                     0.0
                 ],
                 "scale": [
-                    9.0,
+                    7.300000190734863,
                     2.0,
                     4.699999809265137
                 ]
@@ -258,7 +236,7 @@
                     0.0
                 ],
                 "position": [
-                    -0.6579999923706055,
+                    -0.6147043704986572,
                     1.7999999523162842,
                     13.207391738891602
                 ],
@@ -269,7 +247,7 @@
                     0.0
                 ],
                 "scale": [
-                    7.699999809265137,
+                    6.800000190734863,
                     3.700000047683716,
                     3.5
                 ]
