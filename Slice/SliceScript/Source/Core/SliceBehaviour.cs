@@ -37,13 +37,9 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+        public virtual void OnCollideEnter(uint other) {  }
 
-        public virtual void OnCollisionEnter(GameObject other) { }
-        private void OnCollideEnter(uint other)
-        {
-            GameObject otherObject = new GameObject(other);
-            OnCollisionEnter(otherObject);
-        }
+        public virtual void OnCollideStay(uint other) { }
 
         public bool HasComponent<T>() where T : Component, new()
         {
@@ -67,6 +63,11 @@ namespace SliceEngine
             GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
 
             return entity;
+        }
+
+        public void Destroy()
+        {
+            FunctionCalls.Destroy(gameObject.mID);
         }
     }
 }

@@ -94,6 +94,8 @@ namespace SliceEngine
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
         SLICE_LOG("mCoroutine");
+
+        SubscribeToEvents();
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -731,6 +733,8 @@ namespace SliceEngine
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
+            
+        //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
             scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
 		}
     }
