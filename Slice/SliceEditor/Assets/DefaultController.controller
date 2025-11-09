@@ -9,7 +9,7 @@
         "Attack": {
             "currAnimIdx": 6,
             "entryTime": 0.0,
-            "exitTime": 1.13,
+            "exitTime": 1.0,
             "hasExitTime": true,
             "isLoop": false,
             "stateName": "Attack",
@@ -19,6 +19,12 @@
                     "condition": null,
                     "parameterName": "Idle",
                     "targetState": "Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Run",
+                    "targetState": "Run"
                 }
             ]
         },
