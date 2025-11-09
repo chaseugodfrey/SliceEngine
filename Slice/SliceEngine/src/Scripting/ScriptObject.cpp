@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
+#include <mono/metadata/threads.h>
 #include "ScriptSystem.h"
 #include "ScriptObject.h"
 
@@ -78,11 +79,15 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		if (!mono_domain_get())
+		if (mono_domain_get() != gScriptSystem->mAppDomain)
 		{
-			SLICE_LOG_ERROR("Instance 1something something");
-			return nullptr;
+			// Attach the current C++ thread to the Mono JIT runtime
+			// This function is idempotent (safe to call if already attached),
+			// but we must use the root domain.
+			mono_thread_attach(gScriptSystem->mRootDomain);
 
+			// Set the current AppDomain for this thread
+			mono_domain_set(gScriptSystem->mAppDomain, false);
 		}
 
 
