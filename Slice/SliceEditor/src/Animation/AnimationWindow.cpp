@@ -272,6 +272,7 @@ namespace SliceEditor
 							{
 								mTimeline.isPlaying = false;
 								currentFrame = startFrame;
+								mCurrentTime = 0.0f;
 								ret = true;
 							}
 							else
@@ -291,11 +292,11 @@ namespace SliceEditor
 				}
 
 				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
+
 				if (!ret)
 				{
 					// update scenegraph
 					auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-
 					for (auto entity : viewBone)
 					{
 						UpdateBoneScene(entity);
@@ -306,8 +307,7 @@ namespace SliceEditor
 					{
 						UpdateBones(entity);
 					}
-				}
-					
+				}	
 				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 			}
 			

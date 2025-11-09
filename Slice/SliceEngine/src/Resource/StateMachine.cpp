@@ -44,6 +44,7 @@ namespace SliceEngine
             j.at("hasExitTime").get_to(s.hasExitTime);
             j.at("exitTime").get_to(s.exitTime);
             j.at("entryTime").get_to(s.entryTime);
+            j.at("isLoop").get_to(s.isLoop);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 

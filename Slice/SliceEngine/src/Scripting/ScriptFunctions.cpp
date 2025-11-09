@@ -294,7 +294,7 @@ namespace SliceEngine
 		{
 			std::string cStrName = MonoToString(string);
 
-			GO.GetComponent<Animator>().stateMachine.EFSM.SetBool(cStrName, val);
+			GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
 		}
 
 	}
@@ -305,7 +305,7 @@ namespace SliceEngine
 		if (GO.HasComponent<Animator>())
 		{
 			std::string cStrName = MonoToString(string);
-			GO.GetComponent<Animator>().stateMachine.EFSM.SetInt(cStrName, val);
+			GO.GetComponent<Animator>().stateMachine.SetInt(cStrName, val);
 
 		}
 	}
@@ -316,7 +316,7 @@ namespace SliceEngine
 		if (GO.HasComponent<Animator>())
 		{
 			std::string cStrName = MonoToString(string);
-			GO.GetComponent<Animator>().stateMachine.EFSM.SetFloat(cStrName, val);
+			GO.GetComponent<Animator>().stateMachine.SetFloat(cStrName, val);
 
 		}
 	}
