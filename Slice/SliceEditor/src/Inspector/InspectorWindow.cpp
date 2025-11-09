@@ -119,29 +119,10 @@ namespace SliceEditor
 						ImGui::SameLine(150);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 						ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
-						float volume = as.currentVolume;
-						if (SliderFloatInputHeader(mRegistry, "Volume", "##currVol", volume, "%.1f", 0.0, 1.0))
-						{
-							as.currentVolume = volume; // mark dirty via patch
-						}
-
-						bool loop = as.isLoop;
-						if (BoolInputHeader(mRegistry, "Is Loop", "##looping", loop))
-						{
-							as.isLoop = loop;
-						}
-
-						bool is3D = as.is3D;
-						if (BoolInputHeader(mRegistry, "Is 3D", "##is3D", is3D))
-						{
-							as.is3D = is3D;
-						}
-
-						bool paused = as.isPaused;
-						if (BoolInputHeader(mRegistry, "Is Paused", "##isPaused", paused))
-						{
-							as.isPaused = paused;
-						}
+						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
+						BoolInputHeader(mRegistry, "Is 3D", "##is3D", as.is3D);
+						BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
 
 						ImGui::Text("Play Preview");
 						ImGui::SameLine(150);
