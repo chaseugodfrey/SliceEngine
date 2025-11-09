@@ -253,29 +253,30 @@ namespace SliceEditor
 	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
 		bool changed = false;
+
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
-		static glm::vec3 oldVal{};
+		static glm::vec3 startVal{};
 
 		glm::vec3 tempVal = val;
-		ImGui::ColorEdit3(id, glm::value_ptr(tempVal), ImGuiColorEditFlags_NoInputs);
 
-		if (ImGui::IsItemActivated() && glm::all(glm::notEqual(val, tempVal)))
+		bool edited = ImGui::ColorEdit3(id, glm::value_ptr(tempVal), ImGuiColorEditFlags_NoInputs);
+
+		if (ImGui::IsItemActivated()) //Check what the value was onClick
 		{
-			oldVal = val;
-			changed = true;
+			startVal = val;
 		}
 
-		if (changed)
-		{
+		if (edited || ImGui::IsItemEdited()) {
 			val = tempVal;
+			changed = true;
 		}
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (glm::all(glm::notEqual(val,oldVal)))
+			if (glm::any(glm::epsilonNotEqual(val, startVal, 1e-6f)))
 			{
-				std::unique_ptr<ValueCommand<glm::vec3>> command = std::make_unique<ValueCommand<glm::vec3>>(val, oldVal, val);
+				std::unique_ptr<ValueCommand<glm::vec3>> command = std::make_unique<ValueCommand<glm::vec3>>(val, startVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
