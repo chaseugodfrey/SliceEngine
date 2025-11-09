@@ -15,6 +15,12 @@ namespace SliceEngine
         public string Waypoint2 = "Waypoint2";
         public string Waypoint3 = "Waypoint3";
         public string Waypoint4 = "Waypoint4";
+        public string Waypoint5 = "Waypoint5";
+        public string Waypoint6 = "Waypoint6";
+        public string Waypoint7 = "Waypoint7";
+        public string Waypoint8 = "Waypoint8";
+        public string Waypoint9 = "Waypoint9";
+        public string Waypoint10 = "Waypoint10";
 
         public override void OnCreate()
         {
@@ -25,6 +31,12 @@ namespace SliceEngine
             waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint2).GetComponent<Transform>().Position);
             waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint3).GetComponent<Transform>().Position);
             waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint4).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint5).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint6).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint7).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint8).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint9).GetComponent<Transform>().Position);
+            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint10).GetComponent<Transform>().Position);
         }
 
         public override void OnUpdate(float dt)

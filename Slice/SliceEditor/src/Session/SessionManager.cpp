@@ -39,8 +39,7 @@ namespace SliceEditor
 		mPreferences = std::make_unique<Preferences>();
 
 		nlohmann::json preferencesJson;
-		preferencesJson << preferencesFile;
-
+		preferencesFile >> preferencesJson; // here aloy
 		std::string theme = preferencesJson["Theme"].get<std::string>();
 		mPreferences->Theme = EditorUtilities::GetThemeTypeFromString(theme);
 

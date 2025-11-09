@@ -229,9 +229,7 @@ namespace SliceEditor
 	}
 
 	void InspectorWindow::DisplayCamera(entt::entity entity)
-	{
-		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
-		
+	{		
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
