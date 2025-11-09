@@ -18,6 +18,10 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
+#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+#include <algorithm>
+
 namespace SliceEditor
 {
 	void AssetManager::Init()
@@ -59,11 +63,99 @@ namespace SliceEditor
 
 		}
 
+		mAssetFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(
+			mAssetDirectory.string(),
+			[this](const std::string& path, const filewatch::Event changeType)
+			{
+				OnAssetFileSystemEvent(path, changeType);
+			}
+		);
 		AddDefaultModelsToMap();
 
 	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
 		SLICE_LOG("Asset Manager Initialized");
+	}
+
+	void AssetManager::UpdateFolder()
+	{
+		std::vector<RawFileEvent> rawEvents;
+		
+
+		{
+			std::lock_guard<std::mutex> lock(mEventQueueMutex);
+			while (!mRawFileQueue.empty())
+			{
+				rawEvents.push_back(mRawFileQueue.front());
+				
+				//SLICE_LOG("event added " + filewatch::event_to_string(mRawFileQueue.front()->changeType));
+				mRawFileQueue.pop();
+			}
+		}
+
+		if (rawEvents.empty())
+		{
+			return;
+		}
+
+		//std::vector<AssetFileChangedEvent> processedEvents;
+
+		AssetFileChangedEvent processedEvents = { false };
+
+		if (rawEvents.size() > 1)
+		{
+			if (rawEvents.begin()->changeType == filewatch::Event::removed && rawEvents.at(1).changeType == filewatch::Event::added)
+			{
+
+				HandleAssetMoved(rawEvents);
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::renamed_old && rawEvents.at(1).changeType == filewatch::Event::renamed_new)
+			{
+				
+				HandleAssetRenamed(rawEvents);
+				
+			}
+			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
+			{
+				HandleAssetModified(rawEvents);
+				//SLICE_LOG("Modifying file: " + rawEvents.begin()->filePath.string());
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::added)
+			{
+				HandleAssetAdded(rawEvents.at(0));
+			}
+			else if (rawEvents.begin()->changeType == filewatch::Event::removed)
+			{
+				HandleAssetRemoved(rawEvents.at(0));
+			}
+			
+		}
+		else
+		{
+			switch (rawEvents.begin()->changeType)
+			{
+				case filewatch::Event::added:
+				{
+					HandleAssetAdded(rawEvents.at(0));
+
+					break;
+				}
+				case filewatch::Event::removed:
+				{
+
+					HandleAssetRemoved(rawEvents.at(0));
+					break;
+				}
+				case filewatch::Event::modified:
+				{
+					HandleAssetModified(rawEvents);
+					//SLICE_LOG("Modifying file single event: " + rawEvents.begin()->filePath.string());
+					break;
+				}
+			}
+		}
+		
+
 	}
 
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
@@ -87,8 +179,8 @@ namespace SliceEditor
 
 		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
-
 		metaData = CreateDefaultMeta(filePath);
+
 
 		if (metaData)
 		{				
@@ -587,6 +679,8 @@ namespace SliceEditor
 		}
 	}
 
+	
+
 	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
 	{
 
@@ -604,6 +698,23 @@ namespace SliceEditor
 
 	}
 
+	void AssetManager::OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType)
+	{
+
+		std::string fullPath = mAssetDirectory.string() + "/" + path;
+
+		std::filesystem::path filePath(fullPath);
+
+		if (filePath.extension() == ".meta")
+		{
+			return;
+		}
+
+		std::lock_guard<std::mutex> lock(mEventQueueMutex);
+		mRawFileQueue.push({ filePath, changeType });
+
+	}
+
 	void AssetManager::CleanUpSceneTemp()
 	{
 		std::filesystem::path mAssetDirectoryFolder = mAssetDirectory;
@@ -613,7 +724,22 @@ namespace SliceEditor
 		{
 			if (file.is_regular_file() && file.path().extension() == ".temp")
 			{
-				remove(file);
+				std::filesystem::remove(file.path());
+			}
+		}
+
+		std::filesystem::path mScenesDirectoryFolder = mAssetDirectory;
+		mScenesDirectoryFolder /= "Scenes";
+
+		// Check if this directory exists before iterating
+		if (std::filesystem::exists(mScenesDirectoryFolder) && std::filesystem::is_directory(mScenesDirectoryFolder))
+		{
+			for (const auto& file : std::filesystem::directory_iterator(mScenesDirectoryFolder))
+			{
+				if (file.is_regular_file() && file.path().extension() == ".temp")
+				{
+					std::filesystem::remove(file.path());
+				}
 			}
 		}
 
@@ -740,6 +866,321 @@ namespace SliceEditor
 
 		// update the meta file with the new meta data and resource file
 		CreateResource(metaData, type);
+	}
+
+	void AssetManager::HandleAssetAdded(RawFileEvent& addEvent)
+	{
+		if (addEvent.filePath.extension() == ".mat" || addEvent.filePath.extension() == ".controller")
+		{
+			return;
+		}
+
+		CreateDescriptorFile(addEvent.filePath);
+		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
+
+		AssetFileChangedEvent processEvent = { true };
+		EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
+	}
+
+	void AssetManager::HandleAssetRemoved(RawFileEvent& removeEvent)
+	{
+		std::filesystem::path removedFilePath(removeEvent.filePath);
+
+		SliceEngine::GUID fileGUID;
+
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto path = resourceMgr->GetResourcePath(removedFilePath.stem().string());
+
+		if (path.has_value())
+		{
+			try
+			{
+				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
+
+				resourceMgr->ReleaseResource(fileGUID);
+
+				mGUIDtoFilename.erase(fileGUID);
+
+				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
+				//resourceMgr->mGUIDToResource.erase()
+
+				AssetFileChangedEvent processEvent = { true };
+				EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
+
+			}
+			catch (const std::exception& e)
+			{
+				SLICE_LOG_ERROR("Failed to remove resource for " + removedFilePath.filename().string() + ": " + e.what());
+			}
+		}
+
+		SLICE_LOG("Removed event at " + removeEvent.filePath.string());
+	}
+
+	void AssetManager::HandleAssetRenamed(std::vector<RawFileEvent>& events)
+	{
+		std::filesystem::path oldFilePath(events.begin()->filePath);
+		std::filesystem::path newFilePath(events.at(1).filePath);
+
+		SliceEngine::GUID fileGUID;
+
+		//rename old 0
+		//rename new 1
+		//modify 2
+
+		//Check if the files are in the same folder and if files are the same extension
+		if (oldFilePath.parent_path().string() == newFilePath.parent_path().string() && oldFilePath.extension() == newFilePath.extension())
+		{
+
+			if (oldFilePath.extension() == ".scene")
+			{
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+				if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem())
+				{
+					sScene->SetDefaultScenePath(newFilePath);
+					auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+					auto& s = gSettings->Edit(); 
+
+					for (auto& it : s.scenes)
+					{
+						std::filesystem::path scenePath(it);
+						if (scenePath.stem() == oldFilePath.stem())
+						{
+							it = newFilePath.string();
+						}
+					}
+
+					s.startupScene = newFilePath.string();
+
+					gSettings->Save();
+				}
+
+				std::filesystem::path mCurrentPath = sScene->GetCurrentScenePath();
+
+				if (oldFilePath.stem() == mCurrentPath.stem() && oldFilePath.extension() == mCurrentPath.extension())
+				{
+					sScene->SetCurrentScenePath(newFilePath.string());
+				}
+
+				std::filesystem::path oldTempPath = oldFilePath;
+				oldTempPath.replace_extension(".temp");
+
+
+				if (std::filesystem::exists(oldTempPath))
+				{
+					std::filesystem::path newTempPath = newFilePath;
+					newTempPath.replace_extension(".temp");
+
+					std::filesystem::rename(oldTempPath, newTempPath);
+				}
+
+			
+			}
+
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+
+			//Find the resource meta file using the old file name
+			auto path = resourceMgr->GetResourcePath(oldFilePath.stem().string());
+			if (path.has_value())
+			{
+				std::filesystem::path metaFilePath = path.value();
+				metaFilePath.replace_extension(".meta");
+
+				
+
+
+				std::string guidString = metaFilePath.stem().string();
+				fileGUID = SliceEngine::GUID::FromString(guidString);
+				// 2. Use the helper to create the GUID object
+
+
+				try
+				{
+					std::ifstream inFile(metaFilePath);
+					nlohmann::json metaJson;
+					inFile >> metaJson;
+					inFile.close();
+
+					std::filesystem::path newAssetPath = newFilePath;
+					std::string newAssetName = newFilePath.stem().string();
+
+					metaJson["assetName"] = newAssetName;
+					metaJson["assetPath"] = newAssetPath;
+
+
+					std::ofstream outFile(metaFilePath);
+					outFile << metaJson.dump(4); // 4 spaces for pretty printing
+					outFile.close();
+
+					mGUIDtoFilename[fileGUID] = newFilePath.filename().string();
+					resourceMgr->mFileNameToGUID.erase(oldFilePath.stem().string());
+					resourceMgr->mFileNameToGUID.emplace(std::pair< std::string, SliceEngine::GUID>(newFilePath.stem().string(), fileGUID));
+
+					SLICE_LOG("Updated meta file for renamed asset: " + oldFilePath.filename().string());
+					AssetFileChangedEvent processEvent = { true };
+					EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
+				}
+				catch (const std::exception& e)
+				{
+					SLICE_LOG_ERROR("Failed to update meta file for " + oldFilePath.filename().string() + ": " + e.what());
+				}
+			}
+			else
+			{
+				SLICE_LOG_WARNING("Could not find resource path for renamed old file: " + newFilePath.filename().string());
+			}
+		}
+	}
+
+	void AssetManager::HandleAssetModified(std::vector<RawFileEvent>& events)
+	{
+		std::filesystem::path modifiedFilePath(events.begin()->filePath);
+
+		if (modifiedFilePath.extension() == ".temp")
+		{
+			return;
+		}
+
+		SliceEngine::GUID fileGUID;
+
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+
+		if (path.has_value())
+		{
+			auto hashA = HashFile(modifiedFilePath);
+			auto hashB = HashFile(path.value());
+
+			std::filesystem::path metaFilePath = path.value();
+			metaFilePath.replace_extension(".meta");
+
+			std::string guidString = path.value().stem().string();
+			fileGUID = SliceEngine::GUID::FromString(guidString);
+
+			if (hashA && hashB)
+			{
+				if (hashA.value() == hashB.value())
+				{
+					SLICE_LOG("Files are the same");
+					//Dont do anything
+					return;
+				}
+				else
+				{
+					try
+					{	
+						
+						std::filesystem::remove(path.value());
+
+						//CreateResource(metaData, assetType);
+
+						CreateDescriptorFile(modifiedFilePath);
+						resourceMgr->ReloadResourceInPlace(fileGUID);
+
+						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
+					
+					
+				
+					}
+					catch (const std::exception& e)
+					{
+						SLICE_LOG_ERROR("Failed to update resource file for " + modifiedFilePath.filename().string() + ": " + e.what());
+					}
+				}
+				
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Could not read hash files");
+			}
+		}
+	}
+
+	void AssetManager::HandleAssetMoved(std::vector<RawFileEvent>& events)
+	{
+		std::string fileName = events.begin()->filePath.stem().string();
+
+
+		if (fileName == events.at(1).filePath.stem().string())
+		{
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			auto path = resourceMgr->GetResourcePath(fileName);
+			if (path.has_value())
+			{
+				std::filesystem::path metaFilePath = path.value();
+				metaFilePath.replace_extension(".meta");
+
+				if (std::filesystem::exists(metaFilePath))
+				{
+					try
+					{
+
+						std::ifstream inFile(metaFilePath);
+						nlohmann::json metaJson;
+						inFile >> metaJson;
+						inFile.close();
+
+						std::filesystem::path newAssetPath = events.at(3).filePath;
+						metaJson["assetPath"] = newAssetPath.string();
+
+
+						std::ofstream outFile(metaFilePath);
+						outFile << metaJson.dump(4); // 4 spaces for pretty printing
+						outFile.close();
+
+						SLICE_LOG("Updated meta file for moved asset: " + fileName);
+
+						
+						AssetFileChangedEvent processEvent = { true };
+						EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
+					}
+					catch (const std::exception& e)
+					{
+						SLICE_LOG_ERROR("Failed to update meta file for " + fileName + ": " + e.what());
+					}
+				}
+			}
+			else
+			{
+				SLICE_LOG_WARNING("Could not find resource path for moved file: " + fileName);
+			}
+
+
+		}
+	}
+
+	std::optional<uint64_t> AssetManager::HashFile(const std::filesystem::path& filePath)
+	{
+		if (!std::filesystem::exists(filePath))
+		{
+			return std::nullopt;
+		}
+
+		std::ifstream file(filePath, std::ios::binary);
+		if (!file.is_open())
+		{
+			return std::nullopt;
+		}
+
+		const size_t kBufferSize = 4096;
+		std::array<char, kBufferSize> buffer;
+
+		
+		uint64_t hash = SliceEngine::FNVHash::OffsetBasis;
+
+		
+		while (file.read(buffer.data(), buffer.size()).gcount() > 0)
+		{
+			std::streamsize bytesRead = file.gcount();
+
+		
+			for (std::streamsize i = 0; i < bytesRead; ++i)
+			{
+				hash = (hash ^ static_cast<uint64_t>(static_cast<unsigned char>(buffer[i]))) * SliceEngine::FNVHash::Prime;
+			}
+		}
+
+		return hash;
 	}
 
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)

@@ -142,6 +142,39 @@ namespace SliceEngine
 			output[name][typeName][propName] = { v.x, v.y, v.z };
 		}
 
+		// For JPH::Vec3
+		template<>
+		inline void Serialize<JPH::Vec3>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const JPH::Vec3& v, const Entity& entity)
+		{
+			output[name][typeName][propName] = { v.GetX(), v.GetY(), v.GetZ()};
+		}
+
+		// For ColliderShape::BoxData
+		template<>
+		inline void Serialize<ColliderShape::BoxData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::BoxData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["scale"] = { data.scale.GetX(), data.scale.GetY(), data.scale.GetZ() };
+		}
+
+		// For ColliderShape::SphereData
+		template<>
+		inline void Serialize<ColliderShape::SphereData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::SphereData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["radius"] = data.radius;
+		}
+
+		// For ColliderShape::CapsuleData
+		template<>
+		inline void Serialize<ColliderShape::CapsuleData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::CapsuleData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["radius"] = data.radius;
+			output[name][typeName][propName]["height"] = data.height;
+		}
+
 		// For glm::vec4
 		template<>
 		inline void Serialize<glm::vec4>(json& output, const std::string& name, const std::string_view& typeName,
@@ -322,6 +355,57 @@ namespace SliceEngine
 			}
 			return false;
 		}
+
+		// Special handling for ColliderShape::BoxData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::BoxData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::BoxData>()) {
+				ColliderShape::BoxData data;
+				if (value.contains("scale") && value["scale"].is_array() && value["scale"].size() == 3) {
+					data.scale = JPH::Vec3(value["scale"][0], value["scale"][1], value["scale"][2]);
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
+		// Similar for SphereData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::SphereData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::SphereData>()) {
+				ColliderShape::SphereData data;
+				if (value.contains("radius")) {
+					data.radius = value["radius"];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
+		// Similar for CapsuleData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::CapsuleData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::CapsuleData>()) {
+				ColliderShape::CapsuleData data;
+				if (value.contains("radius")) {
+					data.radius = value["radius"];
+				}
+				if (value.contains("height")) {
+					data.height = value["height"];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
 		template <typename... Types>
 		void DeserializeProp(rttr::variant& componentInstance, rttr::property& prop,
 			const json& value, const std::string& propName, const std::string& componentName,
@@ -361,6 +445,8 @@ namespace SliceEngine
 
 			}
 		}
+
+
 
 
 #pragma endregion

@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Scripting/ScriptSystem.h"
 #include <Graphics/TransformHelper.h>
 #include "ComponentPropertiesGUI.h"
+#include "../../SliceEngine/src/Serializer/JSONSerializer.h"
 
 namespace SliceEditor
 {
@@ -49,6 +50,11 @@ namespace SliceEditor
 		switch (type)
 		{
 		case SelectionType::ENTITY:
+			if (ImGui::Button("Prefab Create"))
+			{
+				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+			}
+
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
@@ -92,11 +98,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
 			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			glm::vec3 euler = SliceEngine::QuatToVec3(tr.rotation);
-			if (DragVec3InputHeader(mRegistry, "Rotation", "##r", euler))
-			{
-				tr.rotation = SliceEngine::Vec3ToQuat(euler);
-			}
+			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
 			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
 
 			ImGui::TreePop();
@@ -107,55 +109,49 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-
-		reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as) 
+		if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
+		{
+			if (!DisplayComponentHeader<SliceEngine::AudioSource>(entity))
 			{
-			if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
-			{
-				DisplayComponentHeader<SliceEngine::AudioSource>(entity);
+				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
+					{
+						/*ImGui::Text("Audio Clip");
+						ImGui::SameLine(150);
+						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+						ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
+						float volume = as.currentVolume;
+						if (SliderFloatInputHeader(mRegistry, "Volume", "##currVol", volume, "%.1f", 0.0, 1.0))
+						{
+							as.currentVolume = volume; // mark dirty via patch
+						}
 
-				/*ImGui::Text("Audio Clip");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
+						bool loop = as.isLoop;
+						if (BoolInputHeader(mRegistry, "Is Loop", "##looping", loop))
+						{
+							as.isLoop = loop;
+						}
 
-				ImGui::Text("Volume");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				float volume = as.currentVolume;
-				if (ImGui::SliderFloat("##vol", &volume, 0.0f, 1.0f))
-					as.currentVolume = volume; // mark dirty via patch
+						bool is3D = as.is3D;
+						if (BoolInputHeader(mRegistry, "Is 3D", "##is3D", is3D))
+						{
+							as.is3D = is3D;
+						}
 
-				ImGui::Text("Is Loop");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				bool loop = as.isLoop;
-				if (ImGui::Checkbox("##isloop", &loop))
-					as.isLoop = loop;
+						bool paused = as.isPaused;
+						if (BoolInputHeader(mRegistry, "Is Paused", "##isPaused", paused))
+						{
+							as.isPaused = paused;
+						}
 
-				ImGui::Text("Is 3D");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				bool is3D = as.is3D;
-				if (ImGui::Checkbox("##is3d", &is3D))
-					as.is3D = is3D;
-
-				ImGui::Text("Is Paused");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				bool paused = as.isPaused;
-				if (ImGui::Checkbox("##ispaused", &paused))
-					as.isPaused = paused;
-
-				ImGui::Text("Play Preview");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
-					as.playPreview = !as.playPreview;
-
-				ImGui::TreePop();
+						ImGui::Text("Play Preview");
+						ImGui::SameLine(150);
+						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+						if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+							as.playPreview = !as.playPreview;
+					});
 			}
-			});
+			ImGui::TreePop();
+		}
 
 	}
 
@@ -237,31 +233,36 @@ namespace SliceEditor
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 		const char* arr[2] = { "Discrete", "Continuous" };
-
-		reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
+		if (ImGui::TreeNodeEx("Rigidbody", mBaseFlags))
+		{
+			if (!DisplayComponentHeader<SliceEngine::RigidBody>(entity))
 			{
-				if (ImGui::TreeNodeEx("Rigidbody", mBaseFlags))
-				{
-					DisplayComponentHeader<SliceEngine::RigidBody>(entity);
+				reg.patch<SliceEngine::RigidBody>(entity, [&](SliceEngine::RigidBody& rb)
+					{
 
-					DragFloatInputHeader(mRegistry,"Mass", "##mass", rb.mass, "%.3f",0.1, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "Mass", "##mass", rb.mass, "%.3f", 0.1, FLT_MAX);
 
-					DragFloatInputHeader(mRegistry,"Gravity", "##gravity", rb.gravityFactor, "%.3f",0.1, FLT_MAX);
-					
-					BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
-					
-					DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
+						DragFloatInputHeader(mRegistry, "Gravity", "##gravity", rb.gravityFactor, "%.3f", 0.0, FLT_MAX);
 
-					DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
+						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
-					DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f",0.1,FLT_MAX);
+						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
 
-					static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
-					ComboHeader<JPH::EMotionQuality>(mRegistry, "Collision Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
+						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
 
-					ImGui::TreePop();
-				}
-			});
+						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1, FLT_MAX);
+
+						DragFreezeOptionsInputHeader(mRegistry, "Freeze Position", "##freezePos", rb.freezePosition);
+
+						DragFreezeOptionsInputHeader(mRegistry, "Freeze Rotation", "##freezeRot", rb.freezeRotation);
+
+						static std::vector<std::string> colDetectNames{ "Discrete", "Continuous" };
+						ComboHeader<JPH::EMotionQuality>(mRegistry, "Col Detection", "##colDetect", rb.CollisionDetection, colDetectNames);
+
+					});
+			}
+			ImGui::TreePop();
+		}
 
 	}
 
@@ -283,28 +284,28 @@ namespace SliceEditor
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
 			}, colliderData.shapeData);
-
-		reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
+		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
+		{
+			if(!DisplayComponentHeader<SliceEngine::ColliderShape>(entity))
 			{
-				if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
+				reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
 				{
-					DisplayComponentHeader<SliceEngine::ColliderShape>(entity);
 
 					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
-					
+
 					glm::vec3 glm3 = JPHtoGLM(col.offSet);
 					if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
 					{
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames { "Moving", "Non-Moving"};
+					static std::vector<std::string> colLayerNames{ "Moving", "Non-Moving" };
 
 					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
-
-					ImGui::TreePop();
-				}
-			});
+				});
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
@@ -450,10 +451,8 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			//if (animator.stateMachine.EFSM.IsValid())
+			if(!DisplayComponentHeader<SliceEngine::Animator>(entity))
 			{
-				DisplayComponentHeader<SliceEngine::Animator>(entity);
-
 				ImGui::Text("Controller: ");
 				ImGui::SameLine(150.0f);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -490,7 +489,6 @@ namespace SliceEditor
 						animator.stateMachine.EFSM.currState->curr_anim_idx--;
 				}
 			}
-
 			ImGui::TreePop();
 		}
 	}
@@ -502,12 +500,10 @@ namespace SliceEditor
 		{
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
-			DisplayComponentHeader<SliceEngine::Light>(entity, false);
+			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
-
-			DragVec3InputHeader(mRegistry, "Color", "##c", light.color);
 
 			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
@@ -722,16 +718,13 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		ImGui::Text("Roughness");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##roughness", &mat.roughness, .01f, 0.0f, 1.0f,"%.2f", ImGuiSliderFlags_AlwaysClamp))
+		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}
 
-		ImGui::Text("Metallic");
-		ImGui::SameLine(150.0f);
-		if (ImGui::DragFloat("##metallic", &mat.metallic, .01f, 0.0f, 1.0f,"%.2f",ImGuiSliderFlags_AlwaysClamp))
+		
+		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}

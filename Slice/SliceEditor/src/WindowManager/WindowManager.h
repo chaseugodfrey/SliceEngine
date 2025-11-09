@@ -50,7 +50,7 @@ namespace SliceEditor
 		template <typename WindowType>
 		inline bool CheckIfWindowExists()
 		{
-			for (const auto& window : list) {
+			for (auto& window : list) {
 				if (dynamic_cast<WindowType*>(window.get())) {
 					return true;
 				}
@@ -60,9 +60,9 @@ namespace SliceEditor
 		}
 		
 		template <typename WindowType>
-		inline void AddWindow(bool singleInstanceCheck = false)
+		inline void AddWindow()
 		{
-			if (singleInstanceCheck && CheckIfWindowExists<WindowType>())
+			if (CheckIfWindowExists<WindowType>())
 			{
 				SLICE_LOG("Only one instance of this window can exist.");
 				return;
@@ -76,12 +76,12 @@ namespace SliceEditor
 		}
 
 		template <typename WindowType>
-		inline void AddWindow(const char* name, bool singleInstanceCheck = false)
+		inline void AddWindow(const char* name)
 		{
 			auto it = windowFactoryMap.find(std::string(name));
 			if (it != windowFactoryMap.end())
 			{
-				if (singleInstanceCheck && CheckIfWindowExists<WindowType>())
+				if (CheckIfWindowExists<WindowType>())
 				{
 					SLICE_LOG("Only one instance of this window can exist.");
 					return;

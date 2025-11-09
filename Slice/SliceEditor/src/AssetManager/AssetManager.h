@@ -19,12 +19,16 @@ DigiPen Institute of Technology is prohibited.
 
 #include <fstream>
 #include <filesystem>
+#include <mutex>
+#include <queue>
+#include "../thirdparty/filewatch/FileWatcher.h"
 #include "json.hpp"
 #include "AssetTypes.h"
 
 namespace SliceEditor
 {
 	class MetaData;
+	
 
 	class AssetManager
 	{
@@ -33,6 +37,7 @@ namespace SliceEditor
 		~AssetManager() = default;
 
 		void Init();
+		void UpdateFolder();
 
 		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
@@ -56,9 +61,11 @@ namespace SliceEditor
 		void CompileSceneAsset(SceneData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
+		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void RecompileAsset(MetaData* metaData);
+		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
@@ -112,9 +119,27 @@ namespace SliceEditor
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
+		struct RawFileEvent
+		{
+			std::filesystem::path filePath;
+			filewatch::Event changeType;
+		};
+
+		std::queue<RawFileEvent> mRawFileQueue;
+		std::mutex mEventQueueMutex;
+
+		std::unique_ptr<filewatch::FileWatch<std::string>> mAssetFileWatcher;
+
+		void HandleAssetAdded(RawFileEvent& addEvent);
+		void HandleAssetRemoved(RawFileEvent& removeEvent);
+		void HandleAssetRenamed(std::vector<RawFileEvent>& events);
+		void HandleAssetModified(std::vector<RawFileEvent>& events);
+		void HandleAssetMoved(std::vector<RawFileEvent>& events);
+		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 
+		
 
 	};
 

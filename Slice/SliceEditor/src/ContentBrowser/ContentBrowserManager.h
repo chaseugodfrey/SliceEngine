@@ -16,9 +16,13 @@ DigiPen Institute of Technology is prohibited.
 #define CONTENT_BROWSER_MANAGER_H
 
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <filesystem>
 #include "../Core/IBaseManager.h"
 #include "../WindowManager/ICreateWindow.h"
 #include "../AssetManager/AssetManager.h"
+#include "../thirdparty/filewatch/FileWatcher.h"
 
 namespace SliceEditor
 {

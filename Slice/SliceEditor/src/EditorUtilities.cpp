@@ -2,7 +2,10 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <../src/Systems/SceneSystem.h>
+#include <../src/Systems/PrefabSystem.h>
+
 
 namespace SliceEditor
 {
@@ -105,6 +108,11 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history)
+		{
+			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
+		}
+
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)
 		{
 			EventManager::GetInstance()->Publish<ClearSelectionEvent>();
@@ -179,6 +187,16 @@ namespace SliceEditor
 			selectionManager.ClearSelection(true);
 		}
 
+		void Scene_Save()
+		{
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+		}
+
+		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
+		{
+			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+		}
+
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
 		{
 			if (ImGui::BeginMenu("Create"))
@@ -212,38 +230,38 @@ namespace SliceEditor
 			}
 		}
 
-		void MenuList_CreateGameObjects()
+		void MenuList_CreateGameObjects(HistoryManager* history)
 		{
 			if (ImGui::MenuItem("Camera"))
 			{
-				EditorUtilities::GameObject_CreateCam();
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
 			}
 
 			if (ImGui::BeginMenu("3D Object"))
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Sphere"))
 				{
-					EditorUtilities::GameObject_CreateSphere();
+					EditorUtilities::GameObject_CreateSphere(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Capsule"))
 				{
-					EditorUtilities::GameObject_CreateCapsule();
+					EditorUtilities::GameObject_CreateCapsule(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Quad"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Plane"))
 				{
-					EditorUtilities::GameObject_CreateBox();
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
 				}
 
 				ImGui::EndMenu();

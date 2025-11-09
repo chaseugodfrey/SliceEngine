@@ -66,6 +66,26 @@ namespace SliceEngine
 		instance.data = std::move(newData);
 	}
 
+	void ResourceManager::ReloadResourceInPlace(const GUID& guid)
+	{
+		auto it = mInstances.find(guid);
+		if (it == mInstances.end())
+		{
+			SLICE_LOG_WARNING("Attempted to reload a resource that does not exist");
+			return;
+		}
+
+		auto& instance = it->second;
+
+		if (!instance.reload_in_place)
+		{
+			SLICE_LOG_WARNING("Resource has no reload_in_place function");
+			return;
+		}
+
+		instance.reload_in_place(instance.data.get(), *this, instance.filePath);
+	}
+
 	void ResourceManager::RegisterResourceAsset(const GUID& guid, const std::string& path)
 	{
 		mGUIDToResource[guid] = path;

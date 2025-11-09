@@ -26,6 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
 #include <Profiler/ProfilerManager.h>
+#include <History/HistoryManager.h>
 
 
 namespace SliceEditor
@@ -49,15 +50,15 @@ namespace SliceEditor
 		// Create windows
 		// todo: maybe read from imgui ini file and load accordingly
 
-		AddWindow<ContentBrowserWindow>("ContentBrowser", true);
-		AddWindow<ProfilerWindow>("Profiler", true);
-		AddWindow<NavigationWindow>(true);
+		AddWindow<ContentBrowserWindow>("ContentBrowser");
+		AddWindow<ProfilerWindow>("Profiler");
+		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		//AddWindow<AnimatorWindow>();
-		AddWindow<AnimationWindow>(true);
+		AddWindow<AnimationWindow>();
 	}
 
 	void WindowManager::Update()
@@ -147,7 +148,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Preferences"))
 			{
-				AddWindow<PreferenceWindow>(true);
+				AddWindow<PreferenceWindow>();
 			}
 
 			if (ImGui::MenuItem("Exit"))
@@ -164,7 +165,7 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Content Browser"))
 			{
-				AddWindow<ContentBrowserWindow>("ContentBrowser", true);
+				AddWindow<ContentBrowserWindow>("ContentBrowser");
 			}
 
 			if (ImGui::MenuItem("Console"))
@@ -194,17 +195,17 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Profiler"))
 			{
-				AddWindow<ProfilerWindow>("Profiler", true);
+				AddWindow<ProfilerWindow>("Profiler");
 			}
 
 			if (ImGui::MenuItem("Animation"))
 			{
-				AddWindow<AnimationWindow>(true);
+				AddWindow<AnimationWindow>();
 			}
 
 			if (ImGui::MenuItem("Animator"))
 			{
-				AddWindow<AnimatorWindow>(true);
+				AddWindow<AnimatorWindow>();
 			}
 
 			ImGui::EndMenu();
@@ -214,7 +215,7 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
-			EditorUtilities::MenuList_CreateGameObjects();
+			EditorUtilities::MenuList_CreateGameObjects(registry.GetManager<HistoryManager>("History"));
 			ImGui::EndMenu();
 		}
 #pragma region Custom Title Bar (Disabled for now)
@@ -543,7 +544,7 @@ namespace SliceEditor
 			{
 				if (!sceneName.empty())
 				{
-					// 1. Get the SceneSystem
+					
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
 
@@ -551,21 +552,18 @@ namespace SliceEditor
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
-					// 3. Save the current hierarchy to the NEW path
+					
 					sceneSystem->SaveScene(newScenePath);
 
-					// 4. Set the NEW path as the currently active scene
+					
 					sceneSystem->SetCurrentScenePath(newScenePath);
 
 					SliceEngine::gScriptSystem->OnEnd();
 
-					// 5. Queue the new scene. This automatically calls UnloadCurrentScene(),
-					//    which clears the hierarchy and prepares for the new scene to be loaded on the next tick.
+					
 					sceneSystem->LoadSceneIntoQueue(newScenePath);
 
-					
-					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
-					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
+				
 					saveSceneAsPopupOpen = false;
 				}
 			}

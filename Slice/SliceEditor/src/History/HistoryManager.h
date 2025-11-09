@@ -5,6 +5,8 @@
 
 namespace SliceEditor
 {
+	class Registry;
+
 	class HistoryManager : public IBaseManager
 	{
 		size_t stackSize = 50;

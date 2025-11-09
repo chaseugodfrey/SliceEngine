@@ -5,6 +5,7 @@ namespace SliceEditor
 {
 	class HistoryManager;
 	class SelectionManager;
+	class ContentBrowserManager;
 	class Registry;
 
 	namespace EditorUtilities
@@ -15,16 +16,19 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateModel(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history);
 		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
+		void Scene_Save();
+		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
-		void MenuList_CreateGameObjects();
+		void MenuList_CreateGameObjects(HistoryManager* history = nullptr);
 
 
 		//File Creation
