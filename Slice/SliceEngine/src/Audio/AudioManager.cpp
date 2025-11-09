@@ -200,7 +200,10 @@ namespace SliceEngine
 	float AudioManager::GetChannelVolume(FMOD::Channel* channel)
 	{
 		float volume;
-		return channel->getVolume(&volume);
+
+		channel->getVolume(&volume);
+
+		return volume;
 	}
 
 	void AudioManager::SetChannelVolume(FMOD::Channel* channel, float volume)
