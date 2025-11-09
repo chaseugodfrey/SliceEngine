@@ -8,5 +8,20 @@ namespace SliceEngine
         {
             FunctionCalls.ChangeAnim(gameObject.mID, animIndex);
         }
+
+        public void SetBool(string name, bool value)
+        {
+            FunctionCalls.SetBool(gameObject.mID, name, value);
+        }
+
+        public void SetFloat(string name, float value)
+        {
+            FunctionCalls.SetFloat(gameObject.mID, name, value);
+        }
+
+        public void SetInt(string name, int value)
+        {
+            FunctionCalls.SetInt(gameObject.mID, name, value);
+        }
     }
 }
