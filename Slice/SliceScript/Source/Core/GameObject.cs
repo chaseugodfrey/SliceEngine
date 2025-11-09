@@ -61,7 +61,10 @@ namespace SliceEngine
 
         public void Destroy()
         {
-            FunctionCalls.Destroy(mID);
+            if (mID != 0)
+                FunctionCalls.Destroy(mID);
+
+            mID = 0;
         }
     }
 }

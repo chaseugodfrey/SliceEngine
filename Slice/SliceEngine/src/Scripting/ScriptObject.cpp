@@ -118,7 +118,7 @@ namespace SliceEngine
 	ScriptObject::ScriptObject(std::shared_ptr<ScriptClass> scClass, Entity entity) : mScriptClass(scClass)
 	{
 
-		std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
+		//std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
 		//UNUSED(entity);
 		mMonoInstance = scClass->Instantiate();
 

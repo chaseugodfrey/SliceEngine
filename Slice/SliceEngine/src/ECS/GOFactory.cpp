@@ -49,7 +49,7 @@ namespace SliceEngine
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
-		std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
+	//	std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
 
 		return go;
 	}
@@ -191,7 +191,7 @@ namespace SliceEngine
 	void GOFactory::Destroy(entt::entity entity)
 	{
 		auto go = GetGOByEntity(entity);
-		std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
+		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
 		//Check children and destroy them too
 		if(go.HasComponent<SceneGraph>())
@@ -851,7 +851,7 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
-			std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
+			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mNameToEntity.erase(mEntityToGO[Entity].GetName());
