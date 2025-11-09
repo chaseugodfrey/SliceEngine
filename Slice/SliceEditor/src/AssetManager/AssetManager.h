@@ -49,7 +49,7 @@ namespace SliceEditor
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
-		std::string CreateDescriptorFile(const std::filesystem::path filePath);
+		std::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
 		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);

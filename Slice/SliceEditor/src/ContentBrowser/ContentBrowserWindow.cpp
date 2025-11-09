@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ContentBrowserWindow.h"
 #include "Selection/SelectionManager.h"
+#include "Resource/ResourceManager.h"
 
 namespace SliceEditor
 {
@@ -49,7 +50,6 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
 			{
-
 				DisplayFolders(*mManager.rootNode);
 				//ImGui::Text("Directory Here!");
 
@@ -82,7 +82,6 @@ namespace SliceEditor
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
 			}
-
 		}
 
 		if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
@@ -110,7 +109,6 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
 	{
-
 		if (node.path.empty())
 		{
 			ImGui::Text("No Path Found!");
@@ -164,7 +162,7 @@ namespace SliceEditor
 					ImGui::TableNextColumn();
 					//DisplayButton(selectedEntry, entry, true);
 
-					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
+					if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
 					}
@@ -211,7 +209,6 @@ namespace SliceEditor
 				}
 			}
 
-
 			//Section for Files
 			for (auto& [name, entry] : node.children)
 			{
@@ -234,7 +231,7 @@ namespace SliceEditor
 						canDrag = false;
 					}
 
-					if (ImGui::ImageButton(entry.path.filename().string().c_str(), nullptr, ImVec2(64, 64)))
+					if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
 					{
 						selectedEntry = &entry;
 						selectionManager->SelectSingle(&entry);
@@ -474,6 +471,20 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+	}
+
+	ImTextureID ContentBrowserWindow::GetIcon(SelectionType type)
+	{
+		auto textureHandle = mManager.GetDefaultIconHandle(type);
+
+		if (textureHandle.has_value())
+		{
+			auto texture = textureHandle.value().get();
+			if (texture || texture->texture_id != 0)
+				return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(texture->texture_id));
+		}
+
+		return nullptr;
 	}
 
 	#pragma region Display MetaData Region

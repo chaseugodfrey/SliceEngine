@@ -1,6 +1,7 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			SceneSystem.cpp
  author:		Hafiz
+ co-author:		Lee Yong Yee
  email:			b.muhammadhafiz@digipen.edu
  brief:			Handles Scenes
 
@@ -201,8 +202,6 @@ namespace SliceEngine
 		}
 	}
 
-	
-
 	bool SceneSystem::CheckQueueEmpty()
 	{
 		return mSceneQueue.empty();
@@ -211,5 +210,10 @@ namespace SliceEngine
 	std::filesystem::path SceneSystem::GetCurrentScenePath()
 	{
 		return mCurrentScene;
+	}
+
+	std::string SceneSystem::GetCurrentSceneName()
+	{
+		return mCurrentScene.stem().string();
 	}
 }

@@ -32,7 +32,7 @@ namespace SliceEditor
 
 	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
-	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, float min = 0.f, float max = 0.f);
+	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min = 0, int max = 0);
 
 	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
 	
@@ -44,7 +44,7 @@ namespace SliceEditor
 	
 	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
-	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
 	
@@ -54,7 +54,7 @@ namespace SliceEditor
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
 
 	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 

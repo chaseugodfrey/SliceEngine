@@ -429,7 +429,7 @@ namespace SliceEngine
                     mEntityInstances[*entity] = scriptObj;
 
                     //auto inputs = Core::GetInstance()->GetInputSystem();
-                    auto scene = Core::GetInstance()->GetSceneSystem();
+                    //auto scene = Core::GetInstance()->GetSceneSystem();
 
                     //if (inputs->GetMode() == InputMode::Game)
                     //{
