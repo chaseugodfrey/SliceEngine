@@ -199,72 +199,72 @@ namespace SliceEngine
 			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
-		inline json variant_to_json(const rttr::variant& var)
-		{
-			if (!var)
-				return nullptr; // empty variant
+		//inline json variant_to_json(const rttr::variant& var)
+		//{
+		//	if (!var)
+		//		return nullptr; // empty variant
 
-			auto t = var.get_type();
+		//	auto t = var.get_type();
 
-			// Handle primitive types
-			if (var.is_type<int>())          return var.get_value<int>();
-			if (var.is_type<float>())        return var.get_value<float>();
-			if (var.is_type<double>())       return var.get_value<double>();
-			if (var.is_type<bool>())         return var.get_value<bool>();
-			if (var.is_type<std::string>())  return var.get_value<std::string>();
-			if (var.is_type<unsigned char>()) return static_cast<int>(var.get_value<unsigned char>());
+		//	// Handle primitive types
+		//	if (var.is_type<int>())          return var.get_value<int>();
+		//	if (var.is_type<float>())        return var.get_value<float>();
+		//	if (var.is_type<double>())       return var.get_value<double>();
+		//	if (var.is_type<bool>())         return var.get_value<bool>();
+		//	if (var.is_type<std::string>())  return var.get_value<std::string>();
+		//	if (var.is_type<unsigned char>()) return static_cast<int>(var.get_value<unsigned char>());
 
-			// Handle vector<T> as JSON array
-			if (t.is_sequential_container())
-			{
-				json arr = json::array();
-				rttr::variant_sequential_view view = var.create_sequential_view();
-				for (size_t i = 0; i < view.get_size(); ++i)
-				{
-					arr.push_back(variant_to_json(view.get_value(i)));
-				}
-				return arr;
-			}
+		//	// Handle vector<T> as JSON array
+		//	if (t.is_sequential_container())
+		//	{
+		//		json arr = json::array();
+		//		rttr::variant_sequential_view view = var.create_sequential_view();
+		//		for (size_t i = 0; i < view.get_size(); ++i)
+		//		{
+		//			arr.push_back(variant_to_json(view.get_value(i)));
+		//		}
+		//		return arr;
+		//	}
 
-			// Handle map<string, variant> as JSON object
-			if (t.is_associative_container())
-			{
-				json obj;
-				rttr::variant_associative_view view = var.create_associative_view();
-				for (auto& item : view)
-				{
-					std::string key = item.first.to_string();
-					obj[key] = variant_to_json(item.second);
-				}
-				return obj;
-			}
+		//	// Handle map<string, variant> as JSON object
+		//	if (t.is_associative_container())
+		//	{
+		//		json obj;
+		//		rttr::variant_associative_view view = var.create_associative_view();
+		//		for (auto& item : view)
+		//		{
+		//			std::string key = item.first.to_string();
+		//			obj[key] = variant_to_json(item.second);
+		//		}
+		//		return obj;
+		//	}
 
-			// Handle RTTR-reflected classes
-			if (t.is_class())
-			{
-				json obj;
-				for (auto& prop : t.get_properties())
-				{
-					rttr::variant prop_val = prop.get_value(var);
-					obj[prop.get_name().to_string()] = variant_to_json(prop_val);
-				}
-				return obj;
-			}
+		//	// Handle RTTR-reflected classes
+		//	if (t.is_class())
+		//	{
+		//		json obj;
+		//		for (auto& prop : t.get_properties())
+		//		{
+		//			rttr::variant prop_val = prop.get_value(var);
+		//			obj[prop.get_name().to_string()] = variant_to_json(prop_val);
+		//		}
+		//		return obj;
+		//	}
 
-			// Unsupported type
-			return nullptr;
-		}
+		//	// Unsupported type
+		//	return nullptr;
+		//}
 
-		// For ScriptableFieldMap
-		template<>
-		inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
-			const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
-		{
-			for (const auto& [k, v] : value)
-			{
-				output[name][typeName][propName][k] = variant_to_json(v);
-			}
-		}
+		//// For ScriptableFieldMap
+		//template<>
+		//inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
+		//	const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
+		//{
+		//	for (const auto& [k, v] : value)
+		//	{
+		//		output[name][typeName][propName][k] = variant_to_json(v);
+		//	}
+		//}
 
 		// Handle
 		template<typename T>
@@ -620,26 +620,42 @@ namespace SliceEngine
 
 	}
 
-	inline rttr::variant json_to_variant(const json& j)
-	{
-		if (j.is_number_integer())      return j.get<int>();
-		if (j.is_number_float())        return j.get<float>();
-		if (j.is_boolean())             return j.get<bool>();
-		if (j.is_string())              return j.get<std::string>();		
-		return rttr::variant(); // unsupported type
-	}
+	//inline rttr::variant json_to_variant(const json& j)
+	//{
+	//	if (j.is_number_integer()) return j.get<int>();
+	//	if (j.is_number_float())   return j.get<float>();
+	//	if (j.is_boolean())        return j.get<bool>();
+	//	if (j.is_string())         return j.get<std::string>();
 
-	inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant >& um)
-	{
-		um.clear();
-		if (j.contains("scriptableFieldMap"))
-		{
-			for (auto& [key, val] : j["scriptableFieldMap"].items())
-			{
-				um[key] = json_to_variant(val);
-			}
-		}
-	}
+	//	if (j.is_array())
+	//	{
+	//		std::vector<rttr::variant> vec;
+	//		for (const auto& el : j)
+	//			vec.push_back(json_to_variant(el)); // recursive
+	//		return vec;
+	//	}
+
+	//	if (j.is_object())
+	//	{
+	//		std::unordered_map<std::string, rttr::variant> map;
+	//		for (auto& [k, v] : j.items())
+	//			map[k] = json_to_variant(v); // recursive
+	//		return map;
+	//	}
+
+	//	return j.dump(); // unsupported type
+	//}
+
+	//inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant>& um)
+	//{
+	//	um.clear();
+	//	if (!j.is_object()) return;
+
+	//	for (auto& [key, val] : j.items())
+	//	{
+	//		um[key] = json_to_variant(val); // handles primitives, arrays, and nested objects
+	//	}
+	//}
 }
 
 namespace glm
