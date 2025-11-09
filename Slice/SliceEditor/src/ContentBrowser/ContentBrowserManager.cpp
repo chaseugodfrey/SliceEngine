@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "Selection/SelectionManager.h"
+#include "../../SliceEngine/src/Systems/PrefabSystem.h"
+#include "../History/HistoryManager.h"
 
 namespace SliceEditor
 {
@@ -159,6 +161,21 @@ namespace SliceEditor
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
+
+		else if (entry.path.extension() == ".prefab")
+		{
+			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			std::string stem = entry.path.stem().stem().string();
+				if (rm->mFileNameToGUID.find(stem) != rm->mFileNameToGUID.end())
+				{
+					SliceEngine::GUID guid = rm->mFileNameToGUID[stem];
+					EditorUtilities::GameObject_CreatePrefab(entt::null, guid, registry.GetManager<HistoryManager>("History"));
+				}
+				else
+				{
+					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
+				}
+			}
 		
 		else
 		{

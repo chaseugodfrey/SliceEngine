@@ -19,7 +19,8 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
 	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
-	{}
+	{
+	}
 
 	void ContentBrowserWindow::Init()
 	{
@@ -44,7 +45,7 @@ namespace SliceEditor
 		/*Asset Directory*/
 		ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
 
-		if(left_region.x > 0 && left_region.y > 0)
+		if (left_region.x > 0 && left_region.y > 0)
 		{
 			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
 			{
@@ -60,13 +61,22 @@ namespace SliceEditor
 		/*Folder Directory*/
 		ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
 
-		if(right_region.x > 0 && right_region.y > 0)
+		if (right_region.x > 0 && right_region.y > 0)
 		{
 			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
 			{
-
+				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
 				DisplayItems(*mManager.selectedFolder);
 				ImGui::EndChild();
+			}
+
+			ImGui::OpenPopupOnItemClick("menu_create");
+
+			if (ImGui::BeginPopupContextItem("menu_create"))
+			{
+				EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+
+				ImGui::EndPopup();
 			}
 		}
 
@@ -141,7 +151,6 @@ namespace SliceEditor
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
-
 			//Section for Folders
 			for (auto& [name, entry] : node.children)
 			{
@@ -393,36 +402,27 @@ namespace SliceEditor
 
 			if (ImGui::Button("Compile"))
 			{
+				if (assetType == AssetType::Model)
+				{
+					auto* data = static_cast<ModelData*>(file.metaData.get());
+					if (data->is_static == false) //It has skele and anim
+					{
+						//Create the skeleton and animation first
+						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+
+						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+					}
+				}
 				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
-				//ImGui::CloseCurrentPopup();
-				//willOpen = false;
+				ImGui::CloseCurrentPopup();
+				willOpen = false;
 			}
 
 			ImGui::SameLine();
-			if (assetType == AssetType::Model)
-			{
-				if (ImGui::Button("Compile Skl"))
-				{
-					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
-					skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-					mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton);
-				//	ImGui::CloseCurrentPopup();
-					//willOpen = false;
-				}
-
-				ImGui::SameLine();
-
-				if (ImGui::Button("Compile Anim"))
-				{
-					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
-					animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-					mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation);
-					//ImGui::CloseCurrentPopup();
-					//willOpen = false;
-				}
-
-				ImGui::SameLine();
-			}
 
 			if (ImGui::Button("Cancel"))
 			{
@@ -481,7 +481,10 @@ namespace SliceEditor
 		}
 
 		Label("Generate Mips: ");
-		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips));
+		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
+		{
+
+		}
 
 		Label("Mip Count: ");
 		int mip = data->mip_count;
@@ -492,7 +495,10 @@ namespace SliceEditor
 		}
 
 		Label("Has Alpha: ");
-		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha));
+		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha))
+		{
+
+		}
 
 		Label("Alpha_Threshold: ");
 		int threshold = data->alpha_threshold;

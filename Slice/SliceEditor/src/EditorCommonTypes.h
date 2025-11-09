@@ -108,7 +108,7 @@ namespace SliceEditor
 		}
 	};
 
-	struct DirectoryNode : SelectionNode
+	struct DirectoryNode : SelectionNode //Content Browser
 	{
 		std::string fileName;
 		std::filesystem::path path;
@@ -117,7 +117,7 @@ namespace SliceEditor
 		bool isDirectory = false;
 	};
 
-	struct DroppedFile
+	struct DroppedFile //Dropped File (From File Explorer to Editor)
 	{
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;

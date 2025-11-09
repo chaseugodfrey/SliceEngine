@@ -629,15 +629,15 @@ namespace SliceEngine
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		auto& camTrans = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 
-		glm::vec3 target{ 1.f, 0.f, 0.f }, up{ 0.f, 1.f, 0.f };
-		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
+		auto& worldTr = camTrans.transform;
+
+		glm::vec3 camPosition{ worldTr[3] }, target{1.f, 0.f, 0.f}, up{0.f, 1.f, 0.f};
+		glm::mat3 rot = glm::mat3(worldTr);
 
 		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
-		glm::vec3 forward = camTrans.rotation * glm::vec3(1.0f, 0.0f, 0.0f);
-		glm::vec3 upVec = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 forward = glm::normalize(rot * target);
 
-
-		V = glm::lookAt(camTrans.position, camTrans.position + forward , upVec);
+		V = glm::lookAt(camPosition, camPosition + forward, up);
 
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
 	}

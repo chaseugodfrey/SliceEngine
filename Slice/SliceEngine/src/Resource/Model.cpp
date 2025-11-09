@@ -644,7 +644,7 @@ namespace SliceEngine
 			}
 
 			glBindVertexArray(0);
-			drawCnt = indices.size();
+			drawCnt = static_cast<GLuint>(indices.size());
 			drawMode = GL_TRIANGLES;
 		}
 

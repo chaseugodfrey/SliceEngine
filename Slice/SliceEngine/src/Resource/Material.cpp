@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include <sstream>
 #include "Core/Core.h"
 
+
 namespace SliceEngine
 {
 	namespace SliceEngineTypes {
@@ -47,10 +48,10 @@ namespace SliceEngine
 				return temp;
 			}
 			// shouldn't need a [0]. Need check how the material file is created
-			temp.albedo.mGUID = (GUID)materialJson[0]["albedo"].get<uint64_t>();
+			temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.roughness = materialJson[0]["roughness"].get<float>();
-			temp.metallic = materialJson[0]["metalic"].get<float>();
+			temp.roughness = materialJson["roughness"].get<float>();
+			temp.metallic = materialJson["metallic"].get<float>();
 
 			return temp;
 		}
@@ -58,5 +59,7 @@ namespace SliceEngine
 		void Material::DestroyMaterial() {
 			albedo.Release();
 		}
+
+		
 	}
 }

@@ -23,10 +23,11 @@ namespace SliceEngine
 	class BoneSystem : public BaseSystem<Bone_Entity, Bone, Transform>
 	{
 	public:
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override ;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
 		void Update_Scenegraph() const;
+		void Update_Bones(entt::registry& reg, entt::entity entity);
 	};
 
 	

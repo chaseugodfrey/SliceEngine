@@ -39,8 +39,9 @@ namespace SliceEditor
 
 		// temp component header
 		template <typename ComponentType>
-		void DisplayComponentHeader(entt::entity entity, bool closeable = true)
+		bool DisplayComponentHeader(entt::entity entity, bool closeable = true)
 		{
+			bool isDeleted = false;
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
 
 			if (ImGui::Button("-"))
@@ -56,6 +57,7 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Remove Component"))
 				{
 					SliceEngine::Core::GetInstance()->GetRegistry().remove<ComponentType>(entity);
+					isDeleted = true;
 				}
 				
 				if (!closeable)
@@ -65,6 +67,8 @@ namespace SliceEditor
 			}
 
 			ImGui::Separator();
+
+			return isDeleted;
 		}
 
 		void DisplayTransform(entt::entity entity);

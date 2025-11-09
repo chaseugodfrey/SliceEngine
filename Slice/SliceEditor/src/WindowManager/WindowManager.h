@@ -46,12 +46,11 @@ namespace SliceEditor
 		~WindowManager() = default;
 
 		//void Init(EditorState& editorState);
-		void AddWindow(const std::string& name);
 
 		template <typename WindowType>
-		bool CheckIfWindowExists()
+		inline bool CheckIfWindowExists()
 		{
-			for (const auto& window : list) {
+			for (auto& window : list) {
 				if (dynamic_cast<WindowType*>(window.get())) {
 					return true;
 				}
@@ -61,11 +60,13 @@ namespace SliceEditor
 		}
 		
 		template <typename WindowType>
-		void AddWindow(bool singleInstanceCheck = false)
+		inline void AddWindow()
 		{
-			if (singleInstanceCheck)
-				if (CheckIfWindowExists<WindowType>())
-					return;
+			if (CheckIfWindowExists<WindowType>())
+			{
+				SLICE_LOG("Only one instance of this window can exist.");
+				return;
+			}
 
 			static_assert(std::is_base_of_v<EditorWindow, WindowType>, "WindowType must derive from EditorWindow");
 
@@ -74,6 +75,26 @@ namespace SliceEditor
 			list.push_back(std::move(window));
 		}
 
+		template <typename WindowType>
+		inline void AddWindow(const char* name)
+		{
+			auto it = windowFactoryMap.find(std::string(name));
+			if (it != windowFactoryMap.end())
+			{
+				if (CheckIfWindowExists<WindowType>())
+				{
+					SLICE_LOG("Only one instance of this window can exist.");
+					return;
+				}
+
+				auto window = it->second->CreateEditorWindow();
+				list.push_back(std::move(window));
+			}
+			else
+			{
+				assert(true);
+			}
+		}
 
 		void Init();
 		void Update() override;

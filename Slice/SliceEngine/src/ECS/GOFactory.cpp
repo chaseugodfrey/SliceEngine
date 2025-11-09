@@ -132,7 +132,7 @@ namespace SliceEngine
 
 		return newGO;
 	}
-
+	
 	GameObject GOFactory::GetGOByName(std::string name)
 	{
 		auto it = mNameToEntity.find(name);
@@ -151,6 +151,29 @@ namespace SliceEngine
 			return it->second;
 		}
 		return GameObject();
+	}
+
+	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)
+	{
+		std::vector<Entity> result;
+
+		// Arbitrary number as idk what to expect
+		result.reserve(64);
+
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				result.push_back(entity);
+			}
+		}
+
+
+		return result;
 	}
 
 	Entity GOFactory::GetRootEntity()
@@ -392,8 +415,14 @@ namespace SliceEngine
 		auto& tr = mRegistry.get<Transform>(entity);
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
-		auto mat = glm::inverse(tr_par.transform) * tr.transform;
-		
+		// Build the world transform matrix from the current position/rotation/scale
+		glm::mat4 worldTransform = glm::translate(glm::mat4(1.0f), tr.position) *
+			glm::mat4_cast(tr.rotation) *
+			glm::scale(glm::mat4(1.0f), tr.scale);
+
+		// Convert world transform to local space relative to parent
+		auto mat = glm::inverse(tr_par.transform) * worldTransform;
+
 		glm::vec3 translation, scale, skew;
 		glm::vec4 perspective;
 		glm::quat rotation;
@@ -560,9 +589,28 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+	}
+	
+	GameObject GOFactory::CreateGO_Sphere()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<RigidBody>();
 
-		//testing only
-		//return CreateGO_Model((GUID)17518266545644652909);
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Capsule()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::CapsuleData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
 	}
 
 	GameObject GOFactory::CreateGO_Cam()
@@ -592,10 +640,14 @@ namespace SliceEngine
 
 		if (!is_static)
 		{
-			go.AddComponent<Bone>();
-			auto& bone = go.GetComponent<Bone>();
-			bone.skeleton_root = root;
-			bone.frame_idx = index;
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
 		}
 
 		if (!node.mesh_ref.empty()) {
@@ -624,10 +676,14 @@ namespace SliceEngine
 				s_rc.meshOffset = node.mesh_ref[i];
 
 				if (!is_static) {
-					sibling.AddComponent<Bone>();
-					auto& s_bone = sibling.GetComponent<Bone>();
-					s_bone.skeleton_root = root;
-					s_bone.frame_idx = index;
+					Bone tmpSibling;
+					tmpSibling.skeleton_root = root;
+					tmpSibling.frame_idx = index;
+
+					sibling.AddComponent<Bone>(tmpSibling);
+					//auto& s_bone = sibling.GetComponent<Bone>();
+					//s_bone.skeleton_root = root;
+					//s_bone.frame_idx = index;
 					s_rc.skinned = true;
 				}
 				//rc.texture = (GUID)18349208178533231704;
@@ -874,13 +930,12 @@ namespace SliceEngine
 			}
 
 			// Each component for this GameObject is here
-			std::cout << storage.type().name() << std::endl;
 			std::string componentName(storage.type().name());
 
 			rttr::type componentType = rttr::type::get_by_name(componentName);
 			if (!componentType)
 			{
-				SLICE_LOG_ERROR("Component is not registered");
+				//SLICE_LOG_ERROR("Component is not registered");
 				continue;
 			}
 

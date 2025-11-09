@@ -2,7 +2,10 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <../src/Systems/SceneSystem.h>
+#include <../src/Systems/PrefabSystem.h>
+
 
 namespace SliceEditor
 {
@@ -29,6 +32,38 @@ namespace SliceEditor
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Box();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Sphere();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Capsule();
 
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
@@ -71,6 +106,11 @@ namespace SliceEditor
 			}
 
 			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history)
+		{
+			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)
@@ -147,6 +187,121 @@ namespace SliceEditor
 			selectionManager.ClearSelection(true);
 		}
 
+		void Scene_Save()
+		{
+			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+		}
+
+		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
+		{
+			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+		}
+
+		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
+		{
+			if (ImGui::BeginMenu("Create"))
+			{
+				if (ImGui::MenuItem("Folder"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Material"))
+				{
+					CreateFile_MaterialFile(reg, descPath);
+				}
+
+				if (ImGui::MenuItem("Animation Clip"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Animator Controller"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Shader"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		void MenuList_CreateGameObjects(HistoryManager* history)
+		{
+			if (ImGui::MenuItem("Camera"))
+			{
+				EditorUtilities::GameObject_CreateCam(entt::null, history);
+			}
+
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Box"))
+				{
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
+				}
+
+				if (ImGui::MenuItem("Sphere"))
+				{
+					EditorUtilities::GameObject_CreateSphere(entt::null, history);
+				}
+
+				if (ImGui::MenuItem("Capsule"))
+				{
+					EditorUtilities::GameObject_CreateCapsule(entt::null, history);
+				}
+
+				if (ImGui::MenuItem("Quad"))
+				{
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
+				}
+
+				if (ImGui::MenuItem("Plane"))
+				{
+					EditorUtilities::GameObject_CreateBox(entt::null, history);
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("UI"))
+			{
+				if (ImGui::MenuItem("Canvas"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Text"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Image"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Button"))
+				{
+
+				}
+
+				if (ImGui::MenuItem("Slider"))
+				{
+
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath)
+		{
+			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
+		}
 
 		void GameObject_RemoveComponent(entt::entity entity, const std::string& componentName, HistoryManager* history = nullptr)
 		{

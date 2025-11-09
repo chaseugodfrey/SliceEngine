@@ -102,7 +102,7 @@ namespace SliceEditor
 				const dtMeshTile* tile = tNavMesh->getTile(t);
 				if (!tile->header) continue;
 
-				dtPolyRef  base = tNavMesh->getPolyRefBase(tile); // Start of drawMeshTile code
+				//dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
@@ -113,20 +113,20 @@ namespace SliceEditor
 					// The Blue Floor
 					for (int j{}; j < pd->triCount; ++j)
 					{
-						const unsigned char* t = &tile->detailTris[(pd->triBase + j) * 4];
+						const unsigned char* z = &tile->detailTris[(pd->triBase + j) * 4];
 						for (int k{}; k < 3; ++k)
 						{
-							if (t[k] < p->vertCount)
+							if (z[k] < p->vertCount)
 							{
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3]);
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 1]);
-								vertices.push_back(tile->verts[p->verts[t[k]] * 3 + 2]);
-							}
-							else
-							{
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 1]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + t[k] - p->vertCount) * 3 + 2]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 1]);
+								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 2]);
+							}			 
+							else		 
+							{			 
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 1]);
+								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 2]);
 							}
 						}
 					}
@@ -212,7 +212,7 @@ namespace SliceEditor
 			glVertexArrayVertexBuffer(dNavMesh[0].vao, 0, dNavMesh[0].vbo, 0, sizeof(float) * 3);
 			glVertexArrayAttribBinding(dNavMesh[0].vao, 0, 0);
 
-			dNavMesh[0].drawCnt = vertices.size() / 3;
+			SliceEngine::Core::GetInstance()->debugMesh.drawCnt = static_cast<uint32_t>(vertices.size() / 3);
 			// ********************************************* Boundaries *********************************************
 			glCreateBuffers(1, &dNavMesh[1].vbo);
 			glNamedBufferStorage(dNavMesh[1].vbo, verticesBoundaries.size() * sizeof(float), verticesBoundaries.data(), 0);

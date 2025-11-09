@@ -38,6 +38,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/PrefabSystem.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
+#include "Systems/CoroutineManager.h"
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -78,7 +79,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		EnableMemoryLeakChecking(-1);
+		//EnableMemoryLeakChecking(92083);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -177,7 +178,7 @@ namespace SliceEngine
 
 		testing.AddComponent<Renderer>();
 		testing.AddComponent<AudioSource>();*/
-		Core::GetInstance()->mFactory.TestLoop();
+		//Core::GetInstance()->mFactory.TestLoop();
 		LoadProjectSettings();
 		//Core::GetInstance()->mFactory.TestLoop();
 
@@ -256,10 +257,17 @@ namespace SliceEngine
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
+					sAnimator.InitSystem();
 					isPlaying = true;
 
 				}
-				sScene->WriteTempFile();
+
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
@@ -317,7 +325,6 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
 		}
-		
 		frm.EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
@@ -325,7 +332,7 @@ namespace SliceEngine
 
 		frm.StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm.getFixedDeltaTime()));
-		sTransform.UpdateWorldTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		sTransform.UpdateTransforms();
 		frm.EndSystem("Transform");
 
 		frm.StartSystem("Physics");
@@ -349,6 +356,7 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
+			
 		}
 		frm.EndSystem("Physics");
 
@@ -397,6 +405,8 @@ namespace SliceEngine
 	void Engine::LoadProjectSettings()
 	{
 		auto sScene = Core::GetInstance()->GetSceneSystem();
+		auto sResourceManager = Core::GetInstance()->GetResourceManager();
+
 		std::filesystem::path proj = "projectSettings.json";
 
 		ProjectSettings s;
@@ -433,8 +443,21 @@ namespace SliceEngine
 
 			else
 			{
-				sScene->LoadScene(sceneToLoad); // for now by filepath
-				sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+				std::filesystem::path sceneFilePath(sceneToLoad);
+				auto path = sResourceManager->GetResourcePath(sceneFilePath.stem().string());
+
+				if (path.has_value())
+				{
+					SLICE_LOG("Scene File Path" + path.value().string());
+					sScene->SetDefaultScenePath(sceneFilePath);
+					sScene->LoadScene(sceneFilePath);
+					sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+				}
+				
+				//sScene->LoadScene(sceneToLoad); // for now by filepath
+				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+
+				
 			}
 		}
 	}
