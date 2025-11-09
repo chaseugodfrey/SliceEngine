@@ -183,7 +183,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format, float min, float max)
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format, int min, int max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);

@@ -156,18 +156,18 @@ namespace SliceEditor
 
 						for (int k{}; k < pd->triCount; ++k)
 						{
-							const unsigned char* t = &tile->detailTris[(pd->triBase + k) * 4];
+							const unsigned char* d = &tile->detailTris[(pd->triBase + k) * 4];
 							const float* tv[3];
 							for (int m{}; m < 3; ++m)
 							{
-								if (t[m] < p->vertCount)
-									tv[m] = &tile->verts[p->verts[t[m]] * 3];
+								if (d[m] < p->vertCount)
+									tv[m] = &tile->verts[p->verts[d[m]] * 3];
 								else
-									tv[m] = &tile->detailVerts[(pd->vertBase + (t[m] - p->vertCount)) * 3];
+									tv[m] = &tile->detailVerts[(pd->vertBase + (d[m] - p->vertCount)) * 3];
 							}
 							for (int m{}, n{ 2 }; m < 3; n = m++)
 							{
-								if ((dtGetDetailTriEdgeFlags(t[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
+								if ((dtGetDetailTriEdgeFlags(d[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
 									continue;
 								static const float thr = 0.01f * 0.01f;
 								if (distancePtLine2d(tv[n], v0, v1) < thr &&

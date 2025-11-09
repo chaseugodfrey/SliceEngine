@@ -481,7 +481,7 @@ namespace SliceEditor
 		{
 			auto texture = textureHandle.value().get();
 			if (texture || texture->texture_id != 0)
-				return ImTextureID(texture->texture_id);
+				return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(texture->texture_id));
 		}
 
 		return nullptr;
