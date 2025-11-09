@@ -174,6 +174,8 @@ namespace SliceEngine
 		void ClearGameObjects();
 		void UpdateTransformFromParent(Entity entity, Entity parent);
 
+		bool CheckValidName(Entity entity);
+
 		void FactoryShutdown();
 
 		// todo : bring to prefab factory
