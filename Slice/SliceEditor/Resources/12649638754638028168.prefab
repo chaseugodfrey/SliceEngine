@@ -22,7 +22,19 @@
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.TestEntity"
+                "scriptName": "SliceEngine.EnemyChase"
+            },
+             "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "isTrigger": false,
+                "layer": "1",
+                "offSet": ""
             },
             "struct SliceEngine::SliceEntity": {
                 "mName": "GameObject_1",
