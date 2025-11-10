@@ -45,7 +45,7 @@ namespace SliceEngine
 
         public override void OnCollideStay(uint other)
         {
-            gameObject.Destroy();
+          //  gameObject.Destroy();
         }
 
     }
