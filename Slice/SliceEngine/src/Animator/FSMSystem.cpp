@@ -58,16 +58,6 @@ namespace SliceEngine
 			{
 				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
 
-				if (currentParamValue.is_type<bool>())
-				{
-					// 2. If true, safely get the value
-					bool value = currentParamValue.get_value<bool>();
-					if (value)
-					{
-						value = false;
-					}
-				}
-
 				if (EvalCon(currentParamValue, transition.operation, transition.condition))
 				{
 					EFSM.nextState = transition.targetState;
@@ -164,6 +154,19 @@ namespace SliceEngine
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
 		EFSM.parameters[name] = value;
+		for (auto& [key, var] : EFSM.parameters)
+		{
+			if(value)
+			{
+				if (var.is_type<bool>())
+				{
+					if (std::strcmp(key.c_str(), name.c_str()) != 0)
+					{
+						var = false;
+					}
+				}
+			}
+		}
 	}
 }
 

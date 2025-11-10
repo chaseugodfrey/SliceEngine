@@ -38,13 +38,9 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+        public virtual void OnCollideEnter(uint other) {  }
 
-        public virtual void OnCollisionEnter(GameObject other) { }
-        private void OnCollideEnter(uint other)
-        {
-            GameObject otherObject = new GameObject(other);
-            OnCollisionEnter(otherObject);
-        }
+        public virtual void OnCollideStay(uint other) { }
 
         public bool HasComponent<T>() where T : Component, new()
         {
@@ -70,7 +66,12 @@ namespace SliceEngine
             return entity;
         }
 
-        public void StartCoroutine(IEnumerator routine)
+        public void Destroy()
+        {
+            FunctionCalls.Destroy(gameObject.mID);
+        }
+
+                public void StartCoroutine(IEnumerator routine)
         {
             if (routine != null)
                 CoroutineManager.StartCoroutine(routine, this);

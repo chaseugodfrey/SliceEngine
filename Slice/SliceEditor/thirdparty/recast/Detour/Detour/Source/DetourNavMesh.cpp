@@ -640,8 +640,15 @@ namespace
 				(DT_DETAIL_EDGE_BOUNDARY << 0) |
 				(DT_DETAIL_EDGE_BOUNDARY << 2) |
 				(DT_DETAIL_EDGE_BOUNDARY << 4);
-			if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0) // get rid of ! if breaks lol
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4127)
+#endif
+			if (onlyBoundary && (tris[3] & ANY_BOUNDARY_EDGE) == 0)
 				continue;
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 			const float* v[3];
 			for (int j = 0; j < 3; ++j)

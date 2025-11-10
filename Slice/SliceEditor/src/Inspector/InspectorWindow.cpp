@@ -115,33 +115,25 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-						/*ImGui::Text("Audio Clip");
-						ImGui::SameLine(150);
+
+						ImGui::Text("Audio Clip");
+						ImGui::SameLine(150.0f);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-						ImGui::InputText("##audio_file", &as.soundGUID, ImGuiInputTextFlags_ReadOnly);*/
-						float volume = as.currentVolume;
-						if (SliderFloatInputHeader(mRegistry, "Volume", "##currVol", volume, "%.1f", 0.0, 1.0))
+						std::string audioGUID_string = std::to_string(as.soundGUID.GetGUID());
+						std::string audioFilename;
+						if (mRegistry.GetAssetManager().mGUIDtoFilename.find(as.soundGUID) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 						{
-							as.currentVolume = volume; // mark dirty via patch
+							audioFilename = mRegistry.GetAssetManager().mGUIDtoFilename[as.soundGUID];
 						}
-
-						bool loop = as.isLoop;
-						if (BoolInputHeader(mRegistry, "Is Loop", "##looping", loop))
+						else
 						{
-							as.isLoop = loop;
+							audioFilename = audioGUID_string;
 						}
-
-						bool is3D = as.is3D;
-						if (BoolInputHeader(mRegistry, "Is 3D", "##is3D", is3D))
-						{
-							as.is3D = is3D;
-						}
-
-						bool paused = as.isPaused;
-						if (BoolInputHeader(mRegistry, "Is Paused", "##isPaused", paused))
-						{
-							as.isPaused = paused;
-						}
+						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
+						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
+						BoolInputHeader(mRegistry, "Is 3D", "##is3D", as.is3D);
+						BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
 
 						ImGui::Text("Play Preview");
 						ImGui::SameLine(150);
@@ -423,8 +415,8 @@ namespace SliceEditor
 						{
 							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
 							char buffer[128];
-							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
-							buffer[sizeof(str)] = '\0';
+							strncpy_s(buffer, sizeof(buffer), str.c_str(), sizeof(buffer) - 1);
+							buffer[sizeof(buffer) - 1] = '\0';
 
 							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
 							{

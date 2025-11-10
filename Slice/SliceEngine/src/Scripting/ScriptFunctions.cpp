@@ -8,7 +8,7 @@
  brief:       Contains the static functions that are meant to be linked to mono c# so that c# scripts can call. Function Names have to match
 				the C# equivalent so that it can bind
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -278,6 +278,11 @@ namespace SliceEngine
 			return 0;
 		}
 	}
+
+	static void Destroy(unsigned int entity)
+	{
+		FactoryInstance.Destroy((Entity)entity);
+	}
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -384,6 +389,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
+		ADD_INTERNAL_CALL(Destroy);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
