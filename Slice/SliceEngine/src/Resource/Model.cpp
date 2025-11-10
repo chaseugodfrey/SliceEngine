@@ -284,6 +284,8 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+
+			name = "Cube";
 			return;
 		}
 
@@ -356,6 +358,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Sphere";
 			return;
 		}
 
@@ -471,6 +474,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Capsule";
 			return;
 		}
 
@@ -496,6 +500,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Quad";
 			return;
 		}
 
@@ -522,6 +527,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Line";
 			return;
 		}
 
@@ -546,7 +552,8 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
-			
+
+			name = "Frustrum";
 			return;
 		}
 

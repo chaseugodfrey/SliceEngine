@@ -390,6 +390,19 @@ namespace SliceEngine
 
 		RTTR_ENABLE();
 	};
+
+	struct Canvas
+	{
+		enum Type {
+			OVERLAY
+			//CAMERA
+			//WORLD
+		};
+
+		unsigned int sort_order{};
+
+		RTTR_ENABLE();
+	};
 }
 
 #endif
