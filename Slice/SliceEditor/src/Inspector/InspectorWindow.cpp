@@ -273,7 +273,7 @@ namespace SliceEditor
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto& colliderData = reg.get<SliceEngine::ColliderShape>(entity);
 
-		const char* arr[2] = { "Moving", "Non-Moving" };
+		const char* arr[2] = { "Non-Moving" ,"Moving" };
 		std::string colliderName;
 		
 		std::visit([&](auto&& data)
@@ -301,7 +301,7 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames{ "Moving", "Non-Moving" };
+					static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
 					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 				});

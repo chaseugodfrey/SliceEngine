@@ -231,6 +231,22 @@ namespace SliceEngine
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+		}
+
+		std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
+
+		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, true);
+		}
+		else if (!colliderShape.isTrigger && physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, false);
+		}
+
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
 			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
@@ -390,21 +406,6 @@ namespace SliceEngine
 				}
 			}
 
-		}
-
-
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
-		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
-		}
-
-		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
-		{
-			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, true);
-		}
-		else if (!colliderShape.isTrigger && physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
-		{
-			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, false);
 		}
 
 	}
