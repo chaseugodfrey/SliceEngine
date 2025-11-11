@@ -7,54 +7,75 @@ namespace SliceEngine
 {
     public class CoroutineManager
     {
-        private class CoroutineState
+        private class Coroutine
         {
             public IEnumerator Enumerator;
+            public SliceBehaviour Owner;
             public object CurrentYield;
+        }   
+
+        private static readonly List<Coroutine> coroutines = new List<Coroutine>();
+        private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
+
+        public static void StartCoroutine(IEnumerator routine, SliceBehaviour owner)
+        {
+            if (routine == null || owner == null)
+                return;
+
+            newCoroutines.Add(new Coroutine
+            {
+                Enumerator = routine,
+                Owner = owner,
+                CurrentYield = null
+            });
         }
 
-        private static readonly List<CoroutineState> coroutines = new List<CoroutineState>();
-        private static readonly List<IEnumerator> newCoroutines = new List<IEnumerator>();
-
-        public static void StartCoroutine(IEnumerator routine)
+        public static void StopAllCoroutines(SliceBehaviour owner = null)
         {
-            if (routine != null)
-                newCoroutines.Add(routine);
-        }
+            if (owner == null)
+            {
+                coroutines.Clear();
+                newCoroutines.Clear();
+                return;
+            }
 
-        public static void StopAllCoroutines()
-        {
-            coroutines.Clear();
-            newCoroutines.Clear();
+            // Remove only coroutines belonging to this owner
+            coroutines.RemoveAll(c => c.Owner == owner);
+            newCoroutines.RemoveAll(c => c.Owner == owner);
         }
 
         public void OnUpdate(float dt)
         {
-            if (coroutines.Count == 0 && newCoroutines.Count == 0)
-                return;
-
-            foreach (var r in newCoroutines)
+            // Register new coroutines
+            if (newCoroutines.Count > 0)
             {
-                coroutines.Add(new CoroutineState { Enumerator = r, CurrentYield = null });
+                coroutines.AddRange(newCoroutines);
+                newCoroutines.Clear();
             }
-            newCoroutines.Clear();
 
-
-            // Step all coroutines
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
-                var state = coroutines[i];
-                var e = state.Enumerator;
+                var c = coroutines[i];
 
-                if (state.CurrentYield is WaitForSeconds wait)
+                // Owner destroyed? Stop coroutine
+                if (c.Owner == null)
                 {
-                    // Tick the wait
-                    if (!wait.Tick(dt))
-                        continue; // still waiting, skip this frame
+                    coroutines.RemoveAt(i);
+                    continue;
                 }
 
-                // Move to next yield
-                bool alive = e.MoveNext();
+                // Owner inactive? Pause coroutine
+                if (!c.Owner.activeSelf)
+                    continue;
+
+                // Handle WaitForSeconds
+                if (c.CurrentYield is WaitForSeconds wait)
+                {
+                    if (!wait.Tick(dt))
+                        continue; // still waiting
+                }
+
+                bool alive = c.Enumerator.MoveNext();
 
                 if (!alive)
                 {
@@ -63,9 +84,8 @@ namespace SliceEngine
                     continue;
                 }
 
-                state.CurrentYield = e.Current;
+                c.CurrentYield = c.Enumerator.Current;
             }
-
         }
     }
     public class WaitForSeconds
