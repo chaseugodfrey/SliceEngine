@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <filesystem>
 #include "../../SliceEngine/src/Resource/ResourceManager.h"
+#include <Serializer/JSONSerializer.h>
 #include "../../SliceEngine/src/Animator/FSMSystem.h"
 
 namespace SliceEditor
@@ -501,6 +502,7 @@ namespace SliceEditor
 		//GUID normalMap;
 		float roughness = 0.0f;
 		float metallic = 0.0f;
+		glm::vec3 color{ 1.0f };
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -516,6 +518,7 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["roughness"] = roughness;
 			metaJson["metallic"] = metallic;
+			to_json(metaJson["color"], color);
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())
@@ -545,6 +548,7 @@ namespace SliceEditor
 			// properties
 			roughness = metaJson["roughness"].get<float>();
 			metallic = metaJson["metallic"].get<float>();
+			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
@@ -563,6 +567,7 @@ namespace SliceEditor
 			// properties
 			roughness = metaJson["roughness"].get<float>();
 			metallic = metaJson["metallic"].get<float>();
+			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
@@ -575,6 +580,7 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["roughness"] = roughness;
 			metaJson["metallic"] = metallic;
+			to_json(metaJson["color"], color);
 
 			std::ofstream output(desc_path);
 
