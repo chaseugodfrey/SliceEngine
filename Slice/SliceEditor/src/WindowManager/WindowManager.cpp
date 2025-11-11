@@ -472,6 +472,20 @@ namespace SliceEditor
 			auto* core = SliceEngine::Core::GetInstance();
 			auto* window = core->GetWindow();
 
+			// saving to json path
+			static std::string kJsonPath = "../SliceEditor/Assets/InputMappings.json";
+
+			// save/load buttons
+			if (ImGui::Button("Save All")) 
+			{
+				AM.SaveToJson(kJsonPath);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Load All")) 
+			{
+				AM.LoadFromJson(kJsonPath);
+			}
+
 			// create new base[?] map/action
 			static char newMap[64] = "Gameplay";
 			static char newAction[64] = "Jump";
@@ -504,6 +518,7 @@ namespace SliceEditor
 				AM.CreateMap(newMap);
 				AM.enableMap(newMap, true); // enable map upon creation
 			}
+
 			ImGui::SameLine();
 			if (ImGui::Button("Add Action"))
 			{
@@ -511,14 +526,17 @@ namespace SliceEditor
 				if (newType == 0) // button
 				{
 					AM.AddButton(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
 				}
 				else if (newType == 1) // 2D value
 				{
 					AM.AddValue2D(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
 				}
 				else if (newType == 2) // 1D value
 				{
 					AM.AddValue1D(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
 				}
 			}
 
@@ -549,116 +567,118 @@ namespace SliceEditor
 						ImGui::TableSetupColumn("Bindings");
 						ImGui::TableSetupColumn("Bind...");
 						ImGui::TableHeadersRow();
-					}
 
-					// idk how this fixes things tbh but it does
-					// persistent per-row capture state [which rows are currently capturing]
-					// use unordered_map to map action names to bools
-					static std::unordered_map<std::string, bool> sCapturing;
+						// idk how this fixes things tbh but it does
+						// persistent per-row capture state [which rows are currently capturing]
+						// use unordered_map to map action names to bools
+						static std::unordered_map<std::string, bool> sCapturing;
 
-					// loop through all actions in this map and list them
-					for (size_t i{}; i < map.definitions.size(); ++i)
-					{
-						const auto& definition = map.definitions[i];
-						ImGui::TableNextRow();
-
-						// action name
-						ImGui::TableSetColumnIndex(0);
-						ImGui::TextUnformatted(definition.name.c_str());
-
-						// action type
-						ImGui::TableSetColumnIndex(1);
-						if (definition.type == SliceEngine::ActionType::Button)
+						// loop through all actions in this map and list them
+						for (size_t i{}; i < map.definitions.size(); ++i)
 						{
-							ImGui::TextUnformatted("Button");
-						}
-						else if (definition.type == SliceEngine::ActionType::Value2D)
-						{
-							ImGui::TextUnformatted("2D Value");
-						}
-						// for 1d values
-						else if (definition.type == SliceEngine::ActionType::Value1D)
-						{
-							ImGui::TextUnformatted("1D Value");
-						}
+							const auto& definition = map.definitions[i];
+							ImGui::TableNextRow();
 
-						// current bindings
-						ImGui::TableSetColumnIndex(2);
-						{
-							if (definition.bindings.empty())
+							// action name
+							ImGui::TableSetColumnIndex(0);
+							ImGui::TextUnformatted(definition.name.c_str());
+
+							// action type
+							ImGui::TableSetColumnIndex(1);
+							if (definition.type == SliceEngine::ActionType::Button)
 							{
-								ImGui::TextDisabled("No Bindings");
+								ImGui::TextUnformatted("Button");
+							}
+							else if (definition.type == SliceEngine::ActionType::Value2D)
+							{
+								ImGui::TextUnformatted("2D Value");
+							}
+							// for 1d values
+							else if (definition.type == SliceEngine::ActionType::Value1D)
+							{
+								ImGui::TextUnformatted("1D Value");
+							}
+
+							// current bindings
+							ImGui::TableSetColumnIndex(2);
+							{
+								if (definition.bindings.empty())
+								{
+									ImGui::TextDisabled("No Bindings");
+								}
+								else
+								{
+									// show key names using the inputsystem's keycode to name function
+									//for (size_t j{}; j < definition.bindings.size(); ++j)
+									//{
+									for (size_t bi = 0; bi < definition.bindings.size(); ++bi)
+									{
+										const auto& b = definition.bindings[bi];
+										const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
+										if (definition.type == SliceEngine::ActionType::Button)
+										{
+											ImGui::Text("%s", label);
+										}
+										else
+										{
+											ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
+										}
+									}
+									//}
+								}
+							}
+
+							// bind new key/UI
+							ImGui::TableSetColumnIndex(3);
+
+							// create unique key for this aciton's capture state
+							const std::string capKey = mapName + " : " + definition.name;
+							bool& captureInput = sCapturing[capKey]; // check if we're capturing input for this action
+
+							ImGui::PushID((int)i); // push id for button
+							if (!captureInput)
+							{
+								if (ImGui::Button("Bind"))
+								{
+									captureInput = true;
+								}
 							}
 							else
 							{
-								// show key names using the inputsystem's keycode to name function
-								//for (size_t j{}; j < definition.bindings.size(); ++j)
-								//{
-								for (size_t bi = 0; bi < definition.bindings.size(); ++bi)
+								ImGui::TextDisabled("Press a key...");
+								// capture next key press
+								int key = DetectGlfwKeyPress(window);
+								if (key != -1)
 								{
-									const auto& b = definition.bindings[bi];
-									const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
 									if (definition.type == SliceEngine::ActionType::Button)
 									{
-										ImGui::Text("%s", label);
+										AM.BindButton(mapName, definition.name, key);
+										// here is where we call the savetofile function to file
+										AM.SaveToJson(kJsonPath);
 									}
-									else
+									else if (definition.type == SliceEngine::ActionType::Value2D)
 									{
-										ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
+										AM.Bind2D(mapName, definition.name, key, dirX, dirY);
+										AM.SaveToJson(kJsonPath);
 									}
+									else if (definition.type == SliceEngine::ActionType::Value1D)
+									{
+										AM.Bind1D(mapName, definition.name, key, dirX);
+										AM.SaveToJson(kJsonPath);
+									}
+									captureInput = false; // stop capturing after key press
 								}
-								//}
-							}
-						}
-
-						// bind new key/UI
-						ImGui::TableSetColumnIndex(3);
-
-						// create unique key for this aciton's capture state
-						const std::string capKey = mapName + " : " + definition.name;
-						bool& captureInput = sCapturing[capKey]; // check if we're capturing input for this action
-
-						ImGui::PushID((int)i); // push id for button
-						if (!captureInput)
-						{
-							if (ImGui::Button("Bind"))
-							{
-								captureInput = true;
-							}
-						}
-						else
-						{
-							ImGui::TextDisabled("Press a key...");
-							// capture next key press
-							int key = DetectGlfwKeyPress(window);
-							if (key != -1)
-							{
-								if (definition.type == SliceEngine::ActionType::Button)
+								// cancel button
+								ImGui::SameLine();
+								if (ImGui::Button("Cancel"))
 								{
-									AM.BindButton(mapName, definition.name, key);
-									// here is where we call the savetofile function to file
-
+									captureInput = false;
 								}
-								else if (definition.type == SliceEngine::ActionType::Value2D)
-								{
-									AM.Bind2D(mapName, definition.name, key, dirX, dirY);
-								}
-								else if (definition.type == SliceEngine::ActionType::Value1D)
-								{
-									AM.Bind1D(mapName, definition.name, key, dirX);
-								}
-								captureInput = false; // stop capturing after key press
 							}
-							// cancel button
-							ImGui::SameLine();
-							if (ImGui::Button("Cancel"))
-							{
-								captureInput = false;
-							}
+							ImGui::PopID();
 						}
-						ImGui::PopID();
+						ImGui::EndTable();
 					}
-					ImGui::EndTable();
 				}
 			}
 			// ---------------- 1 ----------------

@@ -13,12 +13,11 @@ DigiPen Institute of Technology is prohibited.
 --------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "ActionMapping.h"
-#include "../Input/InputSystem.h"
 #include <cassert> // for assert
 #include <iostream> // for read and write to text file
 #include <fstream> // for file stream
 #include <string>
-#include <json.hpp> // for json serialization
+#include "../nlohmann/include/json.hpp"
 using nlohmann::json;
 
 namespace SliceEngine
@@ -259,7 +258,7 @@ namespace SliceEngine
 		}
 	}
 
-	// Queries
+	// queries
 	bool ActionMappingSystem::PerformedThisFrame(const std::string& mapName, const std::string& actionName)
 	{
 		auto* map = findMap(maps, mapName);

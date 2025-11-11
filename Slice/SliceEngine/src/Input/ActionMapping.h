@@ -97,6 +97,7 @@ namespace SliceEngine
 		// pointer to input system to query key/button states
 		// this explicit default constructor is to ensure input system pointer is provided
 		explicit ActionMappingSystem(InputSystem* input) : inputSys(input) {}
+		void SetInputSystem(InputSystem* input) { inputSys = input; } // setter for input system pointer
 
 		// function to read and write action mappings to file so that they persist between sessions
 		bool SaveToJson(const std::string& path) const;
@@ -115,15 +116,18 @@ namespace SliceEngine
 		// enable/disble action map
 		void enableMap(const std::string& mapName, bool enable);
 
-		// Per-frame processing: call in **Game** mode after glfwPollEvents() + input->Update(),
-		// and before EndFrame() (which calls UpdatePrevInput()).
+		// UGGGGHHHHH i forgot to create functions to clear bindings and actions and entire maps
+		// clear a binding for an action, clear action from map, clear entire map
+		void ClearBinding(const std::string& mapName, const std::string& actionName);
+		void ClearAction(const std::string& mapName, const std::string& actionName);
+		void ClearMap(const std::string& mapName);
 		
 		// process input events and update action states
 		void processInput(const std::string& mapName); 
 		// process all maps
 		void processAllInput(); 
 
-		// Queries
+		// queries
 		bool PerformedThisFrame(const std::string& mapName, const std::string& actionName); // for buttons
 		std::pair<float, float> GetValue2D(const std::string& mapName, const std::string& actionName); // for value2D
 

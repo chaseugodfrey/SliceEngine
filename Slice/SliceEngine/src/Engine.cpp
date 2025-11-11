@@ -56,9 +56,11 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
 	// forward declare global pointer to action mapping system
-	extern ActionMappingSystem* gActionMappingSystemInstance;
-	// actual single instance pointer which is static
-	static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
+	//extern ActionMappingSystem* gActionMappingSystemInstance;
+	//// actual single instance pointer which is static
+	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
+
+	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
 
 
 	//Time class for physics simulation or any other system that uses fixeddt
@@ -244,9 +246,13 @@ namespace SliceEngine
 		// Main Body
 
 		frm.StartSystem("Input");
-		//inputs->Update();
 		sInputs->UpdatePrevInput();
 		frm.EndSystem("Input");
+		// process all enabled action maps in Game mode
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE) 
+		{
+			SliceEngine::GetActionMappingSystem().processAllInput();
+		}
 
 
         frm.StartSystem("Audio");
