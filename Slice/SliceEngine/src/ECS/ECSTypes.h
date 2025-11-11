@@ -391,6 +391,7 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	//for canvas, sprite renderer, rect transform, read comments in canvas system.h
 	struct Canvas
 	{
 		enum Type {
@@ -399,8 +400,53 @@ namespace SliceEngine
 			//WORLD
 		};
 
+		Type canvas_type{ OVERLAY };
 		unsigned int sort_order{};
 
+		//dont serialize these, allocated on component create
+		unsigned int fbo;
+
+		RTTR_ENABLE();
+	};
+
+	struct RectTransform {
+		enum HoriPivot {
+			LEFT,
+			CENTER,
+			RIGHT,
+			STRETCH
+		};
+		enum VertPivot {
+			TOP,
+			MIDDLE,
+			BOTTOM,
+			STRETCH
+		};
+
+		//Settings only for imgui's display and component function calls
+		//old pivot serves as a flag to know how to update intermediate values during the update call
+		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
+		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
+
+		//Intermediate settings used by imgui, all in local space
+		int pos_x{}, pos_y{};			//pixel coord
+		int width{ 100 }, height{ 100 };//pixel size
+		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+
+		//Actual settings used to draw
+		int final_x{}, final_y{};				//position with center of quad as position
+		int final_width{ 100 }, final_height{ 100 };
+
+		//Parent/Canvas reference - done via passing param through the recursive func call maybe
+		void Update(Canvas const& ctx, RectTransform const& parent);
+
+		RTTR_ENABLE();
+	};
+
+
+	struct SpriteRenderer {
+		Handle<SliceEngineTypes::Texture> textureHandle;	//resource handle for texture
+		glm::vec4 rgba;
 		RTTR_ENABLE();
 	};
 }

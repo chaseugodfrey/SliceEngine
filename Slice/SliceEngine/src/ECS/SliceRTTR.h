@@ -222,6 +222,28 @@ namespace SliceEngine
 		.constructor<>()
 		.property("animTime", &Animator::animTimer);
 
+	rttr::registration::class_<Canvas>(typeid(Canvas).name())
+		.constructor<>()
+		.property("canvas_type", &Canvas::canvas_type)
+		.property("sort_order", &Canvas::sort_order);
+
+	rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
+		.constructor<>()
+		.property("hori_pivot", &RectTransform::hori_pivot)
+		.property("vert_pivot", &RectTransform::vert_pivot)
+		.property("pos_x", &RectTransform::pos_x)
+		.property("pos_y", &RectTransform::pos_y)
+		.property("left", &RectTransform::left)
+		.property("right", &RectTransform::right)
+		.property("top", &RectTransform::top)
+		.property("bot", &RectTransform::bot)
+		.property("width", &RectTransform::width)
+		.property("height", &RectTransform::height);
+
+	rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
+		.constructor<>()
+		.property("texture", &SpriteRenderer::textureHandle)
+		.property("rgba", &SpriteRenderer::rgba);
 	}
 }
 #endif
