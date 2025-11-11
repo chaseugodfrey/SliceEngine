@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Scene.h"
 #include "Audio.h"
 #include "Prefab.h"
+#include <Serializer/JSONSerializer.h>
 
 namespace SliceEngine
 {
@@ -47,7 +48,7 @@ namespace SliceEngine
 			switch (defaultID)
 			{
 			case DefaultResourceIDs::COLOR_DEADED_DEFAULT:
-				t->LoadColorTexture(0.8705882f, 0.678431f, 0.92941f, 1.f);
+				t->LoadColorTexture(1.f, 1.f, 1.f, 1.f);
 				break;
 			default:
 				return nullptr;
@@ -123,6 +124,7 @@ namespace SliceEngine
 			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			float newRoughness = materialJson["roughness"].get<float>();
 			float newMetallic = materialJson["metallic"].get<float>();
+			glm::from_json(materialJson["color"], materialToReload->color);
 
 			
 			materialToReload->roughness = newRoughness;

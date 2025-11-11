@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <GL/glew.h>
 #include <sstream>
 #include "Core/Core.h"
+#include <Serializer/JSONSerializer.h>
 
 
 namespace SliceEngine
@@ -27,7 +28,7 @@ namespace SliceEngine
 			temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = 0.6f;
-			temp.metallic = 1.7f;
+			temp.metallic = 0.f;
 			temp.color = glm::vec3(1.f, 1.f, 1.f);
 
 			// filepath to material.mat in resource folder
@@ -53,6 +54,7 @@ namespace SliceEngine
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = materialJson["roughness"].get<float>();
 			temp.metallic = materialJson["metallic"].get<float>();
+			glm::from_json(materialJson["color"], temp.color);
 
 			return temp;
 		}
