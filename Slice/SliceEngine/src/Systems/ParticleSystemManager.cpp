@@ -311,7 +311,7 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.velocity += glm::vec3(0.0f, ps.gForce * dt, 0.0f);
+		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
 	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
 	{

@@ -323,7 +323,7 @@ namespace SliceEngine
 		glm::vec3 maxRandomVelocity{};
 
 		bool hasRandomScale{ false };
-		glm::vec3 scale{};
+		glm::vec3 scale{1.0f};
 		glm::vec3 minRandomScale{};
 		glm::vec3 maxRandomScale{};
 
@@ -333,12 +333,12 @@ namespace SliceEngine
 		glm::vec4 maxRandomColour{};
 
 		bool hasGravity{ false };
-		float gForce{};
+		float gForce{1.0f};
 
 		bool fadeOverLifetime{ false };
 		bool hasCollision{ false };
 		bool destroyOnExpire{ true };
-		uint64_t maxParticles{ 200 };            // pool size. default 200
+		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
