@@ -41,7 +41,7 @@ namespace SliceEngine
 		//std::unique_ptr<ResourceManager> mResource;
 		//std::unique_ptr<RenderManager> mRender;
 
-		FramerateManager &frm ;
+		FramerateManager* frm ;
 
 		Engine();
 		~Engine();

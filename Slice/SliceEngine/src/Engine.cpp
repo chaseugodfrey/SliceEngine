@@ -63,7 +63,7 @@ namespace SliceEngine
 		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
 	}
 
-	Engine::Engine() : frm(SliceEngine::FramerateManager::getInstance())
+	Engine::Engine()
 	{
 		isRunning = false;
 	}
@@ -95,7 +95,9 @@ namespace SliceEngine
 
 		
 		// mResource = std::make_unique<ResourceManager>();
-		frm.Init();
+		//frm.Init();
+		frm = Core::GetInstance()->GetFramerateManager();
+		frm->Init();
 
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
@@ -122,7 +124,7 @@ namespace SliceEngine
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm.getFixedDeltaTime()));
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		gScriptSystem->Init();
@@ -221,48 +223,48 @@ namespace SliceEngine
 			}
 		}
 
-		frm.updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
-		frm.StartFrame();
+		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm->StartFrame();
 
 		//auto mResource = Core::GetInstance()->GetResourceManager();
 
 
-		frm.StartSystem("GLFW Poll Events");
+		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glfwPollEvents();
 
-		frm.EndSystem("GLFW Poll Events");
+		frm->EndSystem("GLFW Poll Events");
 		// Main Body
 
-		frm.StartSystem("Input");
+		frm->StartSystem("Input");
 		//inputs->Update();
 		sInputs->UpdatePrevInput();
-		frm.EndSystem("Input");
+		frm->EndSystem("Input");
 
-        frm.StartSystem("Audio");
-		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm.getDeltaTime()));
+        frm->StartSystem("Audio");
+		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		sAudio->Update();
-        frm.EndSystem("Audio");
+        frm->EndSystem("Audio");
         
-		frm.StartSystem("Script");
+		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			gScriptSystem->OnUpdate((float)frm.getDeltaTime());
+			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
 		}
-		frm.EndSystem("Script");
+		frm->EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
 
 
-		frm.StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm.getFixedDeltaTime()));
+		frm->StartSystem("Transform");
+		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
-		frm.EndSystem("Transform");
+		frm->EndSystem("Transform");
 
-		frm.StartSystem("Physics");
+		frm->StartSystem("Physics");
 		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
@@ -272,35 +274,40 @@ namespace SliceEngine
 		}*/
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
+			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
+				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Single world step
-				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm.getFixedDeltaTime()));
+				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 			}
 			
 		}
-		frm.EndSystem("Physics");
+		frm->EndSystem("Physics");
 
-		sAnimator.Update(static_cast<float>(frm.getFixedDeltaTime()));
-		sBone.Update_Scenegraph();
-		sAnimator.BoneUpdate();
+		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+		{
+			sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sBone.Update_Scenegraph();
+			sAnimator.BoneUpdate();
 
-		frm.StartSystem("Graphics");
+		}
+
+
+		frm->StartSystem("Graphics");
 		sRender->Render();
-		frm.EndSystem("Graphics");
+		frm->EndSystem("Graphics");
 
-		frm.StartSystem("Particle System");
-		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm.getDeltaTime()));
-		frm.EndSystem("Particle System");
+		frm->StartSystem("Particle System");
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+		frm->EndSystem("Particle System");
 
-		frm.EndFrame();
-		frm.CalculateSystemPercentages();
+		frm->EndFrame();
+		frm->CalculateSystemPercentages();
 	}
 
 	void Engine::EndFrame()
