@@ -28,6 +28,7 @@ namespace SliceEngine
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = 0.6f;
 			temp.metallic = 1.7f;
+			temp.color = glm::vec3(1.f, 1.f, 1.f);
 
 			// filepath to material.mat in resource folder
 			std::ifstream file(filepath);

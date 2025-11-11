@@ -28,6 +28,7 @@ namespace SliceEngine
 			Handle<Texture> albedo;
 
 			//GUID albedo;
+			glm::vec3 color;
 			float roughness;
 			float metallic;
 
