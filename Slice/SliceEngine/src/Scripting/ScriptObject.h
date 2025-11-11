@@ -36,13 +36,17 @@ namespace SliceEngine
 		GameObject,
 		String,
 		Audio,
-		Prefab
+		Prefab,
+
+		Array,
+		List
 	};
 
 	//struct
 	struct ScriptField
 	{
 		ScriptFieldType mType{ ScriptFieldType::None };
+		ScriptFieldType mElementType{ ScriptFieldType::None };
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
 

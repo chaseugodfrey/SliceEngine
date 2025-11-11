@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/tabledefs.h>
+#include <mono/metadata/metadata.h>
 #include <mono/metadata/mono-debug.h>
 #include "ScriptFunctions.h"
 #include <filesystem>
@@ -666,7 +667,33 @@ namespace SliceEngine
                             if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
                             {
                                 MonoType* type = mono_field_get_type(field);
-                                ScriptFieldType fieldType = GetScriptFieldType(type);
+                                ScriptFieldType fieldType = ScriptFieldType::None;//GetScriptFieldType(type);
+                                ScriptFieldType elementType = ScriptFieldType::None;
+
+                                int monoTypeEnum = mono_type_get_type(type);
+                                MonoClass* fieldClass = mono_type_get_class(type);
+
+                                // 1D Arrays like int[] or smth
+                                if (monoTypeEnum == MONO_TYPE_SZARRAY)
+                                {
+                                    fieldType = ScriptFieldType::Array;
+                                    MonoClass* elementClass = mono_class_get_element_class(fieldClass);
+                                    elementType = GetScriptFieldType(mono_class_get_type(elementClass));
+                                }
+                                // generic like list<T>
+                                else if (monoTypeEnum == MONO_TYPE_GENERICINST)
+                                {
+                                    const char* name = mono_class_get_name(fieldClass);
+                                    if (strcmp(name, "List'1") == 0)
+                                    {
+                                        fieldType = ScriptFieldType::List;
+                                        MonoGenericClass* genericClass;
+                                    }
+                                }
+                                else
+                                {
+                                    fieldType = GetScriptFieldType(type);
+                                }
 
 
                                 rttr::variant var;
