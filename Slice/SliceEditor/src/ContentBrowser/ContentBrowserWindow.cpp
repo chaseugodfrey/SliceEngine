@@ -335,6 +335,7 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayFileNode(DirectoryNode& node)
 	{
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto& assetMgr = mRegistry.GetAssetManager();
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		std::filesystem::path filePath = node.fileName;
 		std::string fileKey = filePath.stem().stem().string();
@@ -389,6 +390,9 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Re-compile File"))
 			{
+				//Get the metaData for this Asset:
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.path.stem().stem().string());
+
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
 
@@ -416,7 +420,7 @@ namespace SliceEditor
 					break;
 				}
 				//Default Init the MetaData base class
-				file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+				file.metaData->Deserialize(metaPath);
 
 				mManager.mPendingDrops.push(std::move(file));
 			}
@@ -559,7 +563,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
-				mRegistry.GetAssetManager().CreateDescriptorFile(file.filePath);
+				//mRegistry.GetAssetManager().CreateDescriptorFile(file.filePath);
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
