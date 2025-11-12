@@ -105,6 +105,8 @@ namespace SliceEngine
 			ApplyBurst(ps, dt);
 		}
 
+
+		// Update all particles to get final transform
 		bool isAnyParticleActive = false;
 		for (Particle& p : ps.particles)
 		{
@@ -130,8 +132,8 @@ namespace SliceEngine
 			ps.expired = true;
 		}
 
+		// Get all particles' final transforms to be renderered
 		particlesTransforms.clear();
-
 		for (auto& particle : ps.particles)
 		{
 			if (particle.active)
