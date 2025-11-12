@@ -1,2 +1,0 @@
-uiSpriteInstanced.vert
-uiSpriteInstanced.frag

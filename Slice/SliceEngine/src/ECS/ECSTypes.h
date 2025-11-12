@@ -414,13 +414,13 @@ namespace SliceEngine
 			LEFT,
 			CENTER,
 			RIGHT,
-			STRETCH
+			STRETCH_H
 		};
 		enum VertPivot {
 			TOP,
 			MIDDLE,
 			BOTTOM,
-			STRETCH
+			STRETCH_V
 		};
 
 		//Settings only for imgui's display and component function calls

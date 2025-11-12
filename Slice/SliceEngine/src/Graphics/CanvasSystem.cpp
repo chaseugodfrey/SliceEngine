@@ -102,7 +102,7 @@ namespace SliceEngine {
 		//	old_vert = vert_pivot;
 		//}
 
-		if (hori_pivot == HoriPivot::STRETCH) {
+		if (hori_pivot == HoriPivot::STRETCH_H) {
 			const int left_ref = parent_left + left;	//apply left pad
 			const int right_ref = parent_right - right;	//apply right pad
 
@@ -128,7 +128,7 @@ namespace SliceEngine {
 		const int half_height = parent_height / 2;
 		const int parent_top = parent_y + half_height;
 		const int parent_bot = parent_y - half_height;
-		if (vert_pivot == VertPivot::STRETCH) {
+		if (vert_pivot == VertPivot::STRETCH_V) {
 			const int top_ref = parent_top - top;		//apply top pad
 			const int bot_ref = parent_bot + bot;		//apply bot pad
 

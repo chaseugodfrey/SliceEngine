@@ -5,6 +5,7 @@ layout (location=2) in vec2 aTextureCoord;
 
 layout (location=0) out vec2 vTextureCoord;
 
+/*
 struct InstanceData{
 	mat4 pos;
 	vec4 color;
@@ -14,8 +15,10 @@ struct InstanceData{
 layout(std430, binding = 1) readonly buffer InstanceBuffer {
     InstanceData instance_data[];
 };
+*/
 
 void main(void){
 	vTextureCoord 	= aTextureCoord;
+
 	gl_Position	=  instance[gl_InstanceID].pos * vec4(aVertexPosition, 1.0);
 }
