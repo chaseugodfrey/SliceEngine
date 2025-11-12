@@ -11,7 +11,7 @@ namespace SliceEngine
         public float rotationSpeed = 50.0f;
         Animator animator;
         Transform t;
-
+        public string[] test3;
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
 

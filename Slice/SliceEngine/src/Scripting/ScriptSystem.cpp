@@ -666,12 +666,15 @@ namespace SliceEngine
                             if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
                             {
                                 MonoType* type = mono_field_get_type(field);
-                                ScriptFieldType fieldType = GetScriptFieldType(type);
 
+                                MonoClass* elementClass = nullptr;
+                                ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass);
+
+                                
 
                                 rttr::variant var;
                                 // Store it in the script's field map
-                                script->mFields[fieldName] = { fieldType, fieldName, field, var };
+                                script->mFields[fieldName] = { fieldType, fieldName, field, var, elementClass };
                             }
                         }
 
@@ -687,15 +690,38 @@ namespace SliceEngine
             }
     }
 
-    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type)
+    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass)
     {
-        std::string name = mono_type_get_name(type);
-        // If the name exist in our field type map
-        if (sFieldTypeMap.count(name) != 0)
+        *outElementClass = nullptr;
+
+        MonoArrayType* arrayType = mono_type_get_array_type(type);
+
+        if (arrayType)
         {
-            auto iter = sFieldTypeMap.find(name);
-            return iter->second;
+            MonoClass* elementClass = arrayType->eklass;
+            *outElementClass = elementClass;
+
+            MonoType* elementType = mono_class_get_type(elementClass);
+            std::string elementTypeName = mono_type_get_name(elementType);
+
+            if (sFieldTypeMap.count(elementTypeName))
+            {
+                auto iter = sFieldTypeMap.find(elementTypeName);
+
+                return iter->second;
+            }
         }
+        else
+        {
+            std::string name = mono_type_get_name(type);
+            // If the name exist in our field type map
+            if (sFieldTypeMap.count(name) != 0)
+            {
+                auto iter = sFieldTypeMap.find(name);
+                return iter->second;
+            }
+        }
+
 
         return ScriptFieldType::None;
     }
