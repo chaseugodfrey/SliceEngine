@@ -302,16 +302,17 @@ namespace SliceEngine
 		template<typename T>
 		std::vector<T> GetArrayFieldValue(const std::string& name)
 		{
+			std::vector<T> result;
+
 			const auto& fields = mScriptClass->mFields;
 			if (fields.count(name) == 0)
 			{
-				return T();
+				return result;
 			}
 
 			auto iter = fields.find(name);
 			const ScriptField& field = iter->second;
 
-			std::vector<T> result;
 
 			MonoObject* arrayObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
 

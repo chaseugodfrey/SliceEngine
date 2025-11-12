@@ -472,17 +472,24 @@ namespace SliceEngine
         const auto& fields = scriptRef->GetScriptClass()->mFields;
         for (const auto& it : fields)
         {
-            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            if (it.second.mElementClass == nullptr)
             {
-                if (it.second.mType == ScriptFieldType::String)
+                if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
                 {
-                    std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
-                    scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                    if (it.second.mType == ScriptFieldType::String)
+                    {
+                        std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
+                        scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                    }
+                    else
+                    {
+                        scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                    }
                 }
-                else
-                {
-                    scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
-                }
+            }
+            else
+            {
+
             }
 
         }
@@ -502,7 +509,35 @@ namespace SliceEngine
 
             for (const auto& it : fields)
             {
-                if (it.second.mType == ScriptFieldType::Float)
+                if (it.second.mElementClass != nullptr)
+                {
+                    if (it.second.mType == ScriptFieldType::Float)
+                    {
+                        std::vector<float> var = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Bool)
+                    {
+                        std::vector<bool> var = scriptRef->GetArrayFieldValue<bool>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::String)
+                    {
+                        std::vector<std::string> var = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Int)
+                    {
+                        std::vector<int> var = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Vector3)
+                    {
+                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                }
+                else if (it.second.mType == ScriptFieldType::Float)
                 {
                     float var = scriptRef->GetFieldValue<float>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
@@ -520,6 +555,11 @@ namespace SliceEngine
                 else if (it.second.mType == ScriptFieldType::Int)
                 {
                     int var = scriptRef->GetFieldValue<int>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Vector3)
+                {
+                    glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
             }
