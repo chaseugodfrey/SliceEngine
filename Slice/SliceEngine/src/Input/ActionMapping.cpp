@@ -142,6 +142,35 @@ namespace SliceEngine
 		}
 	}
 
+	// functions to clear maps, bindings, actions
+	// so clear binding will read in actionname and mapname, find map, find action, clear all its binding vector and then remove
+	// it from the json file when we call savetofile
+	// clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
+	// clear map just removes the entire map from the maps unordered map
+	void ActionMappingSystem::ClearBinding(const std::string& mapName, const std::string& actionName)
+	{
+		auto it = maps.find(mapName);
+		
+
+	}
+	
+
+	void ActionMappingSystem::ClearAction(const std::string& mapName, const std::string& actionName)
+	{
+		auto it = maps.find(mapName);
+
+		// look for action index
+		
+
+	}
+
+	void ActionMappingSystem::ClearMap(const std::string& mapName)
+	{
+		auto it = maps.find(mapName);
+
+	}
+
+
 	void ActionMappingSystem::enableMap(const std::string& mapName, bool enable)
 	{
 		auto* map = findMap(maps, mapName);
