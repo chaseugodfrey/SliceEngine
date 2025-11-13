@@ -134,7 +134,7 @@ namespace SliceEditor
 			{
 				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
 				{
-					SelectFile(node);
+					SelectFolder(node);
 				}
 
 				for (auto& entry : node.children)
@@ -159,168 +159,127 @@ namespace SliceEditor
 			{
 				if (entry.isDirectory)
 				{
+					ImGui::PushID(&entry);
 					ImGui::TableNextColumn();
-					//DisplayButton(selectedEntry, entry, true);
-
-					if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
-					{
-						selectedEntry = &entry;
-					}
-
-					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-					{
-						selectedEntry = &entry;
-					}
-					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-					{
-						SelectFile(entry);
-						selectedEntry = nullptr;
-						ImGui::EndTable(); //Setting the Pre-mature Table End
-						return;
-					}
-					if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
-					{
-						if (ImGui::MenuItem("Open Folder"))
-						{
-							SelectFile(entry);
-							selectedEntry = nullptr;
-							ImGui::EndPopup();
-							ImGui::EndTable(); //Setting the Pre-mature Table End
-							return;
-						}
-
-						if (ImGui::MenuItem("Rename File"))
-						{
-							mManager.openRenameFile = true;
-						}
-
-						if (ImGui::MenuItem("Delete Folder"))
-						{
-							mManager.DeleteNode(entry);
-							selectedEntry = nullptr;
-							ImGui::EndPopup();
-							ImGui::EndTable();
-							return;
-						}
-						ImGui::EndPopup();
-					}
-
-					ImGui::Text("%s", entry.fileName.c_str());
+					DisplayFolderNode(entry);
+					ImGui::PopID();
 				}
 			}
-
 			//Section for Files
 			for (auto& [name, entry] : node.children)
 			{
 				if (!entry.isDirectory)
 				{
+					ImGui::PushID(&entry);
 					ImGui::TableNextColumn();
+					DisplayFileNode(entry);
+					ImGui::PopID();
 
-					std::filesystem::path filePath = entry.fileName;
-					std::string fileKey = filePath.stem().stem().string();
-					std::string fileExt = filePath.extension().string();
-					bool canDrag = true;
+					/*std::filesystem::path filePath = entry.fileName;
+					//std::string fileKey = filePath.stem().stem().string();
+					//std::string fileExt = filePath.extension().string();
+					//bool canDrag = true;
 
-					if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
-					{
-						canDrag = false;
-					}
+					//if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
+					//{
+					//	canDrag = false;
+					//}
 
-					if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
-					{
-						canDrag = false;
-					}
+					//if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
+					//{
+					//	canDrag = false;
+					//}
 
-					if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
-					{
-						selectedEntry = &entry;
-						selectionManager->SelectSingle(&entry);
-					}
+					//if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
+					//{
+					//	selectedEntry = &entry;
+					//	selectionManager->SelectSingle(&entry);
+					//}
 
-					//Drag and Drop Payload
-					if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
-					{
-						//Check that the extension exists in the map
-						SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
-						std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
-						ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
+					////Drag and Drop Payload
+					//if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					//{
+					//	//Check that the extension exists in the map
+					//	SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
+					//	std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
+					//	ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
 
-						std::string dragText = "Dragging item " + entry.fileName;
-						ImGui::Text(dragText.c_str());
-						ImGui::EndDragDropSource();
-					}
+					//	std::string dragText = "Dragging item " + entry.fileName;
+					//	ImGui::Text(dragText.c_str());
+					//	ImGui::EndDragDropSource();
+					//}
 
-					if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-					{
-						selectedEntry = &entry;
-					}
+					//if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+					//{
+					//	selectedEntry = &entry;
+					//}
 
-					if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-					{
-						mManager.OpenFile(entry);
-					}
+					//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					//{
+					//	mManager.OpenFile(entry);
+					//}
 
-					if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
-					{
-						selectedEntry = &entry;
+					//if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
+					//{
+					//	selectedEntry = &entry;
 
-						if (ImGui::MenuItem("Open File"))
-						{
-							mManager.OpenFile(entry);
-						}
-						if (ImGui::MenuItem("Rename File"))
-						{
-							mManager.openRenameFile = true;
-						}
+					//	if (ImGui::MenuItem("Open File"))
+					//	{
+					//		mManager.OpenFile(entry);
+					//	}
+					//	if (ImGui::MenuItem("Rename File"))
+					//	{
+					//		mManager.openRenameFile = true;
+					//	}
 
-						if (ImGui::MenuItem("Re-compile File"))
-						{
-							//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
-							DroppedFile file;
+					//	if (ImGui::MenuItem("Re-compile File"))
+					//	{
+					//		//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
+					//		DroppedFile file;
 
-							file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
-							file.filePath = entry.path;
-							switch (file.assetType)
-							{
-							case AssetType::Texture:
-								file.metaData = std::make_unique<TextureData>();
-								break;
-							case AssetType::Model:
-								file.metaData = std::make_unique<ModelData>();
-								break;
-							case AssetType::Audio:
-								file.metaData = std::make_unique<AudioData>();
-								break;
-							case AssetType::Scene:
-								file.metaData = std::make_unique<SceneData>();
-								break;
-							case AssetType::Shader:
-								file.metaData = std::make_unique<ShaderData>();
-								break;
-							case AssetType::Prefab:
-								file.metaData = std::make_unique<PrefabData>();
-								break;
-							}
-							//Default Init the MetaData base class
-							file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+					//		file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+					//		file.filePath = entry.path;
+					//		switch (file.assetType)
+					//		{
+					//		case AssetType::Texture:
+					//			file.metaData = std::make_unique<TextureData>();
+					//			break;
+					//		case AssetType::Model:
+					//			file.metaData = std::make_unique<ModelData>();
+					//			break;
+					//		case AssetType::Audio:
+					//			file.metaData = std::make_unique<AudioData>();
+					//			break;
+					//		case AssetType::Scene:
+					//			file.metaData = std::make_unique<SceneData>();
+					//			break;
+					//		case AssetType::Shader:
+					//			file.metaData = std::make_unique<ShaderData>();
+					//			break;
+					//		case AssetType::Prefab:
+					//			file.metaData = std::make_unique<PrefabData>();
+					//			break;
+					//		}
+					//		//Default Init the MetaData base class
+					//		file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
 
-							mManager.mPendingDrops.push(std::move(file));
-						}
+					//		mManager.mPendingDrops.push(std::move(file));
+					//	}
 
-						if (ImGui::MenuItem("Delete File"))
-						{
-							//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
-							//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
-							//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-							mManager.DeleteNode(entry);
-							selectedEntry = nullptr;
-							ImGui::EndPopup();
-							break;
-						}
-						ImGui::EndPopup();
-					}
+					//	if (ImGui::MenuItem("Delete File"))
+					//	{
+					//		//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
+					//		//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
+					//		//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+					//		mManager.DeleteNode(entry);
+					//		selectedEntry = nullptr;
+					//		ImGui::EndPopup();
+					//		break;
+					//	}
+					//	ImGui::EndPopup();
+					//}
 
-					ImGui::Text("%s", name.c_str());
+					//ImGui::Text("%s", name.c_str());*/
 				}
 			}
 
@@ -339,7 +298,143 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserWindow::SelectFile(DirectoryNode& node)
+	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
+	{
+		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		{}
+
+		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
+		{
+			if (ImGui::MenuItem("Open Folder"))
+			{
+				SelectFolder(node);
+				ImGui::EndPopup();
+				//mManager.SetDirty(true);
+			}
+
+			if (ImGui::MenuItem("Rename Folder"))
+			{
+				mManager.openRenameFile = true;
+			}
+
+			if (ImGui::MenuItem("Delete Folder"))
+			{
+				mManager.mDeleteList.push_back(&node);
+			}
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			SelectFolder(node);
+		}
+
+		ImGui::Text("%s", node.fileName.c_str());
+	}
+
+	void ContentBrowserWindow::DisplayFileNode(DirectoryNode& node)
+	{
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		std::filesystem::path filePath = node.fileName;
+		std::string fileKey = filePath.stem().stem().string();
+		std::string fileExt = filePath.extension().string();
+		bool canDrag = true;
+
+		if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
+		{
+			canDrag = false;
+		}
+
+		if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
+		{
+			canDrag = false;
+		}
+
+		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		{
+			selectionManager->SelectSingle(&node);
+		}
+
+		//Drag and Drop Payload
+		if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+		{
+			//Check that the extension exists in the map
+			SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
+			std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
+			ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
+
+			std::string dragText = "Dragging item " + node.fileName;
+			ImGui::Text(dragText.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			mManager.OpenFile(node);
+		}
+
+		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
+		{
+
+			if (ImGui::MenuItem("Open File"))
+			{
+				mManager.OpenFile(node);
+			}
+			if (ImGui::MenuItem("Rename File"))
+			{
+				mManager.openRenameFile = true;
+			}
+
+			if (ImGui::MenuItem("Re-compile File"))
+			{
+				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
+				DroppedFile file;
+
+				file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+				file.filePath = node.path;
+				switch (file.assetType)
+				{
+				case AssetType::Texture:
+					file.metaData = std::make_unique<TextureData>();
+					break;
+				case AssetType::Model:
+					file.metaData = std::make_unique<ModelData>();
+					break;
+				case AssetType::Audio:
+					file.metaData = std::make_unique<AudioData>();
+					break;
+				case AssetType::Scene:
+					file.metaData = std::make_unique<SceneData>();
+					break;
+				case AssetType::Shader:
+					file.metaData = std::make_unique<ShaderData>();
+					break;
+				case AssetType::Prefab:
+					file.metaData = std::make_unique<PrefabData>();
+					break;
+				}
+				//Default Init the MetaData base class
+				file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+				mManager.mPendingDrops.push(std::move(file));
+			}
+
+			if (ImGui::MenuItem("Delete File"))
+			{
+				//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
+				//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
+				//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+				mManager.mDeleteList.push_back(&node);
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::Text("%s", node.fileName.c_str());
+	}
+
+	void ContentBrowserWindow::SelectFolder(DirectoryNode& node)
 	{
 		mManager.selectedFolder = &node;
 	}

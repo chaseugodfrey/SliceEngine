@@ -19,10 +19,10 @@ namespace SliceEngine
             SliceRandom.RangeDouble(0, 0);
         }
 
-        public static void RunTests()
+        public void RunTests()
         {
             CoroutineManager.StopAllCoroutines();
-            CoroutineManager.StartCoroutine(ParentRoutine());
+            StartCoroutine(ParentRoutine());
 
             for (int i = 0; i < 5; i++)
             {
@@ -31,7 +31,7 @@ namespace SliceEngine
             }
         }
 
-        private static IEnumerator SimpleRoutine()
+        private IEnumerator SimpleRoutine()
         {
             Console.WriteLine("SimpleRoutine started");
 
@@ -44,22 +44,22 @@ namespace SliceEngine
             Console.WriteLine("SimpleRoutine finished");
         }
 
-        private static IEnumerator TimedRoutine()
+        private IEnumerator TimedRoutine()
         {
             Console.WriteLine("TimedRoutine started");
             yield return new WaitForSeconds(5.0f);
             Console.WriteLine("TimedRoutine resumed after 5s");
         }
 
-        private static IEnumerator ParentRoutine()
+        private IEnumerator ParentRoutine()
         {
             Console.WriteLine("ParentRoutine started");
-            CoroutineManager.StartCoroutine(ChildRoutine());
+            StartCoroutine(ChildRoutine());
             yield return new WaitForSeconds(2.0f);
             Console.WriteLine("ParentRoutine finished");
         }
 
-        private static IEnumerator ChildRoutine()
+        private IEnumerator ChildRoutine()
         {
             Console.WriteLine("ChildRoutine started");
             yield return new WaitForSeconds(2.0f);

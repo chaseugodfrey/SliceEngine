@@ -414,9 +414,9 @@ namespace SliceEditor
 						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 						{
 							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
-							char buffer[128];
-							strncpy_s(buffer, sizeof(buffer), str.c_str(), sizeof(buffer) - 1);
-							buffer[sizeof(buffer) - 1] = '\0';
+							/*char buffer[128];
+							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
+							buffer[sizeof(str)] = '\0';*/
 
 							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
 							{

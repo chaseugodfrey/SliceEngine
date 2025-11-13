@@ -250,65 +250,68 @@ namespace SliceEditor
 
 				auto core = SliceEngine::Core::GetInstance();
 
-				//core->GetSystem<SliceEngine::AnimatorSystem>().UpdateAnimation(*mCurrentAnimator, core->GetFramerateManager()->getDeltaTime());
-
-				//Bone animation
-				if (mCurrentAnimator->is_bone)
+				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
 				{
-					auto& anim = animationClips[mCurrentClipIndex];
-					if (anim->duration <= 0.0f)
-					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-						mCurrentTime += dt;
+					//core->GetSystem<SliceEngine::AnimatorSystem>().UpdateAnimation(*mCurrentAnimator, core->GetFramerateManager()->getDeltaTime());
 
-						if (mCurrentTime > anim->duration)
+					//Bone animation
+					if (mCurrentAnimator->is_bone)
+					{
+						auto& anim = animationClips[mCurrentClipIndex];
+						if (anim->duration <= 0.0f)
 						{
+							mCurrentTime = 0.0f;
+						}
+						else
+						{
+							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+							mCurrentTime += dt;
 
-							if (!mTimeline.isLoop)
+							if (mCurrentTime > anim->duration)
 							{
-								mTimeline.isPlaying = false;
-								currentFrame = startFrame;
-								mCurrentTime = 0.0f;
-								ret = true;
-							}
-							else
-							{
-								mTimeline.isPlaying = true;
-								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
 
+								if (!mTimeline.isLoop)
+								{
+									mTimeline.isPlaying = false;
+									currentFrame = startFrame;
+									mCurrentTime = 0.0f;
+									ret = true;
+								}
+								else
+								{
+									mTimeline.isPlaying = true;
+									mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+								}
 							}
 						}
+						if (!ret)
+						{
+							float safe_time = std::min(mCurrentTime, anim->duration);
+							//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+							UpdateTransform(anim, safe_time);
+						}
 					}
-					if(!ret)
+
+					//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
+
+					if (!ret)
 					{
-						float safe_time = std::min(mCurrentTime, anim->duration);
-						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-						UpdateTransform(anim, safe_time);
+						// update scenegraph
+						auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+						for (auto entity : viewBone)
+						{
+							UpdateBoneScene(entity);
+						}
+
+						auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+						for (auto entity : viewAnimator)
+						{
+							UpdateBones(entity);
+						}
 					}
+					//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 				}
-
-				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
-
-				if (!ret)
-				{
-					// update scenegraph
-					auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-					for (auto entity : viewBone)
-					{
-						UpdateBoneScene(entity);
-					}
-
-					auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
-					for (auto entity : viewAnimator)
-					{
-						UpdateBones(entity);
-					}
-				}	
-				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 			}
 			
 		}

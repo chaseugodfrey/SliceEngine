@@ -33,7 +33,14 @@ namespace SliceEditor
 
 	void ContentBrowserManager::Update()
 	{
-
+		if (!mDeleteList.empty())
+		{
+			for (auto node : mDeleteList)
+			{
+				DeleteNode(*node);
+			}
+			mDeleteList.clear();
+		}
 	}
 
 	void ContentBrowserManager::LoadDefaultIcons()
@@ -209,11 +216,11 @@ namespace SliceEditor
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
-		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
-		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
+		//SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
+		//SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
 		DirectoryNode& parent = *entry.parent;
-		SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-		SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
+		//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+		//SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
 		std::string fileName = entry.fileName;
 		try
 		{

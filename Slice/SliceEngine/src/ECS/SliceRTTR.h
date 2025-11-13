@@ -81,6 +81,8 @@ namespace SliceEngine
 		.method("empty", &std::string::empty)
 		.method("c_str", &std::string::c_str);
 
+	rttr::registration::class_<std::unordered_map<std::string, rttr::variant>>("StringVariantMap");
+
 	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Texture>::mGUID);
@@ -100,6 +102,10 @@ namespace SliceEngine
 	rttr::registration::class_<FSMSystem>("stateMachine")
 		.constructor<>()
 		.property("EFSM", &FSMSystem::EFSM);
+
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.property("scriptName", &Script::scriptName)
+		.property("scriptableFieldMap", &Script::scriptableFieldMap);
 
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()

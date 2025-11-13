@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,8 @@ namespace SliceEngine
 {
     public class SliceBehaviour : Component
     {
-      //  public uint mID;
-        //public Transform transform;
+        // public uint mID;
+        // public Transform transform;
 
         protected SliceBehaviour()
         {
@@ -68,6 +69,17 @@ namespace SliceEngine
         public void Destroy()
         {
             FunctionCalls.Destroy(gameObject.mID);
+        }
+
+                public void StartCoroutine(IEnumerator routine)
+        {
+            if (routine != null)
+                CoroutineManager.StartCoroutine(routine, this);
+        }
+
+        public void StopAllCoroutines()
+        {
+            CoroutineManager.StopAllCoroutines(this);
         }
     }
 }

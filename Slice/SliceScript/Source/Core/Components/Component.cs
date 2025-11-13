@@ -12,19 +12,19 @@ namespace SliceEngine
         //public SliceBehaviour Entity { get; internal set; }
         public GameObject gameObject { get; internal set; }
 
-      //  // Unique name or tag (like Unity's GameObject.tag)
-      //  public string Tag
-      //  {
-      //      //get => Entity?.Tag ?? string.Empty;
-      //      //set
-      //      //{
-      //      //    if (Entity != null)
-      //      //        Entity.Tag = value;
-      //      //}
-      //  }
-       
+        //  // Unique name or tag (like Unity's GameObject.tag)
+        //  public string Tag
+        //  {
+        //      //get => Entity?.Tag ?? string.Empty;
+        //      //set
+        //      //{
+        //      //    if (Entity != null)
+        //      //        Entity.Tag = value;
+        //      //}
+        //  }
+
         // Whether the entity is active in the scene
-        public bool activeSelf => this?.activeSelf ?? false;
+        public bool activeSelf { get; set; } = true;
 
         // Whether this component is enabled (can override in derived types)
         public bool enabled { get; set; } = true;
