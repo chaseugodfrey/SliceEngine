@@ -52,13 +52,14 @@ namespace SliceEditor
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
 
 			// if anim exists
-			if (anim)
+			if (anim && anim->IsValid())
 			{
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
 				if (!mCurrentAnimator || anim != mCurrentAnimator)
-				{
+				{	
+					
 					LoadDataFromAnimator(anim);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 				}
@@ -236,13 +237,13 @@ namespace SliceEditor
 
 
 		// run timeline here temporarily
-		
-		
 		if (mCurrentAnimator)
 		{
 			if (mTimeline.isPlaying)
 			{
-				currentFrame++;
+				
+				//currentFrame++;
+				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
 				if (currentFrame > endFrame)
 				{
 					currentFrame = startFrame;

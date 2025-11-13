@@ -439,6 +439,11 @@ namespace SliceEngine
 			return final_tforms;
 		}
 
+		bool IsValid()
+		{
+			return (Handle_skeleton.IsValid() && Handle_curr_anim_pkg.IsValid() && Handle_stateMachine.IsValid());
+		}
+
 		RTTR_ENABLE();
 	};
 

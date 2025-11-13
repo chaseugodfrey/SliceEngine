@@ -57,8 +57,9 @@ namespace SliceEngine
 			unsigned int curr_anim_idx{};
 
 			bool hasExitTime{};
-			float exitTime = 0.0f;
-			float entryTime =0.0f;
+			float exitTime = 1.0f;
+			float entryTime = 0.0f;
+			float animationTime{};
 
 			bool isLoop {false};
 
