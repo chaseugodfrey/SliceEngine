@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "AnimationWindow.h"
 #include "Selection/SelectionManager.h"
+#include <Systems/SceneSystem.h>
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
 #include <Animator/BoneSystem.h>
@@ -309,10 +310,9 @@ namespace SliceEditor
 			ImGui::EndNeoSequencer();
 		}
 
-		if (mCurrentAnimator && hasAnimator)
+		auto core = SliceEngine::Core::GetInstance();
+		if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 		{
-			auto core = SliceEngine::Core::GetInstance();
-
 			if (mTimeline.isPlaying)
 			{
 				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
@@ -320,9 +320,11 @@ namespace SliceEditor
 				{
 					currentFrame = startFrame;
 				}
-
-				float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-				mCurrentTime += dt;
+				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+				{
+					float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+					mCurrentTime += dt;
+				}
 			}
 
 			else
@@ -330,7 +332,7 @@ namespace SliceEditor
 				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
 			}
 
-			for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			//for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
 			{
 
 				//Bone animation
