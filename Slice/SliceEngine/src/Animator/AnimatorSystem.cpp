@@ -28,10 +28,13 @@ namespace SliceEngine
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
 
-		animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
-		animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+		if(animator.Handle_skeleton.IsValid() && animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_stateMachine.IsValid())
+		{
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 
-		animator.stateMachine.InitState(animator.curr_anim_pkg);
+			animator.stateMachine.InitState(animator.curr_anim_pkg);
+		}
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
