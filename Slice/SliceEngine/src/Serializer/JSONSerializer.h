@@ -384,10 +384,29 @@ namespace SliceEngine
 			const json& value, const std::string& propName, const std::string& componentName,
 			const Entity& entity)
 		{
-			if (prop.get_type() == rttr::type::get<T>()) {
-				Deserialize<T>(componentInstance, prop, value.get<T>(),propName, componentName, entity);
+			if (prop.get_type() == rttr::type::get<T>()) 
+			{
+				try
+				{
+					// Attempt to get JSON value as T
+					T val = value.get<T>();
+					Deserialize<T>(componentInstance, prop, val, propName, componentName, entity);
+					return true;
+				}
+				catch (const nlohmann::json::exception& e)
+				{
+					// Fallback or error handling
+					std::ostringstream oss;
+					oss << "[TryDeserializeType] Failed to parse JSON for property '"
+						<< propName << "' in component '" << componentName << "'.\n"
+						<< "Expected type: " << rttr::type::get<T>().get_name().to_string() << "\n"
+						<< "Error: " << e.what() << "\n"
+						<< "JSON value: " << value.dump();
+
+					SLICE_LOG_ERROR(oss.str());
+				}
 				return true;
-			}
+			}			
 			return false;
 		}
 
@@ -473,16 +492,21 @@ namespace SliceEngine
 						<< " JSON Value: " << value.dump() << "\n"
 						<< " Falling back to string deserialization.";
 
-					std::string defaultStr = value.get<std::string>();
-					SLICE_LOG_ERROR(oss.str());
-					Deserialize<std::string>(componentInstance, prop, defaultStr, propName, componentName, entity);
-				}
+					try
+					{
+						std::string defaultStr = value.get<std::string>();
+						SLICE_LOG_ERROR(oss.str());
+						Deserialize<std::string>(componentInstance, prop, defaultStr, propName, componentName, entity);
+					}
+					catch (const nlohmann::json::exception& e)
+					{
+						SLICE_LOG_ERROR("[DeserializeProp] Fallback string conversion failed for "
+							+ componentName + "::" + propName + " — " + std::string(e.what()));
 
+					}														
+				}
 			}
 		}
-
-
-
 
 #pragma endregion
 		namespace Tests
