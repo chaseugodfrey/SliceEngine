@@ -237,85 +237,6 @@ namespace SliceEditor
 
 
 		// run timeline here temporarily
-		if (mCurrentAnimator)
-		{
-			if (mTimeline.isPlaying)
-			{
-				
-				//currentFrame++;
-				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
-				if (currentFrame > endFrame)
-				{
-					currentFrame = startFrame;
-				}
-
-				auto core = SliceEngine::Core::GetInstance();
-
-				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
-				{
-					//core->GetSystem<SliceEngine::AnimatorSystem>().UpdateAnimation(*mCurrentAnimator, core->GetFramerateManager()->getDeltaTime());
-
-					//Bone animation
-					if (mCurrentAnimator->is_bone)
-					{
-						auto& anim = animationClips[mCurrentClipIndex];
-						if (anim->duration <= 0.0f)
-						{
-							mCurrentTime = 0.0f;
-						}
-						else
-						{
-							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-							mCurrentTime += dt;
-
-							if (mCurrentTime > anim->duration)
-							{
-
-								if (!mTimeline.isLoop)
-								{
-									mTimeline.isPlaying = false;
-									currentFrame = startFrame;
-									mCurrentTime = 0.0f;
-									ret = true;
-								}
-								else
-								{
-									mTimeline.isPlaying = true;
-									mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-								}
-							}
-						}
-						if (!ret)
-						{
-							float safe_time = std::min(mCurrentTime, anim->duration);
-							//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-							UpdateTransform(anim, safe_time);
-						}
-					}
-
-					//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
-
-					if (!ret)
-					{
-						// update scenegraph
-						auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-						for (auto entity : viewBone)
-						{
-							UpdateBoneScene(entity);
-						}
-
-						auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
-						for (auto entity : viewAnimator)
-						{
-							UpdateBones(entity);
-						}
-					}
-					//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
-				}
-			}
-			
-		}
 
 		ImGui::EndGroup();
 #pragma endregion
@@ -386,6 +307,87 @@ namespace SliceEditor
 			}
 
 			ImGui::EndNeoSequencer();
+		}
+
+		if (mCurrentAnimator && hasAnimator)
+		{
+			auto core = SliceEngine::Core::GetInstance();
+
+			if (mTimeline.isPlaying)
+			{
+				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
+				if (currentFrame > endFrame)
+				{
+					currentFrame = startFrame;
+				}
+
+				float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+				mCurrentTime += dt;
+			}
+
+			else
+			{
+				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+			}
+
+			for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			{
+
+				//Bone animation
+				if (mCurrentAnimator->is_bone)
+				{
+					auto& anim = animationClips[mCurrentClipIndex];
+					if (anim->duration <= 0.0f)
+					{
+						mCurrentTime = 0.0f;
+					}
+					else
+					{
+						if (mCurrentTime > anim->duration)
+						{
+
+							if (!mTimeline.isLoop)
+							{
+								mTimeline.isPlaying = false;
+								currentFrame = startFrame;
+								mCurrentTime = 0.0f;
+								ret = true;
+							}
+							else
+							{
+								mTimeline.isPlaying = true;
+								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+							}
+						}
+					}
+					if (!ret)
+					{
+						float safe_time = std::min(mCurrentTime, anim->duration);
+						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+						UpdateTransform(anim, safe_time);
+					}
+				}
+
+				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
+
+				if (!ret)
+				{
+					// update scenegraph
+					auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+					for (auto entity : viewBone)
+					{
+						UpdateBoneScene(entity);
+					}
+
+					auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+					for (auto entity : viewAnimator)
+					{
+						UpdateBones(entity);
+					}
+				}
+				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
+			}
 		}
 
 #pragma endregion
