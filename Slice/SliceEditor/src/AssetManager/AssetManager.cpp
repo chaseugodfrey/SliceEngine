@@ -245,6 +245,9 @@ namespace SliceEditor
 			case AssetType::Material:
 				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
 				break;
+			case AssetType::NavMesh:
+				CompileNavMeshAsset(static_cast<NavMeshData*>(metaData.get()));
+				break;
 			}
 
 
@@ -325,6 +328,9 @@ namespace SliceEditor
 		case AssetType::Material:
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
 			break;
+		case AssetType::NavMesh:
+			CompileNavMeshAsset(static_cast<NavMeshData*>(metaData));
+			break;
 		}
 
 
@@ -381,9 +387,13 @@ namespace SliceEditor
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
 			break;
-	case AssetType::Material:
+		case AssetType::Material:
 			typeID = ResourceTypeIDs::MATERIAL;
 			metaData = std::make_unique<MaterialData>();
+			break;
+		case AssetType::NavMesh:
+			typeID = ResourceTypeIDs::NAVMESH;
+			metaData = std::make_unique<NavMeshData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
@@ -554,6 +564,21 @@ namespace SliceEditor
 	}
 
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+
+	void AssetManager::CompileNavMeshAsset(NavMeshData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 

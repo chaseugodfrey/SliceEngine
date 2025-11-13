@@ -35,6 +35,7 @@ namespace SliceEditor
 		Material,
 		Prefab,
 		Controller,
+		NavMesh,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -94,6 +95,7 @@ namespace SliceEditor
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
+		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
 
 	}
 
@@ -143,6 +145,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Controller:
 				typeID = ResourceTypeIDs::CONTROLLER;
+				break;
+			case AssetType::NavMesh:
+				typeID = ResourceTypeIDs::NAVMESH;
 				break;
 			case AssetType::Material:
 				typeID = ResourceTypeIDs::MATERIAL;
@@ -493,7 +498,7 @@ namespace SliceEditor
 		{
 		}
 	};
-
+	
 	struct MaterialData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
@@ -797,6 +802,38 @@ namespace SliceEditor
 				output << metaJson.dump(4);
 				output.close();
 			}
+		}
+	};
+
+	struct NavMeshData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::NAVMESH;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
 		}
 	};
 }

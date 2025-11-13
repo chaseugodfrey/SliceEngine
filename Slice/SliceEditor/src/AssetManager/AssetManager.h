@@ -59,6 +59,7 @@ namespace SliceEditor
 		void CompileShaderAsset(ShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileNavMeshAsset(NavMeshData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
@@ -89,7 +90,8 @@ namespace SliceEditor
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
-			{".controller",{AssetType::Controller, "Controller"}}
+			{".controller",{AssetType::Controller, "Controller"}},
+			{".nav",{AssetType::NavMesh, "NavMesh"}}
 			//{".vert", AssetType::Shader},
 			//{".frag", AssetType::Shader}
 		};
@@ -105,7 +107,8 @@ namespace SliceEditor
 			{AssetType::Prefab, ".prefab"},
 			{AssetType::Skeleton, ".skl"},
 			{AssetType::Animation, ".animpkg"},
-			{AssetType::Controller, ".controller" }
+			{AssetType::Controller, ".controller" },
+			{AssetType::NavMesh, ".nav" }
 		};
 
 		std::unordered_map<AssetType, std::string> mDefaultNames =
