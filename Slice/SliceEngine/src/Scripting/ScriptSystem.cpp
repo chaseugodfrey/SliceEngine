@@ -533,8 +533,8 @@ namespace SliceEngine
                     }
                     else if (it.second.mType == ScriptFieldType::Vector3)
                     {
-                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
+                       /* std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;*/
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)
@@ -710,8 +710,6 @@ namespace SliceEngine
                                 MonoClass* elementClass = nullptr;
                                 ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass);
 
-                                
-
                                 rttr::variant var;
                                 // Store it in the script's field map
                                 script->mFields[fieldName] = { fieldType, fieldName, field, var, elementClass };
@@ -735,8 +733,8 @@ namespace SliceEngine
         *outElementClass = nullptr;
 
         MonoArrayType* arrayType = mono_type_get_array_type(type);
-
-        if (arrayType)
+        mono_bool isStruct = mono_type_is_struct(type);
+        if (arrayType && !isStruct)
         {
             MonoClass* elementClass = arrayType->eklass;
             *outElementClass = elementClass;
