@@ -42,6 +42,9 @@ namespace SliceEngine
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
 
+		nlohmann::json VariantToJson(rttr::variant v);
+
+
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
 		// For generic values
@@ -208,30 +211,10 @@ namespace SliceEngine
 		{
 			for (const auto& [k, v] : value)
 			{
-				if (v.is_type<float>())
-					output[name][typeName][propName][k] = v.get_value<float>();
-				else if (v.is_type<double>())
-					output[name][typeName][propName][k] = v.get_value<double>();
-				else if (v.is_type<bool>())
-					output[name][typeName][propName][k] = v.get_value<bool>();
-				else if (v.is_type<char>())
-					output[name][typeName][propName][k] = v.get_value<char>();
-				else if (v.is_type<int>())
-					output[name][typeName][propName][k] = v.get_value<int>();
-				else if (v.is_type<short>())
-					output[name][typeName][propName][k] = v.get_value<short>();
-				else if (v.is_type<unsigned int>())
-					output[name][typeName][propName][k] = v.get_value<unsigned int>();
-				else if (v.is_type<std::string>())
-					output[name][typeName][propName][k] = v.get_value<std::string>();
-
-				// Unknown type fallback
-				else
-				{
-					output[name][typeName][propName][k] = v.get_value<std::string>();
-				}
+				output[name][typeName][propName][k] = VariantToJson(v);
 			}
 		}
+
 
 		// Handle
 		template<typename T>
