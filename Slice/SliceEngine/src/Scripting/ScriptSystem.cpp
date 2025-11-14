@@ -474,12 +474,31 @@ namespace SliceEngine
         {
             if (it.second.mElementClass == nullptr)
             {
-                if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
+
+                if (entry != scriptComponent.scriptableFieldMap.end())
                 {
+                    rttr::variant& v = entry->second;
+
+                    // if this isnt a valid variant
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid/null variant for scriptable field map");
+                        continue;
+                    }
+
                     if (it.second.mType == ScriptFieldType::String)
                     {
-                        std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
-                        scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                        if (v.is_type<std::string>())
+                        {
+                            std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
+                            scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                        }
+                        else
+                        {
+                            SLICE_LOG_ERROR("Mismach type.");
+
+                        }
                     }
                     else
                     {
@@ -489,7 +508,24 @@ namespace SliceEngine
             }
             else
             {
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
 
+                if (entry != scriptComponent.scriptableFieldMap.end())
+                {
+                    rttr::variant& v = entry->second;
+
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid variant for an array field");
+                        continue;
+                    }
+                    if (!v.get_type().is_sequential_container())
+                    {
+                        continue;
+                    }
+
+                    scriptRef->SetFieldValue(it.second.mName.c_str(), v);
+                }
             }
 
         }

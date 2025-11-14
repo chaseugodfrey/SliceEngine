@@ -599,6 +599,68 @@ namespace SliceEngine
 	}
 }
 
+namespace glm
+{
+	inline void from_json(const json& j, glm::vec2& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+	}
+	inline void to_json(json& j, const glm::vec2& v) {
+		j = json::array({ v.x, v.y });
+	}
+
+	inline void from_json(const json& j, glm::vec3& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+		v.z = j.at(2).get<float>();
+	}
+	inline void to_json(json& j, const glm::vec3& v) {
+		j = json::array({ v.x, v.y, v.z });
+	}
+
+	inline void from_json(const json& j, glm::vec4& v) {
+		v.x = j.at(0).get<float>();
+		v.y = j.at(1).get<float>();
+		v.z = j.at(2).get<float>();
+		v.w = j.at(3).get<float>();
+	}
+	inline void to_json(json& j, const glm::vec4& v) {
+		j = json::array({ v.x, v.y, v.z, v.w });
+	}
+
+
+	inline void from_json(const json& j, glm::quat& q)
+	{
+		q.w = j.at(0).get<float>();
+		q.x = j.at(1).get<float>();
+		q.y = j.at(2).get<float>();
+		q.z = j.at(3).get<float>();
+	}
+	inline void to_json(json& j, const glm::quat& q)
+	{
+		j = json::array({ q.w, q.x, q.y, q.z });
+	}
+}
+
+namespace entt
+{
+	inline void from_json(const json& j, entt::entity& e)
+	{
+		if (j.is_null()) {
+			e = entt::null;
+		}
+		else {
+			e = static_cast<entt::entity>(j.get<uint32_t>());
+		}
+	}
+
+	inline void to_json(json& j, const entt::entity& e)
+	{
+		j = static_cast<uint32_t>(e);
+	}
+}
+
+
 namespace rttr
 {
 	inline rttr::variant JsonToVariant(const nlohmann::json& j)
@@ -643,19 +705,19 @@ namespace rttr
 			// --- Vector Types
 			if (typeName == "std::vector<float>")
 			{
-			//	return rttr::variant(valueJson.get<std::vector<float>>());
+				return rttr::variant(valueJson.get<std::vector<float>>());
 			}
 			if (typeName == "std::vector<glm::vec3>") 
 			{
-			//	return rttr::variant(valueJson.get<std::vector<glm::vec3>>());
+				return rttr::variant(valueJson.get<std::vector<glm::vec3>>());
 			}
 			if (typeName == "std::vector<std::string>") 
 			{
-			//	return rttr::variant(valueJson.get<std::vector<std::string>>());
+				return rttr::variant(valueJson.get<std::vector<std::string>>());
 			}
 			if (typeName == "std::vector<int>")
 			{
-				//return rttr::variant(valueJson.get<std::vector<int>>());
+				return rttr::variant(valueJson.get<std::vector<int>>());
 			}
 		}
 	}
@@ -675,66 +737,6 @@ namespace rttr
 	}
 }
 
-namespace glm
-{
-	inline void from_json(const json& j, glm::vec2& v) {
-		v.x = j.at(0).get<float>();
-		v.y = j.at(1).get<float>();
-	}
-	inline void to_json(json& j, const glm::vec2& v) {
-		j = json::array({ v.x, v.y });
-	}
-
-	inline void from_json(const json& j, glm::vec3& v) {
-		v.x = j.at(0).get<float>();
-		v.y = j.at(1).get<float>();
-		v.z = j.at(2).get<float>();
-	}
-	inline void to_json(json& j, const glm::vec3& v) {
-		j = json::array({ v.x, v.y, v.z });
-	}
-
-	inline void from_json(const json& j, glm::vec4& v) {
-		v.x = j.at(0).get<float>();
-		v.y = j.at(1).get<float>();
-		v.z = j.at(2).get<float>();
-		v.w = j.at(3).get<float>();
-	}
-	inline void to_json(json& j, const glm::vec4& v) {
-		j = json::array({ v.x, v.y, v.z, v.w });
-	}
-
-
-	inline void from_json(const json& j, glm::quat& q)
-	{
-		q.w = j.at(0).get<float>();
-		q.x = j.at(1).get<float>();
-		q.y = j.at(2).get<float>();
-		q.z = j.at(3).get<float>();
-	}
-	inline void to_json(json& j, const glm::quat& q)
-	{
-		j = json::array({ q.w, q.x, q.y, q.z });
-	}
-}
-
-namespace entt 
-{
-	inline void from_json(const json& j, entt::entity& e)
-	{
-		if (j.is_null()) {
-			e = entt::null;
-		}
-		else {
-			e = static_cast<entt::entity>(j.get<uint32_t>());
-		}
-	}
-
-	inline void to_json(json& j, const entt::entity& e)
-	{
-		j = static_cast<uint32_t>(e);
-	}
-}
 #pragma endregion
 
 #endif
