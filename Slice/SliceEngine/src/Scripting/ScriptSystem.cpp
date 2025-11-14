@@ -533,8 +533,8 @@ namespace SliceEngine
                     }
                     else if (it.second.mType == ScriptFieldType::Vector3)
                     {
-                       /* std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;*/
+                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)

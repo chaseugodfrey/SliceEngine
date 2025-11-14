@@ -42,8 +42,8 @@ namespace SliceEngine
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
 
+		nlohmann::json GetJsonFromVariant(rttr::variant v);
 		nlohmann::json VariantToJson(rttr::variant v);
-
 
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
@@ -448,6 +448,10 @@ namespace SliceEngine
 			const json& value, const std::string& propName, const std::string& componentName,
 			const Entity& entity)
 		{
+			//if (propName == "scriptableFieldMap")
+			//{
+			//	return;
+			//}
 			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
 
 			if (!handled)
@@ -617,6 +621,45 @@ namespace rttr
 				um[key] = rttr::variant(val.get<std::string>());
 			else if (val.is_array())
 			{
+				//if (val.empty())
+				//{
+				//	um[key] = rttr::variant(std::vector<float>{});
+				//}
+
+				//// get the first element in the array
+				//// if its an array then it would be an array of arrays
+				//// if it is not, it would be something like a vector3/vector2
+				//const auto& first = val[0];
+
+				//// check if the first element is an array or not
+				//if (first.is_array())
+				//{
+				//	// if it is means its an array of vectors
+				//	// now find out if its an array of vec2 or vec3
+				//	if (first.size() == 2 && first[0].is_number_float())
+				//	{
+				//		std::vector<glm::vec2> vecOfVec2s;
+				//		for (const auto& inner : val)
+				//		{
+				//			vecOfVec2s.push_back(inner.get<glm::vec2>());
+				//		}
+
+				//		um[key] = rttr::variant(vecOfVec2s);
+				//	}
+				//	else if (first.size() == 3 && first[0].is_number_float())
+				//	{
+				//		std::vector<glm::vec3> vecOfVec3s;
+				//		for (const auto& inner : val)
+				//		{
+				//			vecOfVec3s.push_back(inner.get<glm::vec3>());
+				//		}
+				//	}
+
+				//	// if we got any other array variables like vec4 or smth
+				//}
+
+				
+
 				if (val.size() == 2)
 				{
 					glm::vec2 v{ val[0].get<float>(), val[1].get<float>() };
