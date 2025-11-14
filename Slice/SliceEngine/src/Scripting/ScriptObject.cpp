@@ -506,7 +506,14 @@ namespace SliceEngine
 			{
 				for (size_t i = 0; i < size; ++i)
 				{
-					std::string& str = view.get_value(i).get_value<std::string>();
+					rttr::variant elementVal = view.get_value(i);
+
+					if (elementVal.get_type().is_wrapper())
+					{
+						elementVal = elementVal.extract_wrapped_value();
+					}
+
+					std::string& str = elementVal.get_value<std::string>();
 					MonoString* monoStr = mono_string_new(mono_domain_get(), str.c_str());
 					mono_array_setref(monoArray, i, monoStr);
 				}
@@ -519,6 +526,11 @@ namespace SliceEngine
 				for (size_t i = 0; i < size; ++i)
 				{
 					rttr::variant elementVal = view.get_value(i);
+
+					if (elementVal.get_type().is_wrapper())
+					{
+						elementVal = elementVal.extract_wrapped_value();
+					}
 
 					void* dataPtr = nullptr;
 					// TODO: add more variables, but im only gonna do these 3 for now to test if it works

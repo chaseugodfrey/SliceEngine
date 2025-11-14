@@ -17,6 +17,10 @@ namespace SliceEngine
         public override void OnCreate()
         {
             StartCoroutine(SpawnLoop());            
+            for(int i = 0; i < 5; ++i)
+            {
+                SliceLog.Log(test4[i].ToString());
+            }
         }
 
         private IEnumerator SpawnLoop()
