@@ -7,7 +7,7 @@ namespace SliceEngine
     public class Payload : SliceBehaviour
     {
         public WaypointSystem waypointSystem;
-        public int[] test2;
+        public int[] test2 = new int[5];
         public float moveSpeed = 3.0f;
         // TODO: Show arrays in inspector like unity does wiht List<> and stuff
         // TODO: GameObject variable should show as a string in inspector, but cna be converted to a gO in script

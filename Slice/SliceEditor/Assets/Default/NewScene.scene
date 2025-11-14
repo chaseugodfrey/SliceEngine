@@ -429,10 +429,32 @@
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.Spawner",
                 "scriptableFieldMap": {
-                    "enemyPrefab": "EnemyTest",
-                    "spawnCount": 4,
-                    "spawnInterval": 1.0,
-                    "spawnTime": 5.0
+                    "enemyPrefab": {
+                        "Type": "std::string",
+                        "Value": "EnemyTest"
+                    },
+                    "spawnCount": {
+                        "Type": "int",
+                        "Value": 4
+                    },
+                    "spawnInterval": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "spawnTime": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "test4": {
+                        "Type": "std::vector<float>",
+                        "Value": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
                 }
             },
             "struct SliceEngine::SliceEntity": {
@@ -508,8 +530,52 @@
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.Player",
                 "scriptableFieldMap": {
-                    "moveSpeed": 2.5,
-                    "rotationSpeed": 50.0
+                    "TestVectors": {
+                        "Type": "std::vector<glm::vec3>",
+                        "Value": [
+                            [
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            [
+                                2.0,
+                                2.0,
+                                2.0
+                            ]
+                        ]
+                    },
+                    "direction": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "moveSpeed": {
+                        "Type": "float",
+                        "Value": 2.5
+                    },
+                    "rotationSpeed": {
+                        "Type": "float",
+                        "Value": 50.0
+                    },
+                    "test3": {
+                        "Type": "std::vector<std::string>",
+                        "Value": [
+                            "Test",
+                            "Test2"
+                        ]
+                    },
+                    "up": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    }
                 }
             },
             "struct SliceEngine::SliceEntity": {

@@ -601,6 +601,65 @@ namespace SliceEngine
 
 namespace rttr
 {
+	inline rttr::variant JsonToVariant(const nlohmann::json& j)
+	{
+		if (j.is_object() && j.contains("Type") && j.contains("Value"))
+		{
+			const std::string& typeName = j["Type"].get<std::string>();
+			const nlohmann::json& valueJson = j["Value"];
+
+			// --- Primitives ---
+			if (typeName == "float") 
+			{
+				return rttr::variant(valueJson.get<float>());
+			}
+			if (typeName == "int")
+			{
+				return rttr::variant(valueJson.get<int>());
+			}
+			if (typeName == "bool") 
+			{
+				return rttr::variant(valueJson.get<bool>());
+			}
+			if (typeName == "std::string")
+			{
+				return rttr::variant(valueJson.get<std::string>());
+			}
+			if (typeName == "double") 
+			{
+				return rttr::variant(valueJson.get<double>());
+			}
+
+			// --- GLM Types ---
+			if (typeName == "glm::vec3") 
+			{
+				return rttr::variant(valueJson.get<glm::vec3>());
+			}
+			if (typeName == "glm::vec2")
+			{
+				return rttr::variant(valueJson.get<glm::vec2>());
+			}
+
+			// --- Vector Types
+			if (typeName == "std::vector<float>")
+			{
+			//	return rttr::variant(valueJson.get<std::vector<float>>());
+			}
+			if (typeName == "std::vector<glm::vec3>") 
+			{
+			//	return rttr::variant(valueJson.get<std::vector<glm::vec3>>());
+			}
+			if (typeName == "std::vector<std::string>") 
+			{
+			//	return rttr::variant(valueJson.get<std::vector<std::string>>());
+			}
+			if (typeName == "std::vector<int>")
+			{
+				//return rttr::variant(valueJson.get<std::vector<int>>());
+			}
+		}
+	}
+
 	inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant>& um)
 	{
 		um.clear();
@@ -611,72 +670,7 @@ namespace rttr
 			const std::string& key = it.key();
 			const json& val = it.value();
 
-			if (val.is_boolean())
-				um[key] = rttr::variant(val.get<bool>());
-			else if (val.is_number_integer())
-				um[key] = rttr::variant(val.get<int>());
-			else if (val.is_number_float())
-				um[key] = rttr::variant(val.get<float>());
-			else if (val.is_string())
-				um[key] = rttr::variant(val.get<std::string>());
-			else if (val.is_array())
-			{
-				//if (val.empty())
-				//{
-				//	um[key] = rttr::variant(std::vector<float>{});
-				//}
-
-				//// get the first element in the array
-				//// if its an array then it would be an array of arrays
-				//// if it is not, it would be something like a vector3/vector2
-				//const auto& first = val[0];
-
-				//// check if the first element is an array or not
-				//if (first.is_array())
-				//{
-				//	// if it is means its an array of vectors
-				//	// now find out if its an array of vec2 or vec3
-				//	if (first.size() == 2 && first[0].is_number_float())
-				//	{
-				//		std::vector<glm::vec2> vecOfVec2s;
-				//		for (const auto& inner : val)
-				//		{
-				//			vecOfVec2s.push_back(inner.get<glm::vec2>());
-				//		}
-
-				//		um[key] = rttr::variant(vecOfVec2s);
-				//	}
-				//	else if (first.size() == 3 && first[0].is_number_float())
-				//	{
-				//		std::vector<glm::vec3> vecOfVec3s;
-				//		for (const auto& inner : val)
-				//		{
-				//			vecOfVec3s.push_back(inner.get<glm::vec3>());
-				//		}
-				//	}
-
-				//	// if we got any other array variables like vec4 or smth
-				//}
-
-				
-
-				if (val.size() == 2)
-				{
-					glm::vec2 v{ val[0].get<float>(), val[1].get<float>() };
-					um[key] = rttr::variant(v);
-				}
-				else if (val.size() == 3)
-				{
-					glm::vec3 v{ val[0].get<float>(), val[1].get<float>(), val[2].get<float>() };
-					um[key] = rttr::variant(v);
-				}
-				else
-					um[key] = rttr::variant(val.dump());
-			}
-			else
-			{
-				um[key] = rttr::variant(val.dump());
-			}
+			um[key] = JsonToVariant(val);
 		}
 	}
 }
