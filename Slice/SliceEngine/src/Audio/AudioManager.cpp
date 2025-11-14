@@ -58,6 +58,8 @@ namespace SliceEngine
 		mSoundSystem->createChannelGroup("UI", &ui);
 		mSoundSystem->createChannelGroup("Editor", &editorSounds);
 		editorSounds->setVolume(1.0f);
+
+		
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -167,6 +169,11 @@ namespace SliceEngine
 		master->setVolume(volume);
 	}
 
+	void AudioManager::SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance)
+	{
+		channel->set3DMinMaxDistance(minDistance, maxDistance);
+	}
+
 	void AudioManager::SetCategoryVolume(GUID soundName, float volume)
 	{
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
@@ -209,6 +216,54 @@ namespace SliceEngine
 	void AudioManager::SetChannelVolume(FMOD::Channel* channel, float volume)
 	{
 		channel->setVolume(volume);
+	}
+
+	FMOD::SoundGroup* AudioManager::CreateSoundGroup(std::string& soundGroupName, FMOD::SoundGroup* soundGroup, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
+	{
+		if (mSoundGroups.find(soundGroupName) != mSoundGroups.end())
+		{
+			SLICE_LOG_ERROR("Sound Group already exists");
+			return;
+		}
+
+
+
+		FMOD_RESULT result = mSoundSystem->createSoundGroup(soundGroupName.c_str(), &soundGroup);
+
+		if (result == FMOD_OK)
+		{
+			soundGroup->setMaxAudible(maxInstances);
+			soundGroup->setMaxAudibleBehavior(behaviour);
+			mSoundGroups.emplace(soundGroupName, soundGroup);
+
+		}
+	}
+
+	void AudioManager::SetSoundGroup(GUID soundGUID, std::string soundGroupName)
+	{
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundGUID).get();
+
+		if (!audioClip->GetSound())
+		{
+			SLICE_LOG_ERROR("SetSoundGroup: Audio clip has no FMOD::Sound.");
+			return;
+		}
+
+		FMOD::SoundGroup* soundGroup = nullptr;
+
+		auto it = mSoundGroups.find(soundGroupName);
+
+		if (it != mSoundGroups.end())
+		{
+			soundGroup = it->second;
+		}
+		else
+		{
+			SLICE_LOG_ERROR("SetSoundGroup: SoundGroup '%s' not found.", soundGroupName.c_str());
+			mSoundSystem->getMasterSoundGroup(&soundGroup);
+		}
+
+		audioClip->GetSound()->setSoundGroup(soundGroup);
 	}
 
 	bool AudioManager::IsChannelPlaying(FMOD::Channel* channel)

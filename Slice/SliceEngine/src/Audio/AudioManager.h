@@ -25,15 +25,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	//Can be taken out
-	enum class SoundCategory
-	{
-		SFX,
-		BGM,
-		UI,
-		Editor
-	};
-
+	
 	//Base SoundTrack struct for sound files
 	//struct SoundTrack
 	//{
@@ -69,6 +61,8 @@ namespace SliceEngine
 		FMOD::ChannelGroup* bgm;
 		FMOD::ChannelGroup* ui;
 		FMOD::ChannelGroup* editorSounds;
+
+		std::unordered_map<std::string, FMOD::SoundGroup*> mSoundGroups;
 		
 		const int MAX_CHANNELS = 256;
 
@@ -157,6 +151,9 @@ namespace SliceEngine
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
 
+		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
+		
+
 		/**
 		 * @brief Sets the volume for a specific sound category.
 		 * @param category Category to adjust.
@@ -168,6 +165,12 @@ namespace SliceEngine
 		float GetChannelVolume(FMOD::Channel* channel);
 
 		void SetChannelVolume(FMOD::Channel* channel, float volume);
+
+		FMOD::SoundGroup* CreateSoundGroup(std::string& soundGroupName, FMOD::SoundGroup* soundGroup, int maxInstances = -1, FMOD_SOUNDGROUP_BEHAVIOR behaviour = FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
+
+		void SetSoundGroup(GUID soundGUID, std::string soundGroupName);
+
+
 
 		/**
 		 * @brief Checks if a sound channel is currently playing.
