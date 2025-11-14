@@ -887,6 +887,23 @@ namespace SliceEditor
 		CreateResource(metaData, type);
 	}
 
+	std::filesystem::path AssetManager::GetMetaDataFromFilename(std::string fileName)
+	{
+		if (mFilenameToGUID.find(fileName) != mFilenameToGUID.end())
+		{
+			SliceEngine::GUID guid = mFilenameToGUID[fileName];
+			std::filesystem::path metaPath = mResourcesDirectory / std::to_string(guid.GetGUID());
+			metaPath += ".meta";
+
+			return metaPath;
+		}
+		else
+		{
+			SLICE_LOG_WARNING("Filename not found!");
+			return "";
+		}
+	}
+
 	void AssetManager::HandleAssetAdded(RawFileEvent& addEvent)
 	{
 		for (auto& [key, value] : mSupportedAssetTypes)

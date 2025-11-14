@@ -230,12 +230,19 @@ namespace SliceEditor
 				inFile.close();
 			}
 
-			guid = SliceEngine::GUID::FromString(metaData["guid"].get<std::string>());
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
 			assetName = metaData["assetName"].get<std::string>();
 			assetType = metaData["assetType"].get<std::string>();
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
-
+			cmp_format = metaData["comp_format"].get<CompressionFormat>();
+			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
+			u_wrap = metaData["u_wrap"].get<WrapType>();
+			v_wrap = metaData["v_wrap"].get<WrapType>();
+			comp_quality = metaData["comp_quality"].get <float> ();
+			alpha_threshold = metaData["alpha_threshold"].get <char> ();
+			generateMips = metaData["generateMips"].get <bool> ();
+			hasAlpha = metaData["hasAlpha"].get <bool> ();
 		}
 	};
 
@@ -280,6 +287,29 @@ namespace SliceEditor
 		}
 		void Deserialize(const std::filesystem::path & desc_path) override
 		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+			is_static = metaData["static"].get<bool>();
+			skeleMetaPath = metaData["skeleMetaPath"].get<std::string>();
+			animMetaPath = metaData["animMetaPath"].get<std::string>();
 		}
 	};
 	
