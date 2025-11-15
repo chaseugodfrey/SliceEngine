@@ -250,6 +250,7 @@ namespace SliceEngine
         
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
+		gScriptSystem->Update((float)frm->getDeltaTime());
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());

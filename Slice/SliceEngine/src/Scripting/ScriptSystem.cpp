@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "pch.h"
 #include "ScriptSystem.h"
+#include "ScriptObject.h"
 #include <filesystem>
 #include <mono/metadata/mono-gc.h>
 #include <mono/jit/jit.h>
@@ -91,7 +92,7 @@ namespace SliceEngine
 
         // PrintAssemblyTypes(mCoreAssembly);
         // retrieve the main Entity class
-        mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
+        //mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
         mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
@@ -299,7 +300,6 @@ namespace SliceEngine
 
         ScriptFunctions::RegisterComponents();
 
-        mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
         mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
@@ -392,6 +392,7 @@ namespace SliceEngine
         {
             scriptRef->InvokeOnConstruct((unsigned int)id);
             scriptRef->InvokeOnCreate();
+            UpdateScriptComponent(id);
         }
     }
 
@@ -403,6 +404,7 @@ namespace SliceEngine
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
             scriptRef->InvokeOnUpdate(dt);
+            UpdateScriptComponent(id);
         }     
     }
 
@@ -412,6 +414,7 @@ namespace SliceEngine
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
             scriptRef->InvokeOnFixedUpdate(dt);
+            UpdateScriptComponent(id);
         }
     }
     
@@ -555,30 +558,61 @@ namespace SliceEngine
                 // then its an array or list
                 if (it.second.mElementClass != nullptr)
                 {
-                    if (it.second.mType == ScriptFieldType::Float)
+                    if (it.second.mContainerType == ScriptFieldType::Array)
                     {
-                        std::vector<float> var = scriptRef->GetArrayFieldValue<float>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
+                        if (it.second.mType == ScriptFieldType::Float)
+                        {
+                            std::vector<float> var = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Bool)
+                        {
+                            std::vector<bool> var = scriptRef->GetArrayFieldValue<bool>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::String)
+                        {
+                            std::vector<std::string> var = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Int)
+                        {
+                            std::vector<int> var = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Vector3)
+                        {
+                            std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
                     }
-                    else if (it.second.mType == ScriptFieldType::Bool)
+                    else if (it.second.mContainerType == ScriptFieldType::List)
                     {
-                        std::vector<bool> var = scriptRef->GetArrayFieldValue<bool>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
-                    }
-                    else if (it.second.mType == ScriptFieldType::String)
-                    {
-                        std::vector<std::string> var = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
-                    }
-                    else if (it.second.mType == ScriptFieldType::Int)
-                    {
-                        std::vector<int> var = scriptRef->GetArrayFieldValue<int>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
-                    }
-                    else if (it.second.mType == ScriptFieldType::Vector3)
-                    {
-                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
-                        scriptComponent.scriptableFieldMap[it.first] = var;
+                        if (it.second.mType == ScriptFieldType::Float)
+                        {
+                            std::vector<float> var = scriptRef->GetListFieldValue<float>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Bool)
+                        {
+                            std::vector<bool> var = scriptRef->GetListFieldValue<bool>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::String)
+                        {
+                            std::vector<std::string> var = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Int)
+                        {
+                            std::vector<int> var = scriptRef->GetListFieldValue<int>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Vector3)
+                        {
+                            std::vector<glm::vec3> var = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)
@@ -679,7 +713,10 @@ namespace SliceEngine
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
     {
-        
+        // idk if its a sequence issue or thread or what but updating here doesnt work
+        // so I update after every onUpdate call for any thing script related
+        // Editor calls it when anything is modified in the inspector as well
+        //UpdateScriptComponent(entity);
 	}
 
         void ScriptSystem::LoadEntityClasses()
@@ -760,6 +797,28 @@ namespace SliceEngine
                                 rttr::variant var;
                                 // Store it in the script's field map
                                 script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
+
+                                // if its a list, then we have to cache some functions to help
+                                // with list interacting
+                                if (containerType == ScriptFieldType::List)
+                                {
+                                    ScriptField& field = script->mFields[fieldName];
+
+                                    // store the List class so we can get its methods
+                                    field.mCollectionClass = mono_class_from_mono_type(type);
+
+                                    field.mListCtor = mono_class_get_method_from_name(field.mCollectionClass, ".ctor", 0);
+
+                                    MonoProperty* propCount = mono_class_get_property_from_name(field.mCollectionClass, "Count");
+                                    if (propCount)
+                                        field.mListGetCount = mono_property_get_get_method(propCount);
+
+                                    field.mListGetItem = mono_class_get_method_from_name(field.mCollectionClass, "get_Item", 1);
+                                    field.mListSetItem = mono_class_get_method_from_name(field.mCollectionClass, "set_Item", 2);
+
+                                    field.mListAdd = mono_class_get_method_from_name(field.mCollectionClass, "Add", 1);
+                                    field.mListClear = mono_class_get_method_from_name(field.mCollectionClass, "Clear", 0);
+                                }
                             }
                         }
 

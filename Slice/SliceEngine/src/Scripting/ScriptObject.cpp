@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/threads.h>
 #include "ScriptSystem.h"
 #include "ScriptObject.h"
 
@@ -126,9 +125,9 @@ namespace SliceEngine
 		//std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
 		//UNUSED(entity);
 		mMonoInstance = scClass->Instantiate();
-
+		ScriptClass mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 		// Need to call constructor of entity by getting the entity class thats storing Entity.cs
-		mConstruct = gScriptSystem->mEntityClass.GetMethod(".ctor", 1);
+		mConstruct = mEntityClass.GetMethod(".ctor", 1);
 
 		// These are the other functions that every other script that inherits Entity will have
 		mOnCreate = scClass->GetMethod("OnCreate", 0);

@@ -18,7 +18,8 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
-#include "../../SliceEngine/src/Scripting/ScriptSystem.h"
+#include <Scripting/ScriptSystem.h>
+#include <Scripting/ScriptObject.h>
 #include <Graphics/TransformHelper.h>
 #include "ComponentPropertiesGUI.h"
 #include "../../SliceEngine/src/Serializer/JSONSerializer.h"

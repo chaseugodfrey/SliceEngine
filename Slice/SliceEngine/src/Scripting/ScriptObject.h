@@ -17,11 +17,15 @@ DigiPen Institute of Technology is prohibited.
 #ifndef SCRIPT_OBJECT_H
 #define SCRIPT_OBJECT_H
 #include "../ECS/ECSTypes.h"
-
+#include <mono/metadata/threads.h>
+#include "ScriptSystem.h"
 namespace SliceEngine
 {
+	//class ScriptSystem; // Forward-declare the class
+	//extern ScriptSystem* gScriptSystem; // Re-declare the extern global
+
 	// Types that a script field can be
-	enum class ScriptFieldType
+	enum class ScriptFieldType : int
 	{
 		None = 0,
 		Float,
@@ -67,6 +71,7 @@ namespace SliceEngine
 		MonoMethod* mListGetItem{ nullptr };
 		MonoMethod* mListSetItem{ nullptr };
 		MonoMethod* mListAdd{ nullptr };
+		MonoMethod* mListClear{ nullptr };
 		MonoMethod* mListCtor{ nullptr };
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
@@ -311,6 +316,7 @@ namespace SliceEngine
 
 		}
 
+#pragma region For Arrays
 		template<typename T>
 		std::vector<T> GetArrayFieldValue(const std::string& name)
 		{
@@ -409,7 +415,103 @@ namespace SliceEngine
 
 			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
 		}
+#pragma endregion
 
+#pragma region For Lists
+
+		/// <summary>
+		/// For generic types like float, int, bool, etc
+		/// </summary>
+		/// <typeparam name="T">Type of primitive</typeparam>
+		/// <param name="name">Name of the variable</param>
+		/// <returns>A vector containing the values of the list</returns>
+		template <typename T>
+		std::vector<T> GetListFieldValue(const std::string& name)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain); 
+				mono_domain_set(gScriptSystem->mAppDomain, false); 
+			}
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<T> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.resize(count);
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+				MonoObject* itemObj = mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+				// TODO: same as above, add exception handling maybe
+
+				result[i] = *(T*)mono_object_unbox(itemObj);
+			}
+
+			return result;
+		}
+
+		template <>
+		std::vector<std::string> GetListFieldValue(const std::string& name)
+		{
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<std::string> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.resize(count);
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+				MonoString* monoStr = (MonoString*)mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+				// TODO: same as above, add exception handling maybe
+
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					result.push_back(utf8);
+					mono_free(utf8);
+				}
+				else
+				{
+					// if cant retrieve monoStr then use an empty str 
+					result.push_back(std::string());
+				}
+			}
+
+			return result;
+		}
+
+#pragma endregion
 
 		template<>
 		void SetArrayFieldValue<std::string>(const std::string& name, const std::vector<std::string>& val)
