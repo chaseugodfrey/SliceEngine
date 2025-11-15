@@ -694,6 +694,12 @@ namespace SliceEngine
 			return sceneGraphMap;
 		}
 
+		/// <summary>
+		/// Used to convert variant elements into json format
+		/// mostly only for script component since its a map of string to variants
+		/// </summary>
+		/// <param name="v">variant data</param>
+		/// <returns>nlohman array or value </returns>
 		nlohmann::json GetJsonFromVariant(rttr::variant v)
 		{
 			rttr::type t = v.get_type();
@@ -732,6 +738,11 @@ namespace SliceEngine
 			return v.to_string();
 		}
 
+		/// <summary>
+		/// extracts the type out from variant and converts the value using GetJsonFromVariant
+		/// </summary>
+		/// <param name="v">variant</param>
+		/// <returns></returns>
 		nlohmann::json VariantToJson(rttr::variant v)
 		{
 			rttr::type t = v.get_type();

@@ -412,7 +412,15 @@ namespace SliceEngine
             scriptRef->InvokeOnFixedUpdate(dt);
         }
     }
-
+    
+    /// <summary>
+    /// the only use for this is if a new entity is created in the editor
+    /// and a script is assigned after having a script component
+    /// this is to update the script component and create a script instance of the entity
+    /// entities created in runtime/play mode should be done as a prefab and should
+    /// already have a script component when deserialized so it should be loaded in EntityAdded
+    /// Only time this might break is if they add an entity and script in runtime in the editor..
+    /// </summary>
     void ScriptSystem::UpdateScripts()
     {
         for (auto entity = entityAdded.begin(); entity != entityAdded.end(); ++entity)
@@ -424,25 +432,8 @@ namespace SliceEngine
                 {
                     std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], *entity);
                     //  scriptRef->SetUpEntity(id); // Instantiate and set up the method handling
-                   // CM_CORE_INFO("Setting up a new script");
 
                     mEntityInstances[*entity] = scriptObj;
-
-                    //auto inputs = Core::GetInstance()->GetInputSystem();
-                    //auto scene = Core::GetInstance()->GetSceneSystem();
-
-                    //if (inputs->GetMode() == InputMode::Game)
-                    //{
-                    //    //check if its running or in edit mode but for now just call
-                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
-                    //    mEntityInstances[*entity]->InvokeOnCreate();
-                    //}
-
-                    //if (scene->mCurrentState == SceneState::PLAY_SCENE)
-                    //{
-                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
-                    //    mEntityInstances[*entity]->InvokeOnCreate();
-                    //}
 
                     UpdateScriptComponent(*entity);
                     entityAdded.erase(entity);
@@ -464,6 +455,13 @@ namespace SliceEngine
         entityAdded.clear();
     }
 
+    /// <summary>
+    /// used for updating the variables in teh script instance
+    /// based on the variabels in teh script map
+    /// mostly used when an entity is loaded in, use the variables from
+    /// the serialize'd script map to update the variables in the script instance
+    /// </summary>
+    /// <param name="entity"></param>
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
 		auto& scriptComponent = mRegistry->get<Script>(entity);
@@ -532,6 +530,12 @@ namespace SliceEngine
 
     }
 
+    /// <summary>
+    /// Used for updating the script map based on the variables in the script instance
+    /// Mostly used in editor so when ppl modify the variables
+    /// itll reflect in the component so it can be serialized properly
+    /// </summary>
+    /// <param name="entity"></param>
     void ScriptSystem::UpdateScriptComponent(Entity entity)
     {
         Script& scriptComponent = mRegistry->get<Script>(entity);
