@@ -93,7 +93,7 @@ namespace SliceEngine
 		/// <returns>True or False</returns>
 		bool HasEntityClass(std::string scriptName);
 
-		ScriptFieldType GetScriptFieldType(MonoType* type, MonoClass** outElementClass);
+		ScriptFieldType GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType);
 
 		std::shared_ptr<ScriptObject> GetScriptInstance(Entity entityID);
 

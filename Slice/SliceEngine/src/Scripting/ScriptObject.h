@@ -37,7 +37,8 @@ namespace SliceEngine
 		String,
 		Audio,
 		Prefab,
-		Array
+		Array,
+		List
 	};
 
 	//struct
@@ -45,6 +46,9 @@ namespace SliceEngine
 	{
 		// same as before, keep track o the actual type in teh field
 		ScriptFieldType mType{ ScriptFieldType::None };
+
+		// Keep track if it is a list or array
+		ScriptFieldType mContainerType{ ScriptFieldType::None };
 
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
@@ -56,6 +60,14 @@ namespace SliceEngine
 
 		// Keep track if its an array. Will be null if not an array
 		MonoClass* mElementClass{ nullptr };
+
+		// For List<T> Only
+		MonoClass* mCollectionClass;
+		MonoMethod* mListGetCount{ nullptr };
+		MonoMethod* mListGetItem{ nullptr };
+		MonoMethod* mListSetItem{ nullptr };
+		MonoMethod* mListAdd{ nullptr };
+		MonoMethod* mListCtor{ nullptr };
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};

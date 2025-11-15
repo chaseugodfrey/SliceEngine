@@ -21,8 +21,10 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/metadata/mono-gc.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/tabledefs.h>
+#include <mono/metadata/attrdefs.h>
+#include <mono/metadata/tokentype.h>
 #include <mono/metadata/mono-debug.h>
+#include <mono/metadata/class.h>
 #include "ScriptFunctions.h"
 #include <filesystem>
 #include <fstream>
@@ -549,6 +551,8 @@ namespace SliceEngine
 
             for (const auto& it : fields)
             {
+                // If mElementClass is not a nullptr
+                // then its an array or list
                 if (it.second.mElementClass != nullptr)
                 {
                     if (it.second.mType == ScriptFieldType::Float)
@@ -705,14 +709,14 @@ namespace SliceEngine
 
                 // To protect against private nested classes being embroiled in this
                 uint32_t flags = cols[MONO_TYPEDEF_FLAGS];
-                uint32_t visibility = flags & TYPE_ATTRIBUTE_VISIBILITY_MASK;
+                uint32_t visibility = flags & MONO_TYPE_ATTR_VISIBILITY_MASK;
 
                 // Skip compiler-generated or nested types (names starting with '<')
                 if (name[0] == '<')
                     continue;
 
                 // Skip all nested types (nested types have visibility values 0x02–0x06)
-                if (visibility >= TYPE_ATTRIBUTE_NESTED_PUBLIC && visibility <= TYPE_ATTRIBUTE_NESTED_FAM_OR_ASSEM)
+                if (visibility >= MONO_TYPE_ATTR_NESTED_PUBLIC && visibility <= MONO_TYPE_ATTR_NESTED_FAM_OR_ASSEM)
                     continue;
 
                 MonoClass* monoClass = mono_class_from_name(image, nameSpace, name);
@@ -743,16 +747,19 @@ namespace SliceEngine
                         {
                             std::string fieldName = mono_field_get_name(field);
                             // Only access public variables from the mono class
-                            if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
+                            if (mono_field_get_flags(field) & MONO_FIELD_ATTR_PUBLIC)
                             {
                                 MonoType* type = mono_field_get_type(field);
 
                                 MonoClass* elementClass = nullptr;
-                                ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass);
+                                ScriptFieldType containerType = ScriptFieldType::None;
+                                ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
+
+                                
 
                                 rttr::variant var;
                                 // Store it in the script's field map
-                                script->mFields[fieldName] = { fieldType, fieldName, field, var, elementClass };
+                                script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
                             }
                         }
 
@@ -768,9 +775,70 @@ namespace SliceEngine
             }
     }
 
-    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass)
+    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)
     {
         *outElementClass = nullptr;
+
+        std::string fullTypeName = mono_type_get_name(type);
+
+        std::string listPrefix = "System.Collections.Generic.List<";
+
+        // cause full type name is System.Collections.Generic.List<soemthing>
+        // rfind returns the starting position of the last occurance which is basically jus checking
+        // if the front part is the same as the listPrefix and that it starts from the front
+        if (fullTypeName.rfind(listPrefix, 0) == 0 && fullTypeName.back() == '>')
+        {
+            // if its here means it is a List<T>
+            
+            size_t nameStart = listPrefix.length();
+            // -1 cause > at the back of the full name
+            size_t nameLength = fullTypeName.length() - nameStart - 1; 
+            std::string elementType = fullTypeName.substr(nameStart, nameLength);
+            if (sFieldTypeMap.count(elementType))
+            {
+
+
+                std::string nameSpace;
+                std::string className;
+                size_t dotPos = elementType.find_last_of('.');
+                if (dotPos == std::string::npos)
+                {
+                    // its some random class thats not in slice engine namespace
+                    nameSpace = "";
+                    className = elementType;
+                }
+                else
+                {
+                    // split into SliceEngine and Vector3
+                    nameSpace = elementType.substr(0, dotPos);
+                    className = elementType.substr(dotPos + 1);
+                }
+                MonoImage* image = nullptr;
+                // check if its a System variable or a SliceEngine variable
+                // i.e float or vec3 or smth
+                if (nameSpace == "System")
+                {
+                    // get core lib for system varaibles
+                    image = mono_get_corlib();
+                }
+                else if (nameSpace == "SliceEngine")
+                {
+                    image = mono_class_get_image(mono_type_get_class(type));
+                }
+                else
+                {
+                    SLICE_LOG_ERROR("Unsupported variable: " + elementType);
+                    return ScriptFieldType::None;
+
+                }
+
+                containerType = ScriptFieldType::List;
+                *outElementClass = mono_class_from_name(image, nameSpace.c_str(), className.c_str());
+                ScriptFieldType baseType = sFieldTypeMap.at(elementType);
+                return baseType;
+            }
+        }
+
 
         MonoArrayType* arrayType = mono_type_get_array_type(type);
         mono_bool isStruct = mono_type_is_struct(type);
@@ -786,6 +854,7 @@ namespace SliceEngine
             {
                 auto iter = sFieldTypeMap.find(elementTypeName);
 
+                containerType = ScriptFieldType::Array;
                 return iter->second;
             }
         }
