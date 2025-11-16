@@ -440,6 +440,8 @@ namespace SliceEngine
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);
 
+		glm::mat4 ToMatrix() const;
+
 		RTTR_ENABLE();
 	};
 

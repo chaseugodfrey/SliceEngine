@@ -5,6 +5,9 @@ layout (location=2) in vec2 aTextureCoord;
 
 layout (location=0) out vec2 vTextureCoord;
 
+uniform mat4 canvas_to_ndc;
+uniform mat4 M;
+
 /*
 struct InstanceData{
 	mat4 pos;
@@ -20,5 +23,6 @@ layout(std430, binding = 1) readonly buffer InstanceBuffer {
 void main(void){
 	vTextureCoord 	= aTextureCoord;
 
-	gl_Position	=  instance[gl_InstanceID].pos * vec4(aVertexPosition, 1.0);
+	gl_Position	=  canvas_to_ndc * M * vec4(aVertexPosition, 1.0);
+	//gl_Position = vec4(aVertexPosition, 1.0);
 }

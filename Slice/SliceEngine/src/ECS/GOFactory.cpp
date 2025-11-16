@@ -563,6 +563,26 @@ namespace SliceEngine
 
 		//testing only
 		//return CreateGO_Model((GUID)17518266545644652909);
+
+		/*auto canvas = CreateGO("Canvas");
+		canvas.AddComponent<Canvas>();
+		canvas.AddComponent<RectTransform>();
+		auto& c_rect = canvas.GetComponent<RectTransform>();
+		c_rect.width = 1920; c_rect.height = 1080; c_rect.pos_x = 0; c_rect.pos_y = 0;
+
+		auto ui_ele = CreateGO("sprite");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<SpriteRenderer>();
+		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
+		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
+		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_sprite.textureHandle = rm->get<SliceEngineTypes::Texture>((GUID)0);
+
+		SetParent(ui_ele.GetEntity(), canvas.GetEntity());
+
+		return canvas;*/
 	}
 
 	GameObject GOFactory::CreateGO_Cam()

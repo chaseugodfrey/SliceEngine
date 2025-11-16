@@ -103,6 +103,81 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayRectTransform(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("RectTransform", mBaseFlags))
+		{
+			auto& rect = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RectTransform>(entity);
+
+			DisplayComponentHeader<SliceEngine::RectTransform>(entity, false);
+
+			static std::vector<std::string> hori_enums{ "Left", "Center", "Right", "Stretch" };
+			static std::vector<std::string> vert_enums{ "Top", "Middle", "Bottom", "Stretch" };
+			ComboHeader<SliceEngine::RectTransform::HoriPivot>(mRegistry, "Hori Pivot", "##horipivot", rect.hori_pivot, hori_enums);
+			ComboHeader<SliceEngine::RectTransform::VertPivot>(mRegistry, "Vert Pivot", "##vertpivot", rect.vert_pivot, vert_enums);
+
+			if (rect.hori_pivot != SliceEngine::RectTransform::HoriPivot::STRETCH_H) {
+				DragIntInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "X: %d", -2000, 2000);	//some random ass min max
+			}
+			else {
+				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "X: %d", -2000, 2000);	//some random ass min max
+			}
+
+			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
+				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "X: %d", -2000, 2000);	//some random ass min max
+			}
+			else {
+				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "X: %d", -2000, 2000);	//some random ass min max
+			}
+			ImGui::TreePop();
+		}
+	}
+	void InspectorWindow::DisplaySpriteRenderer(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteRenderer", mBaseFlags))
+		{
+			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRenderer>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
+
+			glm::vec3 rgb;
+			DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
+			sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
+
+			ImGui::Text("Image");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			std::string texture_guid_string = std::to_string(sprite.textureHandle.getGUID().GetGUID());
+			std::string textureFileName;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			{
+				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle.getGUID()];
+			}
+			else //Its a default model
+			{
+				textureFileName = texture_guid_string;
+			}
+			ImGui::InputText("##Image", &textureFileName, ImGuiInputTextFlags_ReadOnly);
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Image"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					sprite.textureHandle.mGUID = recievedPayload;
+					// update the handle after
+				}
+			}
+
+
+			ImGui::TreePop();
+		}
+	}
+
+
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
@@ -585,6 +660,18 @@ namespace SliceEditor
 
 			//DisplaySceneGraph();
 			//ImGui::Separator();
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::RectTransform>(entity))
+			{
+				DisplayRectTransform(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
+			{
+				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Light>(entity))
 			{
 				DisplayLight(node->entity);

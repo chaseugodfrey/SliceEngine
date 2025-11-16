@@ -34,6 +34,10 @@ DigiPen Institute of Technology is prohibited.
 * for now lock the 
 */
 
+void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
+
 namespace SliceEngine
 {
 	struct canvasEntity {};
@@ -48,9 +52,23 @@ namespace SliceEngine
 		//make these static constexpr first
 		constexpr static int target_height{ 1080 }, target_width{ 1920 };
 
-		void UpdateAndDraw();
+		/*
+		* yea im just gona go through the whole tree twice
+		*/
+		void UpdateHierachy();
+		void DrawOverlay();
+
+		void Init();
+		void Release();
 	private:
-		void get_child_ui(std::vector<std::pair<Entity, int>>& entities_to_draw, Canvas const& ctx, RectTransform const& parent, Entity node);
+		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
+
+		void get_node_render(std::vector<std::pair<Entity, GUID>>&, Entity);
+
+		void render_ui_overlay(Entity canvas, std::vector<std::pair<Entity, GUID>> const& elements);
+
+		//k i realised how render manager uses fbo now
+		unsigned int fbo{};
 	};
 
 	//do i need a system for 2d, prob no for now
