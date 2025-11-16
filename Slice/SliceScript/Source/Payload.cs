@@ -1,5 +1,6 @@
 ﻿using SliceEngine;
 using System;
+using System.Collections.Generic;
 
 
 namespace SliceEngine
@@ -8,6 +9,7 @@ namespace SliceEngine
     {
         public WaypointSystem waypointSystem;
         public int[] test2 = new int[5];
+        public List<float> testList = new List<float>();
         public float moveSpeed = 3.0f;
         // TODO: Show arrays in inspector like unity does wiht List<> and stuff
         // TODO: GameObject variable should show as a string in inspector, but cna be converted to a gO in script
@@ -25,7 +27,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             waypointSystem = new WaypointSystem();
-
+            testList.Add(0.0f);
             // find a btr way :pepepray:
             waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint1).GetComponent<Transform>().Position);
             waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint2).GetComponent<Transform>().Position);
