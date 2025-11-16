@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Graphics/TransformHelper.h>
 #include "ComponentPropertiesGUI.h"
 #include "../../SliceEngine/src/Serializer/JSONSerializer.h"
+#include <Resource/GUID.h>
 
 namespace SliceEditor
 {
@@ -465,7 +466,6 @@ namespace SliceEditor
 				ImGui::SameLine(150.f);
 				ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
 
-
 				std::string anim_file{};
 				ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
 
@@ -496,6 +496,256 @@ namespace SliceEditor
 		}
 	}
 
+	// particle system helper
+	void ButtonValueTypePopup(SliceEngine::ParticleSystem::ValueType& value_type, std::string name)
+	{
+		std::string btn_name = "v##" + name;
+		std::string popup_name = "value_type" + name;
+
+		if (ImGui::Button(btn_name.c_str()))
+		{
+			ImGui::OpenPopup(popup_name.c_str());
+		}
+
+		if (ImGui::BeginPopup(popup_name.c_str()))
+		{
+			if (ImGui::Selectable("Constant"))
+			{
+				value_type = SliceEngine::ParticleSystem::ValueType::CONSTANT;
+			}
+
+			if (ImGui::Selectable("Curve"))
+			{
+				value_type = SliceEngine::ParticleSystem::ValueType::CURVE;
+			}
+
+			if (ImGui::Selectable("Random from 2 Constants"))
+			{
+				value_type = SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS;
+			}
+
+			ImGui::EndPopup();
+
+		}
+	}
+	
+	void InspectorWindow::DisplayParticleSystem(entt::entity entity)
+	{
+		static std::vector<std::string> value_type_names{ "Constant", "Curve", "Random between 2 constants" };
+		if (ImGui::TreeNodeEx("Particle System", mBaseFlags))
+		{
+			auto& ps = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ParticleSystem>(entity);
+
+			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				// Duration
+				DragFloatInputHeader(mRegistry, "Duration", "##duration", ps.duration, "%.1f", 0.0f, 100.f);
+				
+				// Looping
+				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
+				
+				// Start Speed
+				// To do : Add Value Type Enum
+				DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f, 100.f);
+
+				// Start Lifetime
+				switch (ps.initialLifetimeType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragFloatInputHeader(mRegistry, "Start Lifetime", "##startLifetime", ps.lifetime, "%.1f", 0.0f, 0.f);
+					break;
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragFloatInputHeader(mRegistry, "Min Lifetime", "##minLifetime", ps.minParticleLifetime, "%.1f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Max Lifetime", "##maxLifetime", ps.maxParticleLifetime, "%.1f", 0.0f, 0.f);
+					break;
+				default:
+					break;
+				}
+
+				ImGui::SameLine();
+
+				ButtonValueTypePopup(ps.initialLifetimeType, "lifetime");
+
+				// Start Size
+				// To do : Add Value Type Enum
+				DragVec3InputHeader(mRegistry, "Start Size", "##startSize", ps.scale);
+
+				// Start Rotation
+				// To do : Add Value Type Enum
+				BoolInputHeader(mRegistry, "3D Rotation", "##is3Drot", ps.isInitialRotation3D);
+				
+				if (ps.isInitialRotation3D)
+				{
+					switch (ps.initialRotationType)
+					{
+					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+						DragRotationInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation, ps.eulerHint);
+						break;
+					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+						DragRotationInputHeader(mRegistry, "Min Rotation", "##minStartRot", ps.minRandomRotation, ps.minEulerHint);
+						DragRotationInputHeader(mRegistry, "Max Rotation", "##maxStartRot", ps.maxRandomRotation, ps.maxEulerHint);
+						break;
+					default:
+						break;
+					}
+				}
+
+				else
+				{
+					switch (ps.initialRotationType)
+					{
+					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+						DragFloatInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation.x, "&.1f", 0.f, 360.f);
+						break;
+					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation.x, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation.x, "&.1f", 0.f, 360.f);
+						break;
+					default:
+						break;
+					}
+				}
+
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
+				//ComboHeader< SliceEngine::ParticleSystem::ValueType>(mRegistry, "", "##lifetime_valuetype", ps.initialLifetimeType, value_type_names);
+
+				// Start Color
+				// To do : Add Value Type Enum
+
+				switch (ps.colorValueType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragColor4InputHeader(mRegistry, "Start Colour", "##colorStart", ps.colour);
+					break;
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragColor4InputHeader(mRegistry, "Min Colour", "##colorMinStart", ps.minRandomColour);
+					DragColor4InputHeader(mRegistry, "Max Colour", "##colorMaxStart", ps.maxRandomColour);
+					break;
+				default:
+					break;
+				}
+
+				ImGui::SameLine();
+
+				ButtonValueTypePopup(ps.colorValueType, "color");
+
+				// Gravity
+				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
+
+				// Max Particles
+				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "", 0, 0);
+
+				// Simulation Space
+				BoolInputHeader(mRegistry, "Is Local Space", "##isLocalSpace", ps.isLocalSpace);
+
+				// Destroy
+				BoolInputHeader(mRegistry, "Destroy OnEnd", "##destroyOnEnd", ps.destroyOnExpire);
+			}
+
+			if (ImGui::CollapsingHeader("Shape"))
+			{
+				static std::vector<std::string> shapeTypes{ "Cone" };
+				// Shape Type Enum
+				ComboHeader<SliceEngine::ParticleSystem::ShapeType>(mRegistry, "Shape", "##shapeType", ps.shapeType, shapeTypes);
+
+				switch (ps.shapeType)
+				{
+				case SliceEngine::ParticleSystem::ShapeType::CONE:
+					DragFloatInputHeader(mRegistry, "Angle", "##coneAngle", ps.coneAngle, "%.1f", 0.0f, 90.0f);
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Emission"))
+			{
+				// Emission Rate
+				DragFloatInputHeader(mRegistry, "Emission Rate", "##emission_rate", ps.emissionRate, "%.2f", 0.0f, 0.f);
+				
+				// Bursts
+				if (ImGui::BeginTable("Bursts", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+				{
+					ImGui::TableSetupColumn("Time");
+					ImGui::TableSetupColumn("Count");
+					ImGui::TableSetupColumn("Cycle");
+					ImGui::TableSetupColumn("Interval");
+					ImGui::TableHeadersRow();
+					for (auto& burst : ps.bursts)
+					{
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						DragFloatInputHeader(mRegistry, "##burst_time", "##burst_time", burst.triggerTime, "%.2f", 0.0f, 0.0f);
+						ImGui::TableNextColumn();
+						DragUInt64InputHeader(mRegistry, "##burst_count", "##burst_count", burst.numParticles, "", 0, 0);
+						ImGui::TableNextColumn();
+						DragUInt64InputHeader(mRegistry, "##burst_cycle", "##burst_cycle", burst.burstRepetitions, "", 0, 0);
+						ImGui::TableNextColumn();
+						DragFloatInputHeader(mRegistry, "##burst_interval", "##burst_interval", burst.burstPeriod, "", 0.0f, 0.0f);
+					}
+					ImGui::EndTable();
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Color Over Lifetime"))
+			{
+
+			}
+
+			if (ImGui::CollapsingHeader("Renderer"))
+			{
+				static std::vector<std::string> render_mode_names = { "Billboard", "Mesh" };
+				ComboHeader(mRegistry, "Render Mode", "##ps_render_mode", ps.renderMode, render_mode_names);
+
+				switch (ps.renderMode)
+				{
+					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
+					{
+						std::string texture = ps.textureGUID.toString();
+						// to do : change this to asset drag and drop gui header
+						if (StringInputHeader(mRegistry, "Texture", "##ps_texture", texture))
+						{
+							ps.textureGUID = SliceEngine::GUID::FromString(texture);
+						}
+					}
+						break;
+					case SliceEngine::ParticleSystem::RenderMode::MESH:
+					{
+						std::string mesh = ps.textureGUID.toString();
+						std::string material = ps.textureGUID.toString();
+
+						// to do : change this to asset drag and drop gui header
+						if (StringInputHeader(mRegistry, "Mesh", "##ps_mesh", mesh))
+						{
+							ps.textureGUID = SliceEngine::GUID::FromString(mesh);
+						}
+
+						// to do : change this to asset drag and drop gui header
+						if (StringInputHeader(mRegistry, "Material", "##ps_material", material))
+						{
+							ps.textureGUID = SliceEngine::GUID::FromString(material);
+						}
+					}
+						break;
+					default:
+						break;
+				}
+
+				// LEGACY
+				ImGui::SeparatorText("Legacy");
+				std::string textureID = std::to_string(ps.textureID);
+				if (StringInputHeader(mRegistry, "Texture", "##ps_texture_legacy", textureID))
+				{
+					ps.textureID = std::stoul(textureID);
+				}
+			}
+
+			ImGui::TreePop();
+		}
+
+	}
+
 
 	void InspectorWindow::DisplayLight(entt::entity entity)
 	{
@@ -506,15 +756,13 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
-			DragColorInputHeader(mRegistry, "Colour", "##lightColor", light.color);
+			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
 			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
 
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
-
-			ImGui::TreePop();
 		}
 	}
 
@@ -592,6 +840,14 @@ namespace SliceEditor
 				} 
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::ParticleSystem>())
+			{
+				if (ImGui::Selectable("Add Particle System"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::ParticleSystem>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::Animator>())
 			{
 				if (ImGui::Selectable("Add Animator"))
@@ -659,6 +915,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
 				DisplayAudioSource(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ParticleSystem>(entity))
+			{
+				DisplayParticleSystem(node->entity);
 				ImGui::Separator();
 			}
 
