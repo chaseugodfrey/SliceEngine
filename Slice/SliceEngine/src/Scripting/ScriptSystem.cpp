@@ -466,7 +466,7 @@ namespace SliceEngine
     /// mostly used when an entity is loaded in, use the variables from
     /// the serialize'd script map to update the variables in the script instance
     /// </summary>
-    /// <param name="entity"></param>
+    /// <param name="entity">Entity to update</param>
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
 		auto& scriptComponent = mRegistry->get<Script>(entity);
@@ -542,19 +542,23 @@ namespace SliceEngine
                             continue;
                         }
 
+                        // clear the list first before adding from the serialized vector
                         scriptRef->mScriptClass->InvokeMethod(listObject, it.second.mListClear, nullptr);
 
+                        // store the vector that is a variant into a sequential view to iterate
                         rttr::variant_sequential_view view = v.create_sequential_view();
 
                         for (size_t i = 0; i < view.get_size(); ++i)
                         {
                             rttr::variant item = view.get_value(i);
-
+                            // idk why but any lists/arrays have to be unwrapped if not its garbage values
                             if (item.get_type().is_wrapper())
                             {
                                 item = item.extract_wrapped_value();
                             }
 
+                            // TODO: add any extra variables if needed but I dont think we need more than this
+                            // maybe find out how to do GameObject/Prefab as variables which are technically just string under the hood
                             switch (it.second.mType)
                             {
                             case ScriptFieldType::Float:
@@ -569,16 +573,13 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
-
                             }
                         }
                     }
 
                 }
             }
-
         }
-
     }
 
     /// <summary>
@@ -701,7 +702,7 @@ namespace SliceEngine
 		auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
-            static bool tempFlagToTestScriptListShit = false;
+            //static bool tempFlagToTestScriptListShit = false;
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
 
@@ -710,13 +711,13 @@ namespace SliceEngine
             // in the script component
             UpdateScriptVariables(entity);
 
-            if (scriptComponent.scriptName == "SliceEngine.Spawner" && tempFlagToTestScriptListShit == false)
-            { 
-                tempFlagToTestScriptListShit = true;
-            // jus testing if add list field value worked
-                // i need test if serializing it works first
-                mEntityInstances[entity]->AddListFieldValue("testList", 2.0f);
-            }
+            //if (scriptComponent.scriptName == "SliceEngine.Spawner" && tempFlagToTestScriptListShit == false)
+            //{ 
+            //    tempFlagToTestScriptListShit = true;
+            //// jus testing if add list field value worked
+            //    // i need test if serializing it works first
+            //    mEntityInstances[entity]->AddListFieldValue("testList", 2.0f);
+            //}
 
             // idk incase it isnt populated the first time
             UpdateScriptComponent(entity);
