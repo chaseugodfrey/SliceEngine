@@ -34,7 +34,9 @@ namespace SliceEngine
 	class SceneSystem;
 	class PhysicsSystem;
 	class PrefabSystem;
+	class LayerManager;
 	struct NetworkSystem;
+
 
 	class Core : public Singleton<Core>
 	{
@@ -93,6 +95,8 @@ namespace SliceEngine
 
 		FramerateManager* GetFramerateManager();
 
+		LayerManager* GetLayerManager();
+
 		GLFWwindow* GetWindow();
 
 		ProjectSettingsService* GetProjectSettingsService();
@@ -121,6 +125,7 @@ namespace SliceEngine
 		std::unique_ptr<RenderManager> mRender;
 		std::unique_ptr<AudioManager> mAudioManager;
 		std::unique_ptr<FramerateManager> mFramerateManager;
+		std::unique_ptr<LayerManager> mLayerManager;
 		
 		std::unique_ptr<NetworkSystem> mNetwork;
 		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
