@@ -32,8 +32,27 @@ namespace SliceEngine
 	MonoObject* ScriptClass::Instantiate()
 	{
 		MonoObject* monoInstance = mono_object_new(gScriptSystem->mAppDomain, mMonoClass);
-		mono_runtime_object_init(monoInstance);
 
+		MonoMethod* ctor = mono_class_get_method_from_name(mMonoClass, ".ctor", 0);
+		if (ctor)
+		{
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(ctor, monoInstance, nullptr, &exception);
+			if (exception)
+			{
+				MonoString* exceptionMsg = mono_object_to_string(exception, nullptr);
+				char* errorMsg = mono_string_to_utf8(exceptionMsg);
+				std::cerr << "Mono Exception: " << errorMsg << std::endl;
+				mono_free(errorMsg);
+				return nullptr;
+			}
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Unable to default construct class " + mClassName);
+		}
+
+		
 		return monoInstance;
 		//monoInstance = instance;
 		//return instance;
@@ -600,8 +619,21 @@ namespace SliceEngine
 		}
 	}
 
+	MonoObject* ScriptObject::GetListObject(const std::string& name)
+	{
+		if (mono_domain_get() != gScriptSystem->mAppDomain)
+		{
+			mono_thread_attach(gScriptSystem->mRootDomain);
+			mono_domain_set(gScriptSystem->mAppDomain, false);
+		}
+		
+		const ScriptField& field = mScriptClass->mFields.at(name);
+		return mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+	}
+
 	std::shared_ptr<ScriptClass> ScriptObject::GetScriptClass()
 	{
+
 		return mScriptClass;
 	}
 

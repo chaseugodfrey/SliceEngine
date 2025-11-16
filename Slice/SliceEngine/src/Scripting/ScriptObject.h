@@ -692,6 +692,9 @@ namespace SliceEngine
 			}
 		}
 
+		MonoObject* GetListObject(const std::string& name);
+
+
 		std::shared_ptr<ScriptClass> GetScriptClass();
 
 	};

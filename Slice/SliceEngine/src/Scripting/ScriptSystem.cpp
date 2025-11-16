@@ -527,7 +527,53 @@ namespace SliceEngine
                         continue;
                     }
 
-                    scriptRef->SetFieldValue(it.second.mName.c_str(), v);
+                    // if its an array
+                    if (it.second.mContainerType == ScriptFieldType::Array)
+                    {
+                        scriptRef->SetFieldValue(it.second.mName.c_str(), v);
+                    }
+                    // if its a list
+                    else if (it.second.mContainerType == ScriptFieldType::List)
+                    {
+                        MonoObject* listObject = scriptRef->GetListObject(it.second.mName);
+                        if (listObject == nullptr || it.second.mListClear == nullptr)
+                        {
+                            SLICE_LOG_ERROR("List " + it.first + " is null or Clear() isn't defined");
+                            continue;
+                        }
+
+                        scriptRef->mScriptClass->InvokeMethod(listObject, it.second.mListClear, nullptr);
+
+                        rttr::variant_sequential_view view = v.create_sequential_view();
+
+                        for (size_t i = 0; i < view.get_size(); ++i)
+                        {
+                            rttr::variant item = view.get_value(i);
+
+                            if (item.get_type().is_wrapper())
+                            {
+                                item = item.extract_wrapped_value();
+                            }
+
+                            switch (it.second.mType)
+                            {
+                            case ScriptFieldType::Float:
+                                scriptRef->AddListFieldValue<float>(it.second.mName, item.get_value<float>());
+                                break;
+                            case ScriptFieldType::Int:
+                                scriptRef->AddListFieldValue<int>(it.second.mName, item.get_value<int>());
+                                break;
+                            case ScriptFieldType::String:
+                                scriptRef->AddListFieldValue<std::string>(it.second.mName, item.get_value<std::string>());
+                                break;
+                            case ScriptFieldType::Vector3:
+                                scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
+                                break;
+
+                            }
+                        }
+                    }
+
                 }
             }
 
@@ -655,13 +701,23 @@ namespace SliceEngine
 		auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
-
+            static bool tempFlagToTestScriptListShit = false;
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
+
             
             // Update the variables in script instance with variables 
             // in the script component
             UpdateScriptVariables(entity);
+
+            if (scriptComponent.scriptName == "SliceEngine.Spawner" && tempFlagToTestScriptListShit == false)
+            { 
+                tempFlagToTestScriptListShit = true;
+            // jus testing if add list field value worked
+                // i need test if serializing it works first
+                mEntityInstances[entity]->AddListFieldValue("testList", 2.0f);
+            }
+
             // idk incase it isnt populated the first time
             UpdateScriptComponent(entity);
             // Check if an entity is created on runtime
