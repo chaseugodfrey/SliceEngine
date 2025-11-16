@@ -16,14 +16,14 @@ namespace SliceEditor
 
 	void AnimationWindow::Init()
 	{
-		AnimationPropertyGroup transformGroup;
+		//AnimationPropertyGroup transformGroup;
 
-		transformGroup.name = "Transform";
-		transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.name = "Transform";
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
-		mPropertyGroups.push_back(transformGroup);
+		//mPropertyGroups.push_back(transformGroup);
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
@@ -61,7 +61,7 @@ namespace SliceEditor
 				if (!mCurrentAnimator || anim != mCurrentAnimator)
 				{	
 					
-					LoadDataFromAnimator(anim);
+					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 				}
 
@@ -84,7 +84,7 @@ namespace SliceEditor
 		}
 	}
 
-	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component)
+	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity)
 	{
 		mCurrentAnimator = component;
 
@@ -100,6 +100,22 @@ namespace SliceEditor
 		// add 0 check for size()
 		mCurrentClipIndex = 0;
 		LoadDataFromAnimationClip(*animationClips[0]);
+
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		AnimationPropertyGroup transformGroup;
+
+		transformGroup.name = name + " Transform";
+		transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+		mPropertyGroups.push_back(transformGroup);
+
+		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entity);
+
+		LoadPropertyGroup(entity, scene_graph);
+		
 	}
 
 	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip)
@@ -111,12 +127,45 @@ namespace SliceEditor
 		mCurrentTime = 0;
 	}
 
+	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
+	{
+		//bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
+
+		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+		while (child_entity != entt::null)
+		{
+			auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+			auto trf = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Transform>(child_entity);
+
+			if (trf)
+			{
+				std::string name = SliceEngine::FactoryInstance.GetGOByEntity(child_entity).GetName();
+				AnimationPropertyGroup transformGroup;
+
+				transformGroup.name = name + " Transform";
+				transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+				mPropertyGroups.push_back(transformGroup);
+			}
+
+			LoadPropertyGroup(child_entity, child_scene_graph);
+
+			child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+		}
+	}
+
 	void AnimationWindow::ClearData()
 	{
 		if (!mCurrentAnimator)
 			return;
 
 		mCurrentAnimator = nullptr;
+
+		mPropertyGroups.clear();
 	}
 
 	void AnimationWindow::UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip, float time)
