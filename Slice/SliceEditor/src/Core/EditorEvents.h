@@ -15,6 +15,19 @@ namespace SliceEditor
 {
 	class Command;
 
+	enum class FileAction
+	{
+		Added,
+		Removed,
+		Modified,
+		Moved
+	};
+
+	struct AssetFileChangedEvent
+	{
+		bool assetChangeSuccess;
+	};
+
 	struct UndoEvent
 	{
 
@@ -48,6 +61,11 @@ namespace SliceEditor
 	struct GetGUIDEvent
 	{
 		std::string fileName;
+	};
+
+	struct DeleteSelectedEntities
+	{
+
 	};
 }
 

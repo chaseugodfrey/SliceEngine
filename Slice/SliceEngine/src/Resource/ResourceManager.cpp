@@ -66,6 +66,26 @@ namespace SliceEngine
 		instance.data = std::move(newData);
 	}
 
+	void ResourceManager::ReloadResourceInPlace(const GUID& guid)
+	{
+		auto it = mInstances.find(guid);
+		if (it == mInstances.end())
+		{
+			SLICE_LOG_WARNING("Attempted to reload a resource that does not exist");
+			return;
+		}
+
+		auto& instance = it->second;
+
+		if (!instance.reload_in_place)
+		{
+			SLICE_LOG_WARNING("Resource has no reload_in_place function");
+			return;
+		}
+
+		instance.reload_in_place(instance.data.get(), *this, instance.filePath);
+	}
+
 	void ResourceManager::RegisterResourceAsset(const GUID& guid, const std::string& path)
 	{
 		mGUIDToResource[guid] = path;
@@ -86,7 +106,7 @@ namespace SliceEngine
 			std::string assetName = metaData["assetName"].get<std::string>();
 			uint64_t guid = metaData["guid"].get<uint64_t>();
 			std::string assetPath = metaData["assetPath"].get<std::string>();
-			std::string resourcePath = metaData["resourcePath"].get<std::string>();
+			std::string resourcePath = metaData["resourcePath"];
 			// idk what the otehr two things are meant to be
 			mGUIDToPath[GUID(guid)] = assetPath;
 			mGUIDToResource[GUID(guid)] = resourcePath;
@@ -97,7 +117,7 @@ namespace SliceEngine
 			const char* errorMessageCStr = e.what();
 			SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
 		}
-
+		inFile.close();
 	}
 
 	/// <summary>

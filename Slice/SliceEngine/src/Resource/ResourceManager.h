@@ -41,6 +41,8 @@ namespace SliceEngine
 			int refCount = 1;
 			std::string filePath;
 			std::function<std::unique_ptr<void, std::function<void(void*)>>(ResourceManager&, const std::string&)> reload;
+
+			std::function<void(void* data, ResourceManager&, const std::string&)> reload_in_place;
 		};
 	}
 
@@ -75,10 +77,10 @@ namespace SliceEngine
 		* Hack number 2 i dont actually know why this is like this
 		*/
 		~ResourceManager() {
-			for (auto& i : mInstances) {
-			//	i.second.destroyer(i.second.data, *this);
-			//	delete i.second.data;	//not sure but 50% sure this is supposed to be here
-			}
+			//for (auto& i : mInstances) {
+			////	i.second.destroyer(i.second.data, *this);
+			////	delete i.second.data;	//not sure but 50% sure this is supposed to be here
+			//}
 		}
 
 		void ReleaseResource(const GUID& guid);
@@ -96,10 +98,10 @@ namespace SliceEngine
 				//return Handle<T>();
 			}
 
-			if (assetGUID == (GUID)10819322238111217941)
-			{
-				SLICE_LOG_DEBUG("GETTING MATERIAL");
-			}
+			//if (assetGUID == (GUID)10819322238111217941)
+			//{
+			//	SLICE_LOG_DEBUG("GETTING MATERIAL");
+			//}
 
 
 			auto it = mInstances.find(assetGUID);
@@ -119,10 +121,8 @@ namespace SliceEngine
 			{
 				path = mGUIDToResource.at((GUID)Type<T>::defaultResourceGUID);
 
-				if ((GUID)Type<T>::defaultResourceGUID == (GUID)10819322238111217941)
-				{
-					SLICE_LOG_DEBUG("GETTING MATERIAL");
-				}
+				assetGUID = (GUID)Type<T>::defaultResourceGUID;
+
 				SLICE_LOG_WARNING("Resource with GUID {} not found. Using default resource." + std::to_string(assetGUID.GetGUID()));
 			}
 			else
@@ -169,12 +169,29 @@ namespace SliceEngine
 
 					return std::unique_ptr<void, std::function<void(void*)>>(newData.release(), newDeleter);
 			};
+
+			instance.reload_in_place = [this](void* data, ResourceManager& mgr, const std::string& path)
+				{
+					if (!data)
+					{
+						SLICE_LOG_ERROR("Cannot reload resource: data is null");
+						return;
+					}
+
+					// Cast the void pointer back to the correct resource type
+					T* resourceToReload = static_cast<T*>(data);
+
+					// Call the specific Reload function for this resource type
+					Type<T>::Reload(resourceToReload, mgr, path);
+				};
 			
 
 			return Handle<T>(*this, &instance, assetGUID);
 		}
 
 		void ReloadResource(const GUID& guid);
+
+		void ReloadResourceInPlace(const GUID& guid);
 
 		template<typename T>
 		Handle<T> get(const std::string& fileName)

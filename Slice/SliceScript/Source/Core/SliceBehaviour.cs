@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,22 +9,26 @@ namespace SliceEngine
 {
     public class SliceBehaviour : Component
     {
-        public uint mID;
-        public Transform transform;
+        // public uint mID;
+        // public Transform transform;
 
         protected SliceBehaviour()
         {
-            mID = 0;
+            gameObject = new GameObject(0);
+            //mID = 0;
         }
         
         ~SliceBehaviour()
         {
-            mID = 0;
+            gameObject.mID = 0;
+           // mID = 0;
         }
 
         internal SliceBehaviour(uint id)
         {
-            mID = id;
+            gameObject.mID = id;
+           // mID = id;
+          //  Entity.mID = mID;
         }
 
         public virtual void OnAwake() { }
@@ -33,10 +38,48 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
-        public T GetComponent<T>() where T : Component, new()
+        public virtual void OnCollideEnter(uint other) {  }
+
+        public virtual void OnCollideStay(uint other) { }
+
+        public bool HasComponent<T>() where T : Component, new()
         {
-            T component = new T() { Entity = this };
+            Type componentType = typeof(T);
+            return FunctionCalls.Entity_HasComponent(gameObject.mID, componentType);
+        }
+        public new T GetComponent<T>() where T : Component
+        {
+            var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
+            if (ctor == null)
+                throw new InvalidOperationException(
+                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(GameObject)})");
+
+            T component = (T)ctor.Invoke(new object[] { this.gameObject });
+            component.gameObject = gameObject;
             return component;
+        }
+
+        public GameObject CreateGameObject(string prefabName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+
+            return entity;
+        }
+
+        public void Destroy()
+        {
+            FunctionCalls.Destroy(gameObject.mID);
+        }
+
+                public void StartCoroutine(IEnumerator routine)
+        {
+            if (routine != null)
+                CoroutineManager.StartCoroutine(routine, this);
+        }
+
+        public void StopAllCoroutines()
+        {
+            CoroutineManager.StopAllCoroutines(this);
         }
     }
 }

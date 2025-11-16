@@ -1,3 +1,16 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        DetourNavMesh.h
+
+ author:	  Crystal Koh Qiao Wei
+
+ email:       k.crystalqiaowei@digipen.edu
+
+ brief:		 Header file for DetourNavMesh.cpp
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef DETOUR_NAVMESH_H
 #define DETOUR_NAVMESH_H
 

@@ -107,17 +107,17 @@ namespace SliceEngine
 				bone_map[bone.name].idx = i;
 			}
 		}
-		void Bone::unpack_data(char const* const buffer, uint64_t& offset) {
+		void Bone::unpack_data(char const* const buffer, uint64_t& offSet) {
 			uint32_t dest{};
 			//name
-			memcpy(&dest, buffer + offset, i_size); offset += i_size;
+			memcpy(&dest, buffer + offSet, i_size); offSet += i_size;
 			name.resize(dest);
-			memcpy(name.data(), buffer + offset, dest); offset += dest;
+			memcpy(name.data(), buffer + offSet, dest); offSet += dest;
 			//parent index
-			memcpy(&parentIndex, buffer + offset, i_size); offset += i_size;
+			memcpy(&parentIndex, buffer + offSet, i_size); offSet += i_size;
 			//offset, neutral
-			memcpy(&this->offset, buffer + offset, sizeof(glm::mat4)); offset += sizeof(glm::mat4);
-			memcpy(&this->neutral, buffer + offset, sizeof(glm::mat4)); offset += sizeof(glm::mat4);
+			memcpy(&this->offset, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
+			memcpy(&this->neutral, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
 		}
 
 
@@ -233,13 +233,13 @@ namespace SliceEngine
 			float frameTime = time * fps;
 			int frame0 = (int)frameTime;
 			int frame1 = (frame0 + 1) % num_frames;	//lerp back to 0 is somehow this goes to max(it shouldnt)
-			float interp = frameTime - frame0;
+			//float interp = frameTime - frame0;
 			for (int i = 0; i < boneKeyFrames.size(); ++i) {
 				auto& keyframe = boneKeyFrames[i];
 				glm::mat4 local_tform;
-				int parent = skeleton.bones[i].parentIndex;
+				//int parent = skeleton.bones[i].parentIndex;
 				if (keyframe.animated) {
-					auto const& local = keyframe.transforms[frame0];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
+					auto const& local = keyframe.transforms[frame1];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
 					local_tform = local.ToMatrix();
 				}
 				else {
@@ -254,7 +254,7 @@ namespace SliceEngine
 		void Animation::ApplyParentTransforms(std::vector<glm::mat4>& final_tforms, Skeleton const& skeleton, glm::mat4 const& world) const {
 			final_tforms[0] = world * final_tforms[0];
 			for (int i = 1; i < boneKeyFrames.size(); ++i) {
-				auto& keyframe = boneKeyFrames[i];
+				//auto& keyframe = boneKeyFrames[i];
 				int parent = skeleton.bones[i].parentIndex;
 
 				final_tforms[i] = final_tforms[parent] * final_tforms[i];

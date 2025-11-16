@@ -24,7 +24,7 @@ namespace SliceEngine
 	void ParticleSystemManager::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& ps = reg.get<ParticleSystem>(entity);
-		ps.parentTransform = mRegistry->try_get<Transform>(entity);		
+		ps.parentTransform = mRegistry->try_get<Transform>(entity);	
 		InitializeSystem(ps);
 	}
 	void ParticleSystemManager::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -57,9 +57,18 @@ namespace SliceEngine
 		ps.systemTimer = 0.0f;
 		ps.particles.resize(ps.maxParticles);
 		ps.oldestIndex = 0u;
-		ps.awaitingIndex = 0u;
+		ps.awaitingIndex = 0u;		
 
 		gen.seed(rd());
+
+		try 
+		{
+			particlesTransforms.reserve(std::numeric_limits<uint16_t>::max());
+		}
+		catch (const std::bad_alloc&) 
+		{
+			std::cerr << "Allocation failed!" << std::endl;
+		}
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
@@ -96,12 +105,15 @@ namespace SliceEngine
 			ApplyBurst(ps, dt);
 		}
 
+
+		// Update all particles to get final transform
 		bool isAnyParticleActive = false;
 		for (Particle& p : ps.particles)
 		{
 			if (p.active)
 			{
 				isAnyParticleActive = true;
+
 				ApplyVeloctiy(p, ps, dt);
 
 				if (ps.hasGravity)
@@ -119,6 +131,44 @@ namespace SliceEngine
 		{
 			ps.expired = true;
 		}
+
+		// Get all particles' final transforms to be renderered
+		particlesTransforms.clear();
+		for (auto& particle : ps.particles)
+		{
+			if (particle.active)
+			{
+				ParticleRenderPart prp;
+				glm::mat4 Rot;
+
+				// handle final transform here
+				glm::mat4 transformMatrix = glm::mat4x4(1.f);
+
+				if (ps.isLocalSpace && ps.parentTransform)
+				{
+					transformMatrix = glm::translate(transformMatrix, particle.position + ps.parentTransform->position);
+					Rot = glm::mat4_cast(particle.rotation + ps.parentTransform->rotation);
+					transformMatrix *= Rot;
+					transformMatrix = glm::scale(transformMatrix, particle.scale);
+				}
+				else 
+				{
+					transformMatrix = glm::translate(transformMatrix, particle.position);
+					Rot = glm::mat4_cast(particle.rotation);
+					transformMatrix *= Rot;
+					transformMatrix = glm::scale(transformMatrix, particle.scale);
+				}
+
+				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
+						
+				prp.transform = transformMatrix;				
+				prp.textureID = ps.textureID;
+				prp.colour = ps.colour;
+
+				particlesTransforms.push_back(prp);
+			}
+		}
+
 	}
 	void ParticleSystemManager::ExitSystem(ParticleSystem& ps)
 	{
@@ -252,13 +302,18 @@ namespace SliceEngine
 		}
 	}
 
+	void ParticleSystemManager::ApplyParentTransform(Particle& p, ParticleSystem& ps)
+	{
+
+	}
+
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
 		p.position += p.velocity * dt;
 	}
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.velocity += glm::vec3(0.0f, ps.gForce * dt, 0.0f);
+		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
 	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
 	{

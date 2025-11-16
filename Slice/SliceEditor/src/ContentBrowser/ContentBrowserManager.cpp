@@ -19,18 +19,49 @@ DigiPen Institute of Technology is prohibited.
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "Selection/SelectionManager.h"
+#include "../../SliceEngine/src/Systems/PrefabSystem.h"
+#include "../History/HistoryManager.h"
 
 namespace SliceEditor
 {
 	void ContentBrowserManager::Init()
 	{
 		SLICE_LOG("Initializing Content Browser Data.");
+		LoadDefaultIcons();
 		BuildTree();
 	}
 
 	void ContentBrowserManager::Update()
 	{
+		if (!mDeleteList.empty())
+		{
+			for (auto node : mDeleteList)
+			{
+				DeleteNode(*node);
+			}
+			mDeleteList.clear();
+		}
+	}
 
+	void ContentBrowserManager::LoadDefaultIcons()
+	{
+		auto resouceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
+		for (int i = 1; i < iconNames.size(); i++)
+		{
+			auto textureHandle = resouceManager->get<SliceEngine::SliceEngineTypes::Texture>(iconNames[i]);
+			if (textureHandle.IsValid())
+				defaultIconMap.emplace(i, textureHandle);
+		}
+	}
+
+	std::optional<SliceEngine::Handle<Texture>> ContentBrowserManager::GetDefaultIconHandle(SelectionType type)
+	{
+		int typeByInt = static_cast<int>(type);
+		auto it = defaultIconMap.find(typeByInt);
+		if (it == defaultIconMap.end())
+			return std::nullopt;
+
+		return it->second;
 	}
 
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
@@ -159,6 +190,22 @@ namespace SliceEditor
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
+
+		else if (entry.path.extension() == ".prefab")
+		{
+			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
+			std::string stem = entry.path.stem().stem().string();
+				if (registry.GetAssetManager().mFilenameToGUID.find(stem) != registry.GetAssetManager().mFilenameToGUID.end())
+				{
+					SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
+					EditorUtilities::GameObject_CreatePrefab(entt::null, guid, registry.GetManager<HistoryManager>("History"));
+				}
+				else
+				{
+					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
+				}
+			}
 		
 		else
 		{
@@ -169,11 +216,11 @@ namespace SliceEditor
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
-		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
-		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
+		//SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
+		//SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
 		DirectoryNode& parent = *entry.parent;
-		SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-		SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
+		//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+		//SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
 		std::string fileName = entry.fileName;
 		try
 		{

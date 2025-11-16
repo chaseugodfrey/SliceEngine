@@ -1,6 +1,11 @@
 #include <pch.h>
 #include "AnimationWindow.h"
 #include "Selection/SelectionManager.h"
+#include <Systems/FramerateManager.h>
+#include <Animator/AnimatorSystem.h>
+#include <Animator/BoneSystem.h>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/matrix_decompose.hpp>	//just to get it working for now
 
 namespace SliceEditor
 {
@@ -18,6 +23,9 @@ namespace SliceEditor
 		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
 		mPropertyGroups.push_back(transformGroup);
+
+		mTimeline.isPlaying = false;
+		mTimeline.isLoop = false;
 	}
 
 	bool AnimationWindow::CheckForAnimator()
@@ -50,7 +58,10 @@ namespace SliceEditor
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
 				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				{
 					LoadDataFromAnimator(anim);
+					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+				}
 
 				return true;
 			}
@@ -74,6 +85,28 @@ namespace SliceEditor
 	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component)
 	{
 		mCurrentAnimator = component;
+
+		
+		animationClips.reserve(mCurrentAnimator->curr_anim_pkg.animations.size());
+		animationClips.clear();
+
+		for (auto& anim : mCurrentAnimator->curr_anim_pkg.animations)
+		{
+			animationClips.push_back(&anim);
+		}
+
+		// add 0 check for size()
+		mCurrentClipIndex = 0;
+		LoadDataFromAnimationClip(*animationClips[0]);
+	}
+
+	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip)
+	{
+		endFrame = animClip.num_frames;
+		startFrame = 0;
+		currentFrame = 0;
+
+		mCurrentTime = 0;
 	}
 
 	void AnimationWindow::ClearData()
@@ -82,6 +115,57 @@ namespace SliceEditor
 			return;
 
 		mCurrentAnimator = nullptr;
+	}
+
+	void AnimationWindow::UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip, float time)
+	{
+		animClip->UpdateTransforms(mCurrentAnimator->final_tforms, time, *mCurrentAnimator->Handle_skeleton.get());
+	}
+
+	void AnimationWindow::UpdateBoneScene(Entity ent)
+	{
+		auto core = SliceEngine::Core::GetInstance();
+
+		auto const& bone = core->GetRegistry().get<SliceEngine::Bone>(ent);
+		Entity root_entity = bone.skeleton_root;
+		if (root_entity == ent) {
+			return;
+		}
+
+		//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
+		auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
+
+		//if (!mTimeline.isPlaying)
+			///continue;
+
+		//some pseudo code
+		glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone.frame_idx];
+		glm::vec3 translation, scale, skew;
+		glm::vec4 perspective;
+		glm::quat rotation;
+		glm::decompose(frame, scale, rotation, translation, skew, perspective);
+		transform.position = translation;
+		transform.rotation = rotation;
+		transform.scale = scale;
+
+		//if is a renderer, tell skeleton to calculate inverse for this index
+		if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
+			mCurrentAnimator->inverse_flags.set(bone.frame_idx);
+		}
+	}
+
+	void AnimationWindow::UpdateBones(Entity ent)
+	{
+		//SliceEngine::Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
+		SliceEngine::Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(ent);
+		if (mCurrentAnimator->is_bone)
+		{
+			auto& anim = animationClips[mCurrentClipIndex];
+
+			anim->ApplyParentTransforms(mCurrentAnimator->final_tforms, *mCurrentAnimator->Handle_skeleton.get(), transform.transform);
+			mCurrentAnimator->SetInverseRoots();
+			anim->ApplyInverseBind(mCurrentAnimator->final_tforms, *mCurrentAnimator->Handle_skeleton.get());
+		}
 	}
 
 	void AnimationWindow::Draw()
@@ -98,55 +182,141 @@ namespace SliceEditor
 
 		ImGui::BeginGroup();
 
-		static bool loop = false;
-		static bool playing = false;
+		bool ret = false;
 
 		// Controls
 
-		std::string playOrPause = playing ? "Pause" : "Play";
+		std::string playOrPause = mTimeline.isPlaying ? "Pause" : "Play";
 
 		if (ImGui::Button(playOrPause.c_str()))
 		{
-			playing = !playing;
+			mTimeline.isPlaying = !mTimeline.isPlaying;
 		}
 
 		ImGui::SameLine();
 
 		if (ImGui::Button("Stop"))
 		{
-			playing = false;
+			auto core = SliceEngine::Core::GetInstance();
+
+			mTimeline.isPlaying = false;
+			LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex]);
+
+			// update trf, bones scenegraph and bones update function
+			//animationClips[mCurrentClipIndex]->UpdateTransforms(mCurrentAnimator->final_tforms, 0, *mCurrentAnimator->Handle_skeleton.get());
+			UpdateTransform(animationClips[mCurrentClipIndex], 0);
+			// update scenegraph
+			auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+
+			for (auto entity : viewBone)
+			{
+				UpdateBoneScene(entity);
+			}
+
+			auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+			for (auto entity : viewAnimator)
+			{
+				UpdateBones(entity);
+			}
 		}
 
 		ImGui::SameLine();
 
-		bool wasLoop = loop;
+		bool wasLoop = mTimeline.isLoop;
 		if (wasLoop)
 			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
 
 		if (ImGui::Button("Loop"))
 		{
-			loop = !loop;
+			mTimeline.isLoop = !mTimeline.isLoop;
 		}
 
 		if (wasLoop)
 			ImGui::PopStyleColor();
 
-		ImGui::EndGroup();
-
 
 		// run timeline here temporarily
 		
-		if (playing)
+		
+		if (mCurrentAnimator)
 		{
-			currentFrame++;
-			if (currentFrame > endFrame)
+			if (mTimeline.isPlaying)
 			{
-				currentFrame = startFrame;
-				if (!loop)
-					playing = false;
+				currentFrame++;
+				if (currentFrame > endFrame)
+				{
+					currentFrame = startFrame;
+				}
+
+				auto core = SliceEngine::Core::GetInstance();
+
+				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+				{
+					//core->GetSystem<SliceEngine::AnimatorSystem>().UpdateAnimation(*mCurrentAnimator, core->GetFramerateManager()->getDeltaTime());
+
+					//Bone animation
+					if (mCurrentAnimator->is_bone)
+					{
+						auto& anim = animationClips[mCurrentClipIndex];
+						if (anim->duration <= 0.0f)
+						{
+							mCurrentTime = 0.0f;
+						}
+						else
+						{
+							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+							mCurrentTime += dt;
+
+							if (mCurrentTime > anim->duration)
+							{
+
+								if (!mTimeline.isLoop)
+								{
+									mTimeline.isPlaying = false;
+									currentFrame = startFrame;
+									mCurrentTime = 0.0f;
+									ret = true;
+								}
+								else
+								{
+									mTimeline.isPlaying = true;
+									mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+								}
+							}
+						}
+						if (!ret)
+						{
+							float safe_time = std::min(mCurrentTime, anim->duration);
+							//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+							UpdateTransform(anim, safe_time);
+						}
+					}
+
+					//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
+
+					if (!ret)
+					{
+						// update scenegraph
+						auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+						for (auto entity : viewBone)
+						{
+							UpdateBoneScene(entity);
+						}
+
+						auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+						for (auto entity : viewAnimator)
+						{
+							UpdateBones(entity);
+						}
+					}
+					//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
+				}
 			}
+			
 		}
 
+		ImGui::EndGroup();
 #pragma endregion
 
 		ImGui::Separator();
@@ -158,17 +328,35 @@ namespace SliceEditor
 
 		if (hasAnimator)
 		{
-			if (animationClipNames.size() > 0)
-				preview = animationClipNames[animationClipIndex];
+			if (animationClips.size() > 0)
+			{
+				if (animationClips[mCurrentClipIndex]->name.empty())
+				{
+					preview = std::to_string(mCurrentClipIndex);
+				}
+				else
+				{
+					preview = animationClips[mCurrentClipIndex]->name;
+				}
+				
+
+			}
 		}
 
 		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
 		{
-			for (size_t i = 0; i < animationClipNames.size(); i++)
+			for (size_t i = 0; i < animationClips.size(); i++)
 			{
-				if (ImGui::Selectable(animationClipNames[i]))
+				std::string anim_name = animationClips[i]->name;
+				if (anim_name.empty())
 				{
-					animationClipIndex = i;
+					anim_name = std::to_string(i);
+				}
+
+				if (ImGui::Selectable(anim_name.c_str()))
+				{
+					mCurrentClipIndex = i;
+					LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[i]);
 				}
 			}
 

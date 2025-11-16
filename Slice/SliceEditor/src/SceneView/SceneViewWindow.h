@@ -34,11 +34,10 @@ namespace SliceEditor
 		struct GizmoUseTracker
 		{
 			ImGuizmo::OPERATION operation;
-			std::variant<glm::vec3, glm::quat> startValue;
-			std::variant<glm::vec3, glm::quat> endValue;
+			glm::vec3 startValue{};
+			glm::vec3 endValue{};
 
 			GizmoUseTracker(ImGuizmo::OPERATION op, glm::vec3 ref) : operation(op), startValue(ref) {}
-			GizmoUseTracker(ImGuizmo::OPERATION op, glm::quat ref) : operation(op), startValue(ref) {}
 		};
 
 		std::optional<GizmoUseTracker> mGizmoTracker;
@@ -48,6 +47,7 @@ namespace SliceEditor
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
 		std::unique_ptr<SceneCamera> camObj;
+		void UpdateCam();
 
 	public:
 

@@ -366,15 +366,15 @@ static bool HandleConnections(ImDrawList* drawList,
 
     size_t InputsCount = nodeTemplate.mInputCount;
     size_t OutputsCount = nodeTemplate.mOutputCount;
-    inputSlotOver = -1;
-    outputSlotOver = -1;
+    inputSlotOver = static_cast<GraphEditor::SlotIndex>(-1);
+    outputSlotOver = static_cast<GraphEditor::SlotIndex>(-1);
 
     // draw/use inputs/outputs
     bool hoverSlot = false;
     for (int i = 0; i < 2; i++)
     {
         float closestDistance = FLT_MAX;
-        SlotIndex closestConn = -1;
+        SlotIndex closestConn = static_cast<SlotIndex>(-1);
         ImVec2 closestTextPos;
         ImVec2 closestPos;
         const size_t slotCount[2] = {InputsCount, OutputsCount};
@@ -553,8 +553,8 @@ static bool DrawNode(ImDrawList* drawList,
 
     // test nested IO
     drawList->ChannelsSetCurrent(1); // Background
-    const size_t InputsCount = nodeTemplate.mInputCount;
-    const size_t OutputsCount = nodeTemplate.mOutputCount;
+    //const size_t InputsCount = nodeTemplate.mInputCount;
+    //const size_t OutputsCount = nodeTemplate.mOutputCount;
 
     /*
     for (int i = 0; i < 2; i++)
@@ -867,7 +867,7 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
 
     if (enabled)
     {
-        static NodeIndex hoveredNode = -1;
+        static NodeIndex hoveredNode = static_cast<NodeIndex>(-1) ;
         // Display links
         drawList->ChannelsSplit(3);
 
@@ -896,11 +896,11 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
 
         // Display nodes
         drawList->PushClipRect(regionRect.Min, regionRect.Max, true);
-        hoveredNode = -1;
+        hoveredNode = static_cast<GraphEditor::NodeIndex>(-1);
         
-        SlotIndex inputSlotOver = -1;
-        SlotIndex outputSlotOver = -1;
-        NodeIndex nodeOver = -1;
+        SlotIndex inputSlotOver = static_cast<SlotIndex>(-1);
+        SlotIndex outputSlotOver = static_cast<SlotIndex>(-1);
+        NodeIndex nodeOver = static_cast<NodeIndex>(-1);
 
         const auto nodeCount = delegate.GetNodeCount();
         for (int i = 0; i < 2; i++)
@@ -924,8 +924,8 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
                 }
 
                 ImGui::PushID((int)nodeIndex);
-                SlotIndex inputSlot = -1;
-                SlotIndex outputSlot = -1;
+                SlotIndex inputSlot = static_cast<SlotIndex>(-1);
+                SlotIndex outputSlot = static_cast<SlotIndex>(-1);
 
                 bool overInput = (!inMinimap) && HandleConnections(drawList, nodeIndex, offset, viewState.mFactor, delegate, options, false, inputSlot, outputSlot, inMinimap);
 

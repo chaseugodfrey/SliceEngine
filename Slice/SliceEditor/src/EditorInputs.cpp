@@ -9,6 +9,12 @@ namespace SliceEditor
 			return;
 
 		auto& io = ImGui::GetIO();
+		//Normal Inputs
+		if (ImGui::IsKeyPressed(ImGuiKey_Delete))
+		{
+			EventManager::GetInstance()->Publish<DeleteSelectedEntities>();
+		}
+
 
 		// ctrl inputs
 
@@ -16,7 +22,7 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_S))
 			{
-
+				EditorUtilities::Scene_Save();
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_D))

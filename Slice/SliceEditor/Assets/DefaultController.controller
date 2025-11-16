@@ -1,0 +1,76 @@
+{
+    "entryState": "Idle",
+    "parameters": {
+        "Attack": false,
+        "Idle": false,
+        "Run": false
+    },
+    "stateMap": {
+        "Attack": {
+            "currAnimIdx": 6,
+            "entryTime": 0.0,
+            "exitTime": 1.0,
+            "hasExitTime": true,
+            "isLoop": false,
+            "stateName": "Attack",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Run",
+                    "targetState": "Run"
+                }
+            ]
+        },
+        "Idle": {
+            "currAnimIdx": 13,
+            "entryTime": 0.0,
+            "exitTime": 1.0,
+            "hasExitTime": false,
+            "isLoop": true,
+            "stateName": "Idle",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Attack",
+                    "targetState": "Attack"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Run",
+                    "targetState": "Run"
+                }
+            ]
+        },
+        "Run": {
+            "currAnimIdx": 21,
+            "entryTime": 0.0,
+            "exitTime": 1.0,
+            "hasExitTime": false,
+            "isLoop": true,
+            "stateName": "Run",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Attack",
+                    "targetState": "Attack"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                }
+            ]
+        }
+    }
+}

@@ -1,6 +1,7 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			SceneSystem.cpp
  author:		Hafiz
+ co-author:		Lee Yong Yee
  email:			b.muhammadhafiz@digipen.edu
  brief:			Handles Scenes
 
@@ -74,13 +75,26 @@ namespace SliceEngine
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
 		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
-		
+
+
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
+
+		
 	}
 
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
 	{
 		mCurrentScene = filePath;
+	}
+
+	void SceneSystem::SetDefaultScenePath(std::filesystem::path const& filePath)
+	{
+		mDefaultScene = filePath;
+	}
+
+	std::filesystem::path SceneSystem::GetDefaultScenePath()
+	{
+		return mDefaultScene;
 	}
 
 	void SceneSystem::SaveScene(std::filesystem::path const filePath)
@@ -188,8 +202,6 @@ namespace SliceEngine
 		}
 	}
 
-	
-
 	bool SceneSystem::CheckQueueEmpty()
 	{
 		return mSceneQueue.empty();
@@ -198,5 +210,10 @@ namespace SliceEngine
 	std::filesystem::path SceneSystem::GetCurrentScenePath()
 	{
 		return mCurrentScene;
+	}
+
+	std::string SceneSystem::GetCurrentSceneName()
+	{
+		return mCurrentScene.stem().string();
 	}
 }

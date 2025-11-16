@@ -65,9 +65,11 @@ namespace SliceEditor
 		SHADER = 7,
 		MATERIAL = 8,
 		PREFAB = 9,
-		TEXTFILE = 10,
-		MIXED = 11,
-		UNSUPPORTED = 12
+		ANIMATION = 10,
+		ANIMATOR = 11,
+		TEXTFILE = 12,
+		MIXED = 13,
+		UNSUPPORTED = 14
 	};
 
 	struct SelectionNode
@@ -108,7 +110,7 @@ namespace SliceEditor
 		}
 	};
 
-	struct DirectoryNode : SelectionNode
+	struct DirectoryNode : SelectionNode //Content Browser
 	{
 		std::string fileName;
 		std::filesystem::path path;
@@ -117,7 +119,7 @@ namespace SliceEditor
 		bool isDirectory = false;
 	};
 
-	struct DroppedFile
+	struct DroppedFile //Dropped File (From File Explorer to Editor)
 	{
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;

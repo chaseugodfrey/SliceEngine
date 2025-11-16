@@ -10,18 +10,18 @@ namespace SliceEditor
 		return ImVec4(std::clamp(v.x * f, 0.f, 255.f), (std::clamp(v.y * f, 0.f, 255.f)), (std::clamp(v.z * f, 0.f, 255.f)), (std::clamp(v.w * f, 0.f, 255.f)));
 	}
 
-	float* ImVec4ToFloatArray(ImVec4 v)
-	{
-		float arr[4]
-		{
-			v.x,
-			v.y,
-			v.z,
-			v.w
-		};
+	//float* ImVec4ToFloatArray(ImVec4 v)
+	//{
+	//	float arr[4]
+	//	{
+	//		v.x,
+	//		v.y,
+	//		v.z,
+	//		v.w
+	//	};
 
-		return arr;
-	}
+	//	return arr;
+	//}
 
 	ImVec4 FloatArrayToImVec4(float* arr)
 	{
@@ -30,7 +30,7 @@ namespace SliceEditor
 
 	void PreferenceWindow::SetThemeColor(ImVec4 col)
 	{
-		ImGuiStyle& style = ImGui::GetStyle();
+		//ImGuiStyle& style = ImGui::GetStyle();
 
 		//style.Colors[ImGuiCol_Header] = col;
 		//style.Colors[ImGuiCol_Tab] = col;

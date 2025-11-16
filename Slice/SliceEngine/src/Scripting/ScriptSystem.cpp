@@ -51,7 +51,7 @@ namespace SliceEngine
         {"System.String", ScriptFieldType::String},
         {"SliceEngine.Vector2", ScriptFieldType::Vector2},
         {"SliceEngine.Vector3", ScriptFieldType::Vector3},
-        {"SliceEngine.Entity", ScriptFieldType::Entity},
+        {"SliceEngine.GameObject", ScriptFieldType::GameObject},
         {"SliceEngine.Audio", ScriptFieldType::Audio},
         {"SliceEngine.Prefab", ScriptFieldType::Prefab}
     };
@@ -77,35 +77,6 @@ namespace SliceEngine
         // CleanUp();
     }
 
-    //void ScriptSystem::EntityDestroyed(Entity id)
-    //{
-    //    // If an entity is destroyed, remove it from mEntityInstances
-    //    // can also take this part to call ondestroy if we do that
-    //    // mEntityInstances is usually cleared at the end of playing
-    //    // but if entity is destroyed in run time then we have to clear it from the map
-    //    for (auto& it : mEntityInstances)
-    //    {
-    //        if (it.first == id)
-    //        {
-    //            // can call ondestroy here maybe if we do that
-    //            //CM_CORE_INFO("Destroying entity {}", id);
-    //            mono_gchandle_free(it.second->mHandle);
-    //            // erase it from the map
-    //            mEntityInstances.erase(it.first);
-    //            break;
-    //        }
-    //    }
-
-    //    for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
-    //    {
-    //        if (*it == id)
-    //        {
-    //            entityAdded.erase(it);
-    //            break;
-    //        }
-    //    }
-    //}
-
     void ScriptSystem::Init()
     {
        InitMono();
@@ -117,9 +88,14 @@ namespace SliceEngine
        ScriptFunctions::RegisterComponents();
 
         // PrintAssemblyTypes(mCoreAssembly);
-         // retrieve the main Entity class
+        // retrieve the main Entity class
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
+        mCoroutineManager->Instantiate();
+        mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+        SLICE_LOG("mCoroutine");
 
+        SubscribeToEvents();
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -284,6 +260,17 @@ namespace SliceEngine
 
     void ScriptSystem::ReloadAssembly()
     {
+        // temporary until we find a btr way
+        // cause itll freeze the engine for a bit
+        // mayb a pop up window to show its recompiling or smth by having this threaded
+
+        int buildResult = system("dotnet build \"../SliceScript/SliceScript.csproj\"");
+
+        if (buildResult != 0)
+        {
+            return;
+        }
+
         for (auto [entity, instance] : mEntityInstances)
         {
             entityAdded.push_back(entity);
@@ -312,6 +299,10 @@ namespace SliceEngine
 
         mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 
+        mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
+        mCoroutineManager->Instantiate();
+        mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+        SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
     }
 
@@ -345,8 +336,8 @@ namespace SliceEngine
         {
             std::filesystem::path pdbPath = assemblyPath;
             pdbPath.replace_extension(".pdb");
-
-            SLICE_LOG_DEBUG("Attempting to load pdb: {}", pdbPath);
+			std::string msg = "Attempting to load pdb: {}" + pdbPath.string();
+            SLICE_LOG_DEBUG(msg);
 
             if (std::filesystem::exists(pdbPath))
             {
@@ -355,15 +346,13 @@ namespace SliceEngine
                 mono_debug_open_image_from_memory(assemblyImage, (const mono_byte*)pdbFileData, pdbFileSize);
 
                 delete[] pdbFileData;
-
             }
+        }
 
         mono_image_close(image);
 
         // Don't forget to free the file data
         delete[] fileData;
-
-        }
 
         return assembly;
 
@@ -406,11 +395,13 @@ namespace SliceEngine
 
     void ScriptSystem::OnUpdate(float dt)
     {
+        mCoroutineInstance->InvokeOnUpdate(dt);
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
             scriptRef->InvokeOnUpdate(dt);
-        }
+        }     
     }
 
     void ScriptSystem::OnFixedUpdate(float dt)
@@ -437,8 +428,8 @@ namespace SliceEngine
 
                     mEntityInstances[*entity] = scriptObj;
 
-                    auto inputs = Core::GetInstance()->GetInputSystem();
-                    auto scene = Core::GetInstance()->GetSceneSystem();
+                    //auto inputs = Core::GetInstance()->GetInputSystem();
+                    //auto scene = Core::GetInstance()->GetSceneSystem();
 
                     //if (inputs->GetMode() == InputMode::Game)
                     //{
@@ -447,11 +438,11 @@ namespace SliceEngine
                     //    mEntityInstances[*entity]->InvokeOnCreate();
                     //}
 
-                    if (scene->mCurrentState == SceneState::PLAY_SCENE)
-                    {
-                        mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
-                        mEntityInstances[*entity]->InvokeOnCreate();
-                    }
+                    //if (scene->mCurrentState == SceneState::PLAY_SCENE)
+                    //{
+                    //    mEntityInstances[*entity]->InvokeOnConstruct((unsigned int)*entity);
+                    //    mEntityInstances[*entity]->InvokeOnCreate();
+                    //}
 
                     UpdateScriptComponent(*entity);
                     entityAdded.erase(entity);
@@ -475,32 +466,140 @@ namespace SliceEngine
 
     void ScriptSystem::UpdateScriptVariables(Entity entity)
     {
-	/*	auto& scriptComponent = mRegistry->get<Script>(entity);
+		auto& scriptComponent = mRegistry->get<Script>(entity);
 
         auto& scriptRef = mEntityInstances[entity];
         const auto& fields = scriptRef->GetScriptClass()->mFields;
         for (const auto& it : fields)
         {
-            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            if (it.second.mElementClass == nullptr)
             {
-                if (it.second.mType == ScriptFieldType::String)
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
+
+                if (entry != scriptComponent.scriptableFieldMap.end())
                 {
-                    std::string str = std::get<std::string>(scriptComponent.scriptableFieldMap[it.first]);
-                    scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                    rttr::variant& v = entry->second;
+
+                    // if this isnt a valid variant
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid/null variant for scriptable field map");
+                        continue;
+                    }
+
+                    if (it.second.mType == ScriptFieldType::String)
+                    {
+                        if (v.is_type<std::string>())
+                        {
+                            std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
+                            scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                        }
+                        else
+                        {
+                            SLICE_LOG_ERROR("Mismach type.");
+
+                        }
+                    }
+                    else
+                    {
+                        scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                    }
                 }
-                else
+            }
+            else
+            {
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
+
+                if (entry != scriptComponent.scriptableFieldMap.end())
                 {
-                    scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                    rttr::variant& v = entry->second;
+
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid variant for an array field");
+                        continue;
+                    }
+                    if (!v.get_type().is_sequential_container())
+                    {
+                        continue;
+                    }
+
+                    scriptRef->SetFieldValue(it.second.mName.c_str(), v);
                 }
             }
 
-        }*/
+        }
 
     }
 
     void ScriptSystem::UpdateScriptComponent(Entity entity)
     {
+        Script& scriptComponent = mRegistry->get<Script>(entity);
 
+        // if it has script instances attached to this entity
+        if (mEntityInstances.count(entity) > 0)
+        {
+            auto& scriptRef = mEntityInstances[entity];
+            const auto& fields = scriptRef->GetScriptClass()->mFields;
+            scriptComponent.scriptableFieldMap.clear();
+
+            for (const auto& it : fields)
+            {
+                if (it.second.mElementClass != nullptr)
+                {
+                    if (it.second.mType == ScriptFieldType::Float)
+                    {
+                        std::vector<float> var = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Bool)
+                    {
+                        std::vector<bool> var = scriptRef->GetArrayFieldValue<bool>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::String)
+                    {
+                        std::vector<std::string> var = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Int)
+                    {
+                        std::vector<int> var = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Vector3)
+                    {
+                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                }
+                else if (it.second.mType == ScriptFieldType::Float)
+                {
+                    float var = scriptRef->GetFieldValue<float>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Bool)
+                {
+                    bool var = scriptRef->GetFieldValue<bool>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::String)
+                {
+                    std::string var = scriptRef->GetFieldValue<std::string>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Int)
+                {
+                    int var = scriptRef->GetFieldValue<int>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Vector3)
+                {
+                    glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+            }
+        }
     }
 
     void ScriptSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -517,11 +616,12 @@ namespace SliceEngine
 
 			std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
 			mEntityInstances[entity] = instance;
-
-			// Update the script variables from the script component to the script instance
-            // useful for seeing variables in the inspector
-            // but after M1 or after tuesday
-
+            
+            // Update the variables in script instance with variables 
+            // in the script component
+            UpdateScriptVariables(entity);
+            // idk incase it isnt populated the first time
+            UpdateScriptComponent(entity);
             // Check if an entity is created on runtime
 			// if it is then we have to invoke the construct and oncreate
             // but again after M1 
@@ -574,88 +674,128 @@ namespace SliceEngine
         
 	}
 
-    void ScriptSystem::LoadEntityClasses()
-    {
-        //loook here aloy
-
-        // clear the map before using it
-        mEntityClasses.clear();
-
-        MonoImage* image = mono_assembly_get_image(mCoreAssembly);
-        const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
-        int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
-        MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
-
-        for (int32_t i = 0; i < numTypes; i++)
+        void ScriptSystem::LoadEntityClasses()
         {
-            uint32_t cols[MONO_TYPEDEF_SIZE];
-            mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
+            //loook here aloy
 
-            const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
-            const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
+            // clear the map before using it
+            mEntityClasses.clear();
 
-            MonoClass* monoClass = mono_class_from_name(image, nameSpace, name);
+            MonoImage* image = mono_assembly_get_image(mCoreAssembly);
+            const MonoTableInfo* typeDefinitionsTable = mono_image_get_table_info(image, MONO_TABLE_TYPEDEF);
+            int32_t numTypes = mono_table_info_get_rows(typeDefinitionsTable);
+            MonoClass* entityClass = mono_class_from_name(image, "SliceEngine", "SliceBehaviour");
+            //MonoClass* testClass = mono_class_from_name(image, "SliceEngine", "CoroutineManager");
+            for (int32_t i = 0; i < numTypes; i++)
+            {               
 
-            // don't reload entity class
-            if (monoClass == entityClass) continue;
+                uint32_t cols[MONO_TYPEDEF_SIZE];
+                mono_metadata_decode_row(typeDefinitionsTable, i, cols, MONO_TYPEDEF_SIZE);
 
-            std::string className;
-            if (strlen(nameSpace))
-            {
-                className = std::format("{}.{}", nameSpace, name);
-            }
-            else
-                className = name;
+                const char* nameSpace = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAMESPACE]);
+                const char* name = mono_metadata_string_heap(image, cols[MONO_TYPEDEF_NAME]);
 
-            bool isEntityScript = mono_class_is_subclass_of(monoClass, entityClass, false);
-            if (isEntityScript)
-            {
-                std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
-                mEntityClasses[className] = script;
-                 
-                MonoClass* currentClass = monoClass;
-                while (currentClass)
+                // To protect against compiler generated types
+                if (name[0] == '<')
+                    continue;
+
+                // To protect against private nested classes being embroiled in this
+                uint32_t flags = cols[MONO_TYPEDEF_FLAGS];
+                uint32_t visibility = flags & TYPE_ATTRIBUTE_VISIBILITY_MASK;
+
+                // Skip compiler-generated or nested types (names starting with '<')
+                if (name[0] == '<')
+                    continue;
+
+                // Skip all nested types (nested types have visibility values 0x02–0x06)
+                if (visibility >= TYPE_ATTRIBUTE_NESTED_PUBLIC && visibility <= TYPE_ATTRIBUTE_NESTED_FAM_OR_ASSEM)
+                    continue;
+
+                MonoClass* monoClass = mono_class_from_name(image, nameSpace, name);
+
+                // don't reload entity class
+                if (monoClass == entityClass) continue;
+
+                std::string className;
+                if (strlen(nameSpace))
                 {
-                    // get all the fields from the c# script (i.e variables from c# script side)
-                    void* iterator = nullptr;
-                    while (MonoClassField* field = mono_class_get_fields(currentClass, &iterator))
-                    {
-                        std::string fieldName = mono_field_get_name(field);
-                        // Only access public variables from the mono class
-                        if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
-                        {
-                            MonoType* type = mono_field_get_type(field);
-                            ScriptFieldType fieldType = GetScriptFieldType(type);
-
-
-                            rttr::variant var;
-                            // Store it in the script's field map
-                            script->mFields[fieldName] = { fieldType, fieldName, field, var};
-                        }
-                    }
-
-                    currentClass = mono_class_get_parent(currentClass);
-                    if (currentClass == entityClass)
-                        break;
+                    className = std::format("{}.{}", nameSpace, name);
                 }
+                else
+                    className = name;
+
+                bool isEntityScript = mono_class_is_subclass_of(monoClass, entityClass, false);
+                if (isEntityScript)
+                {
+                    std::shared_ptr<ScriptClass> script = std::make_shared<ScriptClass>(nameSpace, name);
+                    mEntityClasses[className] = script;
+
+                    MonoClass* currentClass = monoClass;
+                    while (currentClass)
+                    {
+                        // get all the fields from the c# script (i.e variables from c# script side)
+                        void* iterator = nullptr;
+                        while (MonoClassField* field = mono_class_get_fields(currentClass, &iterator))
+                        {
+                            std::string fieldName = mono_field_get_name(field);
+                            // Only access public variables from the mono class
+                            if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
+                            {
+                                MonoType* type = mono_field_get_type(field);
+
+                                MonoClass* elementClass = nullptr;
+                                ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass);
+
+                                rttr::variant var;
+                                // Store it in the script's field map
+                                script->mFields[fieldName] = { fieldType, fieldName, field, var, elementClass };
+                            }
+                        }
+
+                        currentClass = mono_class_get_parent(currentClass);
+                        if (currentClass == entityClass)
+                            break;
+                    }
+                }
+
+                //printf("%s.%s\n", nameSpace, name);
+
+
             }
-
-            //printf("%s.%s\n", nameSpace, name);
-
-
-        }
-
     }
 
-    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type)
+    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass)
     {
-        std::string name = mono_type_get_name(type);
-        // If the name exist in our field type map
-        if (sFieldTypeMap.count(name) != 0)
+        *outElementClass = nullptr;
+
+        MonoArrayType* arrayType = mono_type_get_array_type(type);
+        mono_bool isStruct = mono_type_is_struct(type);
+        if (arrayType && !isStruct)
         {
-            auto iter = sFieldTypeMap.find(name);
-            return iter->second;
+            MonoClass* elementClass = arrayType->eklass;
+            *outElementClass = elementClass;
+
+            MonoType* elementType = mono_class_get_type(elementClass);
+            std::string elementTypeName = mono_type_get_name(elementType);
+
+            if (sFieldTypeMap.count(elementTypeName))
+            {
+                auto iter = sFieldTypeMap.find(elementTypeName);
+
+                return iter->second;
+            }
         }
+        else
+        {
+            std::string name = mono_type_get_name(type);
+            // If the name exist in our field type map
+            if (sFieldTypeMap.count(name) != 0)
+            {
+                auto iter = sFieldTypeMap.find(name);
+                return iter->second;
+            }
+        }
+
 
         return ScriptFieldType::None;
     }
@@ -693,6 +833,8 @@ namespace SliceEngine
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
+            
+        //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
             scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
 		}
     }

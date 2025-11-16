@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Shader.h"
 #include "Audio.h"
 #include "Skeleton.h"
+#include "StateMachine.h"
 
 namespace SliceEngine
 {
@@ -50,6 +51,8 @@ namespace SliceEngine
 
 		static void Destroy(SliceEngineTypes::Texture& resource, ResourceManager& resourceMgr);
 
+		static void Reload(SliceEngineTypes::Texture* resource, ResourceManager& mgr, const std::string& path);
+
 	};
 
 	template <>
@@ -62,6 +65,8 @@ namespace SliceEngine
 
 		static void Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr);
 
+		static void Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path);
+
 	};
 
 	template <>
@@ -73,6 +78,8 @@ namespace SliceEngine
 		static std::unique_ptr<SliceEngineTypes::Material> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Material* materialToReload, ResourceManager& mgr, const std::string& path);
 
 	};
 
@@ -87,6 +94,8 @@ namespace SliceEngine
 
 		static void Destroy(SliceEngineTypes::Model& resource, ResourceManager& resourceMgr);
 
+		static void Reload(SliceEngineTypes::Model* resource, ResourceManager& mgr, const std::string& path);
+
 	};
 
 	template <>
@@ -97,6 +106,8 @@ namespace SliceEngine
 		static std::unique_ptr<SliceEngineTypes::Audio> Load(ResourceManager& resourceMgr, const std::string& path);
 
 		static void Destroy(SliceEngineTypes::Audio& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Audio* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
@@ -107,6 +118,8 @@ namespace SliceEngine
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Scene> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Scene& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Scene* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
@@ -116,6 +129,8 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::Prefab> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Prefab& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Prefab* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
@@ -125,6 +140,8 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::Skeleton> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Skeleton& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Skeleton* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
@@ -134,6 +151,19 @@ namespace SliceEngine
 
 		static std::unique_ptr<SliceEngineTypes::AnimationPackage> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::AnimationPackage& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::AnimationPackage* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::StateMachine>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::StateMachine> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path);
 	};
 }
 

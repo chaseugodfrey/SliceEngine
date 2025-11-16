@@ -49,6 +49,8 @@ namespace SliceEngine
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
+	//	std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
+
 		return go;
 	}
 
@@ -132,7 +134,7 @@ namespace SliceEngine
 
 		return newGO;
 	}
-
+	
 	GameObject GOFactory::GetGOByName(std::string name)
 	{
 		auto it = mNameToEntity.find(name);
@@ -153,6 +155,29 @@ namespace SliceEngine
 		return GameObject();
 	}
 
+	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)
+	{
+		std::vector<Entity> result;
+
+		// Arbitrary number as idk what to expect
+		result.reserve(64);
+
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				result.push_back(entity);
+			}
+		}
+
+
+		return result;
+	}
+
 	Entity GOFactory::GetRootEntity()
 	{
 		return mRootEntity;
@@ -166,6 +191,7 @@ namespace SliceEngine
 	void GOFactory::Destroy(entt::entity entity)
 	{
 		auto go = GetGOByEntity(entity);
+		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
 		//Check children and destroy them too
 		if(go.HasComponent<SceneGraph>())
@@ -392,8 +418,14 @@ namespace SliceEngine
 		auto& tr = mRegistry.get<Transform>(entity);
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
-		auto mat = glm::inverse(tr_par.transform) * tr.transform;
-		
+		// Build the world transform matrix from the current position/rotation/scale
+		glm::mat4 worldTransform = glm::translate(glm::mat4(1.0f), tr.position) *
+			glm::mat4_cast(tr.rotation) *
+			glm::scale(glm::mat4(1.0f), tr.scale);
+
+		// Convert world transform to local space relative to parent
+		auto mat = glm::inverse(tr_par.transform) * worldTransform;
+
 		glm::vec3 translation, scale, skew;
 		glm::vec4 perspective;
 		glm::quat rotation;
@@ -402,6 +434,20 @@ namespace SliceEngine
 		tr.position = translation;
 		tr.rotation = rotation;
 		tr.scale = scale;
+	}
+
+	bool GOFactory::CheckValidName(Entity entity)
+	{
+		auto& name = mRegistry.get<SliceEntity>(entity).mName;
+
+		if (mNameToEntity.find(name) != mNameToEntity.end())
+		{
+			if (mNameToEntity[name] == entity)
+			{
+				return true;
+			}
+		}
+		return true;
 	}
 
 	void GOFactory::FactoryShutdown()
@@ -485,7 +531,7 @@ namespace SliceEngine
 		auto view = mRegistry.view<SceneGraph>();
 		auto scene_root_entity = entt::entity{ 0 };
 
-		auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
+		//auto& parentSceneGraph = mRegistry.get<SceneGraph>(scene_root_entity);
 
 		// update root entity's child
 		//auto parentChildIt = map.find((uint32_t)parentSceneGraph.neighbours[SceneGraph::DOWN]);
@@ -560,7 +606,17 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+	}
+	
+	GameObject GOFactory::CreateGO_Sphere()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::SphereData{});
+		go.AddComponent<RigidBody>();
 
+		return go;
 		//testing only
 		//return CreateGO_Model((GUID)17518266545644652909);
 
@@ -583,6 +639,17 @@ namespace SliceEngine
 		SetParent(ui_ele.GetEntity(), canvas.GetEntity());
 
 		return canvas;*/
+	}
+
+	GameObject GOFactory::CreateGO_Capsule()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::CapsuleData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
 	}
 
 	GameObject GOFactory::CreateGO_Cam()
@@ -609,16 +676,27 @@ namespace SliceEngine
 			root = go.GetEntity();
 			go.AddComponent<Animator>();
 		}
-		go.AddComponent<Bone>();
-		auto& bone = go.GetComponent<Bone>();
-		bone.skeleton_root = root;
-		bone.frame_idx = index;
+
+		if (!is_static)
+		{
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
+		}
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
 			auto& rc = go.GetComponent<Renderer>();
 			rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
-			rc.meshOffset = node.mesh_ref[0];
+			rc.meshOffset = static_cast<unsigned char>(node.mesh_ref[0]);
+
+			if (!is_static)
+				rc.skinned = true;
 			//rc.texture = (GUID)18349208178533231704;
 
 			//add siblings if a single node has multiple mesh refs
@@ -634,13 +712,18 @@ namespace SliceEngine
 				sibling.AddComponent<Renderer>();
 				auto& s_rc = sibling.GetComponent<Renderer>(); 
 				s_rc.modelHandle = rm->get<SliceEngineTypes::Model>(model_guid);
-				s_rc.meshOffset = node.mesh_ref[i];
+				s_rc.meshOffset = static_cast<unsigned char>(node.mesh_ref[i]);
 
-				if (is_static) {
-					sibling.AddComponent<Bone>();
-					auto& s_bone = sibling.GetComponent<Bone>();
-					s_bone.skeleton_root = root;
-					s_bone.frame_idx = index;
+				if (!is_static) {
+					Bone tmpSibling;
+					tmpSibling.skeleton_root = root;
+					tmpSibling.frame_idx = index;
+
+					sibling.AddComponent<Bone>(tmpSibling);
+					//auto& s_bone = sibling.GetComponent<Bone>();
+					//s_bone.skeleton_root = root;
+					//s_bone.frame_idx = index;
+					s_rc.skinned = true;
 				}
 				//rc.texture = (GUID)18349208178533231704;
 			}
@@ -790,7 +873,7 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
-			SLICE_LOG_VALUES("deleting: ", (unsigned int)Entity);
+			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mNameToEntity.erase(mEntityToGO[Entity].GetName());
@@ -886,13 +969,12 @@ namespace SliceEngine
 			}
 
 			// Each component for this GameObject is here
-			std::cout << storage.type().name() << std::endl;
 			std::string componentName(storage.type().name());
 
 			rttr::type componentType = rttr::type::get_by_name(componentName);
 			if (!componentType)
 			{
-				SLICE_LOG_ERROR("Component is not registered");
+				//SLICE_LOG_ERROR("Component is not registered");
 				continue;
 			}
 

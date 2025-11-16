@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Input/InputSystem.h"
+
 namespace SliceEngine
 {
 	Core::Core()
@@ -64,6 +65,8 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Light>();
 		mFactory.RegisterComponent<ParticleSystem>();
 		mFactory.RegisterComponent<Prefab>();
+		mFactory.RegisterComponent<Animator>();
+		mFactory.RegisterComponent<Bone>();
 
 
 		mResource->InitResourceManager();

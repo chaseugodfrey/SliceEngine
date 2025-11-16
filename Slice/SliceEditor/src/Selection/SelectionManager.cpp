@@ -32,6 +32,8 @@ namespace SliceEditor
 	{
 		mSelectedEntities.clear();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
+		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &SelectionManager::DeleteSelectedObjects>(this);
+
 	}
 
 	void SelectionManager::Update()
@@ -76,22 +78,34 @@ namespace SliceEditor
 		SelectSingle(node.get(), suppressHistory);
 	}
 
+	void SelectionManager::SelectSingleAdd(SelectionNode* node, bool suppressHistory)
+	{
+		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
+
+		auto it = mSelectedNodes.find(node);
+		if (it == std::end(mSelectedNodes))
+		{
+			node->isSelected = true;
+			mSelectedNodes.insert(node);
+		}
+
+		else
+		{
+			node->isSelected = false;
+			mSelectedNodes.erase(it);
+		}
+
+		if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
+
+	}
+
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
 	{
-		auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-		if (it == std::end(mSelectedEntities))
-		{
-			//if (!suppressHistory)
-			//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
+		auto session = registry.GetManager<SessionManager>("Session");
+		auto& node = session->GetEntityNodes().at(entity);
+		SelectSingleAdd(node.get(), suppressHistory);
 
-			mSelectedEntities.insert(entity);
-		}
-
-		std::unordered_set<entt::entity> set{ entity };
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateSelected(set);
-		}
 	}
 
 	void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
@@ -148,6 +162,25 @@ namespace SliceEditor
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
+	}
+
+	void SelectionManager::DeleteSelectedObjects()
+	{
+	
+		std::vector<entt::entity> deleteList;
+		for (auto* node : mSelectedNodes)
+		{
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode& entityNode = *static_cast<EntityNode*>(node);
+				deleteList.push_back(entityNode.entity);
+			}
+		}
+
+		for(auto entity : deleteList)
+		{
+			EditorUtilities::GameObject_Destroy(entity);
+		}
 	}
 
 	std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()

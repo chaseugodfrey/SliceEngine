@@ -23,6 +23,16 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
+	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
+
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
+
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 
@@ -66,6 +76,7 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
+		EnableMemoryLeakChecking(-1);
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
@@ -74,6 +85,8 @@ namespace SliceEditor
 		assetManager.Init();
 
 		engine.Init();
+
+		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, AssetType::Controller);
 
 		//SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
 		//FloorTest.AddComponent<SliceEngine::Renderer>();
@@ -122,6 +135,7 @@ namespace SliceEditor
 		InitManagers();
 		InitWindowManager();
 
+		engine.SceneInit();
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
@@ -135,6 +149,7 @@ namespace SliceEditor
 		{
 			registry.Update();
 			inputs.Update();
+			assetManager.UpdateFolder();
 			engine.Update();
 			Render();
 			engine.EndFrame();
@@ -152,8 +167,8 @@ namespace SliceEditor
 		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
 		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
 		ImGuiIO& io = ImGui::GetIO();
-		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
-		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		input->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
 
 		registry.GetManager<WindowManager>("Windows")->Render();
 

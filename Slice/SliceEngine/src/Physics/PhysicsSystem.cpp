@@ -193,6 +193,13 @@ namespace SliceEngine
 		{
 			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
 			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				body.SetCollideKinematicVsNonDynamic(true);
+
+			}
 		}
 
 	}
@@ -216,6 +223,10 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
@@ -437,6 +448,7 @@ namespace SliceEngine
 			JPH::MassProperties massProps = shape->GetMassProperties();
 
 			massProps.ScaleToMass(rigidBody.mass);
+			body.SetCollideKinematicVsNonDynamic(true);
 
 			//handle freeze position
 			JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
@@ -729,8 +741,8 @@ namespace SliceEngine
 			// do this later aloysius
 			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), bodyPair.GetBody1ID());
 
-			JPH::uint64 ent1;
-			JPH::uint64 ent2;
+			JPH::uint64 ent1{};
+			JPH::uint64 ent2{};
 
 			ColliderShape colliderShape1;
 			ColliderShape colliderShape2;
@@ -758,7 +770,7 @@ namespace SliceEngine
 			}
 			lock2.ReleaseLock();
 
-			if (pass = true)
+			if (pass)
 			{
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
@@ -860,11 +872,13 @@ namespace SliceEngine
 			{
 				bodySettings.mFriction = rigidBody.friction;
 				bodySettings.mRestitution = rigidBody.restitution;
+				bodySettings.mCollideKinematicVsNonDynamic = true;
 			}
 		}
 		else if (!isRigibody)
 		{
 			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			//bodySettings.mFriction = 0.6f;
 		}
 
 		//Set as sensor for triggers

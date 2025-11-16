@@ -51,12 +51,13 @@ namespace SliceEngine
 		void LoadNextScene();
 		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
+		void SetDefaultScenePath(std::filesystem::path const& filePath);
+		
 		void SaveScene(std::filesystem::path const filePath);
 		void SaveCurrentScene();
 		void SaveNextScene();
 		void UnloadCurrentScene();
 		void ReloadScene();		
-		void GetCurrentScene();
 
 		void Play();
 		void Pause();
@@ -65,13 +66,15 @@ namespace SliceEngine
 		bool CheckQueueEmpty();
 
 		std::filesystem::path GetCurrentScenePath();
+		std::filesystem::path GetDefaultScenePath();
+		std::string GetCurrentSceneName();
 		bool isSceneUnloaded{};
 
 	private:
 		//can change to other identifier
 
 		std::queue<std::filesystem::path> mSceneQueue;
-		std::filesystem::path mCurrentScene{};
+		std::filesystem::path mCurrentScene{};	
 		std::filesystem::path mNextScene{};
 		std::filesystem::path mDefaultScene{};
 		

@@ -34,6 +34,7 @@ namespace SliceEngine
 	struct SliceEntity 
 	{
 		std::string mName;
+		std::string mTag{ "default" };
 		bool active;
 
 		SliceEntity() : active(true) {}
@@ -88,6 +89,8 @@ namespace SliceEngine
         glm::mat4 transform_local{ 1.0f };
         glm::mat4 transform{ 1.0f };
 
+		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
+
 		RTTR_ENABLE();
     };
 
@@ -114,8 +117,9 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
-		unsigned short meshOffset{ 0 };
-		unsigned char renderTag;
+		unsigned char meshOffset{ 0 };
+		unsigned char renderTag{};
+		bool skinned{ false };
 
 		RTTR_ENABLE();
 	};
@@ -211,6 +215,37 @@ namespace SliceEngine
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
 		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
 
+		ColliderShape() = default;
+		ColliderShape(BoxData data) : shapeData(data) {};
+		ColliderShape(SphereData data) : shapeData(data) {};
+		ColliderShape(CapsuleData data) : shapeData(data) {};
+
+	private:
+		inline static const BoxData defaultBoxData{};
+		inline static const SphereData defaultSphereData{};
+		inline static const CapsuleData defaultCapsuleData{};		
+	public:
+		// Getters
+		const BoxData& GetBoxData() const {
+			return std::holds_alternative<BoxData>(shapeData) ?
+				std::get<BoxData>(shapeData) : defaultBoxData;
+		}
+
+		const SphereData& GetSphereData() const {
+			return std::holds_alternative<SphereData>(shapeData) ?
+				std::get<SphereData>(shapeData) : defaultSphereData;
+		}
+
+		const CapsuleData& GetCapsuleData() const {
+			return std::holds_alternative<CapsuleData>(shapeData) ?
+				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
+		}
+
+		// Setters
+		void SetBoxData(const BoxData& data) { shapeData = data; }
+		void SetSphereData(const SphereData& data) { shapeData = data; }
+		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+
 		RTTR_ENABLE();
 	};
 
@@ -238,11 +273,20 @@ namespace SliceEngine
 		bool active{ false };
 		float age{};             // how long this particle has been alive
 		
+		glm::vec3 finalPosition{};	// including parent transform position if localspace
 		glm::vec3 position{};
 		glm::quat rotation{};
 		glm::vec3 scale{};
 		glm::vec3 velocity{};    // derived from speed + angle
 		glm::vec4 colour{};       // if you want per-particle tint
+	};
+
+	struct ParticleRenderPart
+	{
+		glm::mat4 transform{}; // has position, rotation, scale calculated
+		glm::vec4 colour{};
+		GLuint textureID{};
+
 	};
 	struct ParticleSystem
 	{
@@ -257,6 +301,7 @@ namespace SliceEngine
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread
 
 		bool isRepeating{ false };
+		bool isLocalSpace{ false };				// false means world space
 
 		bool hasRandomParticleLifetime{ false };
 		float lifetime{};
@@ -278,7 +323,7 @@ namespace SliceEngine
 		glm::vec3 maxRandomVelocity{};
 
 		bool hasRandomScale{ false };
-		glm::vec3 scale{};
+		glm::vec3 scale{1.0f};
 		glm::vec3 minRandomScale{};
 		glm::vec3 maxRandomScale{};
 
@@ -288,12 +333,12 @@ namespace SliceEngine
 		glm::vec4 maxRandomColour{};
 
 		bool hasGravity{ false };
-		float gForce{};
+		float gForce{1.0f};
 
 		bool fadeOverLifetime{ false };
 		bool hasCollision{ false };
 		bool destroyOnExpire{ true };
-		uint64_t maxParticles{ 200 };            // pool size. default 200
+		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -319,23 +364,33 @@ namespace SliceEngine
 
 		std::vector<Burst> bursts{};
 
-		// Idk whats the variable for mesh but need 1 here somewhere for gfx side
+		GLuint textureID;
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
 		bool isActive{ true };
-		float systemTimer{};					// system�s overall lifetime
+		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
 	};
 
+	struct Timeline
+	{
+		int32_t f_current{}, f_min{ 0 }, f_max{ 60 };
+		bool isPlaying{}, isLoop{};
+	};
 
 	struct Animator
 	{
-		FSMSystem stateMachine{};
-		float animTimer = 0.0f;
-		bool is_bone{ true };
+
+		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
+		FSMSystem stateMachine;
+		//FSMSystem stateMachine;
+
 		float current_time{};
+		Timeline timeline;
+
+		bool is_bone{ true };
 
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
@@ -346,7 +401,6 @@ namespace SliceEngine
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 
-		unsigned int curr_anim_idx{};
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
 
@@ -369,10 +423,15 @@ namespace SliceEngine
 				}
 			}
 		}
+		void SetInverseRoot(unsigned int idx) 
+		{
+			assert(idx < final_tforms.size());
+			inverse_map[idx] = glm::inverse(final_tforms[idx]);
+		}
 
 		void PlayAnimation(unsigned int idx) 
 		{
-			curr_anim_idx = idx;
+			stateMachine.EFSM.currState->curr_anim_idx = idx;
 		}
 
 		std::vector<glm::mat4> const& GetFinalTform() const
@@ -402,9 +461,6 @@ namespace SliceEngine
 
 		Type canvas_type{ OVERLAY };
 		unsigned int sort_order{};
-
-		//dont serialize these, allocated on component create
-		unsigned int fbo;
 
 		RTTR_ENABLE();
 	};

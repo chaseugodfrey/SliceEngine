@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Resource.h"
 #include "Resource/Model.h"
 #include "Resource/Material.h"
+#include "Animator/FSMSystem.h"
 #include <rttr/registration.h>
 namespace SliceEngine
 {
@@ -64,8 +65,25 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
+
 	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+
+	rttr::registration::class_<glm::vec2>("glm::vec2")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec2::x)
+		.property("y", &glm::vec2::y);
+
+	rttr::registration::class_<glm::vec3>("glm::vec3")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
+
+	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
+	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<float>>("std::vector<float>");
+	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -80,9 +98,7 @@ namespace SliceEngine
 		.method("empty", &std::string::empty)
 		.method("c_str", &std::string::c_str);
 
-	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
-		.constructor<>()
-		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
+	rttr::registration::class_<std::unordered_map<std::string, rttr::variant>>("StringVariantMap");
 
 	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
 		.constructor<>()
@@ -92,11 +108,28 @@ namespace SliceEngine
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Material>::mGUID);
 
+	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
+
+	rttr::registration::class_<FSMSystem>("stateMachine")
+		.constructor<>()
+		.property("EFSM", &FSMSystem::EFSM);
+
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.property("scriptName", &Script::scriptName)
+		.property("scriptableFieldMap", &Script::scriptableFieldMap);
+
 	rttr::registration::class_<Transform>(typeid(Transform).name())
 		.constructor<>()
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
-		.property("scale", &Transform::scale);
+		.property("scale", &Transform::scale)
+		.property("euler_hint", &Transform::eulerAnglesHint);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -105,8 +138,10 @@ namespace SliceEngine
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
+		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName);
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+		.constructor<>()
 		.property("isKinematic", &RigidBody::isKinematic)
 		.property("gravityFactor", &RigidBody::gravityFactor)
 		.property("CollisionDetection", &RigidBody::CollisionDetection)
@@ -116,9 +151,26 @@ namespace SliceEngine
 		.property("linearDamping", &RigidBody::linearDamping)
 		.property("angularDamping", &RigidBody::angularDamping);
 
+	//Collider Shapes
+	rttr::registration::class_<ColliderShape::BoxData>("BoxData")
+		.constructor<>()
+		.property("scale", &ColliderShape::BoxData::scale);
+
+	rttr::registration::class_<ColliderShape::SphereData>("SphereData")
+		.constructor<>()
+		.property("radius", &ColliderShape::SphereData::radius);
+
+	rttr::registration::class_<ColliderShape::CapsuleData>("CapsuleData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+		.constructor<>()
 		.property("layer", &ColliderShape::layer)
-		.property("ShapeData", &ColliderShape::shapeData)
+		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
+		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
+		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger);
 
@@ -126,7 +178,21 @@ namespace SliceEngine
 		.constructor<>()
 		.property("model", &Renderer::modelHandle)
 		.property("material", &Renderer::materialHandle)
-		.property("renderTag", &Renderer::renderTag);
+		.property("renderTag", &Renderer::renderTag)
+		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("meshOffset", &Renderer::meshOffset);
+
+	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
+		.constructor<>()
+		.property("soundGUID", &AudioSource::soundGUID)
+		.property("channel", &AudioSource::channel)
+		.property("previewChannel", &AudioSource::previewChannel)
+		.property("currentVolume", &AudioSource::currentVolume)
+		.property("isLoop", &AudioSource::isLoop)
+		.property("isPaused", &AudioSource::isPaused)
+		.property("is3D", &AudioSource::is3D)
+		.property("playPreview", &AudioSource::playPreview);
+		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
 		.property("width", &Camera::width)
@@ -174,6 +240,7 @@ namespace SliceEngine
 		.property("coneAngle", &ParticleSystem::coneAngle)
 		.property("axis", &ParticleSystem::axis)
 		.property("isRepeating", &ParticleSystem::isRepeating)
+		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
 		.property("hasRandomParticleLifetime", &ParticleSystem::hasRandomParticleLifetime)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
@@ -220,7 +287,13 @@ namespace SliceEngine
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
-		.property("animTime", &Animator::animTimer);
+		.property("current_time", &Animator::current_time)
+		.property("stateMachine", &Animator::stateMachine);
+
+	rttr::registration::class_<Bone>(typeid(Bone).name())
+		.constructor<>()
+		.property("skeleton_root", &Bone::skeleton_root)
+		.property("frame_idx", &Bone::frame_idx);
 
 	rttr::registration::class_<Canvas>(typeid(Canvas).name())
 		.constructor<>()

@@ -35,9 +35,15 @@ namespace SliceEditor
 
 		void DisplayItems(DirectoryNode& node);
 
+		void DisplayFolderNode(DirectoryNode& node);
+
+		void DisplayFileNode(DirectoryNode& node);
+
 		void RenameFilePopup(DirectoryNode& entry);
 
 		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
+
+		ImTextureID GetIcon(SelectionType type);
 
 	#pragma region Display Meta Data Functions
 		void DisplayTextureData(TextureData* data);
@@ -47,7 +53,8 @@ namespace SliceEditor
 		
 	#pragma endregion
 
-		void SelectFile(DirectoryNode& node);
+
+		void SelectFolder(DirectoryNode& node);
 	};
 }
 

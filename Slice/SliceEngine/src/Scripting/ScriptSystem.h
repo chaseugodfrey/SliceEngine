@@ -93,7 +93,7 @@ namespace SliceEngine
 		/// <returns>True or False</returns>
 		bool HasEntityClass(std::string scriptName);
 
-		ScriptFieldType GetScriptFieldType(MonoType* type);
+		ScriptFieldType GetScriptFieldType(MonoType* type, MonoClass** outElementClass);
 
 		std::shared_ptr<ScriptObject> GetScriptInstance(Entity entityID);
 
@@ -143,6 +143,8 @@ namespace SliceEngine
 
 		// Hold a reference to Entity class as it contains the constructor that all entity scripts runs to store mID
 		ScriptClass mEntityClass;
+		std::shared_ptr<ScriptClass> mCoroutineManager;
+		std::unique_ptr<ScriptObject> mCoroutineInstance;
 
 		// keep track of every type of entity classes
 		std::unordered_map<std::string, std::shared_ptr<ScriptClass>> mEntityClasses;
