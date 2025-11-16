@@ -68,7 +68,7 @@ namespace SliceEngine
 		if (collisionLayers.find(name) == collisionLayers.end())
 		{
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
-			return;
+			return 0;
 		}
 		
 		return collisionLayers[name];
@@ -80,7 +80,7 @@ namespace SliceEngine
 		if (index >= currentBit)
 		{
 			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
-			return;
+			return 0;
 		}
 
 		// looks kinda cancer idk
