@@ -159,8 +159,8 @@ namespace SliceEngine {
 
 			if (shader_guid == (GUID)15255338910698563845) {	//sprite
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
-				uniform_loc = glGetUniformLocation(shader, "tex2d");
-				glUniform1i(uniform_loc, sprite.textureHandle.get()->texture_id);
+				auto id = sprite.textureHandle.get()->texture_id;
+				glBindTextureUnit(0, sprite.textureHandle.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
 				CheckGLError();

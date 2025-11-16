@@ -108,6 +108,39 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Canvas();
+
+			//no parent for now because only overlay
+
+			/*if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);*/
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+		SliceEngine::GameObject GameObject_CreateImage(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Image();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
@@ -281,27 +314,27 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Canvas"))
 				{
-
+					EditorUtilities::GameObject_CreateCanvas(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Text"))
 				{
-
+					//next tri
 				}
 
 				if (ImGui::MenuItem("Image"))
 				{
-
+					EditorUtilities::GameObject_CreateImage(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Button"))
 				{
-
+					//EditorUtilities::GameObject_CreateButton(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Slider"))
 				{
-
+					//EditorUtilities::GameObject_CreateSlider(entt::null, history); - its jsut button with extra stuff
 				}
 
 				ImGui::EndMenu();

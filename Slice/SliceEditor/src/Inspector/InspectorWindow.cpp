@@ -147,6 +147,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
 
 			glm::vec3 rgb;
+			rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
 			DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
 			sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 
