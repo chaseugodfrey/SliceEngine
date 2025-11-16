@@ -472,16 +472,59 @@ namespace SliceEngine
         const auto& fields = scriptRef->GetScriptClass()->mFields;
         for (const auto& it : fields)
         {
-            if (scriptComponent.scriptableFieldMap.count(it.first) != 0)
+            if (it.second.mElementClass == nullptr)
             {
-                if (it.second.mType == ScriptFieldType::String)
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
+
+                if (entry != scriptComponent.scriptableFieldMap.end())
                 {
-                    std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
-                    scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                    rttr::variant& v = entry->second;
+
+                    // if this isnt a valid variant
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid/null variant for scriptable field map");
+                        continue;
+                    }
+
+                    if (it.second.mType == ScriptFieldType::String)
+                    {
+                        if (v.is_type<std::string>())
+                        {
+                            std::string str = scriptComponent.scriptableFieldMap[it.first].get_value<std::string>();
+                            scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+                        }
+                        else
+                        {
+                            SLICE_LOG_ERROR("Mismach type.");
+
+                        }
+                    }
+                    else
+                    {
+                        scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                    }
                 }
-                else
+            }
+            else
+            {
+                auto entry = scriptComponent.scriptableFieldMap.find(it.first);
+
+                if (entry != scriptComponent.scriptableFieldMap.end())
                 {
-                    scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
+                    rttr::variant& v = entry->second;
+
+                    if (!v.is_valid())
+                    {
+                        SLICE_LOG_ERROR("Invalid variant for an array field");
+                        continue;
+                    }
+                    if (!v.get_type().is_sequential_container())
+                    {
+                        continue;
+                    }
+
+                    scriptRef->SetFieldValue(it.second.mName.c_str(), v);
                 }
             }
 
@@ -502,7 +545,35 @@ namespace SliceEngine
 
             for (const auto& it : fields)
             {
-                if (it.second.mType == ScriptFieldType::Float)
+                if (it.second.mElementClass != nullptr)
+                {
+                    if (it.second.mType == ScriptFieldType::Float)
+                    {
+                        std::vector<float> var = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Bool)
+                    {
+                        std::vector<bool> var = scriptRef->GetArrayFieldValue<bool>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::String)
+                    {
+                        std::vector<std::string> var = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Int)
+                    {
+                        std::vector<int> var = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                    else if (it.second.mType == ScriptFieldType::Vector3)
+                    {
+                        std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+                        scriptComponent.scriptableFieldMap[it.first] = var;
+                    }
+                }
+                else if (it.second.mType == ScriptFieldType::Float)
                 {
                     float var = scriptRef->GetFieldValue<float>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
@@ -520,6 +591,11 @@ namespace SliceEngine
                 else if (it.second.mType == ScriptFieldType::Int)
                 {
                     int var = scriptRef->GetFieldValue<int>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::Vector3)
+                {
+                    glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
             }
@@ -666,12 +742,13 @@ namespace SliceEngine
                             if (mono_field_get_flags(field) & FIELD_ATTRIBUTE_PUBLIC)
                             {
                                 MonoType* type = mono_field_get_type(field);
-                                ScriptFieldType fieldType = GetScriptFieldType(type);
 
+                                MonoClass* elementClass = nullptr;
+                                ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass);
 
                                 rttr::variant var;
                                 // Store it in the script's field map
-                                script->mFields[fieldName] = { fieldType, fieldName, field, var };
+                                script->mFields[fieldName] = { fieldType, fieldName, field, var, elementClass };
                             }
                         }
 
@@ -687,15 +764,38 @@ namespace SliceEngine
             }
     }
 
-    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type)
+    ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass)
     {
-        std::string name = mono_type_get_name(type);
-        // If the name exist in our field type map
-        if (sFieldTypeMap.count(name) != 0)
+        *outElementClass = nullptr;
+
+        MonoArrayType* arrayType = mono_type_get_array_type(type);
+        mono_bool isStruct = mono_type_is_struct(type);
+        if (arrayType && !isStruct)
         {
-            auto iter = sFieldTypeMap.find(name);
-            return iter->second;
+            MonoClass* elementClass = arrayType->eklass;
+            *outElementClass = elementClass;
+
+            MonoType* elementType = mono_class_get_type(elementClass);
+            std::string elementTypeName = mono_type_get_name(elementType);
+
+            if (sFieldTypeMap.count(elementTypeName))
+            {
+                auto iter = sFieldTypeMap.find(elementTypeName);
+
+                return iter->second;
+            }
         }
+        else
+        {
+            std::string name = mono_type_get_name(type);
+            // If the name exist in our field type map
+            if (sFieldTypeMap.count(name) != 0)
+            {
+                auto iter = sFieldTypeMap.find(name);
+                return iter->second;
+            }
+        }
+
 
         return ScriptFieldType::None;
     }

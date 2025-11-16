@@ -360,6 +360,7 @@ namespace SliceEngine
 	}
 
 
+	// NOTE: This probably wont work with arrays now
 	void ScriptObject::ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall)
 	{
 		const auto& fieldVariables = mScriptClass->mFields;
@@ -490,22 +491,104 @@ namespace SliceEngine
 
 		rttr::type type = value.get_type();
 
+		if (type.is_sequential_container())
+		{
+			auto view = value.create_sequential_view();
+			size_t size = view.get_size();
+
+			MonoType* fieldType = mono_field_get_type(field);
+			MonoClass* elementClass = mono_class_get_element_class(mono_type_get_class(fieldType));
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), elementClass, size);
+			rttr::type elementType = view.get_value_type();
+
+			if (elementType == rttr::type::get<std::string>())
+			{
+				for (size_t i = 0; i < size; ++i)
+				{
+					rttr::variant elementVal = view.get_value(i);
+
+					if (elementVal.get_type().is_wrapper())
+					{
+						elementVal = elementVal.extract_wrapped_value();
+					}
+
+					std::string& str = elementVal.get_value<std::string>();
+					MonoString* monoStr = mono_string_new(mono_domain_get(), str.c_str());
+					mono_array_setref(monoArray, i, monoStr);
+				}
+			}
+			else
+			{
+				uintptr_t elementSize = mono_class_array_element_size(elementClass);
+				char* bufferStart = mono_array_addr_with_size(monoArray, elementSize, 0);
+
+				for (size_t i = 0; i < size; ++i)
+				{
+					rttr::variant elementVal = view.get_value(i);
+
+					if (elementVal.get_type().is_wrapper())
+					{
+						elementVal = elementVal.extract_wrapped_value();
+					}
+
+					void* dataPtr = nullptr;
+					// TODO: add more variables, but im only gonna do these 3 for now to test if it works
+					if (elementType == rttr::type::get<float>())
+					{
+						dataPtr = &elementVal.get_value<float>();
+					}
+					else if (elementType == rttr::type::get<int>())
+					{
+						dataPtr = &elementVal.get_value<int>();
+					}
+					else if (elementType == rttr::type::get<glm::vec3>())
+					{
+						dataPtr = &elementVal.get_value<glm::vec3>();
+					}
+
+					if (dataPtr)
+					{
+						memcpy(bufferStart + (i * elementSize), dataPtr, elementSize);
+					}
+				}
+			}
+
+			mono_field_set_value(scriptInstance, field, monoArray);
+		}
 		// if its a str
-		if (type == rttr::type::get<std::string>())
+		else if (type == rttr::type::get<std::string>())
 		{
 			// needh andle with MonoString
 			std::string& strVal = value.get_value <std::string>();
 			MonoString* monoStr = mono_string_new(mono_domain_get(), strVal.c_str());
 			mono_field_set_value(scriptInstance, field, monoStr);
 		}
-		else
+		else if (type == rttr::type::get<int>())
 		{
-			// assuming c++ and c# layouts are identical
-			// use get_ptr() for raw data
-			
-			mono_field_set_value(scriptInstance, field, value.get_value<void*>());
-		} 
-
+			// THE FIX: Get a reference, then take its address
+			mono_field_set_value(scriptInstance, field, &value.get_value<int>());
+		}
+		else if (type == rttr::type::get<float>())
+		{
+			// THE FIX: Get a reference, then take its address
+			mono_field_set_value(scriptInstance, field, &value.get_value<float>());
+		}
+		else if (type == rttr::type::get<bool>())
+		{
+			// Bools are special, they must be converted to MonoBoolean (int)
+			bool val = value.get_value<bool>();
+			MonoBoolean mono_bool = val ? 1 : 0;
+			mono_field_set_value(scriptInstance, field, &mono_bool);
+		}
+		else if (type == rttr::type::get<glm::vec3>())
+		{
+			mono_field_set_value(scriptInstance, field, &value.get_value<glm::vec3>());
+		}
+		else if (type == rttr::type::get<glm::vec2>())
+		{
+			mono_field_set_value(scriptInstance, field, &value.get_value<glm::vec2>());
+		}
 	}
 
 	std::shared_ptr<ScriptClass> ScriptObject::GetScriptClass()

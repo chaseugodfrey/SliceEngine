@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include <fstream>
 #include <string>
 
+#include <rttr/variant.h>
+
 using json = nlohmann::json;
 
 namespace SliceEngine
@@ -39,6 +41,9 @@ namespace SliceEngine
 
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
+
+		nlohmann::json GetJsonFromVariant(rttr::variant v);
+		nlohmann::json VariantToJson(rttr::variant v);
 
 		// Add more templates in this region should the current templates do not serve your data type well
 #pragma region Serialization Templates
@@ -199,72 +204,17 @@ namespace SliceEngine
 			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
-		//inline json variant_to_json(const rttr::variant& var)
-		//{
-		//	if (!var)
-		//		return nullptr; // empty variant
+		// For ScriptableFieldMap
+		template<>
+		inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
+		{
+			for (const auto& [k, v] : value)
+			{
+				output[name][typeName][propName][k] = VariantToJson(v);
+			}
+		}
 
-		//	auto t = var.get_type();
-
-		//	// Handle primitive types
-		//	if (var.is_type<int>())          return var.get_value<int>();
-		//	if (var.is_type<float>())        return var.get_value<float>();
-		//	if (var.is_type<double>())       return var.get_value<double>();
-		//	if (var.is_type<bool>())         return var.get_value<bool>();
-		//	if (var.is_type<std::string>())  return var.get_value<std::string>();
-		//	if (var.is_type<unsigned char>()) return static_cast<int>(var.get_value<unsigned char>());
-
-		//	// Handle vector<T> as JSON array
-		//	if (t.is_sequential_container())
-		//	{
-		//		json arr = json::array();
-		//		rttr::variant_sequential_view view = var.create_sequential_view();
-		//		for (size_t i = 0; i < view.get_size(); ++i)
-		//		{
-		//			arr.push_back(variant_to_json(view.get_value(i)));
-		//		}
-		//		return arr;
-		//	}
-
-		//	// Handle map<string, variant> as JSON object
-		//	if (t.is_associative_container())
-		//	{
-		//		json obj;
-		//		rttr::variant_associative_view view = var.create_associative_view();
-		//		for (auto& item : view)
-		//		{
-		//			std::string key = item.first.to_string();
-		//			obj[key] = variant_to_json(item.second);
-		//		}
-		//		return obj;
-		//	}
-
-		//	// Handle RTTR-reflected classes
-		//	if (t.is_class())
-		//	{
-		//		json obj;
-		//		for (auto& prop : t.get_properties())
-		//		{
-		//			rttr::variant prop_val = prop.get_value(var);
-		//			obj[prop.get_name().to_string()] = variant_to_json(prop_val);
-		//		}
-		//		return obj;
-		//	}
-
-		//	// Unsupported type
-		//	return nullptr;
-		//}
-
-		//// For ScriptableFieldMap
-		//template<>
-		//inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
-		//	const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
-		//{
-		//	for (const auto& [k, v] : value)
-		//	{
-		//		output[name][typeName][propName][k] = variant_to_json(v);
-		//	}
-		//}
 
 		// Handle
 		template<typename T>
@@ -417,10 +367,29 @@ namespace SliceEngine
 			const json& value, const std::string& propName, const std::string& componentName,
 			const Entity& entity)
 		{
-			if (prop.get_type() == rttr::type::get<T>()) {
-				Deserialize<T>(componentInstance, prop, value.get<T>(),propName, componentName, entity);
+			if (prop.get_type() == rttr::type::get<T>()) 
+			{
+				try
+				{
+					// Attempt to get JSON value as T
+					T val = value.get<T>();
+					Deserialize<T>(componentInstance, prop, val, propName, componentName, entity);
+					return true;
+				}
+				catch (const nlohmann::json::exception& e)
+				{
+					// Fallback or error handling
+					std::ostringstream oss;
+					oss << "[TryDeserializeType] Failed to parse JSON for property '"
+						<< propName << "' in component '" << componentName << "'.\n"
+						<< "Expected type: " << rttr::type::get<T>().get_name().to_string() << "\n"
+						<< "Error: " << e.what() << "\n"
+						<< "JSON value: " << value.dump();
+
+					SLICE_LOG_ERROR(oss.str());
+				}
 				return true;
-			}
+			}			
 			return false;
 		}
 
@@ -479,6 +448,10 @@ namespace SliceEngine
 			const json& value, const std::string& propName, const std::string& componentName,
 			const Entity& entity)
 		{
+			//if (propName == "scriptableFieldMap")
+			//{
+			//	return;
+			//}
 			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
 
 			if (!handled)
@@ -506,16 +479,21 @@ namespace SliceEngine
 						<< " JSON Value: " << value.dump() << "\n"
 						<< " Falling back to string deserialization.";
 
-					std::string defaultStr = value.get<std::string>();
-					SLICE_LOG_ERROR(oss.str());
-					Deserialize<std::string>(componentInstance, prop, defaultStr, propName, componentName, entity);
-				}
+					try
+					{
+						std::string defaultStr = value.get<std::string>();
+						SLICE_LOG_ERROR(oss.str());
+						Deserialize<std::string>(componentInstance, prop, defaultStr, propName, componentName, entity);
+					}
+					catch (const nlohmann::json::exception& e)
+					{
+						SLICE_LOG_ERROR("[DeserializeProp] Fallback string conversion failed for "
+							+ componentName + "::" + propName + " — " + std::string(e.what()));
 
+					}														
+				}
 			}
 		}
-
-
-
 
 #pragma endregion
 		namespace Tests
@@ -619,43 +597,6 @@ namespace SliceEngine
 		SLICE_LOG_DEBUG(msg);
 
 	}
-
-	//inline rttr::variant json_to_variant(const json& j)
-	//{
-	//	if (j.is_number_integer()) return j.get<int>();
-	//	if (j.is_number_float())   return j.get<float>();
-	//	if (j.is_boolean())        return j.get<bool>();
-	//	if (j.is_string())         return j.get<std::string>();
-
-	//	if (j.is_array())
-	//	{
-	//		std::vector<rttr::variant> vec;
-	//		for (const auto& el : j)
-	//			vec.push_back(json_to_variant(el)); // recursive
-	//		return vec;
-	//	}
-
-	//	if (j.is_object())
-	//	{
-	//		std::unordered_map<std::string, rttr::variant> map;
-	//		for (auto& [k, v] : j.items())
-	//			map[k] = json_to_variant(v); // recursive
-	//		return map;
-	//	}
-
-	//	return j.dump(); // unsupported type
-	//}
-
-	//inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant>& um)
-	//{
-	//	um.clear();
-	//	if (!j.is_object()) return;
-
-	//	for (auto& [key, val] : j.items())
-	//	{
-	//		um[key] = json_to_variant(val); // handles primitives, arrays, and nested objects
-	//	}
-	//}
 }
 
 namespace glm
@@ -701,7 +642,7 @@ namespace glm
 	}
 }
 
-namespace entt 
+namespace entt
 {
 	inline void from_json(const json& j, entt::entity& e)
 	{
@@ -718,6 +659,84 @@ namespace entt
 		j = static_cast<uint32_t>(e);
 	}
 }
+
+
+namespace rttr
+{
+	inline rttr::variant JsonToVariant(const nlohmann::json& j)
+	{
+		if (j.is_object() && j.contains("Type") && j.contains("Value"))
+		{
+			const std::string& typeName = j["Type"].get<std::string>();
+			const nlohmann::json& valueJson = j["Value"];
+
+			// --- Primitives ---
+			if (typeName == "float") 
+			{
+				return rttr::variant(valueJson.get<float>());
+			}
+			if (typeName == "int")
+			{
+				return rttr::variant(valueJson.get<int>());
+			}
+			if (typeName == "bool") 
+			{
+				return rttr::variant(valueJson.get<bool>());
+			}
+			if (typeName == "std::string")
+			{
+				return rttr::variant(valueJson.get<std::string>());
+			}
+			if (typeName == "double") 
+			{
+				return rttr::variant(valueJson.get<double>());
+			}
+
+			// --- GLM Types ---
+			if (typeName == "glm::vec3") 
+			{
+				return rttr::variant(valueJson.get<glm::vec3>());
+			}
+			if (typeName == "glm::vec2")
+			{
+				return rttr::variant(valueJson.get<glm::vec2>());
+			}
+
+			// --- Vector Types
+			if (typeName == "std::vector<float>")
+			{
+				return rttr::variant(valueJson.get<std::vector<float>>());
+			}
+			if (typeName == "std::vector<glm::vec3>") 
+			{
+				return rttr::variant(valueJson.get<std::vector<glm::vec3>>());
+			}
+			if (typeName == "std::vector<std::string>") 
+			{
+				return rttr::variant(valueJson.get<std::vector<std::string>>());
+			}
+			if (typeName == "std::vector<int>")
+			{
+				return rttr::variant(valueJson.get<std::vector<int>>());
+			}
+		}
+	}
+
+	inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant>& um)
+	{
+		um.clear();
+		if (!j.is_object()) return;
+
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			const std::string& key = it.key();
+			const json& val = it.value();
+
+			um[key] = JsonToVariant(val);
+		}
+	}
+}
+
 #pragma endregion
 
 #endif

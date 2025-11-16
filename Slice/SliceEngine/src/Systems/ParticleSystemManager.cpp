@@ -105,6 +105,8 @@ namespace SliceEngine
 			ApplyBurst(ps, dt);
 		}
 
+
+		// Update all particles to get final transform
 		bool isAnyParticleActive = false;
 		for (Particle& p : ps.particles)
 		{
@@ -130,8 +132,8 @@ namespace SliceEngine
 			ps.expired = true;
 		}
 
+		// Get all particles' final transforms to be renderered
 		particlesTransforms.clear();
-
 		for (auto& particle : ps.particles)
 		{
 			if (particle.active)
@@ -311,7 +313,7 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.velocity += glm::vec3(0.0f, ps.gForce * dt, 0.0f);
+		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
 	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
 	{

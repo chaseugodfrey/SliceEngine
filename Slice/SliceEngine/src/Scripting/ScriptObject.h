@@ -36,13 +36,16 @@ namespace SliceEngine
 		GameObject,
 		String,
 		Audio,
-		Prefab
+		Prefab,
+		Array
 	};
 
 	//struct
 	struct ScriptField
 	{
+		// same as before, keep track o the actual type in teh field
 		ScriptFieldType mType{ ScriptFieldType::None };
+
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
 
@@ -50,6 +53,9 @@ namespace SliceEngine
 		// if not we'd normally just use name to retrieve
 		// the variable and set the variable in runtime
 		rttr::variant value;
+
+		// Keep track if its an array. Will be null if not an array
+		MonoClass* mElementClass{ nullptr };
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};
@@ -291,6 +297,135 @@ namespace SliceEngine
 			//// cast it to the T that is trying to be retrieved and derefence it
 			//return fieldBuffer;
 
+		}
+
+		template<typename T>
+		std::vector<T> GetArrayFieldValue(const std::string& name)
+		{
+			std::vector<T> result;
+
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return result;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+
+			MonoObject* arrayObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (arrayObject == nullptr)
+				return result;
+
+			MonoArray* monoArray = (MonoArray*)arrayObject;
+			uintptr_t length = mono_array_length(monoArray);
+			result.resize(length);
+
+			for (uintptr_t i = 0; i < length; ++i)
+			{
+				result[i] = mono_array_get(monoArray, T, i);
+			}
+
+			return result;
+		}
+
+		template <>
+		std::vector<std::string> GetArrayFieldValue<std::string>(const std::string& name)
+		{
+			std::vector<std::string> result;
+
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+				return result;
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			MonoObject* arrayObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (arrayObject == nullptr)
+				return result;
+
+			MonoArray* monoArray = (MonoArray*)arrayObject;
+			uintptr_t length = mono_array_length(monoArray);
+			result.reserve(length);
+
+			for (uintptr_t i = 0; i < length; ++i)
+			{
+				MonoString* monoStr = (MonoString*)mono_array_get(monoArray, MonoObject*, i);
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					result.push_back(utf8);
+					mono_free(utf8);
+				}
+				else
+				{
+					result.push_back(std::string());
+				}
+			}
+
+			return result;
+		}
+
+		template <typename T>
+		void SetArrayFieldValue(const std::string& name, const std::vector<T>& val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			if (field.mElementClass == nullptr)
+			{
+				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				return;
+			}
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				mono_array_set(monoArray, T, i, val[i]);
+			}
+
+			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
+		}
+
+
+		template<>
+		void SetArrayFieldValue<std::string>(const std::string& name, const std::vector<std::string>& val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			if (field.mElementClass == nullptr)
+			{
+				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				return;
+			}
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				MonoString* monoStr = mono_string_new(mono_domain_get(), val[i].c_str());
+				mono_array_setref(monoArray, i, monoStr);
+			}
+
+			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
 		}
 
 		template <typename T>
