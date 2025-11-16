@@ -91,6 +91,8 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
+		uint32_t collisionMask;
+
 		RTTR_ENABLE();
     };
 
