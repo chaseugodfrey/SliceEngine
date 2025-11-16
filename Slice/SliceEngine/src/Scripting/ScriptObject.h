@@ -469,6 +469,12 @@ namespace SliceEngine
 		template <>
 		std::vector<std::string> GetListFieldValue(const std::string& name)
 		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
 			const ScriptField& field = mScriptClass->mFields.at(name);
 
 			std::vector<std::string> result;
@@ -509,6 +515,117 @@ namespace SliceEngine
 			}
 
 			return result;
+		}
+
+		template <typename T>
+		void AddListFieldValue(const std::string& name, T value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+			
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			void* params[1];
+			params[0] = &value;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template <>
+		void AddListFieldValue<std::string>(const std::string& name, std::string value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.c_str());
+
+			void* params[1];
+			params[0] = monoStr;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+
+		}
+
+		template <typename T>
+		void SetListFieldValue(const std::string& name, int index, const T& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			void* params[2];
+			params[0] = &index;
+			params[1] = &value;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template <>
+		void SetListFieldValue<std::string>(const std::string& name, int index, const std::string& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.c_str());
+
+			void* params[2];
+			params[0] = &index;
+			params[1] = monoStr;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
 		}
 
 #pragma endregion

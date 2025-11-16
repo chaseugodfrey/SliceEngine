@@ -713,7 +713,7 @@ namespace SliceEngine
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
     {
-        // idk if its a sequence issue or thread or what but updating here doesnt work
+        // idk if its a sequence issue or thread issue or what but updating here doesnt work
         // so I update after every onUpdate call for any thing script related
         // Editor calls it when anything is modified in the inspector as well
         //UpdateScriptComponent(entity);
