@@ -141,6 +141,12 @@ namespace SliceEngine
 
 		void SetSoundGroup(GUID soundGUID, std::string soundGroupName);
 
+		void GetSoundGroup();
+
+		void SetMaxInstancesOfSoundGroup();
+
+		void GetMaxInstancesOfSoundGroup();
+
 		void SetSpatialBlend(FMOD::Channel* channel, float blend);
 
 		float GetSpatialBlend(FMOD::Channel* channel);

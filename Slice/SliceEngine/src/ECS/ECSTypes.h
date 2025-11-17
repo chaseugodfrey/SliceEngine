@@ -259,7 +259,8 @@ namespace SliceEngine
 			Linear = 1
 		};
 		//std::string soundName;
-		GUID soundGUID = (GUID)9244272128099795086;
+		//GUID soundGUID = (GUID)9244272128099795086;
+		std::vector<GUID> soundGUIDs = { (GUID)9244272128099795086 };
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
 		int priority = 128;
