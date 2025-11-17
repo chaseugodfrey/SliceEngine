@@ -385,8 +385,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
 		FSMSystem stateMachine;
-		//FSMSystem stateMachine;
-
+		
 		float current_time{};
 		Timeline timeline;
 

@@ -65,6 +65,10 @@ namespace SliceEngine
 
 			std::vector<Transition> transitions;
 
+			// node editor stuff
+
+			glm::vec2 mNodePos{};
+
 			bool operator==(const State& other) const
 			{
 				return (other.stateName == this->stateName);
