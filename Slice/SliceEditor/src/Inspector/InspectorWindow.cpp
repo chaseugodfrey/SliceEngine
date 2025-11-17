@@ -390,7 +390,6 @@ namespace SliceEditor
 			}
 
 			// Script Variables
-
 			else
 			{
 				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
@@ -400,64 +399,79 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
-						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
-							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
-							//{
-							//	scriptRef->SetFieldValue(it.second.mName, data);
-							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							//}
-							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
-								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
+								auto data = scriptRef->GetFieldValue<std::vector<std::string>>(it.second.mName);
+							}
+						}
+
+						//Non-Array/List Value
+						else
+						{
+							//Script Display for Float
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								float data = scriptRef->GetFieldValue<float>(it.second.mName);
+								//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								//{
+								//	scriptRef->SetFieldValue(it.second.mName, data);
+								//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								//}
+								std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
-						{
-							bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-							if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//Script Display for Bool (NO UNDO/REDO YET)
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
-						{
-							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
-							/*char buffer[128];
-							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
-							buffer[sizeof(str)] = '\0';*/
-
-							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
-							{
-								scriptRef->SetFieldValue<std::string>(it.second.mName, str);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
-						{
-							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
+								if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							//Script Display for String (NO UNDO/REDO YET)
+							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+								/*char buffer[128];
+								std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
+								buffer[sizeof(str)] = '\0';*/
+
+								if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								{
+									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							//Script Display for Int
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								int data = scriptRef->GetFieldValue<int>(it.second.mName);
+								std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
 						}
 					}
 				}
-
 			}
 
 			ImGui::TreePop();
