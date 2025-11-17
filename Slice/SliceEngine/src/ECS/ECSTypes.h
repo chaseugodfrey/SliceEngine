@@ -210,12 +210,13 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
-		JPH::BodyID bodyID;										// Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{};// will add more if we have more shapes :D
-		JPH::ShapeRefC shape;									// Jolt shape ref
-		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
-		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
+		JPH::BodyID bodyID;													  // Jolt body reference
+		JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
+		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		JPH::ShapeRefC shape;												  // Jolt shape ref
+		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
+		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
+		bool isTrigger = false;												  
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};
