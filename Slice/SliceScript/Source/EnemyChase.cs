@@ -13,6 +13,7 @@ namespace SliceEngine
         Transform enemyT;
         GameObject player;
         Transform playerT = null;
+        public Vector3[] test;
 
         public override void OnCreate()
         {

@@ -257,6 +257,7 @@ namespace SliceEngine
         
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
+		gScriptSystem->Update((float)frm->getDeltaTime());
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
@@ -296,12 +297,15 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Physics");
 
-		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
-			sBone.Update_Scenegraph();
-			sAnimator.BoneUpdate();
+			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+			{
+				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
+				sBone.Update_Scenegraph();
+				sAnimator.BoneUpdate();
 
+			}
 		}
 
 

@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "AnimationWindow.h"
 #include "Selection/SelectionManager.h"
+#include <Systems/SceneSystem.h>
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
 #include <Animator/BoneSystem.h>
@@ -15,14 +16,14 @@ namespace SliceEditor
 
 	void AnimationWindow::Init()
 	{
-		AnimationPropertyGroup transformGroup;
+		//AnimationPropertyGroup transformGroup;
 
-		transformGroup.name = "Transform";
-		transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.name = "Transform";
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
-		mPropertyGroups.push_back(transformGroup);
+		//mPropertyGroups.push_back(transformGroup);
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
@@ -52,14 +53,15 @@ namespace SliceEditor
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
 
 			// if anim exists
-			if (anim)
+			if (anim && anim->IsValid())
 			{
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
 				if (!mCurrentAnimator || anim != mCurrentAnimator)
-				{
-					LoadDataFromAnimator(anim);
+				{	
+					
+					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 				}
 
@@ -82,7 +84,7 @@ namespace SliceEditor
 		}
 	}
 
-	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component)
+	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity)
 	{
 		mCurrentAnimator = component;
 
@@ -98,6 +100,22 @@ namespace SliceEditor
 		// add 0 check for size()
 		mCurrentClipIndex = 0;
 		LoadDataFromAnimationClip(*animationClips[0]);
+
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		AnimationPropertyGroup transformGroup;
+
+		transformGroup.name = name + " Transform";
+		transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+		mPropertyGroups.push_back(transformGroup);
+
+		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entity);
+
+		LoadPropertyGroup(entity, scene_graph);
+		
 	}
 
 	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip)
@@ -109,12 +127,45 @@ namespace SliceEditor
 		mCurrentTime = 0;
 	}
 
+	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
+	{
+		//bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
+
+		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+		while (child_entity != entt::null)
+		{
+			auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+			auto trf = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Transform>(child_entity);
+
+			if (trf)
+			{
+				std::string name = SliceEngine::FactoryInstance.GetGOByEntity(child_entity).GetName();
+				AnimationPropertyGroup transformGroup;
+
+				transformGroup.name = name + " Transform";
+				transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+				mPropertyGroups.push_back(transformGroup);
+			}
+
+			LoadPropertyGroup(child_entity, child_scene_graph);
+
+			child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+		}
+	}
+
 	void AnimationWindow::ClearData()
 	{
 		if (!mCurrentAnimator)
 			return;
 
 		mCurrentAnimator = nullptr;
+
+		mPropertyGroups.clear();
 	}
 
 	void AnimationWindow::UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip, float time)
@@ -236,85 +287,6 @@ namespace SliceEditor
 
 
 		// run timeline here temporarily
-		
-		
-		if (mCurrentAnimator)
-		{
-			if (mTimeline.isPlaying)
-			{
-				currentFrame++;
-				if (currentFrame > endFrame)
-				{
-					currentFrame = startFrame;
-				}
-
-				auto core = SliceEngine::Core::GetInstance();
-
-				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
-				{
-					//core->GetSystem<SliceEngine::AnimatorSystem>().UpdateAnimation(*mCurrentAnimator, core->GetFramerateManager()->getDeltaTime());
-
-					//Bone animation
-					if (mCurrentAnimator->is_bone)
-					{
-						auto& anim = animationClips[mCurrentClipIndex];
-						if (anim->duration <= 0.0f)
-						{
-							mCurrentTime = 0.0f;
-						}
-						else
-						{
-							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-							mCurrentTime += dt;
-
-							if (mCurrentTime > anim->duration)
-							{
-
-								if (!mTimeline.isLoop)
-								{
-									mTimeline.isPlaying = false;
-									currentFrame = startFrame;
-									mCurrentTime = 0.0f;
-									ret = true;
-								}
-								else
-								{
-									mTimeline.isPlaying = true;
-									mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-								}
-							}
-						}
-						if (!ret)
-						{
-							float safe_time = std::min(mCurrentTime, anim->duration);
-							//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-							UpdateTransform(anim, safe_time);
-						}
-					}
-
-					//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
-
-					if (!ret)
-					{
-						// update scenegraph
-						auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-						for (auto entity : viewBone)
-						{
-							UpdateBoneScene(entity);
-						}
-
-						auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
-						for (auto entity : viewAnimator)
-						{
-							UpdateBones(entity);
-						}
-					}
-					//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
-				}
-			}
-			
-		}
 
 		ImGui::EndGroup();
 #pragma endregion
@@ -385,6 +357,88 @@ namespace SliceEditor
 			}
 
 			ImGui::EndNeoSequencer();
+		}
+
+		auto core = SliceEngine::Core::GetInstance();
+		if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+		{
+			if (mTimeline.isPlaying)
+			{
+				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
+				if (currentFrame > endFrame)
+				{
+					currentFrame = startFrame;
+				}
+				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+				{
+					float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+					mCurrentTime += dt;
+				}
+			}
+
+			else
+			{
+				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+			}
+
+			//for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			{
+
+				//Bone animation
+				if (mCurrentAnimator->is_bone)
+				{
+					auto& anim = animationClips[mCurrentClipIndex];
+					if (anim->duration <= 0.0f)
+					{
+						mCurrentTime = 0.0f;
+					}
+					else
+					{
+						if (mCurrentTime > anim->duration)
+						{
+
+							if (!mTimeline.isLoop)
+							{
+								mTimeline.isPlaying = false;
+								currentFrame = startFrame;
+								mCurrentTime = 0.0f;
+								ret = true;
+							}
+							else
+							{
+								mTimeline.isPlaying = true;
+								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+							}
+						}
+					}
+					if (!ret)
+					{
+						float safe_time = std::min(mCurrentTime, anim->duration);
+						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+						UpdateTransform(anim, safe_time);
+					}
+				}
+
+				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
+
+				if (!ret)
+				{
+					// update scenegraph
+					auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+					for (auto entity : viewBone)
+					{
+						UpdateBoneScene(entity);
+					}
+
+					auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+					for (auto entity : viewAnimator)
+					{
+						UpdateBones(entity);
+					}
+				}
+				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
+			}
 		}
 
 #pragma endregion

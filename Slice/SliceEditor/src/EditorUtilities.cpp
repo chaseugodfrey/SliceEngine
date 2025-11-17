@@ -92,7 +92,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(entt::entity parent,SliceEngine::GUID guid, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Model(guid);
@@ -108,7 +108,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreatePrefab(entt::entity parent, SliceEngine::GUID guid, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
@@ -235,11 +235,11 @@ namespace SliceEditor
 			}
 		}
 
-		void MenuList_CreateGameObjects(HistoryManager* history)
+		void MenuList_CreateGameObjects(HistoryManager* history, entt::entity parent)
 		{
 			if (ImGui::MenuItem("Empty"))
 			{
-				EditorUtilities::GameObject_CreateCam(entt::null, history);
+				EditorUtilities::GameObject_CreateEmpty(entt::null, history);
 			}
 
 			if (ImGui::MenuItem("Camera"))

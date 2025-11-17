@@ -28,10 +28,13 @@ namespace SliceEngine
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
 
-		animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
-		animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+		if(animator.IsValid())
+		{
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 
-		animator.stateMachine.InitState(animator.curr_anim_pkg);
+			animator.stateMachine.InitState(animator.curr_anim_pkg);
+		}
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -65,6 +68,7 @@ namespace SliceEngine
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
+		if (!animator.IsValid()) return;
 
 		if (animator.timeline.isPlaying)
 		{
@@ -128,6 +132,7 @@ namespace SliceEngine
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
 			//if (!animator.stateMachine.EFSM.IsValid()) return;
+			if (!animator.IsValid()) return;
 
 			if (animator.timeline.isPlaying)
 			{
@@ -153,7 +158,9 @@ namespace SliceEngine
 
 		for (auto entity : core->GetRegistry().view<Animator>())
 		{
-			Animator& animator = core->GetRegistry().get<Animator>(entity);
+			Animator& animator = core->GetRegistry().get<Animator>(entity); 
+			
+			if (!animator.IsValid()) return;
 
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 
