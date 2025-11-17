@@ -505,6 +505,7 @@ namespace SliceEngine
 			auto& m = meshes[0];
 			m.drawMode = GL_LINES;
 			m.drawCnt = 2;
+			std::vector<glm::vec3> vtx;
 			vtx.reserve(m.drawCnt);
 			vtx.emplace_back(-0.5, 0.0, 0.0);
 			vtx.emplace_back(0.5, 0.0, 0.0);
@@ -529,6 +530,7 @@ namespace SliceEngine
 		{
 			meshes.resize(1);
 			auto& mesh = meshes[0];
+			std::vector<glm::vec3> vtx;
 			vtx.reserve(8);
 			vtx.emplace_back(-0.5f, -0.5f, -0.5f); // 0: Near-Bottom-Left
 			vtx.emplace_back(0.5f, -0.5f, -0.5f); // 1: Near-Bottom-Right

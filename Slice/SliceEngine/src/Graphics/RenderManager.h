@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Resource.h"
+#include "RenderCmdManager.h"
 
 namespace SliceEngine
 {
@@ -46,7 +47,6 @@ namespace SliceEngine
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
 		void BindCameraDepth(Entity cam);
-		void GatherDrawCalls();
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
@@ -90,12 +90,7 @@ namespace SliceEngine
 			glm::mat4 mtx;
 			glm::ivec4 mat;
 		};
-		struct RenderCmd
-		{
-			Handle<SliceEngineTypes::Model> mdl;
-			Handle<SliceEngineTypes::Material> mat;
-			glm::mat4 mtx;
-		};
+
 #pragma region Enums
 		enum FBOType : unsigned char
 		{
@@ -173,10 +168,12 @@ namespace SliceEngine
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
+		RenderCmdManager renderQueue;
+
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
-		glm::mat4 V, P;
+		glm::mat4 V, P;// Camera's
 
 		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);

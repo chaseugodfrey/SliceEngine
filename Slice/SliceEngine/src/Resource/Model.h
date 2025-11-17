@@ -56,7 +56,7 @@ namespace SliceEngine
 			/*
 				old ones
 			*/
-			std::vector<glm::vec3> vtx;
+			//std::vector<glm::vec3> vtx;
 
 			/*
 			* moved to mesh

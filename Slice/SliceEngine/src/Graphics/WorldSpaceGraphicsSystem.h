@@ -18,33 +18,30 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
 	struct renderEntity {};
-	struct visibleEntity {};
+	//struct visibleEntity {};
 
 	class ResourceManager;
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
 		void Update(float dt) override;
-		void Render(GLuint mShader, bool withTex);
+		//void Render(GLuint mShader, bool withTex);
 
 		void EntityOnEnter(entt::registry& reg, Entity entity) override;
 		void EntityOnExit(entt::registry& reg, Entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, Entity entity, float dt) override;
 
-		void EntityDraw(const Entity& entity);
+		//void EntityDraw(const Entity& entity);
 
-		void FetchFrustrumCull(Entity camObj);
-		void AddGridEntities(std::unordered_set<Entity>& in, const int& x, const int& z);
+		//void FetchFrustrumCull(Entity camObj);
+		//void AddGridEntities(std::unordered_set<Entity>& in, const int& x, const int& z);
 
 	private:
-		GLuint mShader;
-		bool mHasRenderTexture;
-
-		static constexpr float gridSize = 10.f;
-		static constexpr int gridNum = 11; // Has to be odd number lol (cuz account for 0, then +- halfGridNum)
-		std::array<std::vector<Entity>, gridNum* gridNum> spatialData;
-		std::vector<Entity> outerSpatial;
-
-		void ResetVisibleEntities();
+		//static constexpr float gridSize = 10.f;
+		//static constexpr int gridNum = 11; // Has to be odd number lol (cuz account for 0, then +- halfGridNum)
+		//std::array<std::vector<Entity>, gridNum* gridNum> spatialData;
+		//std::vector<Entity> outerSpatial;
+		//
+		//void ResetVisibleEntities();
 	};
 }
 

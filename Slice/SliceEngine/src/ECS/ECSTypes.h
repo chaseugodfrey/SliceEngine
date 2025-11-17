@@ -105,7 +105,10 @@ namespace SliceEngine
 	{
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
-		DEBUG_GRID_TAG		= 0x04
+		DEBUG_GRID_TAG		= 0x04,
+		DEBUG_NAVMESH_TAG	= 0x08,
+		DEBUG_ALL_DEBUG		= 0x0F,
+		RENDER_BLOOM		= 0x10
 	};
 
 	struct Renderer
