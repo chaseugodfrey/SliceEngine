@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Input/InputSystem.h"
+#include "Systems/LayerManager.h"
 
 namespace SliceEngine
 {
@@ -45,6 +46,7 @@ namespace SliceEngine
 		mRender = std::make_unique<RenderManager>();
 		mAudioManager = std::make_unique<AudioManager>();
 		mFramerateManager = std::make_unique<FramerateManager>();
+		mLayerManager = std::make_unique<LayerManager>();
 		mNetwork = std::make_unique<NetworkSystem>();
 		//mFactory.RegisterSerializableComponent<Transform>();
 		mInputPtr = std::make_unique<InputSystem>();
@@ -70,6 +72,7 @@ namespace SliceEngine
 
 
 		mResource->InitResourceManager();
+		mLayerManager->Init();
 	}
 
 	void Core::ExitCore()
@@ -114,6 +117,11 @@ namespace SliceEngine
 	FramerateManager* Core::GetFramerateManager()
 	{
 		return mFramerateManager.get();
+	}
+
+	LayerManager* Core::GetLayerManager()
+	{
+		return mLayerManager.get();
 	}
 
 	AudioManager* Core::GetAudioManager()

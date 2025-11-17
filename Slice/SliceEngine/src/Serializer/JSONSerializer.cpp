@@ -222,6 +222,7 @@ namespace SliceEngine
 								double,
 								bool,
 								Entity,
+								uint32_t,
 								uint64_t,
 								GUID,
 								Handle<SliceEngineTypes::Model>,
@@ -234,7 +235,7 @@ namespace SliceEngine
 								glm::vec4,
 								glm::quat,
 								std::string,
-								//std::unordered_map<std::string, rttr::variant>,
+								std::unordered_map<std::string, rttr::variant>,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData
@@ -465,7 +466,7 @@ namespace SliceEngine
 						glm::vec4,
 						glm::quat,
 						std::string,
-						//std::unordered_map<std::string, rttr::variant>,
+						std::unordered_map<std::string, rttr::variant>,
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData
@@ -521,7 +522,7 @@ namespace SliceEngine
 							glm::vec4,
 							glm::quat,
 							std::string,
-							//std::unordered_map<std::string, rttr::variant>,
+							std::unordered_map<std::string, rttr::variant>,
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData
@@ -613,6 +614,7 @@ namespace SliceEngine
 								double,
 								bool,
 								Entity,
+								uint32_t,
 								uint64_t,
 								GUID,
 								Handle<SliceEngineTypes::Model>,
@@ -625,7 +627,7 @@ namespace SliceEngine
 								glm::vec4,
 								glm::quat,
 								std::string,
-								//std::unordered_map<std::string, rttr::variant>,
+								std::unordered_map<std::string, rttr::variant>,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData
@@ -693,6 +695,75 @@ namespace SliceEngine
 			
 			return sceneGraphMap;
 		}
+
+		/// <summary>
+		/// Used to convert variant elements into json format
+		/// mostly only for script component since its a map of string to variants
+		/// </summary>
+		/// <param name="v">variant data</param>
+		/// <returns>nlohman array or value </returns>
+		nlohmann::json GetJsonFromVariant(rttr::variant v)
+		{
+			rttr::type t = v.get_type();
+			if (t.is_wrapper())
+			{
+				v = v.extract_wrapped_value();
+
+				t = v.get_type();
+			}
+
+			if (t.is_sequential_container())
+			{
+				auto view = v.create_sequential_view();
+				nlohmann::json jArray = nlohmann::json::array();
+
+				for (size_t i = 0; i < view.get_size(); ++i)
+				{
+					jArray.push_back(GetJsonFromVariant(view.get_value(i)));
+				}
+
+				return jArray;
+			}
+
+			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
+			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
+			if (t == rttr::type::get<float>()) { return v.get_value<float>(); }
+			if (t == rttr::type::get<int>()) { return v.get_value<int>(); }
+			if (t == rttr::type::get<double>()) { return v.get_value<double>(); }
+			if (t == rttr::type::get<char>()) { return v.get_value<char>(); }
+			if (t == rttr::type::get<bool>()) { return v.get_value<bool>(); }
+			if (t == rttr::type::get<unsigned int>()) { return v.get_value<unsigned int>(); }
+			if (t == rttr::type::get<short>()) { return v.get_value<short>(); }
+			if (t == rttr::type::get<std::string>()) { return v.get_value<std::string>(); }
+
+			// fall back is to return as a string
+			return v.to_string();
+		}
+
+		/// <summary>
+		/// extracts the type out from variant and converts the value using GetJsonFromVariant
+		/// </summary>
+		/// <param name="v">variant</param>
+		/// <returns></returns>
+		nlohmann::json VariantToJson(rttr::variant v)
+		{
+			rttr::type t = v.get_type();
+			std::string test2 = t.get_name().to_string();
+			if (t.is_wrapper())
+			{
+				v = v.extract_wrapped_value();
+				t = v.get_type();
+			}
+
+			nlohmann::json jsonOut = nlohmann::json::object();
+
+			std::string test = t.get_name().to_string();
+			jsonOut["Type"] = t.get_name().to_string();
+			jsonOut["Value"] = GetJsonFromVariant(v);
+
+			return jsonOut;
+		}
+
 
 
 		namespace Tests

@@ -65,8 +65,25 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
+
 	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+
+	rttr::registration::class_<glm::vec2>("glm::vec2")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec2::x)
+		.property("y", &glm::vec2::y);
+
+	rttr::registration::class_<glm::vec3>("glm::vec3")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
+
+	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
+	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<float>>("std::vector<float>");
+	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -112,7 +129,8 @@ namespace SliceEngine
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
-		.property("euler_hint", &Transform::eulerAnglesHint);
+		.property("euler_hint", &Transform::eulerAnglesHint)
+		.property("collisionMask", &Transform::collisionMask);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()

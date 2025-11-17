@@ -17,11 +17,15 @@ DigiPen Institute of Technology is prohibited.
 #ifndef SCRIPT_OBJECT_H
 #define SCRIPT_OBJECT_H
 #include "../ECS/ECSTypes.h"
-
+#include <mono/metadata/threads.h>
+#include "ScriptSystem.h"
 namespace SliceEngine
 {
+	//class ScriptSystem; // Forward-declare the class
+	//extern ScriptSystem* gScriptSystem; // Re-declare the extern global
+
 	// Types that a script field can be
-	enum class ScriptFieldType
+	enum class ScriptFieldType : int
 	{
 		None = 0,
 		Float,
@@ -36,13 +40,20 @@ namespace SliceEngine
 		GameObject,
 		String,
 		Audio,
-		Prefab
+		Prefab,
+		Array,
+		List
 	};
 
 	//struct
 	struct ScriptField
 	{
+		// same as before, keep track o the actual type in teh field
 		ScriptFieldType mType{ ScriptFieldType::None };
+
+		// Keep track if it is a list or array
+		ScriptFieldType mContainerType{ ScriptFieldType::None };
+
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
 
@@ -50,6 +61,18 @@ namespace SliceEngine
 		// if not we'd normally just use name to retrieve
 		// the variable and set the variable in runtime
 		rttr::variant value;
+
+		// Keep track if its an array. Will be null if not an array
+		MonoClass* mElementClass{ nullptr };
+
+		// For List<T> Only
+		MonoClass* mCollectionClass;
+		MonoMethod* mListGetCount{ nullptr };
+		MonoMethod* mListGetItem{ nullptr };
+		MonoMethod* mListSetItem{ nullptr };
+		MonoMethod* mListAdd{ nullptr };
+		MonoMethod* mListClear{ nullptr };
+		MonoMethod* mListCtor{ nullptr };
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};
@@ -293,6 +316,349 @@ namespace SliceEngine
 
 		}
 
+#pragma region For Arrays
+		template<typename T>
+		std::vector<T> GetArrayFieldValue(const std::string& name)
+		{
+			std::vector<T> result;
+
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return result;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+
+			MonoObject* arrayObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (arrayObject == nullptr)
+				return result;
+
+			MonoArray* monoArray = (MonoArray*)arrayObject;
+			uintptr_t length = mono_array_length(monoArray);
+			result.resize(length);
+
+			for (uintptr_t i = 0; i < length; ++i)
+			{
+				result[i] = mono_array_get(monoArray, T, i);
+			}
+
+			return result;
+		}
+
+		template <>
+		std::vector<std::string> GetArrayFieldValue<std::string>(const std::string& name)
+		{
+			std::vector<std::string> result;
+
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+				return result;
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			MonoObject* arrayObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (arrayObject == nullptr)
+				return result;
+
+			MonoArray* monoArray = (MonoArray*)arrayObject;
+			uintptr_t length = mono_array_length(monoArray);
+			result.reserve(length);
+
+			for (uintptr_t i = 0; i < length; ++i)
+			{
+				MonoString* monoStr = (MonoString*)mono_array_get(monoArray, MonoObject*, i);
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					result.push_back(utf8);
+					mono_free(utf8);
+				}
+				else
+				{
+					result.push_back(std::string());
+				}
+			}
+
+			return result;
+		}
+
+		template <typename T>
+		void SetArrayFieldValue(const std::string& name, const std::vector<T>& val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			if (field.mElementClass == nullptr)
+			{
+				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				return;
+			}
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				mono_array_set(monoArray, T, i, val[i]);
+			}
+
+			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
+		}
+#pragma endregion
+
+#pragma region For Lists
+
+		/// <summary>
+		/// For generic types like float, int, bool, etc
+		/// </summary>
+		/// <typeparam name="T">Type of primitive</typeparam>
+		/// <param name="name">Name of the variable</param>
+		/// <returns>A vector containing the values of the list</returns>
+		template <typename T>
+		std::vector<T> GetListFieldValue(const std::string& name)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain); 
+				mono_domain_set(gScriptSystem->mAppDomain, false); 
+			}
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<T> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.resize(count);
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+				MonoObject* itemObj = mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+				// TODO: same as above, add exception handling maybe
+
+				result[i] = *(T*)mono_object_unbox(itemObj);
+			}
+
+			return result;
+		}
+
+		template <>
+		std::vector<std::string> GetListFieldValue(const std::string& name)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<std::string> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.resize(count);
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+				MonoString* monoStr = (MonoString*)mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+				// TODO: same as above, add exception handling maybe
+
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					result.push_back(utf8);
+					mono_free(utf8);
+				}
+				else
+				{
+					// if cant retrieve monoStr then use an empty str 
+					result.push_back(std::string());
+				}
+			}
+
+			return result;
+		}
+
+		template <typename T>
+		void AddListFieldValue(const std::string& name, T value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+			
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			void* params[1];
+			params[0] = &value;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template <>
+		void AddListFieldValue<std::string>(const std::string& name, std::string value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.c_str());
+
+			void* params[1];
+			params[0] = monoStr;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+
+		}
+
+		template <typename T>
+		void SetListFieldValue(const std::string& name, int index, const T& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			void* params[2];
+			params[0] = &index;
+			params[1] = &value;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template <>
+		void SetListFieldValue<std::string>(const std::string& name, int index, const std::string& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.c_str());
+
+			void* params[2];
+			params[0] = &index;
+			params[1] = monoStr;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
+			// TODO: handle exceptions ill do it aft everything works
+		}
+
+#pragma endregion
+
+		template<>
+		void SetArrayFieldValue<std::string>(const std::string& name, const std::vector<std::string>& val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			if (field.mElementClass == nullptr)
+			{
+				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				return;
+			}
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				MonoString* monoStr = mono_string_new(mono_domain_get(), val[i].c_str());
+				mono_array_setref(monoArray, i, monoStr);
+			}
+
+			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
+		}
+
 		template <typename T>
 		void SetFieldValue(const std::string& name, T val)
 		{
@@ -325,6 +691,9 @@ namespace SliceEngine
 				mono_field_set_value(mMonoInstance, field.mClassField, monoStr);
 			}
 		}
+
+		MonoObject* GetListObject(const std::string& name);
+
 
 		std::shared_ptr<ScriptClass> GetScriptClass();
 
