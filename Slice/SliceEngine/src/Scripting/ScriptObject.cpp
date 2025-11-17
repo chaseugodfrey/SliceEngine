@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/threads.h>
 #include "ScriptSystem.h"
 #include "ScriptObject.h"
 
@@ -33,8 +32,27 @@ namespace SliceEngine
 	MonoObject* ScriptClass::Instantiate()
 	{
 		MonoObject* monoInstance = mono_object_new(gScriptSystem->mAppDomain, mMonoClass);
-		mono_runtime_object_init(monoInstance);
 
+		MonoMethod* ctor = mono_class_get_method_from_name(mMonoClass, ".ctor", 0);
+		if (ctor)
+		{
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(ctor, monoInstance, nullptr, &exception);
+			if (exception)
+			{
+				MonoString* exceptionMsg = mono_object_to_string(exception, nullptr);
+				char* errorMsg = mono_string_to_utf8(exceptionMsg);
+				std::cerr << "Mono Exception: " << errorMsg << std::endl;
+				mono_free(errorMsg);
+				return nullptr;
+			}
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Unable to default construct class " + mClassName);
+		}
+
+		
 		return monoInstance;
 		//monoInstance = instance;
 		//return instance;
@@ -126,9 +144,9 @@ namespace SliceEngine
 		//std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
 		//UNUSED(entity);
 		mMonoInstance = scClass->Instantiate();
-
+		ScriptClass mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
 		// Need to call constructor of entity by getting the entity class thats storing Entity.cs
-		mConstruct = gScriptSystem->mEntityClass.GetMethod(".ctor", 1);
+		mConstruct = mEntityClass.GetMethod(".ctor", 1);
 
 		// These are the other functions that every other script that inherits Entity will have
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
@@ -361,6 +379,8 @@ namespace SliceEngine
 
 
 	// NOTE: This probably wont work with arrays now
+	// this isnt even being used atm so ill jus leave this here and delete before M3
+	// if i rmb
 	void ScriptObject::ExposeForEditor(const std::function<void(const std::string&, rttr::variant&)>& editorCall)
 	{
 		const auto& fieldVariables = mScriptClass->mFields;
@@ -491,6 +511,7 @@ namespace SliceEngine
 
 		rttr::type type = value.get_type();
 
+		// if its an array
 		if (type.is_sequential_container())
 		{
 			auto view = value.create_sequential_view();
@@ -502,8 +523,10 @@ namespace SliceEngine
 			MonoArray* monoArray = mono_array_new(mono_domain_get(), elementClass, size);
 			rttr::type elementType = view.get_value_type();
 
+			// if its a string
 			if (elementType == rttr::type::get<std::string>())
 			{
+				// for how many strings are in the array
 				for (size_t i = 0; i < size; ++i)
 				{
 					rttr::variant elementVal = view.get_value(i);
@@ -523,6 +546,7 @@ namespace SliceEngine
 				uintptr_t elementSize = mono_class_array_element_size(elementClass);
 				char* bufferStart = mono_array_addr_with_size(monoArray, elementSize, 0);
 
+				// for how many are in the array
 				for (size_t i = 0; i < size; ++i)
 				{
 					rttr::variant elementVal = view.get_value(i);
@@ -533,7 +557,7 @@ namespace SliceEngine
 					}
 
 					void* dataPtr = nullptr;
-					// TODO: add more variables, but im only gonna do these 3 for now to test if it works
+					// TODO: add more variables, but im only gonna do these 4 for now to test if it works
 					if (elementType == rttr::type::get<float>())
 					{
 						dataPtr = &elementVal.get_value<float>();
@@ -546,6 +570,10 @@ namespace SliceEngine
 					{
 						dataPtr = &elementVal.get_value<glm::vec3>();
 					}
+					else if (elementType == rttr::type::get<glm::vec2>())
+					{
+						dataPtr = &elementVal.get_value<glm::vec2>();
+					}
 
 					if (dataPtr)
 					{
@@ -556,7 +584,7 @@ namespace SliceEngine
 
 			mono_field_set_value(scriptInstance, field, monoArray);
 		}
-		// if its a str
+		// if its a non array
 		else if (type == rttr::type::get<std::string>())
 		{
 			// needh andle with MonoString
@@ -591,8 +619,21 @@ namespace SliceEngine
 		}
 	}
 
+	MonoObject* ScriptObject::GetListObject(const std::string& name)
+	{
+		if (mono_domain_get() != gScriptSystem->mAppDomain)
+		{
+			mono_thread_attach(gScriptSystem->mRootDomain);
+			mono_domain_set(gScriptSystem->mAppDomain, false);
+		}
+		
+		const ScriptField& field = mScriptClass->mFields.at(name);
+		return mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+	}
+
 	std::shared_ptr<ScriptClass> ScriptObject::GetScriptClass()
 	{
+
 		return mScriptClass;
 	}
 

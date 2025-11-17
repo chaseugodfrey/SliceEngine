@@ -115,6 +115,27 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
+	{
+		static uint64_t oldVal{};
+
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_S64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (oldVal != val)
+			{
+				std::unique_ptr<ValueCommand<uint64_t>> command = std::make_unique<ValueCommand<uint64_t>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 	bool BoolInput(Registry& reg, const char* id, bool& val)
 	{
 		bool changed = ImGui::Checkbox(id, &val);
@@ -193,6 +214,16 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, int min, int max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = DragUInt64Input(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val)
 	{
 		bool changed = false;
@@ -250,7 +281,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
+	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
 		bool changed = false;
 
@@ -277,6 +308,39 @@ namespace SliceEditor
 			if (glm::any(glm::epsilonNotEqual(val, startVal, 1e-6f)))
 			{
 				std::unique_ptr<ValueCommand<glm::vec3>> command = std::make_unique<ValueCommand<glm::vec3>>(val, startVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+		return changed;
+	}
+
+	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& val)
+	{
+		bool changed = false;
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		static glm::vec4 startVal{};
+
+		glm::vec4 tempVal = val;
+
+		bool edited = ImGui::ColorEdit4(id, glm::value_ptr(tempVal), ImGuiColorEditFlags_NoInputs);
+
+		if (ImGui::IsItemActivated()) //Check what the value was onClick
+		{
+			startVal = val;
+		}
+
+		if (edited || ImGui::IsItemEdited()) {
+			val = tempVal;
+			changed = true;
+		}
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (glm::any(glm::epsilonNotEqual(val, startVal, 1e-6f)))
+			{
+				std::unique_ptr<ValueCommand<glm::vec4>> command = std::make_unique<ValueCommand<glm::vec4>>(val, startVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
