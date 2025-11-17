@@ -145,7 +145,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemTimeline()
 	{
-		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 
 		ImGui::Text("System Timeline");
 		ImGui::BeginChild("Timeline", ImVec2(0, 30), ImGuiChildFlags_AutoResizeY);
@@ -214,7 +214,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemBreakdown()
 	{
-		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 		ImGui::Text("System Statistics");
 		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
 		{
@@ -255,7 +255,7 @@ namespace SliceEditor
 		}
 		ImGui::EndChild();
 
-		ImGui::Text("Total Frame Time: %.4f", SliceEngine::FramerateManager::getInstance().GetFrameTime());
+		ImGui::Text("Total Frame Time: %.4f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetFrameTime());
 	}
 
 	//Move this function to Inspector in future/Keep it here but restructure.

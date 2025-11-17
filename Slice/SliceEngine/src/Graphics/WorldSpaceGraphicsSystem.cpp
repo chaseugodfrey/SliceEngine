@@ -130,6 +130,8 @@ namespace SliceEngine
 			glUniform1f(uniformLoc, material->roughness);
 			uniformLoc = glGetUniformLocation(mShader, "uMetallic");
 			glUniform1f(uniformLoc, material->metallic);
+			uniformLoc = glGetUniformLocation(mShader, "uColor");
+			glUniform3f(uniformLoc, material->color.r, material->color.g, material->color.b);
 
 			//auto rm = Core::GetInstance()->GetResourceManager();
 			//auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);

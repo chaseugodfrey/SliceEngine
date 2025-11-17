@@ -13,6 +13,7 @@ namespace SliceEngine
         Transform enemyT;
         GameObject player;
         Transform playerT = null;
+        public Vector3[] test;
 
         public override void OnCreate()
         {
@@ -45,7 +46,7 @@ namespace SliceEngine
 
         public override void OnCollideStay(uint other)
         {
-            gameObject.Destroy();
+          //  gameObject.Destroy();
         }
 
     }

@@ -35,6 +35,10 @@ namespace SliceEditor
 
 		void DisplayItems(DirectoryNode& node);
 
+		void DisplayFolderNode(DirectoryNode& node);
+
+		void DisplayFileNode(DirectoryNode& node);
+
 		void RenameFilePopup(DirectoryNode& entry);
 
 		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
@@ -49,7 +53,8 @@ namespace SliceEditor
 		
 	#pragma endregion
 
-		void SelectFile(DirectoryNode& node);
+
+		void SelectFolder(DirectoryNode& node);
 	};
 }
 
