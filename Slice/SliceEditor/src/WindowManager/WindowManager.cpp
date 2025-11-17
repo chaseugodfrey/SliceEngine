@@ -211,7 +211,7 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
-			EditorUtilities::MenuList_CreateGameObjects(registry.GetManager<HistoryManager>("History"));
+			EditorUtilities::MenuList_CreateGameObjects(registry.GetManager<HistoryManager>("History"), entt::null);
 			ImGui::EndMenu();
 		}
 #pragma region Custom Title Bar (Disabled for now)

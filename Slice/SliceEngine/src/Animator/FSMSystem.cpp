@@ -30,6 +30,7 @@ namespace SliceEngine
 
 					tmpState.curr_anim_idx = i;
 					tmpState.stateName = anim_name;
+					tmpState.animationTime = anim_pkg.animations[i].duration;
 
 					EFSM.stateMap[anim_name] = tmpState;
 				}
@@ -69,7 +70,7 @@ namespace SliceEngine
 	}
 	void FSMSystem::UpdateState(float &CTime)
 	{
-		//if (!EFSM.IsValid()) return;
+		if (!EFSM.currState) return;
 
 		if (!EFSM.stateCon)
 		{
@@ -80,7 +81,8 @@ namespace SliceEngine
 
 		if(EFSM.currState->hasExitTime)
 		{
-			if(EFSM.currState->exitTime <= current_time)
+			// check exit time
+			if(EFSM.currState->exitTime * EFSM.currState->animationTime <= current_time)
 			{
 				safeToChange = true;
 			}
@@ -141,18 +143,26 @@ namespace SliceEngine
 	
 	void FSMSystem::SetFloat(const std::string& name, float value)
 	{
+		if (!EFSM.currState) return;
+
 		EFSM.parameters[name] = value;
 	}
 	void FSMSystem::SetInt(const std::string& name, int value)
 	{
+		if (!EFSM.currState) return;
+
 		EFSM.parameters[name] = value;
 	}
 	void FSMSystem::SetLoop(bool loop)
 	{
+		if (!EFSM.currState) return;
+
 		EFSM.currState->isLoop = loop;
 	}
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
+		if (!EFSM.currState) return;
+
 		EFSM.parameters[name] = value;
 		for (auto& [key, var] : EFSM.parameters)
 		{

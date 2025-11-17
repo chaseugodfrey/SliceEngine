@@ -164,6 +164,7 @@
     <ClInclude Include="src\Systems\CoroutineManager.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\GameStateManager.h" />
+    <ClInclude Include="src\Systems\LayerManager.h" />
     <ClInclude Include="src\Systems\ParticleSystemManager.h" />
     <ClInclude Include="src\Systems\PrefabSystem.h" />
     <ClInclude Include="src\Systems\SceneSystem.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="src\Systems\CoroutineManager.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\GameStateManager.cpp" />
+    <ClCompile Include="src\Systems\LayerManager.cpp" />
     <ClCompile Include="src\Systems\ParticleSystemManager.cpp" />
     <ClCompile Include="src\Systems\PrefabSystem.cpp" />
     <ClCompile Include="src\Systems\SceneSystem.cpp" />

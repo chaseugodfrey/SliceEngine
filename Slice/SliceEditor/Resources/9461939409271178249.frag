@@ -12,13 +12,14 @@ layout (location=3) out vec3 fNormalData;
 layout (location=4) out vec4 fMetalRoughData;
 
 layout (binding = 0) uniform sampler2D 	uTex;
+uniform vec3 uColor;
 uniform float uRoughness;
 uniform float uMetallic;
 
 void main(void){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
-	fFragColor = texture(uTex, vTex);
+	fFragColor = texture(uTex, vTex) * vec4(uColor, 1.0);
 	fGID = vGID;
 	fMetalRoughData.xy = vec2(uRoughness, uMetallic);
 }

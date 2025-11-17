@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <filesystem>
 #include "../../SliceEngine/src/Resource/ResourceManager.h"
+#include <Serializer/JSONSerializer.h>
 #include "../../SliceEngine/src/Animator/FSMSystem.h"
 
 namespace SliceEditor
@@ -34,6 +35,7 @@ namespace SliceEditor
 		Material,
 		Prefab,
 		Controller,
+		NavMesh,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -66,12 +68,6 @@ namespace SliceEditor
 		CREATE_STREAM
 	};
 
-	enum AudioDimension : std::uint8_t
-	{
-		FMOD2D,
-		FMOD3D
-	};
-
 	enum AudioCategory : std::uint8_t
 	{
 		SFX,
@@ -93,6 +89,7 @@ namespace SliceEditor
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
+		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
 
 	}
 
@@ -142,6 +139,9 @@ namespace SliceEditor
 				break;
 			case AssetType::Controller:
 				typeID = ResourceTypeIDs::CONTROLLER;
+				break;
+			case AssetType::NavMesh:
+				typeID = ResourceTypeIDs::NAVMESH;
 				break;
 			case AssetType::Material:
 				typeID = ResourceTypeIDs::MATERIAL;
@@ -229,12 +229,19 @@ namespace SliceEditor
 				inFile.close();
 			}
 
-			guid = SliceEngine::GUID::FromString(metaData["guid"].get<std::string>());
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
 			assetName = metaData["assetName"].get<std::string>();
 			assetType = metaData["assetType"].get<std::string>();
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
-
+			cmp_format = metaData["comp_format"].get<CompressionFormat>();
+			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
+			u_wrap = metaData["u_wrap"].get<WrapType>();
+			v_wrap = metaData["v_wrap"].get<WrapType>();
+			comp_quality = metaData["comp_quality"].get <float> ();
+			alpha_threshold = metaData["alpha_threshold"].get <char> ();
+			generateMips = metaData["generateMips"].get <bool> ();
+			hasAlpha = metaData["hasAlpha"].get <bool> ();
 		}
 	};
 
@@ -279,6 +286,29 @@ namespace SliceEditor
 		}
 		void Deserialize(const std::filesystem::path & desc_path) override
 		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+			is_static = metaData["static"].get<bool>();
+			skeleMetaPath = metaData["skeleMetaPath"].get<std::string>();
+			animMetaPath = metaData["animMetaPath"].get<std::string>();
 		}
 	};
 	
@@ -389,7 +419,6 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
 
 		AudioStream stream{ AudioStream::CREATE_SAMPLE };
-		AudioDimension dimension{ AudioDimension::FMOD3D };		
 		AudioCategory category{ AudioCategory::SFX };
 		
 
@@ -405,7 +434,6 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			metaJson["stream"] = stream;
-			metaJson["dimension"] = dimension;
 			metaJson["category"] = category;
 			
 
@@ -492,7 +520,7 @@ namespace SliceEditor
 		{
 		}
 	};
-
+	
 	struct MaterialData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
@@ -501,6 +529,7 @@ namespace SliceEditor
 		//GUID normalMap;
 		float roughness = 0.0f;
 		float metallic = 0.0f;
+		glm::vec3 color{ 1.0f };
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -516,6 +545,7 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["roughness"] = roughness;
 			metaJson["metallic"] = metallic;
+			to_json(metaJson["color"], color);
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())
@@ -545,6 +575,7 @@ namespace SliceEditor
 			// properties
 			roughness = metaJson["roughness"].get<float>();
 			metallic = metaJson["metallic"].get<float>();
+			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
@@ -563,6 +594,7 @@ namespace SliceEditor
 			// properties
 			roughness = metaJson["roughness"].get<float>();
 			metallic = metaJson["metallic"].get<float>();
+			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 
 			inFile.close();
@@ -575,6 +607,7 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["roughness"] = roughness;
 			metaJson["metallic"] = metallic;
+			to_json(metaJson["color"], color);
 
 			std::ofstream output(desc_path);
 
@@ -791,6 +824,38 @@ namespace SliceEditor
 				output << metaJson.dump(4);
 				output.close();
 			}
+		}
+	};
+
+	struct NavMeshData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::NAVMESH;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+
 		}
 	};
 }

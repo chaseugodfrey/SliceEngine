@@ -20,10 +20,12 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
-#include "ScriptObject.h"
 
 namespace SliceEngine
 {
+	class ScriptObject;
+	class ScriptClass;
+	enum class ScriptFieldType : int;
 	struct ScriptEntity {};
 
 	class ScriptSystem : public BaseSystem<ScriptEntity, Script>
@@ -93,7 +95,7 @@ namespace SliceEngine
 		/// <returns>True or False</returns>
 		bool HasEntityClass(std::string scriptName);
 
-		ScriptFieldType GetScriptFieldType(MonoType* type);
+		ScriptFieldType GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType);
 
 		std::shared_ptr<ScriptObject> GetScriptInstance(Entity entityID);
 
@@ -142,7 +144,7 @@ namespace SliceEngine
 		bool AssemblyReloadPending = false;
 
 		// Hold a reference to Entity class as it contains the constructor that all entity scripts runs to store mID
-		ScriptClass mEntityClass;
+		//ScriptClass mEntityClass;
 		std::shared_ptr<ScriptClass> mCoroutineManager;
 		std::unique_ptr<ScriptObject> mCoroutineInstance;
 
