@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "../Audio/AudioManager.h"
 
 namespace SliceEngine
 {
@@ -171,6 +172,17 @@ namespace SliceEngine
 
 #pragma endregion
 
+	static AudioSource* GetAudioComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<AudioSource>())
+		{
+			return &go.GetComponent<AudioSource>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
+
 #pragma region AUDIO FUNCTIONS
 
 	static MonoString* Audio_GetSoundName(unsigned int entity)
@@ -197,6 +209,158 @@ namespace SliceEngine
 
 		return mono_string_new(mono_domain_get(), test.c_str());
 		
+	}
+
+	static void Audio_Play(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			
+			audioComp->_playTrigger = true;
+		}
+	}
+
+	static void Audio_Stop(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			if (audioComp->channel)
+			{
+				Core::GetInstance()->GetAudioManager()->StopSound(audioComp->channel);
+				audioComp->channel = nullptr;
+			}
+		}
+	}
+
+	static bool Audio_IsPlaying(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			if (audioComp->channel)
+			{
+				return Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel);
+			}
+		}
+		return false;
+	}
+
+	static void Audio_SetPaused(unsigned int entity, bool paused)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->isPaused = paused;
+			// SoundSystem::UpdateChannelFromComponent will sync this
+		}
+	}
+
+	static bool Audio_GetPaused(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->isPaused;
+		}
+		return false;
+	}
+
+	static void Audio_SetLoop(unsigned int entity, bool loop)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->isLoop = loop;
+		}
+	}
+
+	static bool Audio_GetLoop(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->isLoop;
+		}
+		return false;
+	}
+
+	static void Audio_SetVolume(unsigned int entity, float volume)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->currentVolume = volume;
+		}
+	}
+
+	static float Audio_GetVolume(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->currentVolume;
+		}
+		return 0.0f;
+	}
+
+	static void Audio_SetPitch(unsigned int entity, float pitch)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->pitch = pitch;
+		}
+	}
+
+	static float Audio_GetPitch(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->pitch;
+		}
+		return 1.0f;
+	}
+
+	static void Audio_SetSpatialBlend(unsigned int entity, float blend)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->spatialBlend = blend;
+		}
+	}
+
+	static float Audio_GetSpatialBlend(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->spatialBlend;
+		}
+		return 0.0f;
+	}
+
+	static void Audio_SetPan(unsigned int entity, float pan)
+	{
+		if (auto* audioComp = GetAudioComponent(entity)) audioComp->stereoPan = pan;
+	}
+
+	static float Audio_GetPan(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->stereoPan;
+		return 0.0f;
+	}
+
+	static void Audio_SetMute(unsigned int entity, bool mute)
+	{
+		if (auto* audioComp = GetAudioComponent(entity)) audioComp->isMute = mute;
+	}
+
+	static bool Audio_GetMute(unsigned int entity)
+	{
+		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->isMute;
+		return false;
+	}
+
+	static void Audio_CreateSoundGroup(std::string soundGroupName, int maxInstances)
+	{
+		Core::GetInstance()->GetAudioManager()->CreateSoundGroup(soundGroupName, maxInstances);
+	}
+
+	static void Audio_SetSoundGroup(std::string soundGUIDName, std::string soundGroupName)
+	{
+		GUID soundGUID = SliceEngine::GUID::FromString(soundGUIDName);
+		Core::GetInstance()->GetAudioManager()->SetSoundGroup(, soundGroupName);
 	}
 
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
@@ -416,6 +580,19 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+		ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_Stop);
+		ADD_INTERNAL_CALL(Audio_IsPlaying);
+		ADD_INTERNAL_CALL(Audio_SetPaused);
+		ADD_INTERNAL_CALL(Audio_GetPaused);
+		ADD_INTERNAL_CALL(Audio_SetLoop);
+		ADD_INTERNAL_CALL(Audio_GetLoop);
+		ADD_INTERNAL_CALL(Audio_SetVolume);
+		ADD_INTERNAL_CALL(Audio_GetVolume);
+		ADD_INTERNAL_CALL(Audio_SetPitch);
+		ADD_INTERNAL_CALL(Audio_GetPitch);
+		ADD_INTERNAL_CALL(Audio_SetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);

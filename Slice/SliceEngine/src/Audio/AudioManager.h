@@ -21,32 +21,12 @@ DigiPen Institute of Technology is prohibited.
 #include "ECS/ECSTypes.h"
 #include <vector>
 #include <unordered_map>
-
+#include <cmath>
+#include <stdlib.h> // For rand()
+#include <time.h>   // For srand()
 
 namespace SliceEngine
 {
-	
-	//Base SoundTrack struct for sound files
-	//struct SoundTrack
-	//{
-	//	FMOD::Sound* sound = nullptr;
-	//	/**************Moved to Audio Source so to takeout *****************/
-	//	FMOD::Channel* channel = nullptr;
-	//	FMOD::Channel* previewChannel = nullptr;
-	//	/*******************************************************************/
-	//	float defaultSoundVolume = 1.0f;
-	//	float currentSoundVolume = 1.0f;
-	//	FMOD_VECTOR soundPos3D = { 0.f,0.f,0.f };
-	//	FMOD_VECTOR vel = { 0.f,0.f,0.f };
-	//	bool is3D = true;
-	//	bool isLooping = false;
-	//	bool isPaused = false;
-	//	bool muffle = false;
-	//	Entity entityID;
-
-
-	//	virtual ~SoundTrack() = default;
-	//};
 
 	
 
@@ -84,8 +64,6 @@ namespace SliceEngine
 
 		/**
 		 * @brief Converts a glm::vec3 to an FMOD_VECTOR.
-		 * @param vector The input glm vector.
-		 * @return An equivalent FMOD_VECTOR.
 		 */
 		inline FMOD_VECTOR Vec3ToFMODVec3(glm::vec3 vector)
 		{
@@ -94,8 +72,6 @@ namespace SliceEngine
 
 		/**
 		 * @brief Converts an FMOD_VECTOR to a glm::vec3.
-		 * @param vector The input FMOD vector.
-		 * @return An equivalent glm::vec3.
 		 */
 		inline glm::vec3 FMODVec3ToVec3(FMOD_VECTOR vector)
 		{
@@ -104,61 +80,56 @@ namespace SliceEngine
 
 		/**
 		 * @brief Plays a sound associated with a specific entity.
-		 * @param soundName Name of the loaded sound to play.
-		 * @param category Sound category (SFX, BGM, etc.).
-		 * @param internalCategory Internal sound grouping for playback management.
-		 * @param is3D Whether the sound should use 3D spatialization.
-		 * @param isPaused Whether the sound should start paused.
-		 * @param isLoop Whether the sound should loop.
-		 * @param volume Volume level (0.0–1.0).
-		 * @param id The entity owning this sound.
-		 * @param soundPos The world position for 3D sounds (default at origin).
-		 * @return a pointer to a channel if playback started successfully, nullptr otherwise.
 		 */
-		FMOD::Channel* PlaySound(GUID soundName, bool isPaused, bool isLoop, float volume, glm::vec3 soundPos, glm::vec3 vel);
+		FMOD::Channel* PlaySound(const AudioSource& audioComp, glm::vec3 soundPos, glm::vec3 vel);
 
 		/**
 		 * @brief Plays a sound preview for the editor without affecting in-game channels.
-		 * @param soundName Name of the sound to preview.
-		 * @param is3D Whether the preview uses 3D spatialization.
-		 * @param id Entity associated with the sound.
-		 * @param soundPos Position for 3D preview playback.
-		 * @return a pointer to a channel if preview playback started successfully, nullptr otherwise.
 		 */
-		FMOD::Channel* PlayEditorPreview(GUID soundName, bool is3D);
+		FMOD::Channel* PlayEditorPreview(const AudioSource& audioComp);
 
 		/**
 		 * @brief Updates the listener's 3D attributes (position, velocity, orientation).
-		 * @param pos Listener position.
-		 * @param vel Listener velocity.
-		 * @param forward Forward direction vector.
-		 * @param up Up direction vector.
 		 */
 		void SetListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
+
+		void SetChannelPriority(FMOD::Channel* channel, int priorityNumber);
+
+		void SetSpread(FMOD::Channel* channel, float spread);
+		float GetSpread(FMOD::Channel* channel);
+
+		void SetDopplerLevel(FMOD::Channel* channel, float dopplerLevel);
+		float GetDopplerLevel(FMOD::Channel* channel);
+
+		int GetChannelPriority(FMOD::Channel* channel);
+
+		void SetMute(FMOD::Channel* channel, bool mute);
+		bool GetMute(FMOD::Channel* channel);
+
+		void SetPitch(FMOD::Channel* channel, float pitch);
+		float GetPitch(FMOD::Channel* channel);
+
+		void SetPan(FMOD::Channel* channel, float pan);
 
 		//to do : Add in parameter for min and max distance when after it is added to AudioSource Component
 
 		/**
 		 * @brief Updates the 3D position of a sound tied to an entity.
-		 * @param id The entity whose sound position is being updated.
-		 * @param soundPos New 3D position.
 		 */
 		void SetSound3DPosition(FMOD::Channel* channel, bool is3D, glm::vec3 soundPos, glm::vec3 vel);
 
-		/** @brief Sets the global master volume for all sounds. */
+		
 		void GetSound3DPosition(FMOD::Channel* channel);
 
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
 
 		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
+		std::pair<float, float> GetMinMaxDistance(FMOD::Channel* channel);
 		
-
+		
 		/**
 		 * @brief Sets the volume for a specific sound category.
-		 * @param category Category to adjust.
-		 * @param internalCategory Internal group this category belongs to.
-		 * @param volume New volume level.
 		 */
 		void SetCategoryVolume(GUID soundName, float volume);
 
@@ -166,63 +137,41 @@ namespace SliceEngine
 
 		void SetChannelVolume(FMOD::Channel* channel, float volume);
 
-		FMOD::SoundGroup* CreateSoundGroup(std::string& soundGroupName, FMOD::SoundGroup* soundGroup, int maxInstances = -1, FMOD_SOUNDGROUP_BEHAVIOR behaviour = FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
+		void CreateSoundGroup(std::string& soundGroupName, int maxInstances = -1, FMOD_SOUNDGROUP_BEHAVIOR behaviour = FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
 
 		void SetSoundGroup(GUID soundGUID, std::string soundGroupName);
 
+		void SetSpatialBlend(FMOD::Channel* channel, float blend);
 
+		float GetSpatialBlend(FMOD::Channel* channel);
+
+		/**
+		 * @brief Syncs all properties of a live channel to match the state of an AudioSource component.
+		 */
+		void UpdateChannelFromComponent(FMOD::Channel* channel, const AudioSource& audioComp);
 
 		/**
 		 * @brief Checks if a sound channel is currently playing.
-		 * @param entity Entity to check.
-		 * @return True if the channel is active and playing.
 		 */
 		bool IsChannelPlaying(FMOD::Channel* channel);
 
-
-		/**
-		 * @brief Checks if a sound is configured for 3D playback.
-		 * @param id Entity to check.
-		 * @return True if the sound uses 3D mode.
-		 */
-		bool IsFMOD3D(FMOD::Channel* channel);
-
-		/**
-		 * @brief Updates the FMOD mode (2D/3D) for a sound.
-		 * @param id Entity whose mode to change.
-		 * @param is3D True for 3D, false for 2D.
-		 */
-		void UpdateFMODMode(FMOD::Channel* channel, bool is3D);
-
-		/**
-		 * @brief Pauses or resumes a sound associated with an entity.
-		 * @param id Entity whose sound to pause or resume.
-		 * @param isPaused True to pause, false to resume.
-		 */
-		void UpdatePauseSound(FMOD::Channel* channel, bool isPaused);
-
 		/**
 		 * @brief Retrieves whether a sound is currently paused.
-		 * @param id Entity to check.
-		 * @return True if paused.
 		 */
 		bool GetPauseState(FMOD::Channel* channel);
 
 		/**
+		 * @brief Retrieves whether a sound is currently paused.
+		 */
+		void SetPauseState(FMOD::Channel* channel, bool pauseState);
+
+		/**
 		 * @brief Stops a sound currently playing for a given entity.
-		 * @param id Entity whose sound should be stopped.
 		 */
 		void StopSound(FMOD::Channel* channel);
 
 		/**
-		 * @brief Stops an active editor preview sound.
-		 * @param id Entity whose preview to stop.
-		 */
-		void StopEditorPreview(FMOD::Channel* channel);
-
-		/**
 		 * @brief Stops all sounds in the specified internal sound group.
-		 * @param SoundCategory Internal sound group to stop.
 		 */
 		void StopAllSound();
 

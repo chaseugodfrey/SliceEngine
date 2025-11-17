@@ -39,6 +39,50 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_Play(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_Stop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Audio_IsPlaying(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetPaused(uint entityID, bool paused);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Audio_GetPaused(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetLoop(uint entityID, bool loop);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Audio_GetLoop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetVolume(uint entityID, float volume);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetVolume(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetPitch(uint entityID, float pitch);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetPitch(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetSpatialBlend(uint entityID, float blend);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetSpatialBlend(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetPan(uint entityID, float pan);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetPan(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetMute(uint entityID, bool mute);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Audio_GetMute(uint entityID);
+
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
 

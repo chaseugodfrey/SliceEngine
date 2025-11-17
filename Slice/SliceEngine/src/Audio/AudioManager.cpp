@@ -15,11 +15,12 @@ Reproduction or disclosure of this file or its contents without the prior writte
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
-#include "../Audio/AudioManager.h"
+#include "AudioManager.h"
 #include "../src/Core/Core.h"
 #include "Input/InputSystem.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Audio.h"
+
 
 namespace SliceEngine
 {
@@ -59,7 +60,7 @@ namespace SliceEngine
 		mSoundSystem->createChannelGroup("Editor", &editorSounds);
 		editorSounds->setVolume(1.0f);
 
-		
+		srand((unsigned int)time(NULL)); // Initialize random seed
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -75,18 +76,17 @@ namespace SliceEngine
 
 	}
 
-	FMOD::Channel* AudioManager::PlaySound(GUID soundName, bool isPaused, bool isLoop, float volume, glm::vec3 soundPos, glm::vec3 vel)
+	FMOD::Channel* AudioManager::PlaySound(const AudioSource& audioComp, glm::vec3 soundPos, glm::vec3 vel)
 	{
-
-		//This call will handle the loading if the resource hasn't been loaded
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioComp.soundGUID).get();
+		if (!audioClip)
+		{
+			SLICE_LOG_ERROR("PlaySound: Failed to get audio clip for GUID.");
+			return nullptr;
+		}
+		
 		
 		FMOD::Channel* channel = nullptr;
-
-		if (audioClip->GetDimension() == false)
-		{
-			channel->setMode(FMOD_2D);
-		}
 
 		FMOD_RESULT result = FMOD_OK;
 
@@ -116,12 +116,6 @@ namespace SliceEngine
 		};
 
 		}
-		
-		channel->setVolume(volume);
-		channel->setMode(isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
-		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
-		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
-		channel->set3DAttributes(&soundPosition, &velocity);
 
 		if (result != FMOD_OK)
 		{
@@ -129,30 +123,69 @@ namespace SliceEngine
 			return nullptr;
 		}
 
+		FMOD_MODE loopMode = audioComp.isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
+		FMOD_MODE finalMode;
+		if (audioComp.spatialBlend == 0.0f)
+		{
+			finalMode = FMOD_2D | loopMode;
+		}
+		else
+		{
+			finalMode = FMOD_3D | loopMode;
+			if (audioComp.volumeRollOff == AudioSource::VolumeRollOff::Linear)
+			{
+				finalMode |= FMOD_3D_LINEARROLLOFF;
+			}
+		}
+
+		channel->setMode(finalMode);
+		channel->setPriority(audioComp.priority);
+		channel->setVolume(audioComp.currentVolume);
+		SetSpatialBlend(channel, audioComp.spatialBlend);
+		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+		channel->set3DAttributes(&soundPosition, &velocity);
+		channel->set3DMinMaxDistance(audioComp.minDistance, audioComp.maxDistance);
+		channel->set3DDopplerLevel(audioComp.dopplerLevel);
+		channel->set3DSpread(audioComp.spread);
+		channel->setMute(audioComp.isMute);
+		channel->setPitch(audioComp.pitch);
+		channel->setPan(audioComp.stereoPan);
+
+		// Start paused. SoundSystem will unpause if needed.
+		channel->setPaused(true);
 
 
 		return channel;
 
 	}
 
-	FMOD::Channel* AudioManager::PlayEditorPreview(GUID soundName, bool is3D)
+	FMOD::Channel* AudioManager::PlayEditorPreview(const AudioSource& audioComp)
 	{
-		//This call will handle the loading if the resource hasn't been loaded
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioComp.soundGUID).get();
+		if (!audioClip)
+		{
+			SLICE_LOG_ERROR("PlaySound: Failed to get audio clip for GUID.");
+			return nullptr;
+		}
 
 		FMOD::Channel* previewChannel = nullptr;
 
-		if (!audioClip->GetDimension())
-		{
-			previewChannel->setMode(FMOD_2D);
-		}
-
 		FMOD_RESULT result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, false, &previewChannel);
 
-		
+		FMOD_MODE finalMode = FMOD_2D;
 
+		previewChannel->setMode(finalMode);
+
+		float spatialBlend = 0.0f;
+
+		SetSpatialBlend(previewChannel, spatialBlend);
 		//track->soundPos3D = Vec3ToFMODVec3(soundPos);
 
+		previewChannel->setPriority(audioComp.priority);
+		previewChannel->setMute(audioComp.isMute);
+		previewChannel->setPitch(audioComp.pitch);
+		previewChannel->setPan(audioComp.stereoPan);
 
 		if (result != FMOD_OK)
 		{
@@ -172,6 +205,20 @@ namespace SliceEngine
 	void AudioManager::SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance)
 	{
 		channel->set3DMinMaxDistance(minDistance, maxDistance);
+	}
+
+	std::pair<float, float> AudioManager::GetMinMaxDistance(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return { 0.0f,0.0f };
+		}
+
+		float minDist, maxDist;
+
+		channel->get3DMinMaxDistance(&minDist, &maxDist);
+
+		return { minDist,maxDist };
 	}
 
 	void AudioManager::SetCategoryVolume(GUID soundName, float volume)
@@ -218,7 +265,7 @@ namespace SliceEngine
 		channel->setVolume(volume);
 	}
 
-	FMOD::SoundGroup* AudioManager::CreateSoundGroup(std::string& soundGroupName, FMOD::SoundGroup* soundGroup, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
+	void AudioManager::CreateSoundGroup(std::string& soundGroupName, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
 	{
 		if (mSoundGroups.find(soundGroupName) != mSoundGroups.end())
 		{
@@ -226,7 +273,7 @@ namespace SliceEngine
 			return;
 		}
 
-
+		FMOD::SoundGroup* soundGroup = nullptr;
 
 		FMOD_RESULT result = mSoundSystem->createSoundGroup(soundGroupName.c_str(), &soundGroup);
 
@@ -266,6 +313,118 @@ namespace SliceEngine
 		audioClip->GetSound()->setSoundGroup(soundGroup);
 	}
 
+	void AudioManager::SetSpatialBlend(FMOD::Channel* channel, float blend)
+	{
+		if (!channel)
+		{
+			return;
+		}
+
+		channel->set3DLevel(blend);
+	}
+
+	float AudioManager::GetSpatialBlend(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return;
+		}
+
+		float blend = 0.0f;
+
+		channel->get3DLevel(&blend);
+
+		return blend;
+	}
+
+	void AudioManager::UpdateChannelFromComponent(FMOD::Channel* channel, const AudioSource& audioComp)
+	{
+		if (!channel) return;
+
+		//Handle volume
+		if (std::abs(audioComp.currentVolume - GetChannelVolume(channel)) > 0.001f)
+		{
+			SetChannelVolume(channel, audioComp.currentVolume);
+		}
+
+		//Handle Pause
+		if (audioComp.isPaused != GetPauseState(channel))
+		{
+			SetPauseState(channel, audioComp.isPaused);
+		}
+
+		//Handle Spatial Blend
+		if (std::abs(audioComp.spatialBlend - GetSpatialBlend(channel)) > 0.001f)
+		{
+			SetSpatialBlend(channel, audioComp.spatialBlend);
+		}
+
+		//Handle Mute
+		if (audioComp.isMute != GetMute(channel))
+		{
+			SetMute(channel, audioComp.isMute);
+		}
+
+		//Handle Pitch
+		if (std::abs(audioComp.pitch - GetPitch(channel)) > 0.001f)
+		{
+			SetPitch(channel, audioComp.pitch);
+		}
+
+		//Handle Stereo Pan (Write-only)
+		if (audioComp.spatialBlend < 1.0f)
+		{
+			SetPan(channel, audioComp.stereoPan);
+		}
+
+		//Handle Priority for channel
+		if (audioComp.priority != GetChannelPriority(channel))
+		{
+			SetChannelPriority(channel, audioComp.priority);
+		}
+
+		//Handle Min and Max Distance
+		std::pair<float, float> distance = GetMinMaxDistance(channel);
+		if (std::abs(audioComp.minDistance - distance.first) > 0.001f || std::abs(audioComp.maxDistance - distance.second) > 0.001f)
+		{
+			SetMinMaxDistance(channel, audioComp.minDistance, audioComp.maxDistance);
+		}
+
+		//Handle Doppler
+		float doppler = GetDopplerLevel(channel);
+		if (std::abs(audioComp.dopplerLevel - doppler) > 0.001f)
+		{
+			SetDopplerLevel(channel, audioComp.dopplerLevel);
+		}
+
+		//Handle Spread
+		float spread = GetSpread(channel);
+		if (std::abs(audioComp.spread - spread) > 0.001f)
+		{
+			SetSpread(channel, audioComp.spread);
+		}
+
+		//Handle Volume Rolloff
+		FMOD_MODE currentMode;
+		channel->getMode(&currentMode);
+
+		bool isFmodLinear = (currentMode & FMOD_3D_LINEARROLLOFF);
+		bool isCompLinear = (audioComp.volumeRollOff == AudioSource::VolumeRollOff::Linear);
+
+		if (isFmodLinear != isCompLinear && audioComp.spatialBlend > 0.0f)
+		{
+			bool isLooping = (currentMode & FMOD_LOOP_NORMAL);
+			FMOD_MODE newMode = FMOD_3D | (isLooping ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+
+			if (isCompLinear)
+			{
+				newMode |= FMOD_3D_LINEARROLLOFF;
+			}
+
+			channel->setMode(newMode);
+		}
+	}
+
 	bool AudioManager::IsChannelPlaying(FMOD::Channel* channel)
 	{
 		bool channelFlag = false;
@@ -285,113 +444,154 @@ namespace SliceEngine
 		//mSoundSystem->update();
 	}
 
-	void AudioManager::SetSound3DPosition(FMOD::Channel* channel, bool is3D, glm::vec3 soundPos, glm::vec3 vel)
+	void AudioManager::SetChannelPriority(FMOD::Channel* channel, int priorityNumber)
 	{
-		//FMOD_VECTOR soundPosition = { soundPos.x, soundPos.y, soundPos.z };
-		//FMOD_VECTOR velVec = { 0.0f,0.0f,0.0f };
-
-
-		/*for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
+		if (channel != nullptr)
 		{
-			for (auto& track : mSound[i])
-			{
-				if (track->entityID == id && track->channel)
-				{
-					track->soundPos3D = Vec3ToFMODVec3(soundPos);
-					track->channel->set3DAttributes(&track->soundPos3D, &track->vel);
-					if (track->is3D == false && soundPos.x == 0.f && soundPos.y == 0.f && soundPos.z == 0.f)
-					{
-						track->channel->set3DMinMaxDistance(1.0f, 1.0f);
-					}
-					else
-					{
-						track->channel->set3DMinMaxDistance(0.1f, 0.6f);
-					}
-					break;
-				}
-			}
-		}*/
-		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
-		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+			channel->setPriority(priorityNumber);
+		}
+	}
 
-		channel->set3DAttributes(&soundPosition, &velocity);
-		if (!is3D)
+	void AudioManager::SetSpread(FMOD::Channel* channel, float spread)
+	{
+		if (channel)
 		{
-			channel->set3DMinMaxDistance(0.0f, 0.0f);
+			channel->set3DSpread(spread);
+		}
+	}
+
+	float AudioManager::GetSpread(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return 0.0f;
+		}
+		float spread;
+		channel->get3DSpread(&spread);
+		
+		return spread;
+	}
+
+	void AudioManager::SetDopplerLevel(FMOD::Channel* channel, float dopplerLevel)
+	{
+		if (channel)
+		{
+			channel->set3DDopplerLevel(dopplerLevel);
+		}
+	}
+
+	float AudioManager::GetDopplerLevel(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return 0.0f;
+		}
+		float dopplerLevel;
+
+		channel->get3DDopplerLevel(&dopplerLevel);
+
+		return dopplerLevel;
+	}
+
+	int AudioManager::GetChannelPriority(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return 128;
+		}
+		int priority;
+		channel->getPriority(&priority);
+
+		return priority;
+	}
+
+	void AudioManager::SetMute(FMOD::Channel* channel, bool mute)
+	{
+		if (channel)
+		{
+			channel->setMute(mute);
+		}
+	}
+
+	bool AudioManager::GetMute(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return false;
+		}
+
+		bool mute;
+		channel->getMute(&mute);
+
+		return mute;
+	}
+
+	void AudioManager::SetPitch(FMOD::Channel* channel, float pitch)
+	{
+		if (channel)
+		{
+			channel->setPitch(pitch);
+		}
+	}
+
+	float AudioManager::GetPitch(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return 1.0f;
+		}
+		float pitch;
+		channel->getPitch(&pitch);
+
+		return pitch;
+	}
+
+	void AudioManager::SetPan(FMOD::Channel* channel, float pan)
+	{
+		if (channel)
+		{
+			channel->setPan(pan);
 		}
 	}
 
 
-	void AudioManager::UpdatePauseSound(FMOD::Channel* channel,bool isPaused)
+	void AudioManager::SetSound3DPosition(FMOD::Channel* channel, bool is3D, glm::vec3 soundPos, glm::vec3 vel)
 	{
-		channel->setPaused(isPaused);
+		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+
+		channel->set3DAttributes(&soundPosition, &velocity);
 	}
 
 	bool AudioManager::GetPauseState(FMOD::Channel* channel)
 	{
-
+		if (!channel)
+		{
+			SLICE_LOG_ERROR("Unable to get pause state");
+			return;
+		}
 		bool pauseState = false;
 		channel->getPaused(&pauseState);
 
 		return pauseState;
 	}
 
-	bool AudioManager::IsFMOD3D(FMOD::Channel* channel)
+	void AudioManager::SetPauseState(FMOD::Channel* channel, bool pauseState)
 	{
-		FMOD_MODE currentMode = 0;
-		channel->getMode(&currentMode);
-		if (currentMode & FMOD_3D)
+		if (channel)
 		{
-			return true;
-		}
-
-		return false;
-	}
-
-	void AudioManager::UpdateFMODMode(FMOD::Channel* channel, bool is3D)
-	{
-		/*for (int i{}; i < InternalSound::SOUND_MAX_SOUNDS; i++)
-		{
-			for (auto& track : mSound[i])
-			{
-				if (track->entityID == id && track->channel)
-				{
-					track->is3D = is3D;
-					if (is3D)
-					{
-						track->channel->setMode(FMOD_3D);
-					}
-					else
-					{
-						track->channel->setMode(FMOD_2D);
-					}
-				}
-			}
-		}*/
-		if (is3D)
-		{
-			
-			channel->setMode(FMOD_3D);
-
-		}
-		else
-		{
-			channel->setMode(FMOD_2D);
+			channel->setPaused(pauseState);
 		}
 	}
 
 	void AudioManager::StopSound(FMOD::Channel* channel)
 	{
+		if (channel)
+		{
+			channel->stop();
+			channel = nullptr;
 
-		channel->stop();
-		channel = nullptr;
-	}
-
-	void AudioManager::StopEditorPreview(FMOD::Channel* channel)
-	{
-
-		channel->stop();
-		channel = nullptr;
+		}
 	}
 
 	void AudioManager::StopAllSound()

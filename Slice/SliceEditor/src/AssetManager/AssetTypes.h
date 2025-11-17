@@ -67,12 +67,6 @@ namespace SliceEditor
 		CREATE_STREAM
 	};
 
-	enum AudioDimension : std::uint8_t
-	{
-		FMOD2D,
-		FMOD3D
-	};
-
 	enum AudioCategory : std::uint8_t
 	{
 		SFX,
@@ -420,7 +414,6 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
 
 		AudioStream stream{ AudioStream::CREATE_SAMPLE };
-		AudioDimension dimension{ AudioDimension::FMOD3D };		
 		AudioCategory category{ AudioCategory::SFX };
 		
 
@@ -436,7 +429,6 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			metaJson["stream"] = stream;
-			metaJson["dimension"] = dimension;
 			metaJson["category"] = category;
 			
 
