@@ -360,7 +360,7 @@ namespace SliceEngine
 	static void Audio_SetSoundGroup(std::string soundGUIDName, std::string soundGroupName)
 	{
 		GUID soundGUID = SliceEngine::GUID::FromString(soundGUIDName);
-		Core::GetInstance()->GetAudioManager()->SetSoundGroup(, soundGroupName);
+		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
 	}
 
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
