@@ -148,8 +148,8 @@ namespace SliceEditor
 						}
 
 						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
 						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
-						BoolInputHeader(mRegistry, "Is 3D", "##is3D", as.is3D);
 						BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
 
 						ImGui::Text("Play Preview");
