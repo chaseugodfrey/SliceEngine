@@ -329,14 +329,14 @@ namespace SliceEngine
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
 		// Lifetime
-		bool hasRandomParticleLifetime{ false };	// can remove
+		//bool hasRandomParticleLifetime{ false };	// can remove
 
 		ValueType initialLifetimeType{ CONSTANT };
 		float lifetime{};
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
 		// Rotation
-		bool hasRandomInitialRotation{ false };		// can remove
+		//bool hasRandomInitialRotation{ false };		// can remove
 		bool isInitialRotation3D{ false };			// to add
 		ValueType initialRotationType{ CONSTANT };	// to add
 		glm::quat rotation{};
@@ -362,10 +362,10 @@ namespace SliceEngine
 		glm::vec3 minRandomScale{ 1.0f };
 		glm::vec3 maxRandomScale{ 1.0f };
 		bool destroyOnExpire{ false };
-		bool hasRandomScale{ false };				// can remove
+		//bool hasRandomScale{ false };				// can remove
 		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
-		bool hasGravity{ false };					// can remove
+		//bool hasGravity{ false };					// can remove
 		float gForce{0.0f};
 
 		// EMISSION
@@ -384,8 +384,8 @@ namespace SliceEngine
 		};
 		std::vector<Burst> bursts{}; 
 
-		bool hasBursts{ false };				// can remove
-		uint64_t numBursts{};					// can remove
+		//bool hasBursts{ false };				// can remove
+		//uint64_t numBursts{};					// can remove
 
 
 		// Shape Settings
@@ -410,7 +410,7 @@ namespace SliceEngine
 		glm::vec3 maxRandomSpawnPos{};
 
 		// Color
-		bool hasRandomColour{ false };				// can remove
+		//bool hasRandomColour{ false };				// can remove
 		ValueType colorValueType{ CONSTANT };		// to add
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
@@ -418,12 +418,13 @@ namespace SliceEngine
 		bool colorOverLifetime{ false };			// to add
 		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		bool hasRandomVelocity{ false };			// can remove
+		//bool hasRandomVelocity{ false };			// can remove
+		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
 		glm::vec3 minRandomVelocity{ 1.0f };
 		glm::vec3 maxRandomVelocity{ 1.0f };
 
-		bool fadeOverLifetime{ false };				// can remove
+		//bool fadeOverLifetime{ false };				// can remove
 		bool hasCollision{ false };
 
 		// Renderer

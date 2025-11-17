@@ -191,7 +191,7 @@ namespace SliceEngine
 		.property("currentVolume", &AudioSource::currentVolume)
 		.property("isLoop", &AudioSource::isLoop)
 		.property("isPaused", &AudioSource::isPaused)
-		.property("is3D", &AudioSource::is3D)
+		//.property("is3D", &AudioSource::is3D)
 		.property("playPreview", &AudioSource::playPreview);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
