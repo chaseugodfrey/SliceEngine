@@ -66,6 +66,7 @@ namespace SliceEditor
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void RecompileAsset(MetaData* metaData);
+		std::filesystem::path GetMetaDataFromFilename(std::string guid);
 		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);

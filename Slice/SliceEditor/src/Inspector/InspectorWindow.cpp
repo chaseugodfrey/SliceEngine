@@ -132,6 +132,21 @@ namespace SliceEditor
 							audioFilename = audioGUID_string;
 						}
 						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
+
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Audio"))
+							{
+								SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+								auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+								//rend.modelHandle.mGUID = recievedPayload;
+								as.soundGUID = recievedPayload;
+								// update the handle after
+
+							}
+							ImGui::EndDragDropTarget();
+						}
+
 						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
 						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
 						BoolInputHeader(mRegistry, "Is 3D", "##is3D", as.is3D);
