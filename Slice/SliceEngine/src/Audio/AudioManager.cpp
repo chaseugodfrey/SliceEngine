@@ -327,7 +327,7 @@ namespace SliceEngine
 	{
 		if (!channel)
 		{
-			return;
+			return 0.0f;
 		}
 
 		float blend = 0.0f;
@@ -568,7 +568,7 @@ namespace SliceEngine
 		if (!channel)
 		{
 			SLICE_LOG_ERROR("Unable to get pause state");
-			return;
+			return false;
 		}
 		bool pauseState = false;
 		channel->getPaused(&pauseState);

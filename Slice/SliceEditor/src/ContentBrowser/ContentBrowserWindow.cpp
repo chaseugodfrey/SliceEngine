@@ -762,20 +762,6 @@ namespace SliceEditor
 			ImGui::EndCombo();
 		}
 
-		static std::vector<std::string> dimensionNames{ "FMOD2D", "FMOD3D"};
-		Label("Audio Dimension: ");
-		if (ImGui::BeginCombo("##Audio_Dimension: ", dimensionNames[(int)data->dimension].c_str()))
-		{
-			for (int i = 0; i < dimensionNames.size(); ++i)
-			{
-				if (ImGui::Selectable(dimensionNames[i].c_str()))
-				{
-					data->dimension = (AudioDimension)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
 		static std::vector<std::string> audioCategoryNames{ "SFX", "BGM", "UI", "EditorSounds"};
 		Label("Audio Category: ");
 		if (ImGui::BeginCombo("##Audio_Category: ", audioCategoryNames[(int)data->category].c_str()))
