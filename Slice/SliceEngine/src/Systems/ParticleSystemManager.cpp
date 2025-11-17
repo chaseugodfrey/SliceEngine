@@ -234,24 +234,18 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeRotation(Particle& p, ParticleSystem& ps)
 	{
-		switch (ps.initialRotationType)
+		if (ps.initialRotationType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-		case ParticleSystem::ValueType::CONSTANT:
-			p.rotation = ps.rotation;
-			break;
-
-		case ParticleSystem::ValueType::TWO_CONSTANTS:
 			// Interpolate between min and max quaternion
 			std::uniform_real_distribution<float> tDist(0.0f, 1.0f);
 			float t = tDist(gen);
 
 			// Spherical linear interpolation between min and max rotations
 			p.rotation = glm::slerp(ps.minRandomRotation, ps.maxRandomRotation, t);
-			break;
-
-		default:
+		}
+		else 
+		{
 			p.rotation = ps.rotation;
-			break;
 		}
 
 		if (ps.parentTransform)
@@ -259,23 +253,16 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)
 	{
-		switch (ps.scaleType)
+		if (ps.scaleType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-		case ParticleSystem::ValueType::CONSTANT:
-			p.scale = ps.scale;
-			break;
-
-		case ParticleSystem::ValueType::TWO_CONSTANTS:
 			std::uniform_real_distribution<float> distX(ps.minRandomScale.x, ps.maxRandomScale.x);
 			std::uniform_real_distribution<float> distY(ps.minRandomScale.y, ps.maxRandomScale.y);
 			std::uniform_real_distribution<float> distZ(ps.minRandomScale.z, ps.maxRandomScale.z);
-
 			p.scale = glm::vec3(distX(gen), distY(gen), distZ(gen));
-			break;
-
-		default:
+		}
+		else 
+		{
 			p.scale = ps.scale;
-			break;
 		}
 		
 		// Should particles inherit the scale of its parent? no right?
@@ -284,26 +271,21 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
-		switch (ps.velocityValueType)
+		if (ps.velocityValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-		case ParticleSystem::ValueType::CONSTANT:
-			p.velocity = ps.velocity;
-			break;
-		case ParticleSystem::ValueType::TWO_CONSTANTS:
 			std::uniform_real_distribution<float> distX(ps.minRandomVelocity.x, ps.maxRandomVelocity.x);
 			std::uniform_real_distribution<float> distY(ps.minRandomVelocity.y, ps.maxRandomVelocity.y);
 			std::uniform_real_distribution<float> distZ(ps.minRandomVelocity.z, ps.maxRandomVelocity.z);
-
 			p.velocity = glm::vec3(distX(gen), distY(gen), distZ(gen));
-			break;
-		default:
+		}
+		else
+		{
 			p.velocity = ps.velocity;
-			break;
 		}
 	}
 	void ParticleSystemManager::InitializeColour(Particle& p, ParticleSystem& ps)
 	{
-		/*if (ps)
+		if (ps.colorValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> distR(ps.minRandomColour.r, ps.maxRandomColour.r);
 			std::uniform_real_distribution<float> distG(ps.minRandomColour.g, ps.maxRandomColour.g);
@@ -315,7 +297,7 @@ namespace SliceEngine
 		else
 		{
 			p.colour = ps.colour;
-		}*/
+		}
 	}
 
 	void ParticleSystemManager::ApplyParentTransform(Particle& p, ParticleSystem& ps)
