@@ -118,7 +118,7 @@ namespace SliceEngine
 
 		// UGGGGHHHHH i forgot to create functions to clear bindings and actions and entire maps
 		// clear a binding for an action, clear action from map, clear entire map
-		void ClearBinding(const std::string& mapName, const std::string& actionName);
+		void ClearBindings(const std::string& mapName, const std::string& actionName);
 		void ClearAction(const std::string& mapName, const std::string& actionName);
 		void ClearMap(const std::string& mapName);
 		
@@ -139,7 +139,7 @@ namespace SliceEngine
 		std::unordered_map<std::string, ActionMap> maps; // class contains a container of all the different action maps there are
 		static size_t findAction(const ActionMap& actionMap, const std::string& actionName); // finds a particular action in an aciton map
 		static ActionMap* findMap(std::unordered_map<std::string, ActionMap>& maps, const std::string& mapName); // finds a specific action map in the container of action maps
-
+		static size_t findBinding(const ActionDefinition& actionDef, int keyCode); // find binding in action definition
 	};
 
 	// globbal accessor for singleton class actionmappingsystem instance

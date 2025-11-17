@@ -235,27 +235,20 @@ namespace SliceEngine
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm->StartFrame();
 
-		//auto mResource = Core::GetInstance()->GetResourceManager();
-
-
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glfwPollEvents();
-
 		frm->EndSystem("GLFW Poll Events");
-		// Main Body
 
-		frm.StartSystem("Input");
+		frm->StartSystem("Input");
 		sInputs->UpdatePrevInput();
-		frm.EndSystem("Input");
+		frm->EndSystem("Input");
 		// process all enabled action maps in Game mode
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE) 
 		{
 			SliceEngine::GetActionMappingSystem().processAllInput();
 		}
-
 
         frm->StartSystem("Audio");
 		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm->getDeltaTime()));

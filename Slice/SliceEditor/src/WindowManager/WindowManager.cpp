@@ -559,13 +559,24 @@ namespace SliceEditor
 					{
 						AM.enableMap(mapName, enabled); // enable or disable map based on checkbox
 					}
+					// deelte whote map
+					ImGui::SameLine();
+					if (ImGui::SmallButton(("Delete Map##" + mapName).c_str())) 
+					{
+						AM.ClearMap(mapName);
+						AM.SaveToJson(kJsonPath);
+						// map is gone; skip drawing its currently invalid table this frame
+						ImGui::Dummy({ 0,4 });
+						continue;
+					}
 					// list all actions in this map by creating a table of of the actions
-					if (ImGui::BeginTable(("table" + mapName).c_str(), 4, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
+					if (ImGui::BeginTable(("table" + mapName).c_str(), 5, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
 					{
 						ImGui::TableSetupColumn("Action");
 						ImGui::TableSetupColumn("Type");
 						ImGui::TableSetupColumn("Bindings");
 						ImGui::TableSetupColumn("Bind...");
+						ImGui::TableSetupColumn("Edit");
 						ImGui::TableHeadersRow();
 
 						// idk how this fixes things tbh but it does
@@ -676,6 +687,31 @@ namespace SliceEditor
 								}
 							}
 							ImGui::PopID();
+
+							// had no idea how to do this portion so thanks gpt
+							// edit bindings: clear all or delete action
+							ImGui::TableSetColumnIndex(4);
+							ImGui::PushID((int)i + 100000);  // separate ID space for edit buttons
+
+							bool clearBinds = ImGui::SmallButton("Clear Binds");
+							ImGui::SameLine();
+							bool deleteAction = ImGui::SmallButton("Delete Action");
+
+							ImGui::PopID();
+
+							if (clearBinds) 
+							{
+								AM.ClearBindings(mapName, definition.name);
+								AM.SaveToJson(kJsonPath);
+							}
+
+							if (deleteAction) 
+							{
+								AM.ClearAction(mapName, definition.name);
+								AM.SaveToJson(kJsonPath);
+								break;
+							}
+
 						}
 						ImGui::EndTable();
 					}

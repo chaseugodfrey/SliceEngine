@@ -147,27 +147,72 @@ namespace SliceEngine
 	// it from the json file when we call savetofile
 	// clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
 	// clear map just removes the entire map from the maps unordered map
-	void ActionMappingSystem::ClearBinding(const std::string& mapName, const std::string& actionName)
+	void ActionMappingSystem::ClearBindings(const std::string& mapName, const std::string& actionName)
 	{
-		auto it = maps.find(mapName);
-		
+		// this function will clear all bindings for a particular action in a particular map
+		auto* map = findMap(maps, mapName);
+		if (!map)
+		{
+			return;
+		}
 
+		size_t actionIndex = findAction(*map, actionName);
+		// check if action exists
+		if (actionIndex == static_cast<size_t>(-1))
+		{
+			return;
+		}
+
+		// wipe all binds
+		map->definitions[actionIndex].bindings.clear();
+		map->states[actionIndex].valueX = map->states[actionIndex].valueY = 0.0f; // set values to zero
+		map->states[actionIndex].performedThisFrame = false; // reset performed flag
+		map->states[actionIndex].phase = ActionPhase::Waiting; // neutral state
 	}
 	
 
 	void ActionMappingSystem::ClearAction(const std::string& mapName, const std::string& actionName)
 	{
-		auto it = maps.find(mapName);
+		//auto it = maps.find(mapName);
+		//auto& map = maps[mapName];
+		//// look for action index
+		//size_t actionIndex = findAction(maps[mapName] , actionName);
 
-		// look for action index
-		
+		//// loop through map, find action based on actionname and remove it from map
+		//if(actionIndex != static_cast<size_t>(-1))
+		//{
+		//	map.definitions.erase(map.definitions.begin() + actionIndex); // remove action definition
+		//	map.states.erase(map.states.begin() + actionIndex); // remove corresponding state
+		//}
 
+		auto* map = findMap(maps, mapName);
+		if (!map)
+		{
+			return;
+		}
+
+		size_t idx = findAction(*map, actionName);
+		if (idx == static_cast<size_t>(-1))
+		{
+			return;
+		}
+
+		// erase matching definition plus its parallel state
+		// my previous method wasn't efficient apparently, gpt says to cast to ptrdiff_t to avoid warnings
+		map->definitions.erase(map->definitions.begin() + static_cast<std::ptrdiff_t>(idx)); 
+		map->states.erase(map->states.begin() + static_cast<std::ptrdiff_t>(idx));
+	
 	}
 
 	void ActionMappingSystem::ClearMap(const std::string& mapName)
 	{
 		auto it = maps.find(mapName);
+		if (it == maps.end())
+		{
+			return;
+		}
 
+		maps.erase(it);
 	}
 
 
