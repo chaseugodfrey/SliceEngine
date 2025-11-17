@@ -41,6 +41,9 @@ namespace SliceEngine
 		struct Transition
 		{
 			std::string targetState;
+
+			// maybe
+			//std::vector<std::pair<rttr::variant, ComparisonOp>> conditions;
 			rttr::variant condition;
 			ComparisonOp operation;
 			std::string parameterName;

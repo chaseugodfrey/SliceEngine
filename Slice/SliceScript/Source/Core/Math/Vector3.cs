@@ -107,5 +107,42 @@ namespace SliceEngine
                 return hash;
             }
         }
+
+        public static float Clamp(float value, float min, float max)
+        {
+            if (value < min)
+            {
+                return min;
+            }
+            if (value > max)
+            {
+                return max;
+            }
+            return value;
+        }
+
+        public static float Dot(Vector3 v1, Vector3 v2)
+        {
+            return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+        }
+
+        public static Vector3 Slerp(Vector3 start, Vector3 end, float t)
+        {
+            t = Vector3.Clamp(t, 0.0f, 1.0f);
+            float dot = Vector3.Dot(start, end);
+            dot = Vector3.Clamp(dot, -1.0f, 1.0f);
+            float omega = (float)Math.Acos(dot);
+            if (omega < 0.0001f)
+            {
+                Vector3 tmp  = (start + (end - start) * t);
+                return tmp.Normalize();
+            }
+            float sinOmega = (float)Math.Sin(omega);
+            float scale0 = (float)Math.Sin((1.0f - t) * omega) / sinOmega;
+            float scale1 = (float)Math.Sin(t * omega) / sinOmega;
+            Vector3 result = (start * scale0) + (end * scale1);
+
+            return result;
+        }
     }
 }
