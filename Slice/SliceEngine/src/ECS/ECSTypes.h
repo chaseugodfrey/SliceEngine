@@ -253,15 +253,37 @@ namespace SliceEngine
 
 	struct AudioSource
 	{
+		enum VolumeRollOff : int
+		{
+			Logarithmic = 0,
+			Linear = 1
+		};
 		//std::string soundName;
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
-		float currentVolume = 0.3f;
+		int priority = 128;
+		bool isMute = false;
 		bool isLoop = false;
 		bool isPaused = true;
-		bool is3D = true;
+		float currentVolume = 0.3f;
+		float pitch = 1.0f;
+		float stereoPan = 0.0f;
+		float spatialBlend = 1.0f;
+		//3D effects
+		float dopplerLevel = 1.0f;
+		float spread = 1.0f;
+		VolumeRollOff volumeRollOff = Logarithmic;
+		float minDistance = 1.0f;
+		float maxDistance = 500.0f;
+
+		float minInterval = 0.0f;
+		bool playOnAwake = false;
+
+		bool _playTrigger = false;
 		bool playPreview = false;
+
+		RTTR_ENABLE();
 	};
 
 	struct AudioListener
@@ -444,8 +466,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
 		FSMSystem stateMachine;
-		//FSMSystem stateMachine;
-
+		
 		float current_time{};
 		Timeline timeline;
 
@@ -496,6 +517,11 @@ namespace SliceEngine
 		std::vector<glm::mat4> const& GetFinalTform() const
 		{
 			return final_tforms;
+		}
+
+		bool IsValid()
+		{
+			return (Handle_skeleton.IsValid() && Handle_curr_anim_pkg.IsValid() && Handle_stateMachine.IsValid());
 		}
 
 		RTTR_ENABLE();

@@ -242,6 +242,11 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Audio>::Reload(SliceEngineTypes::Audio* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyAudio();
+
+		resource->LoadAudioResource(path);
+
+
 	}
 	
 	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)
