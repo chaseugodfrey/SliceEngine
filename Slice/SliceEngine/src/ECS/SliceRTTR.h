@@ -215,7 +215,14 @@ namespace SliceEngine
 		.property("far", &Camera::far)
 		.property("textureID", &Camera::textureID)
 		.property("depthTex", &Camera::depthTex)
-		.property("renderTag", &Camera::renderTag);
+		.property("renderTag", &Camera::renderTag)
+		.property("fogColor", &Camera::fogColor)
+		.property("fogIntensity", &Camera::fogIntensity)
+		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
+		.property("vignetteCenter", &Camera::vignetteCenter)
+		.property("vignetteIntensity", &Camera::vignetteIntensity)
+		.property("vignetteSmoothness", &Camera::vignetteSmoothness);
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.constructor<>()
 		.property("scriptName", &Script::scriptName);

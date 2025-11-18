@@ -117,6 +117,9 @@ namespace SliceEngine
         internal extern static uint CreateNewGameObject(string prefabName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint CloneGO(string prefabName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static object GetScriptInstance(uint entityID, string baseClassName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

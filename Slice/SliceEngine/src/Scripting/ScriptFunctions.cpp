@@ -466,6 +466,16 @@ namespace SliceEngine
 
 		return entt::null;
 	}
+
+	static unsigned int CloneGO(MonoString* GoName)
+	{
+		std::string cStrName = MonoToString(GoName);
+		auto GO = FactoryInstance.GetGOByName(cStrName);
+
+		auto newGO = FactoryInstance.CloneGO(GO);
+		return (unsigned int)newGO.GetEntity();
+	}
+
 	static uint32_t Entity_FindEntityWithName(MonoString* name)
 	{
 		std::string cStrName = MonoToString(name);
@@ -614,6 +624,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(HasScriptInstance);
 		ADD_INTERNAL_CALL(Entity_GetTag);
 		ADD_INTERNAL_CALL(Entity_SetTag);
+		ADD_INTERNAL_CALL(CloneGO);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

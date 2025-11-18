@@ -90,6 +90,13 @@ namespace SliceEngine
             return entity;
         }
 
+        public GameObject CloneGO(string goName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CloneGO(goName));
+
+            return entity;
+        }
+
         public void Destroy()
         {
             FunctionCalls.Destroy(gameObject.mID);
