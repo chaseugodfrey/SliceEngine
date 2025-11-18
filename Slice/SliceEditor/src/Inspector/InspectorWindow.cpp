@@ -427,7 +427,11 @@ namespace SliceEditor
 										sp->SetArrayFieldValue(name, val);
 									};
 								//Display Function Here
-								DragFloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data);
+								if (DragFloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
 						}
 

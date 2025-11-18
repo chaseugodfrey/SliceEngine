@@ -284,23 +284,49 @@ namespace SliceEditor
 	bool DragFloatListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format, float min, float max)
 	{
 		static std::string elementNo_String =  "Element ";
+		static std::vector<float> oldList{};
 		int i = 0;
 		bool changed = false;
-		if(ImGui::TreeNodeEx(property_label,ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed))
 		{
 			for (auto& entry : list)
 			{
 				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
-				std::string newID = "##" + std::string(id) + elementNo_String + std::to_string(i);
-				if ((changed = DragFloatInputHeader(reg, elementPropertyLabel.c_str(), newID.c_str(), entry)))
+				std::string newID = std::string(id) + elementNo_String + std::to_string(i);
+				changed |= ImGui::DragFloat(newID.c_str(), &entry,0.1f,min,max,format, ImGuiSliderFlags_AlwaysClamp);
+			
+				if (changed)
 				{
-					//scriptRef->SetFieldValue<std::string>(it.second.mName, entry);
-					//SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+					SLICE_LOG("DEBUG");
+				}
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<float>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<float>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
 				}
 				i++;
 			}
+			ImGui::Dummy(ImVec2(0,0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				//Plus Here
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("-", ImVec2(30, 20)))
+			{
+				//Minus Here
+			}
 			ImGui::TreePop();
 		}
+		
 		return changed;
 	}
 
