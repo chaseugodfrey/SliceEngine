@@ -17,10 +17,9 @@ namespace SliceEngine
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
 
         public override void OnCreate()
-        {
+        {          
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-
         }
 
         public override void OnUpdate(float dt)

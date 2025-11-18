@@ -481,6 +481,24 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* Entity_GetTag(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());			
+		}
+	}
+
+	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			go.GetComponent<SliceEntity>().mTag = MonoToString(tag);
+		}
+	}
+
 	static void Destroy(unsigned int entity)
 	{
 		FactoryInstance.Destroy((Entity)entity);
@@ -594,6 +612,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
 		ADD_INTERNAL_CALL(HasScriptInstance);
+		ADD_INTERNAL_CALL(Entity_GetTag);
+		ADD_INTERNAL_CALL(Entity_SetTag);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

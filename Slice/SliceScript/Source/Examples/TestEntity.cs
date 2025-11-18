@@ -22,7 +22,8 @@ namespace SliceEngine
         {
             //Console.WriteLine("TestEntity Created with ID: " + mID);
             t = GetComponent<Transform>();
-            t = t.gameObject.GetComponent<Transform>();
+            //t = t.gameObject.GetComponent<Transform>();
+            t.tag = "ger";
           //  go = t.gameObject;
         }
 
