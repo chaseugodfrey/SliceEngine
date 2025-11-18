@@ -85,6 +85,10 @@ namespace SliceEngine
 		 * @param entity The entity whose pause state was updated.
 		 */
 		void onPauseUpdated(entt::registry& reg, entt::entity);
+
+		private:
+		
+			std::unordered_map<entt::entity, float> m_lastPlayTimes;
 	};
 }
 

@@ -10,6 +10,17 @@
 
 void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 {
+	// Use world space to see actual collision position
+	JPH::RVec3 contactPoint = inManifold.GetWorldSpaceContactPointOn1(0); // First contact point in world space
+	std::cout << "Collision at: (" << contactPoint.GetX() << ", "
+		<< contactPoint.GetY() << ", " << contactPoint.GetZ() << ")" << std::endl;
+
+	// Also log body positions to compare
+	std::cout << "Body1 pos: (" << inBody1.GetPosition().GetX() << ", "
+		<< inBody1.GetPosition().GetY() << ", " << inBody1.GetPosition().GetZ() << ")" << std::endl;
+	std::cout << "Body2 pos: (" << inBody2.GetPosition().GetX() << ", "
+		<< inBody2.GetPosition().GetY() << ", " << inBody2.GetPosition().GetZ() << ")" << std::endl;
+
 
 	GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
 	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));

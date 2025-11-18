@@ -659,7 +659,17 @@ namespace entt
 		j = static_cast<uint32_t>(e);
 	}
 }
-
+namespace JPH
+{
+	inline void from_json(const json& j, JPH::Vec3& v) {
+		v.SetX(j.at(0).get<float>());
+		v.SetY(j.at(1).get<float>());
+		v.SetZ(j.at(2).get<float>());
+	}
+	inline void to_json(json& j, const JPH::Vec3& v) {
+		j = json::array({ v.GetX(), v.GetY(), v.GetZ() });
+	}
+}
 
 namespace rttr
 {
@@ -670,7 +680,7 @@ namespace rttr
 			const std::string& typeName = j["Type"].get<std::string>();
 			const nlohmann::json& valueJson = j["Value"];
 
-			// --- Primitives ---
+			// Primitive types
 			if (typeName == "float") 
 			{
 				return rttr::variant(valueJson.get<float>());
@@ -692,7 +702,7 @@ namespace rttr
 				return rttr::variant(valueJson.get<double>());
 			}
 
-			// --- GLM Types ---
+			// GLM types
 			if (typeName == "glm::vec3") 
 			{
 				return rttr::variant(valueJson.get<glm::vec3>());
@@ -702,7 +712,7 @@ namespace rttr
 				return rttr::variant(valueJson.get<glm::vec2>());
 			}
 
-			// --- Vector Types
+			// Vector types
 			if (typeName == "std::vector<float>")
 			{
 				return rttr::variant(valueJson.get<std::vector<float>>());
@@ -722,6 +732,12 @@ namespace rttr
 		}
 	}
 
+	/// <summary>
+	/// Mostly used for script component as well since script fields are stored as variants
+	/// converts json into a variatn value
+	/// </summary>
+	/// <param name="j"></param>
+	/// <param name="um"></param>
 	inline void from_json(const json& j, std::unordered_map<std::string, rttr::variant>& um)
 	{
 		um.clear();

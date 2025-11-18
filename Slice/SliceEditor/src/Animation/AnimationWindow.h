@@ -13,7 +13,7 @@ namespace SliceEditor
 		std::vector<ImGui::FrameIndexType> keys;
 	};
 
-	// Use ImGui::BeginNeoGroup() to visualise properties
+	// Use ImGui::BeginNeoGroup() to visualize properties
 	struct AnimationPropertyGroup
 	{
 		std::string name;
@@ -36,13 +36,14 @@ namespace SliceEditor
 		SliceEngine::Animator* mCurrentAnimator{ nullptr };
 		//SliceEngine::Transform* mCurrentTransform;
 		
-		// have animation* from animator 
+
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
 		size_t mCurrentClipIndex{ 0 };
 
 		bool CheckForAnimator();
-		void LoadDataFromAnimator(SliceEngine::Animator* component);
+		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 		void LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip);
+		void LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph);
 		void ClearData();
 
 		void UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip,float time);

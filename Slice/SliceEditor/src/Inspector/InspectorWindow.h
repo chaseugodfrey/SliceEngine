@@ -81,6 +81,7 @@ namespace SliceEditor
 		void DisplaySliceScript(entt::entity entity);
 		void DisplayLight(entt::entity entity);
 		void DisplayAnimator(entt::entity entity);
+		void DisplayParticleSystem(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
 
 

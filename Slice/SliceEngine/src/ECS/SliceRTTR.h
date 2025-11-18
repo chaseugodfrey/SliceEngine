@@ -129,7 +129,8 @@ namespace SliceEngine
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
-		.property("euler_hint", &Transform::eulerAnglesHint);
+		.property("euler_hint", &Transform::eulerAnglesHint)
+		.property("collisionMask", &Transform::collisionMask);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -188,9 +189,21 @@ namespace SliceEngine
 		.property("channel", &AudioSource::channel)
 		.property("previewChannel", &AudioSource::previewChannel)
 		.property("currentVolume", &AudioSource::currentVolume)
+		.property("isMute", &AudioSource::isMute)
 		.property("isLoop", &AudioSource::isLoop)
 		.property("isPaused", &AudioSource::isPaused)
-		.property("is3D", &AudioSource::is3D)
+		.property("pitch", &AudioSource::pitch)
+		.property("stereoPan", &AudioSource::stereoPan)
+		.property("spatialBlend", &AudioSource::spatialBlend)
+		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("spread", &AudioSource::spread)
+		.property("minDistance", &AudioSource::minDistance)
+		.property("maxDistance", &AudioSource::maxDistance)
+		.property("priority", &AudioSource::priority)
+		.property("playOnAwake", &AudioSource::playOnAwake)
+		.property("volumeRollOff", &AudioSource::volumeRollOff)
+		.property("minInterval", &AudioSource::minInterval)
+		.property("_playTrigger", &AudioSource::_playTrigger)
 		.property("playPreview", &AudioSource::playPreview);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())

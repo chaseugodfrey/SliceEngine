@@ -34,6 +34,8 @@ namespace SliceEditor
 	
 
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min = 0, int max = 0);
+	
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0);
 
 	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
 	
@@ -47,6 +49,8 @@ namespace SliceEditor
 
 	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
 	
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "%.3f", int min = 0, int max = 0);
+	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
 	
 	bool StringInput(Registry& reg, const char* id, std::string& val);
@@ -58,8 +62,9 @@ namespace SliceEditor
 
 	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
 
+	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 
-	bool DragColorInputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
+	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& color);
 
 	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler);
 	/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
