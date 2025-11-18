@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
 
 namespace SliceEngine
@@ -363,6 +364,43 @@ namespace SliceEngine
 		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
 	}
 
+	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			SLICE_LOG_ERROR("Entity does not have script attached");
+			return nullptr;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			return gScriptSystem->mEntityInstances[(Entity)entityID]->GetInstance();
+		}
+
+
+		return nullptr;
+	}
+
+	static bool HasScriptInstance(unsigned int entityID, MonoString* baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			//CM_CORE_ERROR("Entity does not have script attached");
+			return false;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+				return true;
+		}
+
+		return false;
+	}
+
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
 	//{
 	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
@@ -554,6 +592,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
+		ADD_INTERNAL_CALL(GetScriptInstance);
+		ADD_INTERNAL_CALL(HasScriptInstance);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
