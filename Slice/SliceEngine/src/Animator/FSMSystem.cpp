@@ -16,12 +16,18 @@ namespace SliceEngine
 			if (anim_pkg.animations.size() != 0)
 			{
 				EFSM.stateMap.reserve(anim_pkg.animations.size());
-
 				std::string anim_name;
 				SliceEngineTypes::State tmpState;
 
 				for (unsigned int i = 0; i < anim_pkg.animations.size(); i++)
 				{
+					if (EFSM.stateMap.contains(anim_pkg.animations[i].name))
+					{
+						EFSM.stateMap[anim_pkg.animations[i].name].curr_anim_idx = i;
+						EFSM.stateMap[anim_pkg.animations[i].name].animationTime = anim_pkg.animations[i].duration;
+						continue;
+					}
+
 					anim_name  = anim_pkg.animations[i].name;
 					if (anim_name.empty())
 					{
@@ -164,6 +170,7 @@ namespace SliceEngine
 		if (!EFSM.currState) return;
 
 		EFSM.parameters[name] = value;
+
 		for (auto& [key, var] : EFSM.parameters)
 		{
 			if(value)

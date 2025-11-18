@@ -83,15 +83,14 @@ namespace SliceEngine
 				else
 				{
 					animator.current_time += dt;
-
+					animator.stateMachine.UpdateCurrentTime(animator.current_time);
 					if (animator.current_time > anim.duration)
 					{
 
-						if (!animator.timeline.isLoop)
+						if (!animator.stateMachine.EFSM.currState->isLoop)
 						{
 							animator.timeline.isPlaying = false;
 							animator.current_time = 0.0f;
-							animator.stateMachine.UpdateCurrentTime(animator.current_time);
 
 							return;
 						}
@@ -101,22 +100,11 @@ namespace SliceEngine
 							animator.current_time = std::fmod(animator.current_time, anim.duration);
 						}
 					}
-					//while (animator.current_time > anim.duration) 
-					//{
-					//	animator.current_time -= anim.duration;
-					//	//animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-					//	if (anim.duration <= 0.f) 
-					//	{
-					//		return;
-					//	}
-					//}
-
 
 				}
 				//anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
-				animator.stateMachine.UpdateCurrentTime(animator.current_time);
 			}
 			//non bone animation
 			else {
