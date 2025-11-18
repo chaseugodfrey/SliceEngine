@@ -21,6 +21,7 @@ namespace SliceEngine
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
+
         }
 
         public override void OnUpdate(float dt)
