@@ -293,6 +293,9 @@ namespace SliceEditor
 			{
 				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
 				std::string newID = std::string(id) + elementNo_String + std::to_string(i);
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
 				changed |= ImGui::DragFloat(newID.c_str(), &entry,0.1f,min,max,format, ImGuiSliderFlags_AlwaysClamp);
 			
 				if (changed)
