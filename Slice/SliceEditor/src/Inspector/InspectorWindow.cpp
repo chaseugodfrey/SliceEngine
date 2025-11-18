@@ -149,10 +149,12 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
 
-			glm::vec3 rgb;
-			rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
-			DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
-			sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
+			//glm::vec3 rgb;
+			//rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
+			//DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
+
+			DragColor4InputHeader(mRegistry, "Color", "##uicolor", sprite.rgba);
+			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 
 			ImGui::Text("Image");
 			ImGui::SameLine(150.0f);
@@ -980,11 +982,13 @@ namespace SliceEditor
 				DisplayRectTransform(node->entity);
 				ImGui::Separator();
 			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
 				ImGui::Separator();
 			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Camera>(entity))
 			{
 				DisplayCamera(node->entity);
