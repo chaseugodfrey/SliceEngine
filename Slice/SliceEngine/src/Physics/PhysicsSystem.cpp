@@ -67,7 +67,7 @@ namespace SliceEngine
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
-			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
+			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
 			objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
 
 			physicsSystem = std::make_unique<JPH::PhysicsSystem>();
@@ -231,9 +231,9 @@ namespace SliceEngine
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionMask)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionMask);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -895,11 +895,11 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, transform.collisionMask);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, transform.collisionMask);
 			}
 
 			//Set physics properties
@@ -922,7 +922,7 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, transform.collisionMask);
 			//bodySettings.mFriction = 0.6f;
 		}
 
