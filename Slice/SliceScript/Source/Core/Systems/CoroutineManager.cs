@@ -7,15 +7,23 @@ namespace SliceEngine
 {
     public class CoroutineManager
     {
-        private class Coroutine
+        public class Coroutine
         {
             public IEnumerator Enumerator;
             public SliceBehaviour Owner;
-            public object CurrentYield;
+            public object CurrentYield = null;
         }   
 
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
+
+        public static void StartCoroutine(Coroutine coroutine)
+        {
+            if (coroutine.Enumerator == null || coroutine.Owner == null)
+                return;
+
+            newCoroutines.Add(coroutine);
+        }
 
         public static void StartCoroutine(IEnumerator routine, SliceBehaviour owner)
         {
@@ -28,6 +36,18 @@ namespace SliceEngine
                 Owner = owner,
                 CurrentYield = null
             });
+        }
+
+        public static void StopCoroutine(Coroutine coroutine)
+        {
+            coroutines.RemoveAll(c => c == coroutine);
+            newCoroutines.RemoveAll(c => c == coroutine);
+        }
+
+        public static void StopCoroutine(IEnumerator routine, SliceBehaviour owner)
+        {
+            coroutines.RemoveAll(c => c.Enumerator == routine && c.Owner == owner);
+            newCoroutines.RemoveAll(c => c.Enumerator == routine && c.Owner == owner);
         }
 
         public static void StopAllCoroutines(SliceBehaviour owner = null)
