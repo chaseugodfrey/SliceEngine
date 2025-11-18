@@ -168,7 +168,7 @@ namespace SliceEditor
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG | SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG | SliceEngine::RENDER_TAG::DEBUG_GRID_TAG;
+		camObj->camera.renderTag = SliceEngine::RENDER_TAG::RENDER_TAG_ALL;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
