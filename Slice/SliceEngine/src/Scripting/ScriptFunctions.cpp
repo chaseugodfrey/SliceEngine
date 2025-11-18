@@ -185,6 +185,7 @@ namespace SliceEngine
 
 #pragma region AUDIO FUNCTIONS
 
+	//Return a filepath
 	static MonoString* Audio_GetSoundName(unsigned int entity)
 	{
 		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
@@ -350,17 +351,6 @@ namespace SliceEngine
 	{
 		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->isMute;
 		return false;
-	}
-
-	static void Audio_CreateSoundGroup(std::string soundGroupName, int maxInstances)
-	{
-		Core::GetInstance()->GetAudioManager()->CreateSoundGroup(soundGroupName, maxInstances);
-	}
-
-	static void Audio_SetSoundGroup(std::string soundGUIDName, std::string soundGroupName)
-	{
-		GUID soundGUID = SliceEngine::GUID::FromString(soundGUIDName);
-		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
 	}
 
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)

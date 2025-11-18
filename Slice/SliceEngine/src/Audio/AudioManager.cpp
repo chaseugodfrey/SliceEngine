@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+#pragma region AUDIO MANAGER
 	/*
 	* Init initialises and creates the FMOD System
 	*/
@@ -265,53 +266,7 @@ namespace SliceEngine
 		channel->setVolume(volume);
 	}
 
-	void AudioManager::CreateSoundGroup(std::string& soundGroupName, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
-	{
-		if (mSoundGroups.find(soundGroupName) != mSoundGroups.end())
-		{
-			SLICE_LOG_ERROR("Sound Group already exists");
-			return;
-		}
 
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		FMOD_RESULT result = mSoundSystem->createSoundGroup(soundGroupName.c_str(), &soundGroup);
-
-		if (result == FMOD_OK)
-		{
-			soundGroup->setMaxAudible(maxInstances);
-			soundGroup->setMaxAudibleBehavior(behaviour);
-			mSoundGroups.emplace(soundGroupName, soundGroup);
-
-		}
-	}
-
-	void AudioManager::SetSoundGroup(GUID soundGUID, std::string soundGroupName)
-	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundGUID).get();
-
-		if (!audioClip->GetSound())
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: Audio clip has no FMOD::Sound.");
-			return;
-		}
-
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		auto it = mSoundGroups.find(soundGroupName);
-
-		if (it != mSoundGroups.end())
-		{
-			soundGroup = it->second;
-		}
-		else
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: SoundGroup '%s' not found.", soundGroupName.c_str());
-			mSoundSystem->getMasterSoundGroup(&soundGroup);
-		}
-
-		audioClip->GetSound()->setSoundGroup(soundGroup);
-	}
 
 	void AudioManager::SetSpatialBlend(FMOD::Channel* channel, float blend)
 	{
@@ -612,4 +567,78 @@ namespace SliceEngine
 		}
 		SLICE_LOG("Shutting down FMOD Studio.");
 	}
+#pragma endregion
+
+#pragma region AUDIO_ORGANISER
+
+	//static nlohmann::json ToJson(const )
+
+	void AudioOrganiser::Init(FMOD::System* system)
+	{
+		mSystem = system;
+	}
+
+	void AudioOrganiser::Exit()
+	{
+		mSystem = nullptr;
+	}
+
+	void AudioOrganiser::CreateSoundGroup(const std::string& key)
+	{
+		auto it = mSFXMap.find(key);
+
+		SFXEntry entryData{};
+
+		entryData.key = key;
+
+		if (it == mSFXMap.end())
+		{
+			FMOD::SoundGroup* soundGroup = nullptr;
+			FMOD_RESULT soundGroupCreation = mSystem->createSoundGroup(key.c_str(), &soundGroup);
+
+			FMOD_RESULT userDataSet = soundGroup->setUserData(&entryData);
+			if (userDataSet == FMOD_OK && soundGroupCreation == FMOD_OK)
+			{
+
+				SLICE_LOG("Sound Group and Sound Group data has been created and set");
+				mSFXMap.emplace(key, soundGroup);
+			}
+
+			//->createSoundGroup(key.c_str(), soundGroup);
+		}
+	}
+
+	void AudioOrganiser::SetSoundGroup(std::string soundName, const std::string& key)
+	{
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+
+		if (audioClip->GetSound() == nullptr)
+		{
+			SLICE_LOG_ERROR("SetSoundGroup: Audio clip or FMOD::Sound is null.");
+			return;
+		}
+
+		FMOD::SoundGroup* soundGroup = GetSoundGroup(key);
+
+		audioClip->GetSound()->setSoundGroup(soundGroup);
+	}
+
+	FMOD::SoundGroup* AudioOrganiser::GetSoundGroup(const std::string& key)
+	{
+		auto it = mSFXMap.find(key);
+
+		if (it != mSFXMap.end())
+		{
+			return it->second;
+		}
+
+		return nullptr;
+	}
+
+	
+
+
+
+	
+#pragma endregion
 }

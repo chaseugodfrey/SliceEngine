@@ -153,7 +153,7 @@ namespace SliceEngine
 	void Engine::SceneInit()
 	{
 		LoadProjectSettings();
-
+		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
 	void Engine::Update()
@@ -383,13 +383,12 @@ namespace SliceEngine
 			{
 				std::filesystem::path sceneFilePath(sceneToLoad);
 				auto path = sResourceManager->GetResourcePath(sceneFilePath.stem().string());
-
+				//To move out in future
 				if (path.has_value())
 				{
 					SLICE_LOG("Scene File Path" + path.value().string());
 					sScene->SetDefaultScenePath(sceneFilePath);
-					sScene->LoadScene(sceneFilePath);
-					sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+					
 				}
 				
 				//sScene->LoadScene(sceneToLoad); // for now by filepath

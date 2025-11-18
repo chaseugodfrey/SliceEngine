@@ -131,7 +131,7 @@ namespace SliceEditor
 						{
 							audioFilename = audioGUID_string;
 						}
-						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
+						ImGui::InputText("##audioFile", &audioFilename, ImGuiInputTextFlags_ReadOnly);
 
 						if (ImGui::BeginDragDropTarget())
 						{

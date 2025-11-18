@@ -27,7 +27,42 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	struct SFXEntry
+	{
+		std::string key = "Default";
+		std::vector<GUID> AudioClips;
+		float volume = 1.0f;
+		int maxInstances = 8;
+		bool isSpatial = false;
+		float spatialBlend = 1.0f;
+		float minDistance = 1.0f;
+		float maxDistance = 30.0f;
+		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Logarithmic;
+		float _lastPlayed = -999.f;
+		float minInterval = 0.f;
+	};
 
+	class AudioOrganiser
+	{
+		FMOD::System* mSystem = nullptr;
+		//std::vector<SFXEntry> mSfxMap;
+	public:
+		std::unordered_map<std::string, FMOD::SoundGroup*> mSFXMap;
+		void Init(FMOD::System* system);
+		void Exit();
+		void CreateSoundGroup(const std::string& key);
+		void SetSoundGroup(std::string soundName, const std::string& key);
+		FMOD::SoundGroup* GetSoundGroup(const std::string& key);
+		void SetSoundGroupVolume();
+		const float GetSoundGroupVolume();
+		void SetMaxInstances();
+		const int GetMaxInstances();
+		void SetMinIntervals();
+		void SetSoundGroupSpatialBlend();
+		const float GetSoundGroupSpatialBlend();
+		void PlaySFX();
+		void Release();
+	};
 	
 
 	class AudioManager
@@ -41,8 +76,8 @@ namespace SliceEngine
 		FMOD::ChannelGroup* bgm;
 		FMOD::ChannelGroup* ui;
 		FMOD::ChannelGroup* editorSounds;
-
-		std::unordered_map<std::string, FMOD::SoundGroup*> mSoundGroups;
+		
+		//std::unordered_map<std::string, FMOD::SoundGroup*> mSoundGroups;
 		
 		const int MAX_CHANNELS = 256;
 
@@ -137,16 +172,6 @@ namespace SliceEngine
 
 		void SetChannelVolume(FMOD::Channel* channel, float volume);
 
-		void CreateSoundGroup(std::string& soundGroupName, int maxInstances = -1, FMOD_SOUNDGROUP_BEHAVIOR behaviour = FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
-
-		void SetSoundGroup(GUID soundGUID, std::string soundGroupName);
-
-		void GetSoundGroup();
-
-		void SetMaxInstancesOfSoundGroup();
-
-		void GetMaxInstancesOfSoundGroup();
-
 		void SetSpatialBlend(FMOD::Channel* channel, float blend);
 
 		float GetSpatialBlend(FMOD::Channel* channel);
@@ -180,6 +205,7 @@ namespace SliceEngine
 		 * @brief Stops all sounds in the specified internal sound group.
 		 */
 		void StopAllSound();
+
 
 		/** @brief Removes any stopped or invalid sounds from memory. */
 		//void CleanUpStoppedSounds();

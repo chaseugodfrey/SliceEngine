@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "SoundSystem.h"
 #include "../Audio/AudioManager.h"
 #include "Systems/SceneSystem.h"
+#include "Physics/PhysicsSystem.h"
 
 
 namespace SliceEngine
@@ -66,6 +67,7 @@ namespace SliceEngine
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
+		glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
 
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -99,12 +101,12 @@ namespace SliceEngine
 			if (audioComp.channel && sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 			{
 				
-				audioManager->SetSound3DPosition(audioComp.channel,audioComp.spatialBlend, transform.position, glm::vec3{0.f});
+				audioManager->SetSound3DPosition(audioComp.channel,audioComp.spatialBlend, transform.position, entityVel);
 
 			}
 			else if (audioComp.previewChannel && sceneSystem->mCurrentState == SceneState::DEFAULT)
 			{
-				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, glm::vec3{ 0.f });
+				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, entityVel);
 			}
 
 		}
