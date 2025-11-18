@@ -36,6 +36,18 @@ namespace SliceEngine
                 enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
             }
 
+            if (player.Has<Player>())
+            {
+                Player playerComp = player.As<Player>();
+                SliceLog.Log(playerComp.direction.ToString());
+            }
+
+            if (playerT.gameObject.Has<Player>())
+            {
+                Player playerComp = playerT.gameObject.As<Player>();
+                SliceLog.Log(playerComp.direction.ToString());
+            }
+
         }
 
         public override void OnCollideEnter(uint other)

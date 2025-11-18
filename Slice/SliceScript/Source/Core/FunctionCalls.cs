@@ -116,9 +116,15 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static object GetScriptInstance(uint entityID, string baseClassName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool HasScriptInstance(uint entityID, string baseClassName);
+
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //internal extern static void Load_Scene(Scene scene);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetBool(uint entity, string parameter, bool val);
         
