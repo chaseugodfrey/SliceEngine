@@ -231,9 +231,9 @@ namespace SliceEngine
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionMask)
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionMask);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -895,11 +895,11 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, transform.collisionMask);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, transform.collisionLayer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, transform.collisionMask);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, transform.collisionLayer);
 			}
 
 			//Set physics properties
@@ -922,7 +922,7 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, transform.collisionMask);
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, transform.collisionLayer);
 			//bodySettings.mFriction = 0.6f;
 		}
 

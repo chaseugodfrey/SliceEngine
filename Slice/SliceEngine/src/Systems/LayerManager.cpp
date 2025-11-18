@@ -9,6 +9,9 @@ namespace SliceEngine
 		// intialize or deserialie any layer stuff here
 
 		// jus 3 for now
+		AddLayer("Default");
+		AddLayer("Ignore Raycast");
+		AddLayer("UI");
 		AddLayer("Player");
 		AddLayer("Environment");
 		AddLayer("Enemies");

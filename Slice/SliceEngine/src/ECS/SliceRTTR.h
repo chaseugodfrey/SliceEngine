@@ -130,7 +130,8 @@ namespace SliceEngine
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
 		.property("euler_hint", &Transform::eulerAnglesHint)
-		.property("collisionMask", &Transform::collisionMask);
+		.property("collisionMask", &Transform::collisionMask)
+		.property("collisionLayer", &Transform::collisionLayer);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
