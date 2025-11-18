@@ -307,7 +307,7 @@ namespace SliceEngine
 
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.position += p.velocity * dt;
+		p.position += p.velocity * ps.speed * dt;
 	}
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
