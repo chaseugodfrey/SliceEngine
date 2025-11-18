@@ -59,6 +59,10 @@ namespace SliceEngine {
 		glDisable(GL_DEPTH_TEST);
 		CheckGLError();
 
+		glEnable(GL_BLEND);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
+		CheckGLError();
+
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<canvasEntity>();
 
@@ -86,6 +90,8 @@ namespace SliceEngine {
 			//draw
 			render_ui_overlay(entity, entities_to_draw);
 		}
+
+		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
 	}
 
 	void CanvasSystem::render_ui_overlay(Entity canvas, std::vector<std::pair<Entity, GUID>> const& elements) {
@@ -129,12 +135,12 @@ namespace SliceEngine {
 
 
 
-
+		auto const& rm = Core::GetInstance()->GetResourceManager();
 		//currently locked target width/height
 		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / target_width, 2.f / target_height, 1.f });
 
 		GUID shader_guid = elements[0].second;
-		GLuint shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
+		GLuint shader = rm->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
 		glUseProgram(shader);
 		CheckGLError();
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
@@ -144,7 +150,7 @@ namespace SliceEngine {
 		for (auto const& element : elements) {
 			if (element.second != shader_guid) {
 				shader_guid = element.second;
-				shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
+				shader = rm->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
 				glUseProgram(shader);
 				int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
@@ -159,8 +165,9 @@ namespace SliceEngine {
 
 			if (shader_guid == (GUID)15255338910698563845) {	//sprite
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
-				auto id = sprite.textureHandle.get()->texture_id;
-				glBindTextureUnit(0, sprite.textureHandle.get()->texture_id);
+				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle.mGUID);
+				//auto id = sprite.textureHandle.get()->texture_id;
+				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
 				CheckGLError();

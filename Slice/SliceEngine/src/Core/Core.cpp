@@ -70,6 +70,10 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Animator>();
 		mFactory.RegisterComponent<Bone>();
 
+		mFactory.RegisterComponent<RectTransform>();
+		mFactory.RegisterComponent<Canvas>();
+		mFactory.RegisterComponent<SpriteRenderer>();
+
 
 		mResource->InitResourceManager();
 		mLayerManager->Init();

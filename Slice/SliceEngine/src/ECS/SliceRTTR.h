@@ -225,6 +225,24 @@ namespace SliceEngine
 			rttr::value("Point", Light::LightType::Light_Point),
 			rttr::value("Spot", Light::LightType::Light_Spot)
 		);
+	rttr::registration::enumeration<RectTransform::HoriPivot>("HoriPivot")
+		(
+			rttr::value("Left", RectTransform::HoriPivot::LEFT),
+			rttr::value("Center", RectTransform::HoriPivot::CENTER),
+			rttr::value("Right", RectTransform::HoriPivot::RIGHT),
+			rttr::value("Stretch", RectTransform::HoriPivot::STRETCH_H)
+			);
+	rttr::registration::enumeration<RectTransform::VertPivot>("VertPivot")
+		(
+			rttr::value("Top", RectTransform::VertPivot::TOP),
+			rttr::value("Middle", RectTransform::VertPivot::MIDDLE),
+			rttr::value("Bottom", RectTransform::VertPivot::BOTTOM),
+			rttr::value("Stretch", RectTransform::VertPivot::STRETCH_V)
+			);
+	rttr::registration::enumeration<Canvas::Type>("CanvasType")
+		(
+			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
 		.property("type", &Light::type)
