@@ -152,10 +152,10 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val)
+	bool StringInput(Registry& reg, const char* id, std::string& val, ImGuiInputTextFlags flags)
 	{
 		static std::string oldVal{};
-		bool changed = ImGui::InputText(id, &val);
+		bool changed = ImGui::InputText(id, &val,flags);
 
 		if (ImGui::IsItemActivated())
 		{
@@ -224,12 +224,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, ImGuiInputTextFlags flags)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val) || changed;
+		changed = StringInput(reg, id, val,flags) || changed;
 
 		return changed;
 	}
@@ -258,13 +258,36 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val)
+	{
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		static bool oldVal{};
+
+		bool changed = ImGui::Checkbox(id, &val);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (oldVal != val)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<bool>> command = std::make_unique<ScriptFieldSetterCommand<bool>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static int oldVal{};
 
-		bool changed = ImGui::DragInt(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format,ImGuiSliderFlags_AlwaysClamp);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;

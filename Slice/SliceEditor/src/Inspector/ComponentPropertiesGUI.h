@@ -46,19 +46,21 @@ namespace SliceEditor
 	
 	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
-	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
+	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 	
 	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "%.3f", int min = 0, int max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
 	
-	bool StringInput(Registry& reg, const char* id, std::string& val);
+	bool StringInput(Registry& reg, const char* id, std::string& val, ImGuiInputTextFlags flags = 0);
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val);
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, ImGuiInputTextFlags flags = 0);
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
+	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val);
+
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 
 	bool DragFloatListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 

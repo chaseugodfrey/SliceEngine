@@ -341,11 +341,11 @@ namespace SliceEditor
 				script_name = "(Empty)";
 
 			// Script Name
-
-			ImGui::Text("Script Class: ");
+			StringInputHeader(mRegistry, "Script Class: ", "##scriptClass", script_name, ImGuiInputTextFlags_ReadOnly);
+			/*ImGui::Text("Script Class: ");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);*/
 
 			ImGui::Separator();
 
@@ -459,11 +459,15 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-							//Script Display for Bool (NO UNDO/REDO YET)
+							//Script Display for Bool
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
 								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-								if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								std::function<void(std::string, bool)> func = [sp = scriptRef](std::string name, bool val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
