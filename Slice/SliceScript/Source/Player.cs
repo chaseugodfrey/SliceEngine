@@ -15,6 +15,7 @@ namespace SliceEngine
         public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+        static bool testingShit = false;
 
         public override void OnCreate()
         {
@@ -28,7 +29,13 @@ namespace SliceEngine
             //Vector3 right = Vector3.Cross(up, direction).Normalize();
             float rotationSpeedFrame = rotationSpeed * dt;
 
+            
 
+            if (testingShit == false)
+            {
+                CloneGO("GameObject_2");
+                testingShit = true;
+            }
             // Forwards
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {

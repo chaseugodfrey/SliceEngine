@@ -183,6 +183,13 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Game);
 				sInputs->SetEnabled(true);
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
+				
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
@@ -191,12 +198,6 @@ namespace SliceEngine
 
 				}
 
-				if (sScene->mCurrentState == SceneState::DEFAULT)
-				{
-					
-					sScene->WriteTempFile();
-
-				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 

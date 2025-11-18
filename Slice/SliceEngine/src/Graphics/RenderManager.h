@@ -54,7 +54,9 @@ namespace SliceEngine
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderLighting(Entity cam);
 		void RenderAfterLighting(Entity cam);
-		void RenderBloom();
+		void RenderFog(Entity cam);
+		void RenderBloom(Entity cam);
+		void RenderVignette(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
@@ -115,9 +117,12 @@ namespace SliceEngine
 			S_FINAL			= 9302529766740298710,
 			S_INSTANCED		= 17697828682138082227,
 			S_DEBUG_LINE	= 13567802095736790143,
+			S_FOG			= 10740115564374233650,
 			S_BLOOM_SPLIT	= 12702531725689492235,
 			S_DOWNSCALING	= 9611694325200796232,
-			S_UPSCALING		= 17037775471000192005
+			S_UPSCALING		= 17037775471000192005,
+			S_BLOOM_JOIN	= 11454882705531309873,
+			S_VIGNETTE		= 15557538937295862472
 		};
 		enum GPU_OUT : unsigned char
 		{
@@ -174,6 +179,7 @@ namespace SliceEngine
 		std::vector<InstanceData> mInstanceVtx;
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
+		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;
@@ -184,6 +190,7 @@ namespace SliceEngine
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
+		void ToggleFinalTexture();
 
 		void IDPick();
 	};

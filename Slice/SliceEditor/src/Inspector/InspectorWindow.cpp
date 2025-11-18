@@ -56,10 +56,11 @@ namespace SliceEditor
 			{
 				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
 			}
-
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
+			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
+			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			break;
 		}
 
 		ImGui::End();
@@ -778,6 +779,8 @@ namespace SliceEditor
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
+
+			ImGui::TreePop();
 		}
 	}
 
