@@ -50,7 +50,10 @@ namespace SliceEngine
 	{
 		// same as before, keep track o the actual type in teh field
 		ScriptFieldType mType{ ScriptFieldType::None };
-		ScriptFieldType mElementType{ ScriptFieldType::None };
+
+		// Keep track if it is a list or array
+		ScriptFieldType mContainerType{ ScriptFieldType::None };
+
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
 
@@ -427,8 +430,8 @@ namespace SliceEngine
 		{
 			if (mono_domain_get() != gScriptSystem->mAppDomain)
 			{
-				mono_thread_attach(gScriptSystem->mRootDomain); 
-				mono_domain_set(gScriptSystem->mAppDomain, false); 
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
 
 			const ScriptField& field = mScriptClass->mFields.at(name);
@@ -522,7 +525,7 @@ namespace SliceEngine
 				mono_thread_attach(gScriptSystem->mRootDomain);
 				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
-			
+
 			// get the script field
 			const ScriptField& field = mScriptClass->mFields.at(name);
 
