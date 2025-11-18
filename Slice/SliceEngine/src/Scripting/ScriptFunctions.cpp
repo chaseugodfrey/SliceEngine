@@ -533,9 +533,9 @@ namespace SliceEngine
 		mGameObjectHasComponentFuncs.clear();
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
-		RegisterComponent< Animator>();
+		RegisterComponent<Animator>();
 		//RegisterComponent<Collider2D>();
-		//RegisterComponent<RigidBody>();
+		RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
