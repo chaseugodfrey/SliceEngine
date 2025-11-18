@@ -236,6 +236,7 @@ namespace SliceEngine
 								glm::quat,
 								std::string,
 								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData
@@ -467,6 +468,7 @@ namespace SliceEngine
 						glm::quat,
 						std::string,
 						std::unordered_map<std::string, rttr::variant>,
+						JPH::Vec3,
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData
@@ -523,6 +525,7 @@ namespace SliceEngine
 							glm::quat,
 							std::string,
 							std::unordered_map<std::string, rttr::variant>,
+							JPH::Vec3,
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData

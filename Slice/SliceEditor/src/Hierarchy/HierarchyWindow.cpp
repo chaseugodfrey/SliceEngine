@@ -208,7 +208,7 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
 			ImGui::EndDragDropTarget();
@@ -235,7 +235,7 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
-				EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"));
+				EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
 				ImGui::EndMenu();
 			}
 

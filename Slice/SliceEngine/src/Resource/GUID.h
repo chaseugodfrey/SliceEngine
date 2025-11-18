@@ -58,12 +58,18 @@ namespace SliceEngine
 			return GUID(0);
 		}
 
+		std::string toString()
+		{
+			return std::to_string(this->mValue);
+		}
+
 		uint64_t GetGUID() const { return mValue; }
 
 	private:
 		uint64_t mValue;
 	};
 }
+
 
 template<>
 struct std::hash<SliceEngine::GUID>

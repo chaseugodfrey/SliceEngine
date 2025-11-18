@@ -659,7 +659,17 @@ namespace entt
 		j = static_cast<uint32_t>(e);
 	}
 }
-
+namespace JPH
+{
+	inline void from_json(const json& j, JPH::Vec3& v) {
+		v.SetX(j.at(0).get<float>());
+		v.SetY(j.at(1).get<float>());
+		v.SetZ(j.at(2).get<float>());
+	}
+	inline void to_json(json& j, const JPH::Vec3& v) {
+		j = json::array({ v.GetX(), v.GetY(), v.GetZ() });
+	}
+}
 
 namespace rttr
 {

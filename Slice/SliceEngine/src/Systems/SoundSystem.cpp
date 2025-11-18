@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "SoundSystem.h"
 #include "../Audio/AudioManager.h"
+#include "Systems/SceneSystem.h"
 
 
 namespace SliceEngine
@@ -53,7 +54,7 @@ namespace SliceEngine
 		}
 		else if (audioManager->IsChannelPlaying(audioComp.previewChannel))
 		{
-			audioManager->StopEditorPreview(audioComp.previewChannel);
+			audioManager->StopSound(audioComp.previewChannel);
 		}
 
 		std::cout << "Entity exiting sound system" << std::endl;
@@ -62,10 +63,51 @@ namespace SliceEngine
 	void SoundSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 
-		audioManager->SetSound3DPosition(audioComp.channel,audioComp.is3D, transform.position, glm::vec3{0.f});
+		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			if (audioComp.previewChannel && audioComp.playPreview == true)
+			{
+				audioComp.playPreview = false;
+				audioManager->StopSound(audioComp.previewChannel);
+
+			}
+		}
+
+		if (sceneSystem->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			if (audioComp.channel)
+			{
+				audioComp.isPaused = true;
+				audioManager->SetPauseState(audioComp.channel, audioComp.isPaused);
+			}
+		}
+
+		if (sceneSystem->mNextState == SceneState::STOP_SCENE)
+		{
+			if (audioComp.channel)
+			{
+				audioManager->StopSound(audioComp.channel);
+			}
+		}
+
+		if (audioComp.spatialBlend > 0.0f)
+		{
+			if (audioComp.channel && sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+			{
+				
+				audioManager->SetSound3DPosition(audioComp.channel,audioComp.spatialBlend, transform.position, glm::vec3{0.f});
+
+			}
+			else if (audioComp.previewChannel && sceneSystem->mCurrentState == SceneState::DEFAULT)
+			{
+				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, glm::vec3{ 0.f });
+			}
+
+		}
 		
 	}
 
@@ -73,34 +115,12 @@ namespace SliceEngine
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-		auto& transform = reg.get<Transform>(entity);
 
 
 		
 		if (audioComp.channel != nullptr)
 		{
-
-			if (audioComp.currentVolume != audioManager->GetChannelVolume(audioComp.channel))
-			{
-				
-				audioManager->SetChannelVolume(audioComp.channel, audioComp.currentVolume);
-			
-			}
-
-			if (audioComp.isPaused != audioManager->GetPauseState(audioComp.channel))
-			{
-				audioManager->UpdatePauseSound(audioComp.channel, audioComp.isPaused);
-			}
-
-			if (audioComp.is3D != audioManager->IsFMOD3D(audioComp.channel))
-			{
-				audioManager->UpdateFMODMode(audioComp.channel, audioComp.is3D);
-				if (audioComp.is3D)
-				{
-					audioManager->SetSound3DPosition(audioComp.channel, audioComp.is3D, transform.position, glm::vec3{ 0.f, 0.f, 0.f });
-				}
-			}
-
+			audioManager->UpdateChannelFromComponent(audioComp.channel, audioComp);
 		}
 
 		
@@ -110,23 +130,17 @@ namespace SliceEngine
 		if (audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
 		{
 			
-			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp.soundGUID, audioComp.is3D);
+			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp);
   			
 			
 
 		}
 		else if(audioComp.playPreview == false && audioManager->IsChannelPlaying(audioComp.previewChannel) == true)
 		{
-			/*if (audioManager->IsPreviewChannelPlaying(entity))
-			{
-				audioManager->StopEditorPreview(entity);
-				
-			}*/
 
-			audioManager->StopEditorPreview(audioComp.previewChannel);
+			audioManager->StopSound(audioComp.previewChannel);
 			
 		}
-		
 	}
 
 }

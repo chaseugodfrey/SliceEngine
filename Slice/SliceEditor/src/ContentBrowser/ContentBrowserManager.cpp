@@ -199,7 +199,7 @@ namespace SliceEditor
 				if (registry.GetAssetManager().mFilenameToGUID.find(stem) != registry.GetAssetManager().mFilenameToGUID.end())
 				{
 					SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
-					EditorUtilities::GameObject_CreatePrefab(entt::null, guid, registry.GetManager<HistoryManager>("History"));
+					EditorUtilities::GameObject_CreatePrefab(guid, entt::null, registry.GetManager<HistoryManager>("History"));
 				}
 				else
 				{
