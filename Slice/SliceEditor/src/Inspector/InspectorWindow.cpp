@@ -412,7 +412,7 @@ namespace SliceEditor
 									};
 
 								//Display Function Here
-								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetArrayFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -426,7 +426,7 @@ namespace SliceEditor
 										sp->SetArrayFieldValue(name, val);
 									};
 								//Display Function Here
-								if (DragFloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragFloatArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetArrayFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -441,7 +441,7 @@ namespace SliceEditor
 										sp->SetArrayFieldValue(name, val);
 									};
 								//Display Function Here
-								if (DragIntListScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragIntArrayScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetArrayFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);

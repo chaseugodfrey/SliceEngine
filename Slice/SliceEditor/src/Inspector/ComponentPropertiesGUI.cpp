@@ -327,7 +327,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragFloatListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format, float min, float max)
+	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format, float min, float max)
 	{
 		static std::string elementNo_String =  "Element ";
 		static std::vector<float> oldList{};
@@ -374,7 +374,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format, int min, int max)
+	bool DragIntArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format, int min, int max)
 	{
 		static std::string elementNo_String =  "Element ";
 		static std::vector<int> oldList{};
@@ -421,7 +421,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list)
+	bool StringArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<std::string > oldList{};
