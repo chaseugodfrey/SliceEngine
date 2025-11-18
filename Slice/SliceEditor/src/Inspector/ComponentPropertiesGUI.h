@@ -56,6 +56,8 @@ namespace SliceEditor
 
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, ImGuiInputTextFlags flags = 0);
 
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
+
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
 	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val);

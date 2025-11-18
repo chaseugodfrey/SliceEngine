@@ -473,15 +473,16 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-							//Script Display for String (NO UNDO/REDO YET)
+							//Script Display for String (UNDO/REDO SORTA WORKS)
 							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
-								/*char buffer[128];
-								std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
-								buffer[sizeof(str)] = '\0';*/
+								std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
+									{
+										sp->SetFieldValue(name, val);
+									};
 
-								if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);

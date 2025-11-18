@@ -11,11 +11,13 @@ namespace SliceEngine
         public bool boolTest = false;
         public int intTest = 2;
         public float floatTest =  5.0f;
+        public string testString = "Test";
         public override void OnUpdate(float dt)
         {
             SliceLog.Log("Bool: " + boolTest);
             SliceLog.Log("Int: " + intTest);
             SliceLog.Log("Float: " + floatTest);
+            SliceLog.Log(testString);
         }
     }
 }
