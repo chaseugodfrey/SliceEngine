@@ -107,7 +107,13 @@ namespace SliceEngine
 	{
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
-		DEBUG_GRID_TAG		= 0x04
+		DEBUG_GRID_TAG		= 0x04,
+		DEBUG_NAVMESH_TAG	= 0x08,
+		DEBUG_ALL_DEBUG		= 0x0F,
+		RENDER_FOG			= 0x10,
+		RENDER_BLUR			= 0x20,
+		RENDER_BLOOM		= 0x40,
+		RENDER_VIGNETTE		= 0x80
 	};
 
 	struct Renderer
@@ -128,10 +134,16 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width{}, height{};
-		float pov{}, near{}, far{};// Pov is the angle of y of the screen
+		int width{ 1920 }, height{ 1080 };
+		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag{};
+		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
+		glm::vec3 fogColor{};
+		float fogIntensity{ 0.04f };
+		float bloomFilterRadius{0.005f};
+		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
+		float vignetteIntensity{ 0.3f };
+		float vignetteSmoothness{ 0.7f };
 
 		RTTR_ENABLE();
 	};

@@ -54,7 +54,9 @@ namespace SliceEngine
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderLighting(Entity cam);
 		void RenderAfterLighting(Entity cam);
-		void RenderBloom();
+		void RenderFog();
+		void RenderBloom(Entity cam);
+		void RenderVignette();
 		void RenderGammaCorrection(Entity cam);
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
@@ -174,6 +176,7 @@ namespace SliceEngine
 		std::vector<InstanceData> mInstanceVtx;
 
 		GLuint mColAttachment[GOUT_TOTAL]{};
+		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;

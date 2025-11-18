@@ -32,7 +32,6 @@ DigiPen Institute of Technology is prohibited.
 // My Comments to (Ctrl + f): -TODO- MAYDO:
 // -TODO- Currently not using mat in the InstanceData struct (original intention is to keep track of which textures to use)
 // -TODO- Make Gather Render Commands, and then draw using these commands instead lol
-#define IS_USE_BLOOM true
 
 namespace SliceEngine
 {
@@ -208,6 +207,8 @@ namespace SliceEngine
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
+			mCurrFinalColAttachment = GOUT_FINAL;
+
 			CalculateVP(cam);
 			SetShader(S_SHADOW);
 			LinkFrameBufferSettings(FB_NIL, 0);
@@ -226,7 +227,7 @@ namespace SliceEngine
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, true);
 
 			SetShader(S_LIGHTING);
-			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_FINAL]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
@@ -239,15 +240,20 @@ namespace SliceEngine
 			LoadSettings(GPS_PARTICLES);
 			RenderAfterLighting(cam);
 			
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
 				RenderDebug(cam);
 			}
-			LoadSettings(GPS_DEFAULT);
-			if (IS_USE_BLOOM)
-				RenderBloom();
+			// Post Processings
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_FOG)
+				RenderFog();
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_BLOOM)
+				RenderBloom(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_VIGNETTE)
+				RenderVignette();
 
+			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
 		
@@ -363,7 +369,7 @@ namespace SliceEngine
 		}
 
 		// Draw Recast Navigation Data
-		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_NAVMESH_TAG)
 		{
 			SetShader(S_BASIC);
 			UpdateCamVP();
@@ -557,12 +563,17 @@ namespace SliceEngine
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
 		}
 	}
-	void RenderManager::RenderBloom()
+	void RenderManager::RenderFog()
 	{
+	}
+	void RenderManager::RenderBloom(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
 		// Extract the Bright
 		SetShader(S_BLOOM_SPLIT);
 		LoadSettings(GPS_BLOOM);
-		glBindTextureUnit(0, mColAttachment[GOUT_FINAL]);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -588,7 +599,7 @@ namespace SliceEngine
 		LoadSettings(GPS_BLOOM);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
-		glUniform1f(uniformLoc, 0.005f);
+		glUniform1f(uniformLoc, camera.bloomFilterRadius);
 
 		for (int i{ mMaxBloom - 1 }; i > 0; --i)
 		{
@@ -598,6 +609,10 @@ namespace SliceEngine
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
+	void RenderManager::RenderVignette()
+	{
+
+	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
 		SetShader(ShaderOpt::S_FINAL);
@@ -605,7 +620,7 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_FINAL]);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uIsBloom");
-		if (IS_USE_BLOOM)
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_BLOOM) 
 		{
 			glUniform1i(uniformLoc, true);
 			glBindTextureUnit(1, mBloomMips[0].tex);
