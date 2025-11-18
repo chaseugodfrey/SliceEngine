@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
 #include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
