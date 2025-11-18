@@ -68,6 +68,9 @@ namespace SliceEditor
 		heightfield = nullptr;
 
 		detailMesh = nullptr;
+
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().ClearNavMesh();
+
 	}
 
 	rcConfig& RecastNavMesh::GetConfig()

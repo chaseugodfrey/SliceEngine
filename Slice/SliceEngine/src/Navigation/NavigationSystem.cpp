@@ -15,10 +15,31 @@ namespace SliceEngine
 
 	}
 
+	void NavigationSystem::Unbind()
+	{
+		ClearNavMesh();
+		BaseSystem::Unbind();
+	}
+
 	void NavigationSystem::ClearNavMesh()
 	{
 		if (!navMeshInstance)
 			return;
+		
+		auto& data = navMeshDebugInfo.value().data;
+		for (int i{}; i < 2; ++i)
+		{
+			if (data[i].vao)
+			{
+				glDeleteVertexArrays(1, &data[i].vao);
+				data[i].vao = 0;
+			}
+			if (data[i].vbo)
+			{
+				glDeleteBuffers(1, &data[i].vbo);
+				data[i].vbo = 0;
+			}
+		}
 
 		navMeshInstance.reset();
 		navMeshDebugInfo.reset();

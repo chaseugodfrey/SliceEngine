@@ -567,23 +567,6 @@ namespace SliceEngine
 		};
 
 		data data[2];
-
-		~NavMeshDebugObj()
-		{
-			for (int i{}; i < 2; ++i)
-			{
-				if (data[i].vao)
-				{
-					glDeleteVertexArrays(1, &data[i].vao);
-					data[i].vao = 0;
-				}
-				if (data[i].vbo)
-				{
-					glDeleteBuffers(1, &data[i].vbo);
-					data[i].vbo = 0;
-				}
-			}
-		}
 	};
 
 	// Component

@@ -19,6 +19,7 @@ namespace SliceEngine
     public:
         void Init();
         void Update(float dt);
+        void Unbind() override;
 
         void ClearNavMesh();
         void LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e);
