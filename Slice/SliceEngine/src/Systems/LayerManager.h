@@ -16,7 +16,10 @@ namespace SliceEngine
 
 		// idk if i need to create a way to access collision layers by index
 		// but if i do then ill prob use this
-		std::vector<std::string> collisionKeys; 
+		//std::vector<std::string> collisionKeys; 
+		std::unordered_map<int, std::string> indexToLayer;
+
+		std::vector<int> removedBits;
 		
 		/// <summary>
 		/// Initialize the defualt layers we wanna support

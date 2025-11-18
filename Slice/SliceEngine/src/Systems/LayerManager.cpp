@@ -29,16 +29,34 @@ namespace SliceEngine
 			return;
 		}
 
-		// get the bit for this layer
-		uint32_t layerBit = 1 << currentBit;
+		if (removedBits.size() > 0)
+		{
+			// use the latest bit to be removed
+			int bit = removedBits.back();
+			uint32_t layerBit = 1 << bit;
 
-		// update both map and vector
-		collisionLayers[name] = layerBit;
-		collisionKeys.push_back(name);
+			collisionLayers[name] = layerBit;
+			indexToLayer[currentBit] = name;
 
-		// increment to next bit
-		currentBit++;
+			removedBits.pop_back();
+		}
+		else
+		{
+			// get the bit for this layer
+			uint32_t layerBit = 1 << currentBit;
+
+			// update both map and vector
+			collisionLayers[name] = layerBit;
+			indexToLayer[currentBit] = name;
+
+			//collisionKeys.push_back(name);
+
+			// increment to next bit
+			currentBit++;
+		}
+
 	}
+
 	void LayerManager::RemoveLayer(std::string name)
 	{
 		// check if it doesn't exist
@@ -48,17 +66,35 @@ namespace SliceEngine
 			return;
 		}
 
-		// erase from both collision layer and keys
+		// Update any entities that were using this layer
+		auto view = Core::GetInstance()->GetRegistry().view<Transform>();
 
+		for (auto entity : view)
+		{
+			UnassignLayer(name, entity);
+		}
+
+
+		// erase from both collision layer and keys
 		collisionLayers.erase(name);
 
-		for (auto it = collisionKeys.begin(); it != collisionKeys.end(); ++it)
+		// i realise since i changed to map from vector, i dont have to loop like this
+		// but it works
+		int i = 0;
+		for (auto it = indexToLayer.begin(); it != indexToLayer.end(); ++it)
 		{
-			if (*it == name)
+			if (it->second == name)
 			{
-				collisionKeys.erase(it);
+				// if this is the bit that is deleted then push to removedBits
+				// so we'll use this for the next layer created
+				removedBits.push_back(i);
+
+				// erase from index to layer
+				indexToLayer.erase(i);
 				break;
 			}
+
+			i++;
 		}
 
 	}
@@ -83,8 +119,12 @@ namespace SliceEngine
 			return 0;
 		}
 
+		// doesn't exist
+		if (indexToLayer.find(index) == indexToLayer.end())
+			return 0;
+
 		// looks kinda cancer idk
-		return collisionLayers[collisionKeys[index]];
+		return collisionLayers[indexToLayer[index]];
 	}
 
 	bool LayerManager::CheckLayerInteraction(Entity first, Entity second)
@@ -129,7 +169,12 @@ namespace SliceEngine
 		{
 			auto& collisionMask = entityGO.GetComponent<Transform>().collisionMask;
 
-			collisionMask &= ~collisionLayers[name];
+			// If it has this collision layer
+			if (collisionMask & collisionLayers[name])
+			{
+				// remove it
+				collisionMask &= ~collisionLayers[name];
+			}
 		}
 
 	}
