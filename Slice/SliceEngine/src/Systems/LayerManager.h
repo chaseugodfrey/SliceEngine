@@ -5,21 +5,23 @@ namespace SliceEngine
 {
 	// only support 32 layers since we're using 32 bit int
 #define MAX_LAYERS 32
+#define INVALID_LAYER 33
 
 	class LayerManager
 	{
 	public:
-		std::unordered_map<std::string, uint32_t> collisionLayers;
+		std::unordered_map<std::string, uint32_t> collisionMask;
+		std::unordered_map<std::string, uint32_t> nameToLayer;
 
 		// default to 0
-		int currentBit = 0;
+		uint32_t currentBit = 0;
 
 		// idk if i need to create a way to access collision layers by index
 		// but if i do then ill prob use this
 		//std::vector<std::string> collisionKeys; 
-		std::unordered_map<int, std::string> indexToLayer;
+		std::unordered_map<uint32_t, std::string> indexToLayerName;
 
-		std::vector<int> removedBits;
+		std::vector<uint32_t> removedBits;
 		
 		/// <summary>
 		/// Initialize the defualt layers we wanna support
@@ -39,9 +41,13 @@ namespace SliceEngine
 		/// <param name="name">name of layer to remove</param>
 		void RemoveLayer(std::string name);
 
+		uint32_t GetMask(std::string name);
+
+		uint32_t GetMask(uint32_t index);
+
 		uint32_t GetLayer(std::string name);
 
-		uint32_t GetLayer(int index);
+		uint32_t GetLayer(uint32_t index);
 
 		/// <summary>
 		/// Check two entity layers to see if they can interact

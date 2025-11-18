@@ -23,7 +23,7 @@ namespace SliceEngine
 		}
 
 		// check if it alr exist
-		if (collisionLayers.find(name) != collisionLayers.end())
+		if (collisionMask.find(name) != collisionMask.end())
 		{
 			SLICE_LOG_ERROR(name + " already exist bodoh");
 			return;
@@ -32,11 +32,12 @@ namespace SliceEngine
 		if (removedBits.size() > 0)
 		{
 			// use the latest bit to be removed
-			int bit = removedBits.back();
+			uint32_t bit = removedBits.back();
 			uint32_t layerBit = 1 << bit;
 
-			collisionLayers[name] = layerBit;
-			indexToLayer[currentBit] = name;
+			collisionMask[name] = layerBit;
+			indexToLayerName[currentBit] = name;
+			nameToLayer[name] = bit;
 
 			removedBits.pop_back();
 		}
@@ -46,8 +47,9 @@ namespace SliceEngine
 			uint32_t layerBit = 1 << currentBit;
 
 			// update both map and vector
-			collisionLayers[name] = layerBit;
-			indexToLayer[currentBit] = name;
+			collisionMask[name] = layerBit;
+			indexToLayerName[currentBit] = name;
+			nameToLayer[name] = currentBit;
 
 			//collisionKeys.push_back(name);
 
@@ -60,7 +62,7 @@ namespace SliceEngine
 	void LayerManager::RemoveLayer(std::string name)
 	{
 		// check if it doesn't exist
-		if (collisionLayers.find(name) == collisionLayers.end())
+		if (collisionMask.find(name) == collisionMask.end())
 		{
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
 			return;
@@ -76,12 +78,12 @@ namespace SliceEngine
 
 
 		// erase from both collision layer and keys
-		collisionLayers.erase(name);
+		collisionMask.erase(name);
 
 		// i realise since i changed to map from vector, i dont have to loop like this
 		// but it works
-		int i = 0;
-		for (auto it = indexToLayer.begin(); it != indexToLayer.end(); ++it)
+		uint32_t i = 0;
+		for (auto it = indexToLayerName.begin(); it != indexToLayerName.end(); ++it)
 		{
 			if (it->second == name)
 			{
@@ -90,7 +92,7 @@ namespace SliceEngine
 				removedBits.push_back(i);
 
 				// erase from index to layer
-				indexToLayer.erase(i);
+				indexToLayerName.erase(i);
 				break;
 			}
 
@@ -98,20 +100,20 @@ namespace SliceEngine
 		}
 
 	}
-	uint32_t LayerManager::GetLayer(std::string name)
+	uint32_t LayerManager::GetMask(std::string name)
 	{
 		// check if it doesn't exist
-		if (collisionLayers.find(name) == collisionLayers.end())
+		if (collisionMask.find(name) == collisionMask.end())
 		{
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
 			return 0;
 		}
 		
-		return collisionLayers[name];
+		return collisionMask[name];
 	}
 
 	// might not even be using this mayb
-	uint32_t LayerManager::GetLayer(int index)
+	uint32_t LayerManager::GetMask(uint32_t index)
 	{
 		if (index >= currentBit)
 		{
@@ -120,12 +122,43 @@ namespace SliceEngine
 		}
 
 		// doesn't exist
-		if (indexToLayer.find(index) == indexToLayer.end())
+		if (indexToLayerName.find(index) == indexToLayerName.end())
 			return 0;
 
 		// looks kinda cancer idk
-		return collisionLayers[indexToLayer[index]];
+		return collisionMask[indexToLayerName[index]];
 	}
+
+	uint32_t LayerManager::GetLayer(std::string name)
+	{
+		// check if it doesn't exist
+		if (nameToLayer.find(name) == nameToLayer.end())
+		{
+			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
+			return INVALID_LAYER; // invalid layer (max 32 layers)
+		}
+
+		return nameToLayer[name];
+	}
+
+	// might not even be using this mayb
+	uint32_t LayerManager::GetLayer(uint32_t index)
+	{
+		if (index >= currentBit)
+		{
+			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
+			return INVALID_LAYER; // invalid layer (max 32 layers)
+		}
+
+		// doesn't exist
+		if (indexToLayerName.find(index) == indexToLayerName.end())
+			return 0;
+
+		// looks kinda cancer idk
+		return nameToLayer[indexToLayerName[index]];
+	}
+
+
 
 	bool LayerManager::CheckLayerInteraction(Entity first, Entity second)
 	{
@@ -137,6 +170,10 @@ namespace SliceEngine
 		{
 			Transform& firstTransform = entityFirst.GetComponent<Transform>();
 			Transform& secondTransform = entitySecond.GetComponent<Transform>();
+			if(firstTransform.collisionLayer == INVALID_LAYER || secondTransform.collisionLayer == INVALID_LAYER)
+			{
+				return false;
+			}
 
 			// as long as its not 0, means they share a layer
 			return firstTransform.collisionMask & secondTransform.collisionMask;
@@ -154,9 +191,10 @@ namespace SliceEngine
 		// idk where we want to store it's collision mask but for now its in Transform
 		if (entityGO.HasComponent<Transform>())
 		{
-			auto& collisionMask = entityGO.GetComponent<Transform>().collisionMask;
+			auto& transform = entityGO.GetComponent<Transform>();
 
-			collisionMask |= collisionLayers[name];
+			transform.collisionMask |= collisionMask[name];
+			transform.collisionLayer = nameToLayer[name];
 		}
 	}
 
@@ -167,13 +205,14 @@ namespace SliceEngine
 		// idk where we want to store it's collision mask but for now its in Transform
 		if (entityGO.HasComponent<Transform>())
 		{
-			auto& collisionMask = entityGO.GetComponent<Transform>().collisionMask;
+			auto& transform = entityGO.GetComponent<Transform>();
 
 			// If it has this collision layer
-			if (collisionMask & collisionLayers[name])
+			if (transform.collisionMask & collisionMask[name])
 			{
 				// remove it
-				collisionMask &= ~collisionLayers[name];
+				transform.collisionMask &= ~collisionMask[name];
+				transform.collisionLayer = INVALID_LAYER; // set to invalid layer(Max 32 layers)
 			}
 		}
 
