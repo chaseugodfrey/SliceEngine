@@ -113,7 +113,8 @@ namespace SliceEngine
 		RENDER_FOG			= 0x10,
 		RENDER_BLUR			= 0x20,
 		RENDER_BLOOM		= 0x40,
-		RENDER_VIGNETTE		= 0x80
+		RENDER_VIGNETTE		= 0x80,
+		RENDER_TAG_ALL		= 0xFF
 	};
 
 	struct Renderer
@@ -138,11 +139,12 @@ namespace SliceEngine
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
-		glm::vec3 fogColor{};
+		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{0.005f};
+		float bloomStrength{ 0.04f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
-		float vignetteIntensity{ 0.3f };
+		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
 
 		RTTR_ENABLE();
