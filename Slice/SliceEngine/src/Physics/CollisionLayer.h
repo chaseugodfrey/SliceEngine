@@ -72,7 +72,7 @@ namespace SliceEngine
 	class ObjectLayerPairFilterImpl final : public JPH::ObjectLayerPairFilter
 	{
 	private:
-		bool m_CollisionMatrix[Layers::NUM_LAYERS][Layers::NUM_LAYERS];
+		std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS> m_CollisionMatrix;
 
 	public:
 		ObjectLayerPairFilterImpl();
@@ -80,6 +80,9 @@ namespace SliceEngine
 		bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override;
 
 		void SetCanCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2, bool canCollide);
+
+		const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& GetCollisionMatrix() const;
+
 
 	};
 

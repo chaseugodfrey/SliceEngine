@@ -133,6 +133,11 @@ namespace SliceEngine
 		m_CollisionMatrix[inObject2][inObject1] = canCollide;
 	}
 
+	const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& ObjectLayerPairFilterImpl::GetCollisionMatrix() const
+	{
+		return m_CollisionMatrix;
+	}
+
 
 }
 

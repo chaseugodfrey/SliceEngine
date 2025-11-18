@@ -1068,4 +1068,14 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
+	const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& PhysicsSystem::GetCollisionMatrix() const
+	{
+		return objectLayerPairFilter->GetCollisionMatrix();
+	}
+
+	void PhysicsSystem::SetCanCollide(unsigned int layer1, unsigned int layer2, bool value)
+	{
+		objectLayerPairFilter->SetCanCollide(layer1,layer2,value);
+	}
+
 }
