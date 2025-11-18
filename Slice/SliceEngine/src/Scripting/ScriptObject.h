@@ -50,10 +50,7 @@ namespace SliceEngine
 	{
 		// same as before, keep track o the actual type in teh field
 		ScriptFieldType mType{ ScriptFieldType::None };
-
-		// Keep track if it is a list or array
-		ScriptFieldType mContainerType{ ScriptFieldType::None };
-
+		ScriptFieldType mElementType{ ScriptFieldType::None };
 		std::string mName{};
 		MonoClassField* mClassField{ nullptr };
 

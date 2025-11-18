@@ -22,8 +22,8 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/metadata/mono-gc.h>
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
-#include <mono/metadata/attrdefs.h>
-#include <mono/metadata/tokentype.h>
+#include <mono/metadata/tabledefs.h>
+#include <mono/metadata/metadata.h>
 #include <mono/metadata/mono-debug.h>
 #include <mono/metadata/class.h>
 #include "ScriptFunctions.h"
@@ -809,7 +809,7 @@ namespace SliceEngine
                 if (name[0] == '<')
                     continue;
 
-                // Skip all nested types (nested types have visibility values 0x02–0x06)
+                // Skip all nested types (nested types have visibility values 0x02ï¿½0x06)
                 if (visibility >= MONO_TYPE_ATTR_NESTED_PUBLIC && visibility <= MONO_TYPE_ATTR_NESTED_FAM_OR_ASSEM)
                     continue;
 
@@ -844,6 +844,33 @@ namespace SliceEngine
                             if (mono_field_get_flags(field) & MONO_FIELD_ATTR_PUBLIC)
                             {
                                 MonoType* type = mono_field_get_type(field);
+                                ScriptFieldType fieldType = ScriptFieldType::None;//GetScriptFieldType(type);
+                                ScriptFieldType elementType = ScriptFieldType::None;
+
+                                int monoTypeEnum = mono_type_get_type(type);
+                                MonoClass* fieldClass = mono_type_get_class(type);
+
+                                // 1D Arrays like int[] or smth
+                                if (monoTypeEnum == MONO_TYPE_SZARRAY)
+                                {
+                                    fieldType = ScriptFieldType::Array;
+                                    MonoClass* elementClass = mono_class_get_element_class(fieldClass);
+                                    elementType = GetScriptFieldType(mono_class_get_type(elementClass));
+                                }
+                                // generic like list<T>
+                                else if (monoTypeEnum == MONO_TYPE_GENERICINST)
+                                {
+                                    const char* name = mono_class_get_name(fieldClass);
+                                    if (strcmp(name, "List'1") == 0)
+                                    {
+                                        fieldType = ScriptFieldType::List;
+                                        MonoGenericClass* genericClass;
+                                    }
+                                }
+                                else
+                                {
+                                    fieldType = GetScriptFieldType(type);
+                                }
 
                                 MonoClass* elementClass = nullptr;
                                 ScriptFieldType containerType = ScriptFieldType::None;
