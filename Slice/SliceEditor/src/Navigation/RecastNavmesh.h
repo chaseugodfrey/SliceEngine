@@ -47,10 +47,6 @@ namespace SliceEditor
 
         dtNavMesh *navMesh = nullptr;      
         dtNavMeshQuery *navQuery = nullptr;
-
-        void ReleaseDebugMesh();
-        void LoadDebugMesh();
-        float distancePtLine2d(const float* pt, const float* p, const float* q);
 	};
 }
 #endif
