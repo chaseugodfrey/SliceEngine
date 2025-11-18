@@ -389,7 +389,7 @@ namespace SliceEditor
 				}
 			}
 
-			// Script Variables
+			// Script Variables Display
 			else
 			{
 				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
@@ -403,7 +403,31 @@ namespace SliceEditor
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
-								auto data = scriptRef->GetFieldValue<std::vector<std::string>>(it.second.mName);
+								auto data = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+
+								//Display Function Here
+								for (auto entry : data)
+								{
+									std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
+										{
+											sp->SetFieldValue(name, val);
+										};
+									if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), entry))
+									{
+										//scriptRef->SetFieldValue<std::string>(it.second.mName, entry);
+										//SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									}
+								}
+							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								auto data = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+								std::function<void(std::string, std::vector<float>)> func = [sp = scriptRef](std::string name, std::vector<float> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+								//Display Function Here
+								DragFloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data);
 							}
 						}
 

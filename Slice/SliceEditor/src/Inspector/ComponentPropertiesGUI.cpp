@@ -281,6 +281,29 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragFloatListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format, float min, float max)
+	{
+		static std::string elementNo_String =  "Element ";
+		int i = 0;
+		bool changed = false;
+		if(ImGui::TreeNodeEx(property_label,ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
+				std::string newID = "##" + std::string(id) + elementNo_String + std::to_string(i);
+				if ((changed = DragFloatInputHeader(reg, elementPropertyLabel.c_str(), newID.c_str(), entry)))
+				{
+					//scriptRef->SetFieldValue<std::string>(it.second.mName, entry);
+					//SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+				}
+				i++;
+			}
+			ImGui::TreePop();
+		}
+		return changed;
+	}
+
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
 		bool changed = false;

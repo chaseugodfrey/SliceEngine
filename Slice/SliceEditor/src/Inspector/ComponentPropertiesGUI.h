@@ -60,35 +60,14 @@ namespace SliceEditor
 	
 	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%.3f", int min = 0, int max = 0);
 
+	bool DragFloatListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%,3f", float min = 0.f, float max = 0.f);
+
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 
 	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& color);
 
 	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler);
-	/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
-	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
-	//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
-	//void IntInputHeader(const char* property_label, const char* id, int& val, std::function<void(int)> setFunc = nullptr);
-	//void DragIntInputHeader(const char* property_label, const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
-	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
-	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
-	//void AssetDragDropInputHeader(const char* property_label, const char* id, std::string& val, std::function<void(std::string)> setFunc, const char* asset_type);
-	*/
 
-	/*template <typename T, typename Container>
-	void ComboHeader(const char* property_label,const char* id, std::string& selected, Container& container, std::function<std::string(T&)>& iterateStringFunc)
-	{
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.f);
-		if (ImGui::BeginCombo(id, selected.c_str()))
-		{
-			for (T& value : container)
-				if (ImGui::Selectable(container[value].c_str()))
-				{
-					selected = (Enum)value;
-				}
-		}
-	}*/
 
 	template <typename Enum>
 	bool ComboHeader(Registry& reg, const char* property_label, const char* id, Enum& selected, std::vector<std::string>& container)
@@ -126,4 +105,29 @@ namespace SliceEditor
 	}
 }
 
+
+/*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
+//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
+//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
+//void IntInputHeader(const char* property_label, const char* id, int& val, std::function<void(int)> setFunc = nullptr);
+//void DragIntInputHeader(const char* property_label, const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
+//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
+//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
+//void AssetDragDropInputHeader(const char* property_label, const char* id, std::string& val, std::function<void(std::string)> setFunc, const char* asset_type);
+*/
+
+/*template <typename T, typename Container>
+void ComboHeader(const char* property_label,const char* id, std::string& selected, Container& container, std::function<std::string(T&)>& iterateStringFunc)
+{
+	ImGui::Text(property_label);
+	ImGui::SameLine(150.f);
+	if (ImGui::BeginCombo(id, selected.c_str()))
+	{
+		for (T& value : container)
+			if (ImGui::Selectable(container[value].c_str()))
+			{
+				selected = (Enum)value;
+			}
+	}
+}*/
 #endif
