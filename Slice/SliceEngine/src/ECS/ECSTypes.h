@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
+#include <DetourNavMesh.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -548,7 +549,52 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	
+	// Not a component but a base data obj for nav mesh
+	struct NavMeshObj
+	{
+		dtNavMesh* navMesh;
+		dtNavMeshQuery* navMeshQuery;
+	};
+
+	struct NavMeshDebugObj
+	{
+		struct data
+		{
+			uint32_t vao;
+			uint32_t vbo;
+			uint32_t drawCnt;
+		};
+
+		data data[2];
+
+		~NavMeshDebugObj()
+		{
+			for (int i{}; i < 2; ++i)
+			{
+				if (data[i].vao)
+				{
+					glDeleteVertexArrays(1, &data[i].vao);
+					data[i].vao = 0;
+				}
+				if (data[i].vbo)
+				{
+					glDeleteBuffers(1, &data[i].vbo);
+					data[i].vbo = 0;
+				}
+			}
+		}
+	};
+
+	// Component
+	struct NavAgent
+	{
+		glm::vec3 target = glm::vec3(0.0f);
+		std::vector<glm::vec3> currentPath;
+		int currentPathIndex = 0;
+
+		float speed = 2.0f;
+		bool hasNewTarget = false;
+	};
 }
 
 #endif
