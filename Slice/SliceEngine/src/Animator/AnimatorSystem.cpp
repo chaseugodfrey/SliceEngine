@@ -70,7 +70,7 @@ namespace SliceEngine
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
 		if (!animator.IsValid()) return;
 
-		if (animator.timeline.isPlaying)
+		//if (animator.timeline.isPlaying)
 		{
 			//Bone animation
 			if (animator.is_bone) {
@@ -134,7 +134,7 @@ namespace SliceEngine
 			//if (!animator.stateMachine.EFSM.IsValid()) return;
 			if (!animator.IsValid()) return;
 
-			if (animator.timeline.isPlaying)
+			//if (animator.timeline.isPlaying)
 			{
 				
 				if (animator.is_bone) {

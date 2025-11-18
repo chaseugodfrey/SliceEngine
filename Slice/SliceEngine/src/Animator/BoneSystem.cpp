@@ -48,8 +48,8 @@ namespace SliceEngine
 			//if (!animator.stateMachine.EFSM.IsValid()) return;
 			if (!animator.IsValid()) return;
 
-			if (!animator.timeline.isPlaying)
-				continue;
+			//if (!animator.timeline.isPlaying)
+				//continue;
 
 			//some pseudo code
 			glm::mat4 const& frame = animator.GetFinalTform()[bone.frame_idx];

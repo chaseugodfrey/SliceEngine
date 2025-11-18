@@ -8,7 +8,7 @@ namespace SliceEngine
     public class Player : SliceBehaviour
     {
         public float moveSpeed = 2.5f;
-        public float rotationSpeed = 5.0f;
+        public float rotationSpeed = 20.0f;
         Animator animator;
         Transform t;
         public string[] test3 = { "Test", "Test2" };

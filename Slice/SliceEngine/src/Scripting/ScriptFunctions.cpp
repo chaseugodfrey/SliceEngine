@@ -88,6 +88,7 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
