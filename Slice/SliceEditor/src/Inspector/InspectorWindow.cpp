@@ -400,24 +400,22 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
+						//Array Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								auto data = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
 
 								//Display Function Here
-								for (auto entry : data)
+								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
-										{
-											sp->SetFieldValue(name, val);
-										};
-									if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), entry))
-									{
-										//scriptRef->SetFieldValue<std::string>(it.second.mName, entry);
-										//SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-									}
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -434,8 +432,24 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-						}
 
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								auto data = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+								std::function<void(std::string, std::vector<int>)> func = [sp = scriptRef](std::string name, std::vector<int> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+								//Display Function Here
+								if (DragIntListScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+						}
+						//List Variables
+						
 						//Non-Array/List Value
 						else
 						{
