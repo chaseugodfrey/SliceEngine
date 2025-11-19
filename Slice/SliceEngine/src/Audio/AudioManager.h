@@ -27,49 +27,49 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	struct SFXEntry
-	{
-		std::string key = "Default";
-		FMOD::SoundGroup* soundGroup = nullptr;
-		std::vector<GUID> AudioClips;
-		float volume = 1.0f;
-		int maxInstances = 8;
-		bool isSpatial = false;
-		float spatialBlend = 1.0f;
-		float minDistance = 1.0f;
-		float maxDistance = 30.0f;
-		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Logarithmic;
-		float _lastPlayed = -999.f;
-		float minInterval = 0.f;
-	};
+	//struct SFXEntry
+	//{
+	//	std::string key = "Default";
+	//	FMOD::SoundGroup* soundGroup = nullptr;
+	//	std::vector<GUID> AudioClips;
+	//	float volume = 1.0f;
+	//	int maxInstances = 8;
+	//	bool isSpatial = false;
+	//	float spatialBlend = 1.0f;
+	//	float minDistance = 1.0f;
+	//	float maxDistance = 30.0f;
+	//	AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Logarithmic;
+	//	float _lastPlayed = -999.f;
+	//	float minInterval = 0.f;
+	//};
 
-	class AudioSettings
-	{
-		FMOD::System* mSystem = nullptr;
-		//std::vector<SFXEntry> mSfxMap;
-	public:
-		std::unordered_map<std::string, SFXEntry> mSFXMap;
-		void Init(FMOD::System* system);
-		void Exit();
-		void CreateSoundGroup(const std::string& key);
-		void SetSoundGroup(std::string soundName, const std::string& key);
-		FMOD::SoundGroup* GetSoundGroup(const std::string& key);
-		SFXEntry* GetSFXEntry(const std::string& key);
-		void SetSoundGroupVolume(const std::string& key, float volume);
-		const float GetSoundGroupVolume(const std::string& key);
-		void SetMaxInstances(const std::string& key, int maxInstances);
-		const int GetMaxInstances(const std::string& key);
-		void SetMinIntervals(const std::string& key, float minIntervals);
-		void SetMinDistance(const std::string& key, float minDistance);
-		void SetMaxDistance(const std::string& key, float maxDistance);
-		void SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend);
-		const float GetSoundGroupSpatialBlend(const std::string& key);
-		void SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial);
-		const bool GetSoundGroupSpatialBlendBool(const std::string& key);
-		void PlaySFX();
-		void Release();
-	};
-	
+	//class AudioSettings
+	//{
+	//	FMOD::System* mSystem = nullptr;
+	//	//std::vector<SFXEntry> mSfxMap;
+	//public:
+	//	std::unordered_map<std::string, SFXEntry> mSFXMap;
+	//	void Init(FMOD::System* system);
+	//	void Exit();
+	//	void CreateSoundGroup(const std::string& key);
+	//	void SetSoundGroup(std::string soundName, const std::string& key);
+	//	FMOD::SoundGroup* GetSoundGroup(const std::string& key);
+	//	SFXEntry* GetSFXEntry(const std::string& key);
+	//	void SetSoundGroupVolume(const std::string& key, float volume);
+	//	const float GetSoundGroupVolume(const std::string& key);
+	//	void SetMaxInstances(const std::string& key, int maxInstances);
+	//	const int GetMaxInstances(const std::string& key);
+	//	void SetMinIntervals(const std::string& key, float minIntervals);
+	//	void SetMinDistance(const std::string& key, float minDistance);
+	//	void SetMaxDistance(const std::string& key, float maxDistance);
+	//	void SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend);
+	//	const float GetSoundGroupSpatialBlend(const std::string& key);
+	//	void SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial);
+	//	const bool GetSoundGroupSpatialBlendBool(const std::string& key);
+	//	void PlaySFX();
+	//	void Release();
+	//};
+	//
 
 	class AudioManager
 	{
@@ -85,7 +85,7 @@ namespace SliceEngine
 		
 		//std::unordered_map<std::string, FMOD::SoundGroup*> mSoundGroups;
 		
-		const int MAX_CHANNELS = 256;
+		const int MAX_CHANNELS = 32;
 
 		const float defaultVolume = 1.0f;
 		

@@ -31,6 +31,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsService;
+	class AudioSettings;
 	class SceneSystem;
 	class PhysicsSystem;
 	class PrefabSystem;
@@ -103,6 +104,8 @@ namespace SliceEngine
 		GLFWwindow* GetWindow();
 
 		ProjectSettingsService* GetProjectSettingsService();
+
+		AudioSettings* GetAudioSettings();
 
 		void UnbindSystems();
 

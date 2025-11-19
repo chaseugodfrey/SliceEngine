@@ -41,6 +41,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
+#include "Test.h"
+#include "Configuration/AudioSettings.cpp"
 
 //using namespace rttr;
 
@@ -103,9 +105,22 @@ namespace SliceEngine
 		frm->Init();
 
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-
+		AudioSettings temp_audio_setting;
+		mAudioSettings = &temp_audio_setting;
+		/*TestInit(mAudioManager->GetSoundSystem());
+		TestCreate();
+		TestAddSound();
+		TestVolume("Hit_Slime.Single", 0.3f);
+		TestVolume("Hit_Slime.Single", 0.5f);
+		TestMaxInstances("Hit_Slime.Single", 3);
+		TestMaxInstances("Hit_Slime.Single", 6);
+		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
+		TestSpatialBlend("Hit_Slime.Single", 0.5f);
+		TestPlaySFX();*/
+		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<AudioSourceSystem>();
 		Core::GetInstance()->InitSystem<AudioListenerSystem>();

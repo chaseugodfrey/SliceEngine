@@ -146,4 +146,8 @@ namespace SliceEngine
 	{
 		return mProjectSettingsService.get();
 	}
+	AudioSettings* Core::GetAudioSettings()
+	{
+		return nullptr;
+	}
 }
