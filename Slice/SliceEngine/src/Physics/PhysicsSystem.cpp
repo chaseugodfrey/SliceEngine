@@ -1096,7 +1096,7 @@ namespace SliceEngine
 
 	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
 	{
-		return broadphaseLayerInterface->GetObjectToBroadPhaseLayer(inLayer);
+		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
 	}
 
 
