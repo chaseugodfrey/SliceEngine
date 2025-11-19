@@ -34,7 +34,6 @@ namespace SliceEngine
             Vector3 right = Vector3.Cross(up, camera).Normalize();
             Vector3 rotationAxis = new Vector3(0, 1, 0);
             Vector3 targetFacingDirection = this.direction;
-            //Vector3 right = Vector3.Cross(up, direction).Normalize();
             float rotationSpeedFrame = rotationSpeed * dt;
 
             
@@ -102,7 +101,7 @@ namespace SliceEngine
 
                // dir = Quaternion.RotateTowards(dir, target, rotationSpeed * dt);
 
-                this.direction = Vector3.RotateTowards(this.direction,targetFacingDirection.Normalize(),rotationSpeed * dt);
+                this.direction = Vector3.RotateTowards(this.direction,targetFacingDirection.Normalize(), rotationSpeedFrame);
             }
 
             t.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
