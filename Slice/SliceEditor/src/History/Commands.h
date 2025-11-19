@@ -56,31 +56,6 @@ namespace SliceEditor
 		}
 	};
 
-	template<typename T>
-	class HandleSetCommand : public Command
-	{
-		SliceEngine::Handle<T>& ref;
-		SliceEngine::GUID oldGUID, newGUID;
-		/*std::function<void(T)> funcToExecute;*/
-
-	public:
-
-		HandleSetCommand(SliceEngine::Handle<T>& r, SliceEngine::GUID oldV, SliceEngine::GUID newV) : ref(r), oldGUID(oldV), newGUID(newV) {}
-		~HandleSetCommand() = default;
-
-		void Redo() override
-		{
-			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-			ref = rm->get<T>(newGUID);
-		}
-
-		void Undo() override
-		{
-			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-			ref = rm->get<T>(oldGUID);
-		}
-	};
-
 	template <typename T>
 	class ScriptFieldSetterCommand : public Command
 	{

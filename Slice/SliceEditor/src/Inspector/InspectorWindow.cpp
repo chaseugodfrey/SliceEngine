@@ -183,10 +183,65 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
-			HandleInputHeader(mRegistry, "Model: ", "##modelguid", entity, AssetType::Model, rend.modelHandle.getGUID());
+			ImGui::Text("Mesh");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
+            std::string modelFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			{
+				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
+			}
+			else //Its a default model
+			{
+				modelFilename = model_guid_string;
+			}
+			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
+			}
 
-			HandleInputHeader(mRegistry, "Material: ", "##materialguid", entity, AssetType::Material, rend.materialHandle.getGUID());
-			
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
+					// update the handle after
+
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			ImGui::Text("Material");
+			ImGui::SameLine(150.0f);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
+			std::string materialFilename;
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			{
+				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
+			}
+			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
+			{
+				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
+			}
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
+					// update the handle after
+						// reload material handle here
+				}
+				ImGui::EndDragDropTarget();
+			}
 
 			ImGui::TreePop();
 		}

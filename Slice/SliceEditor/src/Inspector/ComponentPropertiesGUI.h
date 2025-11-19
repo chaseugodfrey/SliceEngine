@@ -42,8 +42,6 @@ namespace SliceEditor
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 
-	bool HandleInputHeader(Registry& reg, const char* property_label, const char* id, entt::entity entity, AssetType type, SliceEngine::GUID guid);
-
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
 	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
