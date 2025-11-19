@@ -119,12 +119,12 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<BoneSystem>();
 		Core::GetInstance()->InitSystem<NavigationSystem>();
 
-		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
+		/*glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
 		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
 		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
 
-		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
+		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);*/
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();

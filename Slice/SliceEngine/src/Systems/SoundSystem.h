@@ -112,6 +112,10 @@ namespace SliceEngine
 	{
 		AudioSourceSystem audioSource;
 		AudioListenerSystem audioListener;
+
+		void Init();
+
+		void Update(float dt);
 	};
 }
 

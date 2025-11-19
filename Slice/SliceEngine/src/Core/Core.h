@@ -35,6 +35,7 @@ namespace SliceEngine
 	class PhysicsSystem;
 	class PrefabSystem;
 	class LayerManager;
+	struct SoundSystem;
 	struct NetworkSystem;
 
 
@@ -92,6 +93,8 @@ namespace SliceEngine
 		RenderManager* GetRenderManager();
 
 		AudioManager* GetAudioManager();
+
+		SoundSystem* GetSoundSystem();
 
 		FramerateManager* GetFramerateManager();
 
