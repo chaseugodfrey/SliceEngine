@@ -92,8 +92,7 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-
-		uint32_t collisionMask;
+		uint32_t collisionLayer{ 0u };
 
 		RTTR_ENABLE();
     };
@@ -227,7 +226,7 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
+		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
 		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape;												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D

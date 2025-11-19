@@ -40,6 +40,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Systems/LayerManager.h"
 
 //using namespace rttr;
 
@@ -128,6 +129,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
+		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
 

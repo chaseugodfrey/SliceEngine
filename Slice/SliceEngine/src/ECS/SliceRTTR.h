@@ -130,7 +130,7 @@ namespace SliceEngine
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
 		.property("euler_hint", &Transform::eulerAnglesHint)
-		.property("collisionMask", &Transform::collisionMask);
+		.property("collisionLayer", &Transform::collisionLayer);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -168,7 +168,6 @@ namespace SliceEngine
 
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
-		.property("layer", &ColliderShape::layer)
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)

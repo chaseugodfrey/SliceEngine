@@ -319,9 +319,9 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
-					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 				});
 			}
 			ImGui::TreePop();

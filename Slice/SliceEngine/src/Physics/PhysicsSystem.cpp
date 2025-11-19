@@ -67,7 +67,7 @@ namespace SliceEngine
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
-			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
+			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
 			objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
 
 			physicsSystem = std::make_unique<JPH::PhysicsSystem>();
@@ -231,9 +231,9 @@ namespace SliceEngine
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -895,11 +895,11 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, transform.collisionLayer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, transform.collisionLayer);
 			}
 
 			//Set physics properties
@@ -922,7 +922,7 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, transform.collisionLayer);
 			//bodySettings.mFriction = 0.6f;
 		}
 
@@ -1067,5 +1067,38 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
+
+	void PhysicsSystem::SetCollisionMask(uint32_t layer, uint32_t mask)
+	{
+		objectLayerPairFilter->SetCollisionMask(layer, mask);
+	}
+
+	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
+		}
+	}
+
+	void PhysicsSystem::SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer)
+	{
+		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(layer, bpLayer);
+	}
+
+	JPH::uint PhysicsSystem::GetNumBroadPhaseLayers()
+	{
+		return broadphaseLayerInterface->GetNumBroadPhaseLayers();
+	}
+
+	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
+	{
+		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
+	}
+
+
 
 }

@@ -430,8 +430,8 @@ namespace SliceEngine
 		{
 			if (mono_domain_get() != gScriptSystem->mAppDomain)
 			{
-				mono_thread_attach(gScriptSystem->mRootDomain); 
-				mono_domain_set(gScriptSystem->mAppDomain, false); 
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
 
 			const ScriptField& field = mScriptClass->mFields.at(name);
@@ -525,7 +525,7 @@ namespace SliceEngine
 				mono_thread_attach(gScriptSystem->mRootDomain);
 				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
-			
+
 			// get the script field
 			const ScriptField& field = mScriptClass->mFields.at(name);
 
