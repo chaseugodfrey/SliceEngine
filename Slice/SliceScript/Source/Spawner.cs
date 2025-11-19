@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace SliceEngine
 {
@@ -9,17 +10,19 @@ namespace SliceEngine
         public int spawnCount = 4;         // how many enemies per wave
         public string enemyPrefab = "EnemyTest";
         public float spawnInterval = 1.0f; // delay between spawns
-        public float[] test4 = new float [5];
+       // public float[] test4 = new float [5];
+        public List<float> testList = new List<float>();
         #pragma warning disable CS0414
         private bool spawning = false;
         #pragma warning restore CS0414
 
         public override void OnCreate()
         {
+            testList.Add(1.0f);
             StartCoroutine(SpawnLoop());            
-            for(int i = 0; i < 5; ++i)
+            for(int i = 0; i < testList.Count; ++i)
             {
-                SliceLog.Log(test4[i].ToString());
+                SliceLog.Log(testList[i].ToString());
             }
         }
 

@@ -18,18 +18,20 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "ComponentPropertiesGUI.h"
+
+#include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
 #include <Scripting/ScriptObject.h>
 #include <Graphics/TransformHelper.h>
-#include "ComponentPropertiesGUI.h"
-#include "../../SliceEngine/src/Serializer/JSONSerializer.h"
-#include <Resource/GUID.h>
+#include <Serializer/JSONSerializer.h>
+#include <Systems/LayerManager.h>
 
 namespace SliceEditor
 {
 	void InspectorWindow::Init()
 	{
-		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
+		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
 	}
 
 	void InspectorWindow::Draw()
@@ -71,27 +73,36 @@ namespace SliceEditor
 	
 	void InspectorWindow::DisplayEntityData(entt::entity entity)
 	{
-		//static bool is_active = false;
-		//ImGui::Checkbox("##is_active", &is_active);
-		//ImGui::SameLine();
-
+		auto core = SliceEngine::Core::GetInstance();
+		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+
+		auto layer_manager = core->GetLayerManager();
+		auto layer_name_list = layer_manager->GetLayerNameList();
+
+		ImGui::Checkbox("##is_active", &slice.mActive);
+		ImGui::SameLine();
+
 		std::string editable_name = original_name;
-		if (ImGui::InputText("##name", &editable_name))
+		if (StringInput(mRegistry, "##name", editable_name, ImGui::GetContentRegionAvail().x))
 		{
 			if (editable_name != original_name)
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
 		}
-		
+
+		// currently tags are unused
+		int tag = 0;
+		std::vector<std::string> tags {"unused"};
+
+		ImGui::BeginDisabled();
+		ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
+		ImGui::EndDisabled();
 		ImGui::SameLine();
-		ImGui::Text(std::to_string((uint64_t)entity).c_str());
+
+		ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list);
 		ImGui::Separator();
 
 	}
-
-	//void InspectorWindow::DisplayComponentHeader(bool closeable)
-	//{
-	//}
 
 	void InspectorWindow::DisplayTransform(entt::entity entity)
 	{
@@ -107,7 +118,6 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 	}
-
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
@@ -264,9 +274,9 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
-					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 				});
 			}
 			ImGui::TreePop();

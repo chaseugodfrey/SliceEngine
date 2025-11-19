@@ -1,0 +1,2 @@
+bloomJoin.vert
+bloomJoin.frag

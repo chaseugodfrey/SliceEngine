@@ -152,10 +152,16 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, ImGuiInputTextFlags flags)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width)
 	{
 		static std::string oldVal{};
-		bool changed = ImGui::InputText(id, &val,flags);
+
+		if (width == 0.0f)
+			width = 150.0f;
+
+		ImGui::SetNextItemWidth(width);
+
+		bool changed = ImGui::InputText(id, &val);
 
 		if (ImGui::IsItemActivated())
 		{
@@ -224,35 +230,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, ImGuiInputTextFlags flags)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val,flags) || changed;
-
-		return changed;
-	}
-
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val)
-	{
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.f);
-		static std::string oldVal{};
-
-		bool changed = ImGui::InputText(id, &val);
-
-		if (ImGui::IsItemActivated())
-			oldVal = val;
-
-		if (ImGui::IsItemDeactivatedAfterEdit())
-		{
-			if (oldVal != val)
-			{
-				std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
-				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-			}
-		}
+		changed = StringInput(reg, id, val, width) || changed;
 
 		return changed;
 	}

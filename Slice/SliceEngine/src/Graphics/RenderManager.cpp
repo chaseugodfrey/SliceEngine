@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "Navigation/NavigationSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -135,6 +136,10 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgba Post Processing for toggling Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		mBloomMips.reserve(mMaxBloom + 1);
 		glm::ivec2 intMip{ maxWidth, maxHeight };
@@ -247,11 +252,11 @@ namespace SliceEngine
 			}
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_FOG)
-				RenderFog();
+				RenderFog(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_BLOOM)
 				RenderBloom(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_VIGNETTE)
-				RenderVignette();
+				RenderVignette(cam);
 
 			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
@@ -375,18 +380,18 @@ namespace SliceEngine
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uColor");
-			auto& navDat = Core::GetInstance()->debugNavMesh;
-			if (navDat[0].vao != 0)
+			auto& navDatOpt = Core::GetInstance()->GetSystem<NavigationSystem>().GetNavMeshDebugData();
+			if (navDatOpt.has_value())
 			{
+				auto& navDat = navDatOpt.value();
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Base.r, mNavMeshDebugColor_Base.g, mNavMeshDebugColor_Base.b, mNavMeshDebugColor_Base.a);
 				glUniform4f(uniformLoc, 0.f, 0.f, 0.7f, 0.4f);
-				glBindVertexArray(navDat[0].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[0].drawCnt);
-			}
-			if (navDat[1].vao != 0)
-			{
+				glBindVertexArray(navDat.data[0].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[0].drawCnt);
 				glUniform4f(uniformLoc, 0.f, 0.2f, 0.25f, 0.85f);
-				glBindVertexArray(navDat[1].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[1].drawCnt);
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Bounds.r, mNavMeshDebugColor_Bounds.g, mNavMeshDebugColor_Bounds.b, mNavMeshDebugColor_Bounds.a);
+				glBindVertexArray(navDat.data[1].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[1].drawCnt);
 			}
 		}
 
@@ -563,8 +568,28 @@ namespace SliceEngine
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
 		}
 	}
-	void RenderManager::RenderFog()
+	void RenderManager::RenderFog(Entity cam)
 	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+
+		SetShader(S_FOG);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
+		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
+		glUniform3f(uniformLoc, camera.fogColor.r, camera.fogColor.g, camera.fogColor.b);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
+		glUniform1f(uniformLoc, camera.fogIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+		glUniform3f(uniformLoc, camT.position.x, camT.position.y, camT.position.z);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	void RenderManager::RenderBloom(Entity cam)
 	{
@@ -608,9 +633,39 @@ namespace SliceEngine
 			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
+		SetShader(S_BLOOM_JOIN);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, mBloomMips[0].tex);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uBloomStrength");
+		glUniform1f(uniformLoc, camera.bloomStrength);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-	void RenderManager::RenderVignette()
+	void RenderManager::RenderVignette(Entity cam)
 	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		SetShader(S_VIGNETTE);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
+		glUniform2f(uniformLoc, camera.vignetteCenter.x, camera.vignetteCenter.y);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteIntensity");
+		glUniform1f(uniformLoc, camera.vignetteIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteSmoothness");
+		glUniform1f(uniformLoc, camera.vignetteSmoothness);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
@@ -618,25 +673,13 @@ namespace SliceEngine
 		SetShader(ShaderOpt::S_FINAL);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_FINAL]);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uIsBloom");
-		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & RENDER_BLOOM) 
-		{
-			glUniform1i(uniformLoc, true);
-			glBindTextureUnit(1, mBloomMips[0].tex);
-		}
-		else
-			glUniform1i(uniformLoc, false);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 
 		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
 		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 		glBindVertexArray(mdl.vao);
 		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
-
-		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-		//glBindVertexArray(mdl.get()->vao);
-		//glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 #pragma endregion
 
@@ -871,6 +914,13 @@ namespace SliceEngine
 			break;
 		}
 		}
+	}
+	void RenderManager::ToggleFinalTexture()
+	{
+		if (mCurrFinalColAttachment == GOUT_FINAL)
+			mCurrFinalColAttachment = GOUT_POST;
+		else
+			mCurrFinalColAttachment = GOUT_FINAL;
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	//void RenderManager::LinkTransformInstancing(GUID guid)

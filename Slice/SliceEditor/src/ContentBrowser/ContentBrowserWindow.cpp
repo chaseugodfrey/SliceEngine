@@ -29,86 +29,87 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::Draw()
 	{
-		if (!ImGui::Begin("Content Browser"))
+		if (ImGui::Begin("Content Browser"))
 		{
-			ImGui::End();
-			return;
-		}
-		/*ImGuiID contentDock = ImGui::GetID("contentDock");
-		ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
 
-		if (ImGui::Button("Reload"))
-		{
-			mManager.RebuildDirectory(*mManager.rootNode);
-		}
+			/*ImGuiID contentDock = ImGui::GetID("contentDock");
+			ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
 
-		/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/
-		//ImGuiStyle& style = ImGui::GetStyle();
-		//SLICE_LOG("Style Padding:" + std::to_string(style.ItemSpacing.x) + " " + std::to_string(style.ItemSpacing.y));
-		//style.ItemSpacing = ImVec2(0, 0);
-
-		/*Asset Directory*/
-		ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
-
-		if (left_region.x > 0 && left_region.y > 0)
-		{
-			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
+			if (ImGui::Button("Reload"))
 			{
-				DisplayFolders(*mManager.rootNode);
-				//ImGui::Text("Directory Here!");
-
-				ImGui::EndChild();
+				mManager.RebuildDirectory(*mManager.rootNode);
 			}
-		}
 
-		ImGui::SameLine();
-		/*Folder Directory*/
-		ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+			/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/
+			//ImGuiStyle& style = ImGui::GetStyle();
+			//SLICE_LOG("Style Padding:" + std::to_string(style.ItemSpacing.x) + " " + std::to_string(style.ItemSpacing.y));
+			//style.ItemSpacing = ImVec2(0, 0);
 
-		if (right_region.x > 0 && right_region.y > 0)
-		{
-			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
+			/*Asset Directory*/
+			ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
+
+			if (left_region.x > 0 && left_region.y > 0)
 			{
-				//Pop-up General Context for File Creation
-				if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
 				{
-					ImGui::OpenPopup("menu_create");
+					DisplayFolders(*mManager.rootNode);
+					//ImGui::Text("Directory Here!");
+
+					ImGui::EndChild();
 				}
-
-				if (ImGui::BeginPopupContextWindow("menu_create"))
-				{
-					EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
-
-					ImGui::EndPopup();
-				}
-
-				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
-				DisplayItems(*mManager.selectedFolder);
-				ImGui::EndChild();
 			}
-		}
 
-		if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
-		{
-			mManager.mActiveDrop = std::move(mManager.mPendingDrops.front());
-		}
+			ImGui::SameLine();
+			/*Folder Directory*/
+			ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
 
-		if(mManager.mActiveDrop.has_value())
-		{
-			bool isOpen = true;
-
-			ImGui::OpenPopup("##CompileAsset");
-
-			CompileAssetPopup(*mManager.mActiveDrop, isOpen);
-
-			if (!isOpen) //Pop-up is closed for some reason
+			if (right_region.x > 0 && right_region.y > 0)
 			{
-				mManager.mPendingDrops.pop(); //The front is done, move on to next (if any)
-				mManager.mActiveDrop.reset(); //Remove the current activeDrop
+				if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Borders))
+				{
+					//Pop-up General Context for File Creation
+					if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+					{
+						ImGui::OpenPopup("menu_create");
+					}
+
+					if (ImGui::BeginPopupContextWindow("menu_create"))
+					{
+						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+
+						ImGui::EndPopup();
+					}
+
+					ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
+					DisplayItems(*mManager.selectedFolder);
+					ImGui::EndChild();
+				}
 			}
+
+			if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
+			{
+				mManager.mActiveDrop = std::move(mManager.mPendingDrops.front());
+			}
+
+			if (mManager.mActiveDrop.has_value())
+			{
+				bool isOpen = true;
+
+				ImGui::OpenPopup("##CompileAsset");
+
+				CompileAssetPopup(*mManager.mActiveDrop, isOpen);
+
+				if (!isOpen) //Pop-up is closed for some reason
+				{
+					mManager.mPendingDrops.pop(); //The front is done, move on to next (if any)
+					mManager.mActiveDrop.reset(); //Remove the current activeDrop
+				}
+			}
+
 		}
 
 		ImGui::End();
+
 	}
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
@@ -178,6 +179,112 @@ namespace SliceEditor
 					ImGui::TableNextColumn();
 					DisplayFileNode(entry);
 					ImGui::PopID();
+
+					/*std::filesystem::path filePath = entry.fileName;
+					//std::string fileKey = filePath.stem().stem().string();
+					//std::string fileExt = filePath.extension().string();
+					//bool canDrag = true;
+
+					//if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
+					//{
+					//	canDrag = false;
+					//}
+
+					//if (mRegistry.GetAssetManager().mSupportedAssetTypes.find(fileExt) == mRegistry.GetAssetManager().mSupportedAssetTypes.end())
+					//{
+					//	canDrag = false;
+					//}
+
+					//if (ImGui::ImageButton(entry.path.filename().string().c_str(), GetIcon(entry.type), ImVec2(64, 64)))
+					//{
+					//	selectedEntry = &entry;
+					//	selectionManager->SelectSingle(&entry);
+					//}
+
+					////Drag and Drop Payload
+					//if (canDrag && ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+					//{
+					//	//Check that the extension exists in the map
+					//	SliceEngine::GUID newGUID = resourceMgr->mFileNameToGUID[fileKey];
+					//	std::string payloadType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].second;
+					//	ImGui::SetDragDropPayload(payloadType.c_str(), &newGUID, sizeof(SliceEngine::GUID));
+
+					//	std::string dragText = "Dragging item " + entry.fileName;
+					//	ImGui::Text(dragText.c_str());
+					//	ImGui::EndDragDropSource();
+					//}
+
+					//if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+					//{
+					//	selectedEntry = &entry;
+					//}
+
+					//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+					//{
+					//	mManager.OpenFile(entry);
+					//}
+
+					//if (selectedEntry == &entry && ImGui::BeginPopupContextItem("##ItemEditPopup"))
+					//{
+					//	selectedEntry = &entry;
+
+					//	if (ImGui::MenuItem("Open File"))
+					//	{
+					//		mManager.OpenFile(entry);
+					//	}
+					//	if (ImGui::MenuItem("Rename File"))
+					//	{
+					//		mManager.openRenameFile = true;
+					//	}
+
+					//	if (ImGui::MenuItem("Re-compile File"))
+					//	{
+					//		//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
+					//		DroppedFile file;
+
+					//		file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
+					//		file.filePath = entry.path;
+					//		switch (file.assetType)
+					//		{
+					//		case AssetType::Texture:
+					//			file.metaData = std::make_unique<TextureData>();
+					//			break;
+					//		case AssetType::Model:
+					//			file.metaData = std::make_unique<ModelData>();
+					//			break;
+					//		case AssetType::Audio:
+					//			file.metaData = std::make_unique<AudioData>();
+					//			break;
+					//		case AssetType::Scene:
+					//			file.metaData = std::make_unique<SceneData>();
+					//			break;
+					//		case AssetType::Shader:
+					//			file.metaData = std::make_unique<ShaderData>();
+					//			break;
+					//		case AssetType::Prefab:
+					//			file.metaData = std::make_unique<PrefabData>();
+					//			break;
+					//		}
+					//		//Default Init the MetaData base class
+					//		file.metaData->InitMetaData(file.filePath, file.assetType, mRegistry.GetAssetManager().mAssetExtensions[file.assetType]);
+
+					//		mManager.mPendingDrops.push(std::move(file));
+					//	}
+
+					//	if (ImGui::MenuItem("Delete File"))
+					//	{
+					//		//SLICE_LOG_VALUES("Entry Filename: " + entry.fileName);
+					//		//SLICE_LOG_VALUES("Entry Path: " + entry.path.string());
+					//		//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+					//		mManager.DeleteNode(entry);
+					//		selectedEntry = nullptr;
+					//		ImGui::EndPopup();
+					//		break;
+					//	}
+					//	ImGui::EndPopup();
+					//}
+
+					//ImGui::Text("%s", name.c_str());*/
 				}
 			}
 
@@ -477,11 +584,11 @@ namespace SliceEditor
 		if (textureHandle.has_value())
 		{
 			auto texture = textureHandle.value().get();
-			if (texture || texture->texture_id != 0)
-				return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(texture->texture_id));
+			if (texture && texture->texture_id != 0)
+				return static_cast<ImU64>(texture->texture_id);
 		}
 
-		return nullptr;
+		return ImTextureID_Invalid;
 	}
 
 	#pragma region Display MetaData Region

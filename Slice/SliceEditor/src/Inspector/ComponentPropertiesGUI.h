@@ -53,12 +53,12 @@ namespace SliceEditor
 	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "%.3f", int min = 0, int max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
-	
-	bool StringInput(Registry& reg, const char* id, std::string& val, ImGuiInputTextFlags flags = 0);
-
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, ImGuiInputTextFlags flags = 0);
 
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
+	
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width);
+
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f);
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
@@ -80,12 +80,17 @@ namespace SliceEditor
 
 
 	template <typename Enum>
-	bool ComboHeader(Registry& reg, const char* property_label, const char* id, Enum& selected, std::vector<std::string>& container)
+	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
 	{
 		bool changed = false;
+		
+		if (!property_label.empty())
+		{
+			ImGui::Text(property_label.c_str());
+			ImGui::SameLine(150.f);
+		}
 
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.f);
+		ImGui::SetNextItemWidth(150.0f);
 
 		int idx = static_cast<int>(selected);
 		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
