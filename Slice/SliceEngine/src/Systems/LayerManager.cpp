@@ -49,7 +49,7 @@ namespace SliceEngine
 		else
 		{
 			// get the bit for this layer
-			layerBit = 1 << currentBit;
+			layerBit = 1u << currentBit;
 
 			// update both map and vector
 			collisionMask[name] = layerBit;
@@ -287,16 +287,15 @@ namespace SliceEngine
 
 	void LayerManager::AssignLayerInteraction(std::string first, std::string second, bool canInteract)
 	{
-
 		if (canInteract)
 		{
-			collisionMask[first] |= collisionMask[second];
-			collisionMask[second] |= collisionMask[first];
+			collisionMask[first] |= (1u << nameToLayer[second]);
+			collisionMask[second] |= (1u << nameToLayer[first]);
 		}
 		else
 		{
-			collisionMask[first] &= ~collisionMask[second];
-			collisionMask[second] &= ~collisionMask[first];
+			collisionMask[first] &= ~(1u << nameToLayer[second]);
+			collisionMask[second] &= ~(1u << nameToLayer[first]);
 		}
 
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(nameToLayer[first], collisionMask[first]);
