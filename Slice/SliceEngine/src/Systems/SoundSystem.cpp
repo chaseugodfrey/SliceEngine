@@ -71,7 +71,7 @@ namespace SliceEngine
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
-		glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
+		glm::vec3 entityVel = { 0.f ,0.f,0.f};
 
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{

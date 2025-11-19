@@ -118,8 +118,7 @@ namespace SliceEngine
 		TestMaxInstances("Hit_Slime.Single", 3);
 		TestMaxInstances("Hit_Slime.Single", 6);
 		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
-		TestSpatialBlend("Hit_Slime.Single", 0.5f);
-		TestPlaySFX();*/
+		TestSpatialBlend("Hit_Slime.Single", 0.5f);*/
 		
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<AudioSourceSystem>();
@@ -164,6 +163,7 @@ namespace SliceEngine
 		auto mNetwork = Core::GetInstance()->GetNetwork();
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
+		//TestPlaySFX();
 	
 	}
 

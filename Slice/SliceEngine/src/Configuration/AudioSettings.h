@@ -49,7 +49,9 @@ namespace SliceEngine
 		void Init(FMOD::System* system);
 		void Exit();
 		void CreateSoundGroup(const std::string& key);
-		void SetSoundGroup(std::string soundName, const std::string& key);
+		void SetSoundGroup(const std::string& soundName, const std::string& key);
+		const std::string GetEntryName(const std::string& key);
+		void SetEntryName(const std::string& key);
 		FMOD::SoundGroup* GetSoundGroup(const std::string& key);
 		SFXEntry* GetSFXEntry(const std::string& key);
 		void SetSoundGroupVolume(const std::string& key, float volume);

@@ -63,7 +63,7 @@ namespace SliceEngine
 
 	}
 
-	void AudioSettings::SetSoundGroup(const std::string soundName, const std::string& key)
+	void AudioSettings::SetSoundGroup(const std::string& soundName, const std::string& key)
 	{
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
 		
@@ -102,6 +102,15 @@ namespace SliceEngine
 		audioClip->GetSound()->setSoundGroup(entry->soundGroup);
 		entry->AudioClips.emplace_back(audioGUID);
 
+	}
+
+	const std::string AudioSettings::GetEntryName(const std::string& key)
+	{
+		return std::string();
+	}
+
+	void AudioSettings::SetEntryName(const std::string& key)
+	{
 	}
 
 	FMOD::SoundGroup* AudioSettings::GetSoundGroup(const std::string& key)
@@ -377,7 +386,7 @@ namespace SliceEngine
 		audioComp.volumeRollOff = entry->volumeRollOff;
 		audioComp.playOnAwake = true;
 
-		audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+		//audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
 
 		//entry->_lastPlayed = currentTime;
 	}
