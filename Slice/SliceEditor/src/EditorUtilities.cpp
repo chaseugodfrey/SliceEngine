@@ -313,6 +313,9 @@ namespace SliceEditor
 			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
 		}
 
+		#pragma region Assets
+		
+		#pragma endregion
 
 #pragma region Preferences
 

@@ -173,65 +173,10 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
-			ImGui::Text("Mesh");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
-            std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
-			}
-			else //Its a default model
-			{
-				modelFilename = model_guid_string;
-			}
-			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
-			}
+			HandleInputHeader(mRegistry, "Model: ", "##modelguid", entity, AssetType::Model, rend.modelHandle.getGUID());
 
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
-					// update the handle after
-
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			ImGui::Text("Material");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
-			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
-			}
-			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
-					// update the handle after
-						// reload material handle here
-				}
-				ImGui::EndDragDropTarget();
-			}
+			HandleInputHeader(mRegistry, "Material: ", "##materialguid", entity, AssetType::Material, rend.materialHandle.getGUID());
+			
 
 			ImGui::TreePop();
 		}
@@ -400,7 +345,7 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
-						//Array Variables
+						#pragma region Array Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::String)
@@ -448,8 +393,29 @@ namespace SliceEditor
 								}
 							}
 						}
+						#pragma endregion
+						#pragma region List Variables
 						//List Variables
-						
+						if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
+						{
+							if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							{
+								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								//Display Function Here
+								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									/*scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);*/
+								}
+							}
+						}
+
+						#pragma endregion
 						//Non-Array/List Value
 						else
 						{

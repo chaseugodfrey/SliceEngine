@@ -467,6 +467,53 @@ namespace SliceEditor
 
 		return changed;
 	}
+	
+	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<std::string > oldList{};
+		int i = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(i);
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				changed |= ImGui::InputText(newID.c_str(), &entry);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<std::string>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				i++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				//Plus Here
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("-", ImVec2(30, 20)))
+			{
+				//Minus Here
+			}
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
 
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
@@ -636,6 +683,72 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool HandleInputHeader(Registry& reg, const char* property_label, const char* id, entt::entity entity, AssetType type, SliceEngine::GUID guid)
+	{
+		bool changed = false;
+		std::string guid_string = std::to_string(guid.GetGUID());
+		std::string modelFilename;
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(entity);
+		SliceEngine::GUID oldGUID = rend.modelHandle.getGUID();
+		if (reg.GetAssetManager().mGUIDtoFilename.find(guid) != reg.GetAssetManager().mGUIDtoFilename.end())
+		{
+			modelFilename = reg.GetAssetManager().mGUIDtoFilename[guid];
+		}
+		else //Its a default model
+		{
+			modelFilename = guid_string;
+		}
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		ImGui::InputText(id, &modelFilename, ImGuiInputTextFlags_ReadOnly);
+		if(ImGui::BeginDragDropTarget())
+		{
+			switch (type)
+			{
+			case AssetType::Model:
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(entity);
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
+					changed = true;
+
+					if (changed)
+					{
+						std::unique_ptr<HandleSetCommand<SliceEngine::SliceEngineTypes::Model>> command = std::make_unique<HandleSetCommand<SliceEngine::SliceEngineTypes::Model>>(rend.modelHandle, oldGUID, recievedPayload);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				break;
+			}
+
+			case AssetType::Material:
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					//rend.modelHandle.mGUID = recievedPayload;
+					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
+					changed = true;
+
+					if (changed)
+					{
+						std::unique_ptr<HandleSetCommand<SliceEngine::SliceEngineTypes::Material>> command = std::make_unique<HandleSetCommand<SliceEngine::SliceEngineTypes::Material>>(rend.materialHandle, oldGUID, recievedPayload);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				break;
+			}
+			default:
+				break;
+			}
+			ImGui::EndDragDropTarget();
+		}
+		return changed;
+	}
 }
 
 
