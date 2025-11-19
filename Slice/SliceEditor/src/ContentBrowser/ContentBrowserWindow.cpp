@@ -29,7 +29,11 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::Draw()
 	{
-		ImGui::Begin("Content Browser");
+		if (!ImGui::Begin("Content Browser"))
+		{
+			ImGui::End();
+			return;
+		}
 		/*ImGuiID contentDock = ImGui::GetID("contentDock");
 		ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
 
