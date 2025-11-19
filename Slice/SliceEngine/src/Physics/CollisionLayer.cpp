@@ -107,36 +107,67 @@ namespace SliceEngine
 	//ObjectLayerPairFilterImpl implementation
 	ObjectLayerPairFilterImpl::ObjectLayerPairFilterImpl()
 	{
-		for(unsigned int i = 0; i < Layers::NUM_LAYERS; ++i)
+		// Default: all layers collide with all (all bits set)
+		for (unsigned int i = 0; i < Layers::NUM_LAYERS; ++i)
 		{
-			for(unsigned int j = 0; j < Layers::NUM_LAYERS; j++)
-			{
-				m_CollisionMatrix[i][j] = true;
-			}
+			m_CollisionMask[i] = 0xFFFFFFFF; // Set all 32 bits to 1
 		}
 	}
 
 	// Class that determines if object layer can collide
 	bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const
 	{
-			if(inObject1 >= Layers::NUM_LAYERS < 0 || inObject1 >= Layers::NUM_LAYERS || inObject2 < 0 || inObject2 >= Layers::NUM_LAYERS)
-			{
-				JPH_ASSERT(false, "Object layer out of bounds");
-				return false;
-			}
-			return m_CollisionMatrix[inObject1][inObject2];
+		if (inObject1 >= Layers::NUM_LAYERS || inObject2 >= Layers::NUM_LAYERS)
+		{
+			JPH_ASSERT(false, "Object layer out of bounds");
+			return false;
+		}
+		return (m_CollisionMask[inObject1] & (1u << inObject2)) != 0;
 	}
 
-	void ObjectLayerPairFilterImpl::SetCanCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2, bool canCollide)
+	//let layer manager handle this
+	//void ObjectLayerPairFilterImpl::SetCanCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2, bool canCollide)
+	//{
+	//	if (inObject1 >= 32 || inObject2 >= 32)
+	//	{
+	//		JPH_ASSERT(false, "Object layer out of bounds");
+	//		return;
+	//	}
+
+	//	if (canCollide)
+	//	{
+	//		m_CollisionMask[inObject1] |= (1u << inObject2);
+	//		m_CollisionMask[inObject2] |= (1u << inObject1);
+	//	}
+	//	else
+	//	{
+	//		m_CollisionMask[inObject1] &= ~(1u << inObject2);
+	//		m_CollisionMask[inObject2] &= ~(1u << inObject1);
+	//	}
+	//}
+
+	uint32_t ObjectLayerPairFilterImpl::GetCollisionMask(JPH::ObjectLayer inLayer) const
 	{
-		m_CollisionMatrix[inObject1][inObject2] = canCollide;
-		m_CollisionMatrix[inObject2][inObject1] = canCollide;
+		if (inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		{
+			JPH_ASSERT(false, "Object layer out of bounds");
+			return 0;
+		}
+		return m_CollisionMask[inLayer];
 	}
 
-	const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& ObjectLayerPairFilterImpl::GetCollisionMatrix() const
+	void ObjectLayerPairFilterImpl::SetCollisionMask(JPH::ObjectLayer inLayer, uint32_t mask)
 	{
-		return m_CollisionMatrix;
+		if (inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		{
+			JPH_ASSERT(false, "Object layer out of bounds");
+			return;
+		}
+		m_CollisionMask[inLayer] = mask;
 	}
+
+
+
 
 
 }

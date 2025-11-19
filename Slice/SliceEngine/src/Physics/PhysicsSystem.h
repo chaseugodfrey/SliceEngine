@@ -113,9 +113,9 @@ namespace SliceEngine
 
 		void AddAccelerationToEntity(Entity entity, const JPH::Vec3& acceleration);
 
-		const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& GetCollisionMatrix() const;
+		void SetCollisionMask(uint32_t layer, uint32_t mask);
 
-		void SetCanCollide(unsigned int layer1, unsigned int layer2, bool value);
+
 	};
 
 

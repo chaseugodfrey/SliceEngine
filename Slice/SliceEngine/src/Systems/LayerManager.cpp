@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "LayerManager.h"
 #include "Core/Core.h"
+#include "../Physics/PhysicsSystem.h"
 
 namespace SliceEngine
 {
@@ -31,12 +32,13 @@ namespace SliceEngine
 			SLICE_LOG_ERROR(name + " already exist bodoh");
 			return;
 		}
+		uint32_t layerBit{};
 
 		if (removedBits.size() > 0)
 		{
 			// use the latest bit to be removed
 			uint32_t bit = removedBits.back();
-			uint32_t layerBit = 1 << bit;
+			layerBit = 1 << bit;
 
 			collisionMask[name] = layerBit;
 			indexToLayerName[currentBit] = name;
@@ -47,7 +49,7 @@ namespace SliceEngine
 		else
 		{
 			// get the bit for this layer
-			uint32_t layerBit = 1 << currentBit;
+			layerBit = 1 << currentBit;
 
 			// update both map and vector
 			collisionMask[name] = layerBit;
@@ -60,8 +62,12 @@ namespace SliceEngine
 			currentBit++;
 		}
 
+		// Jolt bodies need to know about the new layer and its mask
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(currentBit, layerBit);
+
 	}
 
+	//Removes the layer from the map and sets entities using it to default layer
 	void LayerManager::RemoveLayer(std::string name)
 	{
 		// check if it doesn't exist
@@ -76,12 +82,15 @@ namespace SliceEngine
 
 		for (auto entity : view)
 		{
-			UnassignLayer(name, entity);
+			SetDefaultLayer(name, entity); // change to default but remove the layer
 		}
 
+		// inform jolt that this layer is gone so set its mask to 0
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(nameToLayer[name], 0);
 
 		// erase from both collision layer and keys
 		collisionMask.erase(name);
+		nameToLayer.erase(name);
 
 		// i realise since i changed to map from vector, i dont have to loop like this
 		// but it works
@@ -102,7 +111,9 @@ namespace SliceEngine
 			i++;
 		}
 
+
 	}
+
 	uint32_t LayerManager::GetMask(std::string name)
 	{
 		// check if it doesn't exist
@@ -144,7 +155,6 @@ namespace SliceEngine
 		return nameToLayer[name];
 	}
 
-	// might not even be using this mayb
 	uint32_t LayerManager::GetLayer(uint32_t index)
 	{
 		if (index >= currentBit)
@@ -155,13 +165,19 @@ namespace SliceEngine
 
 		// doesn't exist
 		if (indexToLayerName.find(index) == indexToLayerName.end())
-			return 0;
+			return INVALID_LAYER;
 
 		// looks kinda cancer idk
 		return nameToLayer[indexToLayerName[index]];
 	}
 
+	std::string LayerManager::GetLayerName(uint32_t layer)
+	{
+		if (indexToLayerName.find(layer) == indexToLayerName.end())
+		return std::string("no layer bodoh");
 
+		return indexToLayerName[layer];
+	}
 
 	bool LayerManager::CheckLayerInteraction(Entity first, Entity second)
 	{
@@ -178,30 +194,37 @@ namespace SliceEngine
 				return false;
 			}
 
+			std::string firstLayerName = GetLayerName(firstTransform.collisionLayer);
+			std::string secondLayerName = GetLayerName(secondTransform.collisionLayer);
+
+			if(firstLayerName == "no layer bodoh" || secondLayerName == "no layer bodoh")
+			{
+				SLICE_LOG_ERROR("cant interact bodoh one of these entityFirst or entitySecond has no layer");
+				return false;
+			}
+
 			// as long as its not 0, means they share a layer
-			return firstTransform.collisionMask & secondTransform.collisionMask;
+			return collisionMask[firstLayerName] & collisionMask[secondLayerName];
 		}
 
 		// if either one of them or both dont have transform component
 		// then itll jus return false
 		return false;
 	}
-
+ 
 	void LayerManager::AssignLayer(std::string name, Entity entity)
 	{
 		auto entityGO = FactoryInstance.GetGOByEntity(entity);
 
-		// idk where we want to store it's collision mask but for now its in Transform
 		if (entityGO.HasComponent<Transform>())
 		{
 			auto& transform = entityGO.GetComponent<Transform>();
-
-			transform.collisionMask |= collisionMask[name];
 			transform.collisionLayer = nameToLayer[name];
 		}
 	}
 
-	void LayerManager::UnassignLayer(std::string name, Entity entity)
+	//rework change all to default layer instead of removing entirely
+	void LayerManager::SetDefaultLayer(std::string name, Entity entity)
 	{
 		auto entityGO = FactoryInstance.GetGOByEntity(entity);
 
@@ -210,14 +233,35 @@ namespace SliceEngine
 		{
 			auto& transform = entityGO.GetComponent<Transform>();
 
-			// If it has this collision layer
-			if (transform.collisionMask & collisionMask[name])
+			if (GetLayer("Default") == INVALID_LAYER)
 			{
-				// remove it
-				transform.collisionMask &= ~collisionMask[name];
-				transform.collisionLayer = INVALID_LAYER; // set to invalid layer(Max 32 layers)
+				SLICE_LOG_ERROR("Default layer doesn't exist bodoh");
 			}
+			else
+			{
+				transform.collisionLayer = GetLayer("Default");
+			}
+		
 		}
+
+	}
+
+	void LayerManager::AssignLayerInteraction(std::string first, std::string second, bool canInteract)
+	{
+
+		if (canInteract)
+		{
+			collisionMask[first] |= collisionMask[second];
+			collisionMask[second] |= collisionMask[first];
+		}
+		else
+		{
+			collisionMask[first] &= ~collisionMask[second];
+			collisionMask[second] &= ~collisionMask[first];
+		}
+
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(nameToLayer[first], collisionMask[first]);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(nameToLayer[second], collisionMask[second]);
 
 	}
 }

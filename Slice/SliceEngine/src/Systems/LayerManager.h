@@ -9,7 +9,8 @@ namespace SliceEngine
 
 	class LayerManager
 	{
-	public:
+	public:					
+							
 		std::unordered_map<std::string, uint32_t> collisionMask;
 		std::unordered_map<std::string, uint32_t> nameToLayer;
 
@@ -49,6 +50,8 @@ namespace SliceEngine
 
 		uint32_t GetLayer(uint32_t index);
 
+		std::string GetLayerName(uint32_t layer);
+
 		/// <summary>
 		/// Check two entity layers to see if they can interact
 		/// </summary>
@@ -69,7 +72,10 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="name">Name of the layer</param>
 		/// <param name="entity">entity to modify</param>
-		void UnassignLayer(std::string name, Entity entity);
+		void SetDefaultLayer(std::string name, Entity entity);
+
+		void AssignLayerInteraction(std::string first, std::string second, bool canInteract);
+
 
 		// mayb make an int version based on the index in the map or smth
 	};

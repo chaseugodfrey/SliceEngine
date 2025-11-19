@@ -73,7 +73,7 @@ namespace SliceEngine
 
 
 		mResource->InitResourceManager();
-		mLayerManager->Init();
+
 	}
 
 	void Core::ExitCore()

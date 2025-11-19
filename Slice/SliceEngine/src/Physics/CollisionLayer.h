@@ -68,22 +68,25 @@ namespace SliceEngine
 		void SetCanCollide(JPH::BroadPhaseLayer inLayer1, JPH::BroadPhaseLayer inLayer2, bool canCollide);
 	};
 
-	// Class that determines if object layer can collide
+	// ObjectLayerPairFilterImpl with bitmask
 	class ObjectLayerPairFilterImpl final : public JPH::ObjectLayerPairFilter
 	{
-	private:
-		std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS> m_CollisionMatrix;
-
 	public:
 		ObjectLayerPairFilterImpl();
 
 		bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override;
 
-		void SetCanCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2, bool canCollide);
+		//void SetCanCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2, bool canCollide);
 
-		const std::array<std::array<bool, Layers::NUM_LAYERS>, Layers::NUM_LAYERS>& GetCollisionMatrix() const;
+		uint32_t GetCollisionMask(JPH::ObjectLayer inLayer) const;
 
+		void SetCollisionMask(JPH::ObjectLayer inLayer, uint32_t mask);
 
+		//might do this but layer manager handles it i think
+		//void EnableCollisionWithLayer(JPH::ObjectLayer inLayer, JPH::ObjectLayer layerToEnable);
+
+	private:
+		uint32_t m_CollisionMask[Layers::NUM_LAYERS];
 	};
 
 }

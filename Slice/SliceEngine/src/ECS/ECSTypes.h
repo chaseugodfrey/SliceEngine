@@ -92,9 +92,7 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-
-		uint32_t collisionMask;
-		uint32_t collisionLayer{ 0 };
+		uint32_t collisionLayer{ 0u };
 
 		RTTR_ENABLE();
     };
