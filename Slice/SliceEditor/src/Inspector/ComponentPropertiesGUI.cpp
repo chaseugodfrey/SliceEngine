@@ -152,9 +152,15 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width)
 	{
 		static std::string oldVal{};
+
+		if (width == 0.0f)
+			width = 150.0f;
+
+		ImGui::SetNextItemWidth(width);
+
 		bool changed = ImGui::InputText(id, &val);
 
 		if (ImGui::IsItemActivated())
@@ -224,12 +230,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val) || changed;
+		changed = StringInput(reg, id, val, width) || changed;
 
 		return changed;
 	}
