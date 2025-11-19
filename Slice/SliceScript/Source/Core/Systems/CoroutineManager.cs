@@ -64,6 +64,12 @@ namespace SliceEngine
             newCoroutines.RemoveAll(c => c.Owner == owner);
         }
 
+        public void OnCreate()
+        {
+            coroutines.Clear();
+            newCoroutines.Clear();
+        }
+
         public void OnUpdate(float dt)
         {
             // Register new coroutines

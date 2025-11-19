@@ -387,6 +387,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnStart()
     {
+        mCoroutineInstance->InvokeOnCreate();
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
