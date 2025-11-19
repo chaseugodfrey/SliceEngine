@@ -35,9 +35,12 @@ namespace SliceEngine
 		void SetFloat(const std::string& name, float value);
 		void SetInt(const std::string& name, int value);
 		void SetLoop(bool loop);
+		std::string GetCurrAnimName();
+		bool IsCurrAnimFin();
 
 		SliceEngineTypes::StateMachine EFSM;
 		float current_time{ 0.0f };
+		bool stateChanged{ false };
 		//StateMachine EFSM;
 
 		RTTR_ENABLE();

@@ -258,8 +258,6 @@ namespace SliceEngine
 		frm->EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
-
-
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
@@ -290,6 +288,7 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Physics");
 
+		
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -300,7 +299,6 @@ namespace SliceEngine
 
 			}
 		}
-
 
 		frm->StartSystem("Graphics");
 		sRender->Render();

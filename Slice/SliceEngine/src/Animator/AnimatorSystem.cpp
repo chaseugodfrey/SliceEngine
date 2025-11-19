@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp> // For translate, rotate, scale
 #include <glm/gtc/quaternion.hpp>      // For quaternions
 #include "../Core/Core.h"
+#include "../Resource/Skeleton.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -51,24 +52,29 @@ namespace SliceEngine
 
 		animator.stateMachine.UpdateState(animator.current_time);
 
-
 		UpdateAnimation(animator, dt);
-
-		/*
-		use .compare
-		if(animator.stateMachine.prevState != animator.stateMachine.currState->stateName)
-		{
-			interp (animator.stateMachine.stateMap[stateMachine.prevState],animator.stateMachine.currState)
-
-			animator.stateMachine.prevState = animator.stateMachine.currState->stateName;
-		}
-		*/
 	}
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
 		if (!animator.IsValid()) return;
+
+		if (animator.stateMachine.stateChanged)
+		{
+			if (animator.is_bone)
+			{
+				auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
+				auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+
+				for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
+				{
+					if(prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
+						curranim.boneKeyFrames[i].transforms[0] = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[prevanim.boneKeyFrames[i].transforms.size() - 1], curranim.boneKeyFrames[i].transforms[0], dt);
+				}
+			}
+			animator.stateMachine.stateChanged = false;
+		}
 
 		//if (animator.timeline.isPlaying)
 		{
@@ -102,7 +108,6 @@ namespace SliceEngine
 					}
 
 				}
-				//anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
 			}

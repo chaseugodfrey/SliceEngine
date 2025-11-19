@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace SliceEngine
 {
@@ -108,19 +109,6 @@ namespace SliceEngine
             }
         }
 
-        public static float Clamp(float value, float min, float max)
-        {
-            if (value < min)
-            {
-                return min;
-            }
-            if (value > max)
-            {
-                return max;
-            }
-            return value;
-        }
-
         public static float Dot(Vector3 v1, Vector3 v2)
         {
             return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
@@ -128,21 +116,65 @@ namespace SliceEngine
 
         public static Vector3 Slerp(Vector3 start, Vector3 end, float t)
         {
-            t = Vector3.Clamp(t, 0.0f, 1.0f);
-            float dot = Vector3.Dot(start, end);
-            dot = Vector3.Clamp(dot, -1.0f, 1.0f);
-            float omega = (float)Math.Acos(dot);
-            if (omega < 0.0001f)
-            {
-                Vector3 tmp  = (start + (end - start) * t);
-                return tmp.Normalize();
-            }
-            float sinOmega = (float)Math.Sin(omega);
-            float scale0 = (float)Math.Sin((1.0f - t) * omega) / sinOmega;
-            float scale1 = (float)Math.Sin(t * omega) / sinOmega;
-            Vector3 result = (start * scale0) + (end * scale1);
+            //t = Utilities.Clamp(t, 0.0f, 1.0f);
+            //float dot = Vector3.Dot(start, end);
+            //dot = Utilities.Clamp(dot, -1.0f, 1.0f);
+            //float omega = (float)Math.Acos(dot);
+            //if (omega < 0.0001f)
+            //{
+            //    Vector3 tmp  = (start + (end - start) * t);
+            //    return tmp.Normalize();
+            //}
+            //float sinOmega = (float)Math.Sin(omega);
+            //float scale0 = (float)Math.Sin((1.0f - t) * omega) / sinOmega;
+            //float scale1 = (float)Math.Sin(t * omega) / sinOmega;
+            //Vector3 result = (start * scale0) + (end * scale1);
 
-            return result;
+            //return result;
+
+            // Dot product - the cosine of the angle between 2 vectors.
+            float dot = Vector3.Dot(start, end);
+
+            // Clamp it to be in the range of Acos()
+            // This may be unnecessary, but floating point
+            // precision can be a fickle mistress.
+            //Mathf.Clamp(dot, -1.0f, 1.0f);
+            // annotation derHugo: like it stands this is indeed completely unnecessary. 
+            // If something it should be
+            dot = Utilities.Clamp(dot, -1.0f, 1.0f);
+
+            // Acos(dot) returns the angle between start and end,
+            // And multiplying that by percent returns the angle between
+            // start and the final result.
+            float theta = (float)Math.Acos(dot) * t;
+            Vector3 RelativeVec = end - start * dot;
+            RelativeVec.Normalize();
+
+            // Orthonormal basis
+            // The final result.
+            return ((start * (float)Math.Cos(theta)) + (RelativeVec * (float)Math.Sin(theta)).Normalize());
+        }
+
+        public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
+        {
+            // Step 1: Compute the angle between them
+            float dot = Vector3.Dot(to, from);
+
+            // Clamp dot to avoid domain errors due to floating point inaccuracies
+            dot = Utilities.Clamp(dot, -1f, 1f);
+
+            // Angle in radians between rotations
+            float angle = (float)Math.Acos(dot) * 2f * 180f / (float)Math.PI; // convert to degrees
+
+            // If angle is very small, just return target
+            if (angle < 1e-5f)
+                return to;
+
+            // Step 2: Determine how much fraction to rotate this step
+            float t = Math.Min(1f, maxDegreesDelta / angle);
+
+            // Step 3: Perform spherical interpolation (Slerp)
+            return Slerp(from, to, t);
         }
     }
 }

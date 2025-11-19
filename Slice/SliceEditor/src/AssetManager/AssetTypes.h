@@ -748,16 +748,17 @@ namespace SliceEditor
 			tmpVar = false;
 
 			to_json(metaJson["parameters"]["player|Attack1"], tmpVar);
-
+			to_json(metaJson["parameters"]["player|AttackToIdle1"], tmpVar);
+			to_json(metaJson["parameters"]["player|Attack2"], tmpVar);
+			to_json(metaJson["parameters"]["player|AttackToIdle2"], tmpVar);
+			to_json(metaJson["parameters"]["player|Attack3"], tmpVar);
+			to_json(metaJson["parameters"]["player|Attack3ToLoco"], tmpVar);
 			to_json(metaJson["parameters"]["player|Walk"], tmpVar);
-
 			to_json(metaJson["parameters"]["player|Idle"], tmpVar);
 
 			SliceEngine::SliceEngineTypes::State tmpState;
 			SliceEngine::SliceEngineTypes::Transition tmpTran;
 
-
-			tmpState.curr_anim_idx = 13;
 			tmpState.stateName = "player|Idle";
 			tmpState.hasExitTime = false;
 			tmpState.entryTime = 0;
@@ -777,7 +778,6 @@ namespace SliceEditor
 			to_json(metaJson["stateMap"]["player|Idle"], tmpState);
 			tmpState.transitions.clear();
 
-			tmpState.curr_anim_idx = 21;
 			tmpState.stateName = "player|Walk";
 			tmpState.hasExitTime = false;
 			tmpState.entryTime = 0;
@@ -797,8 +797,26 @@ namespace SliceEditor
 			to_json(metaJson["stateMap"]["player|Walk"], tmpState);
 			tmpState.transitions.clear();
 
-			tmpState.curr_anim_idx = 1;
 			tmpState.stateName = "player|Attack1";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "player|AttackToIdle1";
+			tmpTran.parameterName = "player|AttackToIdle1";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "player|Attack2";
+			tmpTran.parameterName = "player|Attack2";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["player|Attack1"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.stateName = "player|AttackToIdle1";
 			tmpState.hasExitTime = true;
 			tmpState.entryTime = 0;
 			tmpState.exitTime = 1;
@@ -814,8 +832,82 @@ namespace SliceEditor
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpState.transitions.push_back(tmpTran);
 
-			to_json(metaJson["stateMap"]["player|Attack1"], tmpState);
+
+			to_json(metaJson["stateMap"]["player|AttackToIdle1"], tmpState);
 			tmpState.transitions.clear();
+
+			tmpState.stateName = "player|Attack2";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "player|AttackToIdle2";
+			tmpTran.parameterName = "player|AttackToIdle2";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "player|Attack3";
+			tmpTran.parameterName = "player|Attack3";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["player|Attack2"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.stateName = "player|AttackToIdle2";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "player|Idle";
+			tmpTran.parameterName = "player|Idle";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "player|Walk";
+			tmpTran.parameterName = "player|Walk";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+
+			to_json(metaJson["stateMap"]["player|AttackToIdle2"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.stateName = "player|Attack3";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "player|Attack3ToLoco";
+			tmpTran.parameterName = "player|Attack3ToLoco";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["player|Attack3"], tmpState);
+			tmpState.transitions.clear();
+
+			tmpState.stateName = "player|Attack3ToLoco";
+			tmpState.hasExitTime = true;
+			tmpState.entryTime = 0;
+			tmpState.exitTime = 1;
+			tmpState.isLoop = false;
+
+			tmpTran.targetState = "player|Idle";
+			tmpTran.parameterName = "player|Idle";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "player|Walk";
+			tmpTran.parameterName = "player|Walk";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			to_json(metaJson["stateMap"]["player|Attack3"], tmpState);
+			tmpState.transitions.clear();
+
 
 			std::ofstream output(desc_path);
 

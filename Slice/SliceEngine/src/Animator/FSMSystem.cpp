@@ -58,12 +58,25 @@ namespace SliceEngine
 	{
 		if (!EFSM.currState) return;
 
+		// only 1 transition
+		if (EFSM.currState->transitions.size() == 1)
+		{
+			if (EFSM.parameters.find(EFSM.currState->transitions[0].parameterName) != EFSM.parameters.end())
+			{
+				const rttr::variant& currentParamValue = EFSM.parameters[EFSM.currState->transitions[0].parameterName];
+				EFSM.nextState = EFSM.currState->transitions[0].targetState;
+				EFSM.stateCon = true;
+				return;
+			}
+		}
+
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
-			
 			if (EFSM.parameters.find(transition.parameterName) != EFSM.parameters.end())
 			{
 				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
+
+				bool check = currentParamValue.to_bool();
 
 				if (EvalCon(currentParamValue, transition.operation, transition.condition))
 				{
@@ -82,6 +95,7 @@ namespace SliceEngine
 		{
 			return;
 		}
+		EFSM.stateMap[EFSM.prevState].isFinish = false;
 
 		bool safeToChange = false;
 
@@ -90,6 +104,7 @@ namespace SliceEngine
 			// check exit time
 			if(EFSM.currState->exitTime * EFSM.currState->animationTime <= current_time)
 			{
+				EFSM.currState->isFinish = true;
 				safeToChange = true;
 			}
 		}
@@ -115,6 +130,7 @@ namespace SliceEngine
 			EFSM.nextState.clear();
 
 			CTime = 0.0f;
+			stateChanged = true;
 		}
 	}
 
@@ -165,11 +181,30 @@ namespace SliceEngine
 
 		EFSM.currState->isLoop = loop;
 	}
+	std::string FSMSystem::GetCurrAnimName()
+	{
+		if (!EFSM.currState) 
+			return std::string{};
+
+		return EFSM.currState->stateName;
+	}
+	bool FSMSystem::IsCurrAnimFin()
+	{
+		if (!EFSM.currState) 
+			return false;
+
+		return EFSM.currState->isFinish;
+	}
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
 		if (!EFSM.currState) return;
 
 		EFSM.parameters[name] = value;
+
+		if (std::strcmp(name.c_str(), "player|AttackToIdle1") == 0 && value)
+		{
+			std::string he = "hele";
+		}
 
 		for (auto& [key, var] : EFSM.parameters)
 		{
