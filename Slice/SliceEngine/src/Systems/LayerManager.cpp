@@ -192,6 +192,14 @@ namespace SliceEngine
 		return indexToLayerName[layer];
 	}
 
+	std::vector<std::string> LayerManager::GetLayerNameList()
+	{
+		std::vector<std::string> nameList{};
+		for (auto& [key, value] : nameToLayer)
+			nameList.push_back(key);
+		return nameList;
+	}
+
 	uint32_t LayerManager::GetNumberOfLayers() const
 	{
 		return numberOflayers;
@@ -203,17 +211,17 @@ namespace SliceEngine
 		auto entitySecond = FactoryInstance.GetGOByEntity(second);
 
 		// if both have transform component
-		if (entityFirst.HasComponent<Transform>() && entitySecond.HasComponent<Transform>())
+		if (entityFirst.HasComponent<SliceEntity>() && entitySecond.HasComponent<SliceEntity>())
 		{
-			Transform& firstTransform = entityFirst.GetComponent<Transform>();
-			Transform& secondTransform = entitySecond.GetComponent<Transform>();
-			if(firstTransform.collisionLayer == INVALID_LAYER || secondTransform.collisionLayer == INVALID_LAYER)
+			SliceEntity& firstSlice = entityFirst.GetComponent<SliceEntity>();
+			SliceEntity& secondSlice = entitySecond.GetComponent<SliceEntity>();
+			if(firstSlice.mLayer == INVALID_LAYER || secondSlice.mLayer == INVALID_LAYER)
 			{
 				return false;
 			}
 
-			std::string firstLayerName = GetLayerName(firstTransform.collisionLayer);
-			std::string secondLayerName = GetLayerName(secondTransform.collisionLayer);
+			std::string firstLayerName = GetLayerName(firstSlice.mLayer);
+			std::string secondLayerName = GetLayerName(secondSlice.mLayer);
 
 			if(firstLayerName == "no layer bodoh" || secondLayerName == "no layer bodoh")
 			{
@@ -245,8 +253,8 @@ namespace SliceEngine
 
 		if (entityGO.HasComponent<Transform>())
 		{
-			auto& transform = entityGO.GetComponent<Transform>();
-			transform.collisionLayer = nameToLayer[name];
+			auto& slice = entityGO.GetComponent<SliceEntity>();
+			slice.mLayer = nameToLayer[name];
 		}
 
 		//check if it is a physics body to update jolt body layer
@@ -264,7 +272,7 @@ namespace SliceEngine
 		// idk where we want to store it's collision mask but for now its in Transform
 		if (entityGO.HasComponent<Transform>())
 		{
-			auto& transform = entityGO.GetComponent<Transform>();
+			auto& slice = entityGO.GetComponent<SliceEntity>();
 
 			if (GetLayer("Default") == INVALID_LAYER)
 			{
@@ -272,7 +280,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				transform.collisionLayer = GetLayer("Default");
+				slice.mLayer = GetLayer("Default");
 			}
 		
 		}

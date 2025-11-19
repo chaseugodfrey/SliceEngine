@@ -29,82 +29,87 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::Draw()
 	{
-		ImGui::Begin("Content Browser");
-		/*ImGuiID contentDock = ImGui::GetID("contentDock");
-		ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
-
-		if (ImGui::Button("Reload"))
+		if (ImGui::Begin("Content Browser"))
 		{
-			mManager.RebuildDirectory(*mManager.rootNode);
-		}
 
-		/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/
-		//ImGuiStyle& style = ImGui::GetStyle();
-		//SLICE_LOG("Style Padding:" + std::to_string(style.ItemSpacing.x) + " " + std::to_string(style.ItemSpacing.y));
-		//style.ItemSpacing = ImVec2(0, 0);
+			/*ImGuiID contentDock = ImGui::GetID("contentDock");
+			ImGui::DockSpace(contentDock, ImVec2(0, 0), ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);*/
 
-		/*Asset Directory*/
-		ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
-
-		if (left_region.x > 0 && left_region.y > 0)
-		{
-			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
+			if (ImGui::Button("Reload"))
 			{
-				DisplayFolders(*mManager.rootNode);
-				//ImGui::Text("Directory Here!");
-
-				ImGui::EndChild();
+				mManager.RebuildDirectory(*mManager.rootNode);
 			}
-		}
 
-		ImGui::SameLine();
-		/*Folder Directory*/
-		ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
+			/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/
+			//ImGuiStyle& style = ImGui::GetStyle();
+			//SLICE_LOG("Style Padding:" + std::to_string(style.ItemSpacing.x) + " " + std::to_string(style.ItemSpacing.y));
+			//style.ItemSpacing = ImVec2(0, 0);
 
-		if (right_region.x > 0 && right_region.y > 0)
-		{
-			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Borders))
+			/*Asset Directory*/
+			ImVec2 left_region = ImVec2(ImGui::GetContentRegionAvail().x * 0.2f, ImGui::GetContentRegionAvail().y);
+
+			if (left_region.x > 0 && left_region.y > 0)
 			{
-				//Pop-up General Context for File Creation
-				if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
 				{
-					ImGui::OpenPopup("menu_create");
+					DisplayFolders(*mManager.rootNode);
+					//ImGui::Text("Directory Here!");
+
+					ImGui::EndChild();
 				}
-
-				if (ImGui::BeginPopupContextWindow("menu_create"))
-				{
-					EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
-
-					ImGui::EndPopup();
-				}
-
-				ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
-				DisplayItems(*mManager.selectedFolder);
-				ImGui::EndChild();
 			}
-		}
 
-		if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
-		{
-			mManager.mActiveDrop = std::move(mManager.mPendingDrops.front());
-		}
+			ImGui::SameLine();
+			/*Folder Directory*/
+			ImVec2 right_region = ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
 
-		if(mManager.mActiveDrop.has_value())
-		{
-			bool isOpen = true;
-
-			ImGui::OpenPopup("##CompileAsset");
-
-			CompileAssetPopup(*mManager.mActiveDrop, isOpen);
-
-			if (!isOpen) //Pop-up is closed for some reason
+			if (right_region.x > 0 && right_region.y > 0)
 			{
-				mManager.mPendingDrops.pop(); //The front is done, move on to next (if any)
-				mManager.mActiveDrop.reset(); //Remove the current activeDrop
+				if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Borders))
+				{
+					//Pop-up General Context for File Creation
+					if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+					{
+						ImGui::OpenPopup("menu_create");
+					}
+
+					if (ImGui::BeginPopupContextWindow("menu_create"))
+					{
+						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+
+						ImGui::EndPopup();
+					}
+
+					ImGui::SeparatorText(mManager.selectedFolder->fileName.c_str());
+					DisplayItems(*mManager.selectedFolder);
+					ImGui::EndChild();
+				}
 			}
+
+			if (!mManager.mPendingDrops.empty() && !mManager.mActiveDrop)
+			{
+				mManager.mActiveDrop = std::move(mManager.mPendingDrops.front());
+			}
+
+			if (mManager.mActiveDrop.has_value())
+			{
+				bool isOpen = true;
+
+				ImGui::OpenPopup("##CompileAsset");
+
+				CompileAssetPopup(*mManager.mActiveDrop, isOpen);
+
+				if (!isOpen) //Pop-up is closed for some reason
+				{
+					mManager.mPendingDrops.pop(); //The front is done, move on to next (if any)
+					mManager.mActiveDrop.reset(); //Remove the current activeDrop
+				}
+			}
+
 		}
 
 		ImGui::End();
+
 	}
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
@@ -579,7 +584,7 @@ namespace SliceEditor
 		if (textureHandle.has_value())
 		{
 			auto texture = textureHandle.value().get();
-			if (texture || texture->texture_id != 0)
+			if (texture && texture->texture_id != 0)
 				return static_cast<ImU64>(texture->texture_id);
 		}
 

@@ -37,16 +37,18 @@ namespace SliceEngine
 	{
 		std::string mName;
 		std::string mTag{ "default" };
-		bool active;
+		uint32_t mLayer{ 0u };
 
-		SliceEntity() : active(true) {}
+		bool mActive;
+
+		SliceEntity() : mActive(true) {}
 	};
 
 	struct EngineEntity
 	{
-		bool active;
+		bool mActive;
 		
-		EngineEntity() : active(true) {}
+		EngineEntity() : mActive(true) {}
 	};
 
 	struct testStruct
@@ -92,7 +94,6 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-		uint32_t collisionLayer{ 0u };
 
 		RTTR_ENABLE();
     };

@@ -5,6 +5,41 @@
 
 namespace SliceEditor
 {
+	class Registry;
+
+	struct BaseSettingsDisplay
+	{
+	protected:
+		Registry& mRegistry;
+
+	public:
+		std::string name;
+
+		BaseSettingsDisplay(Registry& reg, std::string nm) : mRegistry(reg), name(nm) {};
+		void DisplayHeader();
+		virtual void DisplaySettings() = 0;
+	};
+
+	struct AudioSettingsDisplay : BaseSettingsDisplay
+	{
+		AudioSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		void DisplaySettings() override;
+	};
+
+	struct PhysicsSettingsDisplay : BaseSettingsDisplay
+	{
+		ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
+
+		PhysicsSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		void DisplaySettings() override;
+	};
+
+	struct ProjectSettingsDisplay : BaseSettingsDisplay
+	{
+		ProjectSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		void DisplaySettings() override;
+	};
+
 	class ProjectSettingsWindow : public EditorWindow
 	{
 		enum class SettingsType : size_t
@@ -14,36 +49,7 @@ namespace SliceEditor
 			PROJECT
 		} mCurrentSettingsIndex;
 
-		struct DSettings
-		{
-			std::string name;
-
-			DSettings(std::string nm) : name(nm) {};
-			void DisplayHeader();
-			virtual void DisplaySettings() = 0;
-		};
-
-		struct DAudioSettings : DSettings
-		{
-			DAudioSettings(std::string nm) : DSettings(nm) {};
-			void DisplaySettings() override;
-		};
-
-		struct DPhysicsSettings : DSettings
-		{
-			ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
-
-			DPhysicsSettings(std::string nm) : DSettings(nm) {};
-			void DisplaySettings() override;
-		};
-
-		struct DProjectSettings : DSettings
-		{
-			DProjectSettings(std::string nm) : DSettings(nm) {};
-			void DisplaySettings() override;
-		};
-
-		std::vector<std::unique_ptr<DSettings>> mSettingsList{};
+		std::vector<std::unique_ptr<BaseSettingsDisplay>> mSettingsList{};
 
 
 	public:
