@@ -875,6 +875,7 @@ namespace SliceEngine
 
                                     field.mListAdd = mono_class_get_method_from_name(field.mCollectionClass, "Add", 1);
                                     field.mListClear = mono_class_get_method_from_name(field.mCollectionClass, "Clear", 0);
+                                    field.mListRemoveAt = mono_class_get_method_from_name(field.mCollectionClass, "RemoveAt", 1);
                                 }
                             }
                         }
