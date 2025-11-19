@@ -62,7 +62,9 @@ namespace SliceEngine
 		/// <param name="first">First entity</param>
 		/// <param name="second">Second entity</param>
 		/// <returns></returns>
-		bool CheckLayerInteraction(Entity first, Entity second);
+		bool CheckEntityCanInteract(Entity first, Entity second);
+
+		bool CheckLayerInteraction(std::string first, std::string second);
 
 		/// <summary>
 		/// Assign a layer to an entity

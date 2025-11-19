@@ -197,7 +197,7 @@ namespace SliceEngine
 		return numberOflayers;
 	}
 
-	bool LayerManager::CheckLayerInteraction(Entity first, Entity second)
+	bool LayerManager::CheckEntityCanInteract(Entity first, Entity second)
 	{
 		auto entityFirst = FactoryInstance.GetGOByEntity(first);
 		auto entitySecond = FactoryInstance.GetGOByEntity(second);
@@ -230,6 +230,15 @@ namespace SliceEngine
 		return false;
 	}
  
+	bool LayerManager::CheckLayerInteraction(std::string first, std::string second)
+	{
+		uint32_t firstMask = GetMask(first);
+		uint32_t secondLayer =GetLayer(second);
+
+		return (firstMask & (1u << secondLayer)) != 0u;
+
+	}
+
 	void LayerManager::AssignLayer(std::string name, Entity entity)
 	{
 		auto entityGO = FactoryInstance.GetGOByEntity(entity);

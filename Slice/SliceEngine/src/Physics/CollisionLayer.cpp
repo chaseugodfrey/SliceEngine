@@ -122,7 +122,7 @@ namespace SliceEngine
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return false;
 		}
-		return (m_CollisionMask[inObject1] & m_CollisionMask[inObject2]);
+		return (m_CollisionMask[inObject1] & (1u << inObject2)) != 0;
 	}
 
 	//let layer manager handle this
