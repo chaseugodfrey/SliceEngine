@@ -94,7 +94,7 @@ namespace SliceEngine
 
 		AudioManager* GetAudioManager();
 
-		SoundSystem* GetSoundSystem();
+		//SoundSystem* GetSoundSystem();
 
 		FramerateManager* GetFramerateManager();
 

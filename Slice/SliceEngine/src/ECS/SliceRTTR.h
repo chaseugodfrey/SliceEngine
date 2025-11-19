@@ -185,8 +185,6 @@ namespace SliceEngine
 	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
 		.constructor<>()
 		.property("soundGUID", &AudioSource::soundGUID)
-		.property("channel", &AudioSource::channel)
-		.property("previewChannel", &AudioSource::previewChannel)
 		.property("currentVolume", &AudioSource::currentVolume)
 		.property("isMute", &AudioSource::isMute)
 		.property("isLoop", &AudioSource::isLoop)

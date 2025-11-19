@@ -166,11 +166,14 @@ namespace SliceEditor
 							SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
 							ImGui::TreePop();
 						}
+
+						//Someone help disable this button when scene is running pwease ;^;
 						ImGui::Text("Play Preview");
 						ImGui::SameLine(150);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 						if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
 							as.playPreview = !as.playPreview;
+						
 					});
 			}
 			ImGui::TreePop();

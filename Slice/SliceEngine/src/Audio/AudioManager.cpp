@@ -96,23 +96,23 @@ namespace SliceEngine
 		case 0:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, false, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, audioComp.isPaused, &channel);
 			break;
 		};
 		case 1:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, false, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, audioComp.isPaused, &channel);
 			break;
 		};
 		case 2:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), ui, false, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
 			break;
 		};
 		case 3:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, false, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
 			break;
 		};
 
@@ -153,8 +153,7 @@ namespace SliceEngine
 		channel->setPitch(audioComp.pitch);
 		channel->setPan(audioComp.stereoPan);
 
-		// Start paused. SoundSystem will unpause if needed.
-		channel->setPaused(false);
+		
 
 
 		return channel;

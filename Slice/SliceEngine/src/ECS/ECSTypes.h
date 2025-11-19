@@ -281,7 +281,7 @@ namespace SliceEngine
 		int priority = 128;
 		bool isMute = false;
 		bool isLoop = false;
-		bool isPaused = true;
+		bool isPaused = false;
 		float currentVolume = 0.3f;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;
