@@ -147,11 +147,24 @@ namespace SliceEditor
 							ImGui::EndDragDropTarget();
 						}
 
-						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
 						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
+						BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
 						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
 						BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
-
+						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
+						SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
+						SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+						if (ImGui::TreeNodeEx("3D Sound Settings", mBaseFlags))
+						{
+							SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
+							SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
+							//To add volume rolloff dropdown
+							SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
+							SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+							ImGui::TreePop();
+						}
 						ImGui::Text("Play Preview");
 						ImGui::SameLine(150);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -162,6 +175,17 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 
+	}
+
+	void InspectorWindow::DisplayAudioListener(entt::entity entity)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (ImGui::TreeNodeEx("Audio Listener", mBaseFlags))
+		{
+
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplayMeshRenderer(entt::entity entity)
@@ -847,6 +871,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::AudioListener>())
+			{
+				if (ImGui::Selectable("Add AudioListener"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioListener>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::Light>())
 			{
 				if (ImGui::Selectable("Add LightSource"))
@@ -930,6 +962,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
 				DisplayAudioSource(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioListener>(entity))
+			{
+				DisplayAudioListener(node->entity);
 				ImGui::Separator();
 			}
 

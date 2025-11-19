@@ -276,11 +276,7 @@ namespace SliceEngine
 		VolumeRollOff volumeRollOff = Logarithmic;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
-
-		float minInterval = 0.0f;
 		bool playOnAwake = false;
-
-		bool _playTrigger = false;
 		bool playPreview = false;
 
 		RTTR_ENABLE();
@@ -289,6 +285,8 @@ namespace SliceEngine
 	struct AudioListener
 	{
 		glm::vec3 listenerPos{};
+
+		RTTR_ENABLE();
 	};
 
 	// placeholder particle system component structure for reference

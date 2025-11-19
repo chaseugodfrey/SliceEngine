@@ -102,16 +102,10 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		
-		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
-		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
-		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
-		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
 
-		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
-		
 		FactoryInstance.InitRootEntity();
-		Core::GetInstance()->InitSystem<SoundSystem>();
+		Core::GetInstance()->InitSystem<AudioSourceSystem>();
+		Core::GetInstance()->InitSystem<AudioListenerSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
@@ -121,12 +115,19 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
 
+		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
+		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
+		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
+		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
+
+		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
 		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
-		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
+		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
+		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -244,7 +245,8 @@ namespace SliceEngine
 		frm->EndSystem("Input");
 
         frm->StartSystem("Audio");
-		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		sAudio->Update();
         frm->EndSystem("Audio");
         
@@ -299,8 +301,11 @@ namespace SliceEngine
 				sAnimator.BoneUpdate();
 
 			}
+			
+			
 		}
 
+		
 
 		frm->StartSystem("Graphics");
 		sRender->Render();

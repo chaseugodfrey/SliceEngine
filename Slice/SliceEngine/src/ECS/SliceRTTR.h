@@ -202,9 +202,11 @@ namespace SliceEngine
 		.property("priority", &AudioSource::priority)
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
-		.property("minInterval", &AudioSource::minInterval)
-		.property("_playTrigger", &AudioSource::_playTrigger)
 		.property("playPreview", &AudioSource::playPreview);
+
+	rttr::registration::class_<AudioListener>(typeid(AudioListener).name())
+		.constructor<>()
+		.property("listenerPos", &AudioListener::listenerPos);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -224,6 +226,11 @@ namespace SliceEngine
 			rttr::value("Directional", Light::LightType::Light_Directional),
 			rttr::value("Point", Light::LightType::Light_Point),
 			rttr::value("Spot", Light::LightType::Light_Spot)
+		);
+	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
+		(
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()

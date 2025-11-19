@@ -64,6 +64,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RigidBody>();
 		mFactory.RegisterComponent<ColliderShape>();
 		mFactory.RegisterComponent<AudioSource>();
+		mFactory.RegisterComponent<AudioListener>();
 		mFactory.RegisterComponent<Light>();
 		mFactory.RegisterComponent<ParticleSystem>();
 		mFactory.RegisterComponent<Prefab>();

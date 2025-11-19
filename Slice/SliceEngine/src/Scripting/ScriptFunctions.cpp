@@ -212,14 +212,14 @@ namespace SliceEngine
 		
 	}
 
-	static void Audio_Play(unsigned int entity)
-	{
-		if (auto* audioComp = GetAudioComponent(entity))
-		{
-			
-			audioComp->_playTrigger = true;
-		}
-	}
+	//static void Audio_Play(unsigned int entity)
+	//{
+	//	if (auto* audioComp = GetAudioComponent(entity))
+	//	{
+	//		
+	//		audioComp->_playTrigger = true;
+	//	}
+	//}
 
 	static void Audio_Stop(unsigned int entity)
 	{
@@ -570,7 +570,7 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
-		ADD_INTERNAL_CALL(Audio_Play);
+		//ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);
