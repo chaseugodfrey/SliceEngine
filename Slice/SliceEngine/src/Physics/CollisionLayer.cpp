@@ -17,9 +17,9 @@ namespace SliceEngine
 	//BPLayerInterfaceImpl implementation
 	BPLayerInterfaceImpl::BPLayerInterfaceImpl()
 	{
-		for(unsigned int i = 0; i < Layers::NUM_LAYERS; ++i)
+		for(unsigned int i = 0u; i < Layers::NUM_LAYERS; ++i)
 		{
-			mObjectToBroadPhase[i] = BPLayers::MOVING;
+			mObjectToBroadPhase[i] = BPLayers::MOVING; // all set to moving by default
 		}
 	}
 
@@ -30,7 +30,7 @@ namespace SliceEngine
 
 	JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
 	{
-		if (inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return mObjectToBroadPhase[0];
@@ -40,7 +40,7 @@ namespace SliceEngine
 
 	void BPLayerInterfaceImpl::SetObjectToBroadPhaseLayer(JPH::ObjectLayer inLayer, JPH::BroadPhaseLayer inBPLayer)
 	{
-		if(inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		if(inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return;
@@ -79,8 +79,8 @@ namespace SliceEngine
 
 		JPH::BroadPhaseLayer bpLayer = m_BPLayerInterface->GetBroadPhaseLayer(inObject1);
 
-		if (bpLayer.GetValue() < 0 || bpLayer.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers()
-			|| inLayer2.GetValue() < 0 || inLayer2.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers())
+		if (bpLayer.GetValue() < 0u || bpLayer.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers()
+			|| inLayer2.GetValue() < 0u || inLayer2.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers())
 		{
 			JPH_ASSERT(false, "Layer out of bounds");
 			return false;
@@ -93,8 +93,8 @@ namespace SliceEngine
 	void ObjectVsBroadPhaseLayerFilterImpl::SetCanCollide(JPH::BroadPhaseLayer inLayer1, JPH::BroadPhaseLayer inLayer2,  bool canCollide)
 	{
 
-		if (inLayer1.GetValue() < 0 || inLayer1.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers()
-			|| inLayer2.GetValue() < 0 || inLayer2.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers())
+		if (inLayer1.GetValue() < 0u || inLayer1.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers()
+			|| inLayer2.GetValue() < 0u || inLayer2.GetValue() >= m_BPLayerInterface->GetNumBroadPhaseLayers())
 		{
 			JPH_ASSERT(false, "Layer out of bounds");
 			return;
@@ -108,7 +108,7 @@ namespace SliceEngine
 	ObjectLayerPairFilterImpl::ObjectLayerPairFilterImpl()
 	{
 		// Default: all layers collide with all (all bits set)
-		for (unsigned int i = 0; i < Layers::NUM_LAYERS; ++i)
+		for (unsigned int i = 0u; i < Layers::NUM_LAYERS; ++i)
 		{
 			m_CollisionMask[i] = 0xFFFFFFFF; // Set all 32 bits to 1
 		}
@@ -117,12 +117,12 @@ namespace SliceEngine
 	// Class that determines if object layer can collide
 	bool ObjectLayerPairFilterImpl::ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const
 	{
-		if (inObject1 >= Layers::NUM_LAYERS || inObject2 >= Layers::NUM_LAYERS)
+		if (inObject1 < 0u || inObject1 >= Layers::NUM_LAYERS || inObject2 < 0u || inObject2 >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return false;
 		}
-		return (m_CollisionMask[inObject1] & (1u << inObject2)) != 0;
+		return (m_CollisionMask[inObject1] & m_CollisionMask[inObject2]);
 	}
 
 	//let layer manager handle this
@@ -148,17 +148,17 @@ namespace SliceEngine
 
 	uint32_t ObjectLayerPairFilterImpl::GetCollisionMask(JPH::ObjectLayer inLayer) const
 	{
-		if (inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
-			return 0;
+			return 0u;
 		}
 		return m_CollisionMask[inLayer];
 	}
 
 	void ObjectLayerPairFilterImpl::SetCollisionMask(JPH::ObjectLayer inLayer, uint32_t mask)
 	{
-		if (inLayer < 0 || inLayer >= Layers::NUM_LAYERS)
+		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return;

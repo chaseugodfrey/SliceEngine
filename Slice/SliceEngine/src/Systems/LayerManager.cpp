@@ -62,6 +62,8 @@ namespace SliceEngine
 			currentBit++;
 		}
 
+		numberOflayers++;
+
 		// Jolt bodies need to know about the new layer and its mask
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(currentBit, layerBit);
 
@@ -111,7 +113,7 @@ namespace SliceEngine
 			i++;
 		}
 
-
+		numberOflayers--;
 	}
 
 	uint32_t LayerManager::GetMask(std::string name)
@@ -151,6 +153,11 @@ namespace SliceEngine
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
 		}
+		else if (nameToLayer[name] < 0u || nameToLayer[name] >= MAX_LAYERS)
+		{
+			SLICE_LOG_ERROR(name + " layer value is invalid bodoh");
+			return INVALID_LAYER; // invalid layer (max 32 layers)
+		}
 
 		return nameToLayer[name];
 	}
@@ -167,6 +174,12 @@ namespace SliceEngine
 		if (indexToLayerName.find(index) == indexToLayerName.end())
 			return INVALID_LAYER;
 
+		if (nameToLayer[indexToLayerName[index]] < 0u || nameToLayer[indexToLayerName[index]] >= MAX_LAYERS)
+		{
+			SLICE_LOG_ERROR(index + " layer value is invalid bodoh");
+			return INVALID_LAYER; // invalid layer (max 32 layers)
+		}
+
 		// looks kinda cancer idk
 		return nameToLayer[indexToLayerName[index]];
 	}
@@ -177,6 +190,11 @@ namespace SliceEngine
 		return std::string("no layer bodoh");
 
 		return indexToLayerName[layer];
+	}
+
+	uint32_t LayerManager::GetNumberOfLayers() const
+	{
+		return numberOflayers;
 	}
 
 	bool LayerManager::CheckLayerInteraction(Entity first, Entity second)
@@ -221,6 +239,12 @@ namespace SliceEngine
 			auto& transform = entityGO.GetComponent<Transform>();
 			transform.collisionLayer = nameToLayer[name];
 		}
+
+		//check if it is a physics body to update jolt body layer
+		if (entityGO.HasComponent<ColliderShape>())
+		{
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer[name]);
+		}
 	}
 
 	//rework change all to default layer instead of removing entirely
@@ -242,6 +266,12 @@ namespace SliceEngine
 				transform.collisionLayer = GetLayer("Default");
 			}
 		
+		}
+
+		//check if it is a physics body to update jolt body layer
+		if (entityGO.HasComponent<ColliderShape>())
+		{
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer[name]);
 		}
 
 	}

@@ -4,8 +4,8 @@
 namespace SliceEngine
 {
 	// only support 32 layers since we're using 32 bit int
-#define MAX_LAYERS 32
-#define INVALID_LAYER 33
+#define MAX_LAYERS 32u
+#define INVALID_LAYER 33u
 
 	class LayerManager
 	{
@@ -16,6 +16,8 @@ namespace SliceEngine
 
 		// default to 0
 		uint32_t currentBit = 0;
+
+		uint32_t numberOflayers = 0;
 
 		// idk if i need to create a way to access collision layers by index
 		// but if i do then ill prob use this
@@ -51,6 +53,8 @@ namespace SliceEngine
 		uint32_t GetLayer(uint32_t index);
 
 		std::string GetLayerName(uint32_t layer);
+
+		uint32_t GetNumberOfLayers() const;
 
 		/// <summary>
 		/// Check two entity layers to see if they can interact

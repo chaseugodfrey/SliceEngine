@@ -1073,6 +1073,32 @@ namespace SliceEngine
 		objectLayerPairFilter->SetCollisionMask(layer, mask);
 	}
 
+	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
+		}
+	}
+
+	void PhysicsSystem::SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer)
+	{
+		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(layer, bpLayer);
+	}
+
+	JPH::uint PhysicsSystem::GetNumBroadPhaseLayers()
+	{
+		return broadphaseLayerInterface->GetNumBroadPhaseLayers();
+	}
+
+	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
+	{
+		return broadphaseLayerInterface->GetObjectToBroadPhaseLayer(inLayer);
+	}
+
 
 
 }

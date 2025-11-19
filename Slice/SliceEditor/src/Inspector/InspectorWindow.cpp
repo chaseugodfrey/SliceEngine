@@ -304,28 +304,28 @@ namespace SliceEditor
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
 			}, colliderData.shapeData);
-		//if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
-		//{
-		//	if(!DisplayComponentHeader<SliceEngine::ColliderShape>(entity))
-		//	{
-		//		reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
-		//		{
+		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
+		{
+			if(!DisplayComponentHeader<SliceEngine::ColliderShape>(entity))
+			{
+				reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
+				{
 
-		//			BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
+					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
 
-		//			glm::vec3 glm3 = JPHtoGLM(col.offSet);
-		//			if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
-		//			{
-		//				col.offSet = GLMtoJPH(glm3);
-		//			}
+					glm::vec3 glm3 = JPHtoGLM(col.offSet);
+					if (DragVec3InputHeader(mRegistry, "Offset", "##colOffset", glm3))
+					{
+						col.offSet = GLMtoJPH(glm3);
+					}
 
-		//			static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
-		//			ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
-		//		});
-		//	}
-		//	ImGui::TreePop();
-		//}
+					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+				});
+			}
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
