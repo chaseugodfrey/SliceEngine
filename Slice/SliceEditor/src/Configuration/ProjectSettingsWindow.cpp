@@ -138,7 +138,7 @@ namespace SliceEditor
 				ImGui::SetTooltip("Optimization for layers. GameObject Layers in different Broad Phase layers will be filtered out to increase the optimization of collision detection.");
 			}
 
-			static std::vector<std::string> bplayer_to_name_list{ "Moving", "Non-moving" };
+			static std::vector<std::string> bplayer_to_name_list{  "Non-moving","Moving" };
 
 			if (ImGui::BeginTable("##bplayer", 2, ImGuiTableFlags_Borders))
 			{
