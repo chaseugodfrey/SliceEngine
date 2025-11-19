@@ -71,6 +71,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 // imgui
 #include <imgui.h>
 #include <imgui_internal.h>

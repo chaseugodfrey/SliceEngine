@@ -22,6 +22,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
+#include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -90,8 +92,7 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-
-		uint32_t collisionMask;
+		uint32_t collisionLayer{ 0u };
 
 		RTTR_ENABLE();
     };
@@ -107,7 +108,14 @@ namespace SliceEngine
 	{
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
-		DEBUG_GRID_TAG		= 0x04
+		DEBUG_GRID_TAG		= 0x04,
+		DEBUG_NAVMESH_TAG	= 0x08,
+		DEBUG_ALL_DEBUG		= 0x0F,
+		RENDER_FOG			= 0x10,
+		RENDER_BLUR			= 0x20,
+		RENDER_BLOOM		= 0x40,
+		RENDER_VIGNETTE		= 0x80,
+		RENDER_TAG_ALL		= 0xFF
 	};
 
 	struct Renderer
@@ -128,10 +136,17 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		int width{}, height{};
-		float pov{}, near{}, far{};// Pov is the angle of y of the screen
+		int width{ 1920 }, height{ 1080 };
+		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag{};
+		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
+		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
+		float fogIntensity{ 0.04f };
+		float bloomFilterRadius{0.005f};
+		float bloomStrength{ 0.04f };
+		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
+		float vignetteIntensity{ 0.336f };
+		float vignetteSmoothness{ 0.7f };
 
 		RTTR_ENABLE();
 	};
@@ -210,12 +225,13 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
-		JPH::BodyID bodyID;										// Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;									// Collision layer :D
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{};// will add more if we have more shapes :D
-		JPH::ShapeRefC shape;									// Jolt shape ref
-		JPH::Vec3 offSet{ 0.f,0.f,0.f };						// if we need to offset the collision shape relative to the transform :D
-		bool isTrigger = false;									// leaving thjis here in case we need triggers :D
+		JPH::BodyID bodyID;													  // Jolt body reference
+		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
+		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		JPH::ShapeRefC shape;												  // Jolt shape ref
+		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
+		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
+		bool isTrigger = false;												  
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};
@@ -325,33 +341,32 @@ namespace SliceEngine
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever
-		float speed{};							// to add
+		float speed{};							
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
-		// Lifetime
-		bool hasRandomParticleLifetime{ false };	// can remove
 
+		// Lifetime
 		ValueType initialLifetimeType{ CONSTANT };
 		float lifetime{};
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
 		// Rotation
-		bool hasRandomInitialRotation{ false };		// can remove
-		bool isInitialRotation3D{ false };			// to add
-		ValueType initialRotationType{ CONSTANT };	// to add
+
+		bool isInitialRotation3D{ false };
+		ValueType initialRotationType{ CONSTANT };
 		glm::quat rotation{};
 		glm::quat minRandomRotation{};
 		glm::quat maxRandomRotation{};
-		glm::vec3 eulerHint{};
-		glm::vec3 minEulerHint{};
-		glm::vec3 maxEulerHint{};
+		glm::vec3 eulerHint{};					// unimplemented
+		glm::vec3 minEulerHint{};				// unimplemented
+		glm::vec3 maxEulerHint{};				// unimplemented
 		
 		inline void Set1DRotation(float val)
 		{
 			eulerHint.x = val;
 		}
 
-		inline float Get1DRotation()
+		inline float Get1DRotation()			
 		{
 			return eulerHint.x;
 		}
@@ -361,11 +376,10 @@ namespace SliceEngine
 		glm::vec3 scale{ 1.0f };
 		glm::vec3 minRandomScale{ 1.0f };
 		glm::vec3 maxRandomScale{ 1.0f };
+
 		bool destroyOnExpire{ false };
-		bool hasRandomScale{ false };				// can remove
 		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
-		bool hasGravity{ false };					// can remove
 		float gForce{0.0f};
 
 		// EMISSION
@@ -382,10 +396,7 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
-		std::vector<Burst> bursts{}; 
-
-		bool hasBursts{ false };				// can remove
-		uint64_t numBursts{};					// can remove
+		std::vector<Burst> bursts{};
 
 
 		// Shape Settings
@@ -400,8 +411,8 @@ namespace SliceEngine
 		} shapeType;
 
 		float coneAngle{};
-		float shapeRadius{};					// to add
-		float shapeArc{};						// to add
+		float shapeRadius{};					
+		float shapeArc{};						
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 		// Initial Position
@@ -410,20 +421,20 @@ namespace SliceEngine
 		glm::vec3 maxRandomSpawnPos{};
 
 		// Color
-		bool hasRandomColour{ false };				// can remove
-		ValueType colorValueType{ CONSTANT };		// to add
+		ValueType colorValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		bool colorOverLifetime{ false };			// to add
 		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		bool hasRandomVelocity{ false };			// can remove
+		//bool hasRandomVelocity{ false };			// can remove
+		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
 		glm::vec3 minRandomVelocity{ 1.0f };
 		glm::vec3 maxRandomVelocity{ 1.0f };
 
-		bool fadeOverLifetime{ false };				// can remove
+		//bool fadeOverLifetime{ false };				// can remove
 		bool hasCollision{ false };
 
 		// Renderer
@@ -535,7 +546,35 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	
+	// Not a component but a base data obj for nav mesh
+	struct NavMeshObj
+	{
+		dtNavMesh* navMesh;
+		dtNavMeshQuery* navMeshQuery;
+	};
+
+	struct NavMeshDebugObj
+	{
+		struct data
+		{
+			uint32_t vao;
+			uint32_t vbo;
+			uint32_t drawCnt;
+		};
+
+		data data[2];
+	};
+
+	// Component
+	struct NavAgent
+	{
+		glm::vec3 target = glm::vec3(0.0f);
+		std::vector<glm::vec3> currentPath;
+		int currentPathIndex = 0;
+
+		float speed = 2.0f;
+		bool hasNewTarget = false;
+	};
 }
 
 #endif

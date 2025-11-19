@@ -52,7 +52,7 @@ namespace SliceEditor
 		{
 			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
 
-			ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(cam.textureID));
+			ImTextureID tex = static_cast<ImTextureID>(cam.textureID);
 
 			// win as in the scene Window
 			ImVec2 winScreenTL{ pos.x, pos.y };

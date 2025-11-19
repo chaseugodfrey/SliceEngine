@@ -29,7 +29,7 @@ namespace SliceEditor
 {
 	void InspectorWindow::Init()
 	{
-		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
+		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
 	}
 
 	void InspectorWindow::Draw()
@@ -56,10 +56,11 @@ namespace SliceEditor
 			{
 				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
 			}
-
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); break;
+			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); break;
+			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			break;
 		}
 
 		ImGui::End();
@@ -290,7 +291,7 @@ namespace SliceEditor
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto& colliderData = reg.get<SliceEngine::ColliderShape>(entity);
 
-		const char* arr[2] = { "Moving", "Non-Moving" };
+		const char* arr[2] = { "Non-Moving" ,"Moving" };
 		std::string colliderName;
 		
 		std::visit([&](auto&& data)
@@ -318,9 +319,9 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames{ "Moving", "Non-Moving" };
+					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
-					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 				});
 			}
 			ImGui::TreePop();
@@ -778,6 +779,8 @@ namespace SliceEditor
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
+
+			ImGui::TreePop();
 		}
 	}
 

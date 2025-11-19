@@ -19,13 +19,6 @@ namespace SliceEngine
 	{
 		auto& cam = reg.get<Camera>(entity);
 
-		// Setup Basic Camera Components
-		cam.near = 0.01f;
-		cam.far = 200.f;
-		cam.pov = 60.f;
-		cam.width = maxWidth;
-		cam.height = maxHeight;
-		cam.renderTag = 0;
 		//glfwGetWindowSize(Core::GetInstance()->GetWindow(), &cam.width, &cam.height);
 
 		// Create Textures

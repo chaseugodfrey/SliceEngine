@@ -116,9 +116,18 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint CloneGO(string prefabName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static object GetScriptInstance(uint entityID, string baseClassName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool HasScriptInstance(uint entityID, string baseClassName);
+
         //[MethodImplAttribute(MethodImplOptions.InternalCall)]
         //internal extern static void Load_Scene(Scene scene);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetBool(uint entity, string parameter, bool val);
         
@@ -136,5 +145,11 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_SetTag(uint entity, string tag);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string Entity_GetTag(uint entity);
     }
 }

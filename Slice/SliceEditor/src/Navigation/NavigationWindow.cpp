@@ -45,11 +45,6 @@ namespace SliceEditor
 			}
 		}
 
-		// >>>> is anyone here! <<<<<
-		// not now... but i can check -- yes can
-
-		// might be a begin group thing - or lack thereof
-
 		ImGui::BeginGroup();
 		auto& config = mCompiler.GetConfig();
 
