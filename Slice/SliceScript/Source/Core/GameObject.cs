@@ -27,6 +27,29 @@ namespace SliceEngine
             component.gameObject = this;
             return component;
         }
+        public T As<T>() where T : Component, new()
+        {
+            string baseClassName = typeof(T).Name;
+            //CMConsole.Log($"Trying to retrieve script instance of {baseClassName} for entity {mID}");
+            Object scriptInstance = FunctionCalls.GetScriptInstance(mID, baseClassName);
+
+            if (scriptInstance == null)
+            {
+                //  CMConsole.Log($"Script instance is null");
+                return null;
+            }
+
+            return scriptInstance as T;
+        }
+
+        public bool Has<T>() where T : Component, new()
+        {
+            string baseClassName = typeof(T).Name;
+
+            return FunctionCalls.HasScriptInstance(mID, baseClassName);
+        }
+
+
 
         public GameObject[] FindGameObjectsWithTag(string tag)
         {

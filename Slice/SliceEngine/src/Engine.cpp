@@ -39,6 +39,9 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
+#include "Navigation/NavigationSystem.h"
+#include "Systems/LayerManager.h"
+
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -114,6 +117,7 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
+		Core::GetInstance()->InitSystem<NavigationSystem>();
 
 		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
 		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
@@ -128,6 +132,9 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
+		Core::GetInstance()->GetLayerManager()->Init();
+		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -184,6 +191,13 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Game);
 				sInputs->SetEnabled(true);
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
+				
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
@@ -192,12 +206,6 @@ namespace SliceEngine
 
 				}
 
-				if (sScene->mCurrentState == SceneState::DEFAULT)
-				{
-					
-					sScene->WriteTempFile();
-
-				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
