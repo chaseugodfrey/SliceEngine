@@ -48,12 +48,15 @@ namespace SliceEngine
             {
                 t.Position += camera * moveSpeed * dt;
                 targetFacingDirection = camera;
-                Console.WriteLine("Name: " + animator.GetCurrAnimName());
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|Attack3ToLoco") == 0)
                     animator.SetBool("player|Walk", true);
+
+
+                Console.WriteLine("Name: " + animator.GetCurrAnimName());
+
             }
 
             // Left

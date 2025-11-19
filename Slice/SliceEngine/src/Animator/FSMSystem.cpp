@@ -201,7 +201,7 @@ namespace SliceEngine
 
 		EFSM.parameters[name] = value;
 
-		if (std::strcmp(name.c_str(), "player|AttackToIdle1") == 0 && value)
+		if (std::strcmp(name.c_str(), "player|Walk") == 0 && value)
 		{
 			std::string he = "hele";
 		}
