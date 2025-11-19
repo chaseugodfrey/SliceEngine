@@ -25,7 +25,7 @@ namespace SliceEditor
 			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
 
 			ImVec2 left_size = ImVec2(window_size.x * 0.1f, window_size.y);
-			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Border))
+			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Borders))
 			{
 				for (size_t i = 0; i < mSettingsList.size(); i++)
 				{
@@ -116,17 +116,24 @@ namespace SliceEditor
 	}
 	void ProjectSettingsWindow::DSettings::DisplayHeader()
 	{
+		ImGui::PushFont(NULL, ImGui::GetFontSize() * 20.0f);
 		ImGui::Text(name.c_str());
+		ImGui::PopFont();
 	}
+
 	void ProjectSettingsWindow::DAudioSettings::DisplaySettings()
 	{
+
 	}
 
 	void ProjectSettingsWindow::DPhysicsSettings::DisplaySettings()
 	{
-		ImGui::Text("Layer Collision Matrix");
+		// Retrieve variables
 		auto mgr = SliceEngine::Core::GetInstance()->GetLayerManager();
-		auto& matrixMap = mgr->collisionMask; // assume std::map<std::string, LayerCollisionData>
+		auto& matrixMap = mgr->collisionMask; 
+
+		// 
+		ImGui::Text("Layer Collision Matrix");
 
 		// 1. Build an indexable list of layer names
 		std::vector<std::string> layerNames;
@@ -137,57 +144,59 @@ namespace SliceEditor
 		const int n = static_cast<int>(layerNames.size());
 		const int columns_count = n + 1; // 1 for row header + n for each layer
 
-		static ImGuiTableColumnFlags column_flags =
-			ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
-
 		if (ImGui::BeginTable("##collision_matrix", columns_count, ImGuiTableFlags_None))
 		{
-			// 2. Header row
 			ImGui::TableSetupColumn("all_layers",
 				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed);
 
-			// Column headers: reversed order -> e d c b a
 			for (int col = 0; col < n; ++col)
 			{
-				int logicalColIndex = n - 1 - col;               // flip
+				// to flip so that the collision matrix looks like this
+				//    e d c b a
+				//  a x x x x x
+				//  b x x x x 
+				//  c x x x
+				//  d x x
+				//  e x
+
+				int logicalColIndex = n - 1 - col;               
 				const std::string& colName = layerNames[logicalColIndex];
 				ImGui::TableSetupColumn(colName.c_str(), column_flags);
 			}
+
 			ImGui::TableAngledHeadersRow();
 
 			for (int row = 0; row < n; ++row)
 			{
 				const std::string& rowName = layerNames[row];
 
+				// Row set up + label
 				ImGui::TableNextRow();
-
-				// Row label
 				ImGui::TableSetColumnIndex(0);
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(rowName.c_str());
 
-				// Left-aligned shrinking upper triangle:
-				// row 0: cols 0..n-1
-				// row 1: cols 0..n-2
-				// ...
+				// Row details
 				for (int col = 0; col < n - row; ++col)
 				{
 					int logicalColIndex = n - 1 - col;           // flip columns
 					const std::string& colName = layerNames[logicalColIndex];
-
-					ImGui::TableSetColumnIndex(col + 1);
-
 					bool collides = mgr->CheckLayerInteraction(colName, rowName);
 
+					ImGui::TableSetColumnIndex(col + 1);
 					ImGui::PushID((row << 16) | logicalColIndex);
+
+					// checkbox
 					if (ImGui::Checkbox("##cell", &collides))
 					{
 						bool check = mgr->CheckLayerInteraction(colName, rowName);
 						mgr->AssignLayerInteraction(colName, rowName, collides);
 					}
+
 					ImGui::PopID();
 				}
 			}
+
 			ImGui::EndTable();
 		}
 	}

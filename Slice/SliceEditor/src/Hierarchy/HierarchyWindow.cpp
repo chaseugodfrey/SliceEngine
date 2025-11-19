@@ -21,6 +21,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include <Systems/SceneSystem.h>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;

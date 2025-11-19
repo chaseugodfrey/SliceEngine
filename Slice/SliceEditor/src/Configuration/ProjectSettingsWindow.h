@@ -31,6 +31,8 @@ namespace SliceEditor
 
 		struct DPhysicsSettings : DSettings
 		{
+			ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
+
 			DPhysicsSettings(std::string nm) : DSettings(nm) {};
 			void DisplaySettings() override;
 		};
@@ -42,6 +44,7 @@ namespace SliceEditor
 		};
 
 		std::vector<std::unique_ptr<DSettings>> mSettingsList{};
+
 
 	public:
 		

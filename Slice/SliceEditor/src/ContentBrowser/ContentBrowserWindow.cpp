@@ -48,7 +48,7 @@ namespace SliceEditor
 
 		if (left_region.x > 0 && left_region.y > 0)
 		{
-			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX))
+			if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
 			{
 				DisplayFolders(*mManager.rootNode);
 				//ImGui::Text("Directory Here!");
@@ -63,7 +63,7 @@ namespace SliceEditor
 
 		if (right_region.x > 0 && right_region.y > 0)
 		{
-			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Border))
+			if (ImGui::BeginChild("##folder", right_region, ImGuiChildFlags_Borders))
 			{
 				//Pop-up General Context for File Creation
 				if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemHovered() && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
@@ -580,10 +580,10 @@ namespace SliceEditor
 		{
 			auto texture = textureHandle.value().get();
 			if (texture || texture->texture_id != 0)
-				return reinterpret_cast<ImTextureID>(static_cast<intptr_t>(texture->texture_id));
+				return static_cast<ImU64>(texture->texture_id);
 		}
 
-		return nullptr;
+		return ImTextureID_Invalid;
 	}
 
 	#pragma region Display MetaData Region
