@@ -296,7 +296,7 @@ namespace SliceEditor
 				script_name = "(Empty)";
 
 			// Script Name
-			StringInputHeader(mRegistry, "Script Class: ", "##scriptClass", script_name, ImGuiInputTextFlags_ReadOnly);
+			StringInputHeader(mRegistry, "Script Class: ", "##scriptClass", script_name);
 			/*ImGui::Text("Script Class: ");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
