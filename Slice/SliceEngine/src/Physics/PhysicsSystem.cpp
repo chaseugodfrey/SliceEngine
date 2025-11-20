@@ -229,11 +229,12 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
+		auto& slice = mRegistry->get<SliceEntity>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -863,6 +864,7 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& slice = reg.get<SliceEntity>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
@@ -895,11 +897,11 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, transform.collisionLayer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, slice.mLayer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, transform.collisionLayer);
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, slice.mLayer);
 			}
 
 			//Set physics properties
@@ -922,7 +924,7 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, transform.collisionLayer);
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, slice.mLayer);
 			//bodySettings.mFriction = 0.6f;
 		}
 
@@ -1076,11 +1078,11 @@ namespace SliceEngine
 	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		auto& transform = mRegistry->get<Transform>(entity);
+		auto& slice = mRegistry->get<SliceEntity>(entity);
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != transform.collisionLayer)
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, transform.collisionLayer);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
 		}
 	}
 

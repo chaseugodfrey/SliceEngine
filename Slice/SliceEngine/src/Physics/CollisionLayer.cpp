@@ -30,7 +30,7 @@ namespace SliceEngine
 
 	JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
 	{
-		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
+		if (inLayer < 0u || inLayer > Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return mObjectToBroadPhase[0];
@@ -40,7 +40,7 @@ namespace SliceEngine
 
 	void BPLayerInterfaceImpl::SetObjectToBroadPhaseLayer(JPH::ObjectLayer inLayer, JPH::BroadPhaseLayer inBPLayer)
 	{
-		if(inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
+		if(inLayer < 0u || inLayer > Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return;
