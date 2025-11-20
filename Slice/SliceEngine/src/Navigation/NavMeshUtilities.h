@@ -24,10 +24,11 @@ namespace SliceEngine
     {
         float distancePtLine2d(const float* pt, const float* p, const float* q);
 
-        std::optional<NavMeshObj>&& LoadNavMesh(const std::string &filePath);
+        std::optional<NavMeshObj> LoadNavMesh(const std::string &filePath);
         NavMeshDebugObj CreateDebugMesh(NavMeshObj const& navMeshObj);
 
         bool FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath);
+        bool GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight);
     }
 }
 #endif

@@ -150,6 +150,9 @@ namespace SliceEngine
 		std::shared_ptr<ScriptClass> mCoroutineManager;
 		std::unique_ptr<ScriptObject> mCoroutineInstance;
 
+		std::shared_ptr<ScriptClass> mTime;
+		std::unique_ptr<ScriptObject> mTimeInstance;
+
 		// keep track of every type of entity classes
 		std::unordered_map<std::string, std::shared_ptr<ScriptClass>> mEntityClasses;
 		// keep track of entity to script object

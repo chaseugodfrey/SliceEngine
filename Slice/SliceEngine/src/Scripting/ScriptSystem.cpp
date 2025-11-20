@@ -98,7 +98,12 @@ namespace SliceEngine
         mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
-        SLICE_LOG("mCoroutine");
+        SLICE_LOG("C# Coroutine System Initialized");
+
+        mTime = std::make_shared<ScriptClass>("SliceEngine", "Time");
+        mTime->Instantiate();
+        mTimeInstance = std::make_unique<ScriptObject>(mTime, static_cast<Entity>(0));
+        SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
     }
@@ -288,6 +293,11 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mono_gchandle_free(mCoroutineInstance->mHandle);
+        mono_gchandle_free(mTimeInstance->mHandle);
+
+        mCoroutineInstance.reset();
+        mTimeInstance.reset();
         mEntityInstances.clear();
         mono_domain_set(mono_get_root_domain(), false);
 
@@ -308,6 +318,11 @@ namespace SliceEngine
         mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+
+        mTime = std::make_shared<ScriptClass>("SliceEngine", "Time");
+        mTime->Instantiate();
+        mTimeInstance = std::make_unique<ScriptObject>(mTime, static_cast<Entity>(0));
+
         SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
     }
@@ -391,6 +406,9 @@ namespace SliceEngine
 
     void ScriptSystem::OnStart()
     {
+        mCoroutineInstance->InvokeOnCreate();
+        mTimeInstance->InvokeOnCreate();
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
@@ -403,6 +421,7 @@ namespace SliceEngine
     void ScriptSystem::OnUpdate(float dt)
     {
         mCoroutineInstance->InvokeOnUpdate(dt);
+        mTimeInstance->InvokeOnUpdate(dt);
 
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
@@ -422,6 +441,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnFixedUpdate(float dt)
     {
+        mTimeInstance->InvokeOnFixedUpdate(dt);
+
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {

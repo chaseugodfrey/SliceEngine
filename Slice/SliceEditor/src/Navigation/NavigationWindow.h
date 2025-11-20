@@ -11,9 +11,9 @@ namespace SliceEditor
 
 	class NavigationWindow : public EditorWindow
 	{
-		RecastNavMesh mCompiler;
 
 	public:
+		RecastNavMesh mCompiler;
 
 		NavigationWindow(Registry& reg) : EditorWindow(reg) {};
 		~NavigationWindow() = default;

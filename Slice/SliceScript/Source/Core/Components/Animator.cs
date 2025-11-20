@@ -28,5 +28,15 @@ namespace SliceEngine
         {
             FunctionCalls.SetInt(gameObject.mID, name, value);
         }
+
+        public string GetCurrAnimName()
+        {
+            return FunctionCalls.GetCurrAnimName(gameObject.mID);
+        }
+
+        public bool IsCurrAnimFin()
+        {
+            return FunctionCalls.IsCurrAnimFin(gameObject.mID);
+        }
     }
 }
