@@ -28,6 +28,23 @@ namespace SliceEngine
 	enum class ScriptFieldType : int;
 	struct ScriptEntity {};
 
+	enum class ScriptCollisionType
+	{
+		CollideEnter,
+		CollideStay,
+		CollideExit,
+		TriggerEnter,
+		TriggerStay,
+		TriggerExit
+	};
+
+	struct QueuedCollisionEvent
+	{
+		ScriptCollisionType type;
+		Entity entity; // The entity with the script
+		Entity other;  // The entity it hit
+	};
+
 	class ScriptSystem : public BaseSystem<ScriptEntity, Script>
 	{
 	public:
@@ -135,7 +152,8 @@ namespace SliceEngine
 		void OnTriggerEnter(const OnTriggerEnterEvent& event);
 		void OnTriggerStay(const OnTriggerStayEvent& event);
 		void OnTriggerExit(const OnTriggerExitEvent& event);
-
+		void QueueCollision(ScriptCollisionType, Entity entity1, Entity entity2);
+		void ProcessCollisionQueue();
 
 		// Variables
 		MonoDomain* mRootDomain;
@@ -163,7 +181,9 @@ namespace SliceEngine
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
 
-		std::shared_mutex mReloadMutex;
+		std::vector<QueuedCollisionEvent> mCollisionQueue;
+		std::mutex mQueueLock;
+
 	};
 
 	extern ScriptSystem* gScriptSystem;

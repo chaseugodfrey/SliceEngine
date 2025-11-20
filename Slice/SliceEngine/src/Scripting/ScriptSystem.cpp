@@ -270,17 +270,22 @@ namespace SliceEngine
 
     void ScriptSystem::ReloadAssembly()
     {
-        std::unique_lock<std::shared_mutex> lock(mReloadMutex);
 
         // temporary until we find a btr way
         // cause itll freeze the engine for a bit
         // mayb a pop up window to show its recompiling or smth by having this threaded
 
         int buildResult = system("dotnet build \"../SliceScript/SliceScript.csproj\"");
-
+        UnsubscribeToEvents();
         if (buildResult != 0)
         {
             return;
+        }
+
+        // clear the collision queue events 
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            mCollisionQueue.clear();
         }
 
         for (auto [entity, instance] : mEntityInstances)
@@ -322,6 +327,8 @@ namespace SliceEngine
         mTime = std::make_shared<ScriptClass>("SliceEngine", "Time");
         mTime->Instantiate();
         mTimeInstance = std::make_unique<ScriptObject>(mTime, static_cast<Entity>(0));
+        
+        SubscribeToEvents();
 
         SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
@@ -420,6 +427,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnUpdate(float dt)
     {
+        ProcessCollisionQueue();
+
         mCoroutineInstance->InvokeOnUpdate(dt);
         mTimeInstance->InvokeOnUpdate(dt);
 
@@ -1059,85 +1068,136 @@ namespace SliceEngine
 
     }
 
+    void ScriptSystem::QueueCollision(ScriptCollisionType type, Entity entity, Entity otherEntity)
+    {
+        std::lock_guard<std::mutex> lock(mQueueLock);
+        mCollisionQueue.push_back({ type, entity, otherEntity });
+    }
+
+    void ScriptSystem::ProcessCollisionQueue()
+    {
+        std::vector<QueuedCollisionEvent> tempQueue;
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            if (mCollisionQueue.empty()) return;
+            tempQueue.swap(mCollisionQueue);
+        }
+
+        for (const auto& event : tempQueue)
+        {
+            // make sure entity is still alive
+            if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            {
+                continue;
+            }
+
+            auto scriptInstance = mEntityInstances[event.entity];
+            if (!scriptInstance) continue;
+
+            switch (event.type)
+            {
+            case ScriptCollisionType::CollideEnter:
+                scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::CollideStay:
+                scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::CollideExit:
+                scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerEnter:
+                scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerStay:
+                scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerExit:
+                scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+                break;
+            }
+        }
+    }
+
     void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
+        QueueCollision(ScriptCollisionType::CollideEnter, event.entity, event.other);
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
 
-            //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
-            scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
-        }
+        //    //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
+        //    scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
+        QueueCollision(ScriptCollisionType::CollideStay, event.entity, event.other);
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
-        }
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
+        QueueCollision(ScriptCollisionType::CollideExit, event.entity, event.other);
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
-        }
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
-        }
+        QueueCollision(ScriptCollisionType::TriggerEnter, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+        //}
 
     }
     void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
+        QueueCollision(ScriptCollisionType::TriggerStay, event.entity, event.other);
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
-        }
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
     {
-        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
+        QueueCollision(ScriptCollisionType::TriggerExit, event.entity, event.other);
 
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
-        }
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        //}
     }
 }
