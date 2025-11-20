@@ -63,6 +63,8 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
+		case SelectionType::PREFAB:
+			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
 		}
 
 		ImGui::End();
@@ -1027,6 +1029,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+	}
+
+	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
+	{
+
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
