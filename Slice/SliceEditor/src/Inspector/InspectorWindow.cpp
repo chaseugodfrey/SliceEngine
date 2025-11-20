@@ -128,35 +128,12 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-
-						ImGui::Text("Audio Clip");
-						ImGui::SameLine(150.0f);
-						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-						std::string audioGUID_string = std::to_string(as.soundGUID.GetGUID());
-						std::string audioFilename;
-						if (mRegistry.GetAssetManager().mGUIDtoFilename.find(as.soundGUID) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-						{
-							audioFilename = mRegistry.GetAssetManager().mGUIDtoFilename[as.soundGUID];
-						}
-						else
-						{
-							audioFilename = audioGUID_string;
-						}
-						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
-
-						if (ImGui::BeginDragDropTarget())
-						{
-							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Audio"))
+						std::function<void(SliceEngine::GUID)> func = [&](SliceEngine::GUID guid)
 							{
-								SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-								auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-								//rend.modelHandle.mGUID = recievedPayload;
-								as.soundGUID = recievedPayload;
-								// update the handle after
+								as.soundGUID = guid;
+							};
 
-							}
-							ImGui::EndDragDropTarget();
-						}
+						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio", func);
 
 						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
 						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
@@ -183,65 +160,8 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
-			ImGui::Text("Mesh");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
-            std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
-			}
-			else //Its a default model
-			{
-				modelFilename = model_guid_string;
-			}
-			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
-					// update the handle after
-
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			ImGui::Text("Material");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
-			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
-			}
-			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
-					// update the handle after
-						// reload material handle here
-				}
-				ImGui::EndDragDropTarget();
-			}
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
 
 			ImGui::TreePop();
 		}
