@@ -411,6 +411,51 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& guid, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	{
+		bool changed = false;
+		std::string filename{ "(empty)" };
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+
+		auto& assetManager = reg.GetAssetManager();
+		auto file = assetManager.GetFilenameFromGUID(guid);
+
+		if (file.has_value())
+		{
+			filename = file.value();
+		}
+
+		ImGui::BeginDisabled();
+		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (guid != newGUID);
+				if (changed)
+				{
+
+					std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+					setFunc(newGUID);
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;

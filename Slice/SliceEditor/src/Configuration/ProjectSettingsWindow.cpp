@@ -49,7 +49,7 @@ namespace SliceEditor
 
 
 			ImVec2 right_size = ImVec2(window_size.x * 0.9f, window_size.y);
-			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_FrameStyle);
+			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_Borders);
 			mCurrentSettings->DisplayHeader();
 			mCurrentSettings->DisplaySettings();
 			ImGui::EndChild();
