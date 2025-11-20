@@ -27,8 +27,6 @@ DigiPen Institute of Technology is prohibited.
 #include <Networking/NetworkSystem.h>
 #include <Profiler/ProfilerManager.h>
 #include <History/HistoryManager.h>
-#include <Configuration/ProjectSettingsWindow.h>
-
 
 namespace SliceEditor
 {

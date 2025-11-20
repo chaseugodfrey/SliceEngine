@@ -54,6 +54,8 @@ namespace SliceEngine
 
 		std::string GetLayerName(uint32_t layer);
 
+		std::vector<std::string> GetLayerNameList();
+
 		uint32_t GetNumberOfLayers() const;
 
 		/// <summary>

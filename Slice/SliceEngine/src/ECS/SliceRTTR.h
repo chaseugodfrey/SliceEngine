@@ -129,8 +129,7 @@ namespace SliceEngine
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
-		.property("euler_hint", &Transform::eulerAnglesHint)
-		.property("collisionLayer", &Transform::collisionLayer);
+		.property("euler_hint", &Transform::eulerAnglesHint);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -139,8 +138,11 @@ namespace SliceEngine
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
+		.property("mActive", &SliceEntity::mActive)
 		.property("mTag", &SliceEntity::mTag)
-		.property("mName", &SliceEntity::mName);
+		.property("mName", &SliceEntity::mName)
+		.property("mLayer", &SliceEntity::mLayer);
+
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
 		.constructor<>()
 		.property("isKinematic", &RigidBody::isKinematic)
