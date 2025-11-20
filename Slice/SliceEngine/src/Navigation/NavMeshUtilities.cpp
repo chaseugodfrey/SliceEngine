@@ -30,7 +30,7 @@ namespace SliceEngine
 		return dx * dx + dz * dz;
 	}
 
-	std::optional<NavMeshObj>&& NavMeshUtilities::LoadNavMesh(const std::string &filePath)
+	std::optional<NavMeshObj> NavMeshUtilities::LoadNavMesh(const std::string &filePath)
     {
         dtNavMesh *navMesh;
         dtNavMeshQuery *navQuery;
@@ -42,14 +42,20 @@ namespace SliceEngine
         std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::vector<unsigned char> buffer(size);
-        if (!file.read(reinterpret_cast<char *>(buffer.data()), size))
-            return {};
+		unsigned char* data = (unsigned char*)dtAlloc(static_cast<int>(size), DT_ALLOC_PERM);
+
+
+		if (!file.read(reinterpret_cast<char*>(data), size))
+		{
+			dtFree(data);
+			return {};
+		}
 
         navMesh = dtAllocNavMesh();
-        if (dtStatusFailed(navMesh->init(buffer.data(), (int)size, DT_TILE_FREE_DATA)))
+        if (dtStatusFailed(navMesh->init(data, (int)size, DT_TILE_FREE_DATA)))
         {
             std::cerr << "Failed to init Detour navmesh from file!" << std::endl;
+			dtFree(data);
             dtFreeNavMesh(navMesh);
             return {};
         }
@@ -57,7 +63,24 @@ namespace SliceEngine
         navQuery = dtAllocNavMeshQuery();
         navQuery->init(navMesh, 2048);
 
-        std::cout << "NavMesh loaded successfully!" << std::endl;
+
+		// this is a hot fix
+		// by right this should be done when baking the navmesh
+		for (int i = 0; i < navMesh->getMaxTiles(); ++i)
+		{
+			const dtMeshTile* tile = ((const dtNavMesh*)navMesh)->getTile(i);
+			if (!tile || !tile->header) continue;
+
+			// We need to cast away const to patch the data in place
+			dtMeshTile* mutableTile = const_cast<dtMeshTile*>(tile);
+
+			for (int j = 0; j < tile->header->polyCount; ++j)
+			{
+				mutableTile->polys[j].flags = 1; // Set to "Walkable"
+			}
+		}
+        
+		std::cout << "NavMesh loaded successfully!" << std::endl;
 
         return { NavMeshObj{navMesh, navQuery} };
     }
