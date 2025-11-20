@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp> // For translate, rotate, scale
 #include <glm/gtc/quaternion.hpp>      // For quaternions
 #include "../Core/Core.h"
+#include "../Resource/Skeleton.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -49,26 +50,32 @@ namespace SliceEngine
 
 		animator.stateMachine.CheckStates();
 
-		animator.stateMachine.UpdateState(animator.current_time);
-
+		animator.stateMachine.UpdateState(animator.current_time,dt);
 
 		UpdateAnimation(animator, dt);
-
-		/*
-		use .compare
-		if(animator.stateMachine.prevState != animator.stateMachine.currState->stateName)
-		{
-			interp (animator.stateMachine.stateMap[stateMachine.prevState],animator.stateMachine.currState)
-
-			animator.stateMachine.prevState = animator.stateMachine.currState->stateName;
-		}
-		*/
 	}
 
 	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
 		if (!animator.IsValid()) return;
+
+		if (animator.stateMachine.stateChanged)
+		{
+			/*if (animator.is_bone)
+			{
+				auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
+				auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+
+				for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
+				{
+					if(prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
+						curranim.boneKeyFrames[i].transforms[0] = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[prevanim.boneKeyFrames[i].transforms.size() - 1], curranim.boneKeyFrames[i].transforms[0], dt);
+				}
+			}*/
+			animator.timeline.isPlaying = true;
+			animator.stateMachine.stateChanged = false;
+		}
 
 		if (animator.timeline.isPlaying)
 		{
@@ -83,16 +90,13 @@ namespace SliceEngine
 				else
 				{
 					animator.current_time += dt;
-
 					if (animator.current_time > anim.duration)
 					{
 
-						if (!animator.timeline.isLoop)
+						if (!animator.stateMachine.EFSM.currState->isLoop)
 						{
 							animator.timeline.isPlaying = false;
-							animator.current_time = 0.0f;
-							animator.stateMachine.UpdateCurrentTime(animator.current_time);
-
+							// fsm set time
 							return;
 						}
 						else
@@ -101,22 +105,12 @@ namespace SliceEngine
 							animator.current_time = std::fmod(animator.current_time, anim.duration);
 						}
 					}
-					//while (animator.current_time > anim.duration) 
-					//{
-					//	animator.current_time -= anim.duration;
-					//	//animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-					//	if (anim.duration <= 0.f) 
-					//	{
-					//		return;
-					//	}
-					//}
-
 
 				}
-				//anim.UpdateTransforms(animator.final_tforms, animator.current_time, *animator.Handle_skeleton.get());
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
-				animator.stateMachine.UpdateCurrentTime(animator.current_time);
+				animator.inverse_flags.reset();
+				animator.inverse_map.clear();
 			}
 			//non bone animation
 			else {
@@ -140,7 +134,7 @@ namespace SliceEngine
 				if (animator.is_bone) {
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
+					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), glm::mat4{1.0f});
 					animator.SetInverseRoots();
 					anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
 				}

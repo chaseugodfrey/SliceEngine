@@ -138,6 +138,12 @@ namespace SliceEngine
         internal extern static void SetFloat(uint entity, string parameter, float val);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string GetCurrAnimName(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsCurrAnimFin(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

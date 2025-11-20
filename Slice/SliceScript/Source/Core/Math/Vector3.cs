@@ -187,6 +187,26 @@ namespace SliceEngine
                 return hash;
             }
         }
+        public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
+        {
+            // Step 1: Compute the angle between them
+            float dot = Vector3.Dot(to, from);
 
+            // Clamp dot to avoid domain errors due to floating point inaccuracies
+            dot = Utilities.Clamp(dot, -1f, 1f);
+
+            // Angle in radians between rotations
+            float angle = (float)Math.Acos(dot) * 2f * 180f / (float)Math.PI; // convert to degrees
+
+            // If angle is very small, just return target
+            if (angle < 1e-5f)
+                return to;
+
+            // Step 2: Determine how much fraction to rotate this step
+            float t = Math.Min(1f, maxDegreesDelta / angle);
+
+            // Step 3: Perform spherical interpolation (Slerp)
+            return Slerp(from, to, t);
+        }
     }
 }
