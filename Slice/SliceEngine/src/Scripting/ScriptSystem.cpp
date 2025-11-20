@@ -32,6 +32,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
 #include "../Systems/SceneSystem.h"
+#include <shared_mutex>
+
 namespace SliceEngine
 {
     ScriptSystem* gScriptSystem = NULL;
@@ -263,6 +265,8 @@ namespace SliceEngine
 
     void ScriptSystem::ReloadAssembly()
     {
+        std::unique_lock<std::shared_mutex> lock(mReloadMutex);
+
         // temporary until we find a btr way
         // cause itll freeze the engine for a bit
         // mayb a pop up window to show its recompiling or smth by having this threaded
@@ -1016,8 +1020,28 @@ namespace SliceEngine
 
     }
 
+    void ScriptSystem::UnsubscribeToEvents()
+    {
+        auto* eventManager = EventManager::GetInstance();
+
+        eventManager->Unsubscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
+
+        eventManager->Unsubscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
+
+        eventManager->Unsubscribe<OnCollisionExitEvent, &ScriptSystem::OnCollideExit>(this);
+
+        eventManager->Unsubscribe<OnTriggerEnterEvent, &ScriptSystem::OnTriggerEnter>(this);
+
+        eventManager->Unsubscribe<OnTriggerStayEvent, &ScriptSystem::OnTriggerStay>(this);
+
+        eventManager->Unsubscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
+
+    }
+
     void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
@@ -1031,6 +1055,8 @@ namespace SliceEngine
     }
     void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
@@ -1042,6 +1068,8 @@ namespace SliceEngine
     }
     void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
@@ -1053,6 +1081,8 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
@@ -1065,6 +1095,8 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
@@ -1076,6 +1108,8 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
     {
+        std::shared_lock<std::shared_mutex> lock(mReloadMutex);
+
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 

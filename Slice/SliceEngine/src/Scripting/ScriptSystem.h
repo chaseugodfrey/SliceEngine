@@ -111,6 +111,8 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
+		void UnsubscribeToEvents();
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -157,6 +159,8 @@ namespace SliceEngine
 		// ill store new entities thats added in a vector
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
+
+		std::shared_mutex mReloadMutex;
 	};
 
 	extern ScriptSystem* gScriptSystem;
