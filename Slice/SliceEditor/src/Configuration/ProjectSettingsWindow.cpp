@@ -113,22 +113,86 @@ namespace SliceEditor
 			//	}
 			//}
 
-			for (int i = 0; i < audioSettings->mSFXMap.size(); i++)
+			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
-				std::string string_buffer = "entry_" + std::to_string(i);
+				std::string name = key;
+				std::string string_buffer = "entry_" + key;
+				int int_buffer{};
 				float float_buffer{};
 				bool bool_buffer{};
 				if (ImGui::TreeNodeEx(string_buffer.c_str(), ImGuiTreeNodeFlags_Framed))
 				{
-					
-					StringInputHeader(mRegistry, "Key", ("##key_" + string_buffer).c_str(), string_buffer);
-					DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + string_buffer).c_str(), float_buffer);
-					DragFloatInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + string_buffer).c_str(), float_buffer);
-					BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + string_buffer).c_str(), bool_buffer);
-					DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + string_buffer).c_str(), float_buffer);
-					DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + string_buffer).c_str(), float_buffer);
-					DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + string_buffer).c_str(), float_buffer);
+					if (StringInputHeader(mRegistry, "Key", ("##key_" + string_buffer).c_str(), name))
+					{
+						if (name != key)
+							// set new name
+							//Do i needa store new name and old name and then change it after the loop? maybe
+							audioSettings->ReplaceExistingEntry(key, name);
+					}
+
+					if (DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + string_buffer).c_str(), float_buffer))
+					{
+						//Not sure if i should add a check but imma just write
+						audioSettings->SetSoundGroupVolume(key, float_buffer);
+					}
+					if (DragIntInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + string_buffer).c_str(), int_buffer))
+					{
+						if (int_buffer != audioSettings->GetMaxInstances(key))
+						{
+							audioSettings->SetMaxInstances(key,int_buffer);
+						}
+					}
+					if (BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + string_buffer).c_str(), bool_buffer))
+					{
+						if (bool_buffer != audioSettings->GetSoundGroupSpatialBlendBool(key))
+						{
+							audioSettings->SetSoundGroupSpatialBlendBool(key, bool_buffer);
+						}
+					}
+					if (DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + string_buffer).c_str(), float_buffer))
+					{
+						if (float_buffer != audioSettings->GetSoundGroupSpatialBlend(key))
+						{
+							audioSettings->SetSoundGroupSpatialBlend(key, float_buffer);
+						}
+					}
+					if (DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + string_buffer).c_str(), float_buffer))
+					{
+						if (float_buffer != audioSettings->GetMinDistance(key))
+						{
+							audioSettings->SetMinDistance(key, float_buffer);
+						}
+					}
+					if (DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + string_buffer).c_str(), float_buffer))
+					{
+						if (float_buffer != audioSettings->GetMaxDistance(key))
+						{
+							audioSettings->SetMaxDistance(key, float_buffer);
+						}
+					}
 					DragFloatInputHeader(mRegistry, "Interval", ("##interval" + string_buffer).c_str(), float_buffer);
+					
+					for (auto& clip : entry.AudioClips)
+					{
+						auto oldClip = clip;
+						std::function<void(SliceEngine::GUID)> setFunc = [&](SliceEngine::GUID guid)
+							{
+								//Take out key from parameter
+								audioSettings->ChangeAudioClip(oldClip, guid, entry.AudioClips);
+							};
+
+						GUIDDragDropInputHeader(mRegistry, "Audio Clips", "##audio_clips", clip, "Audio", setFunc);
+					}
+
+					if (ImGui::Button("+"))
+					{
+						entry.AudioClips.push_back(entry.AudioClips.back());
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("-"))
+					{
+						entry.AudioClips.pop_back();
+					}
 					ImGui::TreePop();
 				}
 			}
@@ -138,12 +202,12 @@ namespace SliceEditor
 
 		if (ImGui::Button("+"))
 		{
-			count++;
+			audioSettings->CreateSoundGroup();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("-"))
 		{
-			count--;
+			audioSettings->RemoveSoundGroup();
 		}
 
 		ImGui::EndChild();

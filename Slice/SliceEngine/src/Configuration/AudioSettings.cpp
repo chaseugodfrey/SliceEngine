@@ -36,6 +36,7 @@ namespace SliceEngine
 
 	void AudioSettings::CreateSoundGroup(const std::string& key)
 	{
+		// do while loop check instead
 		if (mSFXMap.contains(key))
 		{
 			return;
@@ -63,6 +64,11 @@ namespace SliceEngine
 
 	}
 
+	void AudioSettings::RemoveSoundGroup()
+	{
+		mSFXMap.erase(mSFXMap.end());
+	}
+
 	void AudioSettings::AddAudioClip(const std::string& key)
 	{
 
@@ -79,15 +85,8 @@ namespace SliceEngine
 
 	}
 
-	void AudioSettings::ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, const std::string& key)
+	void AudioSettings::ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips)
 	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
 
 		if (oldSoundGUID == newSoundGUID)
 		{
@@ -95,22 +94,16 @@ namespace SliceEngine
 			return;
 		}
 
-		auto& clips = entry->AudioClips;
-		auto it = std::find(clips.begin(), clips.end(), oldSoundGUID);
-
 		
-		if (it != clips.end())
+
+		for (auto& it : audioClips)
 		{
-			*it = newSoundGUID;
-			SLICE_LOG("ChangeAudioClip: Replaced GUID %llu with %llu in SoundGroup '%s'",
-				oldSoundGUID.GetGUID(), newSoundGUID.GetGUID(), key.c_str());
+			if (it == oldSoundGUID)
+			{
+				it = newSoundGUID;
+			}
 		}
-		else
-		{
-			// If the old GUID wasn't found, log a warning
-			SLICE_LOG_WARNING("ChangeAudioClip: Old GUID %llu not found in SoundGroup '%s'",
-				oldSoundGUID.GetGUID(), key.c_str());
-		}
+	
 	}
 
 	const std::string AudioSettings::GetEntryName(const std::string& key)
@@ -120,6 +113,25 @@ namespace SliceEngine
 
 	void AudioSettings::SetEntryName(const std::string& key)
 	{
+	}
+
+	void AudioSettings::ReplaceExistingEntry(const std::string oldKey, const std::string newKey)
+	{
+		auto keyToChange = mSFXMap.extract(oldKey);
+		SFXEntry* entry = GetSFXEntry(oldKey);
+
+		if (!entry)
+		{
+			SLICE_LOG("SoundGroup '" + oldKey + "' not found");
+			return;
+		}
+
+		entry->key = newKey;
+
+		keyToChange.key() = newKey;
+
+		mSFXMap.insert(std::move(keyToChange));
+
 	}
 
 	void AudioSettings::RemoveAudioClip(const std::string& key)

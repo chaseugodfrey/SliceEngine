@@ -49,8 +49,9 @@ namespace SliceEngine
 		void Init(FMOD::System* system);
 		void Exit();
 		void CreateSoundGroup(const std::string& key);
+		void RemoveSoundGroup();
 		void AddAudioClip(const std::string& key);
-		void ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, const std::string& key);
+		void ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips);
 		const std::string GetEntryName(const std::string& key);
 		void SetEntryName(const std::string& key);
 		void RemoveAudioClip(const std::string& key);
@@ -70,6 +71,7 @@ namespace SliceEngine
 		const float GetSoundGroupSpatialBlend(const std::string& key);
 		void SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial);
 		const bool GetSoundGroupSpatialBlendBool(const std::string& key);
+		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
 		void PlaySFX(const std::string& key);
 		void Release();
 	};
