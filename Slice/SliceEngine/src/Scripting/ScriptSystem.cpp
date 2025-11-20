@@ -403,8 +403,16 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
-            scriptRef->InvokeOnUpdate(dt);
-            UpdateScriptComponent(id);
+            std::string entityName = FactoryInstance.GetGOByEntity(id).GetName();
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+            }
+            else
+            {
+                scriptRef->InvokeOnUpdate(dt);
+                UpdateScriptComponent(id);
+            }
         }
     }
 
@@ -1010,6 +1018,9 @@ namespace SliceEngine
 
     void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
@@ -1020,6 +1031,9 @@ namespace SliceEngine
     }
     void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
@@ -1028,6 +1042,9 @@ namespace SliceEngine
     }
     void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
@@ -1036,6 +1053,9 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
@@ -1045,6 +1065,9 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
@@ -1053,6 +1076,9 @@ namespace SliceEngine
     }
     void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
     {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
