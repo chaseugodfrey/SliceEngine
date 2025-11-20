@@ -70,6 +70,8 @@ namespace SliceEditor
 
 	bool StringArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list);
 
+	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list);
+
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 
 	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& color);

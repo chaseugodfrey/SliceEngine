@@ -388,14 +388,14 @@ namespace SliceEditor
 								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
 								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
 									{
-										sp->SetArrayFieldValue(name, val);
+										sp->SetListField(name, val);
 									};
 
 								//Display Function Here
-								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									/*scriptRef->SetArrayFieldValue(it.second.mName, data);
-									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);*/
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 						}

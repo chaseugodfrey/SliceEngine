@@ -508,12 +508,12 @@ namespace SliceEditor
 			ImGui::SameLine(150.f);
 			if (ImGui::Button("+", ImVec2(30, 20)))
 			{
-				//Plus Here
+				//Add New Element
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("-", ImVec2(30, 20)))
 			{
-				//Minus Here
+				//Remove Last Element
 			}
 			ImGui::TreePop();
 		}
