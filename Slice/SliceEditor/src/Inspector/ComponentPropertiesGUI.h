@@ -83,7 +83,7 @@ namespace SliceEditor
 	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
 	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
 
-	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
+	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr);
 
 	// if need to pass in lambda
 	// example code:

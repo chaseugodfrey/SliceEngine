@@ -23,8 +23,8 @@ namespace SliceEngine
 
 	void TestAddSound()
 	{
-		mAudioSettings->SetSoundGroup("A1", "Hit_Slime.Single");
-		mAudioSettings->SetSoundGroup("A2", "Hit_Slime.Single");
+		//mAudioSettings->SetSoundGroup("A1", "Hit_Slime.Single");
+		//mAudioSettings->SetSoundGroup("A2", "Hit_Slime.Single");
 	}
 
 	void TestVolume(const std::string& key, float volume)

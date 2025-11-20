@@ -63,31 +63,8 @@ namespace SliceEngine
 
 	}
 
-	void AudioSettings::SetSoundGroup(const std::string& soundName, const std::string& key)
+	void AudioSettings::AddAudioClip(const std::string& key)
 	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
-		
-
-		if (audioClip->GetSound() == nullptr)
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: Audio clip or FMOD::Sound is null.");
-			return;
-		}
-
-		auto& mFileNameToGUID = Core::GetInstance()->GetResourceManager()->mFileNameToGUID;
-		auto it = mFileNameToGUID.find(soundName);
-
-		GUID audioGUID;
-		if (it != mFileNameToGUID.end())
-		{
-			audioGUID = it->second;
-		}
-		else
-		{
-			// This case should not happen if the previous 'get' succeeded, but is safer.
-			SLICE_LOG_ERROR("SetSoundGroup: GUID not found for registered filename '%s'.", soundName.c_str());
-			return;
-		}
 
 		SFXEntry* entry = GetSFXEntry(key);
 
@@ -98,10 +75,42 @@ namespace SliceEngine
 		}
 
 		
+		entry->AudioClips.push_back(entry->AudioClips.back());
 
-		audioClip->GetSound()->setSoundGroup(entry->soundGroup);
-		entry->AudioClips.emplace_back(audioGUID);
+	}
 
+	void AudioSettings::ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, const std::string& key)
+	{
+		SFXEntry* entry = GetSFXEntry(key);
+
+		if (!entry)
+		{
+			SLICE_LOG("SoundGroup '" + key + "' not found");
+			return;
+		}
+
+		if (oldSoundGUID == newSoundGUID)
+		{
+			SLICE_LOG_WARNING("ChangeAudioClip: Old and new GUIDs are identical for key '%s'. No change made.", key.c_str());
+			return;
+		}
+
+		auto& clips = entry->AudioClips;
+		auto it = std::find(clips.begin(), clips.end(), oldSoundGUID);
+
+		
+		if (it != clips.end())
+		{
+			*it = newSoundGUID;
+			SLICE_LOG("ChangeAudioClip: Replaced GUID %llu with %llu in SoundGroup '%s'",
+				oldSoundGUID.GetGUID(), newSoundGUID.GetGUID(), key.c_str());
+		}
+		else
+		{
+			// If the old GUID wasn't found, log a warning
+			SLICE_LOG_WARNING("ChangeAudioClip: Old GUID %llu not found in SoundGroup '%s'",
+				oldSoundGUID.GetGUID(), key.c_str());
+		}
 	}
 
 	const std::string AudioSettings::GetEntryName(const std::string& key)
@@ -111,6 +120,19 @@ namespace SliceEngine
 
 	void AudioSettings::SetEntryName(const std::string& key)
 	{
+	}
+
+	void AudioSettings::RemoveAudioClip(const std::string& key)
+	{
+		SFXEntry* entry = GetSFXEntry(key);
+
+		if (!entry)
+		{
+			SLICE_LOG("SoundGroup '" + key + "' not found");
+			return;
+		}
+
+		entry->AudioClips.pop_back();
 	}
 
 	FMOD::SoundGroup* AudioSettings::GetSoundGroup(const std::string& key)

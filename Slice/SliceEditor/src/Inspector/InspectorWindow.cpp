@@ -128,31 +128,7 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-
-						ImGui::Text("Audio Clip");
-						ImGui::SameLine(150.0f);
-						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-						std::string audioGUID_string = std::to_string(as.soundGUID.GetGUID());
-						std::string audioFilename;
-						if (mRegistry.GetAssetManager().mGUIDtoFilename.find(as.soundGUID) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-						{
-							audioFilename = mRegistry.GetAssetManager().mGUIDtoFilename[as.soundGUID];
-						}
-						else
-						{
-							audioFilename = audioGUID_string;
-						}
-						ImGui::InputText("##audioFile", &audioFilename, ImGuiInputTextFlags_ReadOnly);
-
-						if (ImGui::BeginDragDropTarget())
-						{
-							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Audio"))
-						std::function<void(SliceEngine::GUID)> func = [&](SliceEngine::GUID guid)
-							{
-								as.soundGUID = guid;
-							};
-						}
-						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio", func);
+						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
 
 						DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
 						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
@@ -163,15 +139,16 @@ namespace SliceEditor
 						SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
 						SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
 						SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
-						if (ImGui::TreeNodeEx("3D Sound Settings", mBaseFlags))
+						if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
 						{
 							SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
 							SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
 							//To add volume rolloff dropdown
 							SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
 							SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
-							ImGui::TreePop();
 						}
+						
+
 
 						//Someone help disable this button when scene is running pwease ;^;
 						ImGui::Text("Play Preview");
