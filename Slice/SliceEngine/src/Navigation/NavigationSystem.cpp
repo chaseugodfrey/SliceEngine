@@ -137,15 +137,11 @@ namespace SliceEngine
 			glm::vec3 targetPt = agent.currentPath[agent.currentPathIndex];
 			glm::vec3 currentPos = transform.position;
 
-			// 1. Calculate Direction ignoring Y (Height)
-			// This prevents the "flying" effect and ensures we just move across the map horizontally
 			glm::vec3 flatTarget(targetPt.x, 0.0f, targetPt.z);
 			glm::vec3 flatCurrent(currentPos.x, 0.0f, currentPos.z);
 
-			// Prevent NaN if we are effectively at the target
 			if (glm::distance(flatCurrent, flatTarget) < 0.01f)
 			{
-				// Logic to increment path index (moved from below)
 				if (glm::distance(currentPos, targetPt) < 0.15f)
 				{
 					agent.currentPathIndex++;
@@ -157,18 +153,14 @@ namespace SliceEngine
 
 			glm::vec3 dir = glm::normalize(flatTarget - flatCurrent);
 
-			// 2. Move the agent's X and Z
 			glm::vec3 nextPos = currentPos + (dir * agent.speed * dt);
 
-			// 3. SNAP TO NAVMESH HEIGHT (The Critical Fix)
-			// We need to query Detour to find exactly what the Y value is at 'nextPos.x, nextPos.z'
 			float height = 0.0f;
 			if (NavMeshUtilities::GetNavMeshHeightAtPos(navMeshObj, nextPos, height))
 			{
 				nextPos.y = height;
 			}
 
-			// 4. Apply the new position
 			transform.position = nextPos;
 		}
 
