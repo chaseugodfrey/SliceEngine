@@ -10,10 +10,10 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &NavigationSystem::LoadNavMeshOnSceneLoad>(this);
 	}
 
-	void NavigationSystem::Update(float dt)
-	{
+	//void NavigationSystem::Update(float dt)
+	//{
 
-	}
+	//}
 
 	void NavigationSystem::Unbind()
 	{
@@ -25,24 +25,27 @@ namespace SliceEngine
 	{
 		if (!navMeshInstance)
 			return;
-		
-		auto& data = navMeshDebugInfo.value().data;
-		for (int i{}; i < 2; ++i)
+
+		if (navMeshDebugInfo.has_value())
 		{
-			if (data[i].vao)
+			auto &data = navMeshDebugInfo.value().data;
+			for (int i{}; i < 2; ++i)
 			{
-				glDeleteVertexArrays(1, &data[i].vao);
-				data[i].vao = 0;
+				if (data[i].vao)
+				{
+					glDeleteVertexArrays(1, &data[i].vao);
+					data[i].vao = 0;
+				}
+				if (data[i].vbo)
+				{
+					glDeleteBuffers(1, &data[i].vbo);
+					data[i].vbo = 0;
+				}
 			}
-			if (data[i].vbo)
-			{
-				glDeleteBuffers(1, &data[i].vbo);
-				data[i].vbo = 0;
-			}
+			navMeshDebugInfo.reset();
 		}
 
 		navMeshInstance.reset();
-		navMeshDebugInfo.reset();
 	}
 
 	void NavigationSystem::LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e)
@@ -62,7 +65,7 @@ namespace SliceEngine
 
 	void NavigationSystem::LoadNavMeshFromFile()
 	{
-		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh("SliceEngine/SliceEngine/Slice/SliceEditor/Resources/output_navmesh.bin");
+		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh("Resources/output_navmesh.bin");
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
@@ -101,18 +104,18 @@ namespace SliceEngine
 
 		if (agent.hasNewTarget)
 		{
-			SLICE_LOG_DEBUG("Agent computing path from {} to {}",
-				start.x, end.x);
+			SLICE_LOG_DEBUG("Agent computing path from {} to {}");
 			glm::vec3 start = transform.position;
 			glm::vec3 end = agent.target;
 
 			agent.currentPath.clear();
 			// to do : change this when we start using the nav mesh instance
 			//nav->FindPath(&start.x, &end.x, agent.currentPath);
-			NavMeshUtilities::FindPath(navMeshObj, &start.x, &end.x, agent.currentPath);
-
-			agent.hasNewTarget = false;
-			agent.currentPathIndex = 0;
+			if (NavMeshUtilities::FindPath(navMeshObj, &start.x, &end.x, agent.currentPath))
+			{
+				agent.hasNewTarget = false;
+				agent.currentPathIndex = 0;
+			}
 		}
 
 		if (!agent.currentPath.empty())

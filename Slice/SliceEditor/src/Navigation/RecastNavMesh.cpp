@@ -444,6 +444,14 @@ namespace SliceEditor
 
 		// testing if can save into file, this is for detour to read
 		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
+		std::cout << "Detour file NavMesh exported to Resources/output_navmesh.bin\n";
+
+		if (polyMesh)
+		{
+			int polyCount = polyMesh->npolys;
+			std::cout << "NavMesh polygon count: " << polyCount << std::endl;
+		}
+
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
@@ -459,7 +467,10 @@ namespace SliceEditor
 
 		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
-
+		// After building the navmesh, add:
+		std::cout << "NavMesh bounds: ("
+			<< polyMesh->bmin[0] << ", " << polyMesh->bmin[1] << ", " << polyMesh->bmin[2] << ") to ("
+			<< polyMesh->bmax[0] << ", " << polyMesh->bmax[1] << ", " << polyMesh->bmax[2] << ")" << std::endl;
 		return true;
 	}
 
