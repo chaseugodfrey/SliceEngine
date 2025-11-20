@@ -11,14 +11,14 @@ namespace SliceEngine
 
     struct NavAgentEntity {};
 
-    class NavigationSystem : public BaseSystem<NavAgentEntity, NavAgent>
+    class NavigationSystem : public BaseSystem<NavAgentEntity, NavAgent, Transform>
     {
         std::optional<NavMeshObj> navMeshInstance;
         std::optional<NavMeshDebugObj> navMeshDebugInfo;
 
     public:
         void Init();
-        void Update(float dt);
+        //void Update(float dt);
         void Unbind() override;
 
         void ClearNavMesh();

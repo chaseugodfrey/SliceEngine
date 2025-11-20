@@ -38,7 +38,7 @@ namespace SliceEngine
 	class LayerManager;
 	struct SoundSystem;
 	struct NetworkSystem;
-
+	class NavigationSystem;
 
 	class Core : public Singleton<Core>
 	{
@@ -115,6 +115,7 @@ namespace SliceEngine
 
 		NetworkSystem* GetNetwork();
 
+		//NavigationSystem *GetNavAgent();
 		struct debugMesh
 		{
 			uint32_t vao;
