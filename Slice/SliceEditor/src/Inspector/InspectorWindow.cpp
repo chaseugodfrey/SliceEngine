@@ -18,18 +18,20 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "ComponentPropertiesGUI.h"
+
+#include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
 #include <Scripting/ScriptObject.h>
 #include <Graphics/TransformHelper.h>
-#include "ComponentPropertiesGUI.h"
-#include "../../SliceEngine/src/Serializer/JSONSerializer.h"
-#include <Resource/GUID.h>
+#include <Serializer/JSONSerializer.h>
+#include <Systems/LayerManager.h>
 
 namespace SliceEditor
 {
 	void InspectorWindow::Init()
 	{
-		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowItemOverlap;
+		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap;
 	}
 
 	void InspectorWindow::Draw()
@@ -71,27 +73,36 @@ namespace SliceEditor
 	
 	void InspectorWindow::DisplayEntityData(entt::entity entity)
 	{
-		//static bool is_active = false;
-		//ImGui::Checkbox("##is_active", &is_active);
-		//ImGui::SameLine();
-
+		auto core = SliceEngine::Core::GetInstance();
+		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+
+		auto layer_manager = core->GetLayerManager();
+		auto layer_name_list = layer_manager->GetLayerNameList();
+
+		ImGui::Checkbox("##is_active", &slice.mActive);
+		ImGui::SameLine();
+
 		std::string editable_name = original_name;
-		if (ImGui::InputText("##name", &editable_name))
+		if (StringInput(mRegistry, "##name", editable_name, ImGui::GetContentRegionAvail().x))
 		{
 			if (editable_name != original_name)
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
 		}
-		
+
+		// currently tags are unused
+		int tag = 0;
+		std::vector<std::string> tags {"unused"};
+
+		ImGui::BeginDisabled();
+		ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
+		ImGui::EndDisabled();
 		ImGui::SameLine();
-		ImGui::Text(std::to_string((uint64_t)entity).c_str());
+
+		ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list);
 		ImGui::Separator();
 
 	}
-
-	//void InspectorWindow::DisplayComponentHeader(bool closeable)
-	//{
-	//}
 
 	void InspectorWindow::DisplayTransform(entt::entity entity)
 	{
@@ -108,7 +119,6 @@ namespace SliceEditor
 		}
 	}
 
-
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
@@ -118,35 +128,12 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-
-						ImGui::Text("Audio Clip");
-						ImGui::SameLine(150.0f);
-						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-						std::string audioGUID_string = std::to_string(as.soundGUID.GetGUID());
-						std::string audioFilename;
-						if (mRegistry.GetAssetManager().mGUIDtoFilename.find(as.soundGUID) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-						{
-							audioFilename = mRegistry.GetAssetManager().mGUIDtoFilename[as.soundGUID];
-						}
-						else
-						{
-							audioFilename = audioGUID_string;
-						}
-						ImGui::InputText("##mesh", &audioFilename, ImGuiInputTextFlags_ReadOnly);
-
-						if (ImGui::BeginDragDropTarget())
-						{
-							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Audio"))
+						std::function<void(SliceEngine::GUID)> func = [&](SliceEngine::GUID guid)
 							{
-								SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-								auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-								//rend.modelHandle.mGUID = recievedPayload;
-								as.soundGUID = recievedPayload;
-								// update the handle after
+								as.soundGUID = guid;
+							};
 
-							}
-							ImGui::EndDragDropTarget();
-						}
+						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio", func);
 
 						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
 						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
@@ -173,65 +160,8 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
-			ImGui::Text("Mesh");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string model_guid_string = std::to_string(rend.modelHandle.getGUID().GetGUID());
-            std::string modelFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.modelHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				modelFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.modelHandle.getGUID()];
-			}
-			else //Its a default model
-			{
-				modelFilename = model_guid_string;
-			}
-			if (ImGui::InputText("##mesh", &modelFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.model = SliceEngine::GUID(std::stoll(model_guid_string));
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.modelHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(recievedPayload);
-					// update the handle after
-
-				}
-				ImGui::EndDragDropTarget();
-			}
-
-			ImGui::Text("Material");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            std::string material_guid_string = std::to_string(rend.materialHandle.getGUID().GetGUID());
-			std::string materialFilename;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(rend.materialHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				materialFilename = mRegistry.GetAssetManager().mGUIDtoFilename[rend.materialHandle.getGUID()];
-			}
-			if (ImGui::InputText("##material", &materialFilename, ImGuiInputTextFlags_ReadOnly))
-			{
-				//rend.material = SliceEngine::GUID(std::stoll(material_guid_string));
-			}
-
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Material"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-					//rend.modelHandle.mGUID = recievedPayload;
-					rend.materialHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(recievedPayload);
-					// update the handle after
-						// reload material handle here
-				}
-				ImGui::EndDragDropTarget();
-			}
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
 
 			ImGui::TreePop();
 		}
@@ -319,9 +249,9 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
 
-					ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
 				});
 			}
 			ImGui::TreePop();
@@ -341,11 +271,11 @@ namespace SliceEditor
 				script_name = "(Empty)";
 
 			// Script Name
-
-			ImGui::Text("Script Class: ");
+			StringInputHeader(mRegistry, "Script Class: ", "##scriptClass", script_name);
+			/*ImGui::Text("Script Class: ");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);*/
 
 			ImGui::Separator();
 
@@ -390,8 +320,7 @@ namespace SliceEditor
 				}
 			}
 
-			// Script Variables
-
+			// Script Variables Display
 			else
 			{
 				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
@@ -401,64 +330,147 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
-						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+						#pragma region Array Variables
+						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
-							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
-							//{
-							//	scriptRef->SetFieldValue(it.second.mName, data);
-							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							//}
-							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
-								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
+								auto data = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								//Display Function Here
+								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								auto data = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+								std::function<void(std::string, std::vector<float>)> func = [sp = scriptRef](std::string name, std::vector<float> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+								//Display Function Here
+								if (DragFloatArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								auto data = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+								std::function<void(std::string, std::vector<int>)> func = [sp = scriptRef](std::string name, std::vector<int> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+								//Display Function Here
+								if (DragIntArrayScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+						}
+						#pragma endregion
+						#pragma region List Variables
+						//List Variables
+						if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
+						{
+							if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							{
+								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								//Display Function Here
+								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									/*scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);*/
+								}
+							}
+						}
+
+						#pragma endregion
+						//Non-Array/List Value
+						else
+						{
+							//Script Display for Float
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								float data = scriptRef->GetFieldValue<float>(it.second.mName);
+								//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								//{
+								//	scriptRef->SetFieldValue(it.second.mName, data);
+								//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								//}
+								std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
-						{
-							bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-							if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//Script Display for Bool
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
-						{
-							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
-							/*char buffer[128];
-							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
-							buffer[sizeof(str)] = '\0';*/
-
-							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
-							{
-								scriptRef->SetFieldValue<std::string>(it.second.mName, str);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
-						{
-							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
+								std::function<void(std::string, bool)> func = [sp = scriptRef](std::string name, bool val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							//Script Display for String (UNDO/REDO SORTA WORKS)
+							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (StringInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								{
+									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							//Script Display for Int
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								int data = scriptRef->GetFieldValue<int>(it.second.mName);
+								std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
 						}
 					}
 				}
-
 			}
 
 			ImGui::TreePop();

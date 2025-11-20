@@ -34,6 +34,9 @@ namespace SliceEditor
 		//File Creation
 		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath);
 
+		//Asset Drops
+		
+
 		// Preferences
 		EditorThemeType GetThemeTypeFromString(std::string themeName);
 		void SetTheme(EditorThemeType type);

@@ -21,6 +21,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include <Systems/SceneSystem.h>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
@@ -31,7 +33,7 @@ namespace SliceEditor
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
-		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
+		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
 
 		auto& map = mSession.GetEntityNodes();
 		if (map.find(entity) == map.end())

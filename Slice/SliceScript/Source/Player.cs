@@ -18,9 +18,10 @@ namespace SliceEngine
         static bool testingShit = false;
 
         public override void OnCreate()
-        {
+        {          
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
+
         }
 
         public override void OnUpdate(float dt)
@@ -28,6 +29,7 @@ namespace SliceEngine
             //Vector3 right = Vector3.Cross(up, direction).Normalize();
             float rotationSpeedFrame = rotationSpeed * dt;
 
+            
 
             if (testingShit == false)
             {

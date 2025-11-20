@@ -40,6 +40,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Systems/LayerManager.h"
 
 //using namespace rttr;
 
@@ -128,6 +129,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
+		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
 
@@ -152,6 +154,12 @@ namespace SliceEngine
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
 	
+		//GameObject NavmeshTest = Core::FactoryInstance.CreateGO("NavmeshTest");
+		//NavmeshTest.AddComponent<NavAgent>();
+		//NavmeshTest.GetComponent<Transform>().position = glm::vec3(3,0,3);
+		//NavmeshTest.GetComponent<NavAgent>().target = glm::vec3(10, 0, 10);
+		//NavmeshTest.GetComponent<NavAgent>().hasNewTarget = true;
+		//
 	}
 
 	void Engine::SceneInit()
@@ -199,6 +207,7 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					isPlaying = true;
+
 
 				}
 
@@ -305,6 +314,8 @@ namespace SliceEngine
 
 			}
 		}
+
+		Core::GetInstance()->GetSystem<NavigationSystem>().Update(frm->getFixedDeltaTime());
 
 
 		frm->StartSystem("Graphics");

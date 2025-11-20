@@ -10,10 +10,10 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &NavigationSystem::LoadNavMeshOnSceneLoad>(this);
 	}
 
-	void NavigationSystem::Update(float dt)
-	{
+	//void NavigationSystem::Update(float dt)
+	//{
 
-	}
+	//}
 
 	void NavigationSystem::Unbind()
 	{
@@ -23,26 +23,43 @@ namespace SliceEngine
 
 	void NavigationSystem::ClearNavMesh()
 	{
-		if (!navMeshInstance)
-			return;
-		
-		auto& data = navMeshDebugInfo.value().data;
-		for (int i{}; i < 2; ++i)
+		if (navMeshInstance.has_value())
 		{
-			if (data[i].vao)
+			NavMeshObj &obj = navMeshInstance.value();
+
+			if (obj.navMeshQuery)
 			{
-				glDeleteVertexArrays(1, &data[i].vao);
-				data[i].vao = 0;
+				dtFreeNavMeshQuery(obj.navMeshQuery);
+				obj.navMeshQuery = nullptr;
 			}
-			if (data[i].vbo)
+
+			if (obj.navMesh)
 			{
-				glDeleteBuffers(1, &data[i].vbo);
-				data[i].vbo = 0;
+				dtFreeNavMesh(obj.navMesh);
+				obj.navMesh = nullptr;
 			}
 		}
 
+		if (navMeshDebugInfo.has_value())
+		{
+			auto &data = navMeshDebugInfo.value().data;
+			for (int i{}; i < 2; ++i)
+			{
+				if (data[i].vao)
+				{
+					glDeleteVertexArrays(1, &data[i].vao);
+					data[i].vao = 0;
+				}
+				if (data[i].vbo)
+				{
+					glDeleteBuffers(1, &data[i].vbo);
+					data[i].vbo = 0;
+				}
+			}
+			navMeshDebugInfo.reset();
+		}
+
 		navMeshInstance.reset();
-		navMeshDebugInfo.reset();
 	}
 
 	void NavigationSystem::LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e)
@@ -62,7 +79,7 @@ namespace SliceEngine
 
 	void NavigationSystem::LoadNavMeshFromFile()
 	{
-		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh("SliceEngine/SliceEngine/Slice/SliceEditor/Resources/output_navmesh.bin");
+		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh("Resources/output_navmesh.bin");
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
@@ -101,34 +118,50 @@ namespace SliceEngine
 
 		if (agent.hasNewTarget)
 		{
-			SLICE_LOG_DEBUG("Agent computing path from {} to {}",
-				start.x, end.x);
+			SLICE_LOG_DEBUG("Agent computing path from {} to {}");
 			glm::vec3 start = transform.position;
 			glm::vec3 end = agent.target;
 
 			agent.currentPath.clear();
 			// to do : change this when we start using the nav mesh instance
 			//nav->FindPath(&start.x, &end.x, agent.currentPath);
-			NavMeshUtilities::FindPath(navMeshObj, &start.x, &end.x, agent.currentPath);
-
-			agent.hasNewTarget = false;
-			agent.currentPathIndex = 0;
+			if (NavMeshUtilities::FindPath(navMeshObj, &start.x, &end.x, agent.currentPath))
+			{
+				agent.hasNewTarget = false;
+				agent.currentPathIndex = 0;
+			}
 		}
 
 		if (!agent.currentPath.empty())
 		{
-			SLICE_LOG_DEBUG("Path size = {}", agent.currentPath.size());
-			auto targetPt = agent.currentPath[agent.currentPathIndex];
-			auto dir = glm::normalize(targetPt - transform.position);
+			glm::vec3 targetPt = agent.currentPath[agent.currentPathIndex];
+			glm::vec3 currentPos = transform.position;
 
-			transform.position += dir * agent.speed * dt;
+			glm::vec3 flatTarget(targetPt.x, 0.0f, targetPt.z);
+			glm::vec3 flatCurrent(currentPos.x, 0.0f, currentPos.z);
 
-			if (glm::distance(transform.position, targetPt) < 0.15f)
+			if (glm::distance(flatCurrent, flatTarget) < 0.01f)
 			{
-				agent.currentPathIndex++;
-				if (agent.currentPathIndex >= agent.currentPath.size())
-					agent.currentPath.clear();
+				if (glm::distance(currentPos, targetPt) < 0.15f)
+				{
+					agent.currentPathIndex++;
+					if (agent.currentPathIndex >= agent.currentPath.size())
+						agent.currentPath.clear();
+				}
+				return;
 			}
+
+			glm::vec3 dir = glm::normalize(flatTarget - flatCurrent);
+
+			glm::vec3 nextPos = currentPos + (dir * agent.speed * dt);
+
+			float height = 0.0f;
+			if (NavMeshUtilities::GetNavMeshHeightAtPos(navMeshObj, nextPos, height))
+			{
+				nextPos.y = height;
+			}
+
+			transform.position = nextPos;
 		}
 
 	}
