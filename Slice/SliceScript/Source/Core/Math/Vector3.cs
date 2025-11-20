@@ -187,53 +187,6 @@ namespace SliceEngine
                 return hash;
             }
         }
-
-        public static float Dot(Vector3 v1, Vector3 v2)
-        {
-            return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
-        }
-
-        public static Vector3 Slerp(Vector3 start, Vector3 end, float t)
-        {
-            //t = Utilities.Clamp(t, 0.0f, 1.0f);
-            //float dot = Vector3.Dot(start, end);
-            //dot = Utilities.Clamp(dot, -1.0f, 1.0f);
-            //float omega = (float)Math.Acos(dot);
-            //if (omega < 0.0001f)
-            //{
-            //    Vector3 tmp  = (start + (end - start) * t);
-            //    return tmp.Normalize();
-            //}
-            //float sinOmega = (float)Math.Sin(omega);
-            //float scale0 = (float)Math.Sin((1.0f - t) * omega) / sinOmega;
-            //float scale1 = (float)Math.Sin(t * omega) / sinOmega;
-            //Vector3 result = (start * scale0) + (end * scale1);
-
-            //return result;
-
-            // Dot product - the cosine of the angle between 2 vectors.
-            float dot = Vector3.Dot(start, end);
-
-            // Clamp it to be in the range of Acos()
-            // This may be unnecessary, but floating point
-            // precision can be a fickle mistress.
-            //Mathf.Clamp(dot, -1.0f, 1.0f);
-            // annotation derHugo: like it stands this is indeed completely unnecessary. 
-            // If something it should be
-            dot = Utilities.Clamp(dot, -1.0f, 1.0f);
-
-            // Acos(dot) returns the angle between start and end,
-            // And multiplying that by percent returns the angle between
-            // start and the final result.
-            float theta = (float)Math.Acos(dot) * t;
-            Vector3 RelativeVec = end - start * dot;
-            RelativeVec.Normalize();
-
-            // Orthonormal basis
-            // The final result.
-            return ((start * (float)Math.Cos(theta)) + (RelativeVec * (float)Math.Sin(theta)).Normalize());
-        }
-
         public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
         {
             // Step 1: Compute the angle between them
