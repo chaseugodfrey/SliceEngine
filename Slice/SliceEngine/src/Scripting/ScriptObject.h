@@ -523,7 +523,7 @@ namespace SliceEngine
 			// TODO: add in exception handling like in my other invoke stuff
 
 			int count = *(int*)mono_object_unbox(countObj);
-			result.resize(count);
+			result.reserve(count);
 
 			void* params[1];
 			for (int i = 0; i < count; ++i)
