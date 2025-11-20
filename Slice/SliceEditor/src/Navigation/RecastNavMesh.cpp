@@ -417,6 +417,14 @@ namespace SliceEditor
 			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				polyMesh->flags[i] = 1;
+			}
+		}
+
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
 		params.verts = polyMesh->verts;

@@ -63,23 +63,6 @@ namespace SliceEngine
         navQuery = dtAllocNavMeshQuery();
         navQuery->init(navMesh, 2048);
 
-
-		// this is a hot fix
-		// by right this should be done when baking the navmesh
-		for (int i = 0; i < navMesh->getMaxTiles(); ++i)
-		{
-			const dtMeshTile* tile = ((const dtNavMesh*)navMesh)->getTile(i);
-			if (!tile || !tile->header) continue;
-
-			// We need to cast away const to patch the data in place
-			dtMeshTile* mutableTile = const_cast<dtMeshTile*>(tile);
-
-			for (int j = 0; j < tile->header->polyCount; ++j)
-			{
-				mutableTile->polys[j].flags = 1; // Set to "Walkable"
-			}
-		}
-        
 		std::cout << "NavMesh loaded successfully!" << std::endl;
 
         return { NavMeshObj{navMesh, navQuery} };
