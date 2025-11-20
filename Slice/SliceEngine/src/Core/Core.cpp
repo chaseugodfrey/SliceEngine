@@ -70,10 +70,10 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Prefab>();
 		mFactory.RegisterComponent<Animator>();
 		mFactory.RegisterComponent<Bone>();
-
+		mFactory.RegisterComponent<NavAgent>();
 
 		mResource->InitResourceManager();
-		mLayerManager->Init();
+
 	}
 
 	void Core::ExitCore()
@@ -140,6 +140,11 @@ namespace SliceEngine
 	{
 		return mNetwork.get();
 	}
+
+	//NavigationSystem *Core::GetNavAgent()
+	//{
+	//	return mNavAgent.get();
+	//}
 
 	ProjectSettingsService* Core::GetProjectSettingsService()
 	{

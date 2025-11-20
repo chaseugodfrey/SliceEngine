@@ -1,0 +1,2 @@
+fog.vert
+fog.frag

@@ -113,9 +113,16 @@ namespace SliceEngine
 
 		void AddAccelerationToEntity(Entity entity, const JPH::Vec3& acceleration);
 
+		void SetCollisionMask(uint32_t layer, uint32_t mask);
+
+		void SetBodyLayer(Entity entity, uint32_t layer);
+
+		void SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer);
+
+		JPH::uint GetNumBroadPhaseLayers();
+
+		JPH::BroadPhaseLayer GetBroadPhaseLayer(uint32_t layer);
 	};
-
-
 }
 
 #endif

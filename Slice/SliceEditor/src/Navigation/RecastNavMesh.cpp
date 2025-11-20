@@ -34,13 +34,14 @@ namespace SliceEditor
 	void RecastNavMesh::Init()
 	{
 		memset(&config, 0, sizeof(config));
-		config.cs = 0.2f;
+		config.cs = 0.1f;
 		config.ch = 0.01f;
+		config.walkableSlopeAngle = 45.0f;
 		config.walkableHeight = (int)ceilf(2.0f / config.ch);
 		config.walkableClimb = (int)floorf(0.5f / config.ch);
 		config.walkableRadius = (int)ceilf(0.4f / config.cs);
 		config.maxEdgeLen = (int)(12.0f / config.cs);
-		config.maxSimplificationError = 1.3f;
+		config.maxSimplificationError = 1.1f;
 		config.minRegionArea = (int)rcSqr(8);
 		config.mergeRegionArea = (int)rcSqr(20);
 		config.maxVertsPerPoly = 6;
@@ -228,6 +229,14 @@ namespace SliceEditor
 			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				polyMesh->flags[i] = 1;
+			}
+		}
+
 		// Fill dtNavMeshCreateParams
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
@@ -277,6 +286,9 @@ namespace SliceEditor
 
 		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
+
+		navMesh = nullptr;
+		navQuery = nullptr;
 
 		return true;
 	}
@@ -417,6 +429,14 @@ namespace SliceEditor
 			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				polyMesh->flags[i] = 1;
+			}
+		}
+
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
 		params.verts = polyMesh->verts;
@@ -444,6 +464,14 @@ namespace SliceEditor
 
 		// testing if can save into file, this is for detour to read
 		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
+		std::cout << "Detour file NavMesh exported to Resources/output_navmesh.bin\n";
+
+		if (polyMesh)
+		{
+			int polyCount = polyMesh->npolys;
+			std::cout << "NavMesh polygon count: " << polyCount << std::endl;
+		}
+
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
@@ -460,6 +488,13 @@ namespace SliceEditor
 		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
 
+		navMesh = nullptr;
+		navQuery = nullptr;
+
+		// After building the navmesh, add:
+		std::cout << "NavMesh bounds: ("
+			<< polyMesh->bmin[0] << ", " << polyMesh->bmin[1] << ", " << polyMesh->bmin[2] << ") to ("
+			<< polyMesh->bmax[0] << ", " << polyMesh->bmax[1] << ", " << polyMesh->bmax[2] << ")" << std::endl;
 		return true;
 	}
 

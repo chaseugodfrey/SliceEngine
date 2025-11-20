@@ -18,7 +18,7 @@ namespace SliceEngine
         static bool testingShit = false;
 
         public override void OnCreate()
-        {
+        {          
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
 
