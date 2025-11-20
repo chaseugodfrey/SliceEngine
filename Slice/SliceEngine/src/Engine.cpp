@@ -208,6 +208,7 @@ namespace SliceEngine
 					sAnimator.InitSystem();
 					isPlaying = true;
 
+
 				}
 
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
