@@ -1033,6 +1033,24 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
 	{
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		SliceEngine::GUID prefabGUID;
+		std::string prefabStemName = node->path.stem().stem().string();
+		//Getting the GUID of the prefab
+		if (mRegistry.GetAssetManager().mFilenameToGUID.find(prefabStemName) != mRegistry.GetAssetManager().mFilenameToGUID.end())
+		{
+			prefabGUID = mRegistry.GetAssetManager().mFilenameToGUID[prefabStemName];
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Prefab is broken on Asset Manager");
+			return;
+		}
+		//Creating an temporary instance of the prefab
+		auto handle = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
+		Entity prefabEntity = SliceEngine::JSONSerializer::DeserializePrefab(handle.get()->filePath); //Not sure if creating an entity every frame is good
+
+		//Display the Stuff
 
 	}
 

@@ -508,12 +508,36 @@ namespace SliceEditor
 			ImGui::SameLine(150.f);
 			if (ImGui::Button("+", ImVec2(30, 20)))
 			{
-				//Add New Element
+				// snapshot before change
+				oldList = list;
+
+				// perform change
+				list.emplace_back(""); // or some default string
+
+				// record in history
+				if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						func, std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("-", ImVec2(30, 20)))
 			{
-				//Remove Last Element
+				if (!list.empty())
+				{
+					oldList = list;   // snapshot before change
+
+					list.pop_back();  // or erase at index, etc.
+
+					if (oldList != list)
+					{
+						auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+							func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
 			}
 			ImGui::TreePop();
 		}
