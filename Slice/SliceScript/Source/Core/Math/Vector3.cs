@@ -175,6 +175,51 @@ namespace SliceEngine
             return slerped * magnitude;
         }
 
+        public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
+        {
+            // Safety
+            smoothTime = Math.Max(0.0001f, smoothTime);
+
+            float omega = 2f / smoothTime;
+
+            float x = omega * deltaTime;
+            float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
+
+            // Determine change
+            Vector3 change = current - target;
+
+            // Clamp maximum speed
+            float maxChange = maxSpeed * smoothTime;
+            float changeMag = change.Length();
+
+            if (changeMag > maxChange)
+            {
+                change = change / changeMag * maxChange;
+            }
+
+            Vector3 temp = (currentVelocity + change * omega) * deltaTime;
+
+            // Update velocity
+            currentVelocity = (currentVelocity - temp * omega) * exp;
+
+            // Compute output
+            Vector3 output = target + (change + temp) * exp;
+
+            // Prevent overshoot
+            Vector3 origToTarget = target - current;
+            Vector3 outToTarget = target - output;
+
+            if (Vector3.Dot(origToTarget, outToTarget) < 0f)
+            {
+                output = target;
+                currentVelocity = Vector3.Zero;
+            }
+
+            return output;
+        }
+
+
+
         public override int GetHashCode()
         {
             // A common way to combine hash codes on older frameworks
