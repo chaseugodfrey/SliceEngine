@@ -65,16 +65,21 @@ namespace SliceEngine
 
 	void TransformSystem::UpdateSceneTransforms(entt::entity entity, const glm::mat4& parentWorld)
 	{
-		auto& tr = mRegistry->get<Transform>(entity);
-		tr.transform = parentWorld * tr.transform_local;
+		auto tr = mRegistry->try_get<Transform>(entity);
+		//auto& tr = mRegistry->get<Transform>(entity);
+		if (tr)
+		{
+			tr->transform = parentWorld * tr->transform_local;
 		
-	    if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
-	        entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
-	        while (child != entt::null) 
-			{
-	            UpdateSceneTransforms(child, tr.transform);
-	            child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
-	        }
-	    }
+			if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
+				entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
+				while (child != entt::null) 
+				{
+					UpdateSceneTransforms(child, tr->transform);
+					child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+				}
+			}
+
+		}
 	}
 }

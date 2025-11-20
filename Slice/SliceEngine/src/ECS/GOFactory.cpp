@@ -121,7 +121,6 @@ namespace SliceEngine
 		Entity entity = mRegistry.create();
 		GameObject newGO(mRegistry, entity);
 
-		//newGO.SetName(CreateName(newGO.GetName()));
 
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
@@ -129,8 +128,37 @@ namespace SliceEngine
 			cloner.second(mRegistry, go.GetEntity(), newGO.GetEntity());
 		}
 
-		////mNameToEntity.insert(std::make_pair("Test", newGO));
-		////mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+		newGO.RemoveComponent<SceneGraph>();
+		newGO.SetName(CreateName(go.GetName()));
+		newGO.AddComponent<SceneGraph>();
+		newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
+		SetParent(newGO.GetEntity());
+
+		//newGO.SetName(CreateName(go.GetName()));
+
+		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
+		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+		//SetParent(newGO.GetEntity());
+
+		/*
+		
+				go.AddComponent<SliceEntity>();
+		go.GetComponent<SliceEntity>().mName = CreateName(name);
+
+		//go.SetName(CreateName(name));
+		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+
+		// Can add default components here like transform
+		//mRegistry.emplace_or_replace<Transform>(go);
+		go.AddComponent<Transform>();
+		// Every entity created will keep this flag for easy pulling
+		go.AddComponent<SceneGraph>();
+		go.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
+		SetParent(go.GetEntity());
+
+		
+		*/
 
 		return newGO;
 	}

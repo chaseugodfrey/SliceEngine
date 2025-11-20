@@ -40,6 +40,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
+#include "Navigation/NavigationSystem.h"
+
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -129,13 +131,15 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
+		Core::GetInstance()->InitSystem<NavigationSystem>();
 
-		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
+		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -192,6 +196,13 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Game);
 				sInputs->SetEnabled(true);
+				if (sScene->mCurrentState == SceneState::DEFAULT)
+				{
+					
+					sScene->WriteTempFile();
+
+				}
+				
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
@@ -200,12 +211,6 @@ namespace SliceEngine
 
 				}
 
-				if (sScene->mCurrentState == SceneState::DEFAULT)
-				{
-					
-					sScene->WriteTempFile();
-
-				}
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
