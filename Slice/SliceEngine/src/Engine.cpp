@@ -154,6 +154,12 @@ namespace SliceEngine
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
 	
+		//GameObject NavmeshTest = Core::FactoryInstance.CreateGO("NavmeshTest");
+		//NavmeshTest.AddComponent<NavAgent>();
+		//NavmeshTest.GetComponent<Transform>().position = glm::vec3(3,0,3);
+		//NavmeshTest.GetComponent<NavAgent>().target = glm::vec3(10, 0, 10);
+		//NavmeshTest.GetComponent<NavAgent>().hasNewTarget = true;
+		//
 	}
 
 	void Engine::SceneInit()
@@ -306,6 +312,9 @@ namespace SliceEngine
 
 			}
 		}
+
+		Core::GetInstance()->GetSystem<NavigationSystem>().Update(frm->getFixedDeltaTime());
+
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
