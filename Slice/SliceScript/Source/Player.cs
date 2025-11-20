@@ -31,7 +31,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         { 
-            Vector3 right = Vector3.Cross(up, camera).Normalize();
+            Vector3 right = Vector3.Cross(camera, up).Normalize();
+            Vector3 front = Vector3.Cross(up, right).Normalize();
             Vector3 rotationAxis = new Vector3(0, 1, 0);
             Vector3 targetFacingDirection = this.direction;
             float rotationSpeedFrame = rotationSpeed * dt;
@@ -46,8 +47,8 @@ namespace SliceEngine
             // Forwards
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
-                t.Position += camera * moveSpeed * dt;
-                targetFacingDirection = camera;
+                t.Position = t.Position + front * moveSpeed * dt;
+                targetFacingDirection = front;
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
@@ -55,15 +56,15 @@ namespace SliceEngine
                     animator.SetBool("player|Walk", true);
 
 
-                Console.WriteLine("Name: " + animator.GetCurrAnimName());
+                //Console.WriteLine("Name: " + animator.GetCurrAnimName());
 
             }
 
             // Left
             if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
             {
-                t.Position += right * moveSpeed * dt;
-                targetFacingDirection = right;
+                t.Position = t.Position - right * moveSpeed * dt;
+                targetFacingDirection = new Vector3(-right.x, -right.y, -right.z);
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
@@ -73,9 +74,9 @@ namespace SliceEngine
 
             // Backward
             if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
-            { 
-                t.Position -= camera * moveSpeed * dt;
-                targetFacingDirection = new Vector3(-camera.x,-camera.y,-camera.z);
+            {
+                t.Position = t.Position - front * moveSpeed * dt;
+                targetFacingDirection = new Vector3(-front.x, -front.y, -front.z);
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
@@ -87,8 +88,8 @@ namespace SliceEngine
             // Right
             if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
             {
-                t.Position -= right * moveSpeed * dt;
-                targetFacingDirection = new Vector3(-right.x, -right.y, -right.z);
+                t.Position = t.Position + right * moveSpeed * dt;
+                targetFacingDirection = right;
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||

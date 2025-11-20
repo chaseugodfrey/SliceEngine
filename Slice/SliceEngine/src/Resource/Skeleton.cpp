@@ -251,6 +251,35 @@ namespace SliceEngine
 
 		}
 
+		void Animation::UpdateTransformsBlend(std::vector<glm::mat4>& final_tforms, float time1, float time2, Animation const& anim, float lerpVal, Skeleton const& skeleton) const
+		{
+			float frameTime1 = time1 * fps;
+			float frameTime2 = time2 * anim.fps;
+			int frame0_1 = (int)frameTime1;
+			int frame1_1 = (frame0_1 + 1) % num_frames;	//lerp back to 0 is somehow this goes to max(it shouldnt)
+			int frame0_2 = (int)frameTime2;
+			int frame1_2 = (frame0_2 + 1) % anim.num_frames;	//lerp back to 0 is somehow this goes to max(it shouldnt)
+
+			for (int i = 0; i < boneKeyFrames.size(); ++i) 
+			{
+				auto& keyframe1 = boneKeyFrames[i];
+				auto& keyframe2 = anim.boneKeyFrames[i];
+				glm::mat4 local_tform;
+				//int parent = skeleton.bones[i].parentIndex;
+				if (keyframe1.animated) 
+				{
+					auto const& local1 = keyframe1.transforms[frame1_1];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
+					auto const& local2 = keyframe2.transforms[frame1_2];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
+					local_tform = Frame::Blend(local1, local2, lerpVal).ToMatrix();
+				}
+				else {
+					local_tform = skeleton.bones[i].neutral;
+				}
+
+				final_tforms[i] = local_tform;
+			}
+		}
+
 		void Animation::ApplyParentTransforms(std::vector<glm::mat4>& final_tforms, Skeleton const& skeleton, glm::mat4 const& world) const {
 			final_tforms[0] = world * final_tforms[0];
 			for (int i = 1; i < boneKeyFrames.size(); ++i) {

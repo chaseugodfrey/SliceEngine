@@ -82,13 +82,17 @@ namespace SliceEngine
 				{
 					EFSM.nextState = transition.targetState;
 					EFSM.stateCon = true;
+					EFSM.currState->transitionUsed = &transition;
 					break;
 				}
 			}
 		}
 	}
-	void FSMSystem::UpdateState(float &CTime)
+	void FSMSystem::UpdateState(float &CTime,float dt)
 	{
+		// update ctime dt somewhere here
+
+
 		if (!EFSM.currState) return;
 
 		if (!EFSM.stateCon)
@@ -99,10 +103,10 @@ namespace SliceEngine
 
 		bool safeToChange = false;
 
-		if(EFSM.currState->hasExitTime)
+		if(EFSM.currState->transitionUsed->hasExitTime)
 		{
 			// check exit time
-			if(EFSM.currState->exitTime * EFSM.currState->animationTime <= current_time)
+			if(EFSM.currState->transitionUsed->exitTime * EFSM.currState->animationTime <= CTime)
 			{
 				EFSM.currState->isFinish = true;
 				safeToChange = true;
@@ -131,12 +135,13 @@ namespace SliceEngine
 
 			CTime = 0.0f;
 			stateChanged = true;
+			EFSM.currState->transitionUsed = nullptr;
 		}
 	}
 
 	void FSMSystem::UpdateCurrentTime(float cTime)
 	{
-		current_time = cTime;
+		//current_time = cTime;
 	}
 
 	bool FSMSystem::EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare)

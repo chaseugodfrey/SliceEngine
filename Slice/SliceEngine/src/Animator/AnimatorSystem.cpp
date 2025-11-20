@@ -50,7 +50,7 @@ namespace SliceEngine
 
 		animator.stateMachine.CheckStates();
 
-		animator.stateMachine.UpdateState(animator.current_time);
+		animator.stateMachine.UpdateState(animator.current_time,dt);
 
 		UpdateAnimation(animator, dt);
 	}
@@ -62,7 +62,7 @@ namespace SliceEngine
 
 		if (animator.stateMachine.stateChanged)
 		{
-			if (animator.is_bone)
+			/*if (animator.is_bone)
 			{
 				auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
 				auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
@@ -72,11 +72,12 @@ namespace SliceEngine
 					if(prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
 						curranim.boneKeyFrames[i].transforms[0] = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[prevanim.boneKeyFrames[i].transforms.size() - 1], curranim.boneKeyFrames[i].transforms[0], dt);
 				}
-			}
+			}*/
+			animator.timeline.isPlaying = true;
 			animator.stateMachine.stateChanged = false;
 		}
 
-		//if (animator.timeline.isPlaying)
+		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
 			if (animator.is_bone) {
@@ -89,15 +90,13 @@ namespace SliceEngine
 				else
 				{
 					animator.current_time += dt;
-					animator.stateMachine.UpdateCurrentTime(animator.current_time);
 					if (animator.current_time > anim.duration)
 					{
 
 						if (!animator.stateMachine.EFSM.currState->isLoop)
 						{
 							animator.timeline.isPlaying = false;
-							animator.current_time = 0.0f;
-
+							// fsm set time
 							return;
 						}
 						else
@@ -110,6 +109,8 @@ namespace SliceEngine
 				}
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
+				animator.inverse_flags.reset();
+				animator.inverse_map.clear();
 			}
 			//non bone animation
 			else {
@@ -127,13 +128,13 @@ namespace SliceEngine
 			//if (!animator.stateMachine.EFSM.IsValid()) return;
 			if (!animator.IsValid()) return;
 
-			//if (animator.timeline.isPlaying)
+			if (animator.timeline.isPlaying)
 			{
 				
 				if (animator.is_bone) {
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
+					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), glm::mat4{1.0f});
 					animator.SetInverseRoots();
 					anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
 				}

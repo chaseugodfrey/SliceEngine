@@ -1,33 +1,50 @@
 {
     "entryState": "player|Idle",
     "parameters": {
+        "player|AirDashStart": false,
         "player|Attack1": false,
+        "player|Attack1_Fast": false,
         "player|Attack2": false,
+        "player|Attack2_Fast": false,
         "player|Attack3": false,
         "player|Attack3ToLoco": false,
+        "player|Attack3_Fast": false,
+        "player|Attack3_FastToLoco": false,
         "player|AttackToIdle1": false,
         "player|AttackToIdle2": false,
+        "player|BackDashStart": false,
+        "player|DashStart": false,
+        "player|Fall": false,
         "player|Idle": false,
+        "player|JumpLoop": false,
+        "player|Land": false,
+        "player|Plunge": false,
+        "player|PlungeLand": false,
+        "player|PlungeToIdle": false,
+        "player|PlungeToWalk": false,
         "player|Walk": false
     },
     "stateMap": {
         "player|Attack1": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
             "isLoop": false,
             "stateName": "player|Attack1",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|AttackToIdle1",
                     "targetState": "player|AttackToIdle1"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Attack2",
                     "targetState": "player|Attack2"
                 }
@@ -35,21 +52,24 @@
         },
         "player|Attack2": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
             "isLoop": false,
             "stateName": "player|Attack2",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|AttackToIdle2",
                     "targetState": "player|AttackToIdle2"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Attack3",
                     "targetState": "player|Attack3"
                 }
@@ -57,21 +77,24 @@
         },
         "player|Attack3": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
             "isLoop": false,
             "stateName": "player|Attack3ToLoco",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Walk",
                     "targetState": "player|Walk"
                 }
@@ -79,21 +102,24 @@
         },
         "player|AttackToIdle1": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
             "isLoop": false,
             "stateName": "player|AttackToIdle1",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Walk",
                     "targetState": "player|Walk"
                 }
@@ -101,21 +127,24 @@
         },
         "player|AttackToIdle2": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
             "isLoop": false,
             "stateName": "player|AttackToIdle2",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "player|Walk",
                     "targetState": "player|Walk"
                 }
@@ -123,21 +152,24 @@
         },
         "player|Idle": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": false,
             "isLoop": true,
             "stateName": "player|Idle",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
                     "parameterName": "player|Attack1",
                     "targetState": "player|Attack1"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
                     "parameterName": "player|Walk",
                     "targetState": "player|Walk"
                 }
@@ -145,21 +177,24 @@
         },
         "player|Walk": {
             "currAnimIdx": 0,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": false,
             "isLoop": true,
             "stateName": "player|Walk",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
                     "parameterName": "player|Attack1",
                     "targetState": "player|Attack1"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
                 }

@@ -48,6 +48,10 @@ namespace SliceEngine
 			ComparisonOp operation;
 			std::string parameterName;
 
+			bool hasExitTime{};
+			float exitTime = 1.0f;
+			float entryTime = 0.0f;
+
 			bool operator==(const Transition& other) const
 			{
 				return targetState == other.targetState && condition == other.condition;
@@ -59,15 +63,13 @@ namespace SliceEngine
 			std::string stateName;
 			unsigned int curr_anim_idx{};
 
-			bool hasExitTime{};
-			float exitTime = 1.0f;
-			float entryTime = 0.0f;
 			float animationTime{};
 
 			bool isLoop { false };
 			bool isFinish{ false };
 
 			std::vector<Transition> transitions;
+			Transition const* transitionUsed{ nullptr };
 
 			// node editor stuff
 
