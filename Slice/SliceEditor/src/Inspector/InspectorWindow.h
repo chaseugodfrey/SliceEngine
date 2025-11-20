@@ -42,8 +42,7 @@ namespace SliceEditor
 		bool DisplayComponentHeader(entt::entity entity, bool closeable = true)
 		{
 			bool isDeleted = false;
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
-
+		//	ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
 			if (ImGui::Button("-"))
 			{
 				ImGui::OpenPopup("ComponentContextMenu");  // Open the popup when button is clicked
