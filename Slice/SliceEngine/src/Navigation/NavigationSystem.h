@@ -11,7 +11,7 @@ namespace SliceEngine
 
     struct NavAgentEntity {};
 
-    class NavigationSystem : public BaseSystem<NavAgentEntity, NavAgent>
+    class NavigationSystem : public BaseSystem<NavAgentEntity, NavAgent, Transform>
     {
         std::optional<NavMeshObj> navMeshInstance;
         std::optional<NavMeshDebugObj> navMeshDebugInfo;

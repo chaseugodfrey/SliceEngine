@@ -122,7 +122,19 @@ namespace SliceEngine
 		{
 			SLICE_LOG_DEBUG("Path size = {}", agent.currentPath.size());
 			auto targetPt = agent.currentPath[agent.currentPathIndex];
-			auto dir = glm::normalize(targetPt - transform.position);
+			glm::vec3 dir;
+
+			// on the scenario that the target position IS it's own position
+			// maybe because the start of path finding starts from their own position
+			// so to prevent NAN from normalizing a zero vector, we set it to 0 if its the same pos
+			if (targetPt == transform.position)
+			{
+				dir = glm::vec3(0, 0, 0);
+			}
+			else
+			{
+				dir = glm::normalize(targetPt - transform.position);
+			}
 
 			transform.position += dir * agent.speed * dt;
 
