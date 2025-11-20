@@ -37,6 +37,13 @@ namespace SliceEngine
         {
             return new Vector3(v1.x * f1, v1.y * f1, v1.z * f1);
         }
+        public static Vector3 operator /(Vector3 v, float f)
+        {
+            if (Math.Abs(f) < Utilities.Epsilon)
+                throw new DivideByZeroException("Cannot divide a Vector3 by zero.");
+
+            return new Vector3(v.x / f, v.y / f, v.z / f);
+        }
 
         public static bool operator ==(Vector3 v1, Vector3 v2)
         {
@@ -68,7 +75,10 @@ namespace SliceEngine
             float dz = v.z - z;
             return (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
-
+        public static float Dot(Vector3 a, Vector3 b)
+        {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
         public override bool Equals(object obj)
         {
             if (obj is Vector3 other)
@@ -94,6 +104,75 @@ namespace SliceEngine
         public float Length()
         {
             return (float)Math.Sqrt(LengthSquared());
+        }
+
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+        {
+            // Clamp t to [0,1] for safety
+            if (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
+
+            return new Vector3(
+                a.x + (b.x - a.x) * t,
+                a.y + (b.y - a.y) * t,
+                a.z + (b.z - a.z) * t
+            );
+        }
+
+        public static Vector3 LerpUnclamped(Vector3 a, Vector3 b, float t)
+        {
+            return new Vector3(
+                a.x + (b.x - a.x) * t,
+                a.y + (b.y - a.y) * t,
+                a.z + (b.z - a.z) * t
+            );
+        }
+
+        public static Vector3 Slerp(Vector3 a, Vector3 b, float t)
+        {
+            // Clamp t for safety
+            if (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
+
+            float magA = a.Length();
+            float magB = b.Length();
+
+            // Normalize directions
+            Vector3 from = a / magA;
+            Vector3 to = b / magB;
+
+            // Dot product clamp
+            float dot = Vector3.Dot(from, to);
+            dot = Utilities.Clamp(dot, -1f, 1f);
+
+            // If vectors are very close, fall back to Lerp
+            if (dot > 0.9995f)
+            {
+                Vector3 linear = Vector3.Lerp(from, to, t);
+                linear = linear.Normalize();
+                float mag = magA + (magB - magA) * t;
+                return linear * mag;
+            }
+
+            // Angle between them
+            float theta0 = (float)Math.Acos(dot);  // full angle
+            float theta = theta0 * t;              // scaled angle
+
+            float sinTheta0 = (float)Math.Sin(theta0);
+            float sinTheta = (float)Math.Sin(theta);
+
+            // Compute orthonormal basis
+            Vector3 relative = (to - from * dot).Normalize();
+
+            // Slerp
+            Vector3 slerped =
+                from * (float)Math.Cos(theta) +
+                relative * sinTheta;
+
+            // Interpolate magnitude too (Unity does this)
+            float magnitude = magA + (magB - magA) * t;
+
+            return slerped * magnitude;
         }
 
         public override int GetHashCode()
