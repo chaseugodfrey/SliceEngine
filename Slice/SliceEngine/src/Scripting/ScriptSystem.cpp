@@ -387,8 +387,6 @@ namespace SliceEngine
 
     void ScriptSystem::OnStart()
     {
-        mCoroutineInstance->InvokeOnCreate();
-
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
@@ -807,10 +805,6 @@ namespace SliceEngine
             uint32_t flags = cols[MONO_TYPEDEF_FLAGS];
             uint32_t visibility = flags & MONO_TYPE_ATTR_VISIBILITY_MASK;
 
-            // Skip compiler-generated or nested types (names starting with '<')
-            if (name[0] == '<')
-                continue;
-
             // Skip all nested types (nested types have visibility values 0x02–0x06)
             if (visibility >= MONO_TYPE_ATTR_NESTED_PUBLIC && visibility <= MONO_TYPE_ATTR_NESTED_FAM_OR_ASSEM)
                 continue;
@@ -851,8 +845,6 @@ namespace SliceEngine
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
 
-
-
                             rttr::variant var;
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
@@ -877,6 +869,7 @@ namespace SliceEngine
 
                                 field.mListAdd = mono_class_get_method_from_name(field.mCollectionClass, "Add", 1);
                                 field.mListClear = mono_class_get_method_from_name(field.mCollectionClass, "Clear", 0);
+                                field.mListRemoveAt = mono_class_get_method_from_name(field.mCollectionClass, "RemoveAt", 1);
                             }
                         }
                     }
@@ -886,10 +879,6 @@ namespace SliceEngine
                         break;
                 }
             }
-
-            //printf("%s.%s\n", nameSpace, name);
-
-
         }
     }
 

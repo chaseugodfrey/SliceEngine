@@ -43,7 +43,6 @@ namespace SliceEditor
 		{
 			bool isDeleted = false;
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("-").x);
-
 			if (ImGui::Button("-"))
 			{
 				ImGui::OpenPopup("ComponentContextMenu");  // Open the popup when button is clicked
