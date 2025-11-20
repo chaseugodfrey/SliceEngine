@@ -173,6 +173,33 @@ namespace SliceEngine
         return !outPath.empty();
     }
 
+	bool NavMeshUtilities::GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight)
+	{
+		if (!navMeshObj.navMeshQuery) return false;
+
+		float position[3] = { pos.x, pos.y, pos.z };
+		float extents[3] = { 2.0f, 10.0f, 2.0f }; // Look 10 units up/down for the mesh
+
+		dtQueryFilter filter; // Default filter
+		dtPolyRef nearestPoly;
+		float nearestPt[3];
+
+		// 1. Find the polygon closest to our (x, z) position
+		navMeshObj.navMeshQuery->findNearestPoly(position, extents, &filter, &nearestPoly, nearestPt);
+
+		if (!nearestPoly) return false;
+
+		// 2. Get the exact height of that polygon at our x, z coordinates
+		if (dtStatusSucceed(navMeshObj.navMeshQuery->getPolyHeight(nearestPoly, position, &outHeight)))
+		{
+			return true;
+		}
+
+		// Fallback: if getPolyHeight fails (rare), use the nearest point's Y
+		outHeight = nearestPt[1];
+		return true;
+	}
+
 	NavMeshDebugObj NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
 	{
 		auto tNavMesh = const_cast<const dtNavMesh*>(navMeshObj.navMesh);

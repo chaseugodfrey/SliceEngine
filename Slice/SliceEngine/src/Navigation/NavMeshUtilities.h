@@ -28,6 +28,7 @@ namespace SliceEngine
         NavMeshDebugObj CreateDebugMesh(NavMeshObj const& navMeshObj);
 
         bool FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath);
+        bool GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight);
     }
 }
 #endif

@@ -108,8 +108,8 @@ namespace SliceEditor
 
 		SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
 		NavmeshTest.AddComponent<SliceEngine::NavAgent>();
-		NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0,1);
-		NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0, 10);
+		NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
+		NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
 		NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
 
 		

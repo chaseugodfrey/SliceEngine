@@ -23,8 +23,22 @@ namespace SliceEngine
 
 	void NavigationSystem::ClearNavMesh()
 	{
-		if (!navMeshInstance)
-			return;
+		if (navMeshInstance.has_value())
+		{
+			NavMeshObj &obj = navMeshInstance.value();
+
+			if (obj.navMeshQuery)
+			{
+				dtFreeNavMeshQuery(obj.navMeshQuery);
+				obj.navMeshQuery = nullptr;
+			}
+
+			if (obj.navMesh)
+			{
+				dtFreeNavMesh(obj.navMesh);
+				obj.navMesh = nullptr;
+			}
+		}
 
 		if (navMeshDebugInfo.has_value())
 		{
@@ -120,30 +134,42 @@ namespace SliceEngine
 
 		if (!agent.currentPath.empty())
 		{
-			SLICE_LOG_DEBUG("Path size = {}", agent.currentPath.size());
-			auto targetPt = agent.currentPath[agent.currentPathIndex];
-			glm::vec3 dir;
+			glm::vec3 targetPt = agent.currentPath[agent.currentPathIndex];
+			glm::vec3 currentPos = transform.position;
 
-			// on the scenario that the target position IS it's own position
-			// maybe because the start of path finding starts from their own position
-			// so to prevent NAN from normalizing a zero vector, we set it to 0 if its the same pos
-			if (targetPt == transform.position)
+			// 1. Calculate Direction ignoring Y (Height)
+			// This prevents the "flying" effect and ensures we just move across the map horizontally
+			glm::vec3 flatTarget(targetPt.x, 0.0f, targetPt.z);
+			glm::vec3 flatCurrent(currentPos.x, 0.0f, currentPos.z);
+
+			// Prevent NaN if we are effectively at the target
+			if (glm::distance(flatCurrent, flatTarget) < 0.01f)
 			{
-				dir = glm::vec3(0, 0, 0);
-			}
-			else
-			{
-				dir = glm::normalize(targetPt - transform.position);
+				// Logic to increment path index (moved from below)
+				if (glm::distance(currentPos, targetPt) < 0.15f)
+				{
+					agent.currentPathIndex++;
+					if (agent.currentPathIndex >= agent.currentPath.size())
+						agent.currentPath.clear();
+				}
+				return;
 			}
 
-			transform.position += dir * agent.speed * dt;
+			glm::vec3 dir = glm::normalize(flatTarget - flatCurrent);
 
-			if (glm::distance(transform.position, targetPt) < 0.15f)
+			// 2. Move the agent's X and Z
+			glm::vec3 nextPos = currentPos + (dir * agent.speed * dt);
+
+			// 3. SNAP TO NAVMESH HEIGHT (The Critical Fix)
+			// We need to query Detour to find exactly what the Y value is at 'nextPos.x, nextPos.z'
+			float height = 0.0f;
+			if (NavMeshUtilities::GetNavMeshHeightAtPos(navMeshObj, nextPos, height))
 			{
-				agent.currentPathIndex++;
-				if (agent.currentPathIndex >= agent.currentPath.size())
-					agent.currentPath.clear();
+				nextPos.y = height;
 			}
+
+			// 4. Apply the new position
+			transform.position = nextPos;
 		}
 
 	}
