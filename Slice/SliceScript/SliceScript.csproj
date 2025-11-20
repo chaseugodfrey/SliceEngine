@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -55,6 +53,7 @@
     <Compile Include="Source\Core\GameObject.cs" />
     <Compile Include="Source\Core\Math\Quaternion.cs" />
     <Compile Include="Source\Core\Math\SliceRandom.cs" />
+    <Compile Include="Source\Core\Math\Utilities.cs" />
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
@@ -67,7 +66,6 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
-    <Compile Include="Source\Core\Math\Utilities.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
