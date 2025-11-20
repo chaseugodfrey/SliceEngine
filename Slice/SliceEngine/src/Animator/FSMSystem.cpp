@@ -59,7 +59,7 @@ namespace SliceEngine
 		if (!EFSM.currState) return;
 
 		// only 1 transition
-		if (EFSM.currState->transitions.size() == 1)
+		/*if (EFSM.currState->transitions.size() == 1)
 		{
 			if (EFSM.parameters.find(EFSM.currState->transitions[0].parameterName) != EFSM.parameters.end())
 			{
@@ -68,6 +68,10 @@ namespace SliceEngine
 				EFSM.stateCon = true;
 				return;
 			}
+		}*/
+		if (std::strcmp(EFSM.currState->stateName.c_str(), "player|Attack3") == 0)
+		{
+			std::string he = "heel";
 		}
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
@@ -102,6 +106,11 @@ namespace SliceEngine
 		EFSM.stateMap[EFSM.prevState].isFinish = false;
 
 		bool safeToChange = false;
+
+		if (std::strcmp(EFSM.currState->stateName.c_str(), "player|Attack3") == 0)
+		{
+			std::string he = "hele";
+		}
 
 		if(EFSM.currState->transitionUsed->hasExitTime)
 		{
@@ -205,11 +214,6 @@ namespace SliceEngine
 		if (!EFSM.currState) return;
 
 		EFSM.parameters[name] = value;
-
-		if (std::strcmp(name.c_str(), "player|Walk") == 0 && value)
-		{
-			std::string he = "hele";
-		}
 
 		for (auto& [key, var] : EFSM.parameters)
 		{
