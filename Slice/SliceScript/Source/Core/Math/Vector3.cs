@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 
 namespace SliceEngine
@@ -130,49 +131,71 @@ namespace SliceEngine
 
         public static Vector3 Slerp(Vector3 a, Vector3 b, float t)
         {
-            // Clamp t for safety
-            if (t < 0f) t = 0f;
-            else if (t > 1f) t = 1f;
+            //// Clamp t for safety
+            //if (t < 0f) t = 0f;
+            //else if (t > 1f) t = 1f;
 
-            float magA = a.Length();
-            float magB = b.Length();
+            //float magA = a.Length();
+            //float magB = b.Length();
 
-            // Normalize directions
-            Vector3 from = a / magA;
-            Vector3 to = b / magB;
+            //// Normalize directions
+            //Vector3 from = a / magA;
+            //Vector3 to = b / magB;
 
-            // Dot product clamp
-            float dot = Vector3.Dot(from, to);
-            dot = Utilities.Clamp(dot, -1f, 1f);
+            //// Dot product clamp
+            //float dot = Vector3.Dot(from, to);
+            //dot = Utilities.Clamp(dot, -1f, 1f);
 
-            // If vectors are very close, fall back to Lerp
-            if (dot > 0.9995f)
-            {
-                Vector3 linear = Vector3.Lerp(from, to, t);
-                linear = linear.Normalize();
-                float mag = magA + (magB - magA) * t;
-                return linear * mag;
-            }
+            //// If vectors are very close, fall back to Lerp
+            //if (dot > 0.9995f)
+            //{
+            //    Vector3 linear = Vector3.Lerp(from, to, t);
+            //    linear = linear.Normalize();
+            //    float mag = magA + (magB - magA) * t;
+            //    return linear * mag;
+            //}
 
-            // Angle between them
-            float theta0 = (float)Math.Acos(dot);  // full angle
-            float theta = theta0 * t;              // scaled angle
+            //// Angle between them
+            //float theta0 = (float)Math.Acos(dot);  // full angle
+            //float theta = theta0 * t;              // scaled angle
 
-            float sinTheta0 = (float)Math.Sin(theta0);
-            float sinTheta = (float)Math.Sin(theta);
+            //float sinTheta0 = (float)Math.Sin(theta0);
+            //float sinTheta = (float)Math.Sin(theta);
 
-            // Compute orthonormal basis
-            Vector3 relative = (to - from * dot).Normalize();
+            //// Compute orthonormal basis
+            //Vector3 relative = (to - from * dot).Normalize();
 
-            // Slerp
-            Vector3 slerped =
-                from * (float)Math.Cos(theta) +
-                relative * sinTheta;
+            //// Slerp
+            //Vector3 slerped =
+            //    from * (float)Math.Cos(theta) +
+            //    relative * sinTheta;
 
-            // Interpolate magnitude too (Unity does this)
-            float magnitude = magA + (magB - magA) * t;
+            //// Interpolate magnitude too (Unity does this)
+            //float magnitude = magA + (magB - magA) * t;
 
-            return slerped * magnitude;
+            //return slerped * magnitude;
+
+            //Dot product -the cosine of the angle between 2 vectors.
+            float dot = Vector3.Dot(a, b);
+
+            // Clamp it to be in the range of Acos()
+            // This may be unnecessary, but floating point
+            // precision can be a fickle mistress.
+            //Mathf.Clamp(dot, -1.0f, 1.0f);
+            // annotation derHugo: like it stands this is indeed completely unnecessary. 
+            // If something it should be
+            dot = Utilities.Clamp(dot, -1.0f, 1.0f);
+
+            // Acos(dot) returns the angle between start and end,
+            // And multiplying that by percent returns the angle between
+            // start and the final result.
+            float theta = (float)Math.Acos(dot) * t;
+            Vector3 RelativeVec = b - a * dot;
+            RelativeVec.Normalize();
+
+            // Orthonormal basis
+            // The final result.
+            return ((a * (float)Math.Cos(theta)) + (RelativeVec * (float)Math.Sin(theta)));
         }
 
         public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
@@ -232,6 +255,26 @@ namespace SliceEngine
                 return hash;
             }
         }
+        public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
+        {
+            // Step 1: Compute the angle between them
+            float dot = Vector3.Dot(to, from);
 
+            // Clamp dot to avoid domain errors due to floating point inaccuracies
+            dot = Utilities.Clamp(dot, -1f, 1f);
+
+            // Angle in radians between rotations
+            float angle = (float)Math.Acos(dot) * 2f * 180f / (float)Math.PI; // convert to degrees
+
+            // If angle is very small, just return target
+            if (angle < 1e-5f)
+                return to;
+
+            // Step 2: Determine how much fraction to rotate this step
+            float t = Math.Min(1f, maxDegreesDelta / angle);
+
+            // Step 3: Perform spherical interpolation (Slerp)
+            return Slerp(from, to, t);
+        }
     }
 }

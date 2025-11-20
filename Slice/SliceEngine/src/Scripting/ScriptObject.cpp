@@ -76,6 +76,11 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Instance something something");
 			return nullptr;
 		}
+		/*if (instance->synchronisation == nullptr || instance->vtable == nullptr)
+		{
+			SLICE_LOG_ERROR("Instance something something");
+			return nullptr;
+		}*/
 
 		if (mono_object_get_class(instance) == nullptr)
 		{

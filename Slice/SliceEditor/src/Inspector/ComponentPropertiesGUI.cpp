@@ -56,7 +56,7 @@ namespace SliceEditor
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format,ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -602,7 +602,7 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f", ImGuiSliderFlags_AlwaysClamp);
+		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f");
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -615,7 +615,7 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f") || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -628,7 +628,7 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f", ImGuiSliderFlags_AlwaysClamp) || changed;
+		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f") || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
