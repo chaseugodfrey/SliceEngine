@@ -91,15 +91,36 @@ namespace SliceEditor
 		ImGui::BeginChild("##sfx_list", ImVec2(), ImGuiChildFlags_Borders, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		if (ImGui::TreeNodeEx("list", ImGuiTreeNodeFlags_Framed))
 		{
-			for (int i = 0; i < count; i++)
+			//for (int i = 0; i < count; i++)
+			//{
+			//	// temp buffer
+			//	// Key entry name
+			//	std::string string_buffer = "entry_" + std::to_string(i);
+			//	float float_buffer{};
+			//	bool bool_buffer{};
+			//	if (ImGui::TreeNodeEx(string_buffer.c_str(), ImGuiTreeNodeFlags_Framed))
+			//	{
+			//		
+			//		StringInputHeader(mRegistry, "Key", ("##key_" + string_buffer).c_str(), string_buffer);
+			//		DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + string_buffer).c_str(), float_buffer);
+			//		DragFloatInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + string_buffer).c_str(), float_buffer);
+			//		BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + string_buffer).c_str(), bool_buffer);
+			//		DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + string_buffer).c_str(), float_buffer);
+			//		DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + string_buffer).c_str(), float_buffer);
+			//		DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + string_buffer).c_str(), float_buffer);
+			//		DragFloatInputHeader(mRegistry, "Interval", ("##interval" + string_buffer).c_str(), float_buffer);
+			//		ImGui::TreePop();
+			//	}
+			//}
+
+			for (int i = 0; i < audioSettings->mSFXMap.size(); i++)
 			{
-				// temp buffer
-				// Key entry name
 				std::string string_buffer = "entry_" + std::to_string(i);
 				float float_buffer{};
 				bool bool_buffer{};
 				if (ImGui::TreeNodeEx(string_buffer.c_str(), ImGuiTreeNodeFlags_Framed))
 				{
+					
 					StringInputHeader(mRegistry, "Key", ("##key_" + string_buffer).c_str(), string_buffer);
 					DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + string_buffer).c_str(), float_buffer);
 					DragFloatInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + string_buffer).c_str(), float_buffer);

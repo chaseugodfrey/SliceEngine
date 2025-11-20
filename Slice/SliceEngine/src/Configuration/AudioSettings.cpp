@@ -115,7 +115,7 @@ namespace SliceEngine
 
 	const std::string AudioSettings::GetEntryName(const std::string& key)
 	{
-		return std::string();
+		
 	}
 
 	void AudioSettings::SetEntryName(const std::string& key)
