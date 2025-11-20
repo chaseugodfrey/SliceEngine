@@ -172,7 +172,9 @@ namespace SliceEngine
 		/**
 		 * @brief Sets the volume for a specific sound category.
 		 */
-		void SetCategoryVolume(GUID soundName, float volume);
+		void SetCategoryVolume(int categoryType, float volume);
+
+		const float GetCategoryVolume(int categoryType);
 
 		float GetChannelVolume(FMOD::Channel* channel);
 

@@ -275,6 +275,14 @@ namespace SliceEngine
 			Logarithmic = 0,
 			Linear = 1
 		};
+
+		enum Category : int
+		{
+			SFX,
+			BGM,
+			UI,
+			EditorSounds
+		};
 		//std::string soundName;
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
@@ -284,6 +292,7 @@ namespace SliceEngine
 		bool isLoop = false;
 		bool isPaused = false;
 		float currentVolume = 0.3f;
+		Category category = SFX;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;
 		float spatialBlend = 1.0f;

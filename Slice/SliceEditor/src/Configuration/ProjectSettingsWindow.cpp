@@ -2,10 +2,12 @@
 #include "ProjectSettingsWindow.h"
 #include "Core/Registry.h"
 #include "Configuration/ProjectSettings.h"
+#include "Configuration/AudioSettings.h"
 #include "Inspector/ComponentPropertiesGUI.h"
 
 #include <Core/Core.h>
 #include <Physics/PhysicsSystem.h>
+#include <Audio/AudioManager.h>
 #include <Systems/LayerManager.h>
 
 namespace SliceEditor
@@ -70,9 +72,18 @@ namespace SliceEditor
 
 	void AudioSettingsDisplay::DisplaySettings()
 	{
+		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
+		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
+
 		// Master Volume
 		float float_buffer{};
-		DragFloatInputHeader(mRegistry, "Master Volume", "##master_vol", float_buffer);
+		if (DragFloatInputHeader(mRegistry, "Master Volume", "##master_vol", float_buffer))
+		{
+			if (std::abs(audioManager->GetCategoryVolume(0) - float_buffer) > 0.001f)
+			{
+				audioManager->SetCategoryVolume(0, float_buffer);
+			}
+		}
 
 		// SFX list
 		static int count = 1;

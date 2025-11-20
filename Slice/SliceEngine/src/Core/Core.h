@@ -135,6 +135,7 @@ namespace SliceEngine
 		
 		std::unique_ptr<NetworkSystem> mNetwork;
 		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
+		std::unique_ptr<AudioSettings> mAudioSettings;
 	};
 
 #define CoreInstance Core::GetInstance()

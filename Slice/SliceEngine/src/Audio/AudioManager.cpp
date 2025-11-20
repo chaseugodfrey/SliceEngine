@@ -91,7 +91,7 @@ namespace SliceEngine
 
 		FMOD_RESULT result = FMOD_OK;
 
-		switch (audioClip->GetCategory())
+		switch (audioComp.category)
 		{
 		case 0:
 		{
@@ -222,11 +222,10 @@ namespace SliceEngine
 		return { minDist,maxDist };
 	}
 
-	void AudioManager::SetCategoryVolume(GUID soundName, float volume)
+	void AudioManager::SetCategoryVolume(int categoryType, float volume)
 	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
-
-		switch (audioClip->GetCategory())
+		
+		switch (categoryType)
 		{
 			case 0:
 			{
@@ -250,6 +249,37 @@ namespace SliceEngine
 			}
 
 		}
+	}
+
+	const float AudioManager::GetCategoryVolume(int categoryType)
+	{
+		float volume = 0.0f;
+		switch (categoryType)
+		{
+			case 0:
+			{
+				sfx->getVolume(&volume);
+				break;
+			}
+			case 1:
+			{
+				bgm->getVolume(&volume);
+				break;
+			}
+			case 2:
+			{
+				ui->getVolume(&volume);
+				break;
+			}
+			case 3:
+			{
+				editorSounds->getVolume(&volume);
+				break;
+			}
+
+		}
+
+		return volume;
 	}
 
 	float AudioManager::GetChannelVolume(FMOD::Channel* channel)

@@ -56,6 +56,7 @@ namespace SliceEngine
 		mScenePtr = std::make_unique<SceneSystem>();
 
 		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
+		mAudioSettings = std::make_unique<AudioSettings>();
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 		mFactory.RegisterComponent<Renderer>();
@@ -148,6 +149,6 @@ namespace SliceEngine
 	}
 	AudioSettings* Core::GetAudioSettings()
 	{
-		return nullptr;
+		return mAudioSettings.get();
 	}
 }

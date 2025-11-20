@@ -238,6 +238,13 @@ namespace SliceEngine
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
 		);
+	rttr::registration::enumeration<AudioSource::Category>("Category")
+		(
+			rttr::value("SFX", AudioSource::Category::SFX),
+			rttr::value("BGM", AudioSource::Category::BGM),
+			rttr::value("UI", AudioSource::Category::UI),
+			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
 		.property("type", &Light::type)
