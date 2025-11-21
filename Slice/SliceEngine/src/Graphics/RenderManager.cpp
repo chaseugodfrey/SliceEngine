@@ -49,6 +49,9 @@ namespace SliceEngine
 		for (auto i : mBloomMips)
 			glDeleteTextures(1, &i.tex);
 
+		if (SkyboxMap != 0)
+			glDeleteTextures(1, &SkyboxMap);
+
 		glDeleteBuffers(2, pboIds);
 	}
 	void RenderManager::CreateFramebuffers()
@@ -158,6 +161,27 @@ namespace SliceEngine
 			intMip /= 2;
 			mipDim /= 2.f;
 		}
+
+		GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)18349208178533231704).get()->texture_id;
+		GLint srcInternalFmt, width, height;
+		glBindTexture(GL_TEXTURE_2D, faceTexID);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &srcInternalFmt);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+		glGenTextures(1, &SkyboxMap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxMap);
+		glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, srcInternalFmt, width, height);
+		for (u_int i{}; i < 6; ++i)
+		{
+			glCopyImageSubData(faceTexID, GL_TEXTURE_2D, 0, 0, 0, 0, SkyboxMap, GL_TEXTURE_CUBE_MAP, 0, 0, 0, i, width, height, 1);
+		}
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 #pragma endregion
 
@@ -230,11 +254,18 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::ALL);
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, true);
 
+			SetShader(S_SKYBOX);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LoadSettings(GPS_SHADOW);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			RenderSkybox(cam);
+
 			SetShader(S_LIGHTING);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			UpdateCamVP();
 			BindCameraDepth(cam);
-			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			RenderLighting(cam);
 
 			SetShader(S_PARTICLES);
@@ -458,6 +489,25 @@ namespace SliceEngine
 
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, false);
 		}
+	}
+	void RenderManager::RenderSkybox(Entity cam)
+	{
+		glBindTextureUnit(0, SkyboxMap);
+
+		GLint uniformLoc;
+		if (UniformExists("M", uniformLoc))
+		{
+			auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+
+			glm::mat4 M{ 1.f };
+			M = glm::translate(M, glm::vec3(camT.transform[3]));
+			M = glm::scale(M, glm::vec3(100.f));
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+		}
+
+		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
+		glBindVertexArray(mdl.vao);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 	void RenderManager::RenderLighting(Entity cam)
 	{

@@ -52,6 +52,7 @@ namespace SliceEngine
 		void RenderDebug(Entity cam);
 		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
+		void RenderSkybox(Entity cam);
 		void RenderLighting(Entity cam);
 		void RenderAfterLighting(Entity cam);
 		void RenderFog(Entity cam);
@@ -112,9 +113,9 @@ namespace SliceEngine
 			S_SHADOW		= 15542823559299526962,
 			S_POINT_SHADOW	= 16403285895328080424,
 			S_DEFERRED		= 9461939409271178249,
+			S_SKYBOX		= 10501127717050996268,
 			S_LIGHTING		= 17353385404596894578,
 			S_PARTICLES		= 15022037422749583333,
-			S_FINAL			= 9302529766740298710,
 			S_INSTANCED		= 17697828682138082227,
 			S_DEBUG_LINE	= 13567802095736790143,
 			S_FOG			= 10740115564374233650,
@@ -122,7 +123,8 @@ namespace SliceEngine
 			S_DOWNSCALING	= 9611694325200796232,
 			S_UPSCALING		= 17037775471000192005,
 			S_BLOOM_JOIN	= 11454882705531309873,
-			S_VIGNETTE		= 15557538937295862472
+			S_VIGNETTE		= 15557538937295862472,
+			S_FINAL			= 9302529766740298710
 		};
 		enum GPU_OUT : unsigned char
 		{
@@ -178,6 +180,7 @@ namespace SliceEngine
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
+		GLuint SkyboxMap{};
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;

@@ -75,10 +75,6 @@ void main(void){
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
 	}
-	else if(!any(notEqual(nom, vec3(0.0f))) && uLight.type == isDirectional)
-	{
-		fFragColor = vec4(0.75294f, 1.0f, 0.93333f, 1.0f);
-	}
 }
 
 
