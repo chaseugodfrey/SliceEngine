@@ -1,0 +1,154 @@
+[
+    {
+        "Player": {
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048634,
+                "neighbours": [
+                    0,
+                    1048635,
+                    1048642,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Player",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "$MergedNode_0_1": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "1",
+                "model": {
+                    "GUID": "12823721607253375821"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048635,
+                "neighbours": [
+                    1048634,
+                    4294967295,
+                    4294967295,
+                    1048636
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "$MergedNode_0_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.4115884006023407,
+                    0.9860935211181641,
+                    0.11352065950632095
+                ],
+                "rotation": [
+                    0.8957083225250244,
+                    -0.08235330879688263,
+                    0.06597594171762466,
+                    0.4319394528865814
+                ],
+                "scale": [
+                    0.621559739112854,
+                    0.9088339805603027,
+                    0.5348007082939148
+                ]
+            }
+        }
+    },
+    {
+        "$MergedNode_0": {
+            "struct SliceEngine::Animator": {
+                "current_time": 0.0,
+                "stateMachine": ""
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12823721607253375821"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048636,
+                "neighbours": [
+                    1048634,
+                    4294967295,
+                    1048635,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "$MergedNode_0",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.4115884006023407,
+                    0.9860935211181641,
+                    0.11352065950632095
+                ],
+                "rotation": [
+                    0.8957083225250244,
+                    -0.08235330879688263,
+                    0.06597594171762466,
+                    0.4319394528865814
+                ],
+                "scale": [
+                    0.621559739112854,
+                    0.9088339805603027,
+                    0.5348007082939148
+                ]
+            }
+        }
+    }
+]
