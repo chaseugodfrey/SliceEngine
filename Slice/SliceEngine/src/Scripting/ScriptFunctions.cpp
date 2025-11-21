@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Systems/PrefabSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
+#include "../Configuration/AudioSettings.h"
 
 namespace SliceEngine
 {
@@ -235,6 +236,12 @@ namespace SliceEngine
 			
 			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
+	}
+
+	static void Audio_PlaySFX(MonoString* string)
+	{
+		std::string key = MonoToString(string);
+		Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -695,7 +702,8 @@ namespace SliceEngine
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
-		//ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_PlaySFX);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);

@@ -292,7 +292,7 @@ namespace SliceEngine
 		bool isMute = false;
 		bool isLoop = false;
 		bool isPaused = false;
-		float currentVolume = 0.3f;
+		float currentVolume = 1.0f;
 		Category category = SFX;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;

@@ -487,7 +487,7 @@ namespace SliceEngine
 		audioComp.volumeRollOff = entry->volumeRollOff;
 		audioComp.playOnAwake = false;
 
-		//audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+		audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
 
 		//entry->_lastPlayed = currentTime;
 	}
