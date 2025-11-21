@@ -30,22 +30,22 @@ namespace SliceEngine
 
 	JPH::BroadPhaseLayer BPLayerInterfaceImpl::GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
 	{
-		if (inLayer < 0u || inLayer > Layers::NUM_LAYERS)
+		if (static_cast<uint16_t>(inLayer) < 0u || static_cast<uint16_t>(inLayer) >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return mObjectToBroadPhase[0];
 		}
-		return mObjectToBroadPhase[inLayer];
+		return mObjectToBroadPhase[static_cast<uint16_t>(inLayer)];
 	}
 
 	void BPLayerInterfaceImpl::SetObjectToBroadPhaseLayer(JPH::ObjectLayer inLayer, JPH::BroadPhaseLayer inBPLayer)
 	{
-		if(inLayer < 0u || inLayer > Layers::NUM_LAYERS)
+		if(static_cast<uint16_t>(inLayer) < 0u || static_cast<uint16_t>(inLayer) >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
 			return;
 		}
-		mObjectToBroadPhase[inLayer] = inBPLayer;
+		mObjectToBroadPhase[static_cast<uint16_t>(inLayer)] = inBPLayer;
 	}
 
 	#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
@@ -112,6 +112,7 @@ namespace SliceEngine
 		{
 			m_CollisionMask[i] = 0xFFFFFFFF; // Set all 32 bits to 1
 		}
+		m_CollisionMask[Layers::COLLISION_OFF] = 0u; // COLLISION_OFF collides with nothing
 	}
 
 	// Class that determines if object layer can collide
@@ -120,6 +121,12 @@ namespace SliceEngine
 		if (inObject1 < 0u || inObject1 >= Layers::NUM_LAYERS || inObject2 < 0u || inObject2 >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
+			return false;
+		}
+
+		// COLLISION_OFF layer collides with nothing
+		if(inObject1 == Layers::COLLISION_OFF || inObject2 == Layers::COLLISION_OFF)
+		{
 			return false;
 		}
 		return (m_CollisionMask[inObject1] & (1u << inObject2)) != 0;
@@ -161,6 +168,12 @@ namespace SliceEngine
 		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
 		{
 			JPH_ASSERT(false, "Object layer out of bounds");
+			return;
+		}
+
+		// COLLISION_OFF layer cannot have its mask changed
+		if(inLayer == Layers::COLLISION_OFF)
+		{
 			return;
 		}
 		m_CollisionMask[inLayer] = mask;

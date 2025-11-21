@@ -8,124 +8,255 @@ namespace SliceEngine
     public class Player : SliceBehaviour
     {
         public float moveSpeed = 2.5f;
-        public float rotationSpeed = 50.0f;
+        public float rotationSpeed = 250.0f;
         Animator animator;
         Transform t;
+        GameObject floor;
+
+
         public string[] test3 = { "Test", "Test2" };
         public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
+        public Vector3 camera  = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        //remove these when testingShit gets used
+        #pragma warning disable 0414
         static bool testingShit = false;
+        #pragma warning restore 0414
+
+        float timeBuffer = 0.0f;
+        bool startBuffer = false;
+        bool grounded = false;
+        int jumpCounter = 0;
 
         public override void OnCreate()
-        {          
+        {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-
+            floor = gameObject.FindGameObjectWithName("FloorQuad");
         }
 
         public override void OnUpdate(float dt)
         { 
-            //Vector3 right = Vector3.Cross(up, direction).Normalize();
+            Vector3 right = Vector3.Cross(camera, up).Normalize();
+            Vector3 front = Vector3.Cross(up, right).Normalize();
+            Vector3 rotationAxis = new Vector3(0, 1, 0);
+            Vector3 targetFacingDirection = this.direction;
             float rotationSpeedFrame = rotationSpeed * dt;
 
             
 
-            if (testingShit == false)
-            {
-                CloneGO("GameObject_2");
-                testingShit = true;
-            }
+            //if (testingShit == false)
+            //{
+            //    CloneGO("GameObject_2");
+            //    testingShit = true;
+            //}
             // Forwards
             if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
             {
-                //t.Position += direction * moveSpeed * dt;
+                t.Position = t.Position + front * moveSpeed * dt;
+                targetFacingDirection = front;
+                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
+                    animator.SetBool("player|Walk", true);
 
-                t.Position += direction * moveSpeed * dt;
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
 
-                // animator.ChangeAnim(21);
-                animator.SetBool("Run", true);
-                animator.SetBool("Idle", false);
-                animator.SetBool("Attack", false);
+
+                //Console.WriteLine("Name: " + animator.GetCurrAnimName());
+
             }
 
             // Left
             if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
             {
-                //t.Position -= right * moveSpeed * dt;
-                Vector3 rotationAxis = new Vector3(0, 1, 0); // Y-axis
-                //t.Rotate(rotationSpeedFrame, rotationAxis);
-                Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+                t.Position = t.Position - right * moveSpeed * dt;
+                targetFacingDirection = new Vector3(-right.x, -right.y, -right.z);
+                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
+                    animator.SetBool("player|Walk", true);
 
-                this.direction = rotation * this.direction;
-                this.up = rotation * this.up;
-
-              
-                //  animator.ChangeAnim(21);
-                animator.SetBool("Run", true);
-                animator.SetBool("Idle", false);
-                animator.SetBool("Attack", false);
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
             }
 
             // Backward
             if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
             {
-                //t.Position -= direction * moveSpeed * dt;
+                t.Position = t.Position - front * moveSpeed * dt;
+                targetFacingDirection = new Vector3(-front.x, -front.y, -front.z);
 
-                t.Position -= direction * moveSpeed * dt;
-                //    animator.ChangeAnim(21);
-                animator.SetBool("Run", true);
-                animator.SetBool("Idle", false);
-                animator.SetBool("Attack", false);
+                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
+                    animator.SetBool("player|Walk", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
+
             }
 
             // Right
             if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
             {
-                //t.Position += right * moveSpeed * dt;
-                //   animator.ChangeAnim(21);
-                Vector3 rotationAxis = new Vector3(0, -1, 0); // Y-axis
-                //t.Rotate(rotationSpeedFrame, rotationAxis);
-                Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+                t.Position = t.Position + right * moveSpeed * dt;
+                targetFacingDirection = right;
+                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
+                    animator.SetBool("player|Walk", true);
 
-                this.direction = rotation * this.direction;
-                this.up = rotation * this.up;
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
+            }
 
-                animator.SetBool("Run", true);
-                animator.SetBool("Attack", false);
-                animator.SetBool("Idle", false);
+            //Quaternion dir = Quaternion.LookRotation(this.direction, this.up);
+            if (targetFacingDirection.LengthSquared() > 0.001f)
+            {
+
+                //Quaternion target = Quaternion.LookRotation(targetFacingDirection, this.up);
+
+               // dir = Quaternion.RotateTowards(dir, target, rotationSpeed * dt);
+
+                this.direction = Vector3.RotateTowards(this.direction,targetFacingDirection.Normalize(), rotationSpeedFrame);
             }
 
             t.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
 
             if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
             {
-                //  animator.ChangeAnim(13);
-                animator.SetBool("Idle", true);
-                animator.SetBool("Attack", false);
-                animator.SetBool("Run", false);
+                if (String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToIdle") == 0)
+                    animator.SetBool("player|Idle", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToIdle", true);
+                }
             }
 
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
-                t.Position += new Vector3(0, 1, 0) * moveSpeed * dt;
+                if(jumpCounter < 2)
+               { 
+                    if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                    {
+                        animator.SetBool("player|JumpLoop", true);
+                        t.Position += new Vector3(0, 40, 0) * moveSpeed * dt;
+                        jumpCounter++;
+                    }
+                }
             }
+
+            if(!grounded)
+            {
+                if (String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0)
+                {
+                    animator.SetBool("player|Plunge", true);
+                }
+            }
+
+            if (grounded)
+            {
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                {
+                    animator.SetBool("player|PlungeLand", true);
+                }
+            }
+
 
 
             // Scale Down
-            if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
+            if (Input.IsKeyPressed(Keys.KEY_R))// || Input.IsKeyDown(Keys.KEY_R))
             {
-                animator.SetBool("Idle", false);
-                animator.SetBool("Run", false);
-                animator.SetBool("Attack", true);
+                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0)
+                {
+                    animator.SetBool("player|Attack1", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "player|Attack1") == 0)
+                {
+                    animator.SetBool("player|Attack2", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "player|Attack2") == 0)
+                {
+                    animator.SetBool("player|Attack3", true);
+                }
+
+                startBuffer = true;
+                timeBuffer = 0.0f;
             }
+
+
+            // duble bifferb for attack
+            if(startBuffer)
+            {
+                timeBuffer += dt;
+                
+                if (timeBuffer > 0.5f)
+                {
+                    if (String.Compare(animator.GetCurrAnimName(), "player|Attack1") == 0)
+                    {
+                        animator.SetBool("player|AttackToIdle1", true);
+                    }
+                    if(String.Compare(animator.GetCurrAnimName(), "player|Attack2") == 0)
+                    {
+                        animator.SetBool("player|AttackToIdle2", true);
+                    }
+                    
+                    startBuffer = false;
+                    timeBuffer = 0.0f;
+                }
+            }
+
+            //Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
         }
 
         public override void OnCollideEnter(uint other)
         {
-           // SliceLog.Log("OADMOSMODASM");
-           // gameObject.Destroy();
+            if(other == floor.mID)
+            {
+                grounded = true;
+                jumpCounter = 0;
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (other == floor.mID)
+            {
+                grounded = false;
+            }
         }
     }
 }

@@ -89,6 +89,7 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
@@ -568,6 +569,45 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* GetCurrAnimName(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::string tmp;
+
+		if (GO.HasComponent<Animator>())
+		{
+			if (GO.GetComponent<Animator>().IsValid())
+				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
+		}
+
+		if(tmp == "")
+			return nullptr;
+
+		return mono_string_new(mono_domain_get(), tmp.c_str());
+	}
+
+	static bool IsCurrAnimFin(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.IsCurrAnimFin();
+		}
+
+		return false;
+	}
+
+	static float GetCurrAnimTime(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().current_time;
+		}
+
+		return 0.0f;
+	}
+
 #pragma endregion
 	template <typename T>
 	static void RegisterComponent()
@@ -678,6 +718,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
 
 	}
 
