@@ -271,10 +271,16 @@ namespace SliceEngine
     void ScriptSystem::ReloadAssembly()
     {
 
+
+        // save the current script variables
+        for (auto [entity, instance] : mEntityInstances)
+        {
+            UpdateScriptComponent(entity);
+        }
+
         // temporary until we find a btr way
         // cause itll freeze the engine for a bit
         // mayb a pop up window to show its recompiling or smth by having this threaded
-
         int buildResult = system("dotnet build \"../SliceScript/SliceScript.csproj\"");
         UnsubscribeToEvents();
         if (buildResult != 0)
@@ -317,6 +323,11 @@ namespace SliceEngine
         //ScriptFunctions::RegisterFunctions();
         LoadEntityClasses();
 
+        // one issue i foresee is if they modify a variable starting value
+        // like if they default initialize a list with 1 element in it
+        // then when I update with the previously saved value in the script component
+        // it might overwrite 
+
         ScriptFunctions::RegisterComponents();
 
 
@@ -327,6 +338,27 @@ namespace SliceEngine
         mTime = std::make_shared<ScriptClass>("SliceEngine", "Time");
         mTime->Instantiate();
         mTimeInstance = std::make_unique<ScriptObject>(mTime, static_cast<Entity>(0));
+
+        for (auto entity = entityAdded.begin(); entity != entityAdded.end(); ++entity)
+        {
+            if (mEntityInstances.count(*entity) == 0)
+            {
+                auto& scriptComponent = mRegistry->get<Script>(*entity);//ComponentManager::GetInstance()->GetComponent<Script>(*entity);
+                if (HasEntityClass(scriptComponent.scriptName)) // Technically dont have to check IMGUI only allows for entity classes to be picked
+                {
+                    std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], *entity);
+                    //  scriptRef->SetUpEntity(id); // Instantiate and set up the method handling
+
+                    mEntityInstances[*entity] = scriptObj;
+
+                    UpdateScriptVariables(*entity);
+
+                    // entity = entityAdded.begin();
+                }
+            }
+        }
+
+        entityAdded.clear();
         
         SubscribeToEvents();
 
