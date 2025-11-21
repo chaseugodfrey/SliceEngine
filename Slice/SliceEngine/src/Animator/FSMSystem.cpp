@@ -91,7 +91,8 @@ namespace SliceEngine
 	void FSMSystem::UpdateState(float &CTime,float dt)
 	{
 		// update ctime dt somewhere here
-
+		// not here cos only update when is playin and is bone
+		//CTime += dt;
 
 		if (!EFSM.currState) return;
 
@@ -136,11 +137,6 @@ namespace SliceEngine
 			stateChanged = true;
 			EFSM.currState->transitionUsed = nullptr;
 		}
-	}
-
-	void FSMSystem::UpdateCurrentTime(float cTime)
-	{
-		//current_time = cTime;
 	}
 
 	bool FSMSystem::EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare)
@@ -204,11 +200,6 @@ namespace SliceEngine
 		if (!EFSM.currState) return;
 
 		EFSM.parameters[name] = value;
-
-		if (std::strcmp(name.c_str(), "player|PlungeLand") == 0)
-		{
-			std::string h = "hello";
-		}
 
 		for (auto& [key, var] : EFSM.parameters)
 		{

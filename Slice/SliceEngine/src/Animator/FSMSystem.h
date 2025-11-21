@@ -25,7 +25,6 @@ namespace SliceEngine
 		void InitState(SliceEngineTypes::AnimationPackage);
 		void CheckStates();
 		void UpdateState(float& CTime,float dt);
-		void UpdateCurrentTime(float cTime);
 
 		bool EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare);
 

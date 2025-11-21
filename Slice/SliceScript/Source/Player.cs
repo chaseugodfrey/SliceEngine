@@ -131,7 +131,7 @@ namespace SliceEngine
             }
 
             //Quaternion dir = Quaternion.LookRotation(this.direction, this.up);
-            if (targetFacingDirection.LengthSquared() > 0.001f)
+            //if (targetFacingDirection.LengthSquared() > 0.001f)
             {
 
                 //Quaternion target = Quaternion.LookRotation(targetFacingDirection, this.up);
