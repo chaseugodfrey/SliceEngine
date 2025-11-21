@@ -470,24 +470,40 @@ namespace SliceEngine
 			clipGUID = entry->AudioClips[randomIndex];
 		}
 
-		auto audioObject = Core::FactoryInstance.CreateGO(key);
-		audioObject.AddComponent<AudioSource>();
-		AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
+		auto audioObject = FactoryInstance.GetGOByName(key);
 
-		// Find the Transform component
-		auto& transform = audioObject.GetComponent<Transform>();
+		if (audioObject.GetEntity() == entt::null)
+		{
+			auto newAudioObject = FactoryInstance.CreateGO(key);
+			newAudioObject.AddComponent<AudioSource>();
+			AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
 
-		audioComp.soundGUID = clipGUID;
+			// Find the Transform component
+			auto& transform = newAudioObject.GetComponent<Transform>();
 
-		// Copy volume/spatial settings from the entry to the component
-		audioComp.currentVolume = entry->volume;
-		audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-		audioComp.minDistance = entry->minDistance;
-		audioComp.maxDistance = entry->maxDistance;
-		audioComp.volumeRollOff = entry->volumeRollOff;
-		audioComp.playOnAwake = false;
+			audioComp.soundGUID = clipGUID;
 
-		audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+			// Copy volume/spatial settings from the entry to the component
+			audioComp.currentVolume = entry->volume;
+			audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+			audioComp.minDistance = entry->minDistance;
+			audioComp.maxDistance = entry->maxDistance;
+			audioComp.volumeRollOff = entry->volumeRollOff;
+			audioComp.playOnAwake = false;
+
+			audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+		}
+		else
+		{
+			AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
+
+			auto& transform = audioObject.GetComponent<Transform>();
+
+			audioComp.soundGUID = clipGUID;
+
+			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+		}
+
 
 		//entry->_lastPlayed = currentTime;
 	}
