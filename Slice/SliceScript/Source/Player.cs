@@ -172,7 +172,7 @@ namespace SliceEngine
                         String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
                     {
                         animator.SetBool("player|JumpLoop", true);
-                        t.Position += new Vector3(0, 40, 0) * moveSpeed * dt;
+                        t.Position += new Vector3(0, 5, 0);
                         jumpCounter++;
                     }
                 }
