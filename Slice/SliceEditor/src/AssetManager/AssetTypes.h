@@ -1013,8 +1013,8 @@ namespace SliceEditor
 			tmpState.stateName = "player|Attack3";
 			tmpState.isLoop = false;
 
-			tmpTran.targetState = "player|Attack3ToLoco";
-			tmpTran.parameterName = "player|Attack3ToLoco";
+			tmpTran.targetState = "player|Idle";
+			tmpTran.parameterName = "player|Idle";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
