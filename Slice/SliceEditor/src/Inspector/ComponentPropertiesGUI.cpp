@@ -395,7 +395,7 @@ namespace SliceEditor
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
-				changed |= ImGui::DragInt(newID.c_str(), &entry,1,min,max,format, ImGuiSliderFlags_AlwaysClamp);
+				changed |= ImGui::DragInt(newID.c_str(), &entry,1,min,max,format);
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
@@ -623,13 +623,15 @@ namespace SliceEditor
 
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
-					editFunc("Edit", std::string(property_label), list, entry, idx);
+					std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc,"Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}
 
 				ImGui::SameLine();
 				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
 				{
 					editFunc("Remove", std::string(property_label),list, entry, idx);
+					changed = true;
 				}
 
 				idx++;
@@ -645,12 +647,8 @@ namespace SliceEditor
 				editFunc("Add", std::string(property_label), list, 0.0f, idx);
 
 				// record in history
-				/*if (oldList != list)
-				{
-					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
-						addFunc, std::string(property_label), "", "");
-					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-				}*/
+				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
 				changed = true;
 			}
 

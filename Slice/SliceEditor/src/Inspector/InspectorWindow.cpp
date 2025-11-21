@@ -383,7 +383,7 @@ namespace SliceEditor
 						#pragma endregion
 						#pragma region List Variables
 						//List Variables
-						if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
+						else if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
 						{
 							//String
 							//if (it.second.mType == SliceEngine::ScriptFieldType::String)
@@ -434,6 +434,7 @@ namespace SliceEditor
 								//Display Function Here
 								if (StringListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
+									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -461,6 +462,7 @@ namespace SliceEditor
 								//Display Function Here
 								if (FloatListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
+									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
