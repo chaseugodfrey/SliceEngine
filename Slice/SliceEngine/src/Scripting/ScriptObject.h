@@ -623,7 +623,7 @@ namespace SliceEngine
 
 			void* params[2];
 			params[0] = &index;
-			params[1] = &value;
+			params[1] = (void*)&value;
 
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
