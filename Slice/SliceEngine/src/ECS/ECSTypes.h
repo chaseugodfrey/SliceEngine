@@ -232,7 +232,8 @@ namespace SliceEngine
 		JPH::ShapeRefC shape;												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
-		bool isTrigger = false;												  
+		bool isTrigger = false;	
+		bool componentEnabled = true;
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};

@@ -12,6 +12,18 @@ namespace SliceEngine
     {
         public const float Epsilon = 1.401298E-45f;
 
+        public static float SmoothStep(float from, float to, float t)
+        {
+            // Clamp t to [0, 1]
+            if (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
+
+            // Hermite smoothing
+            t = t * t * (3f - 2f * t);
+
+            return from + (to - from) * t;
+        }
+
         public static float Clamp(float value, float min, float max)
         {
             if (value < min) return min;

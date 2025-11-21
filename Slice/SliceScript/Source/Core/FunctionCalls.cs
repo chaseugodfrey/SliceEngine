@@ -141,6 +141,9 @@ namespace SliceEngine
         internal extern static string GetCurrAnimName(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float GetCurrAnimTime(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool IsCurrAnimFin(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

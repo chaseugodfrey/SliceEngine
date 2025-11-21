@@ -593,6 +593,17 @@ namespace SliceEngine
 		return false;
 	}
 
+	static float GetCurrAnimTime(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().current_time;
+		}
+
+		return 0.0f;
+	}
+
 #pragma endregion
 	template <typename T>
 	static void RegisterComponent()
@@ -701,6 +712,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SetFloat);
 		ADD_INTERNAL_CALL(GetCurrAnimName);
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
 
 	}
 
