@@ -474,21 +474,23 @@ namespace SliceEditor
 		return changed;
 	}
 	
-	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list)
+	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> editFunc, std::function<void(std::string, std::string)> addFunc, std::function<void(std::string, int)> removeFunc, const char* property_label, const char* id, std::vector<std::string>& list)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<std::string > oldList{};
-		int i = 0;
+		int idx = 0;
 		bool changed = false;
-		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed))
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed| ImGuiTreeNodeFlags_AllowOverlap))
 		{
 			for (auto& entry : list)
 			{
-				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
-				std::string newID = std::string(id) + elementNo_String + std::to_string(i);
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
 				changed |= ImGui::InputText(newID.c_str(), &entry);
 
 				if (ImGui::IsItemActivated())
@@ -498,11 +500,18 @@ namespace SliceEditor
 				{
 					if (oldList != list)
 					{
-						std::unique_ptr<ScriptFieldSetterCommand<std::vector<std::string>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(func, std::string(property_label), oldList, list);
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<std::string>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(editFunc, std::string(property_label), oldList, list);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 					}
 				}
-				i++;
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					removeFunc(std::string(property_label), idx);
+				}
+
+				idx++;
 			}
 			ImGui::Dummy(ImVec2(0, 0));
 			ImGui::SameLine(150.f);
@@ -512,33 +521,139 @@ namespace SliceEditor
 				oldList = list;
 
 				// perform change
-				list.emplace_back(""); // or some default string
+				addFunc(std::string(property_label), "");
 
 				// record in history
-				if (oldList != list)
+				/*if (oldList != list)
 				{
 					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
-						func, std::string(property_label), oldList, list);
+						addFunc, std::string(property_label), "", "");
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-				}
+				}*/
+				changed = true;
 			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
+			
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
+	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector< std::string>& list)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<std::string > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
 			{
-				if (!list.empty())
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				changed |= ImGui::InputText(newID.c_str(), &entry);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
-					oldList = list;   // snapshot before change
-
-					list.pop_back();  // or erase at index, etc.
-
-					if (oldList != list)
-					{
-						auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
-							func, std::string(property_label), oldList, list);
-						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-					}
+					editFunc("Edit", std::string(property_label), list, entry, idx);
 				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+				}
+
+				idx++;
 			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, "", idx);
+
+				// record in history
+				/*if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						addFunc, std::string(property_label), "", "");
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<float > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					editFunc("Edit", std::string(property_label), list, entry, idx);
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label),list, entry, idx);
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, 0.0f, idx);
+
+				// record in history
+				/*if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						addFunc, std::string(property_label), "", "");
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}*/
+				changed = true;
+			}
+
 			ImGui::TreePop();
 		}
 

@@ -385,18 +385,82 @@ namespace SliceEditor
 						//List Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
 						{
+							//String
+							//if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							//{
+							//	auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+							//	std::function<void(std::string, std::vector<std::string>)> editFunc = [sp = scriptRef](std::string name, std::vector<std::string> val)
+							//		{
+							//			sp->SetListField(name, val);
+							//		};
+
+							//	std::function<void(std::string, std::string)> addFunc = [sp = scriptRef](std::string name, std::string val)
+							//		{
+							//			sp->AddListFieldValue(name, val);
+							//		};
+							//	std::function<void(std::string, int)> removeFunc = [sp = scriptRef](std::string name, int index)
+							//		{
+							//			sp->RemoveListField(name, index);
+							//		};
+
+							//	//Display Function Here
+							//	if (StringListScriptHeader(mRegistry, editFunc, addFunc,removeFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//	{
+							//		scriptRef->SetListField(it.second.mName, data);
+							//		SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//	}
+							//}
+
+							//Works for String
 							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
-								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
 									{
-										sp->SetListField(name, val);
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
 									};
 
 								//Display Function Here
-								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (StringListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							
+							//Dies for Float
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
+								std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								//Display Function Here
+								if (FloatListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}

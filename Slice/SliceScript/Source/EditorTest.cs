@@ -14,6 +14,7 @@ namespace SliceEngine
         public string testString = "Test";
         public int[] intArray = {1,3,5,7};
         public string[] stringArray = { "Test1", "Test2", "Test3" };
+        public List<string> stringList = new List<string>{ "Test1" };
         public override void OnUpdate(float dt)
         {
             SliceLog.Log("Bool: " + boolTest);
@@ -22,14 +23,9 @@ namespace SliceEngine
             SliceLog.Log(testString);
 
             int i = 0;
-            foreach (float var in intArray)
+            foreach(string var in stringList)
             {
-                SliceLog.Log("Element " + i  +": "+ var);
-            }
-
-            foreach (string var in stringArray)
-            {
-                SliceLog.Log("Element " + i + ": " + var);
+                SliceLog.Log("Element List " + i + ": " + var);
             }
         }
     }
