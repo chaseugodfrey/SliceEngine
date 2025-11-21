@@ -19,7 +19,11 @@ namespace SliceEngine
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 camera  = new Vector3(0.0f, 0.0f, 1.0f);
         public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+
+        //remove these when testingShit gets used
+        #pragma warning disable 0414
         static bool testingShit = false;
+        #pragma warning restore 0414
 
         float timeBuffer = 0.0f;
         bool startBuffer = false;
@@ -27,7 +31,7 @@ namespace SliceEngine
         int jumpCounter = 0;
 
         public override void OnCreate()
-        {          
+        {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
