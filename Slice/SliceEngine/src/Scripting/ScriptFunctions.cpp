@@ -184,6 +184,17 @@ namespace SliceEngine
 		return nullptr;
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
+
 #pragma region AUDIO FUNCTIONS
 
 	//Return a filepath
@@ -213,14 +224,17 @@ namespace SliceEngine
 		
 	}
 
-	//static void Audio_Play(unsigned int entity)
-	//{
-	//	if (auto* audioComp = GetAudioComponent(entity))
-	//	{
-	//		
-	//		audioComp->_playTrigger = true;
-	//	}
-	//}
+	static void Audio_Play(unsigned int entity)
+	{
+		auto* audioComp = GetAudioComponent(entity);
+		auto* transformComp = GetTransformComponent(entity);
+		
+		if (audioComp)
+		{
+			
+			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
+		}
+	}
 
 	static void Audio_Stop(unsigned int entity)
 	{
@@ -654,6 +668,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetPitch);
 		ADD_INTERNAL_CALL(Audio_SetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_SetMute);
+		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_SetPan);
+		ADD_INTERNAL_CALL(Audio_GetPan);
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);

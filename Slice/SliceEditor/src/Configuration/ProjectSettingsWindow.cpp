@@ -75,8 +75,13 @@ namespace SliceEditor
 		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
 
+		if (!audioSettings)
+		{
+			return;
+		}
+
 		// Master Volume
-		float float_buffer{};
+		float float_buffer = audioManager->GetCategoryVolume(0);
 		if (DragFloatInputHeader(mRegistry, "Master Volume", "##master_vol", float_buffer))
 		{
 			if (std::abs(audioManager->GetCategoryVolume(0) - float_buffer) > 0.001f)
@@ -116,82 +121,118 @@ namespace SliceEditor
 			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
 				std::string name = key;
-				std::string string_buffer = "entry_" + key;
 				int int_buffer{};
 				float float_buffer{};
 				bool bool_buffer{};
-				if (ImGui::TreeNodeEx(string_buffer.c_str(), ImGuiTreeNodeFlags_Framed))
+
+				float current_volume = entry.volume;
+				int current_max_instances = entry.maxInstances;
+				bool current_is_spatial = entry.isSpatial;
+				float current_spatial_blend = entry.spatialBlend;
+				float current_min_distance = entry.minDistance;
+				float current_max_distance = entry.maxDistance;
+				bool changeSpatial = false;
+				float current_interval = entry.minInterval; // Assuming 'Interval' corresponds to minInterval
+				if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed))
 				{
-					if (StringInputHeader(mRegistry, "Key", ("##key_" + string_buffer).c_str(), name))
+					
+					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), name));
+					if (ImGui::IsItemDeactivatedAfterEdit())
 					{
 						if (name != key)
+						{
 							// set new name
 							//Do i needa store new name and old name and then change it after the loop? maybe
 							audioSettings->ReplaceExistingEntry(key, name);
+
+						}
+
 					}
 
-					if (DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + string_buffer).c_str(), float_buffer))
+					if (DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + key).c_str(), current_volume, "%.3f", 0.f, 1.0f))
 					{
 						//Not sure if i should add a check but imma just write
-						audioSettings->SetSoundGroupVolume(key, float_buffer);
+						audioSettings->SetSoundGroupVolume(key, current_volume);
 					}
-					if (DragIntInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + string_buffer).c_str(), int_buffer))
+					if (DragIntInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + key).c_str(), current_max_instances, "%d", -1, 64))
 					{
-						if (int_buffer != audioSettings->GetMaxInstances(key))
+						if (current_max_instances != audioSettings->GetMaxInstances(key))
 						{
-							audioSettings->SetMaxInstances(key,int_buffer);
+							audioSettings->SetMaxInstances(key, current_max_instances);
 						}
 					}
-					if (BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + string_buffer).c_str(), bool_buffer))
+					if (BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + key).c_str(), current_is_spatial))
 					{
-						if (bool_buffer != audioSettings->GetSoundGroupSpatialBlendBool(key))
+						if (current_is_spatial != audioSettings->GetSoundGroupSpatialBlendBool(key))
 						{
-							audioSettings->SetSoundGroupSpatialBlendBool(key, bool_buffer);
+							audioSettings->SetSoundGroupSpatialBlendBool(key, current_is_spatial);
+							if (current_is_spatial == true)
+							{
+								changeSpatial = true;
+							}
 						}
 					}
-					if (DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + string_buffer).c_str(), float_buffer))
+					if (DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + key).c_str(), current_spatial_blend, "%.3f", 0.0f, 1.0f))
 					{
-						if (float_buffer != audioSettings->GetSoundGroupSpatialBlend(key))
+						if (std::abs(current_spatial_blend - audioSettings->GetSoundGroupSpatialBlend(key)) > 0.001f)
 						{
-							audioSettings->SetSoundGroupSpatialBlend(key, float_buffer);
+							audioSettings->SetSoundGroupSpatialBlend(key, current_spatial_blend);
 						}
 					}
-					if (DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + string_buffer).c_str(), float_buffer))
+					if (DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + key).c_str(), current_min_distance, "%.3f", 0.0f, current_max_distance))
 					{
-						if (float_buffer != audioSettings->GetMinDistance(key))
+						if (std::abs(current_min_distance - audioSettings->GetMinDistance(key)) > 0.001f)
 						{
-							audioSettings->SetMinDistance(key, float_buffer);
+							audioSettings->SetMinDistance(key, current_min_distance);
 						}
 					}
-					if (DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + string_buffer).c_str(), float_buffer))
+					if (DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + key).c_str(), current_max_distance, "%.3f", current_min_distance))
 					{
-						if (float_buffer != audioSettings->GetMaxDistance(key))
+						if (std::abs(current_max_distance - audioSettings->GetMaxDistance(key)) > 0.001f)
 						{
-							audioSettings->SetMaxDistance(key, float_buffer);
+							audioSettings->SetMaxDistance(key, current_max_distance);
 						}
 					}
-					DragFloatInputHeader(mRegistry, "Interval", ("##interval" + string_buffer).c_str(), float_buffer);
+					DragFloatInputHeader(mRegistry, "Interval", ("##interval" + key).c_str(), float_buffer);
+
+					if (changeSpatial == true)
+					{
+						audioSettings->SetSoundGroupSpatialBlend(key, 1.0f);
+						changeSpatial = false;
+					}
+					
 					
 					for (auto& clip : entry.AudioClips)
 					{
+						ImGui::PushID(&clip);
+
 						auto oldClip = clip;
 						std::function<void(SliceEngine::GUID)> setFunc = [&](SliceEngine::GUID guid)
 							{
 								//Take out key from parameter
 								audioSettings->ChangeAudioClip(oldClip, guid, entry.AudioClips);
 							};
+						//std::string audioClipLabel = "Audio Clips_" + std::to_string(std::distance(entry.AudioClips.begin(),entry.AudioClips.size()));
 
-						GUIDDragDropInputHeader(mRegistry, "Audio Clips", "##audio_clips", clip, "Audio", setFunc);
+						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clips", clip, "Audio", setFunc);
+
+						ImGui::PopID();
 					}
 
 					if (ImGui::Button("+"))
 					{
-						entry.AudioClips.push_back(entry.AudioClips.back());
+						
+						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(9244272128099795086), entry.AudioClips);
 					}
 					ImGui::SameLine();
 					if (ImGui::Button("-"))
 					{
-						entry.AudioClips.pop_back();
+						if (!entry.AudioClips.empty())
+						{
+							
+							audioSettings->RemoveAudioClip(entry.AudioClips);
+
+						}
 					}
 					ImGui::TreePop();
 				}
@@ -202,7 +243,10 @@ namespace SliceEditor
 
 		if (ImGui::Button("+"))
 		{
-			audioSettings->CreateSoundGroup();
+			size_t nextIndex = audioSettings->mSFXMap.size() + 1;
+			std::string keyName = "New_Group_" + std::to_string(nextIndex);
+
+			audioSettings->CreateSoundGroup(keyName);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("-"))

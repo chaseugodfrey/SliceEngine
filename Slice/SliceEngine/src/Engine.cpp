@@ -170,6 +170,7 @@ namespace SliceEngine
 	void Engine::SceneInit()
 	{
 		LoadProjectSettings();
+		Core::GetInstance()->GetAudioSettings()->Init(Core::GetInstance()->GetAudioManager()->GetSoundSystem());
 		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
@@ -353,6 +354,7 @@ namespace SliceEngine
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
+		Core::GetInstance()->GetAudioSettings()->Exit();
 		mAudioManager->Exit();
 
 		auto mNetwork = Core::GetInstance()->GetNetwork();

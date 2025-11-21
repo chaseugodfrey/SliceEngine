@@ -66,22 +66,31 @@ namespace SliceEngine
 
 	void AudioSettings::RemoveSoundGroup()
 	{
-		mSFXMap.erase(mSFXMap.end());
+		SFXEntry& entry = std::prev(mSFXMap.end())->second;
+
+		//Returns all audio clips with this sound group to the master group
+		entry.soundGroup->release();
+
+		entry.soundGroup = nullptr;
+
+		mSFXMap.erase(std::prev(mSFXMap.end()));
 	}
 
-	void AudioSettings::AddAudioClip(const std::string& key)
+	void AudioSettings::AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips)
 	{
 
-		SFXEntry* entry = GetSFXEntry(key);
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundGUID).get();
 
-		if (!entry)
+		if (audioClip == nullptr)
 		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
+			SLICE_LOG_WARNING("Could not load GUID");
 			return;
 		}
 
+		audioClip->GetSound()->setSoundGroup(soundGroup);
+
 		
-		entry->AudioClips.push_back(entry->AudioClips.back());
+		audioClips.push_back(soundGUID);
 
 	}
 
@@ -94,30 +103,56 @@ namespace SliceEngine
 			return;
 		}
 
-		
 
-		for (auto& it : audioClips)
+		auto resourceManager = Core::GetInstance()->GetResourceManager();
+		auto oldAudioHandle = resourceManager->get<SliceEngineTypes::Audio>(oldSoundGUID).get();
+
+		FMOD::SoundGroup* soundGroup = nullptr;
+
+		oldAudioHandle->GetSound()->getSoundGroup(&soundGroup);
+
+		bool guidReplaced = false;
+		for (auto& clipGUID : audioClips)
 		{
-			if (it == oldSoundGUID)
+			if (clipGUID == oldSoundGUID)
 			{
-				it = newSoundGUID;
+				clipGUID = newSoundGUID;
+				guidReplaced = true;
+				break;
 			}
 		}
-	
-	}
 
-	const std::string AudioSettings::GetEntryName(const std::string& key)
-	{
+		if (!guidReplaced)
+		{
+			SLICE_LOG_WARNING("ChangeAudioClip: Old GUID %llu not found in the audio clips list.", oldSoundGUID.GetGUID());
+			return;
+		}
+
+
+		auto newAudioHandle = resourceManager->get<SliceEngineTypes::Audio>(newSoundGUID);
+
+		if (!newAudioHandle.IsValid())
+		{
+			SLICE_LOG_ERROR("ChangeAudioClip: Failed to load new audio resource for GUID %llu.", newSoundGUID.GetGUID());
+			return;
+		}
+
+		FMOD::Sound* newSound = newAudioHandle->GetSound();
+
+		if (!newSound)
+		{
+			SLICE_LOG_ERROR("ChangeAudioClip: FMOD::Sound is null for new GUID %llu.", newSoundGUID.GetGUID());
+			return;
+		}
+
+		newSound->setSoundGroup(soundGroup);
 		
+
 	}
 
-	void AudioSettings::SetEntryName(const std::string& key)
-	{
-	}
 
 	void AudioSettings::ReplaceExistingEntry(const std::string oldKey, const std::string newKey)
 	{
-		auto keyToChange = mSFXMap.extract(oldKey);
 		SFXEntry* entry = GetSFXEntry(oldKey);
 
 		if (!entry)
@@ -128,23 +163,55 @@ namespace SliceEngine
 
 		entry->key = newKey;
 
+		entry->soundGroup->release();
+
+		FMOD::SoundGroup* newGroup = nullptr;
+
+		FMOD_RESULT newGroupCreation = mSystem->createSoundGroup(newKey.c_str(), &newGroup);
+
+		if (newGroupCreation != FMOD_OK)
+		{
+			
+			SLICE_LOG_ERROR("Failed to create sound group.");
+			return;
+
+		}
+		
+		for (auto& clip : entry->AudioClips)
+		{
+			auto audioSound = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(clip).get();
+			if (!audioSound)
+			{
+				SLICE_LOG_ERROR("Failed to get audio clip for GUID.");
+				return;
+			}
+
+			audioSound->GetSound()->setSoundGroup(newGroup);
+		}
+
+		entry->soundGroup = newGroup;
+		auto keyToChange = mSFXMap.extract(oldKey);
+
 		keyToChange.key() = newKey;
 
 		mSFXMap.insert(std::move(keyToChange));
 
+		SLICE_LOG("Entry successfully renamed");
 	}
 
-	void AudioSettings::RemoveAudioClip(const std::string& key)
+	void AudioSettings::RemoveAudioClip(std::vector<GUID>& audioClips)
 	{
-		SFXEntry* entry = GetSFXEntry(key);
+		
+		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioClips.back()).get();
 
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
+		//Move to master sound group
+		FMOD::SoundGroup* master = nullptr;
+			
+		mSystem->getMasterSoundGroup(&master);
 
-		entry->AudioClips.pop_back();
+		audioClip->GetSound()->setSoundGroup(master);
+
+		audioClips.pop_back();
 	}
 
 	FMOD::SoundGroup* AudioSettings::GetSoundGroup(const std::string& key)
@@ -235,7 +302,7 @@ namespace SliceEngine
 		if (entry->soundGroup)
 		{
 			entry->soundGroup->setMaxAudible(maxInstances);
-			SLICE_LOG("Set Sound Group max instance to %s", maxInstances);
+			SLICE_LOG("Set Sound Group max instance");
 		}
 	}
 
@@ -418,7 +485,7 @@ namespace SliceEngine
 		audioComp.minDistance = entry->minDistance;
 		audioComp.maxDistance = entry->maxDistance;
 		audioComp.volumeRollOff = entry->volumeRollOff;
-		audioComp.playOnAwake = true;
+		audioComp.playOnAwake = false;
 
 		//audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
 

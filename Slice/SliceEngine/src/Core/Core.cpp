@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Systems/LayerManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Configuration/AudioSettings.h"
 
 namespace SliceEngine
 {
