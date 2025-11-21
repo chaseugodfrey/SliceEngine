@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 
 namespace SliceEngine
@@ -173,7 +174,74 @@ namespace SliceEngine
             float magnitude = magA + (magB - magA) * t;
 
             return slerped * magnitude;
+
+            ////Dot product -the cosine of the angle between 2 vectors.
+            //float dot = Vector3.Dot(a, b);
+
+            //// Clamp it to be in the range of Acos()
+            //// This may be unnecessary, but floating point
+            //// precision can be a fickle mistress.
+            ////Mathf.Clamp(dot, -1.0f, 1.0f);
+            //// annotation derHugo: like it stands this is indeed completely unnecessary. 
+            //// If something it should be
+            //dot = Utilities.Clamp(dot, -1.0f, 1.0f);
+
+            //// Acos(dot) returns the angle between start and end,
+            //// And multiplying that by percent returns the angle between
+            //// start and the final result.
+            //float theta = (float)Math.Acos(dot) * t;
+            //Vector3 RelativeVec = b - a * dot;
+            //RelativeVec.Normalize();
+
+            //// Orthonormal basis
+            //// The final result.
+            //return ((a * (float)Math.Cos(theta)) + (RelativeVec * (float)Math.Sin(theta)));
         }
+
+        public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
+        {
+            // Safety
+            smoothTime = Math.Max(0.0001f, smoothTime);
+
+            float omega = 2f / smoothTime;
+
+            float x = omega * deltaTime;
+            float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
+
+            // Determine change
+            Vector3 change = current - target;
+
+            // Clamp maximum speed
+            float maxChange = maxSpeed * smoothTime;
+            float changeMag = change.Length();
+
+            if (changeMag > maxChange)
+            {
+                change = change / changeMag * maxChange;
+            }
+
+            Vector3 temp = (currentVelocity + change * omega) * deltaTime;
+
+            // Update velocity
+            currentVelocity = (currentVelocity - temp * omega) * exp;
+
+            // Compute output
+            Vector3 output = target + (change + temp) * exp;
+
+            // Prevent overshoot
+            Vector3 origToTarget = target - current;
+            Vector3 outToTarget = target - output;
+
+            if (Vector3.Dot(origToTarget, outToTarget) < 0f)
+            {
+                output = target;
+                currentVelocity = Vector3.Zero;
+            }
+
+            return output;
+        }
+
+
 
         public override int GetHashCode()
         {
