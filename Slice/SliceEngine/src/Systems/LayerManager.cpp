@@ -33,11 +33,12 @@ namespace SliceEngine
 			return;
 		}
 		uint32_t layerBit{};
+		uint32_t bit{};
 
 		if (removedBits.size() > 0)
 		{
 			// use the latest bit to be removed
-			uint32_t bit = removedBits.back();
+			bit = removedBits.back();
 			layerBit = 1 << bit;
 
 			collisionMask[name] = layerBit;
@@ -49,6 +50,7 @@ namespace SliceEngine
 		else
 		{
 			// get the bit for this layer
+			bit = currentBit;
 			layerBit = 1u << currentBit;
 
 			// update both map and vector
@@ -65,7 +67,7 @@ namespace SliceEngine
 		numberOflayers++;
 
 		// Jolt bodies need to know about the new layer and its mask
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(currentBit, layerBit);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(bit, layerBit);
 
 	}
 
