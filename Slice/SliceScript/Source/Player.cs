@@ -238,6 +238,8 @@ namespace SliceEngine
                     timeBuffer = 0.0f;
                 }
             }
+
+            Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
         }
 
         public override void OnCollideEnter(uint other)
