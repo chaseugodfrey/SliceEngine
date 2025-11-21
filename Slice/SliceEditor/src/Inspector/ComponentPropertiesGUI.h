@@ -36,8 +36,10 @@ namespace SliceEditor
 	
 	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0);
 
-	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
+	bool BoolInput(Registry& reg, const char* id, bool& val);
 	
+	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec);
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec);
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
@@ -51,6 +53,8 @@ namespace SliceEditor
 	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "%.3f", int min = 0, int max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
+
+	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val);
 
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
 	
@@ -150,8 +154,6 @@ namespace SliceEditor
 
 	}
 
-
-
 	template <typename Enum>
 	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
 	{
@@ -192,6 +194,12 @@ namespace SliceEditor
 		return changed;
 	}
 }
+
+void SetBit(unsigned char& mask, unsigned char bit, bool enabled);
+
+// using char for now
+//bool ComboMultiSelectHeader(Registry& reg, std::string property_label, const char* id, char& value, std::vector<std::string>& container);
+
 
 
 /*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);

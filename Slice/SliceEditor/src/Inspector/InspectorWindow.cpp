@@ -170,9 +170,64 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayCamera(entt::entity entity)
 	{		
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
+
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
+			ImGui::Text("Clipping Planes");
+			DragFloatInputHeader(mRegistry, "Near", "##cam_near", cam.near, "%.1f", 0.1f, FLT_MAX);
+			DragFloatInputHeader(mRegistry, "Far", "##cam_far", cam.far, "%.1f", 1.f, FLT_MAX);
+
+			ImGui::SeparatorText("Post-Processing FX");
+
+			using RenderTag = SliceEngine::RENDER_TAG;
+
+			bool isBloom = cam.renderTag & RenderTag::RENDER_BLOOM;
+			bool isFog = cam.renderTag & RenderTag::RENDER_FOG;
+			bool isVignette = cam.renderTag & RenderTag::RENDER_VIGNETTE;
+
+			ImGui::Text("Bloom");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_BLOOM, isBloom);
+			}
+
+			if (isBloom)
+			{
+				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.2f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.2f", 0.01f, FLT_MAX);
+			}
+
+			ImGui::Text("Fog");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isFog", &isFog))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_VIGNETTE, isVignette);
+			}
+
+			if (isFog)
+			{
+				DragColor3InputHeader(mRegistry, "Fog Color", "##cam_fog_color", cam.fogColor);
+				DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", cam.fogIntensity, "%.1f", 0.0f, FLT_MAX);
+			}
+
+			ImGui::Text("Vignette");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isVignette", &isVignette))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_FOG, isVignette);
+			}
+
+			if (isVignette)
+			{
+				DragVec2InputHeader(mRegistry, "Vignette Center", "##cam_vignette_center", cam.vignetteCenter);
+				DragFloatInputHeader(mRegistry, "Vignette Intensity", "##cam_vignette_intensity", cam.vignetteIntensity, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Vignette Smoothness", "##cam_vignette_smoothness", cam.vignetteSmoothness, "%.1f", 0.0f, FLT_MAX);
+			}
 
 			ImGui::TreePop();
 		}
