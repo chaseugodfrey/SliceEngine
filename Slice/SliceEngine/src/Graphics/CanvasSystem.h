@@ -108,7 +108,7 @@ namespace SliceEngine
 		};
 
 		//updates the image state of the current button if there is one
-		void update_button(Button&, Events);
+		void update_button(Entity, Events);
 	};
 
 	//do i need a system for 2d, prob no for now

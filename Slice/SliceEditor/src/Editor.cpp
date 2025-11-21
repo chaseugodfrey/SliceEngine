@@ -56,13 +56,6 @@ namespace SliceEditor
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 
-		// 2. Check if ImGui wants to capture the mouse
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse)
-		{
-			return; // Stop processing, ImGui has it
-		}
-
 		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (action == GLFW_PRESS)
 		{
@@ -72,6 +65,15 @@ namespace SliceEditor
 		{
 			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
 		}
+
+		// 2. Check if ImGui wants to capture the mouse
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse)
+		{
+			return; // Stop processing, ImGui has it
+		}
+
+		
 	}
 
 	void Editor::Init()
@@ -188,13 +190,12 @@ namespace SliceEditor
 		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
 
-		//my cuh thr is no position call back :<
-		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
-			{
-				ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
-				//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-				SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
-			});
+		//glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
+		//	{
+		//		ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+		//		//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		//		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
+		//	});
 	}
 
 	void Editor::InitManagers()

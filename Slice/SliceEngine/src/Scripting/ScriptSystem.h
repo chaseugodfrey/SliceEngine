@@ -134,6 +134,10 @@ namespace SliceEngine
 		void OnTriggerStay(const OnTriggerStayEvent& event);
 		void OnTriggerExit(const OnTriggerExitEvent& event);
 
+		//button events
+		void OnButtonClick(const OnButtonClickEvent& event);
+		void OnButtonRelease(const OnButtonReleaseEvent& event);
+
 
 		// Variables
 		MonoDomain* mRootDomain;

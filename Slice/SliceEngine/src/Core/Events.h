@@ -112,6 +112,15 @@ struct OnTriggerExitEvent
 	Entity entity;
 	Entity other;
 };
+
+struct OnButtonClickEvent
+{
+	Entity entity;
+};
+struct OnButtonReleaseEvent
+{
+	Entity entity;
+};
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION

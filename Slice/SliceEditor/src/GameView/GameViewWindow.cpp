@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GameViewWindow.h"
 #include "../../SliceEngine/src/Graphics/RenderManager.h"
 #include "../../SliceEngine/src/Graphics/CameraSystem.h"
+#include "../../SliceEngine/src/Input/InputSystem.h"
 
 
 namespace SliceEditor
@@ -29,9 +30,29 @@ namespace SliceEditor
 	{
 		ImGui::Begin("Game");
 
+
+		auto& io = ImGui::GetIO();
+
+#pragma region IO Calculation
+
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
+		ImVec2 window_pos = ImGui::GetWindowPos();
+		ImVec2 window_size = ImGui::GetWindowSize(); // I actually dk what this is, I'm guessing the Whole region available for my scene to draw??
+
+		int screen_width, screen_height;
+		GLFWwindow* mWindow = SliceEngine::Core::GetInstance()->GetWindow();
+		glfwGetWindowSize(mWindow, &screen_width, &screen_height); // When in editor, refers to the whole window (including the spaces occupied by inspector window etc
+
+		ImVec2 scene_window_pos = ImGui::GetCursorScreenPos();
+		ImVec2 scene_window_size = { window_size.x, window_size.y - (scene_window_pos.y - window_pos.y) };
+
+		float mouse_relative_x = io.MousePos.x - scene_window_pos.x; // Correct, refers to the mouse position (in screen space), starting with (0,0) at the top left of the section you want
+		float mouse_relative_y = io.MousePos.y - scene_window_pos.y;
+
+#pragma endregion
+	
 		auto core = SliceEngine::Core::GetInstance();
 		auto view = core->GetRegistry().view<SliceEngine::Camera>();
 
@@ -87,6 +108,7 @@ namespace SliceEditor
 				worldSpaceOffsetX = uvCropMin.x * worldSpaceDim.x;
 				worldSpaceDim.x *= percentScreenShown;
 			}
+			
 
 			pos += winOffset;
 			float scene_x = pos.x + winScreenDim.x; // Refers to the bottom right point of the scene window in screen space
@@ -99,6 +121,34 @@ namespace SliceEditor
 				ImVec2(0, 1),
 				ImVec2(1, 0)
 			);
+
+
+
+
+
+
+
+
+
+			/*
+			* Somehow linking editor window mouse stuff to engine input system
+			*/
+
+#pragma region Mouse Click
+			ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x + worldSpaceOffsetX, worldSpaceDim.y - ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
+
+			auto* input = SliceEngine::Core::GetInstance()->GetInputSystem();
+
+			if (ImGui::IsWindowHovered())
+			{
+				input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
+			}
+
+#pragma endregion
+
+
+
+
 		}
 
 		else

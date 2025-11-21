@@ -1015,6 +1015,7 @@ namespace SliceEngine
     {
         auto* eventManager = EventManager::GetInstance();
 
+        //Collision System
         eventManager->Subscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
 
         eventManager->Subscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
@@ -1026,6 +1027,10 @@ namespace SliceEngine
         eventManager->Subscribe<OnTriggerStayEvent, &ScriptSystem::OnTriggerStay>(this);
 
         eventManager->Subscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
+
+        //UI System
+        eventManager->Subscribe<OnButtonClickEvent, &ScriptSystem::OnButtonClick>(this);
+        eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
 
     }
 
@@ -1096,6 +1101,31 @@ namespace SliceEngine
         if (scriptInstance)
         {
             scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        }
+    }
+
+    //button funcs
+    void ScriptSystem::OnButtonClick(const OnButtonClickEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnClick();
+        }
+    }
+
+    void ScriptSystem::OnButtonRelease(const OnButtonReleaseEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnRelease();
         }
     }
 }

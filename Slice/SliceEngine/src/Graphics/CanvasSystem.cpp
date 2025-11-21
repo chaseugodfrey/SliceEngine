@@ -350,21 +350,31 @@ namespace SliceEngine {
 
 
 	//Set the color/sprite guid of the image depending on state
-	void ButtonSystem::update_button(Button& button, Events event) {
+	void ButtonSystem::update_button(Entity button_entity, Events event) {
+		auto& button = mRegistry->get<Button>(button_entity);
 
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;
-			std::cout << "Highlight event" << std::endl;
 			break;
-		case Click:
+		case Click: {
 			button.state = Button::Pressed;
-			std::cout << "Pressed event" << std::endl;
+			OnButtonClickEvent event;
+			event.entity = button_entity;
+			EventManager::GetInstance()->Publish<OnButtonClickEvent>(event);
+		}
 			break;
 		case LeaveHighlight:
-			std::cout << "Leave Highlight event" << std::endl;
-		case Release:
-			std::cout << "Released event" << std::endl;
+			button.state = Button::Normal;
+			break;
+		case Release: {
+			button.state = Button::Normal;
+
+			OnButtonReleaseEvent event;
+			event.entity = button_entity;
+			EventManager::GetInstance()->Publish<OnButtonReleaseEvent>(event);
+		}
+			break;
 		case Cancel:
 			std::cout << "Cancel event" << std::endl;
 			button.state = Button::Normal;
@@ -372,18 +382,21 @@ namespace SliceEngine {
 		}
 
 		;	//change to target graphic if we doing that feature
-		auto& image = mRegistry->get<SpriteRenderer>(current_button);
-		switch (button.transition) {	
-			//no dirty flag for now
-			//also not going to keep a 'local' copy of color/tex in sprite renderer
-			//just reset it if button component gets removed, also this case is super rare
-		case Button::Color:
-			image.rgba = button.color_transitions[button.state];
-			break;
-		case Button::Sprite:
-			image.textureHandle = button.sprite_transitions[button.state];
-			break;
+		if (auto image = mRegistry->try_get<SpriteRenderer>(button_entity))
+		{
+			switch (button.transition) {
+				//no dirty flag for now
+				//also not going to keep a 'local' copy of color/tex in sprite renderer
+				//just reset it if button component gets removed, also this case is super rare
+			case Button::Color:
+				image->rgba = button.color_transitions[button.state];
+				break;
+			case Button::Sprite:
+				image->textureHandle = button.sprite_transitions[button.state];
+				break;
+			}
 		}
+		
 
 	}
 
@@ -417,34 +430,35 @@ namespace SliceEngine {
 				return;
 			}
 			auto& t_button = mRegistry->get<Button>(temp_button);
-			if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {		//hover
-				update_button(t_button, Highlight);
+			if (!input.IsKeyDown(Keys::KEY_BACKSLASH)) {		//hover
+				update_button(temp_button, Highlight);
+				current_button = temp_button;
 			}
-			else if (input.IsKeyDown(Keys::KEY_BACKSLASH)) {	//click same frame u hover
-				update_button(t_button, Click);
+			else if (input.IsKeyPressed(Keys::KEY_BACKSLASH)) {	//click same frame u hover
+				update_button(temp_button, Click);
+				current_button = temp_button;
 			}
-			current_button = temp_button;
 		}
 		else {
-			temp_button = canvas.Raycast(mouse_x, mouse_y);
 			auto& c_button = mRegistry->get<Button>(current_button);
 
 			if (c_button.state == Button::Highlighted) {
-				if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+				temp_button = canvas.Raycast(mouse_x, mouse_y);
+				if (!input.IsKeyDown(Keys::KEY_BACKSLASH)) {
 					if (temp_button != current_button) {
-						update_button(c_button, LeaveHighlight);
+						update_button(current_button, LeaveHighlight);
 						current_button = entt::null;
 					}
 				}
 				else {
 					if (temp_button == current_button) {
-						update_button(c_button, Click);
+						update_button(current_button, Click);
 					}
 					else {
-						update_button(c_button, LeaveHighlight);
+						update_button(current_button, LeaveHighlight);
 						if (mRegistry->any_of<Button>(temp_button)) {
 							auto& t_button = mRegistry->get<Button>(temp_button);
-							update_button(t_button, Click);	//click same frame u leave highlight
+							update_button(temp_button, Click);	//click same frame u leave highlight
 							current_button = temp_button;
 						}
 						else {
@@ -455,11 +469,12 @@ namespace SliceEngine {
 			}
 			else {
 				if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+					temp_button = canvas.Raycast(mouse_x, mouse_y);
 					if (temp_button != current_button) {
-						update_button(c_button, Cancel);
+						update_button(current_button, Cancel);
 					}
 					else {
-						update_button(c_button, Release);
+						update_button(current_button, Release);
 					}
 					current_button = entt::null;
 				}
