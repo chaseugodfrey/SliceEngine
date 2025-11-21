@@ -8,9 +8,12 @@ namespace SliceEngine
     public class Player : SliceBehaviour
     {
         public float moveSpeed = 2.5f;
-        public float rotationSpeed = 20.0f;
+        public float rotationSpeed = 250.0f;
         Animator animator;
         Transform t;
+        GameObject floor;
+
+
         public string[] test3 = { "Test", "Test2" };
         public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
@@ -20,12 +23,14 @@ namespace SliceEngine
 
         float timeBuffer = 0.0f;
         bool startBuffer = false;
+        bool grounded = false;
+        int jumpCounter = 0;
 
         public override void OnCreate()
         {          
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-
+            floor = gameObject.FindGameObjectWithName("FloorQuad");
         }
 
         public override void OnUpdate(float dt)
@@ -51,8 +56,14 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0)
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
                     animator.SetBool("player|Walk", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
 
 
                 //Console.WriteLine("Name: " + animator.GetCurrAnimName());
@@ -67,8 +78,14 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0)
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
                     animator.SetBool("player|Walk", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
             }
 
             // Backward
@@ -76,11 +93,18 @@ namespace SliceEngine
             {
                 t.Position = t.Position - front * moveSpeed * dt;
                 targetFacingDirection = new Vector3(-front.x, -front.y, -front.z);
+
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0)
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
                     animator.SetBool("player|Walk", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
 
             }
 
@@ -92,8 +116,14 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0)
+                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
                     animator.SetBool("player|Walk", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToWalk", true);
+                }
             }
 
             //Quaternion dir = Quaternion.LookRotation(this.direction, this.up);
@@ -114,15 +144,53 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0   )
+                    String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToIdle") == 0)
                     animator.SetBool("player|Idle", true);
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                {
+                    animator.SetBool("player|PlungeToIdle", true);
+                }
             }
 
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
-                t.Position += new Vector3(0, 10, 0) * moveSpeed * dt;
+                if(jumpCounter < 2)
+               { 
+                    if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                    {
+                        animator.SetBool("player|JumpLoop", true);
+                        t.Position += new Vector3(0, 40, 0) * moveSpeed * dt;
+                        jumpCounter++;
+                    }
+                }
             }
+
+            if(!grounded)
+            {
+                if (String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0)
+                {
+                    animator.SetBool("player|Plunge", true);
+                }
+            }
+
+            if (grounded)
+            {
+
+                if (String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                {
+                    animator.SetBool("player|PlungeLand", true);
+                }
+            }
+
 
 
             // Scale Down
@@ -132,7 +200,6 @@ namespace SliceEngine
                 {
                     animator.SetBool("player|Attack1", true);
                 }
-
                 if (String.Compare(animator.GetCurrAnimName(), "player|Attack1") == 0)
                 {
                     animator.SetBool("player|Attack2", true);
@@ -160,7 +227,6 @@ namespace SliceEngine
                     }
                     if(String.Compare(animator.GetCurrAnimName(), "player|Attack2") == 0)
                     {
-                        
                         animator.SetBool("player|AttackToIdle2", true);
                     }
                     
@@ -168,16 +234,23 @@ namespace SliceEngine
                     timeBuffer = 0.0f;
                 }
             }
-            
-            
-
-
         }
 
         public override void OnCollideEnter(uint other)
         {
-           // SliceLog.Log("OADMOSMODASM");
-           // gameObject.Destroy();
+            if(other == floor.mID)
+            {
+                grounded = true;
+                jumpCounter = 0;
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (other == floor.mID)
+            {
+                grounded = false;
+            }
         }
     }
 }

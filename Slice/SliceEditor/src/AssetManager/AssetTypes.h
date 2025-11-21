@@ -800,9 +800,9 @@ namespace SliceEditor
 			tmpTran.targetState = "player|Plunge";
 			tmpTran.parameterName = "player|Plunge";
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpTran.hasExitTime = false;
+			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
-			tmpTran.exitTime = 1.0f;
+			tmpTran.exitTime = 0.7f;
 			tmpState.transitions.push_back(tmpTran);
 
 			tmpTran.targetState = "player|Land";
@@ -846,7 +846,7 @@ namespace SliceEditor
 			tmpTran.targetState = "player|PlungeToWalk";
 			tmpTran.parameterName = "player|PlungeToWalk";
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpTran.hasExitTime = false;
+			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
 			tmpState.transitions.push_back(tmpTran);
@@ -854,7 +854,7 @@ namespace SliceEditor
 			tmpTran.targetState = "player|PlungeToIdle";
 			tmpTran.parameterName = "player|PlungeToIdle";
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpTran.hasExitTime = false;
+			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
 			tmpState.transitions.push_back(tmpTran);
@@ -869,7 +869,7 @@ namespace SliceEditor
 			tmpTran.targetState = "player|Idle";
 			tmpTran.parameterName = "player|Idle";
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpTran.hasExitTime = false;
+			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
 			tmpState.transitions.push_back(tmpTran);
@@ -884,7 +884,7 @@ namespace SliceEditor
 			tmpTran.targetState = "player|Walk";
 			tmpTran.parameterName = "player|Walk";
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpTran.hasExitTime = false;
+			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
 			tmpState.transitions.push_back(tmpTran);
@@ -910,6 +910,14 @@ namespace SliceEditor
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
 			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpState.transitions.push_back(tmpTran);
+
+			tmpTran.targetState = "player|JumpLoop";
+			tmpTran.parameterName = "player|JumpLoop";
+			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
 			tmpState.transitions.push_back(tmpTran);
 
 			to_json(metaJson["stateMap"]["player|Walk"], tmpState);
