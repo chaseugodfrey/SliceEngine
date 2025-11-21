@@ -292,8 +292,7 @@ namespace SliceEditor
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
-
-		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(camObj->camera.textureID));
+		ImTextureID tex = static_cast<ImTextureID>(camObj->camera.textureID);;
 
 		// win as in the scene Window
 		ImVec2 winScreenTL{ pos.x, pos.y };

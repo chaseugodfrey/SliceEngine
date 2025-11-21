@@ -1,13 +1,29 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SliceEngine
 {
     public struct Utilities
     {
+        public const float Epsilon = 1.401298E-45f;
+
+        public static float SmoothStep(float from, float to, float t)
+        {
+            // Clamp t to [0, 1]
+            if (t < 0f) t = 0f;
+            else if (t > 1f) t = 1f;
+
+            // Hermite smoothing
+            t = t * t * (3f - 2f * t);
+
+            return from + (to - from) * t;
+        }
+
         public static float Clamp(float value, float min, float max)
         {
             if (value < min) return min;
@@ -68,6 +84,35 @@ namespace SliceEngine
         public static float Rad2Deg(float radians)
         {
             return radians * 180f / (float)Math.PI;
+        }
+
+        public static Vector3 Parabola(Vector3 start, Vector3 end, float height, float t)
+        {
+            // Linear interpolation
+            Vector3 pos = Vector3.Lerp(start, end, t);
+
+            // Add parabolic height using quadratic formula
+            float parabola = 4f * height * t * (1f - t);
+
+            pos.y += parabola;
+            return pos;
+        }
+
+        // Parabolas
+        public static IEnumerator ParabolaCoroutine(Transform transform, Vector3 start, Vector3 end, float height, float duration)
+        {
+            float time = 0f;
+
+            while (time < duration)
+            {
+                float t = time / duration;
+                transform.Position = Parabola(start, end, height, t);
+                time += Time.deltaTime;
+                yield return null;
+            }
+
+            // Ensure final position exactly matches end
+            transform.Position = end;
         }
     }
 }

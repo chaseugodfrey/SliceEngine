@@ -13,7 +13,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "NavMeshUtilities.h"
-
+#include <filesystem>
 namespace SliceEngine
 {
 	float NavMeshUtilities::distancePtLine2d(const float* pt, const float* p, const float* q)
@@ -30,26 +30,32 @@ namespace SliceEngine
 		return dx * dx + dz * dz;
 	}
 
-	std::optional<NavMeshObj>&& NavMeshUtilities::LoadNavMesh(const std::string &filePath)
+	std::optional<NavMeshObj> NavMeshUtilities::LoadNavMesh(const std::string &filePath)
     {
         dtNavMesh *navMesh;
         dtNavMeshQuery *navQuery;
 
-        std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+		std::ifstream file(filePath, std::ios::binary | std::ios::ate);
         if (!file.is_open())
             return {};
 
         std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::vector<unsigned char> buffer(size);
-        if (!file.read(reinterpret_cast<char *>(buffer.data()), size))
-            return {};
+		unsigned char* data = (unsigned char*)dtAlloc(static_cast<int>(size), DT_ALLOC_PERM);
+
+
+		if (!file.read(reinterpret_cast<char*>(data), size))
+		{
+			dtFree(data);
+			return {};
+		}
 
         navMesh = dtAllocNavMesh();
-        if (dtStatusFailed(navMesh->init(buffer.data(), (int)size, DT_TILE_FREE_DATA)))
+        if (dtStatusFailed(navMesh->init(data, (int)size, DT_TILE_FREE_DATA)))
         {
             std::cerr << "Failed to init Detour navmesh from file!" << std::endl;
+			dtFree(data);
             dtFreeNavMesh(navMesh);
             return {};
         }
@@ -57,27 +63,75 @@ namespace SliceEngine
         navQuery = dtAllocNavMeshQuery();
         navQuery->init(navMesh, 2048);
 
-        std::cout << "NavMesh loaded successfully!" << std::endl;
+		std::cout << "NavMesh loaded successfully!" << std::endl;
 
         return { NavMeshObj{navMesh, navQuery} };
     }
 
     bool NavMeshUtilities::FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath)
     {
+
+		if (!navMeshObj.navMesh)
+		{
+			std::cerr << "ERROR: navMesh is null!" << std::endl;
+			return false;
+		}
+		if (!navMeshObj.navMeshQuery)
+		{
+			std::cerr << "ERROR: navMeshQuery is null!" << std::endl;
+			return false;
+		}
+
+		// Check if navmesh has any tiles using public API
+		int tileCount = navMeshObj.navMesh->getMaxTiles();
+		std::cout << "NavMesh has " << tileCount << " max tiles" << std::endl;
+
+		// Check tile count a different way
+		const dtNavMeshParams *params = navMeshObj.navMesh->getParams();
+		if (params)
+		{
+			std::cout << "NavMesh params - maxTiles: " << params->maxTiles
+				<< " maxPolys: " << params->maxPolys << std::endl;
+		}
+
         dtQueryFilter filter;
         filter.setIncludeFlags(0xFFFF);
         filter.setExcludeFlags(0);
         //filter.setAreaCost(SAMPLE_POLYAREA_GROUND, 1.0f);
 
-        float polyPickExt[3] = { 2, 4, 2 };
+        float polyPickExt[3] = { 10, 10, 10 };
         dtPolyRef startRef, endRef;
 
-        float startPos[3], endPos[3];
-        dtVcopy(startPos, start);
-        dtVcopy(endPos, end);
+        //float startPos[3], endPos[3];
+        //dtVcopy(startPos, start);
+        //dtVcopy(endPos, end);
 
-        navMeshObj.navMeshQuery->findNearestPoly(startPos, polyPickExt, &filter, &startRef, nullptr);
-        navMeshObj.navMeshQuery->findNearestPoly(endPos, polyPickExt, &filter, &endRef, nullptr);
+        //navMeshObj.navMeshQuery->findNearestPoly(startPos, polyPickExt, &filter, &startRef, nullptr);
+        //navMeshObj.navMeshQuery->findNearestPoly(endPos, polyPickExt, &filter, &endRef, nullptr);
+
+		// In your FindPath function, add debug logging:
+		float startPos[3], endPos[3];
+		dtVcopy(startPos, start);
+		dtVcopy(endPos, end);
+
+		std::cout << "Searching for start: (" << startPos[0] << ", " << startPos[1] << ", " << startPos[2] << ")" << std::endl;
+		std::cout << "Searching for end: (" << endPos[0] << ", " << endPos[1] << ", " << endPos[2] << ")" << std::endl;
+
+		float nearestStart[3], nearestEnd[3];
+		navMeshObj.navMeshQuery->findNearestPoly(startPos, polyPickExt, &filter, &startRef, nearestStart);
+		navMeshObj.navMeshQuery->findNearestPoly(endPos, polyPickExt, &filter, &endRef, nearestEnd);
+
+		if (!startRef)
+		{
+			std::cerr << "Start not found. Nearest would be: ("
+				<< nearestStart[0] << ", " << nearestStart[1] << ", " << nearestStart[2] << ")" << std::endl;
+		}
+		if (!endRef)
+		{
+			std::cerr << "End not found. Nearest would be: ("
+				<< nearestEnd[0] << ", " << nearestEnd[1] << ", " << nearestEnd[2] << ")" << std::endl;
+		}
+
 
         if (!startRef || !endRef)
         {
@@ -118,6 +172,33 @@ namespace SliceEngine
 
         return !outPath.empty();
     }
+
+	bool NavMeshUtilities::GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight)
+	{
+		if (!navMeshObj.navMeshQuery) return false;
+
+		float position[3] = { pos.x, pos.y, pos.z };
+		float extents[3] = { 2.0f, 10.0f, 2.0f }; // Look 10 units up/down for the mesh
+
+		dtQueryFilter filter; // Default filter
+		dtPolyRef nearestPoly;
+		float nearestPt[3];
+
+		// 1. Find the polygon closest to our (x, z) position
+		navMeshObj.navMeshQuery->findNearestPoly(position, extents, &filter, &nearestPoly, nearestPt);
+
+		if (!nearestPoly) return false;
+
+		// 2. Get the exact height of that polygon at our x, z coordinates
+		if (dtStatusSucceed(navMeshObj.navMeshQuery->getPolyHeight(nearestPoly, position, &outHeight)))
+		{
+			return true;
+		}
+
+		// Fallback: if getPolyHeight fails (rare), use the nearest point's Y
+		outHeight = nearestPt[1];
+		return true;
+	}
 
 	NavMeshDebugObj NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
 	{

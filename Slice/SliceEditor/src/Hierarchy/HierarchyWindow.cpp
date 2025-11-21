@@ -21,6 +21,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include <Systems/SceneSystem.h>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 namespace SliceEditor
 {
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
@@ -31,7 +33,7 @@ namespace SliceEditor
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
-		flags |= ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_DefaultOpen;
+		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
 
 		auto& map = mSession.GetEntityNodes();
 		if (map.find(entity) == map.end())
@@ -217,30 +219,37 @@ namespace SliceEditor
 
 		DrawNodeGraph();
 
-		ImGui::BeginGroup();
-		ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
-		ImGui::EndGroup();
+		ImVec2 hierarchy_empty_space_size = ImGui::GetContentRegionAvail();
 
-		if (ImGui::IsItemClicked())
+		if (hierarchy_empty_space_size.x > 0 && hierarchy_empty_space_size.y > 0)
 		{
-			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
-		}
+			ImGui::BeginGroup();
+			ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+			ImGui::EndGroup();
 
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-		{
-			ImGui::OpenPopup("window_popup");
-		}
-
-		if (ImGui::BeginPopupContextItem("window_popup"))
-		{
-			if (ImGui::BeginMenu("Create"))
+			if (ImGui::IsItemClicked())
 			{
-				EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
-				ImGui::EndMenu();
+				mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
 			}
 
-			ImGui::EndPopup();
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("window_popup");
+			}
+
+			if (ImGui::BeginPopupContextItem("window_popup"))
+			{
+				if (ImGui::BeginMenu("Create"))
+				{
+					EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndPopup();
+			}
+
 		}
+
 
 		ImGui::End();
 	}

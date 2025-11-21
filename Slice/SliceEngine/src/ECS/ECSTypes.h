@@ -37,16 +37,18 @@ namespace SliceEngine
 	{
 		std::string mName;
 		std::string mTag{ "default" };
-		bool active;
+		uint32_t mLayer{ 0u };
 
-		SliceEntity() : active(true) {}
+		bool mActive;
+
+		SliceEntity() : mActive(true) {}
 	};
 
 	struct EngineEntity
 	{
-		bool active;
+		bool mActive;
 		
-		EngineEntity() : active(true) {}
+		EngineEntity() : mActive(true) {}
 	};
 
 	struct testStruct
@@ -92,8 +94,6 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-
-		uint32_t collisionMask;
 
 		RTTR_ENABLE();
     };
@@ -227,7 +227,7 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
+		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
 		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape;												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
@@ -342,33 +342,32 @@ namespace SliceEngine
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever
-		float speed{};							// to add
+		float speed{};							
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
-		// Lifetime
-		bool hasRandomParticleLifetime{ false };	// can remove
 
+		// Lifetime
 		ValueType initialLifetimeType{ CONSTANT };
 		float lifetime{};
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
 		// Rotation
-		bool hasRandomInitialRotation{ false };		// can remove
-		bool isInitialRotation3D{ false };			// to add
-		ValueType initialRotationType{ CONSTANT };	// to add
+
+		bool isInitialRotation3D{ false };
+		ValueType initialRotationType{ CONSTANT };
 		glm::quat rotation{};
 		glm::quat minRandomRotation{};
 		glm::quat maxRandomRotation{};
-		glm::vec3 eulerHint{};
-		glm::vec3 minEulerHint{};
-		glm::vec3 maxEulerHint{};
+		glm::vec3 eulerHint{};					// unimplemented
+		glm::vec3 minEulerHint{};				// unimplemented
+		glm::vec3 maxEulerHint{};				// unimplemented
 		
 		inline void Set1DRotation(float val)
 		{
 			eulerHint.x = val;
 		}
 
-		inline float Get1DRotation()
+		inline float Get1DRotation()			
 		{
 			return eulerHint.x;
 		}
@@ -378,11 +377,10 @@ namespace SliceEngine
 		glm::vec3 scale{ 1.0f };
 		glm::vec3 minRandomScale{ 1.0f };
 		glm::vec3 maxRandomScale{ 1.0f };
+
 		bool destroyOnExpire{ false };
-		bool hasRandomScale{ false };				// can remove
 		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
-		bool hasGravity{ false };					// can remove
 		float gForce{0.0f};
 
 		// EMISSION
@@ -399,10 +397,7 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
-		std::vector<Burst> bursts{}; 
-
-		bool hasBursts{ false };				// can remove
-		uint64_t numBursts{};					// can remove
+		std::vector<Burst> bursts{};
 
 
 		// Shape Settings
@@ -417,8 +412,8 @@ namespace SliceEngine
 		} shapeType;
 
 		float coneAngle{};
-		float shapeRadius{};					// to add
-		float shapeArc{};						// to add
+		float shapeRadius{};					
+		float shapeArc{};						
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 		// Initial Position
@@ -427,20 +422,20 @@ namespace SliceEngine
 		glm::vec3 maxRandomSpawnPos{};
 
 		// Color
-		bool hasRandomColour{ false };				// can remove
-		ValueType colorValueType{ CONSTANT };		// to add
+		ValueType colorValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		bool colorOverLifetime{ false };			// to add
 		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		bool hasRandomVelocity{ false };			// can remove
+		//bool hasRandomVelocity{ false };			// can remove
+		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
 		glm::vec3 minRandomVelocity{ 1.0f };
 		glm::vec3 maxRandomVelocity{ 1.0f };
 
-		bool fadeOverLifetime{ false };				// can remove
+		//bool fadeOverLifetime{ false };				// can remove
 		bool hasCollision{ false };
 
 		// Renderer

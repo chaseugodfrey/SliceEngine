@@ -273,6 +273,25 @@ namespace SliceEngine
             return q;
         }
 
+        public static Quaternion Normalize(Quaternion q)
+        {
+            float mag = (float)Math.Sqrt(
+                q.X * q.X + q.Y * q.Y + q.Z * q.Z + q.W * q.W
+            );
+
+            if (mag < 1e-6f)
+                return new Quaternion(0f, 0f, 0f, 1f); // identity fallback
+
+            float inv = 1f / mag;
+
+            return new Quaternion(
+                q.X * inv,
+                q.Y * inv,
+                q.Z * inv,
+                q.W * inv
+            );
+        }
+
         // Overload with only forward vector (uses global up)
         public static Quaternion LookRotation(Vector3 forward)
         {

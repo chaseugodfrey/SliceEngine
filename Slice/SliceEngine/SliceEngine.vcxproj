@@ -122,6 +122,7 @@
     <ClInclude Include="src\Core\Core.h" />
     <ClInclude Include="src\Core\EventManager.h" />
     <ClInclude Include="src\Core\Events.h" />
+    <ClInclude Include="src\Core\LayerEventHandler.h" />
     <ClInclude Include="src\Core\Singleton.h" />
     <ClInclude Include="src\ECS\BaseSystem.h" />
     <ClInclude Include="src\ECS\ECSTypes.h" />
@@ -185,6 +186,7 @@
     <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
+    <ClCompile Include="src\Core\LayerEventHandler.cpp" />
     <ClCompile Include="src\ECS\GOFactory.cpp" />
     <ClCompile Include="src\ECS\GameObject.cpp" />
     <ClCompile Include="src\Engine.cpp" />

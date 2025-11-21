@@ -89,6 +89,7 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
@@ -491,6 +492,24 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* Entity_GetTag(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());			
+		}
+	}
+
+	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			go.GetComponent<SliceEntity>().mTag = MonoToString(tag);
+		}
+	}
+
 	static void Destroy(unsigned int entity)
 	{
 		FactoryInstance.Destroy((Entity)entity);
@@ -544,6 +563,34 @@ namespace SliceEngine
 			GO.GetComponent<Animator>().stateMachine.SetFloat(cStrName, val);
 
 		}
+	}
+
+	static MonoString* GetCurrAnimName(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::string tmp;
+
+		if (GO.HasComponent<Animator>())
+		{
+			if (GO.GetComponent<Animator>().IsValid())
+				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
+		}
+
+		if(tmp == "")
+			return nullptr;
+
+		return mono_string_new(mono_domain_get(), tmp.c_str());
+	}
+
+	static bool IsCurrAnimFin(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.IsCurrAnimFin();
+		}
+
+		return false;
 	}
 
 #pragma endregion
@@ -604,6 +651,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
 		ADD_INTERNAL_CALL(HasScriptInstance);
+		ADD_INTERNAL_CALL(Entity_GetTag);
+		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
 
 		// Transforms
@@ -650,6 +699,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
 
 	}
 
