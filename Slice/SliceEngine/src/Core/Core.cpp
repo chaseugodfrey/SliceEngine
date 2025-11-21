@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Physics/PhysicsSystem.h"
 #include "Input/InputSystem.h"
 #include "Systems/LayerManager.h"
+#include "Navigation/NavigationSystem.h"
 
 namespace SliceEngine
 {
@@ -73,10 +74,12 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
+		mFactory.RegisterComponent<Button>();
 
+		mFactory.RegisterComponent<NavAgent>();
 
 		mResource->InitResourceManager();
-		mLayerManager->Init();
+
 	}
 
 	void Core::ExitCore()
@@ -143,6 +146,11 @@ namespace SliceEngine
 	{
 		return mNetwork.get();
 	}
+
+	//NavigationSystem *Core::GetNavAgent()
+	//{
+	//	return mNavAgent.get();
+	//}
 
 	ProjectSettingsService* Core::GetProjectSettingsService()
 	{

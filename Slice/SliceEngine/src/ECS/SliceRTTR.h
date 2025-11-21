@@ -129,8 +129,7 @@ namespace SliceEngine
 		.property("position", &Transform::position)
 		.property("rotation", &Transform::rotation)
 		.property("scale", &Transform::scale)
-		.property("euler_hint", &Transform::eulerAnglesHint)
-		.property("collisionMask", &Transform::collisionMask);
+		.property("euler_hint", &Transform::eulerAnglesHint);
 
 	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
 		.constructor<>()
@@ -139,8 +138,11 @@ namespace SliceEngine
 
 	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
 		.constructor<>()
+		.property("mActive", &SliceEntity::mActive)
 		.property("mTag", &SliceEntity::mTag)
-		.property("mName", &SliceEntity::mName);
+		.property("mName", &SliceEntity::mName)
+		.property("mLayer", &SliceEntity::mLayer);
+
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
 		.constructor<>()
 		.property("isKinematic", &RigidBody::isKinematic)
@@ -168,12 +170,12 @@ namespace SliceEngine
 
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
-		.property("layer", &ColliderShape::layer)
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
-		.property("isTrigger", &ColliderShape::isTrigger);
+		.property("isTrigger", &ColliderShape::isTrigger)
+		.property("componentEnabled", &ColliderShape::componentEnabled);
 
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
@@ -215,7 +217,14 @@ namespace SliceEngine
 		.property("far", &Camera::far)
 		.property("textureID", &Camera::textureID)
 		.property("depthTex", &Camera::depthTex)
-		.property("renderTag", &Camera::renderTag);
+		.property("renderTag", &Camera::renderTag)
+		.property("fogColor", &Camera::fogColor)
+		.property("fogIntensity", &Camera::fogIntensity)
+		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
+		.property("vignetteCenter", &Camera::vignetteCenter)
+		.property("vignetteIntensity", &Camera::vignetteIntensity)
+		.property("vignetteSmoothness", &Camera::vignetteSmoothness);
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.constructor<>()
 		.property("scriptName", &Script::scriptName);
@@ -255,8 +264,18 @@ namespace SliceEngine
 		.property("intensity", &Light::intensity);
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
-		.constructor<uint64_t>()
+		.constructor<uint64_t>()		
 		.property_readonly("Value", &GUID::GetGUID);
+
+	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
+		(
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
+			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
+			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
+			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
+			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
+			);
 
 	rttr::registration::class_<Particle>(typeid(Particle).name())
 		.constructor<>()
@@ -270,47 +289,52 @@ namespace SliceEngine
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
-		// System settings
 		.property("duration", &ParticleSystem::duration)
-		.property("emissionRate", &ParticleSystem::emissionRate)
-		.property("coneAngle", &ParticleSystem::coneAngle)
-		.property("axis", &ParticleSystem::axis)
+		.property("speed",&ParticleSystem::speed)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
-		.property("hasRandomParticleLifetime", &ParticleSystem::hasRandomParticleLifetime)
+
+		.property("initialLifetimeType",&ParticleSystem::initialLifetimeType)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
 		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
-		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
-		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
-		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
-		.property("hasRandomInitialRotation", &ParticleSystem::hasRandomInitialRotation)
+
+		.property("isInitialRotation3D", &ParticleSystem::isInitialRotation3D)
+		.property("initialRotationType", &ParticleSystem::initialRotationType)
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
-		.property("hasRandomVelocity", &ParticleSystem::hasRandomVelocity)
-		.property("velocity", &ParticleSystem::velocity)
-		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
-		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
-		.property("fadeOverLifetime", &ParticleSystem::fadeOverLifetime)
-		.property("hasRandomScale", &ParticleSystem::hasRandomScale)
+
+		.property("scaleType",&ParticleSystem::scaleType)
 		.property("scale", &ParticleSystem::scale)
 		.property("minRandomScale", &ParticleSystem::minRandomScale)
 		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
-		.property("hasRandomColour", &ParticleSystem::hasRandomColour)
+
+		.property("emissionRate", &ParticleSystem::emissionRate)
+		.property("coneAngle", &ParticleSystem::coneAngle)
+		.property("shapeArc", &ParticleSystem::shapeArc)
+		.property("shapeType", &ParticleSystem::shapeType)
+		.property("axis", &ParticleSystem::axis)
+		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
+		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
+		.property("velocity", &ParticleSystem::velocity)
+		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
+		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
+
+		.property("colorValueType", &ParticleSystem::colorValueType)
 		.property("colour", &ParticleSystem::colour)
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
-		.property("hasGravity", &ParticleSystem::hasGravity)
+		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
+
 		.property("gForce", &ParticleSystem::gForce)
 		.property("hasCollision", &ParticleSystem::hasCollision)
 		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
 		.property("maxParticles", &ParticleSystem::maxParticles)
 		.property("oldestIndex", &ParticleSystem::oldestIndex)
 		.property("particles", &ParticleSystem::particles)
-		// Bursts
-		.property("hasBursts", &ParticleSystem::hasBursts)
-		.property("numBursts", &ParticleSystem::numBursts)
+
 		.property("bursts", &ParticleSystem::bursts);
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())

@@ -141,6 +141,7 @@ namespace SliceEngine
 
 			RegisterSerializableComponent<Component>();
 			RegisterComponentEmplacer<Component>();
+			CreateComponentCloner<Component>();
 
 			entt::id_type type_id = entt::type_id<Component>().hash();
 			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();

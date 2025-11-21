@@ -71,6 +71,7 @@ namespace SliceEngine
 			std::vector<BoneKeyFrames> boneKeyFrames;	//follows the order of bones in skeleton
 
 			void UpdateTransforms(std::vector<glm::mat4>&, float time, Skeleton const&) const;
+			void UpdateTransformsBlend(std::vector<glm::mat4>&, float time1,float time2,Animation const& anim,float lerpVal, Skeleton const&) const;
 			void ApplyParentTransforms(std::vector<glm::mat4>&, Skeleton const&, glm::mat4 const& world) const;
 			void ApplyInverseBind(std::vector<glm::mat4>&, Skeleton const&) const;
 

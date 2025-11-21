@@ -60,6 +60,14 @@ namespace SliceEngine
 			transform.position = translation;
 			transform.rotation = rotation;
 			transform.scale = scale;
+
+			//glm::mat4x4 M(1.f);
+			//M = glm::translate(M, translation);
+			//M *= glm::mat4_cast(rotation);
+			////M *= glm::eulerAngleXYZ(glm::radians(tr.rotation.x), glm::radians(tr.rotation.y), glm::radians(tr.rotation.z));
+			//M = glm::scale(M, scale);
+
+			//transform.transform_local = M;
 			
 			//if is a renderer, tell skeleton to calculate inverse for this index
 			if (core->GetRegistry().any_of<Renderer>(entity)) {

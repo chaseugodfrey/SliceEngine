@@ -40,6 +40,9 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
+#include "Navigation/NavigationSystem.h"
+#include "Systems/LayerManager.h"
+
 //using namespace rttr;
 
 //struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
@@ -125,13 +128,16 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
+		Core::GetInstance()->InitSystem<NavigationSystem>();
 
-		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
+		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
+		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
 		//audio->PlaySound("3DAudioTest", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, true, false, 0.5f);
@@ -159,6 +165,12 @@ namespace SliceEngine
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
 	
+		//GameObject NavmeshTest = Core::FactoryInstance.CreateGO("NavmeshTest");
+		//NavmeshTest.AddComponent<NavAgent>();
+		//NavmeshTest.GetComponent<Transform>().position = glm::vec3(3,0,3);
+		//NavmeshTest.GetComponent<NavAgent>().target = glm::vec3(10, 0, 10);
+		//NavmeshTest.GetComponent<NavAgent>().hasNewTarget = true;
+		//
 	}
 
 	void Engine::SceneInit()
@@ -196,20 +208,22 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Game);
 				sInputs->SetEnabled(true);
-				if (!isPlaying)
-				{
-					SliceEngine::gScriptSystem->OnStart();
-					sAnimator.InitSystem();
-					isPlaying = true;
-
-				}
-
 				if (sScene->mCurrentState == SceneState::DEFAULT)
 				{
 					
 					sScene->WriteTempFile();
 
 				}
+				
+				if (!isPlaying)
+				{
+					SliceEngine::gScriptSystem->OnStart();
+					sAnimator.InitSystem();
+					isPlaying = true;
+
+
+				}
+
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
@@ -271,8 +285,6 @@ namespace SliceEngine
 		frm->EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
-
-
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
@@ -303,6 +315,7 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Physics");
 
+		
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -317,6 +330,8 @@ namespace SliceEngine
 			//sButton.UpdateCurrentButton();
 			frm->EndSystem("Button");
 		}
+
+		Core::GetInstance()->GetSystem<NavigationSystem>().Update(frm->getFixedDeltaTime());
 
 
 		frm->StartSystem("Graphics");

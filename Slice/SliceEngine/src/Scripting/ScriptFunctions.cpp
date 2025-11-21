@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
 
 namespace SliceEngine
@@ -88,6 +89,7 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
@@ -363,6 +365,43 @@ namespace SliceEngine
 		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
 	}
 
+	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			SLICE_LOG_ERROR("Entity does not have script attached");
+			return nullptr;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			return gScriptSystem->mEntityInstances[(Entity)entityID]->GetInstance();
+		}
+
+
+		return nullptr;
+	}
+
+	static bool HasScriptInstance(unsigned int entityID, MonoString* baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			//CM_CORE_ERROR("Entity does not have script attached");
+			return false;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+				return true;
+		}
+
+		return false;
+	}
+
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
 	//{
 	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
@@ -428,6 +467,16 @@ namespace SliceEngine
 
 		return entt::null;
 	}
+
+	static unsigned int CloneGO(MonoString* GoName)
+	{
+		std::string cStrName = MonoToString(GoName);
+		auto GO = FactoryInstance.GetGOByName(cStrName);
+
+		auto newGO = FactoryInstance.CloneGO(GO);
+		return (unsigned int)newGO.GetEntity();
+	}
+
 	static uint32_t Entity_FindEntityWithName(MonoString* name)
 	{
 		std::string cStrName = MonoToString(name);
@@ -440,6 +489,24 @@ namespace SliceEngine
 		else
 		{
 			return 0;
+		}
+	}
+
+	static MonoString* Entity_GetTag(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());			
+		}
+	}
+
+	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			go.GetComponent<SliceEntity>().mTag = MonoToString(tag);
 		}
 	}
 
@@ -498,6 +565,45 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* GetCurrAnimName(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::string tmp;
+
+		if (GO.HasComponent<Animator>())
+		{
+			if (GO.GetComponent<Animator>().IsValid())
+				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
+		}
+
+		if(tmp == "")
+			return nullptr;
+
+		return mono_string_new(mono_domain_get(), tmp.c_str());
+	}
+
+	static bool IsCurrAnimFin(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.IsCurrAnimFin();
+		}
+
+		return false;
+	}
+
+	static float GetCurrAnimTime(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().current_time;
+		}
+
+		return 0.0f;
+	}
+
 #pragma endregion
 	template <typename T>
 	static void RegisterComponent()
@@ -554,6 +660,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
+		ADD_INTERNAL_CALL(GetScriptInstance);
+		ADD_INTERNAL_CALL(HasScriptInstance);
+		ADD_INTERNAL_CALL(Entity_GetTag);
+		ADD_INTERNAL_CALL(Entity_SetTag);
+		ADD_INTERNAL_CALL(CloneGO);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -599,6 +710,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
 
 	}
 

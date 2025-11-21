@@ -11,26 +11,24 @@ Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-#ifndef DETOUR_NAVMESH_H
-#define DETOUR_NAVMESH_H
+#ifndef DT_NAVMESH_H
+#define DT_NAVMESH_H
 
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
+
 namespace SliceEngine
 {
-    class DetourNavMesh
+    namespace NavMeshUtilities
     {
-    public:
-        DetourNavMesh() = default;
-        ~DetourNavMesh();
+        float distancePtLine2d(const float* pt, const float* p, const float* q);
 
-        bool LoadFromFile(const std::string &filePath);
-        bool FindPath(const float *start, const float *end, std::vector<glm::vec3> &outPath);
+        std::optional<NavMeshObj> LoadNavMesh(const std::string &filePath);
+        NavMeshDebugObj CreateDebugMesh(NavMeshObj const& navMeshObj);
 
-    private:
-        dtNavMesh *navMesh = nullptr;
-        dtNavMeshQuery *navQuery = nullptr;
-    };
+        bool FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath);
+        bool GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight);
+    }
 }
 #endif
