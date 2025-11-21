@@ -127,28 +127,32 @@ namespace SliceEngine
 	/// 
 	/// nvm chase said manually update
 	/// </summary>
-	void ResourceManager::UpdateEntityResources()
-	{
-		auto& registry = Core::GetInstance()->GetRegistry();
-		auto entityView = registry.view<SliceEntity>();
-		for (auto entity : entityView)
-		{
-			// if it has renderer component
-			if (registry.any_of<Renderer>(entity))
-			{
-				auto& rend = registry.get<Renderer>(entity);
-				// get the GUID of the current file name
-				GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+	
+	//this func is litearlly not called - elton
+	//void ResourceManager::UpdateEntityResources()
+	//{
 
-				// check if its the same GUID as its set
-				if (currGUID != rend.modelHandle.mGUID)
-				{
-					// if its not the same then reload
-					rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
-				}
-			}
-		}
-	}
+
+	//	//auto& registry = Core::GetInstance()->GetRegistry();
+	//	//auto entityView = registry.view<SliceEntity>();
+	//	//for (auto entity : entityView)
+	//	//{
+	//	//	// if it has renderer component
+	//	//	if (registry.any_of<Renderer>(entity))
+	//	//	{
+	//	//		auto& rend = registry.get<Renderer>(entity);
+	//	//		// get the GUID of the current file name
+	//	//		GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+
+	//	//		// check if its the same GUID as its set
+	//	//		if (currGUID != rend.modelHandle.mGUID)
+	//	//		{
+	//	//			// if its not the same then reload
+	//	//			rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
+	//	//		}
+	//	//	}
+	//	//}
+	//}
 
 	void ResourceManager::ReleaseResource(const GUID& guid)
 	{

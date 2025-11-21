@@ -546,7 +546,9 @@ namespace SliceEngine
 		};
 
 		Type canvas_type{ OVERLAY };
-		unsigned int sort_order{};
+		unsigned int sort_order{};	//smaller number = draw first = behind others
+		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
+									//only for overlay canvas
 
 		RTTR_ENABLE();
 	};
@@ -589,9 +591,40 @@ namespace SliceEngine
 
 
 	struct SpriteRenderer {
-		Handle<SliceEngineTypes::Texture> textureHandle;	//resource handle for texture
-		glm::vec4 rgba;
+		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
+		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
+		bool raycast_target{ true };
 		RTTR_ENABLE();
+	};
+
+	struct Button {
+		RTTR_ENABLE();
+	public:
+		enum Transition : unsigned char {
+			Color,
+			Sprite
+		} transition;
+
+		enum ButtonState : unsigned char {
+			Normal = 0,
+			Highlighted = 1,
+			Pressed = 2,
+			Total_States
+		} state;
+
+		glm::vec4 color_transitions[Total_States]{
+			{1.f, 1.f, 1.f, 1.f},	//white
+			{0.75f, 0.75f, 0.75f, 1.f},//light grey
+			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		};
+		GUID sprite_transitions[Total_States]{
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT
+		};
+		//Entity target_graphic;	//if the entity that gets modified by transition not the same
+		//im gona move the click stuff to script only
 	};
 }
 

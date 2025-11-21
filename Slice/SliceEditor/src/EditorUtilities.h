@@ -20,6 +20,7 @@ namespace SliceEditor
 		//2D Objects
 		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreateImage(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateButton(entt::entity = entt::null, HistoryManager* history = nullptr);
 
 
 		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent = entt::null, HistoryManager* history = nullptr);

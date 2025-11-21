@@ -661,7 +661,19 @@ namespace SliceEngine
 		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
 		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
 		auto rm = Core::GetInstance()->GetResourceManager();
-		ui_sprite.textureHandle = rm->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		ui_sprite.textureHandle = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+
+		return ui_ele;
+	}
+	GameObject GOFactory::CreateGO_Button()
+	{
+		auto ui_ele = CreateGO("Button");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+
+		ui_ele.AddComponent<SpriteRenderer>();
+		ui_ele.AddComponent<Button>();
 
 		return ui_ele;
 	}

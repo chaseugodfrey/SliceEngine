@@ -105,14 +105,14 @@ namespace SliceEngine
         void SetImGuiCapture(bool wantKeyboard, bool wantMouse); // set imgui capture flags
 
         // key queries
-        bool IsKeyPressed(int key);
-        bool IsKeyReleased(int key);
-        bool IsKeyDown(int key);
+        bool IsKeyPressed(int key) const;
+        bool IsKeyReleased(int key) const;
+        bool IsKeyDown(int key) const;
 
         // mouse queries
-        bool IsMousePressed(MouseButtons button);
-        bool IsMouseReleased(MouseButtons button);
-        bool IsMouseDown(MouseButtons button);
+        bool IsMousePressed(MouseButtons button) const;
+        bool IsMouseReleased(MouseButtons button) const;
+        bool IsMouseDown(MouseButtons button) const;
 
         // mouse position
         glm::vec2 GetMousePosition() const { return currMousePos; }

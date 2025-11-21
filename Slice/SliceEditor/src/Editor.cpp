@@ -37,6 +37,7 @@ namespace SliceEditor
 	{
 
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
 		{
@@ -176,6 +177,14 @@ namespace SliceEditor
 		glfwSetKeyCallback(window, MasterKeyCallback);
 		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
+
+		//my cuh thr is no position call back :<
+		glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
+			{
+				ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+				//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+				SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
+			});
 	}
 
 	void Editor::InitManagers()

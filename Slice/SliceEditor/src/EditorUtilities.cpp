@@ -141,6 +141,22 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateButton(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Button();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
@@ -329,7 +345,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Button"))
 				{
-					//EditorUtilities::GameObject_CreateButton(entt::null, history);
+					EditorUtilities::GameObject_CreateButton(entt::null, history);
 				}
 
 				if (ImGui::MenuItem("Slider"))

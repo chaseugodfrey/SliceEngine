@@ -118,6 +118,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 
 		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<ButtonSystem>();
 
 		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
@@ -149,6 +150,8 @@ namespace SliceEngine
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
 		mCanvas.Init();
 
+		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
+		//sButton.Init();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -175,6 +178,7 @@ namespace SliceEngine
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -308,12 +312,17 @@ namespace SliceEngine
 				sAnimator.BoneUpdate();
 
 			}
+			frm->StartSystem("Button");
+			sButton.HandleMouse(*sInputs, sCanvas);
+			//sButton.UpdateCurrentButton();
+			frm->EndSystem("Button");
 		}
 
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
 		frm->EndSystem("Graphics");
+
 
 
 		frm->StartSystem("Canvas");

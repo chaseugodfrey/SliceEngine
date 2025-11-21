@@ -14,6 +14,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../ECS/BaseSystem.h"
 #include "../ECS/ECSTypes.h"
 
+#include "../Input/InputSystem.h"
+
 /*
 * Brief description of a canvas
 * 
@@ -45,8 +47,8 @@ namespace SliceEngine
 	//struct RectTransform;
 	struct CanvasSystem : BaseSystem<canvasEntity, Canvas, RectTransform>
 	{
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
 
 		//make these static constexpr first
@@ -60,6 +62,13 @@ namespace SliceEngine
 
 		void Init();
 		void Release();
+
+		/*
+		* fires a ray into the list of overlay canvases and finds the element that is hit
+		* bot left corner is 0,0
+		* top right corner is width, height
+		*/
+		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
 		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
 
@@ -69,6 +78,37 @@ namespace SliceEngine
 
 		//k i realised how render manager uses fbo now
 		unsigned int fbo{};
+		unsigned int raycast_tex{};
+	};
+
+	/*
+	* logically only 1 button should ever be pressed at a time, gona go with this constraint for now
+	* this also means only 1 button should ever need to update, which depends on input system
+	*/
+	struct buttonEntity {};
+	struct ButtonSystem : BaseSystem<buttonEntity, Button, RectTransform, SpriteRenderer>
+	{
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
+		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
+
+		//updates the current button and its state depending on input system and canvas raycast
+		void HandleMouse(InputSystem const&, CanvasSystem const&);
+
+	private:
+		Entity current_button{ entt::null };
+
+		enum Events {
+			None,
+			Highlight,
+			LeaveHighlight,
+			Click,
+			Cancel,
+			Release
+		};
+
+		//updates the image state of the current button if there is one
+		void update_button(Button&, Events);
 	};
 
 	//do i need a system for 2d, prob no for now

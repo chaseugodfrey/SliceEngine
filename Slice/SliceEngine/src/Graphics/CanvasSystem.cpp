@@ -19,21 +19,19 @@ namespace SliceEngine {
 
 	void CanvasSystem::Init() {
 		glCreateFramebuffers(1, &fbo);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &raycast_tex);
+		CheckGLError();
+
+		glTextureStorage2D(raycast_tex, 1, GL_R32UI, target_width, target_width);
+		glTextureParameteri(raycast_tex, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(raycast_tex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		CheckGLError();
 	}
 	void CanvasSystem::Release() {
+		glDeleteTextures(1, &raycast_tex);
 		glDeleteFramebuffers(1, &fbo);
-	}
-
-	void CanvasSystem::EntityOnEnter(entt::registry& reg, entt::entity entity) {
-		auto& canvas = reg.get<Canvas>(entity);
-		//glCreateFramebuffers(1, &canvas.fbo);
-		//glnamedframebuffer
-
-		//actually now that i think about it, dont really need a framebuffer, just draw it directly
-	}
-	void CanvasSystem::EntityOnExit(entt::registry& reg, entt::entity entity) {
-		auto& canvas = reg.get<Canvas>(entity);
-		//glDeleteFramebuffers(1, &canvas.fbo);
+		CheckGLError();
 	}
 
 	void CanvasSystem::UpdateHierachy() {
@@ -53,6 +51,28 @@ namespace SliceEngine {
 		}
 	}
 
+	//thrs prob a more efficient way for this but not gona bother for now
+	Entity CanvasSystem::Raycast(unsigned int x, unsigned int y) const {
+		//simply check the raycast texture and sample
+		if (x >= target_width || y >= target_height) {
+			return entt::null;
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		CheckGLError();
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, raycast_tex, 0);
+		CheckGLError();
+
+		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		CheckGLError();
+		Entity e = entt::null;
+		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &e);
+		CheckGLError();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		return e;
+	}
+
 	void CanvasSystem::DrawOverlay() {
 		//rendermanager resets all settings so i can just set it here too
 		CheckGLError();
@@ -63,6 +83,10 @@ namespace SliceEngine {
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
 		CheckGLError();
 
+		//clear the raycast buffer to entt null
+		const GLuint null_eid = entt::null;
+		glClearTexImage(raycast_tex, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &null_eid);
+		CheckGLError();
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<canvasEntity>();
 
@@ -125,10 +149,13 @@ namespace SliceEngine {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(first_cam);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cam.textureID, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, raycast_tex, 0);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 			return;
 		}
 
+		GLenum render_targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		glDrawBuffers(2, render_targets);
 		glViewport(0, 0, cam.width, cam.height);
 		CheckGLError();
 
@@ -136,8 +163,9 @@ namespace SliceEngine {
 
 
 		auto const& rm = Core::GetInstance()->GetResourceManager();
-		//currently locked target width/height
-		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / target_width, 2.f / target_height, 1.f });
+
+		auto const& canv = core->GetRegistry().get<Canvas>(canvas);
+		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / cam.width, 2.f / cam.height, 1.f });
 
 		GUID shader_guid = elements[0].second;
 		GLuint shader = rm->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
@@ -145,6 +173,9 @@ namespace SliceEngine {
 		CheckGLError();
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
+		uniform_loc = glGetUniformLocation(shader, "raycast");
+		glUniform1ui(uniform_loc, canv.graphic_raycastable);
+		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();
 
 		for (auto const& element : elements) {
@@ -152,8 +183,10 @@ namespace SliceEngine {
 				shader_guid = element.second;
 				shader = rm->get<SliceEngineTypes::Shader>(shader_guid).get()->s;
 				glUseProgram(shader);
-				int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
+				uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
+				uniform_loc = glGetUniformLocation(shader, "raycast");
+				glUniform1ui(uniform_loc, canv.graphic_raycastable);
 				CheckGLError();
 			}
 
@@ -165,15 +198,21 @@ namespace SliceEngine {
 
 			if (shader_guid == (GUID)15255338910698563845) {	//sprite
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
-				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle.mGUID);
+				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
 				//auto id = sprite.textureHandle.get()->texture_id;
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
+				uniform_loc = glGetUniformLocation(shader, "raycast_target");
+				glUniform1ui(uniform_loc, sprite.raycast_target);
+				uniform_loc = glGetUniformLocation(shader, "entity");
+				glUniform1ui(uniform_loc, (GLuint)element.first);
+				uniform_loc = glGetUniformLocation(shader, "alphaThresh");
+				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
 
 				//Get quad
-				auto& quad = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+				auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
 				auto const& quad_mesh = quad.meshes[0];
 				glBindVertexArray(quad_mesh.vao);
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
@@ -307,6 +346,162 @@ namespace SliceEngine {
 				break;
 			}
 		}
+	}
+
+
+	//Set the color/sprite guid of the image depending on state
+	void ButtonSystem::update_button(Button& button, Events event) {
+
+		switch (event) {
+		case Highlight:
+			button.state = Button::Highlighted;
+			std::cout << "Highlight event" << std::endl;
+			break;
+		case Click:
+			button.state = Button::Pressed;
+			std::cout << "Pressed event" << std::endl;
+			break;
+		case LeaveHighlight:
+			std::cout << "Leave Highlight event" << std::endl;
+		case Release:
+			std::cout << "Released event" << std::endl;
+		case Cancel:
+			std::cout << "Cancel event" << std::endl;
+			button.state = Button::Normal;
+			break;
+		}
+
+		;	//change to target graphic if we doing that feature
+		auto& image = mRegistry->get<SpriteRenderer>(current_button);
+		switch (button.transition) {	
+			//no dirty flag for now
+			//also not going to keep a 'local' copy of color/tex in sprite renderer
+			//just reset it if button component gets removed, also this case is super rare
+		case Button::Color:
+			image.rgba = button.color_transitions[button.state];
+			break;
+		case Button::Sprite:
+			image.textureHandle = button.sprite_transitions[button.state];
+			break;
+		}
+
+	}
+
+	/*
+	* there are 2 possibilities
+	* mouse is down/up
+	* 
+	* 4 events to care about:
+	* highlight - mouse was up and hovering a button
+	* click		- mouse was up, but pressed down while hovering a button
+	* 
+	* cancel	- mouse clicked a button, but released outside of button
+	* release	- mouse clicked a button, and released inside of button
+	*/
+	void ButtonSystem::HandleMouse(InputSystem const& input, CanvasSystem const& canvas) {
+		Entity temp_button = entt::null;
+		ButtonSystem::Events mouse_event = Events::None;
+
+		//somehow convert to pixel coord
+		glm::vec2 mouse_coord = input.GetMousePosition();
+		//std::cout << "mouse coord: " << mouse_coord.x << ", " << mouse_coord.y << std::endl;
+		//for now im just gona directly convert to game screen coord
+		unsigned int mouse_x = (unsigned int)mouse_coord.x;
+		unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+
+		//for now im gona use a key to simulate mouse clicks
+
+		if (current_button == entt::null) {
+			temp_button = canvas.Raycast(mouse_x, mouse_y);
+			if (temp_button == entt::null || !mRegistry->any_of<Button>(temp_button)) {
+				return;
+			}
+			auto& t_button = mRegistry->get<Button>(temp_button);
+			if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {		//hover
+				update_button(t_button, Highlight);
+			}
+			else if (input.IsKeyDown(Keys::KEY_BACKSLASH)) {	//click same frame u hover
+				update_button(t_button, Click);
+			}
+			current_button = temp_button;
+		}
+		else {
+			temp_button = canvas.Raycast(mouse_x, mouse_y);
+			auto& c_button = mRegistry->get<Button>(current_button);
+
+			if (c_button.state == Button::Highlighted) {
+				if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+					if (temp_button != current_button) {
+						update_button(c_button, LeaveHighlight);
+						current_button = entt::null;
+					}
+				}
+				else {
+					if (temp_button == current_button) {
+						update_button(c_button, Click);
+					}
+					else {
+						update_button(c_button, LeaveHighlight);
+						if (mRegistry->any_of<Button>(temp_button)) {
+							auto& t_button = mRegistry->get<Button>(temp_button);
+							update_button(t_button, Click);	//click same frame u leave highlight
+							current_button = temp_button;
+						}
+						else {
+							current_button = entt::null;
+						}
+					}
+				}
+			}
+			else {
+				if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+					if (temp_button != current_button) {
+						update_button(c_button, Cancel);
+					}
+					else {
+						update_button(c_button, Release);
+					}
+					current_button = entt::null;
+				}
+			}
+
+
+
+
+
+
+
+			//if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+			//	if (temp_button == current_button) {
+			//		update_button(c_button, Release);
+			//	}
+			//	else if (c_button.state == Button::Pressed) {
+			//		update_button(c_button, Cancel);
+			//	}
+			//	else {
+			//		update_button(c_button, LeaveHighlight);
+			//	}
+			//}
+			//else {
+			//	auto& t_button = mRegistry->get<Button>(temp_button);
+
+			//	if (current_button == temp_button) {
+			//		if (c_button.state == Button::Highlighted) {
+			//			mouse_event = Click;
+			//		}
+			//	}
+
+			//	if (current_button != temp_button) {
+			//		if (c_button.state == Button::Highlighted) {
+			//			update_button(c_button, Events::LeaveHighlight);
+			//			update_button(t_button, Events::Click);
+			//		}
+			//	}
+			//}
+		}
+
+
+	//	update_button();
 	}
 }
 

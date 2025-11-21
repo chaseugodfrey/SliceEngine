@@ -5,8 +5,8 @@ layout (location=2) in vec2 aTextureCoord;
 
 layout (location=0) out vec2 vTextureCoord;
 
-uniform mat4 canvas_to_ndc;
-uniform mat4 M;
+uniform mat4 canvas_to_ndc;		//from canvas
+uniform mat4 M;					//from recttransform
 
 /*
 struct InstanceData{

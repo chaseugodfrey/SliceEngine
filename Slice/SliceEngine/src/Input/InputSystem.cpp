@@ -227,36 +227,36 @@ namespace SliceEngine
 
 #pragma region KEY AND MOUSE CHECKS
 
-    bool InputSystem::IsKeyPressed(int key) 
+    bool InputSystem::IsKeyPressed(int key)  const
     {
-        return keyMap[key] == PRESS || keyMap[key] == PRESSED;
+        return keyMap.at(key) == PRESS || keyMap.at(key) == PRESSED;
     }
 
-    bool InputSystem::IsKeyReleased(int key) 
+    bool InputSystem::IsKeyReleased(int key)  const
     {
-        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
+        return keyMap.at(key) == RELEASE || keyMap.at(key) == RELEASED;
     }
 
-    bool InputSystem::IsKeyDown(int key) 
+    bool InputSystem::IsKeyDown(int key)  const
     {
-		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
+		return keyMap.at(key) == HOLD || keyMap.at(key) == PRESSED || keyMap.at(key) == PRESS;
     }
 
-    bool InputSystem::IsMousePressed(MouseButtons b) 
+    bool InputSystem::IsMousePressed(MouseButtons b)  const
     {
         auto it = mouseMap.find((int)b);
         const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
         return allowGameMouse() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
     }
 
-    bool InputSystem::IsMouseReleased(MouseButtons b) 
+    bool InputSystem::IsMouseReleased(MouseButtons b)  const
     {
         auto it = mouseMap.find((int)b);
         const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
         return allowGameMouse() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
     }
 
-    bool InputSystem::IsMouseDown(MouseButtons b) 
+    bool InputSystem::IsMouseDown(MouseButtons b)  const
     {
         auto it = mouseMap.find((int)b);
         const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);

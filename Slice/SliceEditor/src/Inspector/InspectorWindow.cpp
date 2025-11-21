@@ -141,6 +141,7 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 	}
+
 	void InspectorWindow::DisplaySpriteRenderer(entt::entity entity)
 	{
 		if (ImGui::TreeNodeEx("SpriteRenderer", mBaseFlags))
@@ -155,15 +156,16 @@ namespace SliceEditor
 
 			DragColor4InputHeader(mRegistry, "Color", "##uicolor", sprite.rgba);
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
+			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
 			ImGui::Text("Image");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(sprite.textureHandle.getGUID().GetGUID());
+			std::string texture_guid_string = std::to_string(sprite.textureHandle.GetGUID());
 			std::string textureFileName;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle.getGUID()) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
 			{
-				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle.getGUID()];
+				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle];
 			}
 			else //Its a default model
 			{
@@ -175,11 +177,85 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Image"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					sprite.textureHandle.mGUID = recievedPayload;
+					sprite.textureHandle = recievedPayload;
 					// update the handle after
 				}
 			}
 
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplayCanvas(entt::entity entity) {
+		if (ImGui::TreeNodeEx("Canvas", mBaseFlags))
+		{
+			auto& canvas = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Canvas>(entity);
+
+			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
+
+
+			static std::vector<std::string> canvas_types{ "Overlay" };
+			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
+
+			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
+
+			BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+
+			ImGui::TreePop();
+		}
+	}
+	void InspectorWindow::DisplayButton(entt::entity entity) {
+		if (ImGui::TreeNodeEx("Button", mBaseFlags))
+		{
+			auto& button = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Button>(entity);
+
+			DisplayComponentHeader<SliceEngine::Button>(entity, false);
+
+
+			static std::vector<std::string> transitions{ "Color, Sprite" };
+			ComboHeader<SliceEngine::Button::Transition>(mRegistry, "Button Transitions", "##btntransitions", button.transition, transitions);
+
+			switch (button.transition) {
+			case SliceEngine::Button::Color:
+				DragColor4InputHeader(mRegistry, "Normal", "##btncolor1", button.color_transitions[SliceEngine::Button::Normal]);
+				DragColor4InputHeader(mRegistry, "Highlighted", "##btncolor2", button.color_transitions[SliceEngine::Button::Highlighted]);
+				DragColor4InputHeader(mRegistry, "Pressed", "##btncolor3", button.color_transitions[SliceEngine::Button::Pressed]);
+				break;
+			case SliceEngine::Button::Sprite:	//i didnt test this
+			{
+				const char* state_names[] = { "Normal", "Highlighted", "Pressed" };
+				for (int i = 0; i < 3; ++i) {
+					auto& btn_sprites = button.sprite_transitions;
+					ImGui::Text(state_names[i]);
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+
+					auto& texture_guid = btn_sprites[SliceEngine::Button::Normal];
+					std::string texture_guid_string = std::to_string(texture_guid.GetGUID());
+					std::string textureFileName;
+					if (mRegistry.GetAssetManager().mGUIDtoFilename.find(texture_guid) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+					{
+						textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[texture_guid];
+					}
+					else //Its a default texture
+					{
+						textureFileName = texture_guid_string;
+					}
+					ImGui::InputText(state_names[i], &textureFileName, ImGuiInputTextFlags_ReadOnly);
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(state_names[i]))
+						{
+							SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+							texture_guid = recievedPayload;
+							// update the handle after
+						}
+					}
+				}
+			}
+				break;
+			}
 
 			ImGui::TreePop();
 		}
@@ -986,6 +1062,18 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Canvas>(entity))
+			{
+				DisplayCanvas(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Button>(entity))
+			{
+				DisplayButton(node->entity);
 				ImGui::Separator();
 			}
 

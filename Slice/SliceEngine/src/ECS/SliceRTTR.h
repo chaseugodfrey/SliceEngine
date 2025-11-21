@@ -243,6 +243,11 @@ namespace SliceEngine
 		(
 			rttr::value("Overlay", Canvas::Type::OVERLAY)
 			);
+	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
+		(
+			rttr::value("Color", Button::Transition::Color),
+			rttr::value("Sprite", Button::Transition::Sprite)
+			);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
 		.property("type", &Light::type)
@@ -329,7 +334,14 @@ namespace SliceEngine
 	rttr::registration::class_<Canvas>(typeid(Canvas).name())
 		.constructor<>()
 		.property("canvas_type", &Canvas::canvas_type)
-		.property("sort_order", &Canvas::sort_order);
+		.property("sort_order", &Canvas::sort_order)
+		.property("graphics_raycast", &Canvas::graphic_raycastable);
+
+	rttr::registration::class_<Button>(typeid(Button).name())
+		.constructor<>()
+		.property("transition", &Button::transition);
+		//.property("colors", &Button::color_transitions)
+		//.property("sprites", &Button::sprite_transitions);
 
 	rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 		.constructor<>()
@@ -347,7 +359,8 @@ namespace SliceEngine
 	rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 		.constructor<>()
 		.property("texture", &SpriteRenderer::textureHandle)
-		.property("rgba", &SpriteRenderer::rgba);
+		.property("rgba", &SpriteRenderer::rgba)
+		.property("raycast_target", &SpriteRenderer::raycast_target);
 	}
 }
 #endif
