@@ -63,6 +63,8 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
+		case SelectionType::PREFAB:
+			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
 		}
 
 		ImGui::End();
@@ -383,19 +385,83 @@ namespace SliceEditor
 						//List Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
 						{
+							//String
+							//if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							//{
+							//	auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+							//	std::function<void(std::string, std::vector<std::string>)> editFunc = [sp = scriptRef](std::string name, std::vector<std::string> val)
+							//		{
+							//			sp->SetListField(name, val);
+							//		};
+
+							//	std::function<void(std::string, std::string)> addFunc = [sp = scriptRef](std::string name, std::string val)
+							//		{
+							//			sp->AddListFieldValue(name, val);
+							//		};
+							//	std::function<void(std::string, int)> removeFunc = [sp = scriptRef](std::string name, int index)
+							//		{
+							//			sp->RemoveListField(name, index);
+							//		};
+
+							//	//Display Function Here
+							//	if (StringListScriptHeader(mRegistry, editFunc, addFunc,removeFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							//	{
+							//		scriptRef->SetListField(it.second.mName, data);
+							//		SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+							//	}
+							//}
+
+							//Works for String
 							if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
-								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
 									{
-										sp->SetArrayFieldValue(name, val);
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
 									};
 
 								//Display Function Here
-								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (StringListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									/*scriptRef->SetArrayFieldValue(it.second.mName, data);
-									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);*/
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							
+							//Dies for Float
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
+								std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								//Display Function Here
+								if (FloatListScriptHeader(mRegistry, editFunc, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 						}
@@ -1027,6 +1093,29 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+	}
+
+	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		SliceEngine::GUID prefabGUID;
+		std::string prefabStemName = node->path.stem().stem().string();
+		//Getting the GUID of the prefab
+		if (mRegistry.GetAssetManager().mFilenameToGUID.find(prefabStemName) != mRegistry.GetAssetManager().mFilenameToGUID.end())
+		{
+			prefabGUID = mRegistry.GetAssetManager().mFilenameToGUID[prefabStemName];
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Prefab is broken on Asset Manager");
+			return;
+		}
+		//Creating an temporary instance of the prefab
+		auto handle = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
+		Entity prefabEntity = SliceEngine::JSONSerializer::DeserializePrefab(handle.get()->filePath); //Not sure if creating an entity every frame is good
+
+		//Display the Stuff
+
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)

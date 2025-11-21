@@ -523,7 +523,7 @@ namespace SliceEngine
 			// TODO: add in exception handling like in my other invoke stuff
 
 			int count = *(int*)mono_object_unbox(countObj);
-			result.resize(count);
+			result.reserve(count);
 
 			void* params[1];
 			for (int i = 0; i < count; ++i)
@@ -623,7 +623,7 @@ namespace SliceEngine
 
 			void* params[2];
 			params[0] = &index;
-			params[1] = &value;
+			params[1] = (void*)&value;
 
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
