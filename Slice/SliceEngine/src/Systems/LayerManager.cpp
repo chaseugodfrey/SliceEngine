@@ -197,8 +197,8 @@ namespace SliceEngine
 	std::vector<std::string> LayerManager::GetLayerNameList()
 	{
 		std::vector<std::string> nameList{};
-		for (auto& [key, value] : nameToLayer)
-			nameList.push_back(key);
+		for (auto& [key, value] : indexToLayerName)
+			nameList.push_back(value);
 		return nameList;
 	}
 
