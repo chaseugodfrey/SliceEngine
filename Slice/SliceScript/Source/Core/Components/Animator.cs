@@ -34,6 +34,11 @@ namespace SliceEngine
             return FunctionCalls.GetCurrAnimName(gameObject.mID);
         }
 
+        public float GetCurrAnimTime()
+        {
+            return FunctionCalls.GetCurrAnimTime(gameObject.mID);
+        }
+
         public bool IsCurrAnimFin()
         {
             return FunctionCalls.IsCurrAnimFin(gameObject.mID);
