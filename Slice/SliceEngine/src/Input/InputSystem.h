@@ -105,9 +105,9 @@ namespace SliceEngine
         void SetImGuiCapture(bool wantKeyboard, bool wantMouse); // set imgui capture flags
 
         // key queries
-        bool IsKeyPressed(int key) const;
-        bool IsKeyReleased(int key) const;
-        bool IsKeyDown(int key) const;
+        bool IsKeyPressed(int key);
+        bool IsKeyReleased(int key);
+        bool IsKeyDown(int key);
 
         // mouse queries
         bool IsMousePressed(MouseButtons button) const;

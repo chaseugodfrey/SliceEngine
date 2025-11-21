@@ -227,19 +227,19 @@ namespace SliceEngine
 
 #pragma region KEY AND MOUSE CHECKS
 
-    bool InputSystem::IsKeyPressed(int key)  const
+    bool InputSystem::IsKeyPressed(int key)
     {
-        return keyMap.at(key) == PRESS || keyMap.at(key) == PRESSED;
+        return keyMap[key] == PRESS || keyMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsKeyReleased(int key)  const
+    bool InputSystem::IsKeyReleased(int key)
     {
-        return keyMap.at(key) == RELEASE || keyMap.at(key) == RELEASED;
+        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsKeyDown(int key)  const
+    bool InputSystem::IsKeyDown(int key)
     {
-		return keyMap.at(key) == HOLD || keyMap.at(key) == PRESSED || keyMap.at(key) == PRESS;
+		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
     }
 
     bool InputSystem::IsMousePressed(MouseButtons b)  const

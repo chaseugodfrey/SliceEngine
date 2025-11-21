@@ -93,7 +93,7 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
 
 		//updates the current button and its state depending on input system and canvas raycast
-		void HandleMouse(InputSystem const&, CanvasSystem const&);
+		void HandleMouse(InputSystem&, CanvasSystem const&);
 
 	private:
 		Entity current_button{ entt::null };

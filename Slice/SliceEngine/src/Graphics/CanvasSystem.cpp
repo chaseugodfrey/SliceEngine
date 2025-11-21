@@ -398,7 +398,7 @@ namespace SliceEngine {
 	* cancel	- mouse clicked a button, but released outside of button
 	* release	- mouse clicked a button, and released inside of button
 	*/
-	void ButtonSystem::HandleMouse(InputSystem const& input, CanvasSystem const& canvas) {
+	void ButtonSystem::HandleMouse(InputSystem& input, CanvasSystem const& canvas) {
 		Entity temp_button = entt::null;
 		ButtonSystem::Events mouse_event = Events::None;
 
