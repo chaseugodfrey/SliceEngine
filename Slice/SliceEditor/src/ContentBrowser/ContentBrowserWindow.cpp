@@ -253,7 +253,10 @@ namespace SliceEditor
 
 		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{
-			selectionManager->SelectSingle(&node);
+			if(!(node.type == SelectionType::PREFAB))
+			{
+				selectionManager->SelectSingle(&node);
+			}
 		}
 
 		//Drag and Drop Payload
@@ -282,6 +285,11 @@ namespace SliceEditor
 			{
 				mManager.OpenFile(node);
 			}
+			if (ImGui::MenuItem("Edit File"))
+			{
+				mManager.EditFile(node);
+			}
+
 			if (ImGui::MenuItem("Rename File"))
 			{
 				mManager.openRenameFile = true;

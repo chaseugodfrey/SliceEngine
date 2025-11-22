@@ -103,6 +103,14 @@ namespace SliceEditor
 	{
 		//std::string name;
 		entt::entity entity = entt::null;
+
+		EntityNode()
+			: entity(entt::null)
+		{
+			type = SelectionType::ENTITY;
+			isSelected = false;
+		}
+
 		EntityNode(entt::entity ent) : entity(ent)
 		{
 			type = SelectionType::ENTITY;

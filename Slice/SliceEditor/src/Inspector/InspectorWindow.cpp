@@ -32,6 +32,7 @@ namespace SliceEditor
 	void InspectorWindow::Init()
 	{
 		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
+		mPrefabEntity = EntityNode();
 	}
 
 	void InspectorWindow::Draw()
@@ -63,6 +64,8 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
+		case SelectionType::PREFAB:
+			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
 		}
 
 		ImGui::End();
@@ -1104,6 +1107,49 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+	}
+
+	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
+	{
+		auto& assetManager = mRegistry.GetAssetManager();
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		SliceEngine::GUID prefabGUID;
+		std::string fileName = node->path.stem().stem().string();
+		//Search for the GUID in the map:
+		if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
+		{
+			prefabGUID = assetManager.mFilenameToGUID[fileName];
+		}
+		else
+		{
+			SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
+			return;
+		}
+
+		//Now get the resource
+		SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
+		if (mPrefabEntity.entity == entt::null)
+		{
+			mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
+		}
+
+		//Save Prefab
+		if (ImGui::Button("Save Prefab"))
+		{
+
+
+			if (mPrefabEntity.entity != entt::null)
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().destroy(mPrefabEntity.entity);
+			}
+
+			mPrefabEntity.entity = entt::null;
+
+			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
+			return;
+		}
+
+		DisplayEntity(&mPrefabEntity);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
