@@ -403,53 +403,86 @@ namespace SliceEditor
 						#pragma region List Variables
 						else if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
 						{
-							/*if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
-								auto data = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
 
-								std::function<void(std::string, std::vector<float>)> func = [sp = scriptRef](std::string name, std::vector<float> val)
+								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
-										sp->SetArrayFieldValue(name, val);
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
 									};
 
-								if (DragFloatArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 
 							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
-								auto data = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
 
-								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
 									{
-										sp->SetArrayFieldValue(name, val);
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
 									};
 
-								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
 							{
-								auto data = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+								auto data = scriptRef->GetListFieldValue<int>(it.second.mName);
 
-								std::function<void(std::string, std::vector<int>)> func = [sp = scriptRef](std::string name, std::vector<int> val)
+								std::function<void(const char*, std::string, std::vector<int>, int, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<int> list, int val, int index)
 									{
-										sp->SetArrayFieldValue(name, val);
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
 									};
 
-								if (DragIntArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (IntListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
-							}*/
+							}
 						}
 
 						#pragma endregion

@@ -16,7 +16,8 @@ namespace SliceEngine
         public float[] floatArray = {1.0f,2.0f};
         public string[] stringArray = { "Test1", "Test2", "Test3" };
         public List<float> floatList = new List<float>{ 0.5f,2.0f };
-        public List<string> stringList = new List<string>{"Test"};
+        public List<int> intList = new List<int>{ 7,8 };
+        public List<string> stringList = new List<string>{"Test","Test2"};
         public override void OnUpdate(float dt)
         {
 
@@ -30,8 +31,14 @@ namespace SliceEngine
             int j = 0;
             foreach (string var in stringList)
             {
-                SliceLog.Log("Float List Element " + i + ": " + var);
+                SliceLog.Log("String List Element " + i + ": " + var);
                 j++;
+            }
+            int k = 0;
+            foreach (int var in intList)
+            {
+                SliceLog.Log("Int List Element " + i + ": " + var);
+                k++;
             }
         }
     }
