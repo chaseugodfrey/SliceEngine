@@ -1,15 +1,6 @@
 [
     {
         "Prefab_Parent": {
-            "struct SliceEngine::Light": {
-                "color": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "intensity": 0.5,
-                "type": "Point"
-            },
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -22,30 +13,13 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097214,
+                "entity_id": 1048639,
                 "neighbours": [
                     0,
-                    2097217,
-                    2097213,
-                    2097215
+                    1048641,
+                    1048640,
+                    1048638
                 ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.TestEntity",
-                "scriptableFieldMap": {
-                    "direction": {
-                        "Type": "glm::vec3",
-                        "Value": [
-                            -1.0,
-                            0.0,
-                            0.0
-                        ]
-                    },
-                    "speed": {
-                        "Type": "float",
-                        "Value": 5.0
-                    }
-                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
@@ -80,15 +54,6 @@
     },
     {
         "Prefab_Child": {
-            "struct SliceEngine::Light": {
-                "color": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "intensity": 0.5,
-                "type": "Point"
-            },
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -101,9 +66,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097217,
+                "entity_id": 1048641,
                 "neighbours": [
-                    2097214,
+                    1048639,
                     4294967295,
                     4294967295,
                     4294967295
