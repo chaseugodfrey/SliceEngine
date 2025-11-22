@@ -174,7 +174,8 @@ namespace SliceEngine
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
-		.property("isTrigger", &ColliderShape::isTrigger);
+		.property("isTrigger", &ColliderShape::isTrigger)
+		.property("componentEnabled", &ColliderShape::componentEnabled);
 
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()

@@ -79,6 +79,32 @@ namespace SliceEditor
 		}
 	};
 
+	template <typename T>
+	class ScriptListSetterCommand : public Command
+	{
+		std::function<void(const char*, std::string, std::vector<T>, T, int)> funcToExecute;
+		std::string fieldName;
+		const char* funcType;
+		std::vector<T> oldList, newList;
+		int index;
+
+	public:
+		ScriptListSetterCommand(std::function<void(const char*, std::string, std::vector<T>, T, int)>func, const char* type, std::string name, std::vector<T> oldL, std::vector<T> newL, int idx = 0) :
+			funcToExecute(func), funcType(type), fieldName(name), oldList(oldL), newList(newL),index(idx) {
+		}
+		~ScriptListSetterCommand() = default;
+
+		void Redo() override
+		{
+			funcToExecute(funcType, fieldName, newList, newList[index], index);
+		}
+
+		void Undo() override
+		{
+			funcToExecute(funcType, fieldName, oldList, oldList[index], index);
+		}
+	};
+
 	class SelectNodeCommand : public Command
 	{
 		SelectionManager& sSelection;

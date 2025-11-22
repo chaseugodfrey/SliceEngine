@@ -22,7 +22,7 @@ namespace SliceEngine
 		// idk if i need to create a way to access collision layers by index
 		// but if i do then ill prob use this
 		//std::vector<std::string> collisionKeys; 
-		std::unordered_map<uint32_t, std::string> indexToLayerName;
+		std::map<uint32_t, std::string> indexToLayerName;
 
 		std::vector<uint32_t> removedBits;
 		
