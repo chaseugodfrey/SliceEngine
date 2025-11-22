@@ -9,27 +9,26 @@ namespace SliceEditor
 {
 	class Registry;
 
-	struct NodeInfo
-	{
-		NodeEditor::NodeId   Id;
-		NodeEditor::PinId	inputPinId;
-		NodeEditor::PinId	outputPinId;
-		std::string         Name;
-	};
-
-	struct LinkInfo
-	{
-		NodeEditor::LinkId Id;
-		NodeEditor::PinId  sourceId;
-		NodeEditor::PinId  targetId;
-	};
-
 	class AnimatorWindow : public EditorWindow
 	{
 		NodeEditor::EditorContext* m_Context = nullptr;
 
-		ImVector<NodeInfo> m_Nodes;
-		ImVector<LinkInfo> m_Links;
+		SliceEngine::Animator* mCurrentAnimator = nullptr;
+		SliceEngine::SliceEngineTypes::StateMachine* mStateMachine = nullptr;
+
+		std::unordered_map<std::string, StateNode> mNameToNodeMap;
+		std::vector<TransitionLinkNode> mLinkList;
+
+		SelectionNode* mSelectedNode;
+
+		bool CheckForAnimator();
+		void ClearData();
+
+		bool CheckStateInput(StateNode* node);
+		bool CheckLinkInput(TransitionLinkNode* node);
+		void DrawStateNode(StateNode* node);
+		void DrawTransitionLinkNode(TransitionLinkNode* node);
+		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 
 	public:
 		AnimatorWindow(Registry& reg) : EditorWindow(reg) {};
