@@ -680,6 +680,63 @@ namespace SliceEditor
 
 			}
 		}
+		void from_json(const nlohmann::json& j, rttr::variant& var)
+		{
+			if (j.is_number_integer()) {
+				var = j.get<int>();
+			}
+			else if (j.is_number_float()) {
+				var = j.get<float>();
+			}
+			else if (j.is_boolean()) {
+				var = j.get<bool>();
+			}
+			else if (j.is_string()) {
+				var = j.get<std::string>();
+			}
+			else {
+				// Handle unknown or null types if necessary
+				var = rttr::variant();
+			}
+		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::Transition& t)
+		{
+			// A helper lambda to convert the string operator to enum
+
+			j.at("targetState").get_to(t.targetState);
+			j.at("parameterName").get_to(t.parameterName);
+			j.at("comparisonOP").get_to(t.operation);
+
+			j.at("hasExitTime").get_to(t.hasExitTime);
+			j.at("exitTime").get_to(t.exitTime);
+			j.at("entryTime").get_to(t.entryTime);
+
+			// Deserializing condition, which is an rttr::variant
+			if (j.contains("condition")) {
+				from_json(j.at("condition"), t.condition);
+			}
+			else {
+				t.condition = rttr::variant();
+			}
+		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::State& s)
+		{
+			j.at("stateName").get_to(s.stateName);
+			j.at("currAnimIdx").get_to(s.curr_anim_idx);
+			j.at("isLoop").get_to(s.isLoop);
+
+			s.transitions.clear();
+			const auto& transitions_json = j.at("transitions");
+
+			// Iterate over the array of transitions
+			for (const auto& transition_json : transitions_json)
+			{
+				SliceEngine::SliceEngineTypes::Transition tmpTrans;
+				// Call the Transition deserialization helper
+				from_json(transition_json, tmpTrans);
+				s.transitions.push_back(tmpTrans);
+			}
+		}
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -1055,6 +1112,36 @@ namespace SliceEditor
 			{
 				output << metaJson.dump(4);
 				output.close();
+			}
+		}
+	
+		StateMachineData DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+			entryState = assetJson["entryState"];
+			auto params = assetJson["parameters"];
+
+			for (auto it = params.begin(); it != params.end(); ++it)
+			{
+				rttr::variant var;
+				from_json(it.value(), var);
+				parameters[it.key()] = var;
+				//parameters[it.]
+			}
+
+			auto states = assetJson["stateMap"];
+
+			for (auto it = states.begin(); it != states.end(); ++it)
+			{
+				SliceEngine::SliceEngineTypes::State state;
+				from_json(it.value(), state);
+				stateMap[it.key()] = state;
 			}
 		}
 	};
