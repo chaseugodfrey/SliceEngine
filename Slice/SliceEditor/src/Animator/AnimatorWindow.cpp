@@ -26,7 +26,7 @@ namespace SliceEditor
 		{
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 			{
-				ImGui::OpenPopup("Node_Popup");
+				ImGui::OpenPopup("Link_Popup");
 			}
 		}
 
@@ -65,11 +65,7 @@ namespace SliceEditor
 
 	AnimatorWindow::~AnimatorWindow()
 	{
-		if (m_Context)
-		{
-			NodeEditor::DestroyEditor(m_Context);
-			m_Context = nullptr;
-		}
+
 	}
 
 	void AnimatorWindow::Init()
@@ -81,16 +77,6 @@ namespace SliceEditor
 		bool hasAnimator = CheckForAnimator();
 
 		ImGui::Begin("Animator");
-#pragma region Animator Toolbar
-		ImGui::BeginGroup();
-		ImGui::Text("Parameters");
-		if (ImGui::BeginMenuBar())
-		{
-			ImGui::EndMenuBar();
-		}
-
-		ImGui::EndGroup();
-#pragma endregion
 
 #pragma region Animator Params
 
@@ -98,7 +84,7 @@ namespace SliceEditor
 
 		if (hasAnimator)
 		{
-			auto& param_map = mStateMachine->parameters;
+			auto& param_map = mStateMachineAsset->parameters;
 			
 			int param_id{};
 			for (auto& [name, param] : param_map)
@@ -147,7 +133,7 @@ namespace SliceEditor
 			DrawStateNode(&node);
 		}
 
-		for (auto& link : mLinkList)
+		for (auto& [id, link] : mIndexToLinkMap)
 		{
 			DrawTransitionLinkNode(&link);
 		}
@@ -165,7 +151,7 @@ namespace SliceEditor
 			}
 		}
 
-		for (auto& link : mLinkList)
+		for (auto& [id, link] : mIndexToLinkMap)
 		{
 			if (CheckLinkInput(&link))
 			{
@@ -179,12 +165,11 @@ namespace SliceEditor
 			{
 				ImGui::OpenPopup("NodeEditor_Popup");
 			}
-
 		}
 
 		if (ImGui::BeginPopup("Node_Popup"))
 		{
-			if (ImGui::Selectable("Test"))
+			if (ImGui::Selectable("Make Entry State"))
 			{
 
 			}
@@ -192,7 +177,18 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 
-		else if (ImGui::BeginPopup("Node_Popup"))
+		if (ImGui::BeginPopup("Link_Popup"))
+		{
+			if (ImGui::Selectable("Delete"))
+			{
+				auto& state = mStateMachineAsset->stateMap.at(mSelectedState);
+
+			}
+
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopup("NodeEditor_Popup"))
 		{
 			if (ImGui::Selectable("Create Node"))
 			{
@@ -255,12 +251,23 @@ namespace SliceEditor
 	{
 		mCurrentAnimator = component;
 
-		auto& stateMachineHandle = mCurrentAnimator->Handle_stateMachine;
-		mStateMachine = stateMachineHandle.get();
+		auto guid = mCurrentAnimator->Handle_stateMachine.getGUID();
+		auto filename = mRegistry.GetAssetManager().GetFilenameFromGUID(guid);
 
+		if (!filename.has_value())
+			return SLICE_LOG_ERROR(".controller filepath is wrong!");
+
+		std::filesystem::path filepath = mRegistry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
+
+		StateMachineData data{};
+		if (!data.DeserializeAsset(filepath))
+			return SLICE_LOG_ERROR(".controller filepath does not exist!");
+
+		mStateMachineAsset = std::make_unique<StateMachineData>(data);
+		
 		int nodeId{ 0 };
 
-		for (auto& [name, state] : mStateMachine->stateMap)
+		for (auto& [name, state] : mStateMachineAsset->stateMap)
 		{
 			StateNode node{};
 			node.id = nodeId;
@@ -271,13 +278,12 @@ namespace SliceEditor
 			node.state = &state;
 
 			mNameToNodeMap.emplace(name, node);
-			//mIndexToNodeMap.emplace(nodeId, node);
 			nodeId++;
 		}
 
 		int link_id{ 0 };
 
-		for (auto& [name, state] : mStateMachine->stateMap)
+		for (auto& [name, state] : mStateMachineAsset->stateMap)
 		{
 			for (auto& transition : state.transitions)
 			{
@@ -294,7 +300,7 @@ namespace SliceEditor
 				link.target_id = targetNode.in_id;
 				link.transition = &transition;
 
-				mLinkList.push_back(link);
+				mIndexToLinkMap.emplace(link.id, link);
 			}
 		}
 	}
@@ -302,8 +308,13 @@ namespace SliceEditor
 	void AnimatorWindow::ClearData()
 	{
 		mCurrentAnimator = nullptr;
-		mStateMachine = nullptr;
+		mStateMachineAsset.reset();
 		mNameToNodeMap.clear();
-		mLinkList.clear();
+		mIndexToLinkMap.clear();
+	}
+
+	bool AnimatorWindow::RemoveTransitionFromState(std::string stateName, int id)
+	{
+		return false;
 	}
 }

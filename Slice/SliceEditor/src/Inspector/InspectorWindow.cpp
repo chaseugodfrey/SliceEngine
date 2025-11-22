@@ -1400,6 +1400,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
 		ImGui::Text("Transition");
+	}
 
 	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
 	{

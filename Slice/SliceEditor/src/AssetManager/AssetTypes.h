@@ -1115,12 +1115,12 @@ namespace SliceEditor
 			}
 		}
 	
-		StateMachineData DeserializeAsset(const std::filesystem::path& filePath)
+		bool DeserializeAsset(const std::filesystem::path& filePath)
 		{
 			std::ifstream inFile{ filePath };
 			if (inFile.fail())
 			{
-				return;
+				return false;
 			}
 
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
@@ -1143,6 +1143,8 @@ namespace SliceEditor
 				from_json(it.value(), state);
 				stateMap[it.key()] = state;
 			}
+			
+			return true;
 		}
 	};
 
