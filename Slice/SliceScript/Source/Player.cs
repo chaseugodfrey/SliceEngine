@@ -174,6 +174,7 @@ namespace SliceEngine
                         animator.SetBool("JumpLoop", true);
                         t.Position += new Vector3(0, 5, 0);
                         jumpCounter++;
+                        
                     }
                 }
             }
@@ -192,6 +193,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                 {
                     animator.SetBool("PlungeLand", true);
+                    AudioSettings.PlaySFX("Land");
                 }
             }
 

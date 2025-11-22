@@ -279,7 +279,6 @@ namespace Geometry {
        // assert(vert_bones.size() == vertices.size());
 
         Mesh m = Mesh(std::move(vertices), std::move(indices), std::move(vert_bones));
-
 #if !COMPILE_ONLY
         m.setup_mesh();
 #endif
@@ -378,6 +377,7 @@ namespace Geometry {
 #if !COMPILE_ONLY
         m.setup_mesh();
 #endif
+
         return m;
     }
 

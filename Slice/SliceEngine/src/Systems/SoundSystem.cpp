@@ -18,18 +18,23 @@ DigiPen Institute of Technology is prohibited.
 #include "SoundSystem.h"
 #include "../Audio/AudioManager.h"
 #include "Systems/SceneSystem.h"
+#include "Physics/PhysicsSystem.h"
+#include "Graphics/RenderManager.h"
 
 
 namespace SliceEngine
 {
-	void SoundSystem::BindToAudioSource()
+#pragma region AUDIO SOURCE
+	void AudioSourceSystem::BindToAudioSource()
 	{
-		mRegistry->on_update<AudioSource>().connect<&SoundSystem::ComponentUpdate>(this);
+		mRegistry->on_update<AudioSource>().connect<&AudioSourceSystem::ComponentUpdate>(this);
 		//mRegistry->on_update<AudioSource>().connect<&SoundSystem::onPauseUpdated>(this);
 	}
 
-	void SoundSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
+	void AudioSourceSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		
+		
 		//auto& audioComp = reg.get<AudioSource>(entity);
 		
 		
@@ -42,10 +47,10 @@ namespace SliceEngine
 		std::cout << "Entity entering sound system" << std::endl;
 	}
 
-	void SoundSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
+	void AudioSourceSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto audioComp = reg.get<AudioSource>(entity);
+		auto& audioComp = reg.get<AudioSource>(entity);
 
 
 		if (audioManager->IsChannelPlaying(audioComp.channel))
@@ -60,12 +65,13 @@ namespace SliceEngine
 		std::cout << "Entity exiting sound system" << std::endl;
 	}
 
-	void SoundSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+	void AudioSourceSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
-		auto audioComp = reg.get<AudioSource>(entity);
+		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
+		glm::vec3 entityVel = { 0.f ,0.f,0.f};
 
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -73,6 +79,13 @@ namespace SliceEngine
 			{
 				audioComp.playPreview = false;
 				audioManager->StopSound(audioComp.previewChannel);
+
+			}
+
+			if (audioComp.channel == nullptr && audioComp.playOnAwake == true)
+			{
+				
+				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
 
 			}
 		}
@@ -99,19 +112,19 @@ namespace SliceEngine
 			if (audioComp.channel && sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 			{
 				
-				audioManager->SetSound3DPosition(audioComp.channel,audioComp.spatialBlend, transform.position, glm::vec3{0.f});
+				audioManager->SetSound3DPosition(audioComp.channel,audioComp.spatialBlend, transform.position, entityVel);
 
 			}
 			else if (audioComp.previewChannel && sceneSystem->mCurrentState == SceneState::DEFAULT)
 			{
-				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, glm::vec3{ 0.f });
+				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, entityVel);
 			}
 
 		}
 		
 	}
 
-	void SoundSystem::ComponentUpdate(entt::registry& reg, entt::entity entity)
+	void AudioSourceSystem::ComponentUpdate(entt::registry& reg, entt::entity entity)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
@@ -142,5 +155,116 @@ namespace SliceEngine
 			
 		}
 	}
+#pragma endregion
 
+#pragma region AUDIO LISTENER
+
+	void AudioListenerSystem::BindToAudioListener()
+	{
+
+	}
+
+	void AudioListenerSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
+	{
+		
+		auto audioManager = Core::GetInstance()->GetAudioManager();
+		auto renderManager = Core::GetInstance()->GetRenderManager();
+
+
+		auto& transform = reg.get<Transform>(entity);
+		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
+		glm::vec3 up, forward, right;
+		glm::vec3 vel(0.f);
+
+		GameObject camera = FactoryInstance.GetGOByEntity(entity);
+		renderManager->GetCameraAxis(camera, forward, right, up);
+		audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+		
+	}
+
+	void AudioListenerSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
+	{
+
+	}
+
+	void AudioListenerSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+	{
+		auto audioManager = Core::GetInstance()->GetAudioManager();
+		auto renderManager = Core::GetInstance()->GetRenderManager();
+
+
+		auto& transform = reg.get<Transform>(entity);
+		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
+		glm::vec3 up, forward, right;
+		glm::vec3 vel( 0.f);
+
+		GameObject camera = FactoryInstance.GetGOByEntity(entity);
+		renderManager->GetCameraAxis(camera, forward, right, up);
+		audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+	}
+#pragma endregion
+
+	void SoundSystem::Update(float dt)
+	{
+		//auto reg = Core::GetInstance()->
+		//auto view = Core::GetInstance()->GetRegistry().view<AudioSourceEntity>();
+
+		//for (auto entity : view)
+		//{
+		//	auto audioManager = Core::GetInstance()->GetAudioManager();
+		//	auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+		//	auto& audioComp = reg.get<AudioSource>(entity);
+		//	auto& transform = reg.get<Transform>(entity);
+		//	//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
+
+		//	if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		//	{
+		//		if (audioComp.previewChannel && audioComp.playPreview == true)
+		//		{
+		//			audioComp.playPreview = false;
+		//			audioManager->StopSound(audioComp.previewChannel);
+
+		//		}
+
+		//		if (audioComp.channel == nullptr && audioComp.playOnAwake == true)
+		//		{
+
+		//			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, glm::vec3(0.f));
+
+		//		}
+		//	}
+
+		//	if (sceneSystem->mCurrentState == SceneState::PAUSE_SCENE)
+		//	{
+		//		if (audioComp.channel)
+		//		{
+		//			audioComp.isPaused = true;
+		//			audioManager->SetPauseState(audioComp.channel, audioComp.isPaused);
+		//		}
+		//	}
+
+		//	if (sceneSystem->mNextState == SceneState::STOP_SCENE)
+		//	{
+		//		if (audioComp.channel)
+		//		{
+		//			audioManager->StopSound(audioComp.channel);
+		//		}
+		//	}
+
+		//	if (audioComp.spatialBlend > 0.0f)
+		//	{
+		//		if (audioComp.channel && sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		//		{
+
+		//			audioManager->SetSound3DPosition(audioComp.channel, audioComp.spatialBlend, transform.position, glm::vec3(0.f));
+
+		//		}
+		//		else if (audioComp.previewChannel && sceneSystem->mCurrentState == SceneState::DEFAULT)
+		//		{
+		//			audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, glm::vec3(0.f));
+		//		}
+
+		//	}
+		//}
+	}
 }

@@ -145,7 +145,7 @@ namespace SliceEngine
 
 			// TODO: Find out a better way we shud be doing this
 			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
-			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			std::filesystem::path filePath = mAssetDirectory.string() + "/" + "Prefabs" + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
 			SerializeFile(output, filePath);
 
 			return filePath.string();
@@ -225,6 +225,7 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
 								std::array<uint64_t, 4>,
@@ -457,6 +458,7 @@ namespace SliceEngine
 						uint32_t,
 						uint64_t,
 						GUID,
+						Handle<SliceEngineTypes::Texture>,
 						Handle<SliceEngineTypes::Model>,
 						Handle<SliceEngineTypes::Material>,
 						std::array<uint64_t, 4>, 
@@ -514,6 +516,7 @@ namespace SliceEngine
 							uint32_t,
 							uint64_t,
 							GUID,
+							Handle<SliceEngineTypes::Texture>,
 							Handle<SliceEngineTypes::Model>,
 							Handle<SliceEngineTypes::Material>,
 							std::array<uint64_t, 4>,
@@ -620,6 +623,7 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
 								std::array<uint64_t, 4>,
