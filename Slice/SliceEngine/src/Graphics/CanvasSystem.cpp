@@ -430,11 +430,11 @@ namespace SliceEngine {
 				return;
 			}
 			auto& t_button = mRegistry->get<Button>(temp_button);
-			if (!input.IsKeyDown(Keys::KEY_BACKSLASH)) {		//hover
+			if (!input.IsMouseDown(MouseButtons::LEFT)) {		//hover
 				update_button(temp_button, Highlight);
 				current_button = temp_button;
 			}
-			else if (input.IsKeyPressed(Keys::KEY_BACKSLASH)) {	//click same frame u hover
+			else if (input.IsMousePressed(MouseButtons::LEFT)) {	//click same frame u hover
 				update_button(temp_button, Click);
 				current_button = temp_button;
 			}
@@ -444,7 +444,7 @@ namespace SliceEngine {
 
 			if (c_button.state == Button::Highlighted) {
 				temp_button = canvas.Raycast(mouse_x, mouse_y);
-				if (!input.IsKeyDown(Keys::KEY_BACKSLASH)) {
+				if (!input.IsMouseDown(MouseButtons::LEFT)) {
 					if (temp_button != current_button) {
 						update_button(current_button, LeaveHighlight);
 						current_button = entt::null;
@@ -468,7 +468,7 @@ namespace SliceEngine {
 				}
 			}
 			else {
-				if (input.IsKeyReleased(Keys::KEY_BACKSLASH)) {
+				if (input.IsMouseReleased(MouseButtons::LEFT)) {
 					temp_button = canvas.Raycast(mouse_x, mouse_y);
 					if (temp_button != current_button) {
 						update_button(current_button, Cancel);
