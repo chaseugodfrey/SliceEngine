@@ -67,9 +67,11 @@ namespace SliceEditor
 		PREFAB = 9,
 		ANIMATION = 10,
 		ANIMATOR = 11,
-		TEXTFILE = 12,
-		MIXED = 13,
-		UNSUPPORTED = 14
+		STATE = 12,
+		TRANSITION = 13,
+		TEXTFILE = 14,
+		MIXED = 15,
+		UNSUPPORTED = 16
 	};
 
 	struct SelectionNode
@@ -103,11 +105,25 @@ namespace SliceEditor
 	{
 		//std::string name;
 		entt::entity entity = entt::null;
+
+		EntityNode()
+			: entity(entt::null)
+		{
+			type = SelectionType::ENTITY;
+			isSelected = false;
+		}
+
 		EntityNode(entt::entity ent) : entity(ent)
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;
 		}
+	};
+
+	struct PrefabNode : SelectionNode
+	{
+		std::string entityName;
+		std::vector<PrefabNode> children;
 	};
 
 	struct DirectoryNode : SelectionNode //Content Browser
@@ -119,13 +135,43 @@ namespace SliceEditor
 		bool isDirectory = false;
 	};
 
+	struct StateNode : SelectionNode
+	{
+		int id{};
+		int in_id{};
+		int out_id{};
+
+		std::string name{};
+		ImVec2 position{};
+		SliceEngine::SliceEngineTypes::State* state = nullptr;
+
+		StateNode()
+		{
+			type = SelectionType::STATE;
+		}
+	};
+
+	struct TransitionLinkNode : SelectionNode
+	{
+		int id{};
+		int source_id{};
+		int target_id{};
+
+		SliceEngine::SliceEngineTypes::Transition* transition = nullptr;
+
+		TransitionLinkNode()
+		{
+			type = SelectionType::TRANSITION;
+		}
+	};
+
+
 	struct DroppedFile //Dropped File (From File Explorer to Editor)
 	{
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;
 		std::filesystem::path filePath;
 	};
-
 
 	// ANIMATIONS
 
@@ -152,6 +198,11 @@ namespace SliceEditor
 	struct Preferences
 	{
 		EditorThemeType Theme;
+	};
+
+	struct testtest
+	{
+		float test;
 	};
 }
 

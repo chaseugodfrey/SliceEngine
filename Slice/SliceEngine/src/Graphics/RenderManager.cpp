@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "Navigation/NavigationSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -410,18 +411,18 @@ namespace SliceEngine
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uColor");
-			auto& navDat = Core::GetInstance()->debugNavMesh;
-			if (navDat[0].vao != 0)
+			auto& navDatOpt = Core::GetInstance()->GetSystem<NavigationSystem>().GetNavMeshDebugData();
+			if (navDatOpt.has_value())
 			{
+				auto& navDat = navDatOpt.value();
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Base.r, mNavMeshDebugColor_Base.g, mNavMeshDebugColor_Base.b, mNavMeshDebugColor_Base.a);
 				glUniform4f(uniformLoc, 0.f, 0.f, 0.7f, 0.4f);
-				glBindVertexArray(navDat[0].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[0].drawCnt);
-			}
-			if (navDat[1].vao != 0)
-			{
+				glBindVertexArray(navDat.data[0].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[0].drawCnt);
 				glUniform4f(uniformLoc, 0.f, 0.2f, 0.25f, 0.85f);
-				glBindVertexArray(navDat[1].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[1].drawCnt);
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Bounds.r, mNavMeshDebugColor_Bounds.g, mNavMeshDebugColor_Bounds.b, mNavMeshDebugColor_Bounds.a);
+				glBindVertexArray(navDat.data[1].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[1].drawCnt);
 			}
 		}
 

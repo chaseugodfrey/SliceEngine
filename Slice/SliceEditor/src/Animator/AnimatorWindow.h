@@ -9,27 +9,35 @@ namespace SliceEditor
 {
 	class Registry;
 
-	struct NodeInfo
+	struct AnimatorData
 	{
-		NodeEditor::NodeId   Id;
-		NodeEditor::PinId	inputPinId;
-		NodeEditor::PinId	outputPinId;
-		std::string         Name;
-	};
-
-	struct LinkInfo
-	{
-		NodeEditor::LinkId Id;
-		NodeEditor::PinId  sourceId;
-		NodeEditor::PinId  targetId;
+		SliceEngine::Animator* animator = nullptr;
+		std::unique_ptr<StateMachineData> stateMachine;
+		std::unordered_map<std::string, StateNode> nodeMap;
 	};
 
 	class AnimatorWindow : public EditorWindow
 	{
-		NodeEditor::EditorContext* m_Context = nullptr;
 
-		ImVector<NodeInfo> m_Nodes;
-		ImVector<LinkInfo> m_Links;
+		SliceEngine::Animator* mCurrentAnimator = nullptr;
+		std::unique_ptr<StateMachineData> mStateMachineAsset;
+
+		std::unordered_map<std::string, StateNode> mNameToNodeMap;
+		std::unordered_map<int, TransitionLinkNode> mIndexToLinkMap;
+
+		std::string mSelectedState;
+		int mSelectedLink;
+
+		bool CheckForAnimator();
+		void ClearData();
+
+		bool RemoveTransitionFromState(std::string stateName, int id);
+
+		bool CheckStateInput(StateNode* node);
+		bool CheckLinkInput(TransitionLinkNode* node);
+		void DrawStateNode(StateNode* node);
+		void DrawTransitionLinkNode(TransitionLinkNode* node);
+		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 
 	public:
 		AnimatorWindow(Registry& reg) : EditorWindow(reg) {};

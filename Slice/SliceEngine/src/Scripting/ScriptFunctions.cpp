@@ -23,7 +23,9 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
+#include "../Configuration/AudioSettings.h"
 
 namespace SliceEngine
 {
@@ -88,6 +90,7 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
@@ -183,8 +186,20 @@ namespace SliceEngine
 		return nullptr;
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
+
 #pragma region AUDIO FUNCTIONS
 
+	//Return a filepath
 	static MonoString* Audio_GetSoundName(unsigned int entity)
 	{
 		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
@@ -213,11 +228,20 @@ namespace SliceEngine
 
 	static void Audio_Play(unsigned int entity)
 	{
-		if (auto* audioComp = GetAudioComponent(entity))
+		auto* audioComp = GetAudioComponent(entity);
+		auto* transformComp = GetTransformComponent(entity);
+		
+		if (audioComp)
 		{
 			
-			audioComp->_playTrigger = true;
+			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
+	}
+
+	static void Audio_PlaySFX(MonoString* string)
+	{
+		std::string key = MonoToString(string);
+		Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -352,15 +376,41 @@ namespace SliceEngine
 		return false;
 	}
 
-	static void Audio_CreateSoundGroup(std::string soundGroupName, int maxInstances)
+	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
-		Core::GetInstance()->GetAudioManager()->CreateSoundGroup(soundGroupName, maxInstances);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			SLICE_LOG_ERROR("Entity does not have script attached");
+			return nullptr;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			return gScriptSystem->mEntityInstances[(Entity)entityID]->GetInstance();
+		}
+
+
+		return nullptr;
 	}
 
-	static void Audio_SetSoundGroup(std::string soundGUIDName, std::string soundGroupName)
+	static bool HasScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
-		GUID soundGUID = SliceEngine::GUID::FromString(soundGUIDName);
-		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			//CM_CORE_ERROR("Entity does not have script attached");
+			return false;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+				return true;
+		}
+
+		return false;
 	}
 
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
@@ -428,6 +478,16 @@ namespace SliceEngine
 
 		return entt::null;
 	}
+
+	static unsigned int CloneGO(MonoString* GoName)
+	{
+		std::string cStrName = MonoToString(GoName);
+		auto GO = FactoryInstance.GetGOByName(cStrName);
+
+		auto newGO = FactoryInstance.CloneGO(GO);
+		return (unsigned int)newGO.GetEntity();
+	}
+
 	static uint32_t Entity_FindEntityWithName(MonoString* name)
 	{
 		std::string cStrName = MonoToString(name);
@@ -440,6 +500,24 @@ namespace SliceEngine
 		else
 		{
 			return 0;
+		}
+	}
+
+	static MonoString* Entity_GetTag(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());			
+		}
+	}
+
+	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			go.GetComponent<SliceEntity>().mTag = MonoToString(tag);
 		}
 	}
 
@@ -498,6 +576,45 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* GetCurrAnimName(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::string tmp;
+
+		if (GO.HasComponent<Animator>())
+		{
+			if (GO.GetComponent<Animator>().IsValid())
+				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
+		}
+
+		if(tmp == "")
+			return nullptr;
+
+		return mono_string_new(mono_domain_get(), tmp.c_str());
+	}
+
+	static bool IsCurrAnimFin(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.IsCurrAnimFin();
+		}
+
+		return false;
+	}
+
+	static float GetCurrAnimTime(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().current_time;
+		}
+
+		return 0.0f;
+	}
+
 #pragma endregion
 	template <typename T>
 	static void RegisterComponent()
@@ -554,6 +671,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
+		ADD_INTERNAL_CALL(GetScriptInstance);
+		ADD_INTERNAL_CALL(HasScriptInstance);
+		ADD_INTERNAL_CALL(Entity_GetTag);
+		ADD_INTERNAL_CALL(Entity_SetTag);
+		ADD_INTERNAL_CALL(CloneGO);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -581,6 +703,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_PlaySFX);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);
@@ -593,12 +716,19 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetPitch);
 		ADD_INTERNAL_CALL(Audio_SetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_SetMute);
+		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_SetPan);
+		ADD_INTERNAL_CALL(Audio_GetPan);
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
 
 	}
 

@@ -51,10 +51,10 @@ namespace SliceEditor
 		// todo : push this to event manager
 		bool isNewSceneLoaded{};
 
-		void Init();
 		static void DropCallback(GLFWwindow* window, int count, const char** paths);
 		static void MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 		static void MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+		void Init();
 		void Run();
 		void Exit();
 	};

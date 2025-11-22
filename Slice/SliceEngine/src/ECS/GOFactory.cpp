@@ -121,7 +121,6 @@ namespace SliceEngine
 		Entity entity = mRegistry.create();
 		GameObject newGO(mRegistry, entity);
 
-		//newGO.SetName(CreateName(newGO.GetName()));
 
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
@@ -129,8 +128,37 @@ namespace SliceEngine
 			cloner.second(mRegistry, go.GetEntity(), newGO.GetEntity());
 		}
 
-		////mNameToEntity.insert(std::make_pair("Test", newGO));
-		////mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+		newGO.RemoveComponent<SceneGraph>();
+		newGO.SetName(CreateName(go.GetName()));
+		newGO.AddComponent<SceneGraph>();
+		newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
+		SetParent(newGO.GetEntity());
+
+		//newGO.SetName(CreateName(go.GetName()));
+
+		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
+		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+		//SetParent(newGO.GetEntity());
+
+		/*
+		
+				go.AddComponent<SliceEntity>();
+		go.GetComponent<SliceEntity>().mName = CreateName(name);
+
+		//go.SetName(CreateName(name));
+		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+
+		// Can add default components here like transform
+		//mRegistry.emplace_or_replace<Transform>(go);
+		go.AddComponent<Transform>();
+		// Every entity created will keep this flag for easy pulling
+		go.AddComponent<SceneGraph>();
+		go.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
+		SetParent(go.GetEntity());
+
+		
+		*/
 
 		return newGO;
 	}
@@ -617,6 +645,10 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+		//testing only
+		//return CreateGO_Model((GUID)17518266545644652909);
+
+
 	}
 
 	GameObject GOFactory::CreateGO_Capsule()
@@ -636,6 +668,44 @@ namespace SliceEngine
 		go.AddComponent<Camera>();
 		return go;
 	}
+
+	GameObject GOFactory::CreateGO_Canvas()
+	{
+		auto canvas = CreateGO("Canvas");
+		canvas.AddComponent<Canvas>();
+		canvas.AddComponent<RectTransform>();
+		auto& c_rect = canvas.GetComponent<RectTransform>();
+		c_rect.width = 1920; c_rect.height = 1080; c_rect.pos_x = 0; c_rect.pos_y = 0;
+
+		return canvas;
+	}
+	GameObject GOFactory::CreateGO_Image()
+	{
+		auto ui_ele = CreateGO("Image");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<SpriteRenderer>();
+		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
+		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
+		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_sprite.textureHandle = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+
+		return ui_ele;
+	}
+	GameObject GOFactory::CreateGO_Button()
+	{
+		auto ui_ele = CreateGO("Button");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+
+		ui_ele.AddComponent<SpriteRenderer>();
+		ui_ele.AddComponent<Button>();
+
+		return ui_ele;
+	}
+
 
 	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
 		//Get the resource handle first

@@ -29,6 +29,9 @@ namespace SliceEngine
             //j.at("condition").get_to(t.condition);
             j.at("parameterName").get_to(t.parameterName);
             j.at("comparisonOP").get_to(t.operation);
+            j.at("hasExitTime").get_to(t.hasExitTime);
+            j.at("exitTime").get_to(t.exitTime);
+            j.at("entryTime").get_to(t.entryTime);
 
             const nlohmann::json& conditionJson = j.at("condition");
 
@@ -41,10 +44,8 @@ namespace SliceEngine
         {
             j.at("stateName").get_to(s.stateName);
             j.at("currAnimIdx").get_to(s.curr_anim_idx);
-            j.at("hasExitTime").get_to(s.hasExitTime);
-            j.at("exitTime").get_to(s.exitTime);
-            j.at("entryTime").get_to(s.entryTime);
             j.at("isLoop").get_to(s.isLoop);
+            j.at("mNodePos").get_to(s.mNodePos);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 

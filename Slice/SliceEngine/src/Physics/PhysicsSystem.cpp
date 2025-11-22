@@ -22,8 +22,6 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-
-
 	PhysicsSystem::~PhysicsSystem()
 	{
 		Shutdown();
@@ -67,7 +65,7 @@ namespace SliceEngine
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
-			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
+			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
 			objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
 
 			physicsSystem = std::make_unique<JPH::PhysicsSystem>();
@@ -221,6 +219,7 @@ namespace SliceEngine
 
 	}
 
+	// componeent enable check
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
@@ -229,11 +228,19 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
+		auto& slice = mRegistry->get<SliceEntity>(event.entity);
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
+		if (colliderShape.componentEnabled) // if true set the layer so it can collide
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
+			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			{
+				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			}
+		}
+		else //else set to collision off layer
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -861,8 +868,10 @@ namespace SliceEngine
 		contactListener->clearBodiesInContact();
 	}
 
+	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& slice = reg.get<SliceEntity>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
@@ -882,9 +891,10 @@ namespace SliceEngine
 			return;
 		}
 		colliderShape.shape = shape;
+
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		glm::quat rot = transform.rotation;
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
 		JPH::BodyCreationSettings bodySettings;
@@ -895,11 +905,15 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
 			}
 
 			//Set physics properties
@@ -922,7 +936,9 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
 			//bodySettings.mFriction = 0.6f;
 		}
 
@@ -955,7 +971,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		// Remove body form physics world
@@ -969,20 +984,16 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
-		//if (entity == static_cast<Entity>(6U));
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
+
 		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		//SyncPhysicsToECS(transform, colliderShape);
-
-		//HandleRemovedContacts();
-
-		
+		//HandleRemovedContacts();	
 	}
 
 	void PhysicsSystem::StepWorld(float dt)
@@ -1066,6 +1077,50 @@ namespace SliceEngine
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
+	}
+
+	void PhysicsSystem::SetCollisionMask(uint32_t layer, uint32_t mask)
+	{
+		if (layer == Layers::COLLISION_OFF) // cannot set collision mask for COLLISION_OFF layer
+			return;
+
+		objectLayerPairFilter->SetCollisionMask(layer, mask);
+	}
+
+	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& slice = mRegistry->get<SliceEntity>(entity);
+
+		//when component is disabled we dont change layer( Leave it as COLLISION_OFF layer)
+		if (!colliderShape.componentEnabled)
+		{
+			return; // might change it to set to COLLISION_OFF but that should be handled when disabling component
+		}
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		}
+	}
+
+	void PhysicsSystem::SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer)
+	{
+		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(layer, bpLayer);
+	}
+
+	JPH::uint PhysicsSystem::GetNumBroadPhaseLayers()
+	{
+		return broadphaseLayerInterface->GetNumBroadPhaseLayers();
+	}
+
+	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
+	{
+		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
 	}
 
 }

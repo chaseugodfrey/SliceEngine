@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,16 +13,19 @@ namespace SliceEngine
         //public SliceBehaviour Entity { get; internal set; }
         public GameObject gameObject { get; internal set; }
 
-        //  // Unique name or tag (like Unity's GameObject.tag)
-        //  public string Tag
-        //  {
-        //      //get => Entity?.Tag ?? string.Empty;
-        //      //set
-        //      //{
-        //      //    if (Entity != null)
-        //      //        Entity.Tag = value;
-        //      //}
-        //  }
+        // Unique name or tag (like Unity's GameObject.tag)
+        public string tag
+        {
+            get
+            {
+                return FunctionCalls.Entity_GetTag(gameObject.mID);
+            }
+
+            set
+            {
+                FunctionCalls.Entity_SetTag(gameObject.mID, value);
+            }
+        }
 
         // Whether the entity is active in the scene
         public bool activeSelf { get; set; } = true;

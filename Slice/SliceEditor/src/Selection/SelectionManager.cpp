@@ -166,7 +166,6 @@ namespace SliceEditor
 
 	void SelectionManager::DeleteSelectedObjects()
 	{
-	
 		std::vector<entt::entity> deleteList;
 		for (auto* node : mSelectedNodes)
 		{

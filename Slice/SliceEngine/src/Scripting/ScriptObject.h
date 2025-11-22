@@ -73,6 +73,7 @@ namespace SliceEngine
 		MonoMethod* mListAdd{ nullptr };
 		MonoMethod* mListClear{ nullptr };
 		MonoMethod* mListCtor{ nullptr };
+		MonoMethod* mListRemoveAt{ nullptr };
 
 		//ScriptField() : mType(ScriptFieldType::None), mClassField(nullptr) {}
 	};
@@ -132,12 +133,15 @@ namespace SliceEngine
 
 
 		// Mouse functions
-		MonoMethod* mOnMouseEnter = nullptr;
+		MonoMethod* mOnMouseEnter = nullptr;	//idk who wrote these 3 funcs but ok
 		MonoMethod* mOnMouseExit = nullptr;
 		MonoMethod* mOnMouseHover = nullptr;
 
+
 		// UI Functions
-		MonoMethod* mOnClick = nullptr;
+		MonoMethod* mOnClick = nullptr;			//this too
+		MonoMethod* mOnButtonClick{};
+		MonoMethod* mOnButtonRelease{};
 
 		// FSM Functions
 		MonoMethod* mOnStateEnter = nullptr;
@@ -202,6 +206,9 @@ namespace SliceEngine
 		/// Call when obj is clicked, if it has a script with an onClick function then itll run it
 		/// </summary>
 		void InvokeOnClick();
+
+		void InvokeButtonOnClick();
+		void InvokeButtonOnRelease();
 
 		/// <summary>
 		/// Call when obj collides, if it has a script with an onCollide function
@@ -415,6 +422,36 @@ namespace SliceEngine
 
 			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
 		}
+
+		template<>
+		void SetArrayFieldValue<std::string>(const std::string& name, const std::vector<std::string>& val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return;
+			}
+
+			auto iter = fields.find(name);
+			const ScriptField& field = iter->second;
+
+			if (field.mElementClass == nullptr)
+			{
+				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				return;
+			}
+
+			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				MonoString* monoStr = mono_string_new(mono_domain_get(), val[i].c_str());
+				mono_array_setref(monoArray, i, monoStr);
+			}
+
+			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
+		}
+
 #pragma endregion
 
 #pragma region For Lists
@@ -430,8 +467,8 @@ namespace SliceEngine
 		{
 			if (mono_domain_get() != gScriptSystem->mAppDomain)
 			{
-				mono_thread_attach(gScriptSystem->mRootDomain); 
-				mono_domain_set(gScriptSystem->mAppDomain, false); 
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
 
 			const ScriptField& field = mScriptClass->mFields.at(name);
@@ -492,7 +529,7 @@ namespace SliceEngine
 			// TODO: add in exception handling like in my other invoke stuff
 
 			int count = *(int*)mono_object_unbox(countObj);
-			result.resize(count);
+			result.reserve(count);
 
 			void* params[1];
 			for (int i = 0; i < count; ++i)
@@ -525,7 +562,7 @@ namespace SliceEngine
 				mono_thread_attach(gScriptSystem->mRootDomain);
 				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
-			
+
 			// get the script field
 			const ScriptField& field = mScriptClass->mFields.at(name);
 
@@ -592,7 +629,7 @@ namespace SliceEngine
 
 			void* params[2];
 			params[0] = &index;
-			params[1] = &value;
+			params[1] = (void*)&value;
 
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
@@ -627,37 +664,119 @@ namespace SliceEngine
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
 			// TODO: handle exceptions ill do it aft everything works
 		}
-
-#pragma endregion
-
-		template<>
-		void SetArrayFieldValue<std::string>(const std::string& name, const std::vector<std::string>& val)
+		
+		void RemoveListField(const std::string& name, int index)
 		{
-			const auto& fields = mScriptClass->mFields;
-			if (fields.count(name) == 0)
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
 			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+			
+			if (mScriptClass->mFields.count(name) == 0)
 				return;
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return;
+
+			// parameters to pass in
+			void* params[1];
+			params[0] = &index;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListRemoveAt, listObject, params, &exception);
+
+			// TODO: handle exceptions like the other ones :pepepray:
+			if (exception)
+			{
+
+			}
+		}
+
+		template <typename T>
+		void SetListField(const std::string& name, const std::vector<T>& val)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
 
-			auto iter = fields.find(name);
-			const ScriptField& field = iter->second;
+			// Some fail safes i guess
+			// incase its out of sync 
+			const ScriptField& field = mScriptClass->mFields.at(name);
 
-			if (field.mElementClass == nullptr)
-			{
-				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
 				return;
-			}
 
-			MonoArray* monoArray = mono_array_new(mono_domain_get(), field.mElementClass, val.size());
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+
+			if (count != val.size())
+			{
+				SLICE_LOG_ERROR("C# List " + name + " is not in sync");
+			}
 
 			for (size_t i = 0; i < val.size(); ++i)
 			{
-				MonoString* monoStr = mono_string_new(mono_domain_get(), val[i].c_str());
-				mono_array_setref(monoArray, i, monoStr);
+				SetListFieldValue(name, i, val[i]);
+			}
+		}
+
+		template<>
+		void SetListField<std::string>(const std::string& name, const std::vector<std::string>& val)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
 			}
 
-			mono_field_set_value(mMonoInstance, field.mClassField, monoArray);
+			// Some fail safes i guess
+			// incase its out of sync 
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+
+			if (count != val.size())
+			{
+				SLICE_LOG_ERROR("C# List " + name + " is not in sync");
+			}
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				SetListFieldValue<std::string>(name, i, val[i]);
+			}
+
 		}
+
+
+#pragma endregion
+
 
 		template <typename T>
 		void SetFieldValue(const std::string& name, T val)

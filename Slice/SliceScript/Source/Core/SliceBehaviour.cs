@@ -42,6 +42,18 @@ namespace SliceEngine
 
         public virtual void OnCollideStay(uint other) { }
 
+        public virtual void OnCollideExit(uint other) { }
+
+        public virtual void OnTriggerEnter(uint other) { }
+
+        public virtual void OnTriggerStay(uint other) { }
+
+        public virtual void OnTriggerExit(uint other) { }
+
+
+        public virtual void OnButtonClick() { }
+        public virtual void OnButtonRelease() { }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
@@ -59,9 +71,40 @@ namespace SliceEngine
             return component;
         }
 
+        public T As<T>() where T : Component, new()
+        {
+            string baseClassName = typeof(T).Name;
+            //CMConsole.Log($"Trying to retrieve script instance of {baseClassName} for entity {mID}");
+            Object scriptInstance = FunctionCalls.GetScriptInstance(gameObject.mID, baseClassName);
+
+            if (scriptInstance == null)
+            {
+                //  CMConsole.Log($"Script instance is null");
+                return null;
+            }
+
+            return scriptInstance as T;
+        }
+
+
+        public bool Has<T>() where T : Component, new()
+        {
+            string baseClassName = typeof(T).Name;
+
+            return FunctionCalls.HasScriptInstance(gameObject.mID, baseClassName);
+        }
+
+
         public GameObject CreateGameObject(string prefabName)
         {
             GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+
+            return entity;
+        }
+
+        public GameObject CloneGO(string goName)
+        {
+            GameObject entity = new GameObject(FunctionCalls.CloneGO(goName));
 
             return entity;
         }

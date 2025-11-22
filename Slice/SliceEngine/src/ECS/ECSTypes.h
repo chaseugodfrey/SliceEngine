@@ -22,6 +22,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
+#include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -35,16 +37,18 @@ namespace SliceEngine
 	{
 		std::string mName;
 		std::string mTag{ "default" };
-		bool active;
+		uint32_t mLayer{ 0u };
 
-		SliceEntity() : active(true) {}
+		bool mActive;
+
+		SliceEntity() : mActive(true) {}
 	};
 
 	struct EngineEntity
 	{
-		bool active;
+		bool mActive;
 		
-		EngineEntity() : active(true) {}
+		EngineEntity() : mActive(true) {}
 	};
 
 	struct testStruct
@@ -90,8 +94,6 @@ namespace SliceEngine
         glm::mat4 transform{ 1.0f };
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
-
-		uint32_t collisionMask;
 
 		RTTR_ENABLE();
     };
@@ -225,12 +227,13 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
-		JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
+		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
 		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape;												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
-		bool isTrigger = false;												  
+		bool isTrigger = false;	
+		bool componentEnabled = true;
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};
@@ -273,6 +276,14 @@ namespace SliceEngine
 			Logarithmic = 0,
 			Linear = 1
 		};
+
+		enum Category : int
+		{
+			SFX,
+			BGM,
+			UI,
+			EditorSounds
+		};
 		//std::string soundName;
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
@@ -280,8 +291,9 @@ namespace SliceEngine
 		int priority = 128;
 		bool isMute = false;
 		bool isLoop = false;
-		bool isPaused = true;
-		float currentVolume = 0.3f;
+		bool isPaused = false;
+		float currentVolume = 1.0f;
+		Category category = SFX;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;
 		float spatialBlend = 1.0f;
@@ -291,11 +303,7 @@ namespace SliceEngine
 		VolumeRollOff volumeRollOff = Logarithmic;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
-
-		float minInterval = 0.0f;
 		bool playOnAwake = false;
-
-		bool _playTrigger = false;
 		bool playPreview = false;
 
 		RTTR_ENABLE();
@@ -304,6 +312,8 @@ namespace SliceEngine
 	struct AudioListener
 	{
 		glm::vec3 listenerPos{};
+
+		RTTR_ENABLE();
 	};
 
 	// placeholder particle system component structure for reference
@@ -340,33 +350,32 @@ namespace SliceEngine
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever
-		float speed{};							// to add
+		float speed{};							
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
-		// Lifetime
-		bool hasRandomParticleLifetime{ false };	// can remove
 
+		// Lifetime
 		ValueType initialLifetimeType{ CONSTANT };
 		float lifetime{};
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
 		// Rotation
-		bool hasRandomInitialRotation{ false };		// can remove
-		bool isInitialRotation3D{ false };			// to add
-		ValueType initialRotationType{ CONSTANT };	// to add
+
+		bool isInitialRotation3D{ false };
+		ValueType initialRotationType{ CONSTANT };
 		glm::quat rotation{};
 		glm::quat minRandomRotation{};
 		glm::quat maxRandomRotation{};
-		glm::vec3 eulerHint{};
-		glm::vec3 minEulerHint{};
-		glm::vec3 maxEulerHint{};
+		glm::vec3 eulerHint{};					// unimplemented
+		glm::vec3 minEulerHint{};				// unimplemented
+		glm::vec3 maxEulerHint{};				// unimplemented
 		
 		inline void Set1DRotation(float val)
 		{
 			eulerHint.x = val;
 		}
 
-		inline float Get1DRotation()
+		inline float Get1DRotation()			
 		{
 			return eulerHint.x;
 		}
@@ -376,11 +385,10 @@ namespace SliceEngine
 		glm::vec3 scale{ 1.0f };
 		glm::vec3 minRandomScale{ 1.0f };
 		glm::vec3 maxRandomScale{ 1.0f };
+
 		bool destroyOnExpire{ false };
-		bool hasRandomScale{ false };				// can remove
 		uint64_t maxParticles{ 1000 };            // pool size. default 200
 
-		bool hasGravity{ false };					// can remove
 		float gForce{0.0f};
 
 		// EMISSION
@@ -397,10 +405,7 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
-		std::vector<Burst> bursts{}; 
-
-		bool hasBursts{ false };				// can remove
-		uint64_t numBursts{};					// can remove
+		std::vector<Burst> bursts{};
 
 
 		// Shape Settings
@@ -415,8 +420,8 @@ namespace SliceEngine
 		} shapeType;
 
 		float coneAngle{};
-		float shapeRadius{};					// to add
-		float shapeArc{};						// to add
+		float shapeRadius{};					
+		float shapeArc{};						
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 		// Initial Position
@@ -425,20 +430,20 @@ namespace SliceEngine
 		glm::vec3 maxRandomSpawnPos{};
 
 		// Color
-		bool hasRandomColour{ false };				// can remove
-		ValueType colorValueType{ CONSTANT };		// to add
+		ValueType colorValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		bool colorOverLifetime{ false };			// to add
 		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		bool hasRandomVelocity{ false };			// can remove
+		//bool hasRandomVelocity{ false };			// can remove
+		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
 		glm::vec3 minRandomVelocity{ 1.0f };
 		glm::vec3 maxRandomVelocity{ 1.0f };
 
-		bool fadeOverLifetime{ false };				// can remove
+		//bool fadeOverLifetime{ false };				// can remove
 		bool hasCollision{ false };
 
 		// Renderer
@@ -550,7 +555,126 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	
+	//for canvas, sprite renderer, rect transform, read comments in canvas system.h
+	struct Canvas
+	{
+		enum Type {
+			OVERLAY
+			//CAMERA
+			//WORLD
+		};
+
+		Type canvas_type{ OVERLAY };
+		unsigned int sort_order{};	//smaller number = draw first = behind others
+		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
+									//only for overlay canvas
+
+		RTTR_ENABLE();
+	};
+
+	struct RectTransform {
+		enum HoriPivot {
+			LEFT,
+			CENTER,
+			RIGHT,
+			STRETCH_H
+		};
+		enum VertPivot {
+			TOP,
+			MIDDLE,
+			BOTTOM,
+			STRETCH_V
+		};
+
+		//Settings only for imgui's display and component function calls
+		//old pivot serves as a flag to know how to update intermediate values during the update call
+		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
+		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
+
+		//Intermediate settings used by imgui, all in local space
+		int pos_x{}, pos_y{};			//pixel coord
+		int width{ 100 }, height{ 100 };//pixel size
+		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+
+		//Actual settings used to draw
+		int final_x{}, final_y{};				//position with center of quad as position
+		int final_width{ 100 }, final_height{ 100 };
+
+		//Parent/Canvas reference - done via passing param through the recursive func call maybe
+		void Update(Canvas const& ctx, RectTransform const& parent);
+
+		glm::mat4 ToMatrix() const;
+
+		RTTR_ENABLE();
+	};
+
+
+	struct SpriteRenderer {
+		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
+		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
+		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct Button {
+		RTTR_ENABLE();
+	public:
+		enum Transition : unsigned char {
+			Color,
+			Sprite
+		} transition;
+
+		enum ButtonState : unsigned char {
+			Normal = 0,
+			Highlighted = 1,
+			Pressed = 2,
+			Total_States
+		} state;
+
+		glm::vec4 color_transitions[Total_States]{
+			{1.f, 1.f, 1.f, 1.f},	//white
+			{0.75f, 0.75f, 0.75f, 1.f},//light grey
+			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		};
+		GUID sprite_transitions[Total_States]{
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT
+		};
+		//Entity target_graphic;	//if the entity that gets modified by transition not the same
+		//im gona move the click stuff to script only
+	};
+
+	// Not a component but a base data obj for nav mesh
+	struct NavMeshObj
+	{
+		dtNavMesh* navMesh;
+		dtNavMeshQuery* navMeshQuery;
+	};
+
+	struct NavMeshDebugObj
+	{
+		struct data
+		{
+			uint32_t vao;
+			uint32_t vbo;
+			uint32_t drawCnt;
+		};
+
+		data data[2];
+	};
+
+	// Component
+	struct NavAgent
+	{
+		glm::vec3 target = glm::vec3(0.0f);
+		std::vector<glm::vec3> currentPath;
+		int currentPathIndex = 0;
+
+		float speed = 2.0f;
+		bool hasNewTarget = false;
+	};
 }
 
 #endif

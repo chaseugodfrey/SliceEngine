@@ -62,6 +62,10 @@ namespace SliceEngine
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		//void LinkTransformInstancing(GUID guid);
+		
+		// Colors
+		glm::vec4 mNavMeshDebugColor_Base{ 0.f, 0.f, 0.7f, 0.4f };
+		glm::vec4 mNavMeshDebugColor_Bounds{ 0.f, 0.2f, 0.25f, 0.85f };
 
 	private:
 		const int mMaxInstance = 500;

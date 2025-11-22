@@ -141,6 +141,7 @@ namespace SliceEngine
 
 			RegisterSerializableComponent<Component>();
 			RegisterComponentEmplacer<Component>();
+			CreateComponentCloner<Component>();
 
 			entt::id_type type_id = entt::type_id<Component>().hash();
 			mComponentNames[type_id] = rttr::type::get<Component>().get_name().to_string();
@@ -184,6 +185,9 @@ namespace SliceEngine
 		GameObject CreateGO_Capsule();
 		GameObject CreateGO_Cam();
 		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
+		GameObject CreateGO_Canvas();
+		GameObject CreateGO_Image();
+		GameObject CreateGO_Button();
 
 		Registry mRegistry;
 

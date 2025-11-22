@@ -1,74 +1,394 @@
 {
     "entryState": "Idle",
     "parameters": {
-        "Attack": false,
-        "Idle": false,
-        "Run": false
+        "AirDashStart": false,
+        "Attack1": false,
+        "Attack1_Fast": false,
+        "Attack2": false,
+        "Attack2_Fast": false,
+        "Attack3": false,
+        "Attack3ToLoco": false,
+        "Attack3_Fast": false,
+        "Attack3_FastToLoco": false,
+        "AttackToIdle1": false,
+        "AttackToIdle2": false,
+        "BackDashStart": false,
+        "DashStart": false,
+        "Fall": false,
+        "JumpLoop": false,
+        "Land": false,
+        "Plunge": false,
+        "PlungeLand": false,
+        "PlungeToIdle": false,
+        "PlungeToWalk": false,
+        "Walk": false
     },
     "stateMap": {
-        "Attack": {
-            "currAnimIdx": 6,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": true,
+        "Attack1": {
+            "currAnimIdx": 0,
             "isLoop": false,
-            "stateName": "Attack",
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Attack1",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "AttackToIdle1",
+                    "targetState": "AttackToIdle1"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Attack2",
+                    "targetState": "Attack2"
+                }
+            ]
+        },
+        "Attack2": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Attack2",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "AttackToIdle2",
+                    "targetState": "AttackToIdle2"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Attack3",
+                    "targetState": "Attack3"
+                }
+            ]
+        },
+        "Attack3": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Attack3",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                }
+            ]
+        },
+        "Attack3ToLoco": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Attack3ToLoco",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "Idle",
                     "targetState": "Idle"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
-                    "parameterName": "Run",
-                    "targetState": "Run"
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Walk",
+                    "targetState": "Walk"
+                }
+            ]
+        },
+        "AttackToIdle1": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "AttackToIdle1",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Walk",
+                    "targetState": "Walk"
+                }
+            ]
+        },
+        "AttackToIdle2": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "AttackToIdle2",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Walk",
+                    "targetState": "Walk"
                 }
             ]
         },
         "Idle": {
-            "currAnimIdx": 13,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": false,
+            "currAnimIdx": 0,
             "isLoop": true,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
             "stateName": "Idle",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
-                    "parameterName": "Attack",
-                    "targetState": "Attack"
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "Attack1",
+                    "targetState": "Attack1"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
-                    "parameterName": "Run",
-                    "targetState": "Run"
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "Walk",
+                    "targetState": "Walk"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "JumpLoop",
+                    "targetState": "JumpLoop"
                 }
             ]
         },
-        "Run": {
-            "currAnimIdx": 21,
-            "entryTime": 0.0,
-            "exitTime": 1.0,
-            "hasExitTime": false,
-            "isLoop": true,
-            "stateName": "Run",
+        "JumpLoop": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "JumpLoop",
             "transitions": [
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
-                    "parameterName": "Attack",
-                    "targetState": "Attack"
+                    "entryTime": 0.0,
+                    "exitTime": 0.699999988079071,
+                    "hasExitTime": true,
+                    "parameterName": "Plunge",
+                    "targetState": "Plunge"
                 },
                 {
                     "comparisonOP": "IsTrue",
                     "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "Land",
+                    "targetState": "Land"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "DoubleJump",
+                    "targetState": "DoubleJump"
+                }
+            ]
+        },
+        "Plunge": {
+            "currAnimIdx": 0,
+            "isLoop": true,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Plunge",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "PlungeLand",
+                    "targetState": "PlungeLand"
+                }
+            ]
+        },
+        "PlungeLand": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "PlungeLand",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "PlungeToWalk",
+                    "targetState": "PlungeToWalk"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "PlungeToIdle",
+                    "targetState": "PlungeToIdle"
+                }
+            ]
+        },
+        "PlungeToIdle": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "PlungeToIdle",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
                     "parameterName": "Idle",
                     "targetState": "Idle"
+                }
+            ]
+        },
+        "PlungeToWalk": {
+            "currAnimIdx": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "PlungeToWalk",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "parameterName": "Walk",
+                    "targetState": "Walk"
+                }
+            ]
+        },
+        "Walk": {
+            "currAnimIdx": 0,
+            "isLoop": true,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Walk",
+            "transitions": [
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "Attack1",
+                    "targetState": "Attack1"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "Idle",
+                    "targetState": "Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "JumpLoop",
+                    "targetState": "JumpLoop"
                 }
             ]
         }

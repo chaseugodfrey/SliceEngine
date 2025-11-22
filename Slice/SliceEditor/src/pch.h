@@ -71,6 +71,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 // imgui
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -82,6 +84,7 @@
 #include <ImSequencer.h>
 #include <imgui_neo_internal.h>
 #include <imgui_neo_sequencer.h>
+#include <imnodes-master/imnodes.h>
 
 // filewatcher
 #include <../thirdparty/filewatch/FileWatcher.h>
