@@ -666,6 +666,7 @@ namespace SliceEditor
 			j["currAnimIdx"] = s.curr_anim_idx;
 			j["isLoop"] = s.isLoop;
 			j["mNodePos"] = s.mNodePos;
+			j["fps"] = s.fps;
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -725,6 +726,8 @@ namespace SliceEditor
 			j.at("stateName").get_to(s.stateName);
 			j.at("currAnimIdx").get_to(s.curr_anim_idx);
 			j.at("isLoop").get_to(s.isLoop);
+			j.at("mNodePos").get_to(s.mNodePos);
+			j.at("fps").get_to(s.fps);
 
 			s.transitions.clear();
 			const auto& transitions_json = j.at("transitions");
@@ -1115,12 +1118,12 @@ namespace SliceEditor
 			}
 		}
 	
-		StateMachineData DeserializeAsset(const std::filesystem::path& filePath)
+		void DeserializeAsset(const std::filesystem::path& filePath)
 		{
 			std::ifstream inFile{ filePath };
 			if (inFile.fail())
 			{
-				return;
+				return ;
 			}
 
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);

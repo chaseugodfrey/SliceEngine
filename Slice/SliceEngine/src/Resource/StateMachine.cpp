@@ -46,6 +46,7 @@ namespace SliceEngine
             j.at("currAnimIdx").get_to(s.curr_anim_idx);
             j.at("isLoop").get_to(s.isLoop);
             j.at("mNodePos").get_to(s.mNodePos);
+            j.at("fps").get_to(s.fps);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 
