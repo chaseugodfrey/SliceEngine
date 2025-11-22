@@ -205,12 +205,20 @@ namespace SliceEditor
 				{
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
-			}
+		}
 		
 		else
 		{
 			SLICE_LOG("Open this file WIP!");
 
+		}
+	}
+
+	void ContentBrowserManager::EditFile(DirectoryNode& entry)
+	{
+		if (entry.path.extension() == ".prefab")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
 	}
 

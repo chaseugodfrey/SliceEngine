@@ -62,17 +62,27 @@ namespace SliceEngine
 
 		if (animator.stateMachine.stateChanged)
 		{
-			/*if (animator.is_bone)
+			if (animator.timeline.isPlaying)
 			{
-				auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
-				auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+				if (animator.is_bone)
+				{ 
+					
+					auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
+					auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					float frameTime = animator.current_time * prevanim.fps;
+					if (!animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].isFinish)
+					{
+						for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
+						{
+							glm::mat4 local_tform{};
+							if (prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
+								local_tform = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[frameTime], curranim.boneKeyFrames[i].transforms[0], dt).ToMatrix();
 
-				for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
-				{
-					if(prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
-						curranim.boneKeyFrames[i].transforms[0] = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[prevanim.boneKeyFrames[i].transforms.size() - 1], curranim.boneKeyFrames[i].transforms[0], dt);
+							animator.final_tforms[i] = local_tform;
+						}
+					}
 				}
-			}*/
+			}
 			animator.timeline.isPlaying = true;
 			animator.stateMachine.stateChanged = false;
 		}
@@ -109,8 +119,8 @@ namespace SliceEngine
 				}
 				float safe_time = std::min(animator.current_time, anim.duration);
 				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
-				animator.inverse_flags.reset();
-				animator.inverse_map.clear();
+				//animator.inverse_flags.reset();
+				//animator.inverse_map.clear();
 			}
 			//non bone animation
 			else {

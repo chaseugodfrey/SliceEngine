@@ -93,6 +93,8 @@ namespace SliceEditor
 
 		void OpenFile(DirectoryNode& entry);
 
+		void EditFile(DirectoryNode& entry);
+
 		void DeleteNode(DirectoryNode& entry);
 
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;

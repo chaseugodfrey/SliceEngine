@@ -37,6 +37,7 @@ namespace SliceEditor
 	{
 
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
 		{
@@ -55,13 +56,6 @@ namespace SliceEditor
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 
-		// 2. Check if ImGui wants to capture the mouse
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.WantCaptureMouse)
-		{
-			return; // Stop processing, ImGui has it
-		}
-
 		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (action == GLFW_PRESS)
 		{
@@ -71,6 +65,15 @@ namespace SliceEditor
 		{
 			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
 		}
+
+		// 2. Check if ImGui wants to capture the mouse
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.WantCaptureMouse)
+		{
+			return; // Stop processing, ImGui has it
+		}
+
+		
 	}
 
 	void Editor::Init()
@@ -93,6 +96,7 @@ namespace SliceEditor
 		// reminder to change scene root to a list in case we want to have multiple scenes
 		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
 
+		// default controller here pls
 		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
 
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
@@ -189,6 +193,13 @@ namespace SliceEditor
 		glfwSetKeyCallback(window, MasterKeyCallback);
 		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
+
+		//glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
+		//	{
+		//		ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+		//		//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		//		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
+		//	});
 	}
 
 	void Editor::InitManagers()

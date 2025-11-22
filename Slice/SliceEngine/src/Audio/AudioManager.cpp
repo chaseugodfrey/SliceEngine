@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+#pragma region AUDIO MANAGER
 	/*
 	* Init initialises and creates the FMOD System
 	*/
@@ -60,7 +61,7 @@ namespace SliceEngine
 		mSoundSystem->createChannelGroup("Editor", &editorSounds);
 		editorSounds->setVolume(1.0f);
 
-		srand((unsigned int)time(NULL)); // Initialize random seed
+		
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -90,28 +91,28 @@ namespace SliceEngine
 
 		FMOD_RESULT result = FMOD_OK;
 
-		switch (audioClip->GetCategory())
+		switch (audioComp.category)
 		{
 		case 0:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, audioComp.isPaused, &channel);
 			break;
 		};
 		case 1:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, audioComp.isPaused, &channel);
 			break;
 		};
 		case 2:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), ui, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
 			break;
 		};
 		case 3:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
 			break;
 		};
 
@@ -136,24 +137,24 @@ namespace SliceEngine
 			{
 				finalMode |= FMOD_3D_LINEARROLLOFF;
 			}
+			channel->setMode(finalMode);
+			SetSpatialBlend(channel, audioComp.spatialBlend);
+			FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+			FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+			channel->set3DAttributes(&soundPosition, &velocity);
+			channel->set3DMinMaxDistance(audioComp.minDistance, audioComp.maxDistance);
+			channel->set3DDopplerLevel(audioComp.dopplerLevel);
+			channel->set3DSpread(audioComp.spread);
+			channel->setPan(audioComp.stereoPan);
 		}
 
-		channel->setMode(finalMode);
 		channel->setPriority(audioComp.priority);
 		channel->setVolume(audioComp.currentVolume);
-		SetSpatialBlend(channel, audioComp.spatialBlend);
-		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
-		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
-		channel->set3DAttributes(&soundPosition, &velocity);
-		channel->set3DMinMaxDistance(audioComp.minDistance, audioComp.maxDistance);
-		channel->set3DDopplerLevel(audioComp.dopplerLevel);
-		channel->set3DSpread(audioComp.spread);
-		channel->setMute(audioComp.isMute);
 		channel->setPitch(audioComp.pitch);
-		channel->setPan(audioComp.stereoPan);
+		channel->setMute(audioComp.isMute);
 
-		// Start paused. SoundSystem will unpause if needed.
-		channel->setPaused(true);
+
+		
 
 
 		return channel;
@@ -221,11 +222,10 @@ namespace SliceEngine
 		return { minDist,maxDist };
 	}
 
-	void AudioManager::SetCategoryVolume(GUID soundName, float volume)
+	void AudioManager::SetCategoryVolume(int categoryType, float volume)
 	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
-
-		switch (audioClip->GetCategory())
+		
+		switch (categoryType)
 		{
 			case 0:
 			{
@@ -251,6 +251,37 @@ namespace SliceEngine
 		}
 	}
 
+	const float AudioManager::GetCategoryVolume(int categoryType)
+	{
+		float volume = 0.0f;
+		switch (categoryType)
+		{
+			case 0:
+			{
+				sfx->getVolume(&volume);
+				break;
+			}
+			case 1:
+			{
+				bgm->getVolume(&volume);
+				break;
+			}
+			case 2:
+			{
+				ui->getVolume(&volume);
+				break;
+			}
+			case 3:
+			{
+				editorSounds->getVolume(&volume);
+				break;
+			}
+
+		}
+
+		return volume;
+	}
+
 	float AudioManager::GetChannelVolume(FMOD::Channel* channel)
 	{
 		float volume;
@@ -265,53 +296,7 @@ namespace SliceEngine
 		channel->setVolume(volume);
 	}
 
-	void AudioManager::CreateSoundGroup(std::string& soundGroupName, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
-	{
-		if (mSoundGroups.find(soundGroupName) != mSoundGroups.end())
-		{
-			SLICE_LOG_ERROR("Sound Group already exists");
-			return;
-		}
 
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		FMOD_RESULT result = mSoundSystem->createSoundGroup(soundGroupName.c_str(), &soundGroup);
-
-		if (result == FMOD_OK)
-		{
-			soundGroup->setMaxAudible(maxInstances);
-			soundGroup->setMaxAudibleBehavior(behaviour);
-			mSoundGroups.emplace(soundGroupName, soundGroup);
-
-		}
-	}
-
-	void AudioManager::SetSoundGroup(GUID soundGUID, std::string soundGroupName)
-	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundGUID).get();
-
-		if (!audioClip->GetSound())
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: Audio clip has no FMOD::Sound.");
-			return;
-		}
-
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		auto it = mSoundGroups.find(soundGroupName);
-
-		if (it != mSoundGroups.end())
-		{
-			soundGroup = it->second;
-		}
-		else
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: SoundGroup '%s' not found.", soundGroupName.c_str());
-			mSoundSystem->getMasterSoundGroup(&soundGroup);
-		}
-
-		audioClip->GetSound()->setSoundGroup(soundGroup);
-	}
 
 	void AudioManager::SetSpatialBlend(FMOD::Channel* channel, float blend)
 	{
@@ -612,4 +597,255 @@ namespace SliceEngine
 		}
 		SLICE_LOG("Shutting down FMOD Studio.");
 	}
+#pragma endregion
+
+#pragma region AUDIO_ORGANISER
+
+	//static nlohmann::json ToJson(const )
+
+	//void AudioSettings::Init(FMOD::System* system)
+	//{
+	//	mSystem = system;
+	//}
+
+	//void AudioSettings::Exit()
+	//{
+	//	mSystem = nullptr;
+	//}
+
+	//void AudioSettings::CreateSoundGroup(const std::string& key)
+	//{
+	//	if (mSFXMap.contains(key))
+	//	{
+	//		return;
+	//	}
+
+	//	FMOD::SoundGroup* soundGroup = nullptr;
+	//	FMOD_RESULT soundGroupCreation = mSystem->createSoundGroup(key.c_str(), &soundGroup);
+
+	//	if (soundGroupCreation != FMOD_OK)
+	//	{
+	//		SLICE_LOG_ERROR("Sound Group creation failed");
+	//		return;
+	//	}
+
+	//	SFXEntry entryData{};
+
+	//	entryData.key = key;
+
+	//	entryData.soundGroup = soundGroup;
+	//	mSFXMap.emplace(key, entryData);
+	//	
+	//	SLICE_LOG("Sound Group has been created");
+
+	//		//->createSoundGroup(key.c_str(), soundGroup);
+	//	
+	//}
+
+	//void AudioSettings::SetSoundGroup(std::string soundName, const std::string& key)
+	//{
+	//	auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
+
+	//	if (audioClip->GetSound() == nullptr)
+	//	{
+	//		SLICE_LOG_ERROR("SetSoundGroup: Audio clip or FMOD::Sound is null.");
+	//		return;
+	//	}
+
+	//	FMOD::SoundGroup* soundGroup = GetSoundGroup(key);
+
+	//	audioClip->GetSound()->setSoundGroup(soundGroup);
+	//}
+
+	//FMOD::SoundGroup* AudioSettings::GetSoundGroup(const std::string& key)
+	//{
+	//	auto it = mSFXMap.find(key);
+
+	//	if (it != mSFXMap.end())
+	//	{
+	//		return it->second.soundGroup;
+	//	}
+
+	//	return nullptr;
+	//}
+
+	//SFXEntry* AudioSettings::GetSFXEntry(const std::string& key)
+	//{
+	//	auto it = mSFXMap.find(key);
+
+	//	if (it != mSFXMap.end())
+	//	{
+	//		return &it->second;
+	//	}
+
+	//	return nullptr;
+	//}
+
+	//void AudioSettings::SetSoundGroupVolume(const std::string& key, float volume)
+	//{
+
+	//	SFXEntry* entry = GetSFXEntry(key);
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->volume = volume;
+
+	//	if (entry->soundGroup)
+	//	{
+	//		entry->soundGroup->setVolume(volume);
+	//	}
+	//}
+
+	//const float AudioSettings::GetSoundGroupVolume(const std::string& key)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return 0.0f;
+	//	}
+
+	//	float volume = 0.0f;
+
+	//	if (entry->soundGroup)
+	//	{
+	//		entry->soundGroup->getVolume(&volume);
+	//	}
+
+	//	return volume;
+	//}
+
+	//void AudioSettings::SetMaxInstances(const std::string& key, int maxInstances)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->maxInstances = maxInstances;
+
+	//	if (entry->soundGroup)
+	//	{
+	//		entry->soundGroup->setMaxAudible(maxInstances);
+	//	}
+	//}
+
+	//const int AudioSettings::GetMaxInstances(const std::string& key)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return 0;
+	//	}
+
+	//	return entry->maxInstances;
+	//}
+
+	//void AudioSettings::SetMinIntervals(const std::string& key, float minIntervals)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->minInterval = minIntervals;
+	//}
+
+	//void AudioSettings::SetMinDistance(const std::string& key, float minDistance)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->minDistance = minDistance;
+	//}
+
+	//void AudioSettings::SetMaxDistance(const std::string& key, float maxDistance)
+	//{
+
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->maxDistance = maxDistance;
+	//}
+
+	//void AudioSettings::SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->spatialBlend = spatialBlend;
+	//}
+
+	//const float AudioSettings::GetSoundGroupSpatialBlend(const std::string& key)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return 0.0f;
+	//	}
+
+	//	return entry->spatialBlend;
+	//}
+
+	//void AudioSettings::SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return;
+	//	}
+
+	//	entry->isSpatial = isSpatial;
+	//}
+
+	//const bool AudioSettings::GetSoundGroupSpatialBlendBool(const std::string& key)
+	//{
+	//	SFXEntry* entry = GetSFXEntry(key);
+
+	//	if (!entry)
+	//	{
+	//		SLICE_LOG("SoundGroup '" + key + "' not found");
+	//		return false;
+	//	}
+
+	//	return entry->isSpatial;
+	//}
+
+	
+
+
+
+	
+#pragma endregion
 }

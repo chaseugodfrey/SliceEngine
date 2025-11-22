@@ -36,18 +36,6 @@ namespace SliceEngine
         {
             // update that particular key to pressed state
             input->UpdateKeyMap(key, KeyStates::PRESS);
-
-            //// commented out cus its spamming the console log and not allowing others to print
-            //const char* printable = glfwGetKeyName(key, scancode);
-
-            //if (printable && *printable)
-            //{
-            //    std::cout << "Pressed: " << printable << std::endl;
-            //}
-            //else
-            //{
-            //    std::cout << "Pressed: " << InputSystem::KeyNameFallback(key) << std::endl;
-            //}
         }
         else if (action == GLFW_RELEASE)
         {
@@ -227,40 +215,47 @@ namespace SliceEngine
 
 #pragma region KEY AND MOUSE CHECKS
 
-    bool InputSystem::IsKeyPressed(int key) 
+    bool InputSystem::IsKeyPressed(int key)
     {
         return keyMap[key] == PRESS || keyMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsKeyReleased(int key) 
+    bool InputSystem::IsKeyReleased(int key)
     {
         return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsKeyDown(int key) 
+    bool InputSystem::IsKeyDown(int key)
     {
 		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
     }
 
-    bool InputSystem::IsMousePressed(MouseButtons b) 
+    bool InputSystem::IsMousePressed(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
+        //auto it = mouseMap.find((int)b);
+        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
+        //return allowGameMouse() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
+
+        int key = (int)b;
+        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsMouseReleased(MouseButtons b) 
+    bool InputSystem::IsMouseReleased(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
+        //auto it = mouseMap.find((int)b);
+        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
+        //return allowGameMouse() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
+        int key = (int)b;
+        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsMouseDown(MouseButtons b) 
+    bool InputSystem::IsMouseDown(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::PRESSED || s == KeyStates::HOLD);
+        //auto it = mouseMap.find((int)b);
+        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
+        //return allowGameMouse() && (s == KeyStates::PRESSED || s == KeyStates::HOLD);
+        int key = (int)b;
+        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
 #pragma endregion
@@ -279,9 +274,9 @@ namespace SliceEngine
 
     void InputSystem::UpdateMouseMap(int button, KeyStates state)
     {
-        if (!enabled) return;
-        if (mode != InputMode::Game) return; // editor/imgui owns mouse
-		if (imguiWantsMouse) return;
+  //      if (!enabled) return;
+  //      if (mode != InputMode::Game) return; // editor/imgui owns mouse
+		//if (imguiWantsMouse) return;
 
         mouseMap[button] = state;
         changedQueue.push({ false, button, state });

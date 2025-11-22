@@ -57,16 +57,16 @@ namespace SliceEngine
             {
                 t.Position = t.Position + front * moveSpeed * dt;
                 targetFacingDirection = front;
-                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
-                    animator.SetBool("player|Walk", true);
+                if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
+                    animator.SetBool("Walk", true);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0)
                 {
-                    animator.SetBool("player|PlungeToWalk", true);
+                    animator.SetBool("PlungeToWalk", true);
                 }
 
 
@@ -79,16 +79,16 @@ namespace SliceEngine
             {
                 t.Position = t.Position - right * moveSpeed * dt;
                 targetFacingDirection = new Vector3(-right.x, -right.y, -right.z);
-                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
-                    animator.SetBool("player|Walk", true);
+                if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
+                    animator.SetBool("Walk", true);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0)
                 {
-                    animator.SetBool("player|PlungeToWalk", true);
+                    animator.SetBool("PlungeToWalk", true);
                 }
             }
 
@@ -98,16 +98,16 @@ namespace SliceEngine
                 t.Position = t.Position - front * moveSpeed * dt;
                 targetFacingDirection = new Vector3(-front.x, -front.y, -front.z);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
-                    animator.SetBool("player|Walk", true);
+                if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
+                    animator.SetBool("Walk", true);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0)
                 {
-                    animator.SetBool("player|PlungeToWalk", true);
+                    animator.SetBool("PlungeToWalk", true);
                 }
 
             }
@@ -117,21 +117,21 @@ namespace SliceEngine
             {
                 t.Position = t.Position + right * moveSpeed * dt;
                 targetFacingDirection = right;
-                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToWalk") == 0)
-                    animator.SetBool("player|Walk", true);
+                if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
+                    animator.SetBool("Walk", true);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0)
                 {
-                    animator.SetBool("player|PlungeToWalk", true);
+                    animator.SetBool("PlungeToWalk", true);
                 }
             }
 
             //Quaternion dir = Quaternion.LookRotation(this.direction, this.up);
-            if (targetFacingDirection.LengthSquared() > 0.001f)
+            //if (targetFacingDirection.LengthSquared() > 0.001f)
             {
 
                 //Quaternion target = Quaternion.LookRotation(targetFacingDirection, this.up);
@@ -145,17 +145,17 @@ namespace SliceEngine
 
             if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
             {
-                if (String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "player|PlungeToIdle") == 0)
-                    animator.SetBool("player|Idle", true);
+                if (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
+                    animator.SetBool("Idle", true);
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|PlungeLand") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0)
                 {
-                    animator.SetBool("player|PlungeToIdle", true);
+                    animator.SetBool("PlungeToIdle", true);
                 }
             }
 
@@ -164,34 +164,36 @@ namespace SliceEngine
             {
                 if(jumpCounter < 2)
                { 
-                    if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle1") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "player|AttackToIdle2") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "player|Attack3") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                    if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                     {
-                        animator.SetBool("player|JumpLoop", true);
-                        t.Position += new Vector3(0, 40, 0) * moveSpeed * dt;
+                        animator.SetBool("JumpLoop", true);
+                        t.Position += new Vector3(0, 5, 0);
                         jumpCounter++;
+                        
                     }
                 }
             }
 
             if(!grounded)
             {
-                if (String.Compare(animator.GetCurrAnimName(), "player|JumpLoop") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0)
                 {
-                    animator.SetBool("player|Plunge", true);
+                    animator.SetBool("Plunge", true);
                 }
             }
 
             if (grounded)
             {
 
-                if (String.Compare(animator.GetCurrAnimName(), "player|Plunge") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                 {
-                    animator.SetBool("player|PlungeLand", true);
+                    animator.SetBool("PlungeLand", true);
+                    AudioSettings.PlaySFX("Land");
                 }
             }
 
@@ -200,17 +202,17 @@ namespace SliceEngine
             // Scale Down
             if (Input.IsKeyPressed(Keys.KEY_R))// || Input.IsKeyDown(Keys.KEY_R))
             {
-                if (String.Compare(animator.GetCurrAnimName(), "player|Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "player|Walk") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
                 {
-                    animator.SetBool("player|Attack1", true);
+                    animator.SetBool("Attack1", true);
                 }
-                if (String.Compare(animator.GetCurrAnimName(), "player|Attack1") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
-                    animator.SetBool("player|Attack2", true);
+                    animator.SetBool("Attack2", true);
                 }
-                if (String.Compare(animator.GetCurrAnimName(), "player|Attack2") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                 {
-                    animator.SetBool("player|Attack3", true);
+                    animator.SetBool("Attack3", true);
                 }
 
                 startBuffer = true;
@@ -225,13 +227,13 @@ namespace SliceEngine
                 
                 if (timeBuffer > 0.5f)
                 {
-                    if (String.Compare(animator.GetCurrAnimName(), "player|Attack1") == 0)
+                    if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                     {
-                        animator.SetBool("player|AttackToIdle1", true);
+                        animator.SetBool("AttackToIdle1", true);
                     }
-                    if(String.Compare(animator.GetCurrAnimName(), "player|Attack2") == 0)
+                    if(String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                     {
-                        animator.SetBool("player|AttackToIdle2", true);
+                        animator.SetBool("AttackToIdle2", true);
                     }
                     
                     startBuffer = false;

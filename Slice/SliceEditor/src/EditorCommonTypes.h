@@ -105,11 +105,25 @@ namespace SliceEditor
 	{
 		//std::string name;
 		entt::entity entity = entt::null;
+
+		EntityNode()
+			: entity(entt::null)
+		{
+			type = SelectionType::ENTITY;
+			isSelected = false;
+		}
+
 		EntityNode(entt::entity ent) : entity(ent)
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;
 		}
+	};
+
+	struct PrefabNode : SelectionNode
+	{
+		std::string entityName;
+		std::vector<PrefabNode> children;
 	};
 
 	struct DirectoryNode : SelectionNode //Content Browser
