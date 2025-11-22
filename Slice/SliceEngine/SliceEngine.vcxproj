@@ -116,6 +116,7 @@
     <ClInclude Include="src\Animator\BoneSystem.h" />
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
+    <ClInclude Include="src\Configuration\AudioSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\ComponentModified.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="src\Systems\SceneSystem.h" />
     <ClInclude Include="src\Systems\SoundSystem.h" />
     <ClInclude Include="src\Systems\TransformSystem.h" />
+    <ClInclude Include="src\Test.h" />
     <ClInclude Include="src\Vectors\Vector3.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
@@ -181,6 +183,7 @@
     <ClCompile Include="src\Animator\BoneSystem.cpp" />
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
+    <ClCompile Include="src\Configuration\AudioSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\ComponentModified.cpp" />
@@ -231,6 +234,7 @@
     <ClCompile Include="src\Systems\SceneSystem.cpp" />
     <ClCompile Include="src\Systems\SoundSystem.cpp" />
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
+    <ClCompile Include="src\Test.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

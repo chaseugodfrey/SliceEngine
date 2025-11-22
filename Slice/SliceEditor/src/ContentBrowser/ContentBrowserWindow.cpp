@@ -253,7 +253,10 @@ namespace SliceEditor
 
 		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{
-			selectionManager->SelectSingle(&node);
+			if(!(node.type == SelectionType::PREFAB))
+			{
+				selectionManager->SelectSingle(&node);
+			}
 		}
 
 		//Drag and Drop Payload
@@ -282,6 +285,11 @@ namespace SliceEditor
 			{
 				mManager.OpenFile(node);
 			}
+			if (ImGui::MenuItem("Edit File, DO NOT USE RIGHT NOW"))
+			{
+				mManager.EditFile(node);
+			}
+
 			if (ImGui::MenuItem("Rename File"))
 			{
 				mManager.openRenameFile = true;
@@ -656,20 +664,6 @@ namespace SliceEditor
 				if (ImGui::Selectable(streamNames[i].c_str()))
 				{
 					data->stream = (AudioStream)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		static std::vector<std::string> audioCategoryNames{ "SFX", "BGM", "UI", "EditorSounds"};
-		Label("Audio Category: ");
-		if (ImGui::BeginCombo("##Audio_Category: ", audioCategoryNames[(int)data->category].c_str()))
-		{
-			for (int i = 0; i < audioCategoryNames.size(); ++i)
-			{
-				if (ImGui::Selectable(audioCategoryNames[i].c_str()))
-				{
-					data->category = (AudioCategory)i;
 				}
 			}
 			ImGui::EndCombo();

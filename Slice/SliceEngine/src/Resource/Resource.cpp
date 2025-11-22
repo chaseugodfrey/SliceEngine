@@ -227,7 +227,7 @@ namespace SliceEngine
 	{
 		auto audio = std::make_unique<SliceEngineTypes::Audio>();
 		
-		if (std::filesystem::exists(path))
+		if (std::filesystem::exists(path) && audio->GetSound() == nullptr)
 		{
 			audio->LoadAudioResource(path);
 		}

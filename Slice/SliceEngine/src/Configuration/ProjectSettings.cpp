@@ -49,7 +49,8 @@ namespace SliceEngine
         return true;
     }
 
-    bool ProjectSettingsService::Save() {
+    bool ProjectSettingsService::Save() 
+    {
         // atomic write
         auto tmp = m_path; tmp += ".tmp";
         std::ofstream f(tmp, std::ios::trunc);

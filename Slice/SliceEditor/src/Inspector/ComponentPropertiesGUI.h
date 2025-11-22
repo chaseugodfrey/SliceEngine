@@ -73,11 +73,11 @@ namespace SliceEditor
 
 	bool StringArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list);
 
-	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> editFunc, std::function<void(std::string, std::string)> addFunc, std::function<void(std::string, int)> removeFunc, const char* property_label, const char* id, std::vector<std::string>& list);
-	
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector<std::string>& list);
 
 	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
+
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int inc = 1, int min = 0, int max = 0);
 
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 
@@ -92,7 +92,7 @@ namespace SliceEditor
 	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
 	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
 
-	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
+	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr);
 
 	// if need to pass in lambda
 	// example code:

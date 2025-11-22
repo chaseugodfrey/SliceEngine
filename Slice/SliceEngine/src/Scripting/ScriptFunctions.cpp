@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Systems/PrefabSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
+#include "../Configuration/AudioSettings.h"
 
 namespace SliceEngine
 {
@@ -185,8 +186,20 @@ namespace SliceEngine
 		return nullptr;
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
+
 #pragma region AUDIO FUNCTIONS
 
+	//Return a filepath
 	static MonoString* Audio_GetSoundName(unsigned int entity)
 	{
 		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
@@ -215,11 +228,20 @@ namespace SliceEngine
 
 	static void Audio_Play(unsigned int entity)
 	{
-		if (auto* audioComp = GetAudioComponent(entity))
+		auto* audioComp = GetAudioComponent(entity);
+		auto* transformComp = GetTransformComponent(entity);
+		
+		if (audioComp)
 		{
 			
-			audioComp->_playTrigger = true;
+			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
+	}
+
+	static void Audio_PlaySFX(MonoString* string)
+	{
+		std::string key = MonoToString(string);
+		Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -352,17 +374,6 @@ namespace SliceEngine
 	{
 		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->isMute;
 		return false;
-	}
-
-	static void Audio_CreateSoundGroup(std::string soundGroupName, int maxInstances)
-	{
-		Core::GetInstance()->GetAudioManager()->CreateSoundGroup(soundGroupName, maxInstances);
-	}
-
-	static void Audio_SetSoundGroup(std::string soundGUIDName, std::string soundGroupName)
-	{
-		GUID soundGUID = SliceEngine::GUID::FromString(soundGUIDName);
-		Core::GetInstance()->GetAudioManager()->SetSoundGroup(soundGUID, soundGroupName);
 	}
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
@@ -692,6 +703,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_PlaySFX);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);
@@ -704,6 +716,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetPitch);
 		ADD_INTERNAL_CALL(Audio_SetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_SetMute);
+		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_SetPan);
+		ADD_INTERNAL_CALL(Audio_GetPan);
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);

@@ -31,7 +31,8 @@ namespace SliceEditor
 {
 	void InspectorWindow::Init()
 	{
-		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed;
+		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap;
+		mPrefabEntity = EntityNode();
 	}
 
 	void InspectorWindow::Draw()
@@ -283,28 +284,51 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
-						std::function<void(SliceEngine::GUID)> func = [&](SliceEngine::GUID guid)
-							{
-								as.soundGUID = guid;
-							};
+						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
 
-						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio", func);
-
-						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
 						BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
+						BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
 						BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
 						BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
+						SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+						SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
+						SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
+						SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+						if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
+						{
+							SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
+							SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
+							//To add volume rolloff dropdown
+							SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
+							SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+						}
+						
 
+
+						//Someone help disable this button when scene is running pwease ;^;
 						ImGui::Text("Play Preview");
 						ImGui::SameLine(150);
 						ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 						if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
 							as.playPreview = !as.playPreview;
+						
 					});
 			}
 			ImGui::TreePop();
 		}
 
+	}
+
+	void InspectorWindow::DisplayAudioListener(entt::entity entity)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (ImGui::TreeNodeEx("Audio Listener", mBaseFlags))
+		{
+
+			ImGui::TreePop();
+		}
 	}
 
 	void InspectorWindow::DisplayMeshRenderer(entt::entity entity)
@@ -501,59 +525,195 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
-						if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+						#pragma region Array Variables
+						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
-							float data = scriptRef->GetFieldValue<float>(it.second.mName);
-							//if (DragFloatInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
-							//{
-							//	scriptRef->SetFieldValue(it.second.mName, data);
-							//	SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							//}
-							std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
-								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
+								auto data = scriptRef->GetArrayFieldValue<float>(it.second.mName);
+
+								std::function<void(std::string, std::vector<float>)> func = [sp = scriptRef](std::string name, std::vector<float> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								if (DragFloatArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							{
+								auto data = scriptRef->GetArrayFieldValue<std::string>(it.second.mName);
+
+								std::function<void(std::string, std::vector<std::string>)> func = [sp = scriptRef](std::string name, std::vector<std::string> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								if (StringArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								auto data = scriptRef->GetArrayFieldValue<int>(it.second.mName);
+
+								std::function<void(std::string, std::vector<int>)> func = [sp = scriptRef](std::string name, std::vector<int> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								if (DragIntArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+						}
+
+						#pragma endregion
+
+						#pragma region List Variables
+						else if (it.second.mContainerType == SliceEngine::ScriptFieldType::List)
+						{
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
+							{
+								auto data = scriptRef->GetListFieldValue<std::string>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (StringListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								auto data = scriptRef->GetListFieldValue<int>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<int>, int, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<int> list, int val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (IntListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+						}
+
+						#pragma endregion
+						else
+						{
+							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
+							{
+								float data = scriptRef->GetFieldValue<float>(it.second.mName);
+
+								std::function<void(std::string, float)> func = [sp = scriptRef](std::string name, float val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
-						{
-							bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-							if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::String)
-						{
-							std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
-							/*char buffer[128];
-							std::strncpy(buffer, str.c_str(), sizeof(buffer) - 1);
-							buffer[sizeof(str)] = '\0';*/
-
-							if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(),str))
-							{
-								scriptRef->SetFieldValue<std::string>(it.second.mName, str);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-							}
-						}
-						else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
-						{
-							int data = scriptRef->GetFieldValue<int>(it.second.mName);
-							std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
+								if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
-									sp->SetFieldValue(name, val);
-								};
-
-							if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
-								scriptRef->SetFieldValue(it.second.mName, data);
-								SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+
+								if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								{
+									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Int)
+							{
+								int data = scriptRef->GetFieldValue<int>(it.second.mName);
+								std::function<void(std::string, int)> func = [sp = scriptRef](std::string name, int val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							}
 						}
 					}
@@ -958,6 +1118,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::AudioListener>())
+			{
+				if (ImGui::Selectable("Add AudioListener"))
+				{
+					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::AudioListener>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::Light>())
 			{
 				if (ImGui::Selectable("Add LightSource"))
@@ -1071,6 +1239,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioListener>(entity))
+			{
+				DisplayAudioListener(node->entity);
+				ImGui::Separator();
+			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::ParticleSystem>(entity))
 			{
 				DisplayParticleSystem(node->entity);
@@ -1154,30 +1328,50 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
 	{
+		auto& assetManager = mRegistry.GetAssetManager();
 		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 		SliceEngine::GUID prefabGUID;
-		std::string prefabStemName = node->path.stem().stem().string();
-		//Getting the GUID of the prefab
-		if (mRegistry.GetAssetManager().mFilenameToGUID.find(prefabStemName) != mRegistry.GetAssetManager().mFilenameToGUID.end())
+		std::string fileName = node->path.stem().stem().string();
+		//Search for the GUID in the map:
+		if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
 		{
-			prefabGUID = mRegistry.GetAssetManager().mFilenameToGUID[prefabStemName];
+			prefabGUID = assetManager.mFilenameToGUID[fileName];
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Prefab is broken on Asset Manager");
+			SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
 			return;
 		}
-		//Creating an temporary instance of the prefab
-		auto handle = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
-		Entity prefabEntity = SliceEngine::JSONSerializer::DeserializePrefab(handle.get()->filePath); //Not sure if creating an entity every frame is good
 
-		//Display the Stuff
+		//Now get the resource
+		SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
+		if (mPrefabEntity.entity == entt::null)
+		{
+			mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
+		}
 
+		//Save Prefab
+		if (ImGui::Button("Save Prefab"))
+		{
+
+
+			if (mPrefabEntity.entity != entt::null)
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().destroy(mPrefabEntity.entity);
+			}
+
+			mPrefabEntity.entity = entt::null;
+
+			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
+			return;
+		}
+
+		DisplayEntity(&mPrefabEntity);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
 	{
-		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+		/*auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 
 		entt::entity ent_display{};
 		ImGui::Text("Parent:");
@@ -1198,6 +1392,112 @@ namespace SliceEditor
 		ImGui::Text("Next Sibling:");
 		ImGui::SameLine(150.0f);
 		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());*/
+
+		if (entity == SliceEngine::FactoryInstance.GetRootEntity())
+		{
+			auto& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
+			{
+				if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					ImGui::Text("Parent: Root Entity");
+				}
+				else
+				{
+					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
+					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+				}
+			}
+			else
+			{
+				ImGui::Text("Parent: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT] != entt::null)
+			{
+				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Left: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT] != entt::null)
+			{
+				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
+				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Right: --");
+			}
+			//Scene Graph Down is first child
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null)
+			{
+				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
+				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("First Child: --");
+			}
+		}
+		auto go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+			ImGui::Text("Entity: %s", go.GetName().c_str());
+			ImGui::Text("Entity ID: %d", (uint32_t)entity);
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
+			{
+				if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					ImGui::Text("Parent: Root Entity");
+				}
+				else
+				{
+					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
+					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+				}
+			}
+			else
+			{
+				ImGui::Text("Parent: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT] != entt::null)
+			{
+				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Left: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT] != entt::null)
+			{
+				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
+				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Right: --");
+			}
+			//Scene Graph Down is first child
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null)
+			{
+				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
+				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("First Child: --");
+			}
+		}
 	}
 }

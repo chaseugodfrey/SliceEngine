@@ -68,13 +68,7 @@ namespace SliceEditor
 		CREATE_STREAM
 	};
 
-	enum AudioCategory : std::uint8_t
-	{
-		SFX,
-		BGM,
-		UI,
-		EditorSounds
-	};
+	
 
 	// type UUIDs 
 	namespace ResourceTypeIDs
@@ -419,7 +413,7 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
 
 		AudioStream stream{ AudioStream::CREATE_SAMPLE };
-		AudioCategory category{ AudioCategory::SFX };
+		
 		
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
@@ -434,7 +428,6 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			metaJson["stream"] = stream;
-			metaJson["category"] = category;
 			
 
 

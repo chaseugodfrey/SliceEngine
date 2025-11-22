@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Systems/LayerManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Configuration/AudioSettings.h"
 
 namespace SliceEngine
 {
@@ -56,6 +57,7 @@ namespace SliceEngine
 		mScenePtr = std::make_unique<SceneSystem>();
 
 		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
+		mAudioSettings = std::make_unique<AudioSettings>();
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 		mFactory.RegisterComponent<Renderer>();
@@ -65,6 +67,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RigidBody>();
 		mFactory.RegisterComponent<ColliderShape>();
 		mFactory.RegisterComponent<AudioSource>();
+		mFactory.RegisterComponent<AudioListener>();
 		mFactory.RegisterComponent<Light>();
 		mFactory.RegisterComponent<ParticleSystem>();
 		mFactory.RegisterComponent<Prefab>();
@@ -155,5 +158,9 @@ namespace SliceEngine
 	ProjectSettingsService* Core::GetProjectSettingsService()
 	{
 		return mProjectSettingsService.get();
+	}
+	AudioSettings* Core::GetAudioSettings()
+	{
+		return mAudioSettings.get();
 	}
 }
