@@ -672,6 +672,7 @@ namespace SliceEditor
 			j["stateName"] = s.stateName;
 			j["currAnimIdx"] = s.curr_anim_idx;
 			j["isLoop"] = s.isLoop;
+			j["mNodePos"] = s.mNodePos;
 
 			j["transitions"] = nlohmann::json::array();
 
