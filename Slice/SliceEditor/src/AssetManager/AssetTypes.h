@@ -782,6 +782,43 @@ namespace SliceEditor
 
 		void SerializeAsset(const std::filesystem::path& desc_path)
 		{
+			nlohmann::json assetJson;
+
+			assetJson["entryState"] = entryState;
+			
+			nlohmann::json parametersJson;
+			for (const auto& pair : parameters)
+			{
+				to_json(parametersJson[pair.first], pair.second);
+			}
+			assetJson["parameters"] = parametersJson;
+
+			nlohmann::json stateMapJson;
+			for (const auto& pair : stateMap)
+			{
+				to_json(stateMapJson[pair.first], pair.second);
+			}
+			assetJson["stateMap"] = stateMapJson;
+
+			std::ofstream output(desc_path);
+			if (output.is_open())
+			{
+				output << assetJson.dump(4);
+				output.close();
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
+			}
+		}
+
+
+		/// <summary>
+		/// For creating the default player controller while editor is still being fixed
+		/// </summary>
+		/// <param name="desc_path"></param>
+		void SerializePlayerAsset(const std::filesystem::path& desc_path)
+		{
 			nlohmann::json metaJson;
 
 			metaJson["entryState"] = "Idle";
@@ -1118,6 +1155,10 @@ namespace SliceEditor
 			}
 		}
 	
+		/// <summary>
+		/// Deserialize an asset for editor usage
+		/// </summary>
+		/// <param name="filePath"></param>
 		void DeserializeAsset(const std::filesystem::path& filePath)
 		{
 			std::ifstream inFile{ filePath };
