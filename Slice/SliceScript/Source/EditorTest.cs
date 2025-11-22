@@ -12,7 +12,8 @@ namespace SliceEngine
         public int intTest = 2;
         public float floatTest =  5.0f;
         public string testString = "Test";
-        public int[] intArray = {1,3,5,7};
+        public int[] intArray = {1,3};
+        public float[] floatArray = {1.0f,2.0f};
         public string[] stringArray = { "Test1", "Test2", "Test3" };
         public List<float> floatList = new List<float>{ 0.5f,2.0f };
         public List<string> stringList = new List<string>{"Test"};
