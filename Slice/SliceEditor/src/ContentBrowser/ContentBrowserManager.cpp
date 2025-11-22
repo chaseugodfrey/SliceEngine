@@ -214,6 +214,14 @@ namespace SliceEditor
 		}
 	}
 
+	void ContentBrowserManager::EditFile(DirectoryNode& entry)
+	{
+		if (entry.path.extension() == ".prefab")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+	}
+
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
 		//SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);

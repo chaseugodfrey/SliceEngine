@@ -21,10 +21,12 @@ namespace SliceEngine
 
 				for (unsigned int i = 0; i < anim_pkg.animations.size(); i++)
 				{
-					if (EFSM.stateMap.contains(anim_pkg.animations[i].name))
+					int pos = anim_pkg.animations[i].name.find("|");
+					std::string mapName = anim_pkg.animations[i].name.substr(pos + 1);
+					if (EFSM.stateMap.contains(mapName))
 					{
-						EFSM.stateMap[anim_pkg.animations[i].name].curr_anim_idx = i;
-						EFSM.stateMap[anim_pkg.animations[i].name].animationTime = anim_pkg.animations[i].duration;
+						EFSM.stateMap[mapName].curr_anim_idx = i;
+						EFSM.stateMap[mapName].animationTime = anim_pkg.animations[i].duration;
 						continue;
 					}
 
@@ -91,7 +93,8 @@ namespace SliceEngine
 	void FSMSystem::UpdateState(float &CTime,float dt)
 	{
 		// update ctime dt somewhere here
-
+		// not here cos only update when is playin and is bone
+		//CTime += dt;
 
 		if (!EFSM.currState) return;
 
@@ -136,11 +139,6 @@ namespace SliceEngine
 			stateChanged = true;
 			EFSM.currState->transitionUsed = nullptr;
 		}
-	}
-
-	void FSMSystem::UpdateCurrentTime(float cTime)
-	{
-		//current_time = cTime;
 	}
 
 	bool FSMSystem::EvalCon(const rttr::variant& paramValue, SliceEngineTypes::ComparisonOp op, const rttr::variant& valueToCompare)
@@ -204,11 +202,6 @@ namespace SliceEngine
 		if (!EFSM.currState) return;
 
 		EFSM.parameters[name] = value;
-
-		if (std::strcmp(name.c_str(), "player|PlungeLand") == 0)
-		{
-			std::string h = "hello";
-		}
 
 		for (auto& [key, var] : EFSM.parameters)
 		{

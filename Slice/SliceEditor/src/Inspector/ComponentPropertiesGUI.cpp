@@ -119,8 +119,7 @@ namespace SliceEditor
 	{
 		static uint64_t oldVal{};
 
-		bool changed = ImGui::DragScalar(id, ImGuiDataType_S64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
-
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -129,6 +128,26 @@ namespace SliceEditor
 			if (oldVal != val)
 			{
 				std::unique_ptr<ValueCommand<uint64_t>> command = std::make_unique<ValueCommand<uint64_t>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+	bool DragUInt32Input(Registry& reg, const char* id, uint32_t& val, const char* format, uint32_t min, uint32_t max)
+	{
+		static uint32_t oldVal{};
+
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U32, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (oldVal != val)
+			{
+				std::unique_ptr<ValueCommand<uint32_t>> command = std::make_unique<ValueCommand<uint32_t>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
@@ -220,12 +239,22 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, int min, int max)
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		changed = DragUInt64Input(reg, id, val, format, min, max) || changed;
+
+		return changed;
+	}
+
+	bool DragUInt32InputHeader(Registry& reg, const char* property_label, const char* id, uint32_t& val, const char* format, uint32_t min, uint32_t max)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = DragUInt32Input(reg, id, val, format, min, max) || changed;
 
 		return changed;
 	}
