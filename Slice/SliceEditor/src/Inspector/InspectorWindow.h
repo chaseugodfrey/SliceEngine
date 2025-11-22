@@ -73,10 +73,12 @@ namespace SliceEditor
 		void DisplayTransform(entt::entity entity);
 		void DisplaySceneGraph(entt::entity entity);
 		void DisplayAudioSource(entt::entity entity);
+		void DisplayAudioListener(entt::entity entity);
 		void DisplayMeshRenderer(entt::entity entity);
 		void DisplayCamera(entt::entity entity);
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
+		void DisplayNavAgent(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void DisplayLight(entt::entity entity);
 		void DisplayAnimator(entt::entity entity);
@@ -88,6 +90,7 @@ namespace SliceEditor
 
 		void DisplayEntity(EntityNode* node);
 		void DisplayMaterial(DirectoryNode* node);
+		void DisplayPrefab(DirectoryNode* node);
 #pragma endregion
 	public:
 

@@ -12,24 +12,33 @@ namespace SliceEngine
         public int intTest = 2;
         public float floatTest =  5.0f;
         public string testString = "Test";
-        public int[] intArray = {1,3,5,7};
+        public int[] intArray = {1,3};
+        public float[] floatArray = {1.0f,2.0f};
         public string[] stringArray = { "Test1", "Test2", "Test3" };
+        public List<float> floatList = new List<float>{ 0.5f,2.0f };
+        public List<int> intList = new List<int>{ 7,8 };
+        public List<string> stringList = new List<string>{"Test","Test2"};
         public override void OnUpdate(float dt)
         {
-            SliceLog.Log("Bool: " + boolTest);
-            SliceLog.Log("Int: " + intTest);
-            SliceLog.Log("Float: " + floatTest);
-            SliceLog.Log(testString);
 
             int i = 0;
-            foreach (float var in intArray)
+            foreach(float var in floatList)
             {
-                SliceLog.Log("Element " + i  +": "+ var);
+                SliceLog.Log("Float List Element " + i + ": " + var);
+                i++;
             }
 
-            foreach (string var in stringArray)
+            int j = 0;
+            foreach (string var in stringList)
             {
-                SliceLog.Log("Element " + i + ": " + var);
+                SliceLog.Log("String List Element " + i + ": " + var);
+                j++;
+            }
+            int k = 0;
+            foreach (int var in intList)
+            {
+                SliceLog.Log("Int List Element " + i + ": " + var);
+                k++;
             }
         }
     }

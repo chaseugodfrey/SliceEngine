@@ -729,6 +729,8 @@ namespace rttr
 			{
 				return rttr::variant(valueJson.get<std::vector<int>>());
 			}
+
+			return rttr::variant(valueJson.get<std::string>());
 		}
 	}
 

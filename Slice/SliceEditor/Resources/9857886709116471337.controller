@@ -209,8 +209,8 @@
                     "comparisonOP": "IsTrue",
                     "condition": null,
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
+                    "exitTime": 0.699999988079071,
+                    "hasExitTime": true,
                     "parameterName": "player|Plunge",
                     "targetState": "player|Plunge"
                 },
@@ -260,7 +260,7 @@
                     "condition": null,
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
+                    "hasExitTime": true,
                     "parameterName": "player|PlungeToWalk",
                     "targetState": "player|PlungeToWalk"
                 },
@@ -269,7 +269,7 @@
                     "condition": null,
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
+                    "hasExitTime": true,
                     "parameterName": "player|PlungeToIdle",
                     "targetState": "player|PlungeToIdle"
                 }
@@ -285,7 +285,7 @@
                     "condition": null,
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
+                    "hasExitTime": true,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
                 }
@@ -301,7 +301,7 @@
                     "condition": null,
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
+                    "hasExitTime": true,
                     "parameterName": "player|Walk",
                     "targetState": "player|Walk"
                 }
@@ -329,6 +329,15 @@
                     "hasExitTime": false,
                     "parameterName": "player|Idle",
                     "targetState": "player|Idle"
+                },
+                {
+                    "comparisonOP": "IsTrue",
+                    "condition": null,
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "parameterName": "player|JumpLoop",
+                    "targetState": "player|JumpLoop"
                 }
             ]
         }

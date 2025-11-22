@@ -43,6 +43,9 @@ namespace SliceEngine
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_PlaySFX(string key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -139,6 +142,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string GetCurrAnimName(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float GetCurrAnimTime(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool IsCurrAnimFin(uint entity);

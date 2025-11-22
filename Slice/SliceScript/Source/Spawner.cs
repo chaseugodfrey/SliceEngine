@@ -34,7 +34,7 @@ namespace SliceEngine
                 yield return new WaitForSeconds(spawnTime);
 
                 spawning = true;
-                Console.WriteLine("Starting spawn wave...");                
+                Console.WriteLine("Starting spawn wave...");
                 // Spawn N enemies with interval
                 for (int i = 0; i < spawnCount; i++)
                 {

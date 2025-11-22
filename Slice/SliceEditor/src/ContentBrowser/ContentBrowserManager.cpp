@@ -205,7 +205,7 @@ namespace SliceEditor
 				{
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
-			}
+		}
 		
 		else
 		{
