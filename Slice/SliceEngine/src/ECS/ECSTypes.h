@@ -276,6 +276,14 @@ namespace SliceEngine
 			Logarithmic = 0,
 			Linear = 1
 		};
+
+		enum Category : int
+		{
+			SFX,
+			BGM,
+			UI,
+			EditorSounds
+		};
 		//std::string soundName;
 		GUID soundGUID = (GUID)9244272128099795086;
 		FMOD::Channel* channel = nullptr;
@@ -283,8 +291,9 @@ namespace SliceEngine
 		int priority = 128;
 		bool isMute = false;
 		bool isLoop = false;
-		bool isPaused = true;
-		float currentVolume = 0.3f;
+		bool isPaused = false;
+		float currentVolume = 1.0f;
+		Category category = SFX;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;
 		float spatialBlend = 1.0f;
@@ -294,11 +303,7 @@ namespace SliceEngine
 		VolumeRollOff volumeRollOff = Logarithmic;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
-
-		float minInterval = 0.0f;
 		bool playOnAwake = false;
-
-		bool _playTrigger = false;
 		bool playPreview = false;
 
 		RTTR_ENABLE();
@@ -307,6 +312,8 @@ namespace SliceEngine
 	struct AudioListener
 	{
 		glm::vec3 listenerPos{};
+
+		RTTR_ENABLE();
 	};
 
 	// placeholder particle system component structure for reference

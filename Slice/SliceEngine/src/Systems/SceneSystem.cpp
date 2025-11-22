@@ -19,7 +19,8 @@ namespace SliceEngine
 	void SceneSystem::Init()
 	{
 		//Will do all the loading of the resources based on the scene file
-
+		LoadScene(mDefaultScene);
+		mCurrentState = mNextState = SceneState::DEFAULT;
 	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
