@@ -118,6 +118,11 @@ namespace SliceEditor
 		}
 	};
 
+	struct PrefabNode : SelectionNode
+	{
+		std::string prefabName;
+	};
+
 	struct DirectoryNode : SelectionNode //Content Browser
 	{
 		std::string fileName;
