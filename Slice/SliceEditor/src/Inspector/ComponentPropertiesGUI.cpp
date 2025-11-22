@@ -363,17 +363,6 @@ namespace SliceEditor
 				}
 				i++;
 			}
-			ImGui::Dummy(ImVec2(0,0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
-			}
 			ImGui::TreePop();
 		}
 		
@@ -410,17 +399,6 @@ namespace SliceEditor
 				}
 				i++;
 			}
-			ImGui::Dummy(ImVec2(0,0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
-			}
 			ImGui::TreePop();
 		}
 		
@@ -456,17 +434,6 @@ namespace SliceEditor
 					}
 				}
 				i++;
-			}
-			ImGui::Dummy(ImVec2(0, 0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
 			}
 			ImGui::TreePop();
 		}
