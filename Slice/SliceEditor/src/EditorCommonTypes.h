@@ -120,7 +120,8 @@ namespace SliceEditor
 
 	struct PrefabNode : SelectionNode
 	{
-		std::string prefabName;
+		std::string entityName;
+		std::vector<PrefabNode> children;
 	};
 
 	struct DirectoryNode : SelectionNode //Content Browser

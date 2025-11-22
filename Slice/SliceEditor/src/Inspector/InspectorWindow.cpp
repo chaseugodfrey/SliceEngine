@@ -1191,7 +1191,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
 	{
-		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+		/*auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 
 		entt::entity ent_display{};
 		ImGui::Text("Parent:");
@@ -1212,6 +1212,112 @@ namespace SliceEditor
 		ImGui::Text("Next Sibling:");
 		ImGui::SameLine(150.0f);
 		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());*/
+
+		if (entity == SliceEngine::FactoryInstance.GetRootEntity())
+		{
+			auto& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
+			{
+				if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					ImGui::Text("Parent: Root Entity");
+				}
+				else
+				{
+					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
+					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+				}
+			}
+			else
+			{
+				ImGui::Text("Parent: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT] != entt::null)
+			{
+				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Left: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT] != entt::null)
+			{
+				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
+				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Right: --");
+			}
+			//Scene Graph Down is first child
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null)
+			{
+				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
+				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("First Child: --");
+			}
+		}
+		auto go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+			ImGui::Text("Entity: %s", go.GetName().c_str());
+			ImGui::Text("Entity ID: %d", (uint32_t)entity);
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] != entt::null)
+			{
+				if (sceneGraph.neighbours[SliceEngine::SceneGraph::UP] == SliceEngine::FactoryInstance.GetRootEntity())
+				{
+					ImGui::Text("Parent: Root Entity");
+				}
+				else
+				{
+					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
+					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+				}
+			}
+			else
+			{
+				ImGui::Text("Parent: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT] != entt::null)
+			{
+				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Left: --");
+			}
+
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT] != entt::null)
+			{
+				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
+				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("Right: --");
+			}
+			//Scene Graph Down is first child
+			if (sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null)
+			{
+				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
+				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+			}
+			else
+			{
+				ImGui::Text("First Child: --");
+			}
+		}
 	}
 }

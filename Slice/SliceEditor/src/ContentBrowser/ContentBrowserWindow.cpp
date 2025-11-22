@@ -285,7 +285,7 @@ namespace SliceEditor
 			{
 				mManager.OpenFile(node);
 			}
-			if (ImGui::MenuItem("Edit File"))
+			if (ImGui::MenuItem("Edit File, DO NOT USE RIGHT NOW"))
 			{
 				mManager.EditFile(node);
 			}
