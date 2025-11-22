@@ -229,6 +229,8 @@ namespace SliceEngine
 	// processing, this is the one area where i used gpt for help because idk how to use the queue with it
 	void ActionMappingSystem::processInput(const std::string& mapName)
 	{
+		// designers can query PerformedThisFrame(map, "Jump")
+
 		// check inputsystem existence or enabled or whether its in game mode
 		if(!inputSys || !inputSys->IsEnabled() || inputSys->GetMode() != InputMode::Game)
 		{
@@ -286,6 +288,36 @@ namespace SliceEngine
 				actionState.phase = ActionPhase::Canceled;
 			}
 		}
+		//handle value1d actions
+		for(size_t i{}; i < map->definitions.size(); ++i)
+		{
+			// reset accumulated values
+			auto& actionDef = map->definitions[i];
+			auto& actionState = map->states[i];
+
+			if (actionDef.type != ActionType::Value1D)
+			{
+				continue; // skip non-value1d actions
+			}
+
+			float value = 0.0f;
+			for(const auto& bind : actionDef.bindings)
+			{
+				if(inputSys->IsKeyDown(bind.keyCode))
+				{
+					value += bind.scaleX; // scalex -> (e.g. A = -1.0f, D = +1.0f)
+				}
+			}
+
+			actionState.valueX = std::clamp(value, -1.0f, 1.0f); // clamp to -1.0f to 1.0f range
+
+			// turn the phase to performed if valueX is non-zero
+			if(actionState.valueX != 0.f)
+			{
+				actionState.phase = ActionPhase::Performed;
+			}
+		}
+
 		// handle value2d actions
 		for (size_t i{}; i < map->definitions.size(); ++i)
 		{
@@ -376,6 +408,31 @@ namespace SliceEngine
 		// return the accumulated value2D
 		auto& state = map->states[actionIndex];
 		return { state.valueX, state.valueY };
+	}
+
+	// for value1D
+	float ActionMappingSystem::GetValue1D(const std::string& mapName, const std::string& actionName)
+	{
+		auto* map = findMap(maps, mapName);
+
+		// check if map exists and is enabled
+		if (!map || !map->enabled)
+		{
+			return 0.0f; // map not found or not enabled
+		}
+
+		// find action index
+		size_t actionIndex = findAction(*map, actionName);
+
+		// check if action exists
+		if (actionIndex == static_cast<size_t>(-1))
+		{
+			return 0.0f; // action not found
+		}
+
+		// return the accumulated value1D
+		auto& state = map->states[actionIndex];
+		return state.valueX;
 	}
 
 	// file I/O

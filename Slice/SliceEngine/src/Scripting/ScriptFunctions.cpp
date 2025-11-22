@@ -96,6 +96,8 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region INPUT & ACTIONMAPPING FUNCTIONS
+
 	static bool IsKeyPressed(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
@@ -105,6 +107,8 @@ namespace SliceEngine
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
+
+
 
 #pragma region CONSOLE LOGGING FUNCTIONS
 

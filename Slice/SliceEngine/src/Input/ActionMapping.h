@@ -130,6 +130,7 @@ namespace SliceEngine
 		// queries
 		bool PerformedThisFrame(const std::string& mapName, const std::string& actionName); // for buttons
 		std::pair<float, float> GetValue2D(const std::string& mapName, const std::string& actionName); // for value2D
+		float GetValue1D(const std::string& mapName, const std::string& actionName); // for value1D
 
 		// function to pull map of actionmaps
 		std::unordered_map<std::string, ActionMap>& GetActionMaps() { return maps; }

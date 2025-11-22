@@ -263,6 +263,7 @@ namespace SliceEngine
 
 		frm->StartSystem("Input");
 		sInputs->UpdatePrevInput();
+		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
 		// process all enabled action maps in Game mode
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE) 
