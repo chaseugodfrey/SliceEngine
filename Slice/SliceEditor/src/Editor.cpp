@@ -96,6 +96,7 @@ namespace SliceEditor
 		// reminder to change scene root to a list in case we want to have multiple scenes
 		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
 
+		// default controller here pls
 		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
 
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
