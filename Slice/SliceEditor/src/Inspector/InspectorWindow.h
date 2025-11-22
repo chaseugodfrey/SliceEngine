@@ -89,6 +89,8 @@ namespace SliceEditor
 
 		void DisplayEntity(EntityNode* node);
 		void DisplayMaterial(DirectoryNode* node);
+		void DisplayState(StateNode* node);
+		void DisplayTransition(TransitionLinkNode* node);
 #pragma endregion
 	public:
 

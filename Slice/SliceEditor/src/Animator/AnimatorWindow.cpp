@@ -1,10 +1,68 @@
 #include <pch.h>
 #include "AnimatorWindow.h"
-
-
+#include "Core/Registry.h"
+#include "Selection/SelectionManager.h"
+#include "Inspector/ComponentPropertiesGUI.h"
 
 namespace SliceEditor
 {
+	bool AnimatorWindow::CheckStateInput(StateNode* node)
+	{
+		int id = static_cast<StateNode*>(node)->id;
+		if (ImNodes::IsNodeHovered(&id))
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("Node_Popup");
+			}
+		}
+		return ImNodes::IsNodeSelected(id);
+	}
+
+	bool AnimatorWindow::CheckLinkInput(TransitionLinkNode* node)
+	{
+		int id = static_cast<TransitionLinkNode*>(node)->id;
+		if (ImNodes::IsLinkHovered(&id))
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("Node_Popup");
+			}
+		}
+
+		return ImNodes::IsLinkSelected(id);
+	}
+
+	void AnimatorWindow::DrawStateNode(StateNode* node)
+	{
+		ImNodes::BeginNode(node->id);
+
+		//ImNodes::BeginNodeTitleBar();
+		//ImGui::TextUnformatted(name.c_str());
+		//ImNodes::EndNodeTitleBar();
+
+		ImNodes::BeginInputAttribute(node->in_id);
+		ImGui::Text("");
+		ImNodes::EndInputAttribute();
+
+		ImGui::SameLine();
+		ImGui::TextUnformatted(node->name.c_str());
+		ImGui::SameLine();
+
+		ImGui::SameLine();
+		ImNodes::BeginOutputAttribute(node->out_id);
+		//ImGui::Indent(40);
+		ImGui::Text("");
+		ImNodes::EndOutputAttribute();
+
+		ImNodes::EndNode();
+	}
+
+	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
+	{
+		ImNodes::Link(node->id, node->source_id, node->target_id);
+	}
+
 	AnimatorWindow::~AnimatorWindow()
 	{
 		if (m_Context)
@@ -16,150 +74,236 @@ namespace SliceEditor
 
 	void AnimatorWindow::Init()
 	{
-		// To do: save into an editor config path
-		NodeEditor::Config config;
-		m_Context = NodeEditor::CreateEditor(&config);
-
-		// Create some sample nodes
-		m_Nodes.push_back({ NodeEditor::NodeId(1), NodeEditor::PinId(2), NodeEditor::PinId(3), "Idle" });
-		m_Nodes.push_back({ NodeEditor::NodeId(4), NodeEditor::PinId(5), NodeEditor::PinId(6), "Walk" });
-		//m_Nodes.push_back({ NodeEditor::NodeId(3), NodeEditor::PinId(3), "Another" });
-
 	}
 
 	void AnimatorWindow::Draw()
 	{
+		bool hasAnimator = CheckForAnimator();
 
 		ImGui::Begin("Animator");
-#pragma region AnimatorSystem Toolbar
+#pragma region Animator Toolbar
 		ImGui::BeginGroup();
 		ImGui::Text("Parameters");
 		if (ImGui::BeginMenuBar())
 		{
-
 			ImGui::EndMenuBar();
 		}
 
 		ImGui::EndGroup();
 #pragma endregion
 
-//#pragma region Animator Canvas
-		NodeEditor::SetCurrentEditor(m_Context);
-		NodeEditor::Begin("Animator Editor");
-//
-		NodeEditor::EnableShortcuts(true);
+#pragma region Animator Params
 
-		// Draw Nodes here
-		for (auto& node : m_Nodes)
+		ImGui::BeginChild("##left_region", ImVec2(0.3f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+
+		if (hasAnimator)
 		{
-			// Draw Nodes here
-			NodeEditor::BeginNode(node.Id);
+			auto& param_map = mStateMachine->parameters;
+			
+			int param_id{};
+			for (auto& [name, param] : param_map)
+			{
+				std::string param_label_id = "##param" + name + std::to_string(param_id);
+				std::string param_name = name;
+				ImGui::SetNextItemWidth(125.0f);
+				if (ImGui::InputText(param_label_id.c_str(), &param_name))
+				{
 
-			ImGui::Text(node.Name.c_str());
-			NodeEditor::BeginPin(node.outputPinId, NodeEditor::PinKind::Output);
-			ImGui::Text("o");
-			NodeEditor::EndPin();
-			ImGui::SameLine();
-			NodeEditor::BeginPin(node.inputPinId, NodeEditor::PinKind::Input);
-			ImGui::Text("o");
-			NodeEditor::EndPin();
+				}
 
-			NodeEditor::EndNode();
+				ImGui::SameLine(0.0f, 100.0f);
+
+				if (param.is_type<float>())
+				{
+					ImGui::SetNextItemWidth(150.0f);
+					DragFloatInputHeader(mRegistry, "", (param_label_id + "_float").c_str(), param.get_value<float>());
+				}
+
+				else if (param.is_type<int>())
+				{
+					ImGui::SetNextItemWidth(150.0f);
+					DragIntInputHeader(mRegistry, "", (param_label_id + "_int").c_str(), param.get_value<int>());
+				}
+
+				else if (param.is_type<bool>())
+				{
+					BoolInputHeader(mRegistry, "", (param_label_id + "_bool").c_str(), param.get_value<bool>());
+				}
+
+			}
 		}
 
-		auto& style = NodeEditor::GetStyle();
-		style.LinkStrength = 1.0f; // reduces curvature toward a straight line
+		ImGui::EndChild();
+#pragma endregion
+		ImGui::SameLine();
+#pragma region Animator Canvas
 		
-		NodeEditor::Suspend();
-//
-		NodeEditor::NodeId contextNodeId = 0;
-		NodeEditor::LinkId contextLinkId = 0;
-//
-		if (NodeEditor::ShowNodeContextMenu(&contextNodeId))
+		ImGui::BeginChild("##right_region", ImVec2(0.7f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders);
+
+		ImNodes::BeginNodeEditor();
+
+		for (auto& [key, node] : mNameToNodeMap)
 		{
-			ImGui::OpenPopup("NodeContextMenu");
+			DrawStateNode(&node);
 		}
-//
-//		//else if (NodeEditor::ShowLinkContextMenu(&contextLinkId))
-//		//{
-//		//	ImGui::OpenPopup("LinkContextMenu");
-//		//}
-//
-//		//else if (NodeEditor::ShowBackgroundContextMenu())
-//		//{
-//		//	ImGui::OpenPopup("BackgroundContextMenu");
-//		//}
-//
-//		////// Popups
-//
-		if (ImGui::BeginPopup("NodeContextMenu"))
+
+		for (auto& link : mLinkList)
 		{
-			if (ImGui::MenuItem("Delete Node"))
+			DrawTransitionLinkNode(&link);
+		}
+
+		ImNodes::MiniMap();
+		ImNodes::EndNodeEditor();
+		ImGui::EndChild();
+#pragma endregion
+
+		for (auto& [key, node] : mNameToNodeMap)
+		{
+			if (CheckStateInput(&node))
+			{
+				mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+			}
+		}
+
+		for (auto& link : mLinkList)
+		{
+			if (CheckLinkInput(&link))
+			{
+				mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
+			}
+		}
+
+		if (ImNodes::IsEditorHovered())
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("NodeEditor_Popup");
+			}
+
+		}
+
+		if (ImGui::BeginPopup("Node_Popup"))
+		{
+			if (ImGui::Selectable("Test"))
 			{
 
 			}
+
 			ImGui::EndPopup();
 		}
-//
-//		////if (ImGui::BeginPopup("LinkContextMenu"))
-//		////{
-//		////	if (ImGui::MenuItem("Delete Link"))
-//		////	{
-//
-//		////	}
-//		////	ImGui::EndPopup();
-//		////}
-//
-//		////if (ImGui::BeginPopup("BackgroundContextMenu"))
-//		////{
-//		////	if (ImGui::MenuItem("Add Node"))
-//		////	{
-//
-//		////	}
-//		////	ImGui::EndPopup();
-//		////}
-//
-		NodeEditor::Resume();
-//
-		for (auto& link : m_Links)
+
+		else if (ImGui::BeginPopup("Node_Popup"))
 		{
-			NodeEditor::Link(link.Id, link.sourceId, link.targetId);
-		}
-//
-		if (NodeEditor::BeginCreate())
-		{
-			NodeEditor::PinId inputPinId, outputPinId;
-			if (NodeEditor::QueryNewLink(&inputPinId, &outputPinId))
+			if (ImGui::Selectable("Create Node"))
 			{
-				if (inputPinId && outputPinId) // both are valid, let's accept link
+
+			}
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::End();
+	}
+
+	bool AnimatorWindow::CheckForAnimator()
+	{
+		// Check if any entities selected
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+		{
+			return (mCurrentAnimator != nullptr);
+		}
+
+		auto& nodes = selectionManager->GetSelectedNodes();
+		Entity entity = entt::null;
+
+		// if entities present
+		if (nodes.size() > 0)
+		{
+			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
+			entity = entityNode->entity;
+
+			// check if first entity has animator component
+			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
+
+			// if anim exists
+			if (anim && anim->IsValid())
+			{
+				// if current animator is null or mismatch
+				// ignore if anim == mCurrentAnimator
+				// either case, return true
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
 				{
-					// ed::AcceptNewItem() return true when user release mouse button.
-					if (NodeEditor::AcceptNewItem())
-					{
-						//if (inputPinid == NodeEditor::PinKind::Output)
-						LinkInfo link{ NodeEditor::LinkId(m_Links.size() + 1), inputPinId, outputPinId };
-
-						// Since we accepted new link, lets add one to our list of links.
-						m_Links.push_back(link);
-
-						// Draw new link.
-						NodeEditor::Link(m_Links.back().Id, m_Links.back().sourceId, m_Links.back().targetId);
-					}
-
-					// You may choose to reject connection between these nodes 
-					// by calling ed::RejectNewItem(). This will allow editor to give
-					// visual feedback by changing link thickness and color.
+					LoadDataFromAnimator(anim, entity);
+					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
 				}
+
+				return true;
+			}
+
+			else
+				return (mCurrentAnimator != nullptr);
+		}
+
+		// if no entities present
+		else
+			return (mCurrentAnimator != nullptr);
+	}
+
+	void AnimatorWindow::LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity)
+	{
+		mCurrentAnimator = component;
+
+		auto& stateMachineHandle = mCurrentAnimator->Handle_stateMachine;
+		mStateMachine = stateMachineHandle.get();
+
+		int nodeId{ 0 };
+
+		for (auto& [name, state] : mStateMachine->stateMap)
+		{
+			StateNode node{};
+			node.id = nodeId;
+			node.in_id = nodeId * 2;
+			node.out_id = node.in_id + 1;
+			node.name = name;
+			node.position = ImVec2(state.mNodePos);
+			node.state = &state;
+
+			mNameToNodeMap.emplace(name, node);
+			//mIndexToNodeMap.emplace(nodeId, node);
+			nodeId++;
+		}
+
+		int link_id{ 0 };
+
+		for (auto& [name, state] : mStateMachine->stateMap)
+		{
+			for (auto& transition : state.transitions)
+			{
+				auto it = mNameToNodeMap.find(transition.targetState);
+				if (it == mNameToNodeMap.end())
+					continue;
+
+				auto& sourceNode = mNameToNodeMap.at(name);
+				auto& targetNode = it->second;
+				
+				TransitionLinkNode link{};
+				link.id = link_id++;
+				link.source_id = sourceNode.out_id;
+				link.target_id = targetNode.in_id;
+				link.transition = &transition;
+
+				mLinkList.push_back(link);
 			}
 		}
+	}
 
-		NodeEditor::EndCreate();
-//
-//		// End Node Drawing
-		NodeEditor::End();
-		NodeEditor::SetCurrentEditor(nullptr);
-//
-//#pragma endregion
-		ImGui::End();
+	void AnimatorWindow::ClearData()
+	{
+		mCurrentAnimator = nullptr;
+		mStateMachine = nullptr;
+		mNameToNodeMap.clear();
+		mLinkList.clear();
 	}
 }

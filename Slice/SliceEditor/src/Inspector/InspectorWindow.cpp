@@ -26,6 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Graphics/TransformHelper.h>
 #include <Serializer/JSONSerializer.h>
 #include <Systems/LayerManager.h>
+#include <WindowManager/WindowManager.h>
 
 namespace SliceEditor
 {
@@ -63,13 +64,13 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
+		case SelectionType::STATE:
+			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			break;
 		}
 
 		ImGui::End();
 	}
-
-	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
-
 	
 	void InspectorWindow::DisplayEntityData(entt::entity entity)
 	{
@@ -1023,6 +1024,26 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+	}
+
+	void InspectorWindow::DisplayState(StateNode* node)
+	{
+		//auto anim_window = mRegistry.GetManager<WindowManager>("Window")->GetWindow<AnimationWindow>();
+		auto state = node->state;
+		
+		ImGui::Text("State");
+		StringInputHeader(mRegistry, "Name", "##state_name", state->stateName);
+		
+		for (auto& transition : state->transitions)
+		{
+			
+		}
+	}
+
+	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
+	{
+		ImGui::Text("Transition");
+
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
