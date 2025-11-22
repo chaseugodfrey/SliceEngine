@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -42,6 +44,7 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
@@ -70,7 +73,9 @@
     <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
+    <Compile Include="Source\Examples\TestMusic.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
+    <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />

@@ -774,11 +774,20 @@ namespace SliceEditor
 				changed = (guid != newGUID);
 				if (changed)
 				{
+					if (!setFunc)
+					{
+						std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+						guid = newGUID;
+					}
 
-					std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
-					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					else
+					{
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
-					setFunc(newGUID);
+						setFunc(newGUID);
+					}
 				}
 			}
 

@@ -668,20 +668,6 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
-
-		static std::vector<std::string> audioCategoryNames{ "SFX", "BGM", "UI", "EditorSounds"};
-		Label("Audio Category: ");
-		if (ImGui::BeginCombo("##Audio_Category: ", audioCategoryNames[(int)data->category].c_str()))
-		{
-			for (int i = 0; i < audioCategoryNames.size(); ++i)
-			{
-				if (ImGui::Selectable(audioCategoryNames[i].c_str()))
-				{
-					data->category = (AudioCategory)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
 	}
 #pragma endregion
 }
