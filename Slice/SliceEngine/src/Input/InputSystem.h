@@ -110,9 +110,9 @@ namespace SliceEngine
         bool IsKeyDown(int key);
 
         // mouse queries
-        bool IsMousePressed(MouseButtons button);
-        bool IsMouseReleased(MouseButtons button);
-        bool IsMouseDown(MouseButtons button);
+        bool IsMousePressed(MouseButtons button) const;
+        bool IsMouseReleased(MouseButtons button) const;
+        bool IsMouseDown(MouseButtons button) const;
 
         // mouse position
         glm::vec2 GetMousePosition() const { return currMousePos; }

@@ -124,6 +124,5 @@ namespace SliceEngine
         {
             CoroutineManager.StartCoroutine(Utilities.ParabolaCoroutine(target, start, end, height, duration), this);
         }
-
     }
 }

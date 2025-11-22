@@ -132,6 +132,7 @@
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\GLFWWindowManager.h" />
     <ClInclude Include="src\Graphics\CameraSystem.h" />
+    <ClInclude Include="src\Graphics\CanvasSystem.h" />
     <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\GLFWWindowManager.cpp" />
     <ClCompile Include="src\Graphics\CameraSystem.cpp" />
+    <ClCompile Include="src\Graphics\CanvasSystem.cpp" />
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />

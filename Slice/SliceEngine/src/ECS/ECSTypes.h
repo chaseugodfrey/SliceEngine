@@ -232,7 +232,8 @@ namespace SliceEngine
 		JPH::ShapeRefC shape;												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
-		bool isTrigger = false;												  
+		bool isTrigger = false;	
+		bool componentEnabled = true;
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};
@@ -545,6 +546,97 @@ namespace SliceEngine
 		unsigned int frame_idx{};
 
 		RTTR_ENABLE();
+	};
+
+	//for canvas, sprite renderer, rect transform, read comments in canvas system.h
+	struct Canvas
+	{
+		enum Type {
+			OVERLAY
+			//CAMERA
+			//WORLD
+		};
+
+		Type canvas_type{ OVERLAY };
+		unsigned int sort_order{};	//smaller number = draw first = behind others
+		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
+									//only for overlay canvas
+
+		RTTR_ENABLE();
+	};
+
+	struct RectTransform {
+		enum HoriPivot {
+			LEFT,
+			CENTER,
+			RIGHT,
+			STRETCH_H
+		};
+		enum VertPivot {
+			TOP,
+			MIDDLE,
+			BOTTOM,
+			STRETCH_V
+		};
+
+		//Settings only for imgui's display and component function calls
+		//old pivot serves as a flag to know how to update intermediate values during the update call
+		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
+		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
+
+		//Intermediate settings used by imgui, all in local space
+		int pos_x{}, pos_y{};			//pixel coord
+		int width{ 100 }, height{ 100 };//pixel size
+		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+
+		//Actual settings used to draw
+		int final_x{}, final_y{};				//position with center of quad as position
+		int final_width{ 100 }, final_height{ 100 };
+
+		//Parent/Canvas reference - done via passing param through the recursive func call maybe
+		void Update(Canvas const& ctx, RectTransform const& parent);
+
+		glm::mat4 ToMatrix() const;
+
+		RTTR_ENABLE();
+	};
+
+
+	struct SpriteRenderer {
+		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
+		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
+		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct Button {
+		RTTR_ENABLE();
+	public:
+		enum Transition : unsigned char {
+			Color,
+			Sprite
+		} transition;
+
+		enum ButtonState : unsigned char {
+			Normal = 0,
+			Highlighted = 1,
+			Pressed = 2,
+			Total_States
+		} state;
+
+		glm::vec4 color_transitions[Total_States]{
+			{1.f, 1.f, 1.f, 1.f},	//white
+			{0.75f, 0.75f, 0.75f, 1.f},//light grey
+			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		};
+		GUID sprite_transitions[Total_States]{
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT
+		};
+		//Entity target_graphic;	//if the entity that gets modified by transition not the same
+		//im gona move the click stuff to script only
 	};
 
 	// Not a component but a base data obj for nav mesh

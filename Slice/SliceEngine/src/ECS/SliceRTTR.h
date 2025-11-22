@@ -174,7 +174,8 @@ namespace SliceEngine
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
-		.property("isTrigger", &ColliderShape::isTrigger);
+		.property("isTrigger", &ColliderShape::isTrigger)
+		.property("componentEnabled", &ColliderShape::componentEnabled);
 
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
@@ -233,6 +234,29 @@ namespace SliceEngine
 			rttr::value("Point", Light::LightType::Light_Point),
 			rttr::value("Spot", Light::LightType::Light_Spot)
 		);
+	rttr::registration::enumeration<RectTransform::HoriPivot>("HoriPivot")
+		(
+			rttr::value("Left", RectTransform::HoriPivot::LEFT),
+			rttr::value("Center", RectTransform::HoriPivot::CENTER),
+			rttr::value("Right", RectTransform::HoriPivot::RIGHT),
+			rttr::value("Stretch", RectTransform::HoriPivot::STRETCH_H)
+			);
+	rttr::registration::enumeration<RectTransform::VertPivot>("VertPivot")
+		(
+			rttr::value("Top", RectTransform::VertPivot::TOP),
+			rttr::value("Middle", RectTransform::VertPivot::MIDDLE),
+			rttr::value("Bottom", RectTransform::VertPivot::BOTTOM),
+			rttr::value("Stretch", RectTransform::VertPivot::STRETCH_V)
+			);
+	rttr::registration::enumeration<Canvas::Type>("CanvasType")
+		(
+			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
+	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
+		(
+			rttr::value("Color", Button::Transition::Color),
+			rttr::value("Sprite", Button::Transition::Sprite)
+			);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
 		.property("type", &Light::type)
@@ -331,6 +355,36 @@ namespace SliceEngine
 		.property("skeleton_root", &Bone::skeleton_root)
 		.property("frame_idx", &Bone::frame_idx);
 
+	rttr::registration::class_<Canvas>(typeid(Canvas).name())
+		.constructor<>()
+		.property("canvas_type", &Canvas::canvas_type)
+		.property("sort_order", &Canvas::sort_order)
+		.property("graphics_raycast", &Canvas::graphic_raycastable);
+
+	rttr::registration::class_<Button>(typeid(Button).name())
+		.constructor<>()
+		.property("transition", &Button::transition);
+		//.property("colors", &Button::color_transitions)
+		//.property("sprites", &Button::sprite_transitions);
+
+	rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
+		.constructor<>()
+		.property("hori_pivot", &RectTransform::hori_pivot)
+		.property("vert_pivot", &RectTransform::vert_pivot)
+		.property("pos_x", &RectTransform::pos_x)
+		.property("pos_y", &RectTransform::pos_y)
+		.property("left", &RectTransform::left)
+		.property("right", &RectTransform::right)
+		.property("top", &RectTransform::top)
+		.property("bot", &RectTransform::bot)
+		.property("width", &RectTransform::width)
+		.property("height", &RectTransform::height);
+
+	rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
+		.constructor<>()
+		.property("texture", &SpriteRenderer::textureHandle)
+		.property("rgba", &SpriteRenderer::rgba)
+		.property("raycast_target", &SpriteRenderer::raycast_target);
 	}
 }
 #endif

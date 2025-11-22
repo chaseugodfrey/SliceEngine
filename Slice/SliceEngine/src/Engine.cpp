@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
+#include "Graphics/CanvasSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -118,6 +119,10 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+
+		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<ButtonSystem>();
+
 		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
@@ -144,9 +149,15 @@ namespace SliceEngine
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
-		//mRender->CreateCamera();
-		
 
+
+		//mRender->CreateCamera();
+
+		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
+		mCanvas.Init();
+
+		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
+		//sButton.Init();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -178,6 +189,8 @@ namespace SliceEngine
 		auto sInputs = core->GetInputSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -312,6 +325,10 @@ namespace SliceEngine
 				sAnimator.BoneUpdate();
 
 			}
+			frm->StartSystem("Button");
+			sButton.HandleMouse(*sInputs, sCanvas);
+			//sButton.UpdateCurrentButton();
+			frm->EndSystem("Button");
 		}
 
 		Core::GetInstance()->GetSystem<NavigationSystem>().Update(frm->getFixedDeltaTime());
@@ -320,6 +337,14 @@ namespace SliceEngine
 		frm->StartSystem("Graphics");
 		sRender->Render();
 		frm->EndSystem("Graphics");
+
+
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		sCanvas.DrawOverlay();
+		frm->EndSystem("Canvas");
+
 
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -343,6 +368,9 @@ namespace SliceEngine
 
 	void Engine::Exit()
 	{
+		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
+		mCanvas.Release();
+
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();

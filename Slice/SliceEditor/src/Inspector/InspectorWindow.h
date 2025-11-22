@@ -77,11 +77,18 @@ namespace SliceEditor
 		void DisplayCamera(entt::entity entity);
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
+		void DisplayNavAgent(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void DisplayLight(entt::entity entity);
 		void DisplayAnimator(entt::entity entity);
 		void DisplayParticleSystem(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
+
+
+		void DisplayRectTransform(entt::entity entity);
+		void DisplaySpriteRenderer(entt::entity entity);
+		void DisplayCanvas(entt::entity entity);
+		void DisplayButton(entt::entity entity);
 #pragma endregion
 
 #pragma region Main Draw Functions

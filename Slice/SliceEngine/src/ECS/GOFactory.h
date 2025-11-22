@@ -185,6 +185,9 @@ namespace SliceEngine
 		GameObject CreateGO_Capsule();
 		GameObject CreateGO_Cam();
 		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
+		GameObject CreateGO_Canvas();
+		GameObject CreateGO_Image();
+		GameObject CreateGO_Button();
 
 		Registry mRegistry;
 

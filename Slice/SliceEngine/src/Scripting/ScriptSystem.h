@@ -155,6 +155,11 @@ namespace SliceEngine
 		void QueueCollision(ScriptCollisionType, Entity entity1, Entity entity2);
 		void ProcessCollisionQueue();
 
+		//button events
+		void OnButtonClick(const OnButtonClickEvent& event);
+		void OnButtonRelease(const OnButtonReleaseEvent& event);
+
+
 		// Variables
 		MonoDomain* mRootDomain;
 		MonoDomain* mAppDomain;
