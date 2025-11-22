@@ -38,6 +38,10 @@ namespace SliceEngine
         {
             return FunctionCalls.GetCurrAnimTime(gameObject.mID);
         }
+        public float GetCurrAnimFPS()
+        {
+            return FunctionCalls.GetCurrAnimFPS(gameObject.mID);
+        }
 
         public bool IsCurrAnimFin()
         {
