@@ -162,7 +162,7 @@ namespace SliceEditor
 		else
 		{
 			//Delete the Root Entity from GOFactory
-			SliceEngine::Core::GetInstance()->GetRegistry().destroy(mPrefabRootEntity);
+			SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
 			
 			//Clear Session Manager Variables
 			mPrefabRootEntity = entt::null;
