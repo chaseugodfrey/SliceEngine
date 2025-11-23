@@ -168,7 +168,7 @@ namespace SliceEditor
 			mPrefabRootEntity = entt::null;
 			mPrefabNodes.clear();
 
-
+			registry.GetManager<SelectionManager>("Selection")->ClearSelection();
 		}
 	}
 

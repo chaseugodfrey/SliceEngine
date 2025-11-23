@@ -93,6 +93,8 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
 		}
 
+		ImGui::Text("Entity ID: %d", entity);
+
 		// currently tags are unused
 		int tag = 0;
 		std::vector<std::string> tags {"unused"};
