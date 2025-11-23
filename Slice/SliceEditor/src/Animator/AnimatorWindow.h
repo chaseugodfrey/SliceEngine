@@ -3,35 +3,33 @@
 
 #include "../WindowManager/EditorWindow.h"
 
-namespace NodeEditor = ax::NodeEditor;
-
 namespace SliceEditor
 {
 	class Registry;
-
-	struct AnimatorData
-	{
-		SliceEngine::Animator* animator = nullptr;
-		std::unique_ptr<StateMachineData> stateMachine;
-		std::unordered_map<std::string, StateNode> nodeMap;
-	};
+	class SessionManager;
 
 	class AnimatorWindow : public EditorWindow
 	{
-
+		SessionManager* mSessionManager = nullptr;
 		SliceEngine::Animator* mCurrentAnimator = nullptr;
-		std::unique_ptr<StateMachineData> mStateMachineAsset;
 
-		std::unordered_map<std::string, StateNode> mNameToNodeMap;
-		std::unordered_map<int, TransitionLinkNode> mIndexToLinkMap;
+		StateNode entryNode;
+		StateNode exitNode;
 
-		std::string mSelectedState;
-		int mSelectedLink;
+		AnimatorData* mAnimatorData = nullptr;
+
+		void DrawParameters();
+		void DrawEntryNode();
+		void DrawExitNode();
+		void DrawNodeEditor();
+		void DrawPostEditorElements();
+
+		void AddState();
 
 		bool CheckForAnimator();
 		void ClearData();
 
-		bool RemoveTransitionFromState(std::string stateName, int id);
+		bool RemoveTransitionFromState(int id);
 
 		bool CheckStateInput(StateNode* node);
 		bool CheckLinkInput(TransitionLinkNode* node);

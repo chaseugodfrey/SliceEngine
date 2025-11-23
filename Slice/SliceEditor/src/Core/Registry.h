@@ -56,7 +56,6 @@ namespace SliceEditor
 				return static_cast<IManager*>(it->second.get());
 			return nullptr;
 		}
-
 	};
 }
 

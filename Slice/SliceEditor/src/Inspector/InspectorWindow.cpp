@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
 #include "ComponentPropertiesGUI.h"
+#include "Session/SessionManager.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -67,6 +68,9 @@ namespace SliceEditor
 			break;
 		case SelectionType::STATE:
 			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			break;
+		case SelectionType::TRANSITION:
+			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
 			break;
 		case SelectionType::PREFAB:
 			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
@@ -1376,7 +1380,6 @@ namespace SliceEditor
 			mat.SerializeAsset(node->path);
 		}
 
-		
 		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
@@ -1385,21 +1388,82 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayState(StateNode* node)
 	{
-		//auto anim_window = mRegistry.GetManager<WindowManager>("Window")->GetWindow<AnimationWindow>();
-		auto state = node->state;
-		
-		ImGui::Text("State");
-		StringInputHeader(mRegistry, "Name", "##state_name", state->stateName);
-		
-		for (auto& transition : state->transitions)
-		{
-			
-		}
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+
+		ImGui::SeparatorText("State");
+
+		if (!anim_data)
+			return;
+
+		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+
+		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+	
+
+		//auto state = node->state;
+		//
+		//ImGui::Text("State");
+		//StringInputHeader(mRegistry, "Name", "##state_name", state->stateName);
+		//
+		//for (auto& transition : state->transitions)
+		//{
+		//	
+		//}
 	}
 
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
-		ImGui::Text("Transition");
+		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+
+		ImGui::SeparatorText("Transition");
+
+		if (!anim_data)
+			return;
+		
+		auto stateOpt = anim_data->GetState(node->source_id);
+		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
+
+		if (!transitionOpt.has_value())
+			return;
+
+		auto& transition = transitionOpt.value().get();
+
+		auto params = anim_data->GetParameters();
+
+		auto& condition = transition.condition;
+
+		if (condition.is_type<float>())
+		{
+			DragFloatInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<float>());
+		}
+
+		else if (condition.is_type<int>())
+		{
+			DragIntInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<int>());
+		}
+
+		else if (condition.is_type<bool>())
+		{
+			BoolInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<bool>());
+		}
+
+		//auto& params = anim_data->mStateMachineAsset->parameters;
+		//auto& transition = anim_data->mTransitionNodes.at(node->id);
+		////auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+
+		//ImGui::Text("Target State");
+		//ImGui::Text(transition.targetState.c_str());
+
+		//std::string id = "##param" + std::to_string(transition.id);
+
+		//if (transition.condition.is_type<float>())
+		//	DragFloatInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<float>(), "%.2f", 0.0f, 1.0f);
+
+		//if (transition.condition.is_type<int>())
+		//	DragIntInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<int>());
+
+		//if (transition.condition.is_type<float>())
+		//	BoolInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<bool>());
 	}
 
 	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
