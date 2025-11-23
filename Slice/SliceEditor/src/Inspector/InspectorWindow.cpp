@@ -1264,11 +1264,11 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(entity))
+			/*if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(entity))
 			{
 				DisplaySceneGraph(node->entity);
 				ImGui::Separator();
-			}
+			}*/
             
 			AddComponentButton(node->entity);
 		}
