@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
 
 #include <Resource/GUID.h>
@@ -32,7 +33,6 @@ namespace SliceEditor
 	void InspectorWindow::Init()
 	{
 		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap;
-		mPrefabEntity = EntityNode();
 	}
 
 	void InspectorWindow::Draw()
@@ -64,8 +64,8 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
-		case SelectionType::PREFAB:
-			DisplayPrefab(static_cast<PrefabNode*>(*selected_nodes.begin()));
+		case SelectionType::PREFAB_ENTITY:
+			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
 		}
 
 		ImGui::End();
@@ -1332,55 +1332,22 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplayPrefab(PrefabNode* node)
+	void InspectorWindow::DisplayPrefab(EntityNode* node)
 	{
-		//auto& assetManager = mRegistry.GetAssetManager();
-		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		//SliceEngine::GUID prefabGUID;
-		//std::string fileName = node->path.stem().stem().string();
-		////Search for the GUID in the map:
-		//if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
-		//{
-		//	prefabGUID = assetManager.mFilenameToGUID[fileName];
-		//}
-		//else
-		//{
-		//	SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
-		//	return;
-		//}
-
-		//Now get the resource
-		//SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
-		//if (mPrefabEntity.entity == entt::null)
-		//{
-		//	mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
-
-		//	if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(mPrefabEntity.entity))
-		//	{
-		//		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mPrefabEntity.entity);
-		//		//Set Parent to Null
-		//		sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::UP] = entt::null;
-		//		SLICE_LOG_CRITICAL("Test");
-		//	}
-		//}
-
 		//Save Prefab
 		if (ImGui::Button("Save Prefab"))
 		{
+			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
+			//Serialise the Prefab
+			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
 
-
-			if (mPrefabEntity.entity != entt::null)
-			{
-				SliceEngine::Core::GetInstance()->GetRegistry().destroy(mPrefabEntity.entity);
-			}
-
-			mPrefabEntity.entity = entt::null;
-
-			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
+			PrefabInspectedEvent event;
+			event.prefabBeingInspected = false;
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			return;
 		}
 
-		DisplayEntity(&mPrefabEntity);
+		DisplayEntity(node);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)

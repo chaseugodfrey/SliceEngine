@@ -15,8 +15,8 @@ namespace SliceEditor
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 
-		std::unordered_map<entt::entity, std::unique_ptr<PrefabNode>> mPrefabNodes; //For Hierarchy
-		std::unique_ptr<PrefabNode> mPrefabParent; //The Most-parented entity in the prefab
+		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
+		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
 
 		bool mPrefabInspected;
 
@@ -34,14 +34,16 @@ namespace SliceEditor
 		Preferences& GetPreferences();
 
 		void CreateEntityNodes();
+		void CreatePrefabNodes();
 		void OnSceneChange(const OnSceneLoadedEvent& event);
 		void OnSceneStop(const OnSceneStopEvent& event);
 		void OnAssetFileChanged(const AssetFileChangedEvent& event);
 		void PrefabInspected(const PrefabInspectedEvent& event);
-		void BuildPrefabTree(PrefabNode& node);
+		void BuildPrefabTree(Entity node);
 		bool IsPrefabInspected();
-		PrefabNode* GetPrefabInspected();
+		Entity GetPrefabInspected();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
+		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetPrefabNodes();
 	};
 
 }

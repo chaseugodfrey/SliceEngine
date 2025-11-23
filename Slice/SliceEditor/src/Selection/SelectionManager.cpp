@@ -59,7 +59,7 @@ namespace SliceEditor
 		if (node->type == SelectionType::ENTITY)
 			mSelectionType = node->type;
 
-		if (node->type == SelectionType::PREFAB)
+		else if (node->type == SelectionType::PREFAB)
 		{
 			//Get the PrefabGUID for the event of changing Hierarchy and Inspector to Prefab Inspecting
 			DirectoryNode* dirNode = static_cast<DirectoryNode*>(node);
@@ -81,6 +81,11 @@ namespace SliceEditor
 			PrefabInspectedEvent event(prefabGUID, true);
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			ClearSelection(true);
+		}
+		
+		else if (node->type == SelectionType::PREFAB_ENTITY)
+		{
+
 		}
 
 		if (!suppressHistory)

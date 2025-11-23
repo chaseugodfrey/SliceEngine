@@ -29,7 +29,7 @@ namespace SliceEditor
 	class HierarchyWindow : public EditorWindow
 	{
 
-		void DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph);
+		void DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph,bool isPrefab);
 		void DrawSceneNode();
 		void DrawPrefabNode();
 		void DrawNodeGraph();

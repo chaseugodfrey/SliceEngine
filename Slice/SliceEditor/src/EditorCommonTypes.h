@@ -65,11 +65,12 @@ namespace SliceEditor
 		SHADER = 7,
 		MATERIAL = 8,
 		PREFAB = 9,
-		ANIMATION = 10,
-		ANIMATOR = 11,
-		TEXTFILE = 12,
-		MIXED = 13,
-		UNSUPPORTED = 14
+		PREFAB_ENTITY = 10,
+		ANIMATION = 11,
+		ANIMATOR = 12,
+		TEXTFILE = 13,
+		MIXED = 14,
+		UNSUPPORTED = 15
 	};
 
 	struct SelectionNode
@@ -118,12 +119,12 @@ namespace SliceEditor
 		}
 	};
 
-	struct PrefabNode : SelectionNode
+	/*struct PrefabNode : SelectionNode
 	{
 		PrefabNode()
 			: entity(entt::null)
 		{
-			type = SelectionType::PREFAB;
+			type = SelectionType::PREFAB_ENTITY;
 			isSelected = false;
 		}
 
@@ -134,7 +135,7 @@ namespace SliceEditor
 		}
 		entt::entity entity = entt::null;
 		std::vector<PrefabNode> children;
-	};
+	};*/
 
 	struct DirectoryNode : SelectionNode //Content Browser
 	{
