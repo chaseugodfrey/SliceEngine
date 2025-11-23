@@ -608,6 +608,17 @@ namespace SliceEngine
 		return false;
 	}
 
+	static float GetCurrAnimFPS(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
+		}
+
+		return false;
+	}
+
 	static float GetCurrAnimTime(unsigned int entityID)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -733,7 +744,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(GetCurrAnimName);
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
-
+		ADD_INTERNAL_CALL(GetCurrAnimFPS);
 	}
 
 }

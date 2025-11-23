@@ -36,6 +36,7 @@ namespace SliceEngine
 		void SetLoop(bool loop);
 		std::string GetCurrAnimName();
 		bool IsCurrAnimFin();
+		float GetCurrAnimFPS();
 
 		SliceEngineTypes::StateMachine EFSM;
 		//float current_time{ 0.0f };

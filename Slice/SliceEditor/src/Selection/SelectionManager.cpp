@@ -59,6 +59,35 @@ namespace SliceEditor
 		if (node->type == SelectionType::ENTITY)
 			mSelectionType = node->type;
 
+		else if (node->type == SelectionType::PREFAB)
+		{
+			//Get the PrefabGUID for the event of changing Hierarchy and Inspector to Prefab Inspecting
+			DirectoryNode* dirNode = static_cast<DirectoryNode*>(node);
+			auto& assetManager = registry.GetAssetManager();
+			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID prefabGUID;
+			std::string fileName = dirNode->path.stem().stem().string();
+			//Search for the GUID in the map:
+			if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
+			{
+				prefabGUID = assetManager.mFilenameToGUID[fileName];
+			}
+			else
+			{
+				SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
+				return;
+			}
+
+			PrefabInspectedEvent event(prefabGUID, true);
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			ClearSelection(true);
+		}
+		
+		else if (node->type == SelectionType::PREFAB_ENTITY)
+		{
+
+		}
+
 		if (!suppressHistory)
 		{
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
@@ -156,6 +185,11 @@ namespace SliceEditor
 
 		if (!suppressHistory)
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
+
+		if (mSelectionType == SelectionType::PREFAB)
+		{
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(false);
+		}
 
 		for (auto& node : mSelectedNodes)
 			node->isSelected = false;

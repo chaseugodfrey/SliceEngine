@@ -32,7 +32,6 @@ namespace SliceEditor
 	class InspectorWindow : public EditorWindow
 	{
 		ImGuiTreeNodeFlags mBaseFlags;
-		EntityNode mPrefabEntity;
 
 #pragma region Entitiy Inspection
 		// Displaying Entities
@@ -97,7 +96,7 @@ namespace SliceEditor
 
 		void DisplayEntity(EntityNode* node);
 		void DisplayMaterial(DirectoryNode* node);
-		void DisplayPrefab(DirectoryNode* node);
+		void DisplayPrefab(EntityNode* node);
 #pragma endregion
 	public:
 
