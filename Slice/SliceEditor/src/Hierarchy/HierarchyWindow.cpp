@@ -149,10 +149,26 @@ namespace SliceEditor
 		}
 	}
 
+	void HierarchyWindow::DrawPrefabNode()
+	{
+		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
+		Entity parentEntity = sessionManager->GetPrefabInspected()->entity;
+		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
+		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
+		DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), parentEntity, sceneGraph);
+	}
+
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-		DrawSceneNode();
+		if (mRegistry.GetManager<SessionManager>("Session")->IsPrefabInspected())
+		{
+			DrawPrefabNode();
+		}
+		else
+		{
+			DrawSceneNode();
+		}
 		ImGui::EndGroup();
 	}
 

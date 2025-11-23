@@ -120,7 +120,19 @@ namespace SliceEditor
 
 	struct PrefabNode : SelectionNode
 	{
-		std::string entityName;
+		PrefabNode()
+			: entity(entt::null)
+		{
+			type = SelectionType::PREFAB;
+			isSelected = false;
+		}
+
+		PrefabNode(entt::entity ent) : entity(ent)
+		{
+			type = SelectionType::PREFAB;
+			isSelected = false;
+		}
+		entt::entity entity = entt::null;
 		std::vector<PrefabNode> children;
 	};
 

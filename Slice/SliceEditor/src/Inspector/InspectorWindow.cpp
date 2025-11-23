@@ -65,7 +65,7 @@ namespace SliceEditor
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
 		case SelectionType::PREFAB:
-			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
+			DisplayPrefab(static_cast<PrefabNode*>(*selected_nodes.begin()));
 		}
 
 		ImGui::End();
@@ -1160,10 +1160,10 @@ namespace SliceEditor
 
 		//Loop through registered components and display them if they exist on the selected entity
 
-		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
-		{
+		//for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		//{
 
-		}
+		//}
 
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(node->entity))
@@ -1263,6 +1263,12 @@ namespace SliceEditor
 				DisplaySliceScript(node->entity);
 				ImGui::Separator();
 			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(entity))
+			{
+				DisplaySceneGraph(node->entity);
+				ImGui::Separator();
+			}
             
 			AddComponentButton(node->entity);
 		}
@@ -1326,29 +1332,37 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
+	void InspectorWindow::DisplayPrefab(PrefabNode* node)
 	{
-		auto& assetManager = mRegistry.GetAssetManager();
-		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		SliceEngine::GUID prefabGUID;
-		std::string fileName = node->path.stem().stem().string();
-		//Search for the GUID in the map:
-		if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
-		{
-			prefabGUID = assetManager.mFilenameToGUID[fileName];
-		}
-		else
-		{
-			SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
-			return;
-		}
+		//auto& assetManager = mRegistry.GetAssetManager();
+		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//SliceEngine::GUID prefabGUID;
+		//std::string fileName = node->path.stem().stem().string();
+		////Search for the GUID in the map:
+		//if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
+		//{
+		//	prefabGUID = assetManager.mFilenameToGUID[fileName];
+		//}
+		//else
+		//{
+		//	SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
+		//	return;
+		//}
 
 		//Now get the resource
-		SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
-		if (mPrefabEntity.entity == entt::null)
-		{
-			mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
-		}
+		//SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
+		//if (mPrefabEntity.entity == entt::null)
+		//{
+		//	mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
+
+		//	if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(mPrefabEntity.entity))
+		//	{
+		//		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mPrefabEntity.entity);
+		//		//Set Parent to Null
+		//		sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::UP] = entt::null;
+		//		SLICE_LOG_CRITICAL("Test");
+		//	}
+		//}
 
 		//Save Prefab
 		if (ImGui::Button("Save Prefab"))

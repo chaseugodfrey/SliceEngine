@@ -12,17 +12,24 @@ namespace SliceEditor
 
 	void SessionManager::Init()
 	{
+		mPrefabInspected = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
 		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
+		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 		OpenPreferences();
 	}
 
 	void SessionManager::Update()
 	{
 		CreateEntityNodes();
+
+		if (mPrefabParent)
+		{
+
+		}
 	}
 
 	void SessionManager::OpenPreferences()
@@ -123,10 +130,76 @@ namespace SliceEditor
 		}
 	}
 
+	void SessionManager::PrefabInspected(const PrefabInspectedEvent& event)
+	{
+		//Set mPrefabInspected
+		mPrefabInspected = event.prefabBeingInspected;
+
+		//SceneGraph Building
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//Prefab  now being inspected
+		if (event.prefabBeingInspected)
+		{
+			//Create the list of prefabNodes for hierarchy
+			std::unique_ptr<PrefabNode> parentNode = std::make_unique<PrefabNode>();
+			SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(event.prefabGUID);
+			//Set the parentNode of the prefab
+			parentNode->entity = SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+
+			//Get the SceneGraph component to look for children
+			BuildPrefabTree(*parentNode);
+
+			//Set the mPrefabParent for Hierarchy to Display
+			mPrefabParent = std::move(parentNode);
+		}
+		//Prefab no longer being inspected
+		else
+		{
+
+		}
+	}
+
+	void SessionManager::BuildPrefabTree(PrefabNode& node)
+	{
+		//Get Entity's SceneGraph
+		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(node.entity);
+
+		//First child of this entity
+		Entity childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::DOWN];
+
+		while (childEntity != entt::null)
+		{
+			//Create a node for the child
+			PrefabNode childNode(childEntity);
+
+			//Recursively build the child's subtree
+			BuildPrefabTree(childNode);
+
+			//Attach to current node
+			node.children.push_back(std::move(childNode));
+
+			// Move to next sibling via RIGHT
+			auto& childSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+
+			childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::Direction::RIGHT];
+		}
+	}
+
+	bool SessionManager::IsPrefabInspected()
+	{
+		return mPrefabInspected;
+	}
+
+	PrefabNode* SessionManager::GetPrefabInspected()
+	{
+		return mPrefabParent.get();
+	}
+
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()
 	{
 		return mEntityNodes;
 	}
+
 
 
 

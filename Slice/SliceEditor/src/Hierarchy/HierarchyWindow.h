@@ -31,6 +31,7 @@ namespace SliceEditor
 
 		void DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph);
 		void DrawSceneNode();
+		void DrawPrefabNode();
 		void DrawNodeGraph();
 		void Reset();
 		void EntityContextPopUp(entt::entity entity);
