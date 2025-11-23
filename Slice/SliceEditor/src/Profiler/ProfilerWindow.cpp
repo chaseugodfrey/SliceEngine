@@ -329,6 +329,8 @@ namespace SliceEditor
 				{
 					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+					ImGui::SameLine();
+					ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 				}
 			}
 			else
@@ -340,6 +342,8 @@ namespace SliceEditor
 			{
 				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 			}
 			else
 			{
@@ -350,6 +354,8 @@ namespace SliceEditor
 			{
 				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 			}
 			else
 			{
@@ -360,6 +366,8 @@ namespace SliceEditor
 			{
 				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 			}
 			else
 			{
