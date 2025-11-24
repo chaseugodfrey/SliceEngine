@@ -63,7 +63,7 @@ namespace SliceEngine
 		{
 			std::string stateName;
 			unsigned int curr_anim_idx{};
-
+			int fps{};
 			float animationTime{};
 
 			bool isLoop { false };

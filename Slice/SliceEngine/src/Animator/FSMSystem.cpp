@@ -27,6 +27,7 @@ namespace SliceEngine
 					{
 						EFSM.stateMap[mapName].curr_anim_idx = i;
 						EFSM.stateMap[mapName].animationTime = anim_pkg.animations[i].duration;
+						EFSM.stateMap[mapName].fps = anim_pkg.animations[i].fps;
 						continue;
 					}
 
@@ -39,6 +40,7 @@ namespace SliceEngine
 					tmpState.curr_anim_idx = i;
 					tmpState.stateName = anim_name;
 					tmpState.animationTime = anim_pkg.animations[i].duration;
+					tmpState.fps = anim_pkg.animations[i].fps;
 
 					EFSM.stateMap[anim_name] = tmpState;
 				}
@@ -196,6 +198,13 @@ namespace SliceEngine
 			return false;
 
 		return EFSM.currState->isFinish;
+	}
+	float FSMSystem::GetCurrAnimFPS()
+	{
+		if (!EFSM.currState)
+			return 0.0f;
+
+		return (float)EFSM.currState->fps;
 	}
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{

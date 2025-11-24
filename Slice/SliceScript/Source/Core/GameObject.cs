@@ -87,7 +87,7 @@ namespace SliceEngine
             if (mID != 0)
                 FunctionCalls.Destroy(mID);
 
-            mID = 0;
+            //mID = 0;
         }
     }
 }

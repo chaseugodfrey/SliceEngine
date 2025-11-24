@@ -665,6 +665,7 @@ namespace SliceEditor
 			j["currAnimIdx"] = s.curr_anim_idx;
 			j["isLoop"] = s.isLoop;
 			j["mNodePos"] = s.mNodePos;
+			j["fps"] = s.fps;
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -724,6 +725,8 @@ namespace SliceEditor
 			j.at("stateName").get_to(s.stateName);
 			j.at("currAnimIdx").get_to(s.curr_anim_idx);
 			j.at("isLoop").get_to(s.isLoop);
+			j.at("mNodePos").get_to(s.mNodePos);
+			j.at("fps").get_to(s.fps);
 
 			s.transitions.clear();
 			const auto& transitions_json = j.at("transitions");
@@ -777,6 +780,43 @@ namespace SliceEditor
 		}
 
 		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+			nlohmann::json assetJson;
+
+			assetJson["entryState"] = entryState;
+			
+			nlohmann::json parametersJson;
+			for (const auto& pair : parameters)
+			{
+				to_json(parametersJson[pair.first], pair.second);
+			}
+			assetJson["parameters"] = parametersJson;
+
+			nlohmann::json stateMapJson;
+			for (const auto& pair : stateMap)
+			{
+				to_json(stateMapJson[pair.first], pair.second);
+			}
+			assetJson["stateMap"] = stateMapJson;
+
+			std::ofstream output(desc_path);
+			if (output.is_open())
+			{
+				output << assetJson.dump(4);
+				output.close();
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
+			}
+		}
+
+
+		/// <summary>
+		/// For creating the default player controller while editor is still being fixed
+		/// </summary>
+		/// <param name="desc_path"></param>
+		void SerializePlayerAsset(const std::filesystem::path& desc_path)
 		{
 			nlohmann::json metaJson;
 

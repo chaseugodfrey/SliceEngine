@@ -53,7 +53,7 @@ namespace SliceEngine
         public override void OnCollideEnter(uint other)
         {
          //   SliceLog.Log("OADMOSMODASM");
-            //gameObject.Destroy();
+            gameObject.Destroy();
         }
 
         public override void OnCollideStay(uint other)

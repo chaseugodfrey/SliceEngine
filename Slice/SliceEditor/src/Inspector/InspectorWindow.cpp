@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "InspectorWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
 #include "Session/SessionManager.h"
 
@@ -34,7 +35,6 @@ namespace SliceEditor
 	void InspectorWindow::Init()
 	{
 		mBaseFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap;
-		mPrefabEntity = EntityNode();
 	}
 
 	void InspectorWindow::Draw()
@@ -66,15 +66,15 @@ namespace SliceEditor
 		case SelectionType::MATERIAL:
 			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
 			break;
+		case SelectionType::PREFAB_ENTITY:
+			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			break;
 		case SelectionType::STATE:
 			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
 			break;
 		case SelectionType::TRANSITION:
 			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
 			break;
-		case SelectionType::PREFAB:
-			DisplayPrefab(static_cast<DirectoryNode*>(*selected_nodes.begin()));
-            break;
 		}
 
 		ImGui::End();
@@ -98,6 +98,8 @@ namespace SliceEditor
 			if (editable_name != original_name)
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
 		}
+
+		ImGui::Text("Entity ID: %d", entity);
 
 		// currently tags are unused
 		int tag = 0;
@@ -225,6 +227,7 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 	}
+	
 	void InspectorWindow::DisplayButton(entt::entity entity) {
 		if (ImGui::TreeNodeEx("Button", mBaseFlags))
 		{
@@ -1222,10 +1225,10 @@ namespace SliceEditor
 
 		//Loop through registered components and display them if they exist on the selected entity
 
-		for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
-		{
+		//for (auto&& [typeID, storage] : SliceEngine::Core::GetInstance()->GetRegistry().storage())
+		//{
 
-		}
+		//}
 
 		// to do : use gamefactory component view
 		if (SliceEngine::Core::GetInstance()->GetRegistry().valid(node->entity))
@@ -1325,6 +1328,12 @@ namespace SliceEditor
 				DisplaySliceScript(node->entity);
 				ImGui::Separator();
 			}
+
+			/*if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::SceneGraph>(entity))
+			{
+				DisplaySceneGraph(node->entity);
+				ImGui::Separator();
+			}*/
             
 			AddComponentButton(node->entity);
 		}
@@ -1349,32 +1358,37 @@ namespace SliceEditor
 		//if (metapath.has_value())
 		mat.DeserializeAsset(node->path);
 
-		std::string mat_file_name{};
-		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
-			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
-		}
-		else
-		{
-			mat_file_name = "GUID not in map";
+			mat.SerializeAsset(node->path);
 		}
 
-		ImGui::Text("Albedo");
-		ImGui::SameLine(150.0f);
-		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+		//std::string mat_file_name{};
+		//if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		//{
+		//	mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
+		//}
+		//else
+		//{
+		//	mat_file_name = "GUID not in map";
+		//}
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
-			{
-				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-				//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-				mat.albedo =recievedPayload;
-				mat.SerializeAsset(node->path);
-				// update the handle after
-			}
-			ImGui::EndDragDropTarget();
-		}
+		//ImGui::Text("Albedo");
+		//ImGui::SameLine(150.0f);
+		//ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+
+		//if (ImGui::BeginDragDropTarget())
+		//{
+		//	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+		//	{
+		//		SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+		//		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//		mat.albedo =recievedPayload;
+		//		mat.SerializeAsset(node->path);
+		//		// update the handle after
+		//	}
+		//	ImGui::EndDragDropTarget();
+		//}
 
 		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
@@ -1467,47 +1481,30 @@ namespace SliceEditor
 		//	BoolInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<bool>());
 	}
 
-	void InspectorWindow::DisplayPrefab(DirectoryNode* node)
+	void InspectorWindow::DisplayPrefab(EntityNode* node)
 	{
-		auto& assetManager = mRegistry.GetAssetManager();
-		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		SliceEngine::GUID prefabGUID;
-		std::string fileName = node->path.stem().stem().string();
-		//Search for the GUID in the map:
-		if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
-		{
-			prefabGUID = assetManager.mFilenameToGUID[fileName];
-		}
-		else
-		{
-			SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
-			return;
-		}
-
-		//Now get the resource
-		SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(prefabGUID);
-		if (mPrefabEntity.entity == entt::null)
-		{
-			mPrefabEntity = EntityNode(SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath));
-		}
-
 		//Save Prefab
 		if (ImGui::Button("Save Prefab"))
 		{
+			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
+			//Serialise the Prefab
+			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
 
-
-			if (mPrefabEntity.entity != entt::null)
-			{
-				SliceEngine::Core::GetInstance()->GetRegistry().destroy(mPrefabEntity.entity);
-			}
-
-			mPrefabEntity.entity = entt::null;
-
-			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
+			PrefabInspectedEvent event;
+			event.prefabBeingInspected = false;
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			return;
 		}
-
-		DisplayEntity(&mPrefabEntity);
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel"))
+		{
+			PrefabInspectedEvent event;
+			event.prefabBeingInspected = false;
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			return;
+		}
+		
+		DisplayEntity(node);
 	}
 
 	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
@@ -1550,6 +1547,8 @@ namespace SliceEditor
 				{
 					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+					ImGui::SameLine();
+					ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 				}
 			}
 			else
@@ -1561,6 +1560,7 @@ namespace SliceEditor
 			{
 				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 			}
 			else
 			{
@@ -1571,6 +1571,7 @@ namespace SliceEditor
 			{
 				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 			}
 			else
 			{
@@ -1581,6 +1582,7 @@ namespace SliceEditor
 			{
 				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 			}
 			else
 			{
@@ -1603,6 +1605,8 @@ namespace SliceEditor
 				{
 					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+					ImGui::SameLine();
+					ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 				}
 			}
 			else
@@ -1614,6 +1618,8 @@ namespace SliceEditor
 			{
 				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 			}
 			else
 			{
@@ -1624,6 +1630,8 @@ namespace SliceEditor
 			{
 				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 			}
 			else
 			{
@@ -1634,6 +1642,8 @@ namespace SliceEditor
 			{
 				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 			}
 			else
 			{
