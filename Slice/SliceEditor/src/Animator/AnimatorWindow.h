@@ -3,33 +3,39 @@
 
 #include "../WindowManager/EditorWindow.h"
 
-namespace NodeEditor = ax::NodeEditor;
-
 namespace SliceEditor
 {
 	class Registry;
-
-	struct NodeInfo
-	{
-		NodeEditor::NodeId   Id;
-		NodeEditor::PinId	inputPinId;
-		NodeEditor::PinId	outputPinId;
-		std::string         Name;
-	};
-
-	struct LinkInfo
-	{
-		NodeEditor::LinkId Id;
-		NodeEditor::PinId  sourceId;
-		NodeEditor::PinId  targetId;
-	};
+	class SessionManager;
 
 	class AnimatorWindow : public EditorWindow
 	{
-		NodeEditor::EditorContext* m_Context = nullptr;
+		SessionManager* mSessionManager = nullptr;
+		SliceEngine::Animator* mCurrentAnimator = nullptr;
 
-		ImVector<NodeInfo> m_Nodes;
-		ImVector<LinkInfo> m_Links;
+		StateNode entryNode;
+		StateNode exitNode;
+
+		AnimatorData* mAnimatorData = nullptr;
+
+		void DrawParameters();
+		void DrawEntryNode();
+		void DrawExitNode();
+		void DrawNodeEditor();
+		void DrawPostEditorElements();
+
+		void AddState();
+
+		bool CheckForAnimator();
+		void ClearData();
+
+		bool RemoveTransitionFromState(int id);
+
+		bool CheckStateInput(StateNode* node);
+		bool CheckLinkInput(TransitionLinkNode* node);
+		void DrawStateNode(StateNode* node);
+		void DrawTransitionLinkNode(TransitionLinkNode* node);
+		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 
 	public:
 		AnimatorWindow(Registry& reg) : EditorWindow(reg) {};

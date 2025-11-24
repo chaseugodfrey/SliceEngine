@@ -209,6 +209,11 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val)
+	{
+		return false;
+	}
+
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
 	{
 		bool changed = false;
@@ -827,6 +832,21 @@ namespace SliceEditor
 
 	}
 
+	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
+
+		return changed;
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;
@@ -873,4 +893,10 @@ namespace SliceEditor
 
 }
 
-
+void SetBit(unsigned char& mask, unsigned char bit, bool enabled)
+{
+	if (enabled)
+		mask |= bit;
+	else
+		mask &= ~bit;
+}
