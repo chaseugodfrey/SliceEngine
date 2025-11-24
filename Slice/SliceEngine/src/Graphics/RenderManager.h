@@ -79,6 +79,7 @@ namespace SliceEngine
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
+		const int mSkyboxDim = 1024;
 
 		struct ShadowCamDir
 		{
@@ -137,6 +138,7 @@ namespace SliceEngine
 			S_BLOOM_JOIN	= 11454882705531309873,
 			S_VIGNETTE		= 15557538937295862472,
 			S_SKY_IRRADIANCE= 12553626097981143487,
+			S_SKY_GENERATE	= 10651205271784078762,
 			S_FINAL			= 9302529766740298710
 		};
 		enum GPU_OUT : unsigned char

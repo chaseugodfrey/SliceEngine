@@ -166,22 +166,22 @@ namespace SliceEngine
 			mipDim /= 2.f;
 		}
 
-		// Read the texture for loading into skybox -- TODO -- Procedual
+		// Read the texture for loading into skybox
 		//GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)18349208178533231704).get()->texture_id;
-		GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT).get()->texture_id;
-		GLint srcInternalFmt, width, height;
-		glBindTexture(GL_TEXTURE_2D, faceTexID);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &srcInternalFmt);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
-		// Generates Skybox Texture
+		//GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT).get()->texture_id;
+		//GLint srcInternalFmt, width, height;
+		//glBindTexture(GL_TEXTURE_2D, faceTexID);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &srcInternalFmt);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+		
+		// ----- Generates Skybox Texture -----
 		glGenTextures(1, &SkyboxMap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxMap);
-		glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, srcInternalFmt, width, height);
+		//glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, srcInternalFmt, width, height);
 		for (u_int i{}; i < 6; ++i)
-		{
-			glCopyImageSubData(faceTexID, GL_TEXTURE_2D, 0, 0, 0, 0, SkyboxMap, GL_TEXTURE_CUBE_MAP, 0, 0, 0, i, width, height, 1);
-		}
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, mSkyboxDim, mSkyboxDim, 0, GL_RGB, GL_FLOAT, NULL);
+			//glCopyImageSubData(faceTexID, GL_TEXTURE_2D, 0, 0, 0, 0, SkyboxMap, GL_TEXTURE_CUBE_MAP, 0, 0, 0, i, width, height, 1);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -204,17 +204,42 @@ namespace SliceEngine
 	}
 	void RenderManager::RegenerateSkybox()
 	{
-		SetShader(S_SKY_IRRADIANCE);
+		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
+		glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, 0.1f, 10.f);
+
+		// ----- Generate Skybox -----
+		SetShader(S_SKY_GENERATE);
 		LinkFrameBufferSettings(FB_FINAL, 0);
-		LoadSettings(GPS_NONE);
+		LoadSettings(GPS_NONE); // Means just draw irregardlesss
+		glViewport(0, 0, mSkyboxDim, mSkyboxDim);
+
+		glBindVertexArray(mdl.vao);
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
+		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &proj[0][0]);
+		// Skybox Settings
+
+
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "V");
+		for (int i{}; i < 6; ++i)
+		{
+			glm::mat4 view = glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up);
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &view[0][0]);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, SkyboxMap, 0);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
+			glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+		}
+
+		// ----- Use generated Map to generate irradiance map -----
+		SetShader(S_SKY_IRRADIANCE);
+		//LinkFrameBufferSettings(FB_FINAL, 0);
+		//LoadSettings(GPS_NONE); // Means just draw irregardlesss
 		glViewport(0, 0, mSkyboxIrrDim, mSkyboxIrrDim);
 		glBindTextureUnit(0, SkyboxMap);
-
-		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
 		glBindVertexArray(mdl.vao);
 
-		glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, 0.1f, 10.f);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &proj[0][0]);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "V");
