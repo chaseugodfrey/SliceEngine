@@ -5,6 +5,13 @@ namespace SliceEngine
 
     public class ColliderShape : Component
     {
+        public ColliderShape() { }
+        public ColliderShape(GameObject entity)
+        {
+            gameObject = entity;
+            ComponentEnabled = FunctionCalls.ColliderShape_IsEnabled(gameObject.mID); ;
+        }
+
         public bool ComponentEnabled
         {
             get
