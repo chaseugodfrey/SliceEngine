@@ -73,9 +73,9 @@ namespace SliceEngine
                 FunctionCalls.Transform_SetRotation(gameObject.mID, ref euler);
             }
         }
-        public Vector3 Forward { get { return new Vector3(0f, 0f, Rotation.z); } }
-        public Vector3 Right { get { return new Vector3(Rotation.x, 0f, 0f); } }
-
+        public Vector3 Right { get { return RotationQuat * Vector3.Right; } }
+        public Vector3 Up { get { return RotationQuat * Vector3.Up; } }
+        public Vector3 Forward { get { return RotationQuat * Vector3.Forward; } }
         public void Translate(Vector3 translation, bool localSpace = false)
         {
             Vector3 pos = Position;

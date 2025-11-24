@@ -21,7 +21,7 @@ namespace SliceEngine
             base.OnCreate();
 
             // Finding references to each script
-            CameraController = gameObject.FindGameObjectWithName("MainCamera")?.As<CameraController>();
+            CameraController = gameObject.FindGameObjectWithName("Camera Rig")?.As<CameraController>();
             if (CameraController != null) Console.WriteLine("Camera found");
             else Console.WriteLine("Camera not found");
 

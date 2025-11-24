@@ -20,6 +20,7 @@ namespace SliceEngine
         public float moveSpeed = 2.5f;
         public float jumpHeight = 5f;
         private Vector3 input;
+        private Vector3 moveDir;
         private bool canMove;
         private bool canJump;
 
@@ -125,8 +126,8 @@ namespace SliceEngine
             //    animator.SetBool("Run", false);
             //    animator.SetBool("Attack", true);
             //}
-            //HandleInput();
-            //HandleMovement(dt);
+            HandleInput();
+            HandleMovement(dt);
         }
         public void Initialize()
         {
@@ -137,19 +138,27 @@ namespace SliceEngine
         {
             input = Vector3.Zero;
             // Forward/backward movement
-            if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(1f * moveSpeed, 0f, 0f);
-            else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(-1f * moveSpeed, 0f, 0f);
+            if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
+            else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
 
             // Sideways movement 
-            if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(0f, 0f, 1f * moveSpeed);
-            else if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(0f, 0f, -1f * moveSpeed);
+            if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
+            else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
+
+            input = input.Normalize();
 
             if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) input += new Vector3(0f, jumpHeight, 0f);
         }
         private void HandleMovement(float dt)
         {
-            Vector3 camTransform = camera.transform.Position;
-            t.Position += input * dt;
+            Transform camTransform = camera.transform;
+            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward;
+            camForward.y = 0f;
+            camForward = camForward.Normalize();
+            Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+            Vector3 speed = moveDir * moveSpeed;
+            t.Position += new Vector3(speed.x, speed.y, speed.z) * dt;
         }
         #endregion
         public override void OnCollideEnter(uint other)

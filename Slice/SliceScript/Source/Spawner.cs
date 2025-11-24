@@ -19,7 +19,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             testList.Add(1.0f);
-            StartCoroutine(SpawnLoop());            
+            //StartCoroutine(SpawnLoop());            
             for(int i = 0; i < testList.Count; ++i)
             {
                 SliceLog.Log(testList[i].ToString());
