@@ -57,8 +57,8 @@ namespace SliceEditor
 		node->isSelected = true;
 
 		if (node->type == SelectionType::ENTITY)
-			mSelectionType = node->type;
-
+		{
+		}
 		else if (node->type == SelectionType::PREFAB)
 		{
 			//Get the PrefabGUID for the event of changing Hierarchy and Inspector to Prefab Inspecting
@@ -87,6 +87,8 @@ namespace SliceEditor
 		{
 
 		}
+
+		mSelectionType = node->type;
 
 		if (!suppressHistory)
 		{
@@ -185,11 +187,6 @@ namespace SliceEditor
 
 		if (!suppressHistory)
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
-
-		if (mSelectionType == SelectionType::PREFAB)
-		{
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(false);
-		}
 
 		for (auto& node : mSelectedNodes)
 			node->isSelected = false;

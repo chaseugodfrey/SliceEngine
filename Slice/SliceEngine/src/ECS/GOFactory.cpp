@@ -221,6 +221,12 @@ namespace SliceEngine
 		auto go = GetGOByEntity(entity);
 		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
+		if (mDeleteList.contains(entity))
+		{
+			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			return;
+		}
+
 		//Check children and destroy them too
 		if(go.HasComponent<SceneGraph>())
 		{
