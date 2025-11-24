@@ -748,6 +748,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
+		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
+		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

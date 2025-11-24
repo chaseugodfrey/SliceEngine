@@ -11,19 +11,19 @@ namespace SliceEngine
         public float moveSpeed = 5.0f;
 
         Transform enemyT;
-        GameObject player;
+        //GameObject player;
         Transform playerT = null;
         public Vector3[] test;
 
         public override void OnCreate()
         {
             enemyT = GetComponent<Transform>();
-            player = gameObject.FindGameObjectWithName("RootNode");
+            //player = gameObject.FindGameObjectWithName("RootNode");
 
-            if (player != null)
-            {
-                playerT = player.GetComponent<Transform>();
-            }
+            //if (player != null)
+            //{
+                playerT = gameObject.FindGameObjectWithName("RootNode").GetComponent<Transform>();
+            //}
 
         }
 
@@ -36,11 +36,11 @@ namespace SliceEngine
                 enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
             }
 
-            if (player.Has<Player>())
-            {
-                Player playerComp = player.As<Player>();
-                SliceLog.Log(playerComp.direction.ToString());
-            }
+            //if (player.Has<Player>())
+            //{
+            //    Player playerComp = player.As<Player>();
+            //    SliceLog.Log(playerComp.direction.ToString());
+            //}
 
             if (playerT.gameObject.Has<Player>())
             {
@@ -52,7 +52,7 @@ namespace SliceEngine
 
         public override void OnCollideEnter(uint other)
         {
-         //   SliceLog.Log("OADMOSMODASM");
+            //SliceLog.Log("OADMOSMODASM");
             //gameObject.Destroy();
         }
 
