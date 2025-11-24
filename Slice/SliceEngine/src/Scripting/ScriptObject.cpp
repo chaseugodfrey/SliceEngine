@@ -154,6 +154,7 @@ namespace SliceEngine
 		mConstruct = mEntityClass.GetMethod(".ctor", 1);
 
 		// These are the other functions that every other script that inherits Entity will have
+		mOnAwake = scClass->GetMethod("OnAwake", 0);
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
@@ -196,6 +197,11 @@ namespace SliceEngine
 			void* param = &id;
 			mScriptClass->InvokeMethod(mMonoInstance, mConstruct, &param);
 
+		}
+
+		if (mOnAwake)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnAwake);
 		}
 	}
 
