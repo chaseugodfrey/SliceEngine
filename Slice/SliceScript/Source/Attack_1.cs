@@ -8,12 +8,12 @@ namespace SliceEngine
     {
         public override void OnCollideEnter(uint other)
         {
-            Console.WriteLine("Attack Hit!");
+            Console.WriteLine("Attack Hit ENTER! entity <" + other + ">LOLOLOLOLOLOL");
         }
 
         public override void OnCollideStay(uint other)
         {
-            Console.WriteLine("Attack Hit!");
+            Console.WriteLine("Attack Hit STAY! entity <" + other + ">LOLOLOLOLOLOL");
         }
     }
 }

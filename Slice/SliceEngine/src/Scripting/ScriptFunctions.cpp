@@ -511,6 +511,10 @@ namespace SliceEngine
 		if (it != rm->mFileNameToGUID.end())
 		{
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
+			if(cStrName == "EnemyTest")
+			{
+				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+			}
 			return(unsigned int)newGO.GetEntity();
 		}
 			//mono_free(cStrName);
