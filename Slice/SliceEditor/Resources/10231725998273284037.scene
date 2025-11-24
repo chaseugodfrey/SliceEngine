@@ -1,17 +1,51 @@
 [
     {
-        "GameObject_1": {
-            "struct SliceEngine::ColliderShape": {
-                "isTrigger": false,
-                "offSet": [
+        "Bootstrap": {
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 67,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    2,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Bootstrap"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Bootstrap",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
                     0.0,
                     0.0,
                     0.0
                 ],
-                "sphereData": {
-                    "radius": 0.5
-                }
-            },
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint4": {
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
@@ -23,29 +57,614 @@
                 "renderTag": "0",
                 "skinned": false
             },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 66,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    65,
+                    57
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Waypoint4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -8.739869117736816,
+                    0.8355576395988464,
+                    -9.777359962463379
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint3": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 65,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    64,
+                    66
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Waypoint3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    7.248874187469482,
+                    0.9286327958106995,
+                    -8.426582336425781
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint2": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 64,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    63,
+                    65
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Waypoint2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    6.735180377960205,
+                    1.0011451244354248,
+                    10.998712539672852
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.9999999403953552,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Waypoint1": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 63,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    62,
+                    64
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Waypoint1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -8.563642501831055,
+                    0.8840956091880798,
+                    11.284699440002441
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.6057339310646057,
+                    0.6057339310646057,
+                    0.6057339310646057
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_3": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12802300298583430329"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 62,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    58,
+                    63
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -3.1664040088653564,
+                    1.1001356840133667,
+                    -2.076117992401123
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "FloorQuad": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4651861510357422797"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 61,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    59,
+                    58
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "FloorQuad",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.7071067690849304,
+                    0.7071067690849304,
+                    -0.0,
+                    0.0
+                ],
+                "scale": [
+                    24.7723388671875,
+                    31.97980499267578,
+                    9.999996185302734
+                ]
+            }
+        }
+    },
+    {
+        "MainCamera": {
+            "struct SliceEngine::Camera": {
+                "bloomFilterRadius": 0.004999999888241291,
+                "bloomStrength": 0.03999999910593033,
+                "depthTex": 27,
+                "far": 200.0,
+                "fogColor": [
+                    0.20000000298023224,
+                    0.20000000298023224,
+                    0.20000000298023224
+                ],
+                "fogIntensity": 0.03999999910593033,
+                "height": 1080,
+                "near": 0.009999999776482582,
+                "pov": 60.0,
+                "renderTag": "0",
+                "textureID": 26,
+                "vignetteCenter": [
+                    0.5,
+                    0.5
+                ],
+                "vignetteIntensity": 0.335999995470047,
+                "vignetteSmoothness": 0.699999988079071,
+                "width": 1920
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 60,
+                "neighbours": [
+                    57,
+                    4294967295,
+                    55,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.CameraController"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainCamera",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    -24.5
+                ],
+                "position": [
+                    0.0,
+                    2.299999952316284,
+                    -3.0
+                ],
+                "rotation": [
+                    -0.6910067200660706,
+                    -0.15003226697444916,
+                    0.6910067796707153,
+                    0.15003226697444916
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "intensity": 0.5,
+                "type": "Directional"
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 59,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    4294967295,
+                    61
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.9396434426307678,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_2": {
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "4412061832024819835"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 58,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    61,
+                    62
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Spawner",
+                "scriptableFieldMap": {
+                    "enemyPrefab": {
+                        "Type": "std::string",
+                        "Value": "EnemyTest"
+                    },
+                    "spawnCount": {
+                        "Type": "int",
+                        "Value": 4
+                    },
+                    "spawnInterval": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "spawnTime": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "testList": {
+                        "Type": "std::vector<float>",
+                        "Value": [
+                            1.0
+                        ]
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    10.003788948059082,
+                    0.015615851618349552,
+                    10.003788948059082
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Player": {
+            "struct SliceEngine::Animator": {
+                "current_time": 1.2833328247070313,
+                "stateMachine": ""
+            },
+            "struct SliceEngine::Bone": {
+                "frame_idx": 0,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::RigidBody": {
                 "CollisionDetection": "",
                 "angularDamping": 0.05000000074505806,
                 "friction": 0.5,
                 "gravityFactor": 1.0,
-                "isKinematic": false,
+                "isKinematic": true,
                 "linearDamping": 0.05000000074505806,
                 "mass": 1.0,
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097154,
+                "entity_id": 57,
                 "neighbours": [
                     0,
-                    4294967295,
-                    2097209,
-                    2097219
+                    56,
+                    66,
+                    2
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.PlayerController",
+                "scriptableFieldMap": {
+                    "TestVectors": {
+                        "Type": "std::vector<glm::vec3>",
+                        "Value": [
+                            [
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            [
+                                2.0,
+                                2.0,
+                                2.0
+                            ]
+                        ]
+                    },
+                    "direction": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "jumpHeight": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "moveSpeed": {
+                        "Type": "float",
+                        "Value": 2.5
+                    },
+                    "rotationSpeed": {
+                        "Type": "float",
+                        "Value": 50.0
+                    },
+                    "test3": {
+                        "Type": "std::vector<std::string>",
+                        "Value": [
+                            "Test",
+                            "Test2"
+                        ]
+                    },
+                    "up": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "GameObject_1",
+                "mName": "Player",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -55,61 +674,15 @@
                     0.0
                 ],
                 "position": [
-                    5.622255325317383,
-                    -0.31056541204452515,
-                    3.4186174869537354
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
                     0.0,
                     0.0,
                     0.0
-                ],
-                "scale": [
-                    7.599999904632568,
-                    2.799999952316284,
-                    8.199999809265137
-                ]
-            }
-        }
-    },
-    {
-        "LegIK.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 54,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097155,
-                "neighbours": [
-                    2097159,
-                    4294967295,
-                    2097158,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "LegIK.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    6.984919309616089e-09,
-                    0.05871707946062088,
-                    0.10904599726200104
-                ],
-                "rotation": [
-                    4.367185368892024e-08,
-                    -0.04252128303050995,
-                    1.858664333553861e-09,
-                    0.9990955591201782
                 ],
                 "scale": [
                     1.0,
@@ -120,62 +693,16 @@
         }
     },
     {
-        "toe.R": {
+        "Female 1": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 53,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097156,
-                "neighbours": [
-                    2097158,
-                    4294967295,
-                    2097157,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "toe.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -6.344635039567947e-09,
-                    0.14780907332897186,
-                    2.87545844912529e-08
-                ],
-                "rotation": [
-                    -1.838359935391054e-07,
-                    -6.415001507775742e-08,
-                    0.944166362285614,
-                    -0.32946914434432983
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    0.9999999403953552
-                ]
-            }
-        }
-    },
-    {
-        "Cube.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 52,
-                "skeleton_root": 2097209
+                "frame_idx": 1,
+                "skeleton_root": 57
             },
             "struct SliceEngine::Renderer": {
                 "material": {
                     "GUID": "10819322238111217941"
                 },
-                "meshOffset": "13",
+                "meshOffset": "0",
                 "model": {
                     "GUID": "17518266545644652909"
                 },
@@ -183,18 +710,18 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097157,
+                "entity_id": 56,
                 "neighbours": [
-                    2097158,
+                    57,
                     4294967295,
                     4294967295,
-                    2097156
+                    55
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Cube.001",
+                "mName": "Female 1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -204,89 +731,43 @@
                     0.0
                 ],
                 "position": [
-                    0.003508329391479492,
-                    0.104869045317173,
-                    -0.08640672266483307
-                ],
-                "rotation": [
-                    0.32946914434432983,
-                    0.944166362285614,
-                    6.41500008669027e-08,
-                    -1.8383596511739597e-07
-                ],
-                "scale": [
-                    1.203515648841858,
-                    1.203515887260437,
-                    1.203515887260437
-                ]
-            }
-        }
-    },
-    {
-        "foot.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 51,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097158,
-                "neighbours": [
-                    2097159,
-                    2097157,
-                    4294967295,
-                    2097155
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "foot.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
                     0.0,
                     0.0,
                     0.0
                 ],
-                "position": [
-                    6.72793248668313e-06,
-                    0.058742210268974304,
-                    0.10907979309558868
-                ],
                 "rotation": [
-                    2.238095078155311e-07,
-                    -5.040292450075867e-08,
-                    0.944166362285614,
-                    -0.32946914434432983
+                    0.7071066498756409,
+                    -0.70710688829422,
+                    0.0,
+                    0.0
                 ],
                 "scale": [
                     1.0,
-                    0.9999996423721313,
-                    0.9999998807907104
+                    1.0,
+                    1.0
                 ]
             }
         }
     },
     {
-        "LegIK.R.001": {
+        "player": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 50,
-                "skeleton_root": 2097209
+                "frame_idx": 2,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097159,
+                "entity_id": 55,
                 "neighbours": [
-                    2097207,
-                    2097158,
-                    2097164,
-                    4294967295
+                    57,
+                    54,
+                    56,
+                    60
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "LegIK.R.001",
+                "mName": "player",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -296,674 +777,89 @@
                     0.0
                 ],
                 "position": [
-                    -0.2717793583869934,
-                    0.1806367188692093,
-                    0.5398728847503662
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
-                    -0.00044610019540414214,
-                    -0.009518126025795937,
-                    0.9988580942153931,
-                    -0.04681600630283356
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
                 ],
                 "scale": [
+                    0.8308991193771362,
+                    0.8308990001678467,
+                    0.8308990001678467
+                ]
+            }
+        }
+    },
+    {
+        "spine": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 3,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 54,
+                "neighbours": [
+                    55,
+                    53,
+                    4294967295,
+                    14
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "spine",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.882578715139971e-08,
+                    0.08731144666671753,
+                    1.0075280666351318
+                ],
+                "rotation": [
+                    0.6243506669998169,
+                    0.7773265242576599,
+                    -0.03233993053436279,
+                    0.07002820074558258
+                ],
+                "scale": [
+                    1.0,
                     0.9999997615814209,
-                    1.0,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "LegIK.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 49,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097160,
-                "neighbours": [
-                    2097164,
-                    4294967295,
-                    2097163,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "LegIK.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -1.4901161193847656e-08,
-                    0.05871706083416939,
-                    0.10904600471258163
-                ],
-                "rotation": [
-                    -4.367185368892024e-08,
-                    0.04252128303050995,
-                    1.8586646666207685e-09,
-                    0.9990955591201782
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    0.9999999403953552
-                ]
-            }
-        }
-    },
-    {
-        "toe.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 48,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097161,
-                "neighbours": [
-                    2097163,
-                    4294967295,
-                    2097162,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "toe.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    9.325376026936283e-10,
-                    0.14780905842781067,
-                    -2.3637120705188863e-08
-                ],
-                "rotation": [
-                    1.838359935391054e-07,
-                    6.415001507775742e-08,
-                    0.944166362285614,
-                    -0.32946914434432983
-                ],
-                "scale": [
-                    1.0,
-                    1.0000001192092896,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Cube.002": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 47,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "12",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097162,
-                "neighbours": [
-                    2097163,
-                    4294967295,
-                    4294967295,
-                    2097161
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Cube.002",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.005159616470336914,
-                    0.1048690602183342,
-                    -0.08640651404857635
-                ],
-                "rotation": [
-                    0.32946914434432983,
-                    0.944166362285614,
-                    -6.41500008669027e-08,
-                    1.8383596511739597e-07
-                ],
-                "scale": [
-                    1.2035155296325684,
-                    1.203515887260437,
-                    1.2035157680511475
-                ]
-            }
-        }
-    },
-    {
-        "foot.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 46,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097163,
-                "neighbours": [
-                    2097164,
-                    2097162,
-                    4294967295,
-                    2097160
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "foot.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -1.5348196029663086e-06,
-                    0.05877724289894104,
-                    0.10909274220466614
-                ],
-                "rotation": [
-                    -2.2374673847025406e-07,
-                    5.0223039949059967e-08,
-                    0.944166362285614,
-                    -0.32946914434432983
-                ],
-                "scale": [
-                    1.0,
-                    0.9999996423721313,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "LegIK.L.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 45,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097164,
-                "neighbours": [
-                    2097207,
-                    2097163,
-                    2097165,
-                    2097159
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "LegIK.L.001",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.1354103535413742,
-                    0.4097006320953369,
-                    0.5239788293838501
-                ],
-                "rotation": [
-                    3.3913312158517783e-09,
-                    -4.3579628794532255e-08,
-                    0.9969857931137085,
-                    -0.07758461683988571
-                ],
-                "scale": [
-                    1.0,
-                    1.0000001192092896,
-                    1.0000001192092896
-                ]
-            }
-        }
-    },
-    {
-        "LegPole.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 44,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097165,
-                "neighbours": [
-                    2097207,
-                    4294967295,
-                    2097166,
-                    2097164
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "LegPole.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.3452550768852234,
-                    -0.3708297610282898,
-                    0.24321874976158142
-                ],
-                "rotation": [
-                    -4.371138828673793e-08,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "LegPole.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 43,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097166,
-                "neighbours": [
-                    2097207,
-                    4294967295,
-                    2097206,
-                    2097165
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "LegPole.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.1230478286743164,
-                    -0.4048542082309723,
-                    0.24796247482299805
-                ],
-                "rotation": [
-                    -4.371138828673793e-08,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Plane.014": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 42,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "11",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097167,
-                "neighbours": [
-                    2097168,
-                    4294967295,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Plane.014",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.15487481653690338,
-                    0.21677982807159424,
-                    0.003486916422843933
-                ],
-                "rotation": [
-                    0.7413330674171448,
-                    0.6698066592216492,
-                    -0.02768871933221817,
-                    -0.03190012276172638
-                ],
-                "scale": [
-                    1.203515648841858,
-                    1.2035161256790161,
-                    1.2035162448883057
-                ]
-            }
-        }
-    },
-    {
-        "shin.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 41,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097168,
-                "neighbours": [
-                    2097169,
-                    2097167,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "shin.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -1.862645149230957e-09,
-                    0.49303334951400757,
-                    3.67872416973114e-08
-                ],
-                "rotation": [
-                    0.6229932308197021,
-                    0.7748211026191711,
-                    -0.003835231065750122,
-                    -0.10731720179319382
-                ],
-                "scale": [
-                    0.9999998211860657,
-                    1.000000238418579,
-                    1.0000001192092896
-                ]
-            }
-        }
-    },
-    {
-        "thigh.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 40,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097169,
-                "neighbours": [
-                    2097206,
-                    2097168,
-                    2097172,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "thigh.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.09800000488758087,
-                    0.05409564822912216,
-                    -0.00019551720470190048
-                ],
-                "rotation": [
-                    0.2923250198364258,
-                    0.9351668357849121,
-                    -0.20001627504825592,
-                    0.0016190271126106381
-                ],
-                "scale": [
-                    0.9999995827674866,
-                    1.000000238418579,
-                    1.0000001192092896
-                ]
-            }
-        }
-    },
-    {
-        "Plane.005": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 39,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "10",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097170,
-                "neighbours": [
-                    2097171,
-                    4294967295,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Plane.005",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.008084923028945923,
-                    0.33202069997787476,
-                    -0.2796522378921509
-                ],
-                "rotation": [
-                    0.7413346767425537,
-                    0.6698049306869507,
-                    0.027688557282090187,
-                    0.03189985454082489
-                ],
-                "scale": [
-                    1.203515648841858,
-                    1.2035161256790161,
-                    1.203515887260437
-                ]
-            }
-        }
-    },
-    {
-        "shin.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 38,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097171,
-                "neighbours": [
-                    2097172,
-                    2097170,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "shin.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    4.190951585769653e-08,
-                    0.4930332899093628,
-                    3.4924596548080444e-08
-                ],
-                "rotation": [
-                    0.6390945911407471,
-                    0.7618453502655029,
-                    0.003934390842914581,
-                    0.105519138276577
-                ],
-                "scale": [
-                    1.0,
-                    1.0000003576278687,
-                    0.9999996423721313
-                ]
-            }
-        }
-    },
-    {
-        "thigh.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 37,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097172,
-                "neighbours": [
-                    2097206,
-                    2097171,
-                    2097205,
-                    2097169
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "thigh.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.09800000488758087,
-                    0.05409565940499306,
-                    -0.0001955912448465824
-                ],
-                "rotation": [
-                    0.11613058298826218,
-                    0.980877161026001,
-                    0.07747214287519455,
-                    0.13561616837978363
-                ],
-                "scale": [
-                    0.9999997615814209,
-                    0.9999998807907104,
                     0.9999997615814209
                 ]
             }
         }
     },
     {
-        "breast.R": {
+        "spine.001": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 36,
-                "skeleton_root": 2097209
+                "frame_idx": 4,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097173,
+                "entity_id": 53,
                 "neighbours": [
-                    2097202,
+                    54,
+                    52,
                     4294967295,
-                    2097174,
-                    4294967295
+                    20
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "breast.R",
+                "mName": "spine.001",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -973,15 +869,324 @@
                     0.0
                 ],
                 "position": [
-                    -0.08140292018651962,
-                    0.0865781158208847,
-                    -0.06812021136283875
+                    3.841705620288849e-09,
+                    0.11715660244226456,
+                    -4.493631422519684e-08
                 ],
                 "rotation": [
-                    1.54860984480365e-07,
-                    1.180210205120602e-07,
-                    0.6061461567878723,
-                    0.7953532934188843
+                    0.9947724938392639,
+                    -0.0669173076748848,
+                    -0.029632769525051117,
+                    -0.07121605426073074
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998807907104,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "spine.002": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 5,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 52,
+                "neighbours": [
+                    53,
+                    51,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "spine.002",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.3420891065152318e-09,
+                    0.14554601907730103,
+                    3.846881924118861e-09
+                ],
+                "rotation": [
+                    0.9972619414329529,
+                    -0.07395024597644806,
+                    2.3675139004808443e-07,
+                    1.7555892739551382e-08
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998211860657,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Cylinder": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 6,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "1",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 51,
+                "neighbours": [
+                    52,
+                    4294967295,
+                    4294967295,
+                    50
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Cylinder",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    6.2515027821064e-08,
+                    0.32971009612083435,
+                    -0.25826966762542725
+                ],
+                "rotation": [
+                    0.7439279556274414,
+                    -0.668259859085083,
+                    -8.836872922302064e-08,
+                    -7.938036361565537e-08
+                ],
+                "scale": [
+                    0.1521928608417511,
+                    0.1521928757429123,
+                    0.1521928757429123
+                ]
+            }
+        }
+    },
+    {
+        "spine.003": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 7,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 50,
+                "neighbours": [
+                    52,
+                    49,
+                    51,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "spine.003",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    4.617577431531572e-10,
+                    0.23375409841537476,
+                    -1.9848551691126204e-09
+                ],
+                "rotation": [
+                    0.9967486262321472,
+                    -0.0805736780166626,
+                    -1.1882165296128733e-07,
+                    -9.60512913650291e-09
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998807907104,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Cylinder.001": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 8,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "2",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 49,
+                "neighbours": [
+                    50,
+                    4294967295,
+                    4294967295,
+                    48
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Cylinder.001",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -4.190951585769653e-09,
+                    0.21271052956581116,
+                    0.026962488889694214
+                ],
+                "rotation": [
+                    0.8733281493186951,
+                    -0.48713234066963196,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.12553969025611877,
+                    0.12553972005844116,
+                    0.12553972005844116
+                ]
+            }
+        }
+    },
+    {
+        "Cylinder.004": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 9,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "3",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 48,
+                "neighbours": [
+                    50,
+                    4294967295,
+                    49,
+                    47
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Cylinder.004",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -1.3969838619232178e-09,
+                    0.20323510468006134,
+                    0.017264366149902344
+                ],
+                "rotation": [
+                    0.8733281493186951,
+                    -0.48713237047195435,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.19537238776683807,
+                    0.19537244737148285,
+                    0.19537249207496643
+                ]
+            }
+        }
+    },
+    {
+        "spine.004": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 10,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 47,
+                "neighbours": [
+                    50,
+                    46,
+                    48,
+                    43
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "spine.004",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.5777490425250562e-09,
+                    0.2210732400417328,
+                    8.79030181977214e-12
+                ],
+                "rotation": [
+                    0.9456226825714111,
+                    0.32526564598083496,
+                    1.1272699396158714e-07,
+                    3.877468657265126e-08
                 ],
                 "scale": [
                     1.0,
@@ -992,24 +1197,24 @@
         }
     },
     {
-        "breast.L": {
+        "spine.006": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 35,
-                "skeleton_root": 2097209
+                "frame_idx": 11,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097174,
+                "entity_id": 46,
                 "neighbours": [
-                    2097202,
+                    47,
+                    45,
                     4294967295,
-                    2097187,
-                    2097173
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "breast.L",
+                "mName": "spine.006",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1019,19 +1224,1086 @@
                     0.0
                 ],
                 "position": [
-                    0.08140292018651962,
-                    0.0865781158208847,
-                    -0.06812019646167755
+                    -3.660183267584216e-12,
+                    0.08077622205018997,
+                    -3.87555587622046e-09
                 ],
                 "rotation": [
-                    1.54860984480365e-07,
-                    1.180210205120602e-07,
-                    0.6061461567878723,
-                    0.7953532934188843
+                    0.9980648159980774,
+                    -0.06218245252966881,
+                    -0.00014237751020118594,
+                    4.3482908949954435e-05
+                ],
+                "scale": [
+                    0.9999995827674866,
+                    0.9999998211860657,
+                    0.9999997615814209
+                ]
+            }
+        }
+    },
+    {
+        "Plane.003": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 12,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "4",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 45,
+                "neighbours": [
+                    46,
+                    4294967295,
+                    4294967295,
+                    44
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Plane.003",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -6.51925802230835e-09,
+                    0.1445016711950302,
+                    0.02304321527481079
+                ],
+                "rotation": [
+                    0.9987187385559082,
+                    -0.05060514435172081,
+                    -1.1833667912242163e-07,
+                    -5.996127594443124e-09
+                ],
+                "scale": [
+                    0.42438316345214844,
+                    0.42438334226608276,
+                    0.4243832230567932
+                ]
+            }
+        }
+    },
+    {
+        "Plane.004": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 13,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "5",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 44,
+                "neighbours": [
+                    46,
+                    4294967295,
+                    45,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Plane.004",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -6.51925802230835e-09,
+                    0.14450153708457947,
+                    0.02304324507713318
+                ],
+                "rotation": [
+                    0.9995077252388,
+                    -0.031372521072626114,
+                    -1.212530804650669e-07,
+                    -3.805887605068392e-09
+                ],
+                "scale": [
+                    0.42438316345214844,
+                    0.42438334226608276,
+                    0.4243832230567932
+                ]
+            }
+        }
+    },
+    {
+        "shoulder.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 14,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 43,
+                "neighbours": [
+                    50,
+                    42,
+                    47,
+                    35
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "shoulder.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.02243177592754364,
+                    0.18214434385299683,
+                    0.029449772089719772
+                ],
+                "rotation": [
+                    0.5671621561050415,
+                    -0.5741389393806458,
+                    -0.31942665576934814,
+                    -0.496646910905838
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    0.9999999403953552,
+                    0.9999998211860657
+                ]
+            }
+        }
+    },
+    {
+        "upper_arm.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 15,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 42,
+                "neighbours": [
+                    43,
+                    41,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "upper_arm.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.00911540538072586,
+                    0.14789438247680664,
+                    -0.02700566127896309
+                ],
+                "rotation": [
+                    0.8425780534744263,
+                    -0.345575749874115,
+                    0.39311572909355164,
+                    -0.12688428163528442
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998211860657,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "forearm.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 16,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 41,
+                "neighbours": [
+                    42,
+                    40,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "forearm.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.1175870895385742e-08,
+                    0.2646193504333496,
+                    2.60770320892334e-08
+                ],
+                "rotation": [
+                    0.9733743667602539,
+                    0.08321624994277954,
+                    0.04893353581428528,
+                    -0.207901269197464
+                ],
+                "scale": [
+                    0.9999996423721313,
+                    0.9999997615814209,
+                    0.9999997615814209
+                ]
+            }
+        }
+    },
+    {
+        "hand.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 17,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 40,
+                "neighbours": [
+                    41,
+                    39,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -2.60770320892334e-08,
+                    0.2553209662437439,
+                    2.60770320892334e-08
+                ],
+                "rotation": [
+                    0.9772560000419617,
+                    0.006080241873860359,
+                    -0.18102391064167023,
+                    -0.11029091477394104
+                ],
+                "scale": [
+                    0.9999997019767761,
+                    0.9999998807907104,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "hand.L.001": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 18,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 39,
+                "neighbours": [
+                    40,
+                    38,
+                    4294967295,
+                    37
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.L.001",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2.60770320892334e-08,
+                    0.10082463175058365,
+                    -2.7939677238464355e-08
+                ],
+                "rotation": [
+                    0.7869154214859009,
+                    -0.04189375042915344,
+                    0.10986722260713577,
+                    -0.6057543158531189
+                ],
+                "scale": [
+                    1.000000238418579,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "hand.L.002": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 19,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 38,
+                "neighbours": [
+                    39,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.L.002",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -3.259629011154175e-08,
+                    0.05423816666007042,
+                    -4.284083843231201e-08
+                ],
+                "rotation": [
+                    0.641452431678772,
+                    -0.08031093329191208,
+                    -0.10962401330471039,
+                    -0.7550308108329773
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    0.9999999403953552,
+                    0.9999998211860657
+                ]
+            }
+        }
+    },
+    {
+        "hand.L.003": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 20,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 37,
+                "neighbours": [
+                    40,
+                    36,
+                    39,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.L.003",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.014981312677264214,
+                    0.06292276084423065,
+                    0.049663614481687546
+                ],
+                "rotation": [
+                    0.8443553447723389,
+                    -0.38836103677749634,
+                    0.1297924965620041,
+                    -0.34553390741348267
                 ],
                 "scale": [
                     1.0,
                     1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "hand.L.004": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 21,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 36,
+                "neighbours": [
+                    37,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.L.004",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -8.381903171539307e-09,
+                    0.052265703678131104,
+                    -1.1175870895385742e-08
+                ],
+                "rotation": [
+                    0.8607445955276489,
+                    -0.5026042461395264,
+                    -0.0170153621584177,
+                    -0.07885551452636719
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    0.9999998807907104,
+                    0.9999999403953552
+                ]
+            }
+        }
+    },
+    {
+        "shoulder.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 22,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 35,
+                "neighbours": [
+                    50,
+                    34,
+                    43,
+                    22
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "shoulder.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.02243177220225334,
+                    0.18214434385299683,
+                    0.029449772089719772
+                ],
+                "rotation": [
+                    0.5671621561050415,
+                    -0.5741389393806458,
+                    0.31942665576934814,
+                    0.496646910905838
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    0.9999999403953552,
+                    0.9999998211860657
+                ]
+            }
+        }
+    },
+    {
+        "upper_arm.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 23,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34,
+                "neighbours": [
+                    35,
+                    33,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "upper_arm.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.009115396998822689,
+                    0.14789441227912903,
+                    -0.027005668729543686
+                ],
+                "rotation": [
+                    0.8209590911865234,
+                    -0.49583128094673157,
+                    -0.2823428511619568,
+                    0.02144731394946575
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998807907104,
+                    0.9999995827674866
+                ]
+            }
+        }
+    },
+    {
+        "forearm.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 24,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 33,
+                "neighbours": [
+                    34,
+                    32,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "forearm.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.0244548320770264e-08,
+                    0.26461923122406006,
+                    5.587935447692871e-09
+                ],
+                "rotation": [
+                    0.9688894152641296,
+                    0.09608002752065659,
+                    -0.22019672393798828,
+                    0.05945904925465584
+                ],
+                "scale": [
+                    1.0000003576278687,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        }
+    },
+    {
+        "Cube.003": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 25,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "6",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 32,
+                "neighbours": [
+                    33,
+                    4294967295,
+                    4294967295,
+                    31
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Cube.003",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.03448811173439026,
+                    0.18215897679328918,
+                    0.002129882574081421
+                ],
+                "rotation": [
+                    0.6780803203582764,
+                    -0.05988704413175583,
+                    0.00897372979670763,
+                    -0.7324889898300171
+                ],
+                "scale": [
+                    0.7982388734817505,
+                    0.7982388138771057,
+                    0.7982393503189087
+                ]
+            }
+        }
+    },
+    {
+        "hand.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 26,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 31,
+                "neighbours": [
+                    33,
+                    30,
+                    32,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2.9802322387695313e-08,
+                    0.2553209066390991,
+                    -7.450580596923828e-09
+                ],
+                "rotation": [
+                    0.9832835793495178,
+                    -0.017676129937171936,
+                    0.18026132881641388,
+                    -0.018624700605869293
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    1.0,
+                    0.9999997019767761
+                ]
+            }
+        }
+    },
+    {
+        "Circle": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 27,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "7",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 30,
+                "neighbours": [
+                    31,
+                    4294967295,
+                    4294967295,
+                    29
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Circle",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.25625401735305786,
+                    0.16466860473155975,
+                    0.06204487383365631
+                ],
+                "rotation": [
+                    0.6830636858940125,
+                    0.08497224748134613,
+                    -0.1015758067369461,
+                    -0.7182520627975464
+                ],
+                "scale": [
+                    0.9655713438987732,
+                    0.965571403503418,
+                    0.9655717611312866
+                ]
+            }
+        }
+    },
+    {
+        "Plane.011": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 28,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "8",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 29,
+                "neighbours": [
+                    31,
+                    4294967295,
+                    30,
+                    28
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Plane.011",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.14003531634807587,
+                    -0.06883461773395538,
+                    0.03325662016868591
+                ],
+                "rotation": [
+                    0.583296000957489,
+                    -0.42491579055786133,
+                    0.39511436223983765,
+                    -0.5684162378311157
+                ],
+                "scale": [
+                    0.7982391119003296,
+                    0.7982388138771057,
+                    0.7982391715049744
+                ]
+            }
+        }
+    },
+    {
+        "hand.R.001": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 29,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 28,
+                "neighbours": [
+                    31,
+                    27,
+                    29,
+                    26
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R.001",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    6.332993507385254e-08,
+                    0.10082456469535828,
+                    -1.1175870895385742e-08
+                ],
+                "rotation": [
+                    0.9926827549934387,
+                    0.030691197142004967,
+                    -0.1135074645280838,
+                    0.027479227632284164
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    0.9999998807907104,
+                    0.9999999403953552
+                ]
+            }
+        }
+    },
+    {
+        "hand.R.002": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 30,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 27,
+                "neighbours": [
+                    28,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R.002",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -4.470348358154297e-08,
+                    0.05423818528652191,
+                    -1.4901161193847656e-08
+                ],
+                "rotation": [
+                    0.9970359206199646,
+                    -0.05432650074362755,
+                    -0.05387112498283386,
+                    0.00812120083719492
+                ],
+                "scale": [
+                    1.0,
+                    0.9999998211860657,
+                    0.9999997019767761
+                ]
+            }
+        }
+    },
+    {
+        "hand.R.003": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 31,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 26,
+                "neighbours": [
+                    31,
+                    25,
+                    28,
+                    24
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R.003",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.014981217682361603,
+                    0.06292270123958588,
+                    0.049663614481687546
+                ],
+                "rotation": [
+                    0.949898898601532,
+                    0.08692764490842819,
+                    0.2956765592098236,
+                    0.05206859111785889
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999998807907104,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "hand.R.004": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 32,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 25,
+                "neighbours": [
+                    26,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R.004",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    9.313225746154785e-09,
+                    0.052265770733356476,
+                    -5.587935447692871e-09
+                ],
+                "rotation": [
+                    0.9803051948547363,
+                    -0.18026089668273926,
+                    0.04279504716396332,
+                    0.06838346272706985
+                ],
+                "scale": [
+                    0.9999998211860657,
+                    1.0000001192092896,
+                    1.000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "hand.R.005": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 33,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 24,
+                "neighbours": [
+                    31,
+                    23,
+                    26,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "hand.R.005",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.07392197847366333,
+                    0.17532138526439667,
+                    0.022145479917526245
+                ],
+                "rotation": [
+                    -0.4441899061203003,
+                    0.7570703029632568,
+                    0.20090697705745697,
+                    0.4349440634250641
+                ],
+                "scale": [
+                    0.9999998211860657,
+                    0.9999999403953552,
                     1.0
                 ]
             }
@@ -1041,7 +2313,7 @@
         "Sword.Handle": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 34,
-                "skeleton_root": 2097209
+                "skeleton_root": 57
             },
             "struct SliceEngine::Renderer": {
                 "material": {
@@ -1055,9 +2327,9 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097175,
+                "entity_id": 23,
                 "neighbours": [
-                    2097176,
+                    24,
                     4294967295,
                     4294967295,
                     4294967295
@@ -1095,24 +2367,24 @@
         }
     },
     {
-        "hand.R.005": {
+        "breast.L": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 33,
-                "skeleton_root": 2097209
+                "frame_idx": 35,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097176,
+                "entity_id": 22,
                 "neighbours": [
-                    2097183,
-                    2097175,
-                    2097178,
-                    4294967295
+                    50,
+                    4294967295,
+                    35,
+                    21
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "hand.R.005",
+                "mName": "breast.L",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1122,15 +2394,15 @@
                     0.0
                 ],
                 "position": [
-                    0.07392177730798721,
-                    0.1753215789794922,
-                    0.022145569324493408
+                    0.08140292763710022,
+                    0.08657822012901306,
+                    -0.06812014430761337
                 ],
                 "rotation": [
-                    0.690822422504425,
-                    0.7040349245071411,
-                    -0.11766071617603302,
-                    0.11513113975524902
+                    1.54860984480365e-07,
+                    1.180210205120602e-07,
+                    0.6061461567878723,
+                    0.7953532934188843
                 ],
                 "scale": [
                     1.0,
@@ -1141,24 +2413,24 @@
         }
     },
     {
-        "hand.R.004": {
+        "breast.R": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 32,
-                "skeleton_root": 2097209
+                "frame_idx": 36,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097177,
+                "entity_id": 21,
                 "neighbours": [
-                    2097178,
+                    50,
                     4294967295,
-                    4294967295,
+                    22,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "hand.R.004",
+                "mName": "breast.R",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1168,61 +2440,15 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.05226576700806618,
-                    -7.450580596923828e-09
+                    -0.08140291273593903,
+                    0.08657822757959366,
+                    -0.06812014430761337
                 ],
                 "rotation": [
-                    0.9803051948547363,
-                    -0.18026089668273926,
-                    0.04279505833983421,
-                    0.06838347017765045
-                ],
-                "scale": [
-                    0.9999998211860657,
-                    1.0000001192092896,
-                    1.0000001192092896
-                ]
-            }
-        }
-    },
-    {
-        "hand.R.003": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 31,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097178,
-                "neighbours": [
-                    2097183,
-                    2097177,
-                    2097180,
-                    2097176
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.R.003",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.014981431886553764,
-                    0.06292290985584259,
-                    0.04966367036104202
-                ],
-                "rotation": [
-                    0.949898898601532,
-                    0.08692764490842819,
-                    0.29567646980285645,
-                    0.052068594843149185
+                    1.54860984480365e-07,
+                    1.180210205120602e-07,
+                    0.6061461567878723,
+                    0.7953532934188843
                 ],
                 "scale": [
                     1.0,
@@ -1233,24 +2459,24 @@
         }
     },
     {
-        "hand.R.002": {
+        "thigh.L": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 30,
-                "skeleton_root": 2097209
+                "frame_idx": 37,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097179,
+                "entity_id": 20,
                 "neighbours": [
-                    2097180,
-                    4294967295,
-                    4294967295,
-                    4294967295
+                    54,
+                    19,
+                    53,
+                    17
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "hand.R.002",
+                "mName": "thigh.L",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1260,666 +2486,35 @@
                     0.0
                 ],
                 "position": [
-                    -2.9802322387695313e-08,
-                    0.054238155484199524,
-                    2.9802322387695313e-08
+                    0.09800000488758087,
+                    0.054095491766929626,
+                    -0.00019565247930586338
                 ],
                 "rotation": [
-                    0.9970359206199646,
-                    -0.054326508194208145,
-                    -0.053871117532253265,
-                    0.008121208287775517
-                ],
-                "scale": [
-                    1.0,
-                    0.9999998211860657,
-                    0.9999997019767761
-                ]
-            }
-        }
-    },
-    {
-        "hand.R.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 29,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097180,
-                "neighbours": [
-                    2097183,
-                    2097179,
-                    2097181,
-                    2097178
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.R.001",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -7.82310962677002e-08,
-                    0.10082466900348663,
-                    2.9802322387695313e-08
-                ],
-                "rotation": [
-                    0.992682695388794,
-                    0.030691199004650116,
-                    -0.113507479429245,
-                    0.027479246258735657
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "Plane.011": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 28,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "8",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097181,
-                "neighbours": [
-                    2097183,
-                    4294967295,
-                    2097182,
-                    2097180
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Plane.011",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.14003531634807587,
-                    -0.06883461773395538,
-                    0.03325662016868591
-                ],
-                "rotation": [
-                    0.583296000957489,
-                    -0.42491579055786133,
-                    0.39511436223983765,
-                    -0.5684162378311157
-                ],
-                "scale": [
-                    0.7982391119003296,
-                    0.7982388138771057,
-                    0.7982391715049744
-                ]
-            }
-        }
-    },
-    {
-        "Circle": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 27,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "7",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097182,
-                "neighbours": [
-                    2097183,
-                    4294967295,
-                    4294967295,
-                    2097181
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Circle",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.25625401735305786,
-                    0.16466860473155975,
-                    0.06204487383365631
-                ],
-                "rotation": [
-                    0.6830636858940125,
-                    0.08497224748134613,
-                    -0.1015758067369461,
-                    -0.7182520627975464
-                ],
-                "scale": [
-                    0.9655713438987732,
-                    0.965571403503418,
-                    0.9655717611312866
-                ]
-            }
-        }
-    },
-    {
-        "hand.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 26,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097183,
-                "neighbours": [
-                    2097185,
-                    2097182,
-                    2097184,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    5.4016709327697754e-08,
-                    0.2553209662437439,
-                    1.1175870895385742e-08
-                ],
-                "rotation": [
-                    0.983283519744873,
-                    -0.01767614111304283,
-                    0.18026143312454224,
-                    -0.018624719232320786
-                ],
-                "scale": [
-                    0.9999998807907104,
-                    1.0,
-                    0.9999997019767761
-                ]
-            }
-        }
-    },
-    {
-        "Cube.003": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 25,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "6",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097184,
-                "neighbours": [
-                    2097185,
-                    4294967295,
-                    4294967295,
-                    2097183
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Cube.003",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.03448811173439026,
-                    0.18215897679328918,
-                    0.002129882574081421
-                ],
-                "rotation": [
-                    0.6780803203582764,
-                    -0.05988704413175583,
-                    0.00897372979670763,
-                    -0.7324889898300171
-                ],
-                "scale": [
-                    0.7982388734817505,
-                    0.7982388138771057,
-                    0.7982393503189087
-                ]
-            }
-        }
-    },
-    {
-        "forearm.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 24,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097185,
-                "neighbours": [
-                    2097186,
-                    2097184,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "forearm.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -2.3283064365386963e-08,
-                    0.26461929082870483,
-                    1.0541407391428947e-07
-                ],
-                "rotation": [
-                    0.9451493620872498,
-                    0.14489591121673584,
-                    0.25691667199134827,
-                    0.14032739400863647
-                ],
-                "scale": [
-                    1.0000004768371582,
-                    0.9999998211860657,
-                    0.9999999403953552
-                ]
-            }
-        }
-    },
-    {
-        "upper_arm.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 23,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097186,
-                "neighbours": [
-                    2097187,
-                    2097185,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "upper_arm.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.009115500375628471,
-                    0.14789444208145142,
-                    -0.027005642652511597
-                ],
-                "rotation": [
-                    0.6800130605697632,
-                    -0.05798923969268799,
-                    -0.6253279447555542,
-                    0.3783971071243286
-                ],
-                "scale": [
-                    1.0000001192092896,
-                    0.9999999403953552,
-                    0.9999995231628418
-                ]
-            }
-        }
-    },
-    {
-        "shoulder.R": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 22,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097187,
-                "neighbours": [
-                    2097202,
-                    2097186,
-                    2097195,
-                    2097174
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "shoulder.R",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.02243177592754364,
-                    0.18214431405067444,
-                    0.02944973111152649
-                ],
-                "rotation": [
-                    0.567162036895752,
-                    -0.5741389393806458,
-                    0.31942665576934814,
-                    0.49664705991744995
-                ],
-                "scale": [
-                    1.0,
-                    1.0000001192092896,
-                    1.0000001192092896
-                ]
-            }
-        }
-    },
-    {
-        "hand.L.004": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 21,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097188,
-                "neighbours": [
-                    2097189,
-                    4294967295,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.L.004",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -7.369089871644974e-08,
-                    0.05226578935980797,
-                    1.869630068540573e-07
-                ],
-                "rotation": [
-                    0.8607444763183594,
-                    -0.5026044249534607,
-                    -0.01701534166932106,
-                    -0.07885555177927017
-                ],
-                "scale": [
-                    0.9999999403953552,
-                    0.9999998807907104,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "hand.L.003": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 20,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097189,
-                "neighbours": [
-                    2097192,
-                    2097188,
-                    2097191,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.L.003",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0149812838062644,
-                    0.06292279809713364,
-                    0.04966367781162262
-                ],
-                "rotation": [
-                    0.8443553447723389,
-                    -0.38836103677749634,
-                    0.12979251146316528,
-                    -0.34553390741348267
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    0.9999999403953552
-                ]
-            }
-        }
-    },
-    {
-        "hand.L.002": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 19,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097190,
-                "neighbours": [
-                    2097191,
-                    4294967295,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.L.002",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -3.958120942115784e-08,
-                    0.054238125681877136,
-                    4.6566128730773926e-09
-                ],
-                "rotation": [
-                    0.6414523124694824,
-                    -0.08031098544597626,
-                    -0.10962405055761337,
-                    -0.7550308704376221
-                ],
-                "scale": [
-                    0.9999999403953552,
-                    1.0000001192092896,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "hand.L.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 18,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097191,
-                "neighbours": [
-                    2097192,
-                    2097190,
-                    4294967295,
-                    2097189
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.L.001",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -2.3748725652694702e-08,
-                    0.10082463920116425,
-                    7.264316082000732e-08
-                ],
-                "rotation": [
-                    0.7869154214859009,
-                    -0.04189375787973404,
-                    0.10986725240945816,
-                    -0.6057542562484741
-                ],
-                "scale": [
-                    1.0000001192092896,
-                    0.9999999403953552,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "hand.L": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 17,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097192,
-                "neighbours": [
-                    2097193,
-                    2097191,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "hand.L",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    6.05359673500061e-08,
-                    0.25532105565071106,
-                    -7.636845111846924e-08
-                ],
-                "rotation": [
-                    0.9772560000419617,
-                    0.006080249790102243,
-                    -0.18102391064167023,
-                    -0.11029095947742462
+                    0.0675361230969429,
+                    0.9973996877670288,
+                    0.02510397881269455,
+                    -0.0015995970461517572
                 ],
                 "scale": [
                     0.9999997615814209,
                     1.0,
-                    1.0
+                    0.9999991655349731
                 ]
             }
         }
     },
     {
-        "forearm.L": {
+        "shin.L": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 16,
-                "skeleton_root": 2097209
+                "frame_idx": 38,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097193,
+                "entity_id": 19,
                 "neighbours": [
-                    2097194,
-                    2097192,
+                    20,
+                    18,
                     4294967295,
                     4294967295
                 ]
@@ -1927,7 +2522,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "forearm.L",
+                "mName": "shin.L",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1937,35 +2532,195 @@
                     0.0
                 ],
                 "position": [
-                    9.080395102500916e-09,
-                    0.26461923122406006,
-                    1.0291114449501038e-07
+                    3.073364496231079e-08,
+                    0.493033230304718,
+                    6.51925802230835e-09
                 ],
                 "rotation": [
-                    0.9512209296226501,
-                    0.07857153564691544,
-                    0.05608866736292839,
-                    -0.2930176854133606
+                    0.9999781250953674,
+                    0.002407263731583953,
+                    0.006156067363917828,
+                    0.0003334232314955443
                 ],
                 "scale": [
-                    0.9999998211860657,
-                    0.9999999403953552,
+                    1.0,
+                    1.000000238418579,
+                    1.000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "Plane.005": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 39,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "10",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 18,
+                "neighbours": [
+                    19,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Plane.005",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.008084923028945923,
+                    0.33202069997787476,
+                    -0.2796522378921509
+                ],
+                "rotation": [
+                    0.7413346767425537,
+                    0.6698049306869507,
+                    0.027688557282090187,
+                    0.03189985454082489
+                ],
+                "scale": [
+                    1.203515648841858,
+                    1.2035161256790161,
+                    1.203515887260437
+                ]
+            }
+        }
+    },
+    {
+        "thigh.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 40,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 17,
+                "neighbours": [
+                    54,
+                    16,
+                    20,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "thigh.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.09800001978874207,
+                    0.054095350205898285,
+                    -0.00019559822976589203
+                ],
+                "rotation": [
+                    0.16512107849121094,
+                    0.9578129649162292,
+                    -0.22654907405376434,
+                    0.06328410655260086
+                ],
+                "scale": [
+                    0.9999995231628418,
+                    0.9999997615814209,
+                    0.9999992847442627
+                ]
+            }
+        }
+    },
+    {
+        "shin.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 41,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 16,
+                "neighbours": [
+                    17,
+                    15,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "shin.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    2.3865140974521637e-09,
+                    0.49303320050239563,
+                    -2.3283064365386963e-10
+                ],
+                "rotation": [
+                    0.9999781250953674,
+                    0.0024076488334685564,
+                    -0.006156031042337418,
+                    -0.0003334811481181532
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    1.0000001192092896,
                     0.9999998807907104
                 ]
             }
         }
     },
     {
-        "upper_arm.L": {
+        "Plane.014": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 15,
-                "skeleton_root": 2097209
+                "frame_idx": 42,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "11",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097194,
+                "entity_id": 15,
                 "neighbours": [
-                    2097195,
-                    2097193,
+                    16,
+                    4294967295,
                     4294967295,
                     4294967295
                 ]
@@ -1973,7 +2728,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "upper_arm.L",
+                "mName": "Plane.014",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1983,43 +2738,43 @@
                     0.0
                 ],
                 "position": [
-                    -0.00911535695195198,
-                    0.14789441227912903,
-                    -0.027005672454833984
+                    -0.15487481653690338,
+                    0.21677982807159424,
+                    0.003486916422843933
                 ],
                 "rotation": [
-                    0.9440562129020691,
-                    0.1537209153175354,
-                    0.29106050729751587,
-                    -0.020287808030843735
+                    0.7413330674171448,
+                    0.6698066592216492,
+                    -0.02768871933221817,
+                    -0.03190012276172638
                 ],
                 "scale": [
-                    1.0,
-                    0.9999998807907104,
-                    0.9999998211860657
+                    1.203515648841858,
+                    1.2035161256790161,
+                    1.2035162448883057
                 ]
             }
         }
     },
     {
-        "shoulder.L": {
+        "LegPole.L": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 14,
-                "skeleton_root": 2097209
+                "frame_idx": 43,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097195,
+                "entity_id": 14,
                 "neighbours": [
-                    2097202,
-                    2097194,
-                    2097199,
-                    2097187
+                    55,
+                    4294967295,
+                    54,
+                    13
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "shoulder.L",
+                "mName": "LegPole.L",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2029,54 +2784,330 @@
                     0.0
                 ],
                 "position": [
-                    0.02243177220225334,
-                    0.18214431405067444,
-                    0.0294497013092041
+                    0.2059256136417389,
+                    -0.5025080442428589,
+                    0.5945519804954529
                 ],
                 "rotation": [
-                    0.5671621561050415,
-                    -0.5741389393806458,
-                    -0.31942668557167053,
-                    -0.4966469705104828
+                    -4.371138828673793e-08,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LegPole.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 44,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 13,
+                "neighbours": [
+                    55,
+                    4294967295,
+                    14,
+                    12
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LegPole.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.29131871461868286,
+                    -0.5025080442428589,
+                    0.5945519804954529
+                ],
+                "rotation": [
+                    -4.371138828673793e-08,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LegIK.L.001": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 45,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 12,
+                "neighbours": [
+                    55,
+                    11,
+                    13,
+                    7
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LegIK.L.001",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.2827654182910919,
+                    0.22640247642993927,
+                    -0.004466839134693146
+                ],
+                "rotation": [
+                    -4.371138828673793e-08,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "foot.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 46,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 11,
+                "neighbours": [
+                    12,
+                    10,
+                    4294967295,
+                    8
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "foot.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.001094132661819458,
+                    0.05922054499387741,
+                    0.11453627794981003
+                ],
+                "rotation": [
+                    -2.237467811028182e-07,
+                    5.022306126534204e-08,
+                    0.9441663026809692,
+                    -0.3294692039489746
+                ],
+                "scale": [
+                    0.9999997615814209,
+                    0.9999995827674866,
+                    0.9999997019767761
+                ]
+            }
+        }
+    },
+    {
+        "Cube.002": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 47,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "12",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 10,
+                "neighbours": [
+                    11,
+                    4294967295,
+                    4294967295,
+                    9
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Cube.002",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.005159616470336914,
+                    0.1048690602183342,
+                    -0.08640651404857635
+                ],
+                "rotation": [
+                    0.32946914434432983,
+                    0.944166362285614,
+                    -6.41500008669027e-08,
+                    1.8383596511739597e-07
+                ],
+                "scale": [
+                    1.2035155296325684,
+                    1.203515887260437,
+                    1.2035157680511475
+                ]
+            }
+        }
+    },
+    {
+        "toe.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 48,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 9,
+                "neighbours": [
+                    11,
+                    4294967295,
+                    10,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "toe.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -2.1847693432164306e-08,
+                    0.14780905842781067,
+                    1.653436498827432e-09
+                ],
+                "rotation": [
+                    1.838359935391054e-07,
+                    6.415001507775742e-08,
+                    0.944166362285614,
+                    -0.32946914434432983
                 ],
                 "scale": [
                     1.0,
                     1.0000001192092896,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "LegIK.L": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 49,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8,
+                "neighbours": [
+                    12,
+                    4294967295,
+                    11,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LegIK.L",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.05871708691120148,
+                    0.10904602706432343
+                ],
+                "rotation": [
+                    -4.367185368892024e-08,
+                    0.04252128303050995,
+                    1.858664333553861e-09,
+                    0.9990955591201782
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
                     1.0
                 ]
             }
         }
     },
     {
-        "Plane.004": {
+        "LegIK.R.001": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 13,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "5",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
+                "frame_idx": 50,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097196,
+                "entity_id": 7,
                 "neighbours": [
-                    2097198,
-                    4294967295,
-                    2097197,
+                    55,
+                    6,
+                    12,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Plane.004",
+                "mName": "LegIK.R.001",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2086,54 +3117,43 @@
                     0.0
                 ],
                 "position": [
-                    -6.51925802230835e-09,
-                    0.14450153708457947,
-                    0.02304324507713318
+                    -0.4167855679988861,
+                    0.0200086310505867,
+                    -0.004466839134693146
                 ],
                 "rotation": [
-                    0.9995077252388,
-                    -0.031372521072626114,
-                    -1.212530804650669e-07,
-                    -3.805887605068392e-09
+                    -4.371138828673793e-08,
+                    0.0,
+                    0.0,
+                    1.0
                 ],
                 "scale": [
-                    0.42438316345214844,
-                    0.42438334226608276,
-                    0.4243832230567932
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }
     },
     {
-        "Plane.003": {
+        "foot.R": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 12,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "4",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
+                "frame_idx": 51,
+                "skeleton_root": 57
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097197,
+                "entity_id": 6,
                 "neighbours": [
-                    2097198,
+                    7,
+                    5,
                     4294967295,
-                    4294967295,
-                    2097196
+                    3
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Plane.003",
+                "mName": "foot.R",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2143,89 +3163,54 @@
                     0.0
                 ],
                 "position": [
-                    -6.51925802230835e-09,
-                    0.1445016711950302,
-                    0.02304321527481079
+                    -0.0031491369009017944,
+                    0.057606250047683716,
+                    0.1185288205742836
                 ],
                 "rotation": [
-                    0.9987187385559082,
-                    -0.05060514435172081,
-                    -1.1833667912242163e-07,
-                    -5.996127594443124e-09
+                    2.237467811028182e-07,
+                    -5.022306126534204e-08,
+                    0.9441663026809692,
+                    -0.3294692039489746
                 ],
                 "scale": [
-                    0.42438316345214844,
-                    0.42438334226608276,
-                    0.4243832230567932
-                ]
-            }
-        }
-    },
-    {
-        "spine.006": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 11,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097198,
-                "neighbours": [
-                    2097199,
-                    2097197,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "spine.006",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    1.6040599959410429e-09,
-                    0.08077631145715714,
-                    -3.683736338189192e-08
-                ],
-                "rotation": [
-                    0.9896405339241028,
-                    -0.14356759190559387,
-                    -0.00014390372962225229,
-                    1.1345970051479526e-05
-                ],
-                "scale": [
+                    0.9999997615814209,
                     0.9999995827674866,
-                    0.9999998807907104,
-                    0.9999997615814209
+                    0.9999997019767761
                 ]
             }
         }
     },
     {
-        "spine.004": {
+        "Cube.001": {
             "struct SliceEngine::Bone": {
-                "frame_idx": 10,
-                "skeleton_root": 2097209
+                "frame_idx": 52,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::Renderer": {
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "13",
+                "model": {
+                    "GUID": "17518266545644652909"
+                },
+                "renderTag": "0",
+                "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097199,
+                "entity_id": 5,
                 "neighbours": [
-                    2097202,
-                    2097198,
-                    2097200,
-                    2097195
+                    6,
+                    4294967295,
+                    4294967295,
+                    4
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "spine.004",
+                "mName": "Cube.001",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2235,15 +3220,107 @@
                     0.0
                 ],
                 "position": [
-                    -2.4280979449287088e-09,
-                    0.22107315063476563,
-                    -3.4100731127750805e-09
+                    0.003508329391479492,
+                    0.104869045317173,
+                    -0.08640672266483307
                 ],
                 "rotation": [
-                    0.9456226825714111,
-                    0.32526564598083496,
-                    1.1272697975073243e-07,
-                    3.877469367807862e-08
+                    0.32946914434432983,
+                    0.944166362285614,
+                    6.41500008669027e-08,
+                    -1.8383596511739597e-07
+                ],
+                "scale": [
+                    1.203515648841858,
+                    1.203515887260437,
+                    1.203515887260437
+                ]
+            }
+        }
+    },
+    {
+        "toe.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 53,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4,
+                "neighbours": [
+                    6,
+                    4294967295,
+                    5,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "toe.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    8.202212242736096e-10,
+                    0.14780907332897186,
+                    6.476433611624088e-09
+                ],
+                "rotation": [
+                    -1.838359935391054e-07,
+                    -6.415001507775742e-08,
+                    0.944166362285614,
+                    -0.32946914434432983
+                ],
+                "scale": [
+                    1.0,
+                    1.0000001192092896,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "LegIK.R": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 54,
+                "skeleton_root": 57
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3,
+                "neighbours": [
+                    7,
+                    4294967295,
+                    6,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LegIK.R",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.05871708691120148,
+                    0.10904602706432343
+                ],
+                "rotation": [
+                    4.367185368892024e-08,
+                    -0.04252128303050995,
+                    1.858664333553861e-09,
+                    0.9990955591201782
                 ],
                 "scale": [
                     1.0,
@@ -2254,411 +3331,17 @@
         }
     },
     {
-        "Cylinder.004": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 9,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "3",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097200,
-                "neighbours": [
-                    2097202,
-                    4294967295,
-                    2097201,
-                    2097199
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Cylinder.004",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
+        "GameObject_1": {
+            "struct SliceEngine::ColliderShape": {
+                "isTrigger": false,
+                "offSet": [
                     0.0,
                     0.0,
                     0.0
                 ],
-                "position": [
-                    -1.3969838619232178e-09,
-                    0.20323510468006134,
-                    0.017264366149902344
-                ],
-                "rotation": [
-                    0.8733281493186951,
-                    -0.48713237047195435,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    0.19537238776683807,
-                    0.19537244737148285,
-                    0.19537249207496643
-                ]
-            }
-        }
-    },
-    {
-        "Cylinder.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 8,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "2",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097201,
-                "neighbours": [
-                    2097202,
-                    4294967295,
-                    4294967295,
-                    2097200
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Cylinder.001",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -4.190951585769653e-09,
-                    0.21271052956581116,
-                    0.026962488889694214
-                ],
-                "rotation": [
-                    0.8733281493186951,
-                    -0.48713234066963196,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    0.12553969025611877,
-                    0.12553972005844116,
-                    0.12553972005844116
-                ]
-            }
-        }
-    },
-    {
-        "spine.003": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 7,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097202,
-                "neighbours": [
-                    2097204,
-                    2097201,
-                    2097203,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "spine.003",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -4.5576142859715674e-10,
-                    0.23375403881072998,
-                    -1.0835560004807121e-08
-                ],
-                "rotation": [
-                    0.9301998019218445,
-                    0.3670535981655121,
-                    -1.049744113856832e-07,
-                    4.142256315731174e-08
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    0.9999999403953552
-                ]
-            }
-        }
-    },
-    {
-        "Cylinder": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 6,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "1",
-                "model": {
-                    "GUID": "17518266545644652909"
-                },
-                "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097203,
-                "neighbours": [
-                    2097204,
-                    4294967295,
-                    4294967295,
-                    2097202
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Cylinder",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    6.2515027821064e-08,
-                    0.32971009612083435,
-                    -0.25826966762542725
-                ],
-                "rotation": [
-                    0.7439279556274414,
-                    -0.668259859085083,
-                    -8.836872922302064e-08,
-                    -7.938036361565537e-08
-                ],
-                "scale": [
-                    0.1521928608417511,
-                    0.1521928757429123,
-                    0.1521928757429123
-                ]
-            }
-        }
-    },
-    {
-        "spine.002": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 5,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097204,
-                "neighbours": [
-                    2097205,
-                    2097203,
-                    4294967295,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "spine.002",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -2.382375186016361e-09,
-                    0.1455461084842682,
-                    -1.0232241720586899e-08
-                ],
-                "rotation": [
-                    0.9010460376739502,
-                    0.4337235391139984,
-                    2.1789196580357384e-07,
-                    -1.0489069524055594e-07
-                ],
-                "scale": [
-                    1.0,
-                    0.9999998807907104,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "spine.001": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 4,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097205,
-                "neighbours": [
-                    2097206,
-                    2097204,
-                    4294967295,
-                    2097172
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "spine.001",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    1.6298145055770874e-09,
-                    0.1171567440032959,
-                    3.795139491558075e-08
-                ],
-                "rotation": [
-                    0.9951626658439636,
-                    0.05749143660068512,
-                    -0.07918403297662735,
-                    -0.008710461668670177
-                ],
-                "scale": [
-                    0.9999998807907104,
-                    0.9999998807907104,
-                    0.9999998807907104
-                ]
-            }
-        }
-    },
-    {
-        "spine": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 3,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097206,
-                "neighbours": [
-                    2097207,
-                    2097205,
-                    4294967295,
-                    2097166
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "spine",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -0.032887861132621765,
-                    0.16299575567245483,
-                    0.8963793516159058
-                ],
-                "rotation": [
-                    0.7926662564277649,
-                    0.6043070554733276,
-                    0.05471576750278473,
-                    0.05915592238306999
-                ],
-                "scale": [
-                    0.9999999403953552,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "player": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 2,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097207,
-                "neighbours": [
-                    2097209,
-                    2097206,
-                    2097208,
-                    2097212
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "player",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.7071067094802856,
-                    -0.7071068286895752,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    0.8308991193771362,
-                    0.8308990001678467,
-                    0.8308990001678467
-                ]
-            }
-        }
-    },
-    {
-        "Female 1": {
-            "struct SliceEngine::Bone": {
-                "frame_idx": 1,
-                "skeleton_root": 2097209
+                "sphereData": {
+                    "radius": 0.5
+                }
             },
             "struct SliceEngine::Renderer": {
                 "material": {
@@ -2666,228 +3349,34 @@
                 },
                 "meshOffset": "0",
                 "model": {
-                    "GUID": "17518266545644652909"
+                    "GUID": "18229435044585338891"
                 },
                 "renderTag": "0",
-                "skinned": true
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097208,
-                "neighbours": [
-                    2097209,
-                    4294967295,
-                    4294967295,
-                    2097207
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Female 1",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.7071066498756409,
-                    -0.70710688829422,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "RootNode": {
-            "struct SliceEngine::Animator": {
-                "current_time": 0.0,
-                "stateMachine": ""
-            },
-            "struct SliceEngine::Bone": {
-                "frame_idx": 0,
-                "skeleton_root": 2097209
-            },
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                },
-                "isTrigger": false,
-                "offSet": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
+                "skinned": false
             },
             "struct SliceEngine::RigidBody": {
                 "CollisionDetection": "",
                 "angularDamping": 0.05000000074505806,
                 "friction": 0.5,
                 "gravityFactor": 1.0,
-                "isKinematic": true,
+                "isKinematic": false,
                 "linearDamping": 0.05000000074505806,
                 "mass": 1.0,
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097209,
-                "neighbours": [
-                    0,
-                    2097208,
-                    2097218,
-                    2097154
-                ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Player",
-                "scriptableFieldMap": {
-                    "TestVectors": {
-                        "Type": "std::vector<glm::vec3>",
-                        "Value": [
-                            [
-                                1.0,
-                                1.0,
-                                1.0
-                            ],
-                            [
-                                2.0,
-                                2.0,
-                                2.0
-                            ]
-                        ]
-                    },
-                    "direction": {
-                        "Type": "glm::vec3",
-                        "Value": [
-                            0.0,
-                            0.0,
-                            1.0
-                        ]
-                    },
-                    "moveSpeed": {
-                        "Type": "float",
-                        "Value": 2.5
-                    },
-                    "rotationSpeed": {
-                        "Type": "float",
-                        "Value": 50.0
-                    },
-                    "test3": {
-                        "Type": "std::vector<std::string>",
-                        "Value": [
-                            "Test",
-                            "Test2"
-                        ]
-                    },
-                    "up": {
-                        "Type": "glm::vec3",
-                        "Value": [
-                            0.0,
-                            1.0,
-                            0.0
-                        ]
-                    }
-                }
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "RootNode",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject_2": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4412061832024819835"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097210,
+                "entity_id": 2,
                 "neighbours": [
                     0,
                     4294967295,
-                    2097213,
-                    2097214
+                    57,
+                    67
                 ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Spawner",
-                "scriptableFieldMap": {
-                    "enemyPrefab": {
-                        "Type": "std::string",
-                        "Value": "EnemyTest"
-                    },
-                    "spawnCount": {
-                        "Type": "int",
-                        "Value": 4
-                    },
-                    "spawnInterval": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "spawnTime": {
-                        "Type": "float",
-                        "Value": 5.0
-                    },
-                    "testList": {
-                        "Type": "std::vector<float>",
-                        "Value": []
-                    }
-                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "GameObject_2",
+                "mName": "GameObject_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2897,9 +3386,9 @@
                     0.0
                 ],
                 "position": [
-                    2.7677674293518066,
-                    0.6449331641197205,
-                    2.7677674293518066
+                    5.622255325317383,
+                    -8.316971778869629,
+                    3.4186174869537354
                 ],
                 "rotation": [
                     1.0,
@@ -2908,489 +3397,9 @@
                     0.0
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "GameObject": {
-            "struct SliceEngine::Light": {
-                "color": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "intensity": 0.5,
-                "type": "Directional"
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097211,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    4294967295,
-                    2097213
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "GameObject",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.9396434426307678,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Camera": {
-            "struct SliceEngine::Camera": {
-                "bloomFilterRadius": 0.004999999888241291,
-                "bloomStrength": 0.03999999910593033,
-                "depthTex": 25,
-                "far": 200.0,
-                "fogColor": [
-                    0.20000000298023224,
-                    0.20000000298023224,
-                    0.20000000298023224
-                ],
-                "fogIntensity": 0.03999999910593033,
-                "height": 1080,
-                "near": 0.009999999776482582,
-                "pov": 60.0,
-                "renderTag": "0",
-                "textureID": 24,
-                "vignetteCenter": [
-                    0.5,
-                    0.5
-                ],
-                "vignetteIntensity": 0.335999995470047,
-                "vignetteSmoothness": 0.699999988079071,
-                "width": 1920
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097212,
-                "neighbours": [
-                    2097209,
-                    4294967295,
-                    2097207,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Camera",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    -90.0,
-                    -24.5
-                ],
-                "position": [
-                    0.0,
-                    2.299999952316284,
-                    -3.0
-                ],
-                "rotation": [
-                    -0.6910067200660706,
-                    -0.15003226697444916,
-                    0.6910067796707153,
-                    0.15003226697444916
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "FloorQuad": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4651861510357422797"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097213,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097211,
-                    2097210
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "FloorQuad",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    -0.7071067690849304,
-                    0.7071067690849304,
-                    -0.0,
-                    0.0
-                ],
-                "scale": [
-                    24.7723388671875,
-                    31.97980499267578,
-                    9.999996185302734
-                ]
-            }
-        }
-    },
-    {
-        "GameObject_3": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "12802300298583430329"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097214,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097210,
-                    2097215
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "GameObject_3",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -3.1664040088653564,
-                    1.1001356840133667,
-                    -2.076117992401123
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint1": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097215,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097214,
-                    2097216
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Waypoint1",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -8.563642501831055,
-                    0.8840956091880798,
-                    11.284699440002441
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    0.6057339310646057,
-                    0.6057339310646057,
-                    0.6057339310646057
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint2": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097216,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097215,
-                    2097217
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Waypoint2",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    6.735180377960205,
-                    1.0011451244354248,
-                    10.998712539672852
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    0.9999999403953552,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint3": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097217,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097216,
-                    2097218
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Waypoint3",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    7.248874187469482,
-                    0.9286327958106995,
-                    -8.426582336425781
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Waypoint4": {
-            "struct SliceEngine::Renderer": {
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097218,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097217,
-                    2097209
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Waypoint4",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    -8.739869117736816,
-                    0.8355576395988464,
-                    -9.777359962463379
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Bootstrap": {
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097219,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    2097154,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Bootstrap"
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Bootstrap",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    7.599999904632568,
+                    2.799999952316284,
+                    8.199999809265137
                 ]
             }
         }

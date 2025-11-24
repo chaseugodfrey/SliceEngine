@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SliceScript
+namespace SliceEngine
 {
     public class Bootstrap : SliceBehaviour
     {
@@ -16,20 +16,21 @@ namespace SliceScript
         public static CameraController CameraController { get; private set; }
         public static PlayerController Player { get; private set; }
         
-        public override void OnAwake()
+        public override void OnCreate()
         {
-            base.OnAwake();
+            base.OnCreate();
 
             // Finding references to each script
-            CameraController = gameObject.FindGameObjectWithName("Camera").As<CameraController>();
+            CameraController = gameObject.FindGameObjectWithName("MainCamera")?.As<CameraController>();
             if (CameraController != null) Console.WriteLine("Camera found");
-            else Console.WriteLine("Nothing found");
+            else Console.WriteLine("Camera not found");
 
-            Player = gameObject.FindGameObjectWithName("Player").As<PlayerController>();
+            Player = gameObject.FindGameObjectWithName("Player")?.As<PlayerController>();
             if (Player != null) Console.WriteLine("Player found");
-            else Console.WriteLine("Nothing found");
+            else Console.WriteLine("Player not found");
 
             Console.WriteLine("Awake called");
+
             // Calling initialize on each script
             CameraController.Initialize();
             Player.Initialize();

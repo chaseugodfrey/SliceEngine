@@ -1,5 +1,4 @@
 ﻿using SliceEngine;
-using SliceScript.Source.Core;
 using System;
 
 
@@ -126,8 +125,8 @@ namespace SliceEngine
             //    animator.SetBool("Run", false);
             //    animator.SetBool("Attack", true);
             //}
-            HandleInput();
-            HandleMovement(dt);
+            //HandleInput();
+            //HandleMovement(dt);
         }
         public void Initialize()
         {
