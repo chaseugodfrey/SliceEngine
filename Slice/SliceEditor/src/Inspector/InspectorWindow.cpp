@@ -68,7 +68,7 @@ namespace SliceEditor
 			break;
 		case SelectionType::PREFAB_ENTITY:
 			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
-            break
+			break;
 		case SelectionType::STATE:
 			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
 			break;

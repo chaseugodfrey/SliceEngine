@@ -18,6 +18,8 @@ namespace SliceEditor
 
 		AnimatorData* mAnimatorData = nullptr;
 
+		void ClearSelectionSubscribe(ClearSelectionEvent e);
+		void ClearSelection();
 		void DrawParameters();
 		void DrawEntryNode();
 		void DrawExitNode();

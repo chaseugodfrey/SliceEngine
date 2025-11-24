@@ -16,6 +16,8 @@ namespace SliceEditor
 	{
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		mAnimatorData = mSessionManager->GetAnimatorData();
+		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &AnimatorWindow::ClearSelectionSubscribe>(this);
+
 		//ImNodes::PushColorStyle(ImNodesCol_NodeBackground, )
 		entryNode.id = 0;
 		entryNode.in_id = -1;
@@ -39,6 +41,17 @@ namespace SliceEditor
 		DrawNodeEditor();
 		DrawPostEditorElements();		
 		ImGui::End();
+	}
+
+	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
+	{
+		ClearSelection();
+	}
+
+	void AnimatorWindow::ClearSelection()
+	{
+		ImNodes::ClearNodeSelection();
+		ImNodes::ClearLinkSelection();
 	}
 
 	void AnimatorWindow::DrawParameters()
@@ -185,24 +198,22 @@ namespace SliceEditor
 	{
 		if (!mAnimatorData->empty())
 		{
+			//// Check for inputs for popups
+			//for (auto& [id, node] : mAnimatorData->mStateNodes)
+			//{
+			//	if (CheckStateInput(&node))
+			//	{
+			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+			//	}
+			//}
 
-
-			// Check for inputs for popups
-			for (auto& [id, node] : mAnimatorData->mStateNodes)
-			{
-				if (CheckStateInput(&node))
-				{
-					mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
-				}
-			}
-
-			for (auto& [id, link] : mAnimatorData->mTransitionNodes)
-			{
-				if (CheckLinkInput(&link))
-				{
-					mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
-				}
-			}
+			//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
+			//{
+			//	if (CheckLinkInput(&link))
+			//	{
+			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
+			//	}
+			//}
 
 			if (ImNodes::IsEditorHovered())
 			{
@@ -292,27 +303,27 @@ namespace SliceEditor
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
 	{
-		int id = static_cast<StateNode*>(node)->id;
-		if (ImNodes::IsNodeHovered(&id))
-		{
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-			{
-				ImGui::OpenPopup("Node_Popup");
-			}
-		}
+		int id = node->id;
+		//if (ImNodes::IsNodeHovered(&id))
+		//{
+		//	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		//	{
+		//		ImGui::OpenPopup("Node_Popup");
+		//	}
+		//}
 		return ImNodes::IsNodeSelected(id);
 	}
 
 	bool AnimatorWindow::CheckLinkInput(TransitionLinkNode* node)
 	{
 		int id = static_cast<TransitionLinkNode*>(node)->id;
-		if (ImNodes::IsLinkHovered(&id))
-		{
-			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-			{
-				ImGui::OpenPopup("Link_Popup");
-			}
-		}
+		//if (ImNodes::IsLinkHovered(&id))
+		//{
+		//	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		//	{
+		//		ImGui::OpenPopup("Link_Popup");
+		//	}
+		//}
 
 		return ImNodes::IsLinkSelected(id);
 	}
