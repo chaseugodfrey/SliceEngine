@@ -32,6 +32,17 @@ namespace SliceEngine
 		return gActionMappingSystemInstance;
 	}
 
+#pragma region Enable/Disable Action Maps & Finding Action
+	void ActionMappingSystem::enableMap(const std::string& mapName, bool enable)
+	{
+		auto* map = findMap(maps, mapName);
+		// if map exists, enable/disable it
+		if (map)
+		{
+			map->enabled = enable;
+		}
+	}
+
 	// finding maps and actions
 	ActionMap* ActionMappingSystem::findMap(std::unordered_map<std::string, ActionMap>& maps, const std::string& mapName)
 	{
@@ -56,6 +67,19 @@ namespace SliceEngine
 		return static_cast<size_t>(-1); // gpt says returning false is bad practice, so return max size_t value instead
 	}
 
+	static size_t findBinding(const ActionDefinition& actionDef, int keyCode)
+	{
+		// loop through bindings to find keycode
+		for (size_t i{}; i < actionDef.bindings.size(); ++i)
+		{
+			if (actionDef.bindings[i].keyCode == keyCode)
+			{
+				return i;
+			}
+		}
+		return static_cast<size_t>(-1); // not found
+	}
+
 	// action map creation
 	ActionMap& ActionMappingSystem::CreateMap(const std::string& mapName)
 	{
@@ -74,6 +98,9 @@ namespace SliceEngine
 
 	}
 
+#pragma endregion
+
+#pragma region Action Adding and Binding
 	// adding actions
 	size_t ActionMappingSystem::AddButton(const std::string& mapName, const std::string& actionName)
 	{
@@ -142,11 +169,16 @@ namespace SliceEngine
 		}
 	}
 
-	// functions to clear maps, bindings, actions
-	// so clear binding will read in actionname and mapname, find map, find action, clear all its binding vector and then remove
-	// it from the json file when we call savetofile
-	// clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
-	// clear map just removes the entire map from the maps unordered map
+#pragma endregion
+
+#pragma region Clearing Functions
+	/* 
+		Functions to clear maps, bindings, actions
+		so clear binding will read in actionname and mapname, find map, find action, clear all its binding vector and then remove
+		it from the json file when we call savetofile.
+		Then clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
+		Clear map just removes the entire map from the maps unordered map 
+	 */
 	void ActionMappingSystem::ClearBindings(const std::string& mapName, const std::string& actionName)
 	{
 		// this function will clear all bindings for a particular action in a particular map
@@ -170,21 +202,8 @@ namespace SliceEngine
 		map->states[actionIndex].phase = ActionPhase::Waiting; // neutral state
 	}
 	
-
 	void ActionMappingSystem::ClearAction(const std::string& mapName, const std::string& actionName)
 	{
-		//auto it = maps.find(mapName);
-		//auto& map = maps[mapName];
-		//// look for action index
-		//size_t actionIndex = findAction(maps[mapName] , actionName);
-
-		//// loop through map, find action based on actionname and remove it from map
-		//if(actionIndex != static_cast<size_t>(-1))
-		//{
-		//	map.definitions.erase(map.definitions.begin() + actionIndex); // remove action definition
-		//	map.states.erase(map.states.begin() + actionIndex); // remove corresponding state
-		//}
-
 		auto* map = findMap(maps, mapName);
 		if (!map)
 		{
@@ -201,7 +220,6 @@ namespace SliceEngine
 		// my previous method wasn't efficient apparently, gpt says to cast to ptrdiff_t to avoid warnings
 		map->definitions.erase(map->definitions.begin() + static_cast<std::ptrdiff_t>(idx)); 
 		map->states.erase(map->states.begin() + static_cast<std::ptrdiff_t>(idx));
-	
 	}
 
 	void ActionMappingSystem::ClearMap(const std::string& mapName)
@@ -215,17 +233,9 @@ namespace SliceEngine
 		maps.erase(it);
 	}
 
-
-	void ActionMappingSystem::enableMap(const std::string& mapName, bool enable)
-	{
-		auto* map = findMap(maps, mapName);
-		// if map exists, enable/disable it
-		if (map)
-		{
-			map->enabled = enable;
-		}
-	}
-
+#pragma endregion
+	
+#pragma region Input Processing
 	// processing, this is the one area where i used gpt for help because idk how to use the queue with it
 	void ActionMappingSystem::processInput(const std::string& mapName)
 	{
@@ -364,7 +374,9 @@ namespace SliceEngine
 		}
 	}
 
-	// queries
+#pragma endregion
+
+#pragma region Queries
 	bool ActionMappingSystem::PerformedThisFrame(const std::string& mapName, const std::string& actionName)
 	{
 		auto* map = findMap(maps, mapName);
@@ -410,7 +422,6 @@ namespace SliceEngine
 		return { state.valueX, state.valueY };
 	}
 
-	// for value1D
 	float ActionMappingSystem::GetValue1D(const std::string& mapName, const std::string& actionName)
 	{
 		auto* map = findMap(maps, mapName);
@@ -435,6 +446,9 @@ namespace SliceEngine
 		return state.valueX;
 	}
 
+#pragma endregion
+
+#pragma region JSON Serialization
 	// file I/O
 	// do save to file first so we know how to load from file later
 	bool ActionMappingSystem::SaveToJson(const std::string& path) const
@@ -591,5 +605,6 @@ namespace SliceEngine
 			return false;
 		}
 	}
+#pragma endregion 
 
 }

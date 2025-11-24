@@ -46,7 +46,6 @@ namespace SliceEngine
     static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
         //change way i get input sys, call singleton instance of class from core.h/cpp
-        //auto& input = Core::GetInstance()->GetInputSystem();
         auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
 
         if (action == GLFW_PRESS)
@@ -92,24 +91,6 @@ namespace SliceEngine
             scrollDelta = 0.0f;
             return;
         }
-
-        // this shit not even being used, we using updateprevinput for everything now
-        //// transition key states, loop through all keys in map and update states
-        //for (auto& [key, state] : keyMap)
-        //{
-        //    if (state == KeyStates::PRESS) 
-        //        state = KeyStates::PRESSED;
-        //    else if (state == KeyStates::RELEASE) 
-        //        state = KeyStates::RELEASED;
-        //}
-
-        //for (auto& [button, state] : mouseMap)
-        //{
-        //    if (state == KeyStates::PRESS) 
-        //        state = KeyStates::PRESSED;
-        //    else if (state == KeyStates::RELEASE) 
-        //        state = KeyStates::RELEASED;
-        //}
 
         scrollDelta = 0.0f; // reset each frame
     }
@@ -233,31 +214,37 @@ namespace SliceEngine
 
     bool InputSystem::IsMousePressed(MouseButtons b)  
     {
-        //auto it = mouseMap.find((int)b);
-        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        //return allowGameMouse() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
-
         int key = (int)b;
         return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
     bool InputSystem::IsMouseReleased(MouseButtons b)  
     {
-        //auto it = mouseMap.find((int)b);
-        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        //return allowGameMouse() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
         int key = (int)b;
         return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
     bool InputSystem::IsMouseDown(MouseButtons b)  
     {
-        //auto it = mouseMap.find((int)b);
-        //const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        //return allowGameMouse() && (s == KeyStates::PRESSED || s == KeyStates::HOLD);
         int key = (int)b;
         return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
+
+    glm::vec2 InputSystem::GetMousePosition() const 
+    { 
+        return currMousePos; 
+    }
+
+    double InputSystem::GetMouseX() const 
+    { 
+        return currMousePos.x; 
+    }
+
+    double InputSystem::GetMouseY() const 
+    { 
+        return currMousePos.y; 
+    }
+
 
 #pragma endregion
 
@@ -271,10 +258,6 @@ namespace SliceEngine
 
     void InputSystem::UpdateMouseMap(int button, KeyStates state)
     {
-  //      if (!enabled) return;
-  //      if (mode != InputMode::Game) return; // editor/imgui owns mouse
-		//if (imguiWantsMouse) return;
-
         mouseMap[button] = state;
         changedQueue.push({ false, button, state });
     }
@@ -291,11 +274,6 @@ namespace SliceEngine
 
 #pragma endregion
 
-#pragma region Action Mapping
-
-
-
-#pragma endregion
 
 #pragma region glm integration
     // func to convert keycode to string, for chars that are not printable, provide own fallback names
@@ -398,4 +376,5 @@ namespace SliceEngine
         }
     }
 #pragma endregion
+
 }

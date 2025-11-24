@@ -94,8 +94,7 @@ namespace SliceEngine
 	class ActionMappingSystem
 	{
 	public:
-		// pointer to input system to query key/button states
-		// this explicit default constructor is to ensure input system pointer is provided
+		// pointer to input system to query key/button states, this explicit default constructor is to ensure input system pointer is provided
 		explicit ActionMappingSystem(InputSystem* input) : inputSys(input) {}
 		void SetInputSystem(InputSystem* input) { inputSys = input; } // setter for input system pointer
 
@@ -105,42 +104,42 @@ namespace SliceEngine
 
 		// functions to add action maps, actions, and bindings
 		ActionMap& CreateMap(const std::string& mapName);
+
 		// add action to map
 		size_t AddButton(const std::string& mapName, const std::string& actionName);
 		size_t AddValue1D(const std::string& mapName, const std::string& actionName);
 		size_t AddValue2D(const std::string& mapName, const std::string& actionName);
+
 		// bind keys to action
 		void BindButton(const std::string& mapName, const std::string& actionName, int keyCode);
 		void Bind1D(const std::string& mapName, const std::string& actionName, int keyCode, float scale);
 		void Bind2D(const std::string& mapName, const std::string& actionName, int keyCode, float x, float y);
+
 		// enable/disble action map
 		void enableMap(const std::string& mapName, bool enable);
 
-		// UGGGGHHHHH i forgot to create functions to clear bindings and actions and entire maps
 		// clear a binding for an action, clear action from map, clear entire map
 		void ClearBindings(const std::string& mapName, const std::string& actionName);
 		void ClearAction(const std::string& mapName, const std::string& actionName);
 		void ClearMap(const std::string& mapName);
 		
-		// process input events and update action states
-		void processInput(const std::string& mapName); 
-		// process all maps
-		void processAllInput(); 
+		void processInput(const std::string& mapName); // process input events and update action states	
+		void processAllInput(); // process all maps
 
 		// queries
 		bool PerformedThisFrame(const std::string& mapName, const std::string& actionName); // for buttons
-		std::pair<float, float> GetValue2D(const std::string& mapName, const std::string& actionName); // for value2D
 		float GetValue1D(const std::string& mapName, const std::string& actionName); // for value1D
+		std::pair<float, float> GetValue2D(const std::string& mapName, const std::string& actionName); // for value2D
 
 		// function to pull map of actionmaps
 		std::unordered_map<std::string, ActionMap>& GetActionMaps() { return maps; }
 
 	private:
-		InputSystem* inputSys; // 
-		std::unordered_map<std::string, ActionMap> maps; // class contains a container of all the different action maps there are
-		static size_t findAction(const ActionMap& actionMap, const std::string& actionName); // finds a particular action in an aciton map
+		InputSystem* inputSys; 
+		std::unordered_map<std::string, ActionMap> maps;										// class contains a container of all the different action maps there are
+		static size_t findAction(const ActionMap& actionMap, const std::string& actionName);	// finds a particular action in an aciton map
 		static ActionMap* findMap(std::unordered_map<std::string, ActionMap>& maps, const std::string& mapName); // finds a specific action map in the container of action maps
-		static size_t findBinding(const ActionDefinition& actionDef, int keyCode); // find binding in action definition
+		static size_t findBinding(const ActionDefinition& actionDef, int keyCode);				// find binding in action definition
 	};
 
 	// globbal accessor for singleton class actionmappingsystem instance

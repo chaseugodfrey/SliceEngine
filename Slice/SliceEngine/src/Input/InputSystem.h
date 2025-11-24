@@ -110,9 +110,9 @@ namespace SliceEngine
         bool IsMouseDown(MouseButtons button);
 
         // mouse position
-        glm::vec2 GetMousePosition() const { return currMousePos; }
-        double GetMouseX() const { return currMousePos.x; }
-        double GetMouseY() const { return currMousePos.y; }
+        glm::vec2 GetMousePosition() const;
+        double GetMouseX() const;
+        double GetMouseY() const;
 
 #ifdef SLICE_INPUT_USE_GLM
         // this is used to interface with glm, why are we using this function? its so that we dont have to include glm in this header
