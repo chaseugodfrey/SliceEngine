@@ -221,6 +221,7 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 	}
+	
 	void InspectorWindow::DisplayButton(entt::entity entity) {
 		if (ImGui::TreeNodeEx("Button", mBaseFlags))
 		{
@@ -1295,32 +1296,37 @@ namespace SliceEditor
 		//if (metapath.has_value())
 		mat.DeserializeAsset(node->path);
 
-		std::string mat_file_name{};
-		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
-			mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
-		}
-		else
-		{
-			mat_file_name = "GUID not in map";
+			mat.SerializeAsset(node->path);
 		}
 
-		ImGui::Text("Albedo");
-		ImGui::SameLine(150.0f);
-		ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+		//std::string mat_file_name{};
+		//if (mRegistry.GetAssetManager().mGUIDtoFilename.find(mat.albedo) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+		//{
+		//	mat_file_name = mRegistry.GetAssetManager().mGUIDtoFilename[mat.albedo];
+		//}
+		//else
+		//{
+		//	mat_file_name = "GUID not in map";
+		//}
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
-			{
-				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-				//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-				mat.albedo =recievedPayload;
-				mat.SerializeAsset(node->path);
-				// update the handle after
-			}
-			ImGui::EndDragDropTarget();
-		}
+		//ImGui::Text("Albedo");
+		//ImGui::SameLine(150.0f);
+		//ImGui::InputText("##albedo", &mat_file_name, ImGuiInputTextFlags_ReadOnly);
+
+		//if (ImGui::BeginDragDropTarget())
+		//{
+		//	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Texture"))
+		//	{
+		//		SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+		//		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//		mat.albedo =recievedPayload;
+		//		mat.SerializeAsset(node->path);
+		//		// update the handle after
+		//	}
+		//	ImGui::EndDragDropTarget();
+		//}
 
 		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
