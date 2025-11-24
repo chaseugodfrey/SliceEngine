@@ -221,6 +221,10 @@ namespace SliceEditor
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
+		else if (entry.path.extension() == ".mat")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
 	}
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
