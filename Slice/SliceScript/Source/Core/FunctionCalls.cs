@@ -37,6 +37,12 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool ColliderShape_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ColliderShape_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

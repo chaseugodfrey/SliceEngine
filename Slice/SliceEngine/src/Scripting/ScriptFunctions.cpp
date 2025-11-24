@@ -94,6 +94,17 @@ namespace SliceEngine
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
+
 #pragma endregion
 
 	static bool IsKeyPressed(Keys keyCode)
@@ -175,23 +186,51 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region ColliderShape FUNCTIONS
+	
+	static bool ColliderShape_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<ColliderShape>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& collider = go.GetComponent<ColliderShape>();
+		return collider.componentEnabled;
+	}
+
+	static void ColliderShape_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<ColliderShape>())
+		{
+			Entity entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& collider)
+				{
+					collider.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+		}
+				
+	}
+
+#pragma endregion
+
 	static AudioSource* GetAudioComponent(unsigned int entity)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<AudioSource>())
 		{
 			return &go.GetComponent<AudioSource>();
-		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
-		return nullptr;
-	}
-
-	static Transform* GetTransformComponent(unsigned int entity)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
-		if (go.IsValid() && go.HasComponent<Transform>())
-		{
-			return &go.GetComponent<Transform>();
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
 		return nullptr;
@@ -662,7 +701,7 @@ namespace SliceEngine
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
-		//RegisterComponent<Collider2D>();
+		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
