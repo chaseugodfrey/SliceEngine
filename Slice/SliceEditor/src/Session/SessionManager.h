@@ -14,8 +14,9 @@ namespace SliceEditor
 		std::unique_ptr<Preferences> mPreferences;
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
-
 		std::unordered_map<entt::entity, std::unique_ptr<PrefabNode>> mPrefabNodes;
+
+		std::unique_ptr<AnimatorData> mAnimatorData;
 
 	public:
 		SessionManager(Registry& reg);
@@ -35,6 +36,12 @@ namespace SliceEditor
 		void OnSceneStop(const OnSceneStopEvent& event);
 		void OnAssetFileChanged(const AssetFileChangedEvent& event);
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
+
+		// Animation Data
+		void LoadAnimatorData(SliceEngine::GUID guid);
+		void ClearAnimatorData();
+		AnimatorData* GetAnimatorData();
+
 	};
 
 }

@@ -614,7 +614,6 @@ namespace SliceEditor
 
 	struct StateMachineData : public MetaData
 	{
-
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
 		std::map<std::string, rttr::variant> parameters;
