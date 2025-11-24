@@ -422,6 +422,7 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
 				{
+					BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", col.componentEnabled);
 
 					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
 

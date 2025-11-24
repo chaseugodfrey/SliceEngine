@@ -37,6 +37,7 @@ namespace SliceEngine
             animator = GetComponent<Animator>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
+            Attack_Collider_1.ComponentEnabled = false;
             Console.WriteLine("ALOYSISU LOOK HERE<" + Attack_Collider_1.gameObject.mID + ">");
         }
 
@@ -208,14 +209,17 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
                 {
                     animator.SetBool("Attack1", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
                     animator.SetBool("Attack2", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                 {
                     animator.SetBool("Attack3", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
 
                 startBuffer = true;
@@ -233,12 +237,14 @@ namespace SliceEngine
                     if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                     {
                         animator.SetBool("AttackToIdle1", true);
+                        Attack_Collider_1.ComponentEnabled = false;
                     }
                     if(String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                     {
                         animator.SetBool("AttackToIdle2", true);
+                        Attack_Collider_1.ComponentEnabled = false;
                     }
-                    
+
                     startBuffer = false;
                     timeBuffer = 0.0f;
                 }
