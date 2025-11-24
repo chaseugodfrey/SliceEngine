@@ -75,7 +75,7 @@ namespace SliceEngine
 			GO.AddComponent<Prefab>();
 			GO.GetComponent<Prefab>().prefabGUID = guid;
 			GO.GetComponent<Prefab>().prefabHandle = prefab;
-
+			mPrefabMap[guid].push_back(GO.GetEntity());
 			auto& sceneGraph = GO.GetComponent<SceneGraph>();
 			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
 			while (childEntity != entt::null)
