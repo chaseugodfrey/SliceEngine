@@ -40,14 +40,22 @@ namespace SliceEngine
 		float minInterval = 0.f;
 	};
 
+	void to_json(nlohmann::json& j, const SFXEntry& entry);
+	void from_json(const nlohmann::json& j, SFXEntry& entry);
+
 	class AudioSettings
 	{
 		FMOD::System* mSystem = nullptr;
+
+		const std::filesystem::path AUDIO_SETTINGS_PATH = "../ProjectSettings/AudioSettings.asset";
+
 		//std::vector<SFXEntry> mSfxMap;
 	public:
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
 		void Init(FMOD::System* system);
 		void Exit();
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path);
+		void Deserialize(const std::filesystem::path& desc_path);
 		void CreateSoundGroup(const std::string& key);
 		void RemoveSoundGroup();
 		void AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips);

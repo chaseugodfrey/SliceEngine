@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Audio.h"
+#include "Serializer/JSONSerializer.h"
 
 namespace SliceEngine
 {
@@ -27,11 +28,87 @@ namespace SliceEngine
 		mSystem = system;
 
 		srand((unsigned int)time(NULL)); // Initialize random seed
+
+		Deserialize(AUDIO_SETTINGS_PATH);
 	}
 
 	void AudioSettings::Exit()
 	{
+		Serialize(AUDIO_SETTINGS_PATH);
 		mSystem = nullptr;
+	}
+
+	std::filesystem::path AudioSettings::Serialize(const std::filesystem::path& desc_path)
+	{
+		nlohmann::json audioSettingsOutput;
+
+		std::vector<SFXEntry> entriesList;
+
+		for (const auto& [key, entry] : mSFXMap)
+		{
+			entriesList.push_back(entry);
+		}
+
+		audioSettingsOutput["SFXEntries"] = entriesList;
+
+		std::ofstream outFile(desc_path);
+		if (outFile.is_open())
+		{
+			outFile << audioSettingsOutput.dump(4);
+			outFile.close();
+			SLICE_LOG("AudioSettings saved to: " + desc_path.string());
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Failed to open file for writing: " + desc_path.string());
+		}
+	}
+
+	void AudioSettings::Deserialize(const std::filesystem::path& desc_path)
+	{
+		std::ifstream inFile(desc_path);
+		nlohmann::json audioSettingsInput;
+
+		if (!inFile.is_open())
+		{
+			SLICE_LOG_WARNING("File not found for Deserialisation!");
+			return;
+		}
+		else
+		{
+			inFile >> audioSettingsInput;
+			inFile.close();
+		}
+
+		if (audioSettingsInput.contains("SFXEntries"))
+		{
+			mSFXMap.clear();
+
+			auto entriesList = audioSettingsInput["SFXEntries"].get<std::vector<SFXEntry>>();
+
+			for (const auto& entryData : entriesList)
+			{
+				CreateSoundGroup(entryData.key);
+
+				SFXEntry* mapEntry = GetSFXEntry(entryData.key);
+
+				if (mapEntry)
+				{
+					FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
+
+					*mapEntry = entryData;
+
+					mapEntry->soundGroup = currentSoundGroup;
+
+					if (mapEntry->soundGroup)
+					{
+						mapEntry->soundGroup->setVolume(mapEntry->volume);
+						mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
+					}
+				}
+			}
+		}
+
 	}
 
 	void AudioSettings::CreateSoundGroup(const std::string& key)
@@ -506,5 +583,72 @@ namespace SliceEngine
 
 
 		//entry->_lastPlayed = currentTime;
+	}
+
+	void to_json(nlohmann::json& j, const SFXEntry& entry)
+	{
+		j["key"] = entry.key;
+		j["volume"] = entry.volume;
+		j["maxInstances"] = entry.maxInstances;
+		j["isSpatial"] = entry.isSpatial;
+		j["spatialBlend"] = entry.spatialBlend;
+		j["minDistance"] = entry.minDistance;
+		j["maxDistance"] = entry.maxDistance;
+		j["minInterval"] = entry.minInterval;
+		j["volumeRollOff"] = static_cast<int>(entry.volumeRollOff);
+
+		j["AudioClips"] = entry.AudioClips;
+	}
+
+	void from_json(const nlohmann::json& j, SFXEntry& entry)
+	{
+		if (j.contains("key"))
+		{
+			j.at("key").get_to(entry.key);
+		}
+		if (j.contains("volume"))
+		{
+			j.at("volume").get_to(entry.volume);
+		}
+		if (j.contains("maxInstances"))
+		{
+			j.at("maxInstances").get_to(entry.maxInstances);
+		}
+		if (j.contains("isSpatial"))
+		{
+			j.at("isSpatial").get_to(entry.isSpatial);
+		}
+		if (j.contains("spatialBlend"))
+		{
+			j.at("spatialBlend").get_to(entry.spatialBlend);
+		}
+		if (j.contains("minDistance"))
+		{
+			j.at("minDistance").get_to(entry.minDistance);
+		}
+		if (j.contains("maxDistance"))
+		{
+			j.at("maxDistance").get_to(entry.maxDistance);
+		}
+		if (j.contains("minInterval"))
+		{
+			j.at("minInterval").get_to(entry.minInterval);
+		}
+
+		if (j.contains("volumeRollOff"))
+		{
+			int rollOff = 0;
+			j.at("volumeRollOff").get_to(rollOff);
+			entry.volumeRollOff = static_cast<AudioSource::VolumeRollOff>(rollOff);
+		}
+
+		if (j.contains("AudioClips"))
+		{
+			j.at("AudioClips").get_to(entry.AudioClips);
+		}
+
+		// Initialize runtime defaults
+		entry.soundGroup = nullptr;
+		entry._lastPlayed = -999.0f;
 	}
 }

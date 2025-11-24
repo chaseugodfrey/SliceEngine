@@ -74,11 +74,14 @@ namespace SliceEditor
 	{
 		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
+		const std::filesystem::path AUDIO_SETTINGS_PATH = "../ProjectSettings/AudioSettings.asset";
 
 		if (!audioSettings)
 		{
 			return;
 		}
+
+		bool hasChanged = false;
 
 		// Master Volume
 		float float_buffer = audioManager->GetCategoryVolume(0);
@@ -117,6 +120,7 @@ namespace SliceEditor
 			//		ImGui::TreePop();
 			//	}
 			//}
+			
 
 			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
@@ -142,8 +146,8 @@ namespace SliceEditor
 						if (name != key)
 						{
 							// set new name
-							//Do i needa store new name and old name and then change it after the loop? maybe
 							audioSettings->ReplaceExistingEntry(key, name);
+							hasChanged = true;
 
 						}
 
@@ -153,12 +157,14 @@ namespace SliceEditor
 					{
 						//Not sure if i should add a check but imma just write
 						audioSettings->SetSoundGroupVolume(key, current_volume);
+						hasChanged = true;
 					}
 					if (DragIntInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + key).c_str(), current_max_instances, "%d", -1, 64))
 					{
 						if (current_max_instances != audioSettings->GetMaxInstances(key))
 						{
 							audioSettings->SetMaxInstances(key, current_max_instances);
+							hasChanged = true;
 						}
 					}
 					if (BoolInputHeader(mRegistry, "Is 3D", ("##is3D_" + key).c_str(), current_is_spatial))
@@ -170,6 +176,7 @@ namespace SliceEditor
 							{
 								changeSpatial = true;
 							}
+							hasChanged = true;
 						}
 					}
 					if (DragFloatInputHeader(mRegistry, "Spatial Blend", ("##spatialBlend_" + key).c_str(), current_spatial_blend, "%.3f", 0.0f, 1.0f))
@@ -177,6 +184,7 @@ namespace SliceEditor
 						if (std::abs(current_spatial_blend - audioSettings->GetSoundGroupSpatialBlend(key)) > 0.001f)
 						{
 							audioSettings->SetSoundGroupSpatialBlend(key, current_spatial_blend);
+							hasChanged = true;
 						}
 					}
 					if (DragFloatInputHeader(mRegistry, "Min Distance", ("##minDistance" + key).c_str(), current_min_distance, "%.3f", 0.0f, current_max_distance))
@@ -184,6 +192,7 @@ namespace SliceEditor
 						if (std::abs(current_min_distance - audioSettings->GetMinDistance(key)) > 0.001f)
 						{
 							audioSettings->SetMinDistance(key, current_min_distance);
+							hasChanged = true;
 						}
 					}
 					if (DragFloatInputHeader(mRegistry, "Max Distance", ("##maxDistance" + key).c_str(), current_max_distance, "%.3f", current_min_distance))
@@ -191,6 +200,7 @@ namespace SliceEditor
 						if (std::abs(current_max_distance - audioSettings->GetMaxDistance(key)) > 0.001f)
 						{
 							audioSettings->SetMaxDistance(key, current_max_distance);
+							hasChanged = true;
 						}
 					}
 					DragFloatInputHeader(mRegistry, "Interval", ("##interval" + key).c_str(), float_buffer);
@@ -252,6 +262,11 @@ namespace SliceEditor
 		if (ImGui::Button("-"))
 		{
 			audioSettings->RemoveSoundGroup();
+		}
+
+		if (hasChanged)
+		{
+			audioSettings->Serialize(AUDIO_SETTINGS_PATH);
 		}
 
 		ImGui::EndChild();
