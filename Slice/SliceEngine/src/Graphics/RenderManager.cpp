@@ -268,6 +268,7 @@ namespace SliceEngine
 #pragma region Render
 	void RenderManager::Render()
 	{
+		ForceResetDefaultSettings();
 		//Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 		//GatherDrawCalls();// Does nothing atm
 
@@ -980,6 +981,15 @@ namespace SliceEngine
 			if (mCurrGPUSetting & setting)
 				mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ setting);
 		}
+	}
+	void RenderManager::ForceResetDefaultSettings()
+	{
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glCullFace(GL_BACK);
+		glDepthFunc(GL_LESS);
+		mCurrGPUSetting = GPS_DEFAULT;
 	}
 	// Changes Shader if not current
 	void RenderManager::SetShader(ShaderOpt sh)

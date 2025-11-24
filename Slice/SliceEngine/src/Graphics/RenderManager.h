@@ -207,6 +207,7 @@ namespace SliceEngine
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
+		void ForceResetDefaultSettings();
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
