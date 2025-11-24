@@ -12,6 +12,7 @@ namespace SliceEngine
         Animator animator;
         Transform t;
         GameObject floor;
+        GameObject Attack_Collider_1;
 
 
         public string[] test3 = { "Test", "Test2" };
@@ -35,6 +36,8 @@ namespace SliceEngine
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
+            Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1");
+            Console.WriteLine("ALOYSISU LOOK HERE<" + Attack_Collider_1.mID + ">");
         }
 
         public override void OnUpdate(float dt)
