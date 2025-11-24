@@ -98,9 +98,10 @@ namespace SliceEngine
 
 			if (Core::GetInstance()->GetRegistry().any_of<Renderer>(entity)) {
 				animator.inverse_flags.set(bone.frame_idx);
+				animator.SetInverseRoot(bone.frame_idx);
 			}
 
-			animator.SetInverseRoot(bone.frame_idx);
+			
 
 			//animator.SetInverseRoots();
 		}

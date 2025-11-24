@@ -112,13 +112,17 @@ namespace SliceEngine
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
 
+	rttr::registration::class_<Handle<SliceEngineTypes::Skeleton>>("Skeleton Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Skeleton>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::AnimationPackage>>("AnimPkg Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::AnimationPackage>::mGUID);
+
 	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
-
-	rttr::registration::class_<FSMSystem>("stateMachine")
-		.constructor<>()
-		.property("EFSM", &FSMSystem::EFSM);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.property("scriptName", &Script::scriptName)
@@ -360,7 +364,10 @@ namespace SliceEngine
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
 		.property("current_time", &Animator::current_time)
-		.property("stateMachine", &Animator::stateMachine);
+		.property("stateMachine Handle", &Animator::Handle_stateMachine)
+		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
+		.property("Skeleton Handle", &Animator::Handle_skeleton);
+
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())
 		.constructor<>()
