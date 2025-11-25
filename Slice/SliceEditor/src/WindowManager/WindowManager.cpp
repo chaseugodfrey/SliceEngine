@@ -26,10 +26,20 @@ DigiPen Institute of Technology is prohibited.
 #include <Systems/SceneSystem.h>
 #include <Networking/NetworkSystem.h>
 #include <Profiler/ProfilerManager.h>
+#include <Input/ActionMapping.h>
 #include <History/HistoryManager.h>
 
 namespace SliceEditor
 {
+	static int DetectGlfwKeyPress(GLFWwindow* window)
+	{
+		// GLFW keys range
+		for (int k = GLFW_KEY_SPACE; k <= GLFW_KEY_LAST; ++k)
+		{
+			if (glfwGetKey(window, k) == GLFW_PRESS) return k;
+		}
+		return -1;
+	}
 
 	void WindowManager::Init()
 	{
@@ -325,6 +335,15 @@ namespace SliceEditor
 			}
 		}
 
+		ImGui::SameLine();
+		if (ImGui::Button("Action Mapping", ImVec2{ 60, 35 }))
+		{ 
+			if (!isPaused)
+			{
+				ImGui::OpenPopup("action_map_popup");
+			}
+		}
+
 		//ImGui::SameLine();
 		//if (ImGui::Button("Bind", ImVec2{ 60, 35 }))
 		//{
@@ -444,6 +463,281 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 		
+		if (ImGui::BeginPopup("action_map_popup"))
+		{
+			//using namespace SliceEngine; // this allows us to access slicenegine classes without prefixing
+			auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+			auto& AM = SliceEngine::GetActionMappingSystem();
+			auto* core = SliceEngine::Core::GetInstance();
+			auto* window = core->GetWindow();
+
+			// saving to json path
+			static std::string kJsonPath = "../SliceEditor/Assets/InputMappings.json";
+
+			// save/load buttons
+			if (ImGui::Button("Save All")) 
+			{
+				AM.SaveToJson(kJsonPath);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Load All")) 
+			{
+				AM.LoadFromJson(kJsonPath);
+			}
+
+			// create new base[?] map/action
+			static char newMap[64] = "Gameplay";
+			static char newAction[64] = "Jump";
+			static int newType = 0; // 0 = button, 1 = 2D value
+			static float dirX = 0.0f, dirY = 0.0f; // for 2D value but i don't think im gg be using this just yet
+
+			ImGui::TextUnformatted("Create/Add");
+			ImGui::Separator();
+			ImGui::InputText("Action Map Name", newMap, IM_ARRAYSIZE(newMap));
+			ImGui::InputText("Action Name", newAction, IM_ARRAYSIZE(newAction));
+			ImGui::RadioButton("Button", &newType, 0); ImGui::SameLine();
+			ImGui::RadioButton("1D Value", &newType, 2); ImGui::SameLine();
+			ImGui::RadioButton("2D Value", &newType, 1);
+
+			// for 2D value, input direction x and y
+			if (newType == 1)
+			{
+				ImGui::InputFloat("Direction X", &dirX);
+				ImGui::InputFloat("Direction Y", &dirY);
+			}
+			// for 1D value, input direction x only
+			else if (newType == 2)
+			{
+				ImGui::InputFloat("Direction X", &dirX);
+			}
+
+			// creating a new action map
+			if (ImGui::Button("Create Map"))
+			{
+				AM.CreateMap(newMap);
+				AM.enableMap(newMap, true); // enable map upon creation
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Add Action"))
+			{
+				AM.CreateMap(newMap); // ensure map exists but idk if this is necessary cus am i creating 2 maps?
+				if (newType == 0) // button
+				{
+					AM.AddButton(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
+				}
+				else if (newType == 1) // 2D value
+				{
+					AM.AddValue2D(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
+				}
+				else if (newType == 2) // 1D value
+				{
+					AM.AddValue1D(newMap, newAction);
+					AM.SaveToJson(kJsonPath);
+				}
+			}
+
+			ImGui::Dummy({ 0,8 }); // spacing
+			ImGui::Separator();
+			ImGui::TextUnformatted("Current Action Maps");
+
+			// list all action maps and their actions + keybinds
+			for (auto& thisMap : AM.GetActionMaps())
+			{
+				auto& mapName = thisMap.first;
+				auto& map = thisMap.second;
+
+				// create header with enable toggle
+				bool enabled = map.enabled;
+				if (ImGui::CollapsingHeader(mapName.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					// enable or disable
+					if (ImGui::Checkbox(("Enabled##" + mapName).c_str(), &enabled))
+					{
+						AM.enableMap(mapName, enabled); // enable or disable map based on checkbox
+					}
+					// deelte whote map
+					ImGui::SameLine();
+					if (ImGui::SmallButton(("Delete Map##" + mapName).c_str())) 
+					{
+						AM.ClearMap(mapName);
+						AM.SaveToJson(kJsonPath);
+						// map is gone; skip drawing its currently invalid table this frame
+						ImGui::Dummy({ 0,4 });
+						continue;
+					}
+					// list all actions in this map by creating a table of of the actions
+					if (ImGui::BeginTable(("table" + mapName).c_str(), 5, ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
+					{
+						ImGui::TableSetupColumn("Action");
+						ImGui::TableSetupColumn("Type");
+						ImGui::TableSetupColumn("Bindings");
+						ImGui::TableSetupColumn("Bind...");
+						ImGui::TableSetupColumn("Edit");
+						ImGui::TableHeadersRow();
+
+						// idk how this fixes things tbh but it does
+						// persistent per-row capture state [which rows are currently capturing]
+						// use unordered_map to map action names to bools
+						static std::unordered_map<std::string, bool> sCapturing;
+
+						// loop through all actions in this map and list them
+						for (size_t i{}; i < map.definitions.size(); ++i)
+						{
+							const auto& definition = map.definitions[i];
+							ImGui::TableNextRow();
+
+							// action name
+							ImGui::TableSetColumnIndex(0);
+							ImGui::TextUnformatted(definition.name.c_str());
+
+							// action type
+							ImGui::TableSetColumnIndex(1);
+							if (definition.type == SliceEngine::ActionType::Button)
+							{
+								ImGui::TextUnformatted("Button");
+							}
+							else if (definition.type == SliceEngine::ActionType::Value2D)
+							{
+								ImGui::TextUnformatted("2D Value");
+							}
+							// for 1d values
+							else if (definition.type == SliceEngine::ActionType::Value1D)
+							{
+								ImGui::TextUnformatted("1D Value");
+							}
+
+							// current bindings
+							ImGui::TableSetColumnIndex(2);
+							{
+								if (definition.bindings.empty())
+								{
+									ImGui::TextDisabled("No Bindings");
+								}
+								else
+								{
+									// show key names using the inputsystem's keycode to name function
+									//for (size_t j{}; j < definition.bindings.size(); ++j)
+									//{
+									for (size_t bi = 0; bi < definition.bindings.size(); ++bi)
+									{
+										const auto& b = definition.bindings[bi];
+										const char* label = SliceEngine::InputSystem::KeyNameFallback(b.keyCode); // convert keycode to name
+										if (definition.type == SliceEngine::ActionType::Button)
+										{
+											ImGui::Text("%s", label);
+										}
+										else
+										{
+											ImGui::Text("%s  (%.0f, %.0f)", label, b.x, b.y);
+										}
+									}
+									//}
+								}
+							}
+
+							// bind new key/UI
+							ImGui::TableSetColumnIndex(3);
+
+							// create unique key for this aciton's capture state
+							const std::string capKey = mapName + " : " + definition.name;
+							bool& captureInput = sCapturing[capKey]; // check if we're capturing input for this action
+
+							ImGui::PushID((int)i); // push id for button
+							if (!captureInput)
+							{
+								if (ImGui::Button("Bind"))
+								{
+									captureInput = true;
+								}
+							}
+							else
+							{
+								ImGui::TextDisabled("Press a key...");
+								// capture next key press
+								int key = DetectGlfwKeyPress(window);
+								if (key != -1)
+								{
+									if (definition.type == SliceEngine::ActionType::Button)
+									{
+										AM.BindButton(mapName, definition.name, key);
+										// here is where we call the savetofile function to file
+										AM.SaveToJson(kJsonPath);
+									}
+									else if (definition.type == SliceEngine::ActionType::Value2D)
+									{
+										AM.Bind2D(mapName, definition.name, key, dirX, dirY);
+										AM.SaveToJson(kJsonPath);
+									}
+									else if (definition.type == SliceEngine::ActionType::Value1D)
+									{
+										AM.Bind1D(mapName, definition.name, key, dirX);
+										AM.SaveToJson(kJsonPath);
+									}
+									captureInput = false; // stop capturing after key press
+								}
+								// cancel button
+								ImGui::SameLine();
+								if (ImGui::Button("Cancel"))
+								{
+									captureInput = false;
+								}
+							}
+							ImGui::PopID();
+
+							// had no idea how to do this portion so thanks gpt
+							// edit bindings: clear all or delete action
+							ImGui::TableSetColumnIndex(4);
+							ImGui::PushID((int)i + 100000);  // separate ID space for edit buttons
+
+							bool clearBinds = ImGui::SmallButton("Clear Binds");
+							ImGui::SameLine();
+							bool deleteAction = ImGui::SmallButton("Delete Action");
+
+							ImGui::PopID();
+
+							if (clearBinds) 
+							{
+								AM.ClearBindings(mapName, definition.name);
+								AM.SaveToJson(kJsonPath);
+							}
+
+							if (deleteAction) 
+							{
+								AM.ClearAction(mapName, definition.name);
+								AM.SaveToJson(kJsonPath);
+								break;
+							}
+
+						}
+						ImGui::EndTable();
+					}
+				}
+			}
+			// ---------------- 1 ----------------
+			// write text header [Action Maps]
+			//std::string display = "Current Action Maps:";
+			//ImGui::Text(display.c_str());
+			// call action map lists and pull their names
+			// open action map list, call maps
+			// for each action map, create a collapsing header with its name
+			// ---------------- 2 ----------------
+			// user clicks on collapsing header
+			// open action map
+			// call that action map and pull all actions
+			// list all actions and then have a square/rectangle beside it to input keybind
+			// ---------------- 3 ----------------
+			// user keys in new keybind
+			// action: "jump" -> keybind: "spacebar"
+			// call parsing function to sort through glfw keycodes and match "spacebar" to its keycode
+			// call BindButton or Bind2D with action name and keycode
+			// bind the new keycode to that action
+			// ---------------- 4 ----------------
+			// create button at bottom of header to add either new action map or new action to existing map
+			ImGui::EndPopup();
+		}
 
 		ImGui::End();
 	}
