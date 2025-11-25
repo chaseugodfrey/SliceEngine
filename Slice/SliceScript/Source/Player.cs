@@ -27,6 +27,8 @@ namespace SliceEngine
         #pragma warning restore 0414
 
         float timeBuffer = 0.0f;
+        float attackBuffer = 0.0f;
+        bool startAttack = false;
         bool startBuffer = false;
         bool grounded = false;
         int jumpCounter = 0;
@@ -223,6 +225,7 @@ namespace SliceEngine
                 }
 
                 startBuffer = true;
+                startAttack = true;
                 timeBuffer = 0.0f;
             }
 
@@ -249,6 +252,18 @@ namespace SliceEngine
                     timeBuffer = 0.0f;
                 }
             }
+
+            if(startAttack) 
+            {
+                attackBuffer += dt;
+                if(attackBuffer > 1.0f)
+                {
+                    startAttack = false;
+                    attackBuffer = 0.0f;
+                    Attack_Collider_1.ComponentEnabled = false;
+                }
+            }
+
 
             //Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
         }

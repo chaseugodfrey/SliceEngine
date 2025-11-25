@@ -13,7 +13,7 @@ namespace SliceEngine
 
         public override void OnCollideStay(uint other)
         {
-            Console.WriteLine("Attack Hit STAY! entity <" + other + ">LOLOLOLOLOLOL");
+            //Console.WriteLine("Attack Hit STAY! entity <" + other + ">LOLOLOLOLOLOL");
         }
     }
 }
