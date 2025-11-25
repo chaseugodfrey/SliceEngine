@@ -48,6 +48,37 @@ namespace SliceEngine
 	// Define to make it easier to add internal function calls
 #define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
 
+#pragma region DEBUGGING FUNCTIONS
+
+	static void Debug_Console(MonoArray* monoStrArray, MonoString* monoMsg, int level)
+	{
+
+		if (monoStrArray == nullptr)
+		{
+			SLICE_LOG_ERROR("Received null MonoArray (string[]) from C#.");
+			return;
+		}
+
+		uintptr_t length = mono_array_length(monoStrArray);
+
+		std::vector<std::string> callStack;
+
+		for (uintptr_t i = 0; i < length; ++i)
+		{
+			// Use MonoObject* or MonoString* to retrieve the string reference
+			// String is a reference type, so mono_array_get returns the object reference.
+			MonoString* monoStr = (MonoString*)mono_array_get(monoStrArray, MonoObject*, i);
+
+			callStack.push_back(MonoToString(monoStr));
+		}
+
+		Logger::ConsoleMessage consoleMsg{ std::move(callStack), MonoToString(monoMsg) };
+
+		SLICE_LOG_CONSOLE(level, std::move(consoleMsg));
+	}
+
+#pragma endregion
+
 #pragma region TRANSFORM FUNCTIONS
 
 	static void Transform_GetPosition(unsigned int entity, glm::vec3 *outPosition)
@@ -863,6 +894,8 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		ADD_INTERNAL_CALL(Debug_Console);
+
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);

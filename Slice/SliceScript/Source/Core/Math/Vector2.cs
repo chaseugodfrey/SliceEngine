@@ -35,6 +35,12 @@ namespace SliceEngine
             this.y = val;
         }
 
+        public override string ToString()
+        {
+            return "(" + x.ToString() + ", " + y.ToString() + ")";
+        }
+
+
         // uncomment the Equals function to resolve  
         public override bool Equals(object o)
         {
