@@ -36,17 +36,18 @@ namespace SliceEngine
                 enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
             }
 
-            if (player.Has<PlayerController>())
-            {
-                PlayerController playerComp = player.As<PlayerController>();
-                SliceLog.Log(playerComp.direction.ToString());
-            }
 
-            if (playerT.gameObject.Has<PlayerController>())
-            {
-                PlayerController playerComp = playerT.gameObject.As<PlayerController>();
-                SliceLog.Log(playerComp.direction.ToString());
-            }
+            //if (player.Has<PlayerController>())
+            //{
+            //    PlayerController playerComp = player.As<PlayerController>();
+            //    SliceLog.Log(playerComp.direction.ToString());
+            //}
+
+            //if (playerT.gameObject.Has<PlayerController>())
+            //{
+            //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
+            //    SliceLog.Log(playerComp.direction.ToString());
+            //}
 
         }
 

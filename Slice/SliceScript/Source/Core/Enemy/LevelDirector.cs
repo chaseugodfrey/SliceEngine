@@ -15,9 +15,9 @@ namespace SliceEngine
 
         public string enemyPrefab = "EnemyTest";
 
-        //public List<Vector3> spawnPoints = new List<Vector3>();
+        public List<Vector3> spawnPoints = new List<Vector3>();
 
-        private List<Transform> possibleTransforms;
+        private List<Transform> possibleTransforms = new List<Transform>();
 
         private List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
 
