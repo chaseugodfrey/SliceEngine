@@ -104,9 +104,10 @@ namespace SliceEditor
 	{
 		//std::string name;
 		entt::entity entity = entt::null;
+		bool isPrefab = false;
 
 		EntityNode()
-			: entity(entt::null)
+			: entity(entt::null), isPrefab(false)
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;
@@ -116,6 +117,7 @@ namespace SliceEditor
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;
+			isPrefab = false;
 		}
 	};
 

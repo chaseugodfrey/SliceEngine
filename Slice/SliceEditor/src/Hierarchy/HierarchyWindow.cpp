@@ -34,7 +34,7 @@ namespace SliceEditor
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
-		SelectionNode* node = nullptr;
+		EntityNode* node = nullptr;
 
 		if (isPrefab)
 		{
@@ -58,6 +58,12 @@ namespace SliceEditor
 		
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
+
+		if (node->isPrefab)
+		{
+			//To change to something better
+			//flags |= ImGuiTreeNodeFlags_Bullet; 
+		}
 
 
 		//Temporary Change
