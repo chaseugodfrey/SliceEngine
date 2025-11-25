@@ -63,6 +63,9 @@ namespace SliceEngine
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
 		if (!animator.IsValid()) return;
 
+
+		// have a blending timer, have blending per frame until timer reach
+		// then add blending weight blending timer/ blend length
 		if (animator.stateMachine.stateChanged)
 		{
 			if (animator.timeline.isPlaying)
