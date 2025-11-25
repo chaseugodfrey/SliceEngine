@@ -90,12 +90,15 @@ namespace SliceEngine
             Position = pos;
         }
 
-        public void Rotate(float angleDegrees, Vector3 axis)
+        public void Rotate(float angleDegrees, Vector3 axis, bool preRotate = false)
         {
             if (axis == Vector3.Zero) return;
 
             Quaternion delta = Quaternion.FromAxisAngle(axis.Normalize(), angleDegrees);
-            RotationQuat = (RotationQuat * delta).Normalize();
+            if(preRotate)
+                RotationQuat = (delta * RotationQuat).Normalize();
+            else
+                RotationQuat = (RotationQuat * delta).Normalize();
         }
 
         public void LookAt(Vector3 targetPosition, Vector3 up)
