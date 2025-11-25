@@ -10,6 +10,10 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #ifndef EDITOR_EVENTS_H
 #define EDITOR_EVENTS_H
+namespace SliceEngine
+{
+	struct GUID;
+}
 
 namespace SliceEditor
 {
@@ -66,6 +70,12 @@ namespace SliceEditor
 	struct DeleteSelectedEntities
 	{
 
+	};
+
+	struct PrefabInspectedEvent
+	{
+		SliceEngine::GUID prefabGUID;
+		bool prefabBeingInspected;
 	};
 }
 

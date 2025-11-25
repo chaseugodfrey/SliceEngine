@@ -166,7 +166,7 @@ namespace SliceEngine
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
-
+		void RemoveFromNameMap(Entity entity);
 		bool isDescendant(Entity target, Entity dest);
 		bool Unparent(Entity entity);
 		bool SetParent(Entity entity, Entity parentEntity = entt::null);

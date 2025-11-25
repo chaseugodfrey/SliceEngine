@@ -11,7 +11,7 @@ uniform float uBloomStrength;
 
 void main(void){
 	vec3 hdrCol = texture(uTex, vTexCoord).rgb;
-	vec3 bloomCol = texture(uBloom, vTexCoord).rgb;
+	vec3 bloomCol = texture(uBloom, vTexCoord).rgb * uBloomStrength;
 
-	fFragColor = vec4(mix(hdrCol, bloomCol, uBloomStrength), 1.0);
+	fFragColor = vec4((hdrCol + bloomCol), 1.0);
 }

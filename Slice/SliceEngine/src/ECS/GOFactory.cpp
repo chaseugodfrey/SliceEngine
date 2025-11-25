@@ -221,6 +221,12 @@ namespace SliceEngine
 		auto go = GetGOByEntity(entity);
 		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
+		if (mDeleteList.contains(entity))
+		{
+			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			return;
+		}
+
 		//Check children and destroy them too
 		if(go.HasComponent<SceneGraph>())
 		{
@@ -246,6 +252,14 @@ namespace SliceEngine
 		mRootEntity = mRegistry.create();
 		mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
+	}
+
+	void GOFactory::RemoveFromNameMap(Entity entity)
+	{
+		GameObject go = GetGOByEntity(entity);
+
+		mNameToEntity.erase(go.GetName());
+		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 	}
 
 	bool GOFactory::isDescendant(Entity target, Entity dest)
@@ -630,7 +644,7 @@ namespace SliceEngine
 	{
 		auto go = CreateGO("GameObject");
 		go.AddComponent<Renderer>();
-		go.AddComponent<ColliderShape>();
+		go.AddComponent<ColliderShape>(ColliderShape::BoxData{});
 		go.AddComponent<RigidBody>();
 
 		return go;

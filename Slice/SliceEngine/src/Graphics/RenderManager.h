@@ -33,6 +33,7 @@ namespace SliceEngine
 		void CreateFramebuffers();
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
+		void RegenerateSkybox();
 		// Camera related functions
 		GameObject CreateCamera();
 		void SetMainGameCamera(GameObject cam);
@@ -52,6 +53,8 @@ namespace SliceEngine
 		void RenderDebug(Entity cam);
 		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
+		void RenderSkybox();
+		void RenderSkyboxLighting();
 		void RenderLighting(Entity cam);
 		void RenderAfterLighting(Entity cam);
 		void RenderFog(Entity cam);
@@ -68,10 +71,16 @@ namespace SliceEngine
 
 	private:
 		const int mMaxInstance = 500;
+		const float mBloomFilterMult = 0.001f;
+		const float mBloomStrengthMult = 0.1f;
+		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
-		const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
-		const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
-		const float pointLightFar = 20.f;
+		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
+		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
+		const float mPointLightFar = 20.f;
+		const int mSkyboxIrrDim = 32;
+		const int mSkyboxDim = 1024;
+
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -116,9 +125,10 @@ namespace SliceEngine
 			S_SHADOW		= 15542823559299526962,
 			S_POINT_SHADOW	= 16403285895328080424,
 			S_DEFERRED		= 9461939409271178249,
+			S_SKYBOX		= 10501127717050996268,
+			S_SKYBOX_Light	= 17607102209555945808,
 			S_LIGHTING		= 17353385404596894578,
 			S_PARTICLES		= 15022037422749583333,
-			S_FINAL			= 9302529766740298710,
 			S_INSTANCED		= 17697828682138082227,
 			S_DEBUG_LINE	= 13567802095736790143,
 			S_FOG			= 10740115564374233650,
@@ -126,7 +136,10 @@ namespace SliceEngine
 			S_DOWNSCALING	= 9611694325200796232,
 			S_UPSCALING		= 17037775471000192005,
 			S_BLOOM_JOIN	= 11454882705531309873,
-			S_VIGNETTE		= 15557538937295862472
+			S_VIGNETTE		= 15557538937295862472,
+			S_SKY_IRRADIANCE= 12553626097981143487,
+			S_SKY_GENERATE	= 10651205271784078762,
+			S_FINAL			= 9302529766740298710
 		};
 		enum GPU_OUT : unsigned char
 		{
@@ -153,6 +166,8 @@ namespace SliceEngine
 			GPS_NONE				= 0x00,
 			GPS_DEFAULT				= 0b1001'0101,
 			GPS_PARTICLES			= 0b1100'0110,
+			GPS_SKYBOX				= 0b0000'0001,
+			GPS_SKYBOX_AMBIENT		= 0b0101'0011,
 			GPS_SHADOW				= 0b1000'0101,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
@@ -182,6 +197,8 @@ namespace SliceEngine
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
+		GLuint SkyboxMap{};
+		GLuint SkyboxIrradianceMap{};
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;
@@ -192,6 +209,7 @@ namespace SliceEngine
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
+		void ForceResetDefaultSettings();
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();

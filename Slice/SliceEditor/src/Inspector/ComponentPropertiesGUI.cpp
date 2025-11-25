@@ -171,7 +171,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func)
 	{
 		static std::string oldVal{};
 
@@ -191,8 +191,17 @@ namespace SliceEditor
 		{
 			if (changed)
 			{
-				std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
-				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				if(func != nullptr)
+				{
+					func(val);
+					std::unique_ptr<FunctionSetsValueCommand<std::string>> command = std::make_unique<FunctionSetsValueCommand<std::string>>(val, oldVal, func);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+				else
+				{
+					std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
 			}
 		}
 
@@ -207,6 +216,11 @@ namespace SliceEditor
 		changed = BoolInput(reg, id, val) || changed;
 
 		return changed;
+	}
+
+	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val)
+	{
+		return false;
 	}
 
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
@@ -259,12 +273,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val, width) || changed;
+		changed = StringInput(reg, id, val, width, func) || changed;
 
 		return changed;
 	}
@@ -827,6 +841,21 @@ namespace SliceEditor
 
 	}
 
+	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
+
+		return changed;
+	}
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
 	{
 		bool changed = false;
@@ -873,4 +902,10 @@ namespace SliceEditor
 
 }
 
-
+void SetBit(unsigned char& mask, unsigned char bit, bool enabled)
+{
+	if (enabled)
+		mask |= bit;
+	else
+		mask &= ~bit;
+}

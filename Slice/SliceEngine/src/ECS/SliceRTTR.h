@@ -226,6 +226,7 @@ namespace SliceEngine
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
+		.property("bloomExposure", &Camera::exposure)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness);
@@ -404,6 +405,14 @@ namespace SliceEngine
 		.property("texture", &SpriteRenderer::textureHandle)
 		.property("rgba", &SpriteRenderer::rgba)
 		.property("raycast_target", &SpriteRenderer::raycast_target);
+
+	rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
+		.constructor<>()
+		.property("speed", &NavAgent::speed)
+		.property("target", &NavAgent::target)
+		.property("hasNewTarget", &NavAgent::hasNewTarget)
+		.property("currentPath", &NavAgent::currentPath)
+		.property("currentPathIndex", &NavAgent::currentPathIndex);
 	}
 }
 #endif

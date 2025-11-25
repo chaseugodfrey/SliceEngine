@@ -181,7 +181,7 @@ namespace SliceEditor
 
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
-		
+		//Loading a Scene
 		if (entry.path.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
@@ -190,7 +190,7 @@ namespace SliceEditor
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
-
+		//Currently Open will Create a Prefab
 		else if (entry.path.extension() == ".prefab")
 		{
 			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
@@ -206,7 +206,7 @@ namespace SliceEditor
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
 		}
-		
+		//No functionality
 		else
 		{
 			SLICE_LOG("Open this file WIP!");
@@ -216,7 +216,12 @@ namespace SliceEditor
 
 	void ContentBrowserManager::EditFile(DirectoryNode& entry)
 	{
+		//Editing a Prefab
 		if (entry.path.extension() == ".prefab")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+		else if (entry.path.extension() == ".mat")
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}

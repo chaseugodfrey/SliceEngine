@@ -207,7 +207,7 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Open Folder"))
 			{
 				SelectFolder(node);
-				ImGui::EndPopup();
+				//ImGui::EndPopup();
 				//mManager.SetDirty(true);
 			}
 
@@ -285,7 +285,7 @@ namespace SliceEditor
 			{
 				mManager.OpenFile(node);
 			}
-			if (ImGui::MenuItem("Edit File, DO NOT USE RIGHT NOW"))
+			if (ImGui::MenuItem("Edit File"))
 			{
 				mManager.EditFile(node);
 			}

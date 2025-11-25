@@ -28,6 +28,10 @@ namespace SliceEngine
         {
             return new Vector3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
         }
+        public static Vector3 operator *(float s, Vector3 v)
+        {
+            return new Vector3(v.x * s, v.y * s, v.z * s);
+        }
 
         public static Vector3 operator +(Vector3 v1, Vector3 v2)
         {
@@ -198,6 +202,15 @@ namespace SliceEngine
             //return ((a * (float)Math.Cos(theta)) + (RelativeVec * (float)Math.Sin(theta)));
         }
 
+        /// <summary>
+        /// Smoothly interpolates a value towards a target using a critically damped spring.
+        /// </summary>
+        /// <param name="current">Current value.</param>
+        /// <param name="target">Target value.</param>
+        /// <param name="velocity">Reference to velocity value used internally.</param>
+        /// <param name="smoothTime">Approximate time to reach the target.</param>
+        /// <param name="deltaTime">Frame delta time.</param>
+        /// <returns>The smoothed value.</returns>
         public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, float smoothTime, float maxSpeed, float deltaTime)
         {
             // Safety
@@ -275,6 +288,15 @@ namespace SliceEngine
 
             // Step 3: Perform spherical interpolation (Slerp)
             return Slerp(from, to, t);
+        }
+
+        public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDelta)
+        {
+            Vector3 delta = target - current;
+            float dist = delta.Length();
+
+            if (dist <= maxDelta || dist == 0f) return target;
+            return current + delta / dist * maxDelta;
         }
     }
 }

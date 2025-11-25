@@ -12,6 +12,7 @@ namespace SliceEngine
         Animator animator;
         Transform t;
         GameObject floor;
+        ColliderShape Attack_Collider_1;
 
 
         public string[] test3 = { "Test", "Test2" };
@@ -26,6 +27,8 @@ namespace SliceEngine
         #pragma warning restore 0414
 
         float timeBuffer = 0.0f;
+        float attackBuffer = 0.0f;
+        bool startAttack = false;
         bool startBuffer = false;
         bool grounded = false;
         int jumpCounter = 0;
@@ -35,6 +38,9 @@ namespace SliceEngine
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
+            Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
+            Attack_Collider_1.ComponentEnabled = false;
+            Console.WriteLine("ALOYSISU LOOK HERE<" + Attack_Collider_1.gameObject.mID + ">");
         }
 
         public override void OnUpdate(float dt)
@@ -205,17 +211,21 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
                 {
                     animator.SetBool("Attack1", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
                     animator.SetBool("Attack2", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                 {
                     animator.SetBool("Attack3", true);
+                    Attack_Collider_1.ComponentEnabled = true;
                 }
 
                 startBuffer = true;
+                startAttack = true;
                 timeBuffer = 0.0f;
             }
 
@@ -230,10 +240,12 @@ namespace SliceEngine
                     if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                     {
                         animator.SetBool("AttackToIdle1", true);
+                        Attack_Collider_1.ComponentEnabled = false;
                     }
                     if(String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                     {
                         animator.SetBool("AttackToIdle2", true);
+                        Attack_Collider_1.ComponentEnabled = false;
                     }
                     if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
                     {
@@ -244,6 +256,18 @@ namespace SliceEngine
                     timeBuffer = 0.0f;
                 }
             }
+
+            if(startAttack) 
+            {
+                attackBuffer += dt;
+                if(attackBuffer > 1.0f)
+                {
+                    startAttack = false;
+                    attackBuffer = 0.0f;
+                    Attack_Collider_1.ComponentEnabled = false;
+                }
+            }
+
 
             //Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
         }
