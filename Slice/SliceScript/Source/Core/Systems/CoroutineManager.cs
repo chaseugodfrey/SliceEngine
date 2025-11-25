@@ -123,6 +123,18 @@ namespace SliceEngine
         {
             return coroutines.Contains(coroutine) || newCoroutines.Contains(coroutine);
         }
+
+        public static void EntityDestroyed(uint owner)
+        {
+            for (int i = coroutines.Count - 1; i >= 0; i--)
+            {
+                var c = coroutines[i];
+                if (c.Owner != null && c.Owner.gameObject.mID == owner)
+                {
+                    coroutines.RemoveAt(i);
+                }
+            }
+        }
     }
 
     public interface IYieldInstruction
