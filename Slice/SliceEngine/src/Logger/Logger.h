@@ -1,13 +1,17 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- file:			Logger.h
- author:		Chase Roderigues
- email:			roderigues.i@digipen.edu
- brief:			Handles internal logging of data
+ file:        Logger.h
 
-Copyright (C) 2024 DigiPen Institute of Technology.
+ author:	  Chase Rodgrigues
+
+ email:       rodrigues.i@digipen.edu
+
+ brief:		  Declares the Logger class, which is responsible for logging messages to the terminal.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef LOGGER_H
 #define LOGGER_H
 #include <string>
@@ -26,21 +30,36 @@ DigiPen Institute of Technology is prohibited.
 // This requires the values to be printed out in ostream.
 #define SLICE_LOG_VALUES(...)		Logger::LogValue(__FUNCTION__, __VA_ARGS__)
 
+#define SLICE_LOG_CONSOLE(lvl, msg)	Logger::LogConsole(lvl, msg);
+
 namespace Logger
 {
-	enum class LogLevel
+	enum class LogLevel : int
 	{
-		INFO,
-		DEBUG,
-		WARNING,
-		ERROR,
-		CRITICAL
+		INFO = 0,
+		DEBUG = 1,
+		WARNING = 2,
+		ERROR = 3,
+		CRITICAL = 4
 	};
+
+	struct ConsoleMessage
+	{
+		std::vector<std::string> callStack;
+		std::string mMessage;
+	};
+
+	extern std::deque<std::pair<LogLevel, std::string>> engineLogs;
+	extern std::deque<std::pair<LogLevel, ConsoleMessage>> consoleLogs;
 
 	void Log(const char* function_name, const std::string& message, LogLevel level = LogLevel::INFO);
 	void LogWarning(const char* function_name, const std::string& message);
 	void LogError(const char* function_name, const std::string& message);
 	void LogCritical(const char* function_name, const std::string& message);
+
+	void LogConsole(int level, ConsoleMessage&& message);
+
+	const char* LogLevelToString(LogLevel level);
 
 	template <typename ... Values>
 	void LogValue(const char* function_name, Values ... values)
@@ -50,7 +69,6 @@ namespace Logger
 		Log(function_name, ss.str(), LogLevel::DEBUG);
 		ss.clear();
 	}
-
 }
 
 #endif

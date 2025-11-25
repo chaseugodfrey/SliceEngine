@@ -22,6 +22,11 @@ namespace SliceEngine
             this.z = val;
         }
 
+        public override string ToString()
+        {
+            return "(" + x.ToString() + ", " + y.ToString() + ", " + z.ToString() + ")";
+        }
+
         public static Vector3 Zero => new Vector3(0.0f);
 
         public static Vector3 operator -(Vector3 v1, Vector3 v2)
@@ -71,6 +76,10 @@ namespace SliceEngine
             {
                 return Vector3.Zero;
             }
+        }
+        public float Magnitude()
+        {
+            return (float)Math.Sqrt(x * x + y * y + z * z); 
         }
 
         public float Distance(Vector3 v)
@@ -268,6 +277,9 @@ namespace SliceEngine
                 return hash;
             }
         }
+        public static Vector3 Right { get { return new Vector3(-1f, 0f, 0f); } }
+        public static Vector3 Up { get { return new Vector3(0f, 1f, 0f); } }
+        public static Vector3 Forward { get { return new Vector3(0f, 0f, 1f); } }
         public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
         {
             // Step 1: Compute the angle between them

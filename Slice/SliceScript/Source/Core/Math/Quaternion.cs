@@ -81,8 +81,7 @@ namespace SliceEngine
             );
         }
 
-        // Normalize quaternion
-        public void Normalize()
+        public Quaternion Normalize()
         {
             float mag = (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
             if (mag > 0f)
@@ -92,6 +91,17 @@ namespace SliceEngine
                 Z /= mag;
                 W /= mag;
             }
+            return this;
+        }
+
+        public Quaternion Normalized()
+        {
+            float mag = (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
+            if (mag > 0f)
+            {
+                return new Quaternion(X / mag, Y / mag, Z / mag, W / mag);
+            }
+            return new Quaternion(0f, 0f, 0f, 1f);
         }
 
         // Convert quaternion to Euler angles (degrees)

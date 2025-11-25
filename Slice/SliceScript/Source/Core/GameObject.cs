@@ -85,8 +85,12 @@ namespace SliceEngine
         public void Destroy()
         {
             if (mID != 0)
+            {
                 FunctionCalls.Destroy(mID);
+                CoroutineManager.EntityDestroyed(mID);
+            }
 
+            
             //mID = 0;
         }
     }

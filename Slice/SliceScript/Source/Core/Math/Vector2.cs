@@ -35,6 +35,12 @@ namespace SliceEngine
             this.y = val;
         }
 
+        public override string ToString()
+        {
+            return "(" + x.ToString() + ", " + y.ToString() + ")";
+        }
+
+
         // uncomment the Equals function to resolve  
         public override bool Equals(object o)
         {
@@ -53,9 +59,22 @@ namespace SliceEngine
             return new Vector2(v1.x - v2.x, v1.y - v2.y);
         }
 
+        public static Vector2 operator -(Vector2 v)
+        {
+            return new Vector2(-v.x, -v.y);
+        }
+
         public static Vector2 operator *(Vector2 v1, float f1)
         {
             return new Vector2(v1.x * f1, v1.y * f1);
+        }
+        public static Vector2 operator *(float f, Vector2 v)
+        {
+            return new Vector2(v.x * f, v.y * f);
+        }
+        public static Vector2 operator /(Vector2 v, float f)
+        {
+            return new Vector2(v.x / f, v.y / f);
         }
 
         public static Vector2 operator +(Vector2 v1, Vector2 v2)

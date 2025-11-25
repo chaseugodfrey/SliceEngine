@@ -132,6 +132,31 @@ namespace SliceEngine
 			return scale;
 		}
 
+		void SetWorldPosition(const glm::vec3& newPos)
+		{
+			transform[3] = glm::vec4(newPos, 1.0f);
+		}
+
+		void SetWorldRotation(const glm::quat& newRot)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+			glm::vec3 currentPos = GetWorldPosition();
+
+			glm::mat4 rotMat = glm::mat4_cast(newRot);
+			transform = glm::scale(rotMat, currentScale);
+			transform[3] = glm::vec4(currentPos, 1.0f);
+		}
+
+		void SetWorldScale(const glm::vec3& newScale)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+
+			// Scale each basis vector
+			transform[0] *= (newScale.x / currentScale.x);
+			transform[1] *= (newScale.y / currentScale.y);
+			transform[2] *= (newScale.z / currentScale.z);
+		}
+
 		RTTR_ENABLE();
     };
 

@@ -48,6 +48,37 @@ namespace SliceEngine
 	// Define to make it easier to add internal function calls
 #define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
 
+#pragma region DEBUGGING FUNCTIONS
+
+	static void Debug_Console(MonoArray* monoStrArray, MonoString* monoMsg, int level)
+	{
+
+		if (monoStrArray == nullptr)
+		{
+			SLICE_LOG_ERROR("Received null MonoArray (string[]) from C#.");
+			return;
+		}
+
+		uintptr_t length = mono_array_length(monoStrArray);
+
+		std::vector<std::string> callStack;
+
+		for (uintptr_t i = 0; i < length; ++i)
+		{
+			// Use MonoObject* or MonoString* to retrieve the string reference
+			// String is a reference type, so mono_array_get returns the object reference.
+			MonoString* monoStr = (MonoString*)mono_array_get(monoStrArray, MonoObject*, i);
+
+			callStack.push_back(MonoToString(monoStr));
+		}
+
+		Logger::ConsoleMessage consoleMsg{ std::move(callStack), MonoToString(monoMsg) };
+
+		SLICE_LOG_CONSOLE(level, std::move(consoleMsg));
+	}
+
+#pragma endregion
+
 #pragma region TRANSFORM FUNCTIONS
 
 	static void Transform_GetPosition(unsigned int entity, glm::vec3 *outPosition)
@@ -94,6 +125,22 @@ namespace SliceEngine
 		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
+
+	static void Transform_GetRotationQuat(unsigned int entity, glm::quat* outRotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		*outRotation = transform.rotation; // REAL QUATERNION
+	}
+
+	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = glm::normalize(*rotation);
+
+		// update Euler hint only for inspector UI
+		transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+	}
+
 
 	static Transform* GetTransformComponent(unsigned int entity)
 	{
@@ -847,6 +894,8 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		ADD_INTERNAL_CALL(Debug_Console);
+
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
@@ -866,6 +915,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
 		ADD_INTERNAL_CALL(Transform_SetRotation);
+		ADD_INTERNAL_CALL(Transform_GetRotationQuat);
+		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
 		ADD_INTERNAL_CALL(IsKeyPressed);
