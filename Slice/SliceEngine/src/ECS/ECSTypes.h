@@ -95,6 +95,37 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
+		glm::vec3 JPHtoglm(JPH::Vec3 vec)
+		{
+			return glm::vec3(vec.GetX(), vec.GetY(), vec.GetZ());
+		}
+
+		JPH::Vec3 glmtoJPH(glm::vec3 vec)
+		{
+			return JPH::Vec3(vec.x, vec.y, vec.z);
+		}
+
+		glm::vec3 GetWorldPosition()
+		{
+			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
+		}
+
+		glm::quat GetWorldRotation()
+		{
+			glm::mat4 rotMat = transform;
+			rotMat[3] = glm::vec4(0, 0, 0, 1); // remove translation
+			return glm::quat_cast(rotMat);
+		}
+
+		glm::vec3 GetWorldScale()
+		{
+			glm::vec3 scale;
+			scale.x = glm::length(glm::vec3(transform[0][0], transform[0][1], transform[0][2]));
+			scale.y = glm::length(glm::vec3(transform[1][0], transform[1][1], transform[1][2]));
+			scale.z = glm::length(glm::vec3(transform[2][0], transform[2][1], transform[2][2]));
+			return scale;
+		}
+
 		RTTR_ENABLE();
     };
 
