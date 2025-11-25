@@ -494,6 +494,7 @@ namespace SliceEditor
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
 			}, colliderData.shapeData);
+
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
 		{
 			if(!DisplayComponentHeader<SliceEngine::ColliderShape>(entity))
@@ -510,9 +511,38 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
+					{
+						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						{
+							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
+						}
+					}
 
-					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					else if (std::holds_alternative<SliceEngine::ColliderShape::SphereData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::SphereData>(col.shapeData).radius;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", radius))
+						{
+							col.SetSphereData(SliceEngine::ColliderShape::SphereData(radius));
+						}
+					}
+
+					else if (std::holds_alternative<SliceEngine::ColliderShape::CapsuleData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::CapsuleData>(col.shapeData).radius;
+						float height = std::get<SliceEngine::ColliderShape::CapsuleData>(col.shapeData).height;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##capsuleRadius", radius))
+						{
+							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius,height));
+						}
+
+						if (DragFloatInputHeader(mRegistry, "Height", "##capsuleHeight", height))
+						{
+							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius, height));
+						}
+					}
 				});
 			}
 			ImGui::TreePop();
