@@ -273,7 +273,7 @@ namespace SliceEditor
 			// Update the descriptor map
 			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
-			mFilenameToGUID[filePath.filename().stem().string()] = metaData->guid;
+			mFilenameToGUID[metaData->assetName] = metaData->guid;
 
 			if (AddToRM)
 			{
@@ -304,11 +304,46 @@ namespace SliceEditor
 			CompileTextureAsset(metaPath);
 			break;
 		case AssetType::Skeleton:
+		{
+			CompileFBXAsset(metaPath);
+			// after creating resource file
+			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			// Assets/Models/Player.fbx <-- asset path
+			std::filesystem::path target = metaData->assetPath;
+			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+
+			std::string assetFullname = metaData->assetName + metaData->assetType;
+
+			target = target / assetFullname;
+
+			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+
+			break;
+		}
 		case AssetType::Animation:
+		{
+			CompileFBXAsset(metaPath);
+			// after creating resource file
+			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			// Assets/Models/Player.fbx <-- asset path
+			std::filesystem::path target = metaData->assetPath;
+			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+
+			std::string assetFullname = metaData->assetName + metaData->assetType;
+
+			target = target / assetFullname;
+
+			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+
+			//then add to the map pepeHand
+			// if static
+			break;
+		}
+
 		case AssetType::Model:
 			// Compile the model file and write into the resource folder
 			CompileFBXAsset(metaPath);
-			// if static
+
 			break;
 		case AssetType::Audio:
 			// idk audio yet
