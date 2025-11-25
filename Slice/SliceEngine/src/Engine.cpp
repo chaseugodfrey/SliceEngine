@@ -206,6 +206,8 @@ namespace SliceEngine
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sNav = core->GetSystem<NavigationSystem>();
+
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -344,6 +346,10 @@ namespace SliceEngine
 			sButton.HandleMouse(*sInputs, sCanvas);
 			//sButton.UpdateCurrentButton();
 			frm->EndSystem("Button");
+
+			frm->StartSystem("Navigation System");
+			sNav.Update(static_cast<float>(frm->getDeltaTime()));
+			frm->EndSystem("Navigation System");
 		}
 
 		
@@ -363,6 +369,7 @@ namespace SliceEngine
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
+
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();

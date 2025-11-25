@@ -50,6 +50,7 @@
     <Compile Include="Source\Core\Components\Audio.cs" />
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
+    <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
+    <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
