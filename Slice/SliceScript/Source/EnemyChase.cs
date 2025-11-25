@@ -36,15 +36,15 @@ namespace SliceEngine
                 enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
             }
 
-            if (player.Has<Player>())
+            if (player.Has<PlayerController>())
             {
-                Player playerComp = player.As<Player>();
+                PlayerController playerComp = player.As<PlayerController>();
                 SliceLog.Log(playerComp.direction.ToString());
             }
 
-            if (playerT.gameObject.Has<Player>())
+            if (playerT.gameObject.Has<PlayerController>())
             {
-                Player playerComp = playerT.gameObject.As<Player>();
+                PlayerController playerComp = playerT.gameObject.As<PlayerController>();
                 SliceLog.Log(playerComp.direction.ToString());
             }
 

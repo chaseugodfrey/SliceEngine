@@ -59,10 +59,14 @@
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
+    <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\Systems\Bootstrap.cs" />
     <Compile Include="Source\Core\Systems\CoroutineManager.cs" />
+    <Compile Include="Source\Core\Systems\IInitializable.cs" />
     <Compile Include="Source\Core\Systems\Input.cs" />
     <Compile Include="Source\Core\Systems\Keys.cs" />
     <Compile Include="Source\Core\Systems\Scene.cs" />
@@ -80,7 +84,6 @@
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>
