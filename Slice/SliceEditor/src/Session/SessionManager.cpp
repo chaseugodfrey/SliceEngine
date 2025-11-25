@@ -19,6 +19,8 @@ namespace SliceEditor
 		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
+
+		mAnimatorData = std::make_unique<AnimatorData>();
 		OpenPreferences();
 	}
 
@@ -229,6 +231,32 @@ namespace SliceEditor
 	}
 
 
+	void SessionManager::LoadAnimatorData(SliceEngine::GUID guid)
+	{
+		auto filename = registry.GetAssetManager().GetFilenameFromGUID(guid);
 
+		if (!filename.has_value())
+			return SLICE_LOG_ERROR(".controller filename is wrong!");
 
+		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
+
+		if (!mAnimatorData->empty())
+			mAnimatorData->reset();
+
+		if (!mAnimatorData->Load(filepath))
+		{
+			mAnimatorData.reset();
+			SLICE_LOG_ERROR("Animator Data not loaded.");
+		}
+	}
+
+	void SessionManager::ClearAnimatorData()
+	{
+		mAnimatorData->reset();
+	}
+
+	AnimatorData* SessionManager::GetAnimatorData()
+	{
+		return mAnimatorData.get();
+	}
 }

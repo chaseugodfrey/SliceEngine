@@ -14,11 +14,12 @@ namespace SliceEditor
 		std::unique_ptr<Preferences> mPreferences;
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
-
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
 
 		bool mPrefabInspected;
+
+		std::unique_ptr<AnimatorData> mAnimatorData;
 
 	public:
 		SessionManager(Registry& reg);
@@ -44,6 +45,12 @@ namespace SliceEditor
 		Entity GetPrefabInspected();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetPrefabNodes();
+
+		// Animation Data
+		void LoadAnimatorData(SliceEngine::GUID guid);
+		void ClearAnimatorData();
+		AnimatorData* GetAnimatorData();
+
 	};
 
 }
