@@ -101,11 +101,20 @@ namespace SliceEngine
 
             Quaternion delta = Quaternion.FromAxisAngle(axis.Normalize(), angleDegrees);
 
-            RotationQuat = delta * RotationQuat;
+            Quaternion tempRotationQuat = RotationQuat * delta;
 
-            RotationQuat.Normalize();
+            tempRotationQuat.Normalize();
 
-            Vector3 rotation = RotationQuat.ToEuler();
+            Vector3 rotation = tempRotationQuat.ToEuler();
+            rotation.x = 0.0f;
+
+            //if (gameObject.HasComponent<CameraController>())
+            {
+                Vector3 newUp = tempRotationQuat * Vector3.Up;
+                SliceLog.Log("Test New Up" + newUp.x + "," + newUp.y + "," + newUp.z);
+                //if(Vector3.Dot(newUp, originalUp) < 0.0f)
+                //    return;
+            }
 
             FunctionCalls.Transform_SetRotation(gameObject.mID, ref rotation);
 
@@ -127,6 +136,12 @@ namespace SliceEngine
                 return;
 
             Rotation = Quaternion.LookRotation(direction, up).ToEuler();
+        }
+        public bool IsFlipped()
+        {
+            Vector3 originalUp = new Vector3(0, 1, 0);
+            Vector3 newUp = RotationQuat * originalUp;
+            return Vector3.Dot(newUp, originalUp) > 0.0f;
         }
     }
 }
