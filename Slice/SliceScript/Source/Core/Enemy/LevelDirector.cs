@@ -39,7 +39,10 @@ namespace SliceEngine
         {
             if (CanSpawn())
             {
+                for (int i = 0; i < enemyPerSpawn; i++)
+                {
 
+                }
             }
         }
 
