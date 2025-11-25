@@ -398,6 +398,14 @@ namespace SliceEngine
 		.property("texture", &SpriteRenderer::textureHandle)
 		.property("rgba", &SpriteRenderer::rgba)
 		.property("raycast_target", &SpriteRenderer::raycast_target);
+
+	rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
+		.constructor<>()
+		.property("speed", &NavAgent::speed)
+		.property("target", &NavAgent::target)
+		.property("hasNewTarget", &NavAgent::hasNewTarget)
+		.property("currentPath", &NavAgent::currentPath)
+		.property("currentPathIndex", &NavAgent::currentPathIndex);
 	}
 }
 #endif

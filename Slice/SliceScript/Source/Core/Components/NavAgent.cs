@@ -3,11 +3,11 @@ using SliceEngine;
 
 namespace SliceEngine
 {
-    public class NavigationComponent : Component
+    public class NavAgent : Component
     {
-        public NavigationComponent() { }
+        public NavAgent() { }
 
-        public NavigationComponent(GameObject entity)
+        public NavAgent(GameObject entity)
         {
             gameObject = entity;
         }

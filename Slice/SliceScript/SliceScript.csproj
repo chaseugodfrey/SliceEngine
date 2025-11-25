@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -50,7 +48,7 @@
     <Compile Include="Source\Core\Components\Audio.cs" />
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
-    <Compile Include="Source\Core\Components\NavigationComponent.cs" />
+    <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
@@ -77,6 +75,7 @@
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
+    <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
