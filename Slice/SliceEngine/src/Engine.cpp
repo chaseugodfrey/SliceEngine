@@ -1,7 +1,7 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			Engine.cpp
- author:		
- email:			
+ author:
+ email:
  brief:			Main Engine
 
 Copyright (C) 2025 DigiPen Institute of Technology.
@@ -108,14 +108,14 @@ namespace SliceEngine
 		isRunning = true;
 		//auto window = Core::GetInstance()->GetWindow();
 		Core::GetInstance()->GetWindow();
-		
+
 		// mResource = std::make_unique<ResourceManager>();
 		//frm.Init();
 		frm = Core::GetInstance()->GetFramerateManager();
 		frm->Init();
 
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		
+
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
 		AudioSettings temp_audio_setting;
@@ -129,7 +129,7 @@ namespace SliceEngine
 		TestMaxInstances("Hit_Slime.Single", 6);
 		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
 		TestSpatialBlend("Hit_Slime.Single", 0.5f);*/
-		
+
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<AudioSourceSystem>();
 		Core::GetInstance()->InitSystem<AudioListenerSystem>();
@@ -147,7 +147,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<BoneSystem>();
 		Core::GetInstance()->InitSystem<NavigationSystem>();
 
-		
+
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
@@ -165,7 +165,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetResourceManager();
 		auto mRender = Core::GetInstance()->GetRenderManager();
 		Core::GetInstance()->InitSystem<CameraSystem>();
-		
+
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
 
@@ -184,7 +184,7 @@ namespace SliceEngine
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
 		//TestPlaySFX();
-	
+
 	}
 
 	void Engine::SceneInit()
@@ -227,11 +227,11 @@ namespace SliceEngine
 				sInputs->SetEnabled(true);
 				if (sScene->mCurrentState == SceneState::DEFAULT)
 				{
-					
+
 					sScene->WriteTempFile();
 
 				}
-				
+
 				if (!isPlaying)
 				{
 					SliceEngine::gScriptSystem->OnStart();
@@ -281,17 +281,17 @@ namespace SliceEngine
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
 		// process all enabled action maps in Game mode
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE) 
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			SliceEngine::GetActionMappingSystem().processAllInput();
 		}
 
-        frm->StartSystem("Audio");
+		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		sAudio->Update();
-        frm->EndSystem("Audio");
-        
+		frm->EndSystem("Audio");
+
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
 		gScriptSystem->Update((float)frm->getDeltaTime());
@@ -307,7 +307,6 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		frm->EndSystem("Transform");
 
-		frm->StartSystem("Physics");
 		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
@@ -319,6 +318,7 @@ namespace SliceEngine
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				frm->StartSystem("Physics");
 
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
 
@@ -327,21 +327,14 @@ namespace SliceEngine
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-			}
-			
-		}
-		frm->EndSystem("Physics");
+				frm->EndSystem("Physics");
 
-		
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
-
 			}
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+
 			frm->StartSystem("Button");
 			sButton.HandleMouse(*sInputs, sCanvas);
 			//sButton.UpdateCurrentButton();
@@ -351,8 +344,6 @@ namespace SliceEngine
 			sNav.Update(static_cast<float>(frm->getDeltaTime()));
 			frm->EndSystem("Navigation System");
 		}
-
-		
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
@@ -453,13 +444,13 @@ namespace SliceEngine
 				{
 					SLICE_LOG("Scene File Path" + path.value().string());
 					sScene->SetDefaultScenePath(sceneFilePath);
-					
+
 				}
-				
+
 				//sScene->LoadScene(sceneToLoad); // for now by filepath
 				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
 
-				
+
 			}
 		}
 	}
