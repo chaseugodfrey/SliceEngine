@@ -834,6 +834,7 @@ namespace SliceEngine
 		RegisterComponent<Animator>();
 		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
+		RegisterComponent<NavAgent>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
@@ -923,6 +924,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
+		ADD_INTERNAL_CALL(GetCurrAnimFPS);
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);
@@ -931,10 +936,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_HasPath);
-		ADD_INTERNAL_CALL(GetCurrAnimName);
-		ADD_INTERNAL_CALL(IsCurrAnimFin);
-		ADD_INTERNAL_CALL(GetCurrAnimTime);
-		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+
 	}
 
 #pragma endregion
