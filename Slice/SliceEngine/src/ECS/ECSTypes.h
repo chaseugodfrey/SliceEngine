@@ -143,8 +143,9 @@ namespace SliceEngine
 		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
-		float bloomFilterRadius{0.005f};
-		float bloomStrength{ 0.04f };
+		float bloomFilterRadius{ 5.f };
+		float bloomStrength{ 0.4f };
+		float exposure{ 10.f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };

@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
+#include "Session/SessionManager.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -27,6 +28,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Graphics/TransformHelper.h>
 #include <Serializer/JSONSerializer.h>
 #include <Systems/LayerManager.h>
+#include <WindowManager/WindowManager.h>
 
 namespace SliceEditor
 {
@@ -66,13 +68,17 @@ namespace SliceEditor
 			break;
 		case SelectionType::PREFAB_ENTITY:
 			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			break;
+		case SelectionType::STATE:
+			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			break;
+		case SelectionType::TRANSITION:
+			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
+			break;
 		}
 
 		ImGui::End();
 	}
-
-	//void InspectorWindow::DisplayComponentHeader(std::string const component_name)
-
 	
 	void InspectorWindow::DisplayEntityData(entt::entity entity)
 	{
@@ -352,9 +358,65 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayCamera(entt::entity entity)
 	{		
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
+
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
+			ImGui::Text("Clipping Planes");
+			DragFloatInputHeader(mRegistry, "Near", "##cam_near", cam.near, "%.1f", 0.1f, FLT_MAX);
+			DragFloatInputHeader(mRegistry, "Far", "##cam_far", cam.far, "%.1f", 1.f, FLT_MAX);
+
+			ImGui::SeparatorText("Post-Processing FX");
+
+			using RenderTag = SliceEngine::RENDER_TAG;
+
+			bool isBloom = cam.renderTag & RenderTag::RENDER_BLOOM;
+			bool isFog = cam.renderTag & RenderTag::RENDER_FOG;
+			bool isVignette = cam.renderTag & RenderTag::RENDER_VIGNETTE;
+
+			ImGui::Text("Bloom");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_BLOOM, isBloom);
+			}
+
+			if (isBloom)
+			{
+				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			}
+
+			ImGui::Text("Fog");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isFog", &isFog))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_VIGNETTE, isVignette);
+			}
+
+			if (isFog)
+			{
+				DragColor3InputHeader(mRegistry, "Fog Color", "##cam_fog_color", cam.fogColor);
+				DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", cam.fogIntensity, "%.1f", 0.0f, FLT_MAX);
+			}
+
+			ImGui::Text("Vignette");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isVignette", &isVignette))
+			{
+				SetBit(cam.renderTag, RenderTag::RENDER_FOG, isVignette);
+			}
+
+			if (isVignette)
+			{
+				DragVec2InputHeader(mRegistry, "Vignette Center", "##cam_vignette_center", cam.vignetteCenter);
+				DragFloatInputHeader(mRegistry, "Vignette Intensity", "##cam_vignette_intensity", cam.vignetteIntensity, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Vignette Smoothness", "##cam_vignette_smoothness", cam.vignetteSmoothness, "%.1f", 0.0f, FLT_MAX);
+			}
 
 			ImGui::TreePop();
 		}
@@ -1334,11 +1396,90 @@ namespace SliceEditor
 			mat.SerializeAsset(node->path);
 		}
 
-		
 		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
 			mat.SerializeAsset(node->path);
 		}
+	}
+
+	void InspectorWindow::DisplayState(StateNode* node)
+	{
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+
+		ImGui::SeparatorText("State");
+
+		if (!anim_data)
+			return;
+
+		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+
+		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+	
+
+		//auto state = node->state;
+		//
+		//ImGui::Text("State");
+		//StringInputHeader(mRegistry, "Name", "##state_name", state->stateName);
+		//
+		//for (auto& transition : state->transitions)
+		//{
+		//	
+		//}
+	}
+
+	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
+	{
+		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+
+		ImGui::SeparatorText("Transition");
+
+		if (!anim_data)
+			return;
+		
+		auto stateOpt = anim_data->GetState(node->source_id);
+		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
+
+		if (!transitionOpt.has_value())
+			return;
+
+		auto& transition = transitionOpt.value().get();
+
+		auto params = anim_data->GetParameters();
+
+		auto& condition = transition.condition;
+
+		if (condition.is_type<float>())
+		{
+			DragFloatInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<float>());
+		}
+
+		else if (condition.is_type<int>())
+		{
+			DragIntInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<int>());
+		}
+
+		else if (condition.is_type<bool>())
+		{
+			BoolInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<bool>());
+		}
+
+		//auto& params = anim_data->mStateMachineAsset->parameters;
+		//auto& transition = anim_data->mTransitionNodes.at(node->id);
+		////auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+
+		//ImGui::Text("Target State");
+		//ImGui::Text(transition.targetState.c_str());
+
+		//std::string id = "##param" + std::to_string(transition.id);
+
+		//if (transition.condition.is_type<float>())
+		//	DragFloatInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<float>(), "%.2f", 0.0f, 1.0f);
+
+		//if (transition.condition.is_type<int>())
+		//	DragIntInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<int>());
+
+		//if (transition.condition.is_type<float>())
+		//	BoolInputHeader(mRegistry, transition.parameterName.c_str(), id.c_str(), transition.condition.get_value<bool>());
 	}
 
 	void InspectorWindow::DisplayPrefab(EntityNode* node)
@@ -1364,7 +1505,6 @@ namespace SliceEditor
 			return;
 		}
 		
-
 		DisplayEntity(node);
 	}
 

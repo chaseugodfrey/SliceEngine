@@ -614,7 +614,6 @@ namespace SliceEditor
 
 	struct StateMachineData : public MetaData
 	{
-
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
 		std::map<std::string, rttr::variant> parameters;
@@ -1155,16 +1154,12 @@ namespace SliceEditor
 			}
 		}
 	
-		/// <summary>
-		/// Deserialize an asset for editor usage
-		/// </summary>
-		/// <param name="filePath"></param>
-		void DeserializeAsset(const std::filesystem::path& filePath)
+		bool DeserializeAsset(const std::filesystem::path& filePath)
 		{
 			std::ifstream inFile{ filePath };
 			if (inFile.fail())
 			{
-				return ;
+				return false;
 			}
 
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
@@ -1187,6 +1182,8 @@ namespace SliceEditor
 				from_json(it.value(), state);
 				stateMap[it.key()] = state;
 			}
+			
+			return true;
 		}
 	};
 

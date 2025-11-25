@@ -161,8 +161,10 @@ namespace SliceEditor
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
+
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
+		ImNodes::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
@@ -176,6 +178,7 @@ namespace SliceEditor
 		SLICE_LOG("Creating ImGui Context.");
 		SLICE_LOG_VALUES("ImGui Version: ", IMGUI_VERSION);
 		ImGui::CreateContext();
+		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;

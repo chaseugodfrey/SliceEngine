@@ -84,6 +84,7 @@
 #include <ImSequencer.h>
 #include <imgui_neo_internal.h>
 #include <imgui_neo_sequencer.h>
+#include <imnodes-master/imnodes.h>
 
 // filewatcher
 #include <../thirdparty/filewatch/FileWatcher.h>

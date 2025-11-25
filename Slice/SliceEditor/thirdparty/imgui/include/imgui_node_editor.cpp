@@ -1076,9 +1076,9 @@ ed::EditorContext::EditorContext(const ax::NodeEditor::Config* config)
     , m_IsHoveredWithoutOverlapp(false)
     , m_ShortcutsEnabled(true)
     , m_Style()
-    , m_Nodes()
+    , mNodeList()
     , m_Pins()
-    , m_Links()
+    , mLinkList()
     , m_SelectionId(1)
     , m_LastActiveLink(nullptr)
     , m_Canvas()
@@ -1116,9 +1116,9 @@ ed::EditorContext::~EditorContext()
     if (m_IsInitialized)
         SaveSettings();
 
-    for (auto link  : m_Links)  delete link.m_Object;
+    for (auto link  : mLinkList)  delete link.m_Object;
     for (auto pin   : m_Pins)   delete pin.m_Object;
-    for (auto node  : m_Nodes)  delete node.m_Object;
+    for (auto node  : mNodeList)  delete node.m_Object;
 
     m_Splitter.ClearFreeMemory();
 }
@@ -1165,9 +1165,9 @@ void ed::EditorContext::Begin(const char* id, const ImVec2& size)
         }), objects.end());
     };
 
-    resetAndCollect(m_Nodes);
+    resetAndCollect(mNodeList);
     resetAndCollect(m_Pins);
-    resetAndCollect(m_Links);
+    resetAndCollect(mLinkList);
 
     m_DrawList = ImGui::GetWindowDrawList();
 
@@ -1275,12 +1275,12 @@ void ed::EditorContext::End()
     //const bool isSizing    = CurrentAction && CurrentAction->AsSize()   != nullptr;
 
     // Draw nodes
-    for (auto node : m_Nodes)
+    for (auto node : mNodeList)
         if (node->m_IsLive && node->IsVisible())
             node->Draw(m_DrawList);
 
     // Draw links
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
         if (link->m_IsLive && link->IsVisible())
             link->Draw(m_DrawList);
 
@@ -1302,7 +1302,7 @@ void ed::EditorContext::End()
             return pin.m_Node->m_HighlightConnectedLinks && pin.m_Node->m_IsSelected;
         };
 
-        for (auto& link : m_Links)
+        for (auto& link : mLinkList)
         {
             if (!link->m_IsLive || !link->IsVisible())
                 continue;
@@ -1391,8 +1391,8 @@ void ed::EditorContext::End()
         if (!IsGroup(control.ActiveNode))
         {
             // Bring active node to front
-            auto activeNodeIt = std::find(m_Nodes.begin(), m_Nodes.end(), control.ActiveNode);
-            std::rotate(activeNodeIt, activeNodeIt + 1, m_Nodes.end());
+            auto activeNodeIt = std::find(mNodeList.begin(), mNodeList.end(), control.ActiveNode);
+            std::rotate(activeNodeIt, activeNodeIt + 1, mNodeList.end());
         }
         else if (!isDragging && m_CurrentAction && m_CurrentAction->AsDrag())
         {
@@ -1400,7 +1400,7 @@ void ed::EditorContext::End()
             std::vector<Node*> nodes;
             control.ActiveNode->GetGroupedNodes(nodes);
 
-            std::stable_partition(m_Nodes.begin(), m_Nodes.end(), [&nodes](Node* node)
+            std::stable_partition(mNodeList.begin(), mNodeList.end(), [&nodes](Node* node)
             {
                 return std::find(nodes.begin(), nodes.end(), node) == nodes.end();
             });
@@ -1413,10 +1413,10 @@ void ed::EditorContext::End()
     if (sortGroups || ((m_Settings.m_DirtyReason & (SaveReasonFlags::Position | SaveReasonFlags::Size)) != SaveReasonFlags::None))
     {
         // Bring all groups before regular nodes
-        auto groupsItEnd = std::stable_partition(m_Nodes.begin(), m_Nodes.end(), IsGroup);
+        auto groupsItEnd = std::stable_partition(mNodeList.begin(), mNodeList.end(), IsGroup);
 
         // Sort groups by area
-        std::sort(m_Nodes.begin(), groupsItEnd, [this](Node* lhs, Node* rhs)
+        std::sort(mNodeList.begin(), groupsItEnd, [this](Node* lhs, Node* rhs)
         {
             const auto& lhsSize = lhs == m_SizeAction.m_SizedNode ? m_SizeAction.GetStartGroupBounds().GetSize() : lhs->m_GroupBounds.GetSize();
             const auto& rhsSize = rhs == m_SizeAction.m_SizedNode ? m_SizeAction.GetStartGroupBounds().GetSize() : rhs->m_GroupBounds.GetSize();
@@ -1429,7 +1429,7 @@ void ed::EditorContext::End()
     }
 
     // Apply Z order
-    std::stable_sort(m_Nodes.begin(), m_Nodes.end(), [](const auto& lhs, const auto& rhs)
+    std::stable_sort(mNodeList.begin(), mNodeList.end(), [](const auto& lhs, const auto& rhs)
     {
         return lhs->m_ZPosition < rhs->m_ZPosition;
     });
@@ -1440,7 +1440,7 @@ void ed::EditorContext::End()
     // node drawing order.
     {
         // Copy group nodes
-        auto liveNodeCount = static_cast<int>(std::count_if(m_Nodes.begin(), m_Nodes.end(), [](Node* node) { return node->m_IsLive; }));
+        auto liveNodeCount = static_cast<int>(std::count_if(mNodeList.begin(), mNodeList.end(), [](Node* node) { return node->m_IsLive; }));
 
         // Reserve two additional channels for sorted list of channels
         auto nodeChannelCount = m_DrawList->_Splitter._Count;
@@ -1460,17 +1460,17 @@ void ed::EditorContext::End()
             targetChannel += c_ChannelsPerNode;
         };
 
-        auto groupsItEnd = std::find_if(m_Nodes.begin(), m_Nodes.end(), [](Node* node) { return !IsGroup(node); });
+        auto groupsItEnd = std::find_if(mNodeList.begin(), mNodeList.end(), [](Node* node) { return !IsGroup(node); });
 
         // Copy group nodes
-        std::for_each(m_Nodes.begin(), groupsItEnd, copyNode);
+        std::for_each(mNodeList.begin(), groupsItEnd, copyNode);
 
         // Copy links
         for (int i = 0; i < c_LinkChannelCount; ++i, ++targetChannel)
             ImDrawList_SwapChannels(m_DrawList, c_LinkStartChannel + i, targetChannel);
 
         // Copy normal nodes
-        std::for_each(groupsItEnd, m_Nodes.end(), copyNode);
+        std::for_each(groupsItEnd, mNodeList.end(), copyNode);
     }
 # endif
 
@@ -1835,7 +1835,7 @@ bool ed::EditorContext::HasSelectionChanged()
 
 ed::Node* ed::EditorContext::FindNodeAt(const ImVec2& p)
 {
-    for (auto node : m_Nodes)
+    for (auto node : mNodeList)
         if (node->TestHit(p))
             return node;
 
@@ -1850,7 +1850,7 @@ void ed::EditorContext::FindNodesInRect(const ImRect& r, vector<Node*>& result, 
     if (ImRect_IsEmpty(r))
         return;
 
-    for (auto node : m_Nodes)
+    for (auto node : mNodeList)
         if (node->TestHit(r, includeIntersecting))
             result.push_back(node);
 }
@@ -1863,14 +1863,14 @@ void ed::EditorContext::FindLinksInRect(const ImRect& r, vector<Link*>& result, 
     if (ImRect_IsEmpty(r))
         return;
 
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
         if (link->TestHit(r))
             result.push_back(link);
 }
 
 bool ed::EditorContext::HasAnyLinks(NodeId nodeId) const
 {
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
     {
         if (!link->m_IsLive)
             continue;
@@ -1884,7 +1884,7 @@ bool ed::EditorContext::HasAnyLinks(NodeId nodeId) const
 
 bool ed::EditorContext::HasAnyLinks(PinId pinId) const
 {
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
     {
         if (!link->m_IsLive)
             continue;
@@ -1899,7 +1899,7 @@ bool ed::EditorContext::HasAnyLinks(PinId pinId) const
 int ed::EditorContext::BreakLinks(NodeId nodeId)
 {
     int result = 0;
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
     {
         if (!link->m_IsLive)
             continue;
@@ -1916,7 +1916,7 @@ int ed::EditorContext::BreakLinks(NodeId nodeId)
 int ed::EditorContext::BreakLinks(PinId pinId)
 {
     int result = 0;
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
     {
         if (!link->m_IsLive)
             continue;
@@ -1935,7 +1935,7 @@ void ed::EditorContext::FindLinksForNode(NodeId nodeId, vector<Link*>& result, b
     if (!add)
         result.clear();
 
-    for (auto link : m_Links)
+    for (auto link : mLinkList)
     {
         if (!link->m_IsLive)
             continue;
@@ -2011,7 +2011,7 @@ bool ed::EditorContext::CanAcceptUserInput() const
 
 int ed::EditorContext::CountLiveNodes() const
 {
-    return (int)std::count_if(m_Nodes.begin(),  m_Nodes.end(),  [](const Node* node)  { return node->m_IsLive; });
+    return (int)std::count_if(mNodeList.begin(),  mNodeList.end(),  [](const Node* node)  { return node->m_IsLive; });
 }
 
 int ed::EditorContext::CountLivePins() const
@@ -2021,7 +2021,7 @@ int ed::EditorContext::CountLivePins() const
 
 int ed::EditorContext::CountLiveLinks() const
 {
-    return (int)std::count_if(m_Links.begin(),  m_Links.end(),  [](const Link* link)  { return link->m_IsLive; });
+    return (int)std::count_if(mLinkList.begin(),  mLinkList.end(),  [](const Link* link)  { return link->m_IsLive; });
 }
 
 ed::Pin* ed::EditorContext::CreatePin(PinId id, PinKind kind)
@@ -2037,7 +2037,7 @@ ed::Node* ed::EditorContext::CreateNode(NodeId id)
 {
     IM_ASSERT(nullptr == FindObject(id));
     auto node = new Node(this, id);
-    m_Nodes.push_back({id, node});
+    mNodeList.push_back({id, node});
     //std::sort(Nodes.begin(), Nodes.end());
 
     auto settings = m_Settings.FindNode(id);
@@ -2058,8 +2058,8 @@ ed::Link* ed::EditorContext::CreateLink(LinkId id)
 {
     IM_ASSERT(nullptr == FindObject(id));
     auto link = new Link(this, id);
-    m_Links.push_back({id, link});
-    std::sort(m_Links.begin(), m_Links.end());
+    mLinkList.push_back({id, link});
+    std::sort(mLinkList.begin(), mLinkList.end());
 
     return link;
 }
@@ -2108,7 +2108,7 @@ static inline auto FindItemIn(C& container, Id id)
 
 ed::Node* ed::EditorContext::FindNode(NodeId id)
 {
-    return FindItemInLinear(m_Nodes, id);
+    return FindItemInLinear(mNodeList, id);
 }
 
 ed::Pin* ed::EditorContext::FindPin(PinId id)
@@ -2118,7 +2118,7 @@ ed::Pin* ed::EditorContext::FindPin(PinId id)
 
 ed::Link* ed::EditorContext::FindLink(LinkId id)
 {
-    return FindItemIn(m_Links, id);
+    return FindItemIn(mLinkList, id);
 }
 
 ed::Object* ed::EditorContext::FindObject(ObjectId id)
@@ -2179,7 +2179,7 @@ void ed::EditorContext::SaveSettings()
 {
     m_Config.BeginSave();
 
-    for (auto& node : m_Nodes)
+    for (auto& node : mNodeList)
     {
         auto settings = m_Settings.FindNode(node->m_ID);
         settings->m_Location = node->m_Bounds.Min;
@@ -2220,7 +2220,7 @@ void ed::EditorContext::MakeDirty(SaveReasonFlags reason, Node* node)
 
 ed::Link* ed::EditorContext::FindLinkAt(const ImVec2& p)
 {
-    for (auto& link : m_Links)
+    for (auto& link : mLinkList)
         if (link->TestHit(p, c_LinkSelectThickness))
             return link;
 
@@ -2244,7 +2244,7 @@ int ed::EditorContext::GetNodeIds(NodeId* nodes, int size) const
         return 0;
 
     int result = 0;
-    for (auto node : m_Nodes)
+    for (auto node : mNodeList)
     {
         if (!node->m_IsLive)
             continue;
@@ -2424,7 +2424,7 @@ ed::Control ed::EditorContext::BuildControl(bool allowOffscreen)
     };
 
     // Process live nodes and pins.
-    for (auto nodeIt = m_Nodes.rbegin(), nodeItEnd = m_Nodes.rend(); nodeIt != nodeItEnd; ++nodeIt)
+    for (auto nodeIt = mNodeList.rbegin(), nodeItEnd = mNodeList.rend(); nodeIt != nodeItEnd; ++nodeIt)
     {
         auto node = *nodeIt;
 
@@ -2740,13 +2740,13 @@ bool ed::NodeSettings::Parse(const json::value& data, NodeSettings& result)
 //------------------------------------------------------------------------------
 ed::NodeSettings* ed::Settings::AddNode(NodeId id)
 {
-    m_Nodes.push_back(NodeSettings(id));
-    return &m_Nodes.back();
+    mNodeList.push_back(NodeSettings(id));
+    return &mNodeList.back();
 }
 
 ed::NodeSettings* ed::Settings::FindNode(NodeId id)
 {
-    for (auto& settings : m_Nodes)
+    for (auto& settings : mNodeList)
         if (settings.m_ID == id)
             return &settings;
 
@@ -2775,7 +2775,7 @@ void ed::Settings::ClearDirty(Node* node)
         m_IsDirty     = false;
         m_DirtyReason = SaveReasonFlags::None;
 
-        for (auto& knownNode : m_Nodes)
+        for (auto& knownNode : mNodeList)
             knownNode.ClearDirty();
     }
 }
@@ -2812,7 +2812,7 @@ std::string ed::Settings::Serialize()
     };
 
     auto& nodes = result["nodes"];
-    for (auto& node : m_Nodes)
+    for (auto& node : mNodeList)
     {
         if (node.m_WasUsed)
             nodes[serializeObjectId(node.m_ID)] = node.Serialize();
