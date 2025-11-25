@@ -85,25 +85,41 @@ namespace SliceEditor
 		auto core = SliceEngine::Core::GetInstance();
 		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
-		ImGui::Checkbox("##is_active", &slice.mActive);
+		BoolInput(mRegistry, "##isActive", slice.mActive);
 		ImGui::SameLine();
 
 		std::string editable_name = original_name;
-		if (StringInput(mRegistry, "##name", editable_name, ImGui::GetContentRegionAvail().x))
-		{
-			if (editable_name != original_name)
-				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
-		}
+		std::string editable_tag = original_tag;
+
+		std::function<void(std::string name)> func = [&](std::string name)
+			{
+				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(name);
+			};
+		
+		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
 
 		ImGui::Text("Entity ID: %d", entity);
 
+		std::function<void(std::string name)> funcTag = [&](std::string name)
+			{
+				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
+			};
+
+		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Game Object Tags:
+		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
+		{
+			SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(slice.mTag);
+		}*/
+
 		// currently tags are unused
-		int tag = 0;
-		std::vector<std::string> tags {"unused"};
+		/*int tag = 0;
+		std::vector<std::string> tags {"unused"};*/
 
 		//ImGui::BeginDisabled();
 		//ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
