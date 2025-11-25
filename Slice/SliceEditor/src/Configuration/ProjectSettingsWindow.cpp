@@ -74,7 +74,7 @@ namespace SliceEditor
 	{
 		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
-		const std::filesystem::path AUDIO_SETTINGS_PATH = "../ProjectSettings/AudioSettings.asset";
+		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
 
 		if (!audioSettings)
 		{
@@ -221,6 +221,7 @@ namespace SliceEditor
 							{
 								//Take out key from parameter
 								audioSettings->ChangeAudioClip(oldClip, guid, entry.AudioClips);
+								hasChanged = true;
 							};
 						//std::string audioClipLabel = "Audio Clips_" + std::to_string(std::distance(entry.AudioClips.begin(),entry.AudioClips.size()));
 
@@ -233,6 +234,7 @@ namespace SliceEditor
 					{
 						
 						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(9244272128099795086), entry.AudioClips);
+						hasChanged = true;
 					}
 					ImGui::SameLine();
 					if (ImGui::Button("-"))
@@ -241,6 +243,7 @@ namespace SliceEditor
 						{
 							
 							audioSettings->RemoveAudioClip(entry.AudioClips);
+							hasChanged = true;
 
 						}
 					}
@@ -257,11 +260,13 @@ namespace SliceEditor
 			std::string keyName = "New_Group_" + std::to_string(nextIndex);
 
 			audioSettings->CreateSoundGroup(keyName);
+			hasChanged = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("-"))
 		{
 			audioSettings->RemoveSoundGroup();
+			hasChanged = true;
 		}
 
 		if (hasChanged)

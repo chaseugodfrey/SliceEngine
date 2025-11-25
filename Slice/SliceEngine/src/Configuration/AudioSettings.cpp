@@ -29,6 +29,8 @@ namespace SliceEngine
 
 		srand((unsigned int)time(NULL)); // Initialize random seed
 
+
+		SLICE_LOG("Current file path " + std::filesystem::current_path().string());
 		Deserialize(AUDIO_SETTINGS_PATH);
 	}
 
@@ -38,7 +40,7 @@ namespace SliceEngine
 		mSystem = nullptr;
 	}
 
-	std::filesystem::path AudioSettings::Serialize(const std::filesystem::path& desc_path)
+	void AudioSettings::Serialize(const std::filesystem::path& desc_path)
 	{
 		nlohmann::json audioSettingsOutput;
 
@@ -66,6 +68,7 @@ namespace SliceEngine
 
 	void AudioSettings::Deserialize(const std::filesystem::path& desc_path)
 	{
+
 		std::ifstream inFile(desc_path);
 		nlohmann::json audioSettingsInput;
 
@@ -597,8 +600,20 @@ namespace SliceEngine
 		j["minInterval"] = entry.minInterval;
 		j["volumeRollOff"] = static_cast<int>(entry.volumeRollOff);
 
-		j["AudioClips"] = entry.AudioClips;
+		j["AudioClips"] = nlohmann::json::array();
+
+		for (auto& clips : entry.AudioClips)
+		{
+			nlohmann::json tempJson;
+
+			to_json(tempJson, clips);
+
+			j["AudioClips"].push_back(tempJson);
+
+		}
 	}
+
+	//from_json
 
 	void from_json(const nlohmann::json& j, SFXEntry& entry)
 	{
@@ -642,10 +657,21 @@ namespace SliceEngine
 			entry.volumeRollOff = static_cast<AudioSource::VolumeRollOff>(rollOff);
 		}
 
-		if (j.contains("AudioClips"))
+		entry.AudioClips.clear();
+
+		const auto& audioClipsJsons = j.at("AudioClips");
+
+		for (const auto& audioClipsJson : audioClipsJsons)
+		{
+			GUID audioClip;
+			from_json(audioClipsJson, audioClip);
+			entry.AudioClips.push_back(audioClip);
+		}
+
+		/*if (j.contains("AudioClips"))
 		{
 			j.at("AudioClips").get_to(entry.AudioClips);
-		}
+		}*/
 
 		// Initialize runtime defaults
 		entry.soundGroup = nullptr;

@@ -47,14 +47,14 @@ namespace SliceEngine
 	{
 		FMOD::System* mSystem = nullptr;
 
-		const std::filesystem::path AUDIO_SETTINGS_PATH = "../ProjectSettings/AudioSettings.asset";
+		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
 
 		//std::vector<SFXEntry> mSfxMap;
 	public:
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
 		void Init(FMOD::System* system);
 		void Exit();
-		std::filesystem::path Serialize(const std::filesystem::path& desc_path);
+		void Serialize(const std::filesystem::path& desc_path);
 		void Deserialize(const std::filesystem::path& desc_path);
 		void CreateSoundGroup(const std::string& key);
 		void RemoveSoundGroup();
