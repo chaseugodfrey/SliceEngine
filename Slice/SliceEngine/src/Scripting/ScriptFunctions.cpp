@@ -836,6 +836,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(AM_GetValue2D);
 		ADD_INTERNAL_CALL(AM_GetValue1D);
 
+		// Mouse input
+		ADD_INTERNAL_CALL(IsMousePressed);
+		ADD_INTERNAL_CALL(IsMouseDown);
+		ADD_INTERNAL_CALL(IsMouseReleased);
+
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
 		ADD_INTERNAL_CALL(LogWarn);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -8,10 +9,43 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
+    /// <summary>
+    /// A collection of math and helper utility functions for SliceEngine.
+    /// </summary>
     public struct Utilities
     {
+        /// <summary>
+        /// Smallest positive float value (approx. zero).
+        /// </summary>
         public const float Epsilon = 1.401298E-45f;
 
+        /// <summary>
+        /// Smoothly interpolates a value towards a target using a critically damped spring.
+        /// </summary>
+        /// <param name="current">Current value.</param>
+        /// <param name="target">Target value.</param>
+        /// <param name="velocity">Reference to velocity value used internally.</param>
+        /// <param name="smoothTime">Approximate time to reach the target.</param>
+        /// <param name="deltaTime">Frame delta time.</param>
+        /// <returns>The smoothed value.</returns>
+        public static float SmoothDamp(float current, float target, ref float velocity, float smoothTime, float deltaTime)
+        {
+            float omega = 2f / smoothTime;
+            float x = omega * deltaTime;
+            float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
+            float change = current - target;
+            float temp = (velocity + omega * change) * deltaTime;
+            velocity = (velocity - omega * temp) * exp;
+            return target + (change + temp) * exp;
+        }
+
+        /// <summary>
+        /// Performs a Hermite-smoothed interpolation between two values.
+        /// </summary>
+        /// <param name="from">Start value.</param>
+        /// <param name="to">End value.</param>
+        /// <param name="t">Interpolation factor between 0 and 1.</param>
+        /// <returns>Interpolated value.</returns>
         public static float SmoothStep(float from, float to, float t)
         {
             // Clamp t to [0, 1]
@@ -24,6 +58,9 @@ namespace SliceEngine
             return from + (to - from) * t;
         }
 
+        /// <summary>
+        /// Clamps a value between a minimum and maximum limit.
+        /// </summary>
         public static float Clamp(float value, float min, float max)
         {
             if (value < min) return min;
@@ -31,19 +68,36 @@ namespace SliceEngine
             return value;
         }
 
+        /// <summary>
+        /// Linearly interpolates between two values.
+        /// </summary>
         public static float Lerp(float a, float b, float t)
         {
             return a + (b - a) * t;
         }
 
+        /// <summary>
+        /// Calculates the normalized interpolation factor between two values.
+        /// </summary>
         public static float InverseLerp(float a, float b, float value)
         {
             if (a == b) return 0f;
             return Clamp((value - a) / (b - a), 0f, 1f);
         }
 
-        public static float EaseIn(float t) => t * t;   
+        /// <summary>
+        /// Applies an ease-in curve (quadratic).
+        /// </summary>
+        public static float EaseIn(float t) => t * t;
+
+        /// <summary>
+        /// Applies an ease-out curve (quadratic).
+        /// </summary>
         public static float EaseOut(float t) => 1 - (1 - t) * (1 - t);
+
+        /// <summary>
+        /// Applies a quadratic ease-in-out curve.
+        /// </summary>
         public static float EaseInOut(float t)
         {
             return (t < 0.5f)
@@ -51,7 +105,9 @@ namespace SliceEngine
                 : 1f - (float)Math.Pow(-2f * t + 2f, 2f) / 2f;
         }
 
-
+        /// <summary>
+        /// Interpolates between two angles while handling wrap-around beyond 360 degrees.
+        /// </summary>
         public static float LerpAngle(float a, float b, float t)
         {
             float delta = Repeat((b - a), 360f);
@@ -59,11 +115,17 @@ namespace SliceEngine
             return a + delta * Clamp(t, 0f, 1f);
         }
 
+        /// <summary>
+        /// Loops a value within a repeating length.
+        /// </summary>
         public static float Repeat(float value, float length)
         {
             return value - (float)Math.Floor(value / length) * length;
         }
 
+        /// <summary>
+        /// Calculates the shortest signed angle difference between two angles.
+        /// </summary>
         public static float DeltaAngle(float a, float b)
         {
             float delta = Repeat((b - a), 360f);
@@ -71,21 +133,80 @@ namespace SliceEngine
             return delta;
         }
 
+        /// <summary>
+        /// Returns the absolute value of a float.
+        /// </summary>
         public static float Abs(float value)
         {
             return (value < 0f) ? -value : value;
         }
 
+        /// <summary>
+        /// Converts degrees to radians.
+        /// </summary>
         public static float Deg2Rad(float degrees)
         {
             return degrees * (float)Math.PI / 180f;
         }
 
+        /// <summary>
+        /// Converts radians to degrees.
+        /// </summary>
         public static float Rad2Deg(float radians)
         {
             return radians * 180f / (float)Math.PI;
         }
 
+        /// <summary>
+        /// Ping-pongs a value back and forth between 0 and length.
+        /// </summary>
+        public static float PingPong(float t, float length)
+        {
+            return length - Math.Abs((t % (2 * length)) - length);
+        }
+
+        /// <summary>
+        /// Remaps a value from one range into another.
+        /// </summary>
+        public static float Remap(float value, float from1, float to1, float from2, float to2)
+        {
+            return from2 + (value - from1) * (to2 - from2) / (to1 - from1);
+        }
+
+        /// <summary>
+        /// Computes 2D distance between two points on the XZ plane.
+        /// </summary>
+        public static float Distance2D(Vector3 a, Vector3 b)
+        {
+            float dx = a.x - b.x;
+            float dz = a.z - b.z;
+            return (float)Math.Sqrt(dx * dx + dz * dz);
+        }
+
+        /// <summary>
+        /// Returns a random point inside a sphere of a given radius.
+        /// </summary>
+        public static Vector3 RandomInsideSphere(float radius)
+        {
+            return new Vector3(
+                SliceRandom.ValueFloat() * 2f - 1f,
+                SliceRandom.ValueFloat() * 2f - 1f,
+                SliceRandom.ValueFloat() * 2f - 1f
+            ).Normalize() * radius;
+        }
+
+        /// <summary>
+        /// Computes a quadratic Bezier curve interpolation.
+        /// </summary>
+        public static Vector3 Bezier(Vector3 a, Vector3 b, Vector3 c, float t)
+        {
+            float u = 1f - t;
+            return u * u * a + 2 * u * t * b + t * t * c;
+        }
+
+        /// <summary>
+        /// Computes a parabolic arc between two points.
+        /// </summary>
         static Vector3 Parabola(Vector3 start, Vector3 end, float height, float t)
         {
             // Linear interpolation
@@ -97,6 +218,16 @@ namespace SliceEngine
             pos.y += parabola;
             return pos;
         }
+
+        /// <summary>
+        /// Coroutine that animates a transform along a parabolic arc from start to end.
+        /// </summary>
+        /// <param name="transform">Transform to move.</param>
+        /// <param name="start">Starting position.</param>
+        /// <param name="end">Ending position.</param>
+        /// <param name="height">Peak height of the parabola.</param>
+        /// <param name="duration">Time to complete the arc.</param>
+        /// <returns>Coroutine enumerator.</returns>
         public static IEnumerator ParabolaCoroutine(Transform transform, Vector3 start, Vector3 end, float height, float duration)
         {
             float time = 0f;
