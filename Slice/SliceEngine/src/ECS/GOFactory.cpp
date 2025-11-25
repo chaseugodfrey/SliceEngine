@@ -636,7 +636,7 @@ namespace SliceEngine
 	{
 		auto go = CreateGO("GameObject");
 		go.AddComponent<Renderer>();
-		go.AddComponent<ColliderShape>();
+		go.AddComponent<ColliderShape>(ColliderShape::BoxData{});
 		go.AddComponent<RigidBody>();
 
 		return go;
