@@ -56,6 +56,8 @@ namespace SliceEditor
 
 		void Init() override;
 		void Draw() override final;
+		void MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit);
+		void DebugDrawTogglePopup();
 	};
 }
 

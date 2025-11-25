@@ -144,7 +144,6 @@ namespace SliceEngine
 
 	enum RENDER_TAG : unsigned char
 	{
-		DEBUG_NONE = 0x00,
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
 		DEBUG_GRID_TAG		= 0x04,
