@@ -18,28 +18,32 @@ namespace SliceEngine
         public List<float> floatList = new List<float>{ 0.5f,2.0f };
         public List<int> intList = new List<int>{ 7,8 };
         public List<string> stringList = new List<string>{"Test","Test2"};
+        public List<Vector3> vec3List = new List<Vector3>{};
+        public Vector3 vec3;
         public override void OnUpdate(float dt)
         {
 
             int i = 0;
-            foreach(float var in floatList)
+
+            SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
+            foreach (Vector3 var in vec3List)
             {
-                SliceLog.Log("Float List Element " + i + ": " + var);
+                SliceLog.Log("X: " + var.x + " Y: " + var.y + " Z: " + var.z);
                 i++;
             }
 
-            int j = 0;
-            foreach (string var in stringList)
-            {
-                SliceLog.Log("String List Element " + i + ": " + var);
-                j++;
-            }
-            int k = 0;
-            foreach (int var in intList)
-            {
-                SliceLog.Log("Int List Element " + i + ": " + var);
-                k++;
-            }
+            //int j = 0;
+            //foreach (string var in stringList)
+            //{
+            //    SliceLog.Log("String List Element " + i + ": " + var);
+            //    j++;
+            //}
+            //int k = 0;
+            //foreach (int var in intList)
+            //{
+            //    SliceLog.Log("Int List Element " + i + ": " + var);
+            //    k++;
+            //}
         }
     }
 }
