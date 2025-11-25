@@ -652,6 +652,7 @@ namespace SliceEngine
 								glm::quat,
 								std::string,
 								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData
@@ -751,6 +752,7 @@ namespace SliceEngine
 
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
 			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
+			if (t == rttr::type::get<JPH::Vec3>()) { return v.get_value<JPH::Vec3>(); }
 			if (t == rttr::type::get<float>()) { return v.get_value<float>(); }
 			if (t == rttr::type::get<int>()) { return v.get_value<int>(); }
 			if (t == rttr::type::get<double>()) { return v.get_value<double>(); }

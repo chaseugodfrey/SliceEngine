@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -50,6 +52,7 @@
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
+    <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>

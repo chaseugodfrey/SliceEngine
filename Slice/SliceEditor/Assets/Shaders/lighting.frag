@@ -45,6 +45,8 @@ void main(void){
 	vec4 dif = texelFetch(uTex, p, 0);
 	vec4 roughMetal = texelFetch(uRoughMetalTex, p, 0);
 
+	fFragColor = vec4(0.0);
+
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
 		nom = normalize(nom);

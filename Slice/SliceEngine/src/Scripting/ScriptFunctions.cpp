@@ -95,6 +95,17 @@ namespace SliceEngine
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Transform component.", entity);
+		return nullptr;
+	}
+
 #pragma endregion
 
 #pragma region INPUT & ACTIONMAPPING FUNCTIONS
@@ -235,6 +246,45 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region ColliderShape FUNCTIONS
+	
+	static bool ColliderShape_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<ColliderShape>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& collider = go.GetComponent<ColliderShape>();
+		return collider.componentEnabled;
+	}
+
+	static void ColliderShape_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<ColliderShape>())
+		{
+			Entity entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& collider)
+				{
+					collider.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+		}
+				
+	}
+
+#pragma endregion
+
 #pragma region AUDIO FUNCTIONS
 	static AudioSource* GetAudioComponent(unsigned int entity)
 	{
@@ -242,17 +292,6 @@ namespace SliceEngine
 		if (go.IsValid() && go.HasComponent<AudioSource>())
 		{
 			return &go.GetComponent<AudioSource>();
-		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
-		return nullptr;
-	}
-
-	static Transform* GetTransformComponent(unsigned int entity)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
-		if (go.IsValid() && go.HasComponent<Transform>())
-		{
-			return &go.GetComponent<Transform>();
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
 		return nullptr;
@@ -531,6 +570,10 @@ namespace SliceEngine
 		if (it != rm->mFileNameToGUID.end())
 		{
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
+			if(cStrName == "EnemyTest")
+			{
+				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+			}
 			return(unsigned int)newGO.GetEntity();
 		}
 		//mono_free(cStrName);
@@ -789,7 +832,7 @@ namespace SliceEngine
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
-		//RegisterComponent<Collider2D>();
+		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
@@ -850,6 +893,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
+		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
+		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

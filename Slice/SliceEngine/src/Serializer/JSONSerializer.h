@@ -712,6 +712,12 @@ namespace rttr
 				return rttr::variant(valueJson.get<glm::vec2>());
 			}
 
+			// JPH types
+			if (typeName == "JPH::Vec3")
+			{
+				return rttr::variant(valueJson.get<JPH::Vec3>());
+			}
+
 			// Vector types
 			if (typeName == "std::vector<float>")
 			{

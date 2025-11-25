@@ -105,6 +105,7 @@ namespace SliceEditor
 			std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
 			uint64_t typeID = 0;
+			assetName = path.stem().string();
 			switch (type)
 			{
 			case AssetType::Texture:
@@ -115,9 +116,11 @@ namespace SliceEditor
 				break;
 			case AssetType::Skeleton:
 				typeID = ResourceTypeIDs::SKELETON;
+				assetName = path.stem().string() + "_skl";
 				break;
 			case AssetType::Animation:
 				typeID = ResourceTypeIDs::ANIMATION;
+				assetName = path.stem().string() + "_animpkg";
 				break;
 			case AssetType::Audio:
 				typeID = ResourceTypeIDs::SOUND;
@@ -143,7 +146,7 @@ namespace SliceEditor
 			}
 
 
-			assetName = path.stem().string();
+			
 			guid = SliceEngine::GUID::Generate(assetName, typeID);
 			assetType = typeName;
 			assetPath = path.string();
@@ -245,7 +248,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
-		bool is_static{ true };
+		bool is_static{ false };
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 

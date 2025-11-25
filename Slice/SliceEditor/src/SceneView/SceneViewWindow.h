@@ -42,7 +42,7 @@ namespace SliceEditor
 
 		std::optional<GizmoUseTracker> mGizmoTracker;
 
-		float mCameraSpeed = 0.01f;
+		float mCameraSpeed = 0.1f;
 		ImGuizmo::OPERATION mGuizmoOperation{ ImGuizmo::OPERATION::TRANSLATE };
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
