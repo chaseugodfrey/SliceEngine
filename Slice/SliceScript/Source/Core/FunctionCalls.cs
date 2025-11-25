@@ -96,6 +96,33 @@ namespace SliceEngine
         internal extern static bool IsKeyDown(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsKeyReleased(Keys keyCode);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMousePressed(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseDown(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseReleased(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static Vector2 GetMousePosition(out Vector2 position);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_EnableMap(string map, bool enable);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static bool AM_PerformedThisFrame(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static float AM_GetValue1D(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_GetValue2D(string map, string action, out Vector2 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
