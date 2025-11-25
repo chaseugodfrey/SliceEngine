@@ -687,6 +687,22 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								auto data = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+
+								std::function<void(std::string, std::vector<glm::vec3>)> func = [sp = scriptRef](std::string name, std::vector<glm::vec3> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								if (DragVec3ArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
 						}
 
 						#pragma endregion
@@ -774,6 +790,33 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								auto data = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<glm::vec3> list, glm::vec3 val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (DragVec3ListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
 						}
 
 						#pragma endregion
@@ -797,7 +840,11 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
 								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-								if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								std::function<void(std::string, bool)> func = [sp = scriptRef](std::string name, bool val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -806,8 +853,12 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
+									{
+										sp->SetFieldValue(name, val);
+									};
 
-								if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -822,6 +873,21 @@ namespace SliceEditor
 									};
 
 								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
