@@ -35,7 +35,6 @@ namespace SliceEditor
 
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
@@ -55,15 +54,24 @@ namespace SliceEditor
 	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-
 		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (action == GLFW_PRESS)
+		if (input->GetMode() == SliceEngine::InputMode::Game)
 		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			//ImGuiIO& io = ImGui::GetIO();
+			//if (io.WantCaptureMouse)
+			//{
+			//	return;
+			//}
+
+			if (action == GLFW_PRESS)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+				std::cout << "Mouse Button Pressed: " << std::endl;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			}
 		}
 
 		// 2. Check if ImGui wants to capture the mouse
@@ -112,11 +120,11 @@ namespace SliceEditor
 		inputs.isActive = true;
 
 
-		SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
-		NavmeshTest.AddComponent<SliceEngine::NavAgent>();
-		NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
-		NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
-		NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
+		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
+		//NavmeshTest.AddComponent<SliceEngine::NavAgent>();
+		//NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
 
 		
 	}

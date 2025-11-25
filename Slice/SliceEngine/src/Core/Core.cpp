@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Input/InputSystem.h"
+#include "Input/ActionMapping.h"
 #include "Systems/LayerManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Configuration/AudioSettings.h"
@@ -54,6 +55,7 @@ namespace SliceEngine
 		mInputPtr = std::make_unique<InputSystem>();
 		mInputPtr->Init(mWindowManager.GetWindow());
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
+		SliceEngine::GetActionMappingSystem().SetInputSystem(mInputPtr.get()); // set global action mapping system's input system pointer
 		mScenePtr = std::make_unique<SceneSystem>();
 
 		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");

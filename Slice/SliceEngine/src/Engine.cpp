@@ -37,6 +37,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
+#include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
 #include "Systems/CoroutineManager.h"
@@ -57,8 +58,17 @@ DigiPen Institute of Technology is prohibited.
 //		 .method("func", &MyStruct::func);
 //}
 
+
 namespace SliceEngine
 {
+	// forward declare global pointer to action mapping system
+	//extern ActionMappingSystem* gActionMappingSystemInstance;
+	//// actual single instance pointer which is static
+	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
+
+	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
+
+
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
 	{
@@ -92,13 +102,12 @@ namespace SliceEngine
 		glfwInit();
 
 		Core::GetInstance()->InitCore();
-		//Core::GetInstance()->InitFactory();
+
+
 		// Set up Engine Systems
 		isRunning = true;
 		//auto window = Core::GetInstance()->GetWindow();
 		Core::GetInstance()->GetWindow();
-
-
 		
 		// mResource = std::make_unique<ResourceManager>();
 		//frm.Init();
@@ -197,6 +206,8 @@ namespace SliceEngine
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sNav = core->GetSystem<NavigationSystem>();
+
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -259,22 +270,21 @@ namespace SliceEngine
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm->StartFrame();
 
-		//auto mResource = Core::GetInstance()->GetResourceManager();
-
-
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glfwPollEvents();
-
 		frm->EndSystem("GLFW Poll Events");
-		// Main Body
 
 		frm->StartSystem("Input");
-		//inputs->Update();
 		sInputs->UpdatePrevInput();
+		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
+		// process all enabled action maps in Game mode
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE) 
+		{
+			SliceEngine::GetActionMappingSystem().processAllInput();
+		}
 
         frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -297,7 +307,6 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		frm->EndSystem("Transform");
 
-		frm->StartSystem("Physics");
 		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
@@ -309,6 +318,7 @@ namespace SliceEngine
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				frm->StartSystem("Physics");
 
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
 
@@ -317,28 +327,21 @@ namespace SliceEngine
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-			}
-			
-		}
-		frm->EndSystem("Physics");
+				frm->EndSystem("Physics");
 
-		
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
-
 			}
 			frm->StartSystem("Button");
 			sButton.HandleMouse(*sInputs, sCanvas);
 			//sButton.UpdateCurrentButton();
 			frm->EndSystem("Button");
-		}
 
-		
+			frm->StartSystem("Navigation System");
+			sNav.Update(static_cast<float>(frm->getDeltaTime()));
+			frm->EndSystem("Navigation System");
+		}
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
@@ -355,6 +358,7 @@ namespace SliceEngine
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
+
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();

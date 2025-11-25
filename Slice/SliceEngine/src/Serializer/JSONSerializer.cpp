@@ -26,7 +26,7 @@ namespace SliceEngine
 				return false;
 
 			FactoryInstance.EmplaceComponents(node.GetEntity(), componentInstance);
-		
+
 			return false; // unknown type
 		}
 
@@ -77,7 +77,7 @@ namespace SliceEngine
 			for (auto entity : entityView)
 			{
 				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
-				{
+					{
 						for (const auto& property : type.get_properties())
 						{
 							// this should be the component's property data
@@ -95,7 +95,7 @@ namespace SliceEngine
 
 							// for now, we'll ignore resources in c# scripts cause i have to loop through the scriptable data map
 						}
-				});
+					});
 			}
 
 			json GUIDFile;
@@ -111,7 +111,7 @@ namespace SliceEngine
 		// idk what would be passed in when deserializing in scene system
 		void DeserializeSceneResource(std::filesystem::path const& filePath)
 		{
-			
+
 			std::filesystem::path outPath(filePath);
 			std::string resourcePath = outPath.replace_extension(".resource").string();
 
@@ -119,11 +119,11 @@ namespace SliceEngine
 
 			for (auto guid : sceneResource.items())
 			{
-				
+
 			}
 		}
 
-#pragma region Prefab Serializing
+#pragma region PrefabSerializing
 		std::string SerializePrefab(entt::entity entity)
 		{
 			json output;
@@ -173,7 +173,7 @@ namespace SliceEngine
 
 		}
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath)
+		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor)
 		{
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
@@ -189,6 +189,10 @@ namespace SliceEngine
 			for (auto& [name, components] : prefab.items())
 			{
 				GameObject newObj = factory.CreateBlank();
+				if (Editor)
+				{
+					factory.RemoveFromNameMap(newObj.GetEntity());
+				}
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -243,18 +247,6 @@ namespace SliceEngine
 								ColliderShape::CapsuleData
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
-
-							// DEBUG: Check if position.x is being read correctly
-							//if (componentName == typeid(Transform).name() && propName == "position")
-							//{
-							//	auto posValue = prop.get_value(componentInstance);
-							//	if (posValue.can_convert<glm::vec3>())
-							//	{
-							//		glm::vec3 pos = posValue.convert<glm::vec3>();
-							//		std::cout << "Position read: x=" << pos.x << ", y=" << pos.y << ", z=" << pos.z << std::endl;
-							//	}
-							//}
-
 							// Anything that needs a second pass
 							// scene graph map stuff
 							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
@@ -300,9 +292,8 @@ namespace SliceEngine
 			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
 			//{
 			//}
-			//rootGO.SetName(rootGO.GetName());
-			
-			// might not need this anymore but i scared to remove
+			rootGO.SetName(rootGO.GetName());
+
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
@@ -325,22 +316,15 @@ namespace SliceEngine
 					{
 						sceneGraphComponent.neighbours[i] = (Entity)it->second;
 					}
-
-					// if this is the new child of the root entity
-					// for it to be the new child, up is the root and there is no left children
-					//if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
-					//{
-					//	auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
-					//}
 				}
 
-				GameObject GO = factory.GetGOByEntity((Entity)entity);
+				if (!Editor)
+				{
+					GameObject GO = factory.GetGOByEntity((Entity)entity);
 
-				// set the names of all the GOs created to prevent same names
-				GO.SetName(GO.GetName());
-
-
-				
+					// set the names of all the GOs created to prevent same names
+					GO.SetName(GO.GetName());
+				}
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
@@ -436,14 +420,6 @@ namespace SliceEngine
 					}
 
 					rttr::variant propVal = property.get_value(componentData);
-					if (componentType == rttr::type::get<SceneGraph>())
-					{
-						if (propName == "entity_id")
-						{
-							propVal = entity;
-						}
-					}
-
 
 					std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
 
@@ -464,13 +440,13 @@ namespace SliceEngine
 					// of Serialize(...) in the header file
 					// Add supported types here + DeserializeProp below
 					SerializeProp
-					<
-						int, 
+						<
+						int,
 						unsigned int,
 						unsigned char,
-						float, 
-						double, 
-						bool, 
+						float,
+						double,
+						bool,
 						Entity,
 						uint32_t,
 						uint64_t,
@@ -478,11 +454,11 @@ namespace SliceEngine
 						Handle<SliceEngineTypes::Texture>,
 						Handle<SliceEngineTypes::Model>,
 						Handle<SliceEngineTypes::Material>,
-						std::array<uint64_t, 4>, 
+						std::array<uint64_t, 4>,
 						std::array<Entity, 4>,
 						std::vector<uint64_t>,
-						glm::vec2, 
-						glm::vec3, 
+						glm::vec2,
+						glm::vec3,
 						glm::vec4,
 						glm::quat,
 						std::string,
@@ -491,7 +467,7 @@ namespace SliceEngine
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData
-					>
+						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
 			}
@@ -576,7 +552,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Deserialize", "Unable to find/load JSON in path: " + filePath.string());
 				return json{};
 			}
-			
+
 			json output;
 			ifs >> output;
 			return output;
@@ -621,7 +597,7 @@ namespace SliceEngine
 
 						for (auto& [propName, value] : props.items())
 						{
-							rttr::property prop = compType.get_property(propName);							
+							rttr::property prop = compType.get_property(propName);
 
 							if (!prop.is_valid())
 								continue;
@@ -652,6 +628,7 @@ namespace SliceEngine
 								glm::quat,
 								std::string,
 								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData
@@ -675,7 +652,7 @@ namespace SliceEngine
 				}
 			}
 
-	
+
 
 			// Remapping Entity IDs after all GOs have been deserialized
 			auto& registry = Core::GetInstance()->GetRegistry();
@@ -716,7 +693,7 @@ namespace SliceEngine
 			//		}
 			//	}
 			//}
-			
+
 			return sceneGraphMap;
 		}
 
@@ -751,6 +728,7 @@ namespace SliceEngine
 
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
 			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
+			if (t == rttr::type::get<JPH::Vec3>()) { return v.get_value<JPH::Vec3>(); }
 			if (t == rttr::type::get<float>()) { return v.get_value<float>(); }
 			if (t == rttr::type::get<int>()) { return v.get_value<int>(); }
 			if (t == rttr::type::get<double>()) { return v.get_value<double>(); }
@@ -903,7 +881,7 @@ namespace SliceEngine
 				auto& childScenegraph = child.GetComponent<SceneGraph>();
 				childScenegraph.entity_id = entt::to_integral(child.GetEntity());
 
-				factory.SetParent(child.GetEntity(),parent.GetEntity());				
+				factory.SetParent(child.GetEntity(), parent.GetEntity());
 
 				SerializeScene(testPath + std::string("JSONTest3.json"));
 

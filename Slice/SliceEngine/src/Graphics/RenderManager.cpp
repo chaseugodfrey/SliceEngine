@@ -440,6 +440,10 @@ namespace SliceEngine
 				{
 					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 					auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
+
+					if (!shape.componentEnabled) // if not enabled should not draw
+						continue;
+
 					if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
 					{
 						if (i != 0)

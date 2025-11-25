@@ -93,7 +93,7 @@ namespace SliceEngine
             return (float)Math.Sqrt(dx * dx + dy * dy);
         }
 
-        public static Vector2 lerp(Vector2 end, Vector2 start, float t)
+        public static Vector2 Lerp(Vector2 end, Vector2 start, float t)
         {
             t = Clamp(t);
             return new Vector2(
