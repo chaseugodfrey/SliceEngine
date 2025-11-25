@@ -17,5 +17,20 @@ namespace SliceEngine
         {
             return FunctionCalls.IsKeyDown(key);
         }
+
+        public static bool IsMousePressed(MouseButtons mouseButton)
+        {
+            return FunctionCalls.IsMousePressed(mouseButton);
+        }
+
+        public static bool IsMouseDown(MouseButtons mouseButton)
+        {
+            return FunctionCalls.IsMouseDown(mouseButton);
+        }
+
+        public static bool IsMouseReleased(MouseButtons mouseButton)
+        {
+            return FunctionCalls.IsMouseReleased(mouseButton);
+        }
     }
 }

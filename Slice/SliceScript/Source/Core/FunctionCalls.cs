@@ -96,6 +96,15 @@ namespace SliceEngine
         internal extern static bool IsKeyDown(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMousePressed(MouseButtons mouseButton);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseDown(MouseButtons mouseButton);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseReleased(MouseButtons mouseButton);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

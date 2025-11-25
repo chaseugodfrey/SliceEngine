@@ -106,6 +106,21 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
+	static bool IsMousePressed(MouseButtons mouseButton)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMousePressed(mouseButton);
+	}
+
+	static bool IsMouseDown(MouseButtons mouseButton)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseDown(mouseButton);
+	}	
+
+	static bool IsMouseReleased(MouseButtons mouseButton)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(mouseButton);
+	}
+
 #pragma region CONSOLE LOGGING FUNCTIONS
 
 	static void Log(MonoString* string)
@@ -699,6 +714,11 @@ namespace SliceEngine
 		// Key input
 		ADD_INTERNAL_CALL(IsKeyPressed);
 		ADD_INTERNAL_CALL(IsKeyDown);
+
+		// Mouse input
+		ADD_INTERNAL_CALL(IsMousePressed);
+		ADD_INTERNAL_CALL(IsMouseDown);
+		ADD_INTERNAL_CALL(IsMouseReleased);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
