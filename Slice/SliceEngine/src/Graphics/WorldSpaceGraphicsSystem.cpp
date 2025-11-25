@@ -166,7 +166,8 @@ namespace SliceEngine
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
 
-				if(animator.IsValid())
+				// only update if theres a anim pkg and skeleton
+				if(animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_skeleton.IsValid())
 				{
 					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
 					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));

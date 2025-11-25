@@ -172,37 +172,21 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 
 		Animator& animator = reg.get<Animator>(entity);
-		
-
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
-
-		animator.Handle_curr_anim_pkg.get();
-		animator.Handle_skeleton.get();
-		animator.Handle_stateMachine.get();
-
+		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
+		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
+		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
-
+			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 		}
-		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
-		animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-		animator.stateMachine.InitState(animator.curr_anim_pkg);
-
-		//animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(15604823125079971656));
-		//animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16939318639615749652));
-
-		//animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
-
-		//animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
-		//animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 
 		if (animator.IsValid())
 		{
-			//animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
-			
-
-		
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+			animator.stateMachine.InitState(animator.curr_anim_pkg);
 		}
+
 	}
 }

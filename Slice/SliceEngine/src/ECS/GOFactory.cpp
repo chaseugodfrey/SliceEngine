@@ -792,9 +792,11 @@ namespace SliceEngine
 			root = go.GetEntity();
 			go.AddComponent<Animator>();
 			auto& animator = go.GetComponent<Animator>();
-			animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(15604823125079971656));
-			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16939318639615749652));
 
+			GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
+			GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
+			animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
+			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
 			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
 		}
