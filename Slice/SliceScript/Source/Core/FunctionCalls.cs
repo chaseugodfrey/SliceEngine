@@ -37,6 +37,12 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool ColliderShape_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ColliderShape_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -94,6 +100,33 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool IsKeyDown(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsKeyReleased(Keys keyCode);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMousePressed(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseDown(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsMouseReleased(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static Vector2 GetMousePosition(out Vector2 position);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_EnableMap(string map, bool enable);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static bool AM_PerformedThisFrame(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static float AM_GetValue1D(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_GetValue2D(string map, string action, out Vector2 value);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);

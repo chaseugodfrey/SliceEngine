@@ -26,6 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
 #include "../Configuration/AudioSettings.h"
+#include "../Input/ActionMapping.h"
 
 namespace SliceEngine
 {
@@ -94,7 +95,20 @@ namespace SliceEngine
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Transform component.", entity);
+		return nullptr;
+	}
+
 #pragma endregion
+
+#pragma region INPUT & ACTIONMAPPING FUNCTIONS
 
 	static bool IsKeyPressed(Keys keyCode)
 	{
@@ -104,6 +118,63 @@ namespace SliceEngine
 	static bool IsKeyDown(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
+	}
+
+	static bool IsKeyReleased(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
+	}
+
+	static bool IsMousePressed(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMousePressed(button);
+	}
+
+	static bool IsMouseDown(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
+	}
+
+	static bool IsMouseReleased(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
+	}
+
+	static glm::vec2 GetMousePosition()
+	{
+		return Core::GetInstance()->GetInputSystem()->GetMousePosition();
+	}
+
+	// allow enabling/disabling action maps from c#
+	static void AM_EnableMap(MonoString* map, bool enable)
+	{
+		auto name = MonoToString(map);
+		GetActionMappingSystem().enableMap(name, enable);
+	}
+
+	// allow checking if action was performed this frame from c#
+	bool AM_PerformedThisFrame(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		return GetActionMappingSystem().PerformedThisFrame(mapName, actionName);
+	}
+
+	// get 1D value from action mapping
+	float AM_GetValue1D(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		return GetActionMappingSystem().GetValue1D(mapName, actionName);
+	}
+
+	// get 2D value from action mapping
+	glm::vec2 AM_GetValue2D(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		auto value = GetActionMappingSystem().GetValue2D(mapName, actionName);
+		return glm::vec2(value.first, value.second);
 	}
 
 #pragma region CONSOLE LOGGING FUNCTIONS
@@ -175,6 +246,46 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region ColliderShape FUNCTIONS
+	
+	static bool ColliderShape_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<ColliderShape>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& collider = go.GetComponent<ColliderShape>();
+		return collider.componentEnabled;
+	}
+
+	static void ColliderShape_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<ColliderShape>())
+		{
+			Entity entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& collider)
+				{
+					collider.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+		}
+				
+	}
+
+#pragma endregion
+
+#pragma region AUDIO FUNCTIONS
 	static AudioSource* GetAudioComponent(unsigned int entity)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
@@ -185,19 +296,6 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
 		return nullptr;
 	}
-
-	static Transform* GetTransformComponent(unsigned int entity)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
-		if (go.IsValid() && go.HasComponent<Transform>())
-		{
-			return &go.GetComponent<Transform>();
-		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
-		return nullptr;
-	}
-
-#pragma region AUDIO FUNCTIONS
 
 	//Return a filepath
 	static MonoString* Audio_GetSoundName(unsigned int entity)
@@ -472,6 +570,10 @@ namespace SliceEngine
 		if (it != rm->mFileNameToGUID.end())
 		{
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
+			if(cStrName == "EnemyTest")
+			{
+				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+			}
 			return(unsigned int)newGO.GetEntity();
 		}
 			//mono_free(cStrName);
@@ -627,6 +729,13 @@ namespace SliceEngine
 	}
 
 #pragma endregion
+	
+#pragma region SCENE FUNCTIONS
+
+
+#pragma endregion
+
+#pragma region COMPONENT REGISTRATION
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -647,11 +756,7 @@ namespace SliceEngine
 		 mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
 	}
 
-#pragma region SCENE FUNCTIONS
-
-
-#pragma endregion
-		/// <summary>
+	/// <summary>
 	/// Register the component. Clear the map before registering
 	/// </summary>
 	void ScriptFunctions::RegisterComponents()
@@ -662,7 +767,7 @@ namespace SliceEngine
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
-		//RegisterComponent<Collider2D>();
+		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
@@ -696,9 +801,23 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_GetRotation);
 		ADD_INTERNAL_CALL(Transform_SetRotation);		
 
-		// Key input
+		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
 		ADD_INTERNAL_CALL(IsKeyPressed);
 		ADD_INTERNAL_CALL(IsKeyDown);
+		ADD_INTERNAL_CALL(IsKeyReleased);
+		ADD_INTERNAL_CALL(IsMousePressed);
+		ADD_INTERNAL_CALL(IsMouseDown);
+		ADD_INTERNAL_CALL(IsMouseReleased);
+		ADD_INTERNAL_CALL(GetMousePosition);
+		ADD_INTERNAL_CALL(AM_EnableMap);
+		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
+		ADD_INTERNAL_CALL(AM_GetValue2D);
+		ADD_INTERNAL_CALL(AM_GetValue1D);
+
+		// Mouse input
+		ADD_INTERNAL_CALL(IsMousePressed);
+		ADD_INTERNAL_CALL(IsMouseDown);
+		ADD_INTERNAL_CALL(IsMouseReleased);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
@@ -709,6 +828,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
+		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
+		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
@@ -742,5 +863,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
 	}
+
+#pragma endregion
 
 }

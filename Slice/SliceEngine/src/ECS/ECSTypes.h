@@ -95,6 +95,37 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
+		glm::vec3 JPHtoglm(JPH::Vec3 vec)
+		{
+			return glm::vec3(vec.GetX(), vec.GetY(), vec.GetZ());
+		}
+
+		JPH::Vec3 glmtoJPH(glm::vec3 vec)
+		{
+			return JPH::Vec3(vec.x, vec.y, vec.z);
+		}
+
+		glm::vec3 GetWorldPosition()
+		{
+			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
+		}
+
+		glm::quat GetWorldRotation()
+		{
+			glm::mat4 rotMat = transform;
+			rotMat[3] = glm::vec4(0, 0, 0, 1); // remove translation
+			return glm::quat_cast(rotMat);
+		}
+
+		glm::vec3 GetWorldScale()
+		{
+			glm::vec3 scale;
+			scale.x = glm::length(glm::vec3(transform[0][0], transform[0][1], transform[0][2]));
+			scale.y = glm::length(glm::vec3(transform[1][0], transform[1][1], transform[1][2]));
+			scale.z = glm::length(glm::vec3(transform[2][0], transform[2][1], transform[2][2]));
+			return scale;
+		}
+
 		RTTR_ENABLE();
     };
 
@@ -143,8 +174,9 @@ namespace SliceEngine
 		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
-		float bloomFilterRadius{0.005f};
-		float bloomStrength{ 0.04f };
+		float bloomFilterRadius{ 5.f };
+		float bloomStrength{ 0.4f };
+		float exposure{ 10.f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };

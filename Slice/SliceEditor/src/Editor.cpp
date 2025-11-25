@@ -35,7 +35,6 @@ namespace SliceEditor
 
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
@@ -55,15 +54,24 @@ namespace SliceEditor
 	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
-
 		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (action == GLFW_PRESS)
+		if (input->GetMode() == SliceEngine::InputMode::Game)
 		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			//ImGuiIO& io = ImGui::GetIO();
+			//if (io.WantCaptureMouse)
+			//{
+			//	return;
+			//}
+
+			if (action == GLFW_PRESS)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+				std::cout << "Mouse Button Pressed: " << std::endl;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			}
 		}
 
 		// 2. Check if ImGui wants to capture the mouse
@@ -161,8 +169,10 @@ namespace SliceEditor
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
+
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
+		ImNodes::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
@@ -176,6 +186,7 @@ namespace SliceEditor
 		SLICE_LOG("Creating ImGui Context.");
 		SLICE_LOG_VALUES("ImGui Version: ", IMGUI_VERSION);
 		ImGui::CreateContext();
+		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
