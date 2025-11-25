@@ -15,6 +15,7 @@ namespace SliceEngine
         private List<IInitializable> initializables = new List<IInitializable>();
         public static CameraController CameraController { get; private set; }
         public static PlayerController Player { get; private set; }
+        public static LevelDirector LevelDirector { get; private set; }
         
         public override void OnCreate()
         {
@@ -29,11 +30,17 @@ namespace SliceEngine
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
+            LevelDirector = gameObject.FindGameObjectWithName("LevelDirector")?.As<LevelDirector>();
+            if (LevelDirector != null) Console.WriteLine("Level Director found");
+            else Console.WriteLine("Level Director not found");
+
+
             Console.WriteLine("Awake called");
 
             // Calling initialize on each script
             CameraController.Initialize();
             Player.Initialize();
+            LevelDirector.Initialize();
         }
     }
 }

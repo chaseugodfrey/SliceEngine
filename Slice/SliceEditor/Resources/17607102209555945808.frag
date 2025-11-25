@@ -18,4 +18,8 @@ void main(void){
 	{
 		fFragColor = vec4(dif * ambient, 1.0);
 	}
+	else
+	{
+		discard;
+	}
 }
