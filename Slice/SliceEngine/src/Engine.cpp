@@ -329,11 +329,13 @@ namespace SliceEngine
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 				frm->EndSystem("Physics");
 
+				sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
 			}
-			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+
 
 			frm->StartSystem("Button");
 			sButton.HandleMouse(*sInputs, sCanvas);
