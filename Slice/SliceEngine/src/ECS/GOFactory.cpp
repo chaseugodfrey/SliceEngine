@@ -254,6 +254,14 @@ namespace SliceEngine
 		mRegistry.emplace<SceneGraph>(mRootEntity);
 	}
 
+	void GOFactory::RemoveFromNameMap(Entity entity)
+	{
+		GameObject go = GetGOByEntity(entity);
+
+		mNameToEntity.erase(go.GetName());
+		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)

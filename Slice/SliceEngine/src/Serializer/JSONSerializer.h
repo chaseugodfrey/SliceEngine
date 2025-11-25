@@ -37,7 +37,7 @@ namespace SliceEngine
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath);
+		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
 
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
