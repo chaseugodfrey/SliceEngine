@@ -12,6 +12,7 @@ namespace SliceEngine
         private float internalTimer     = 0f;
         public float waitBetweenSpawns  = 5f;
         public int enemyPerSpawn        = 4;
+        public float randomRadius       = 1f;
 
         public string enemyPrefab = "EnemyTest";
 
@@ -26,6 +27,8 @@ namespace SliceEngine
         {          
             enemySpawners.Clear();
 
+
+            enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
             //Look for SpawnPoint
 
         }
@@ -41,7 +44,9 @@ namespace SliceEngine
             {
                 for (int i = 0; i < enemyPerSpawn; i++)
                 {
-
+                    GameObject just = CreateGameObject(enemyPrefab);
+                    Vector3 ran = Utilities.RandomInsideSphere(randomRadius);
+                    just.GetComponent<Transform>().Position = enemySpawners[0].transform.Position + new Vector3(ran.x, 0, ran.z);
                 }
             }
         }

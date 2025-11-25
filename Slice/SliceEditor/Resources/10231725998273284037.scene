@@ -39,12 +39,75 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
+                "entity_id": 69,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    68,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.EnemySpawner",
+                "scriptableFieldMap": {
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "EnemySpawner",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    1.0720772743225098,
+                    0.0,
+                    -2.7601985931396484
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LevelDirector": {
+            "struct SliceEngine::SceneGraph": {
                 "entity_id": 68,
                 "neighbours": [
                     0,
                     4294967295,
                     65,
-                    4294967295
+                    69
                 ]
             },
             "struct SliceEngine::Script": {
@@ -57,6 +120,10 @@
                     "enemyPrefab": {
                         "Type": "std::string",
                         "Value": "EnemyTest"
+                    },
+                    "randomRadius": {
+                        "Type": "float",
+                        "Value": 2.0
                     },
                     "spawnPoints": {
                         "Type": "std::vector<glm::vec3>",
@@ -87,7 +154,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "EnemySpawner",
+                "mName": "LevelDirector",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -99,7 +166,7 @@
                 "position": [
                     0.0,
                     0.0,
-                    -3.379399538040161
+                    0.0
                 ],
                 "rotation": [
                     1.0,

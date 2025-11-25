@@ -46,18 +46,18 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (Input.IsKeyDown(Keys.KEY_0))
-            {
-                StartSpawning();
-            }
-            if (Input.IsKeyDown(Keys.KEY_9))
-            {
-                StopSpawning();
-            }
-            if (Input.IsKeyDown(Keys.KEY_8))
-            {
-                TakeDamage(50, gameObject);
-            }
+            //if (Input.IsKeyDown(Keys.KEY_0))
+            //{
+            //    StartSpawning();
+            //}
+            //if (Input.IsKeyDown(Keys.KEY_9))
+            //{
+            //    StopSpawning();
+            //}
+            //if (Input.IsKeyDown(Keys.KEY_8))
+            //{
+            //    TakeDamage(50, gameObject);
+            //}
         }
 
         /*

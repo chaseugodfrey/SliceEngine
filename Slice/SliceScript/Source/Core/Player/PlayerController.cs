@@ -135,6 +135,11 @@ namespace SliceEngine
         public void Initialize()
         {
             camera = Bootstrap.CameraController;
+            if (camera == null)
+            {
+                Console.WriteLine("Camera Var in player is EMPTY");
+            }
+
         }
         #region Movement
         private void HandleInput()
@@ -154,7 +159,17 @@ namespace SliceEngine
         }
         private void HandleMovement()
         {
-            Transform camTransform = camera.transform;
+            Transform camTransform;
+
+            if (camera == null)
+            {
+                return;
+            }
+            else
+            {
+                camTransform = camera.transform;
+            }
+
             Vector3 vertical = Vector3.Zero;
             Vector3 camForward = camTransform.RotationQuat * Vector3.Forward;
             camForward.y = 0f;
