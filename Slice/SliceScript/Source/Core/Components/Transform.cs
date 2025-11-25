@@ -13,10 +13,10 @@ namespace SliceEngine
             // Initialize rotationQuat from the current rotation
             FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 pos);
             FunctionCalls.Transform_GetScale(gameObject.mID, out Vector3 scale);
-            FunctionCalls.Transform_GetRotation(gameObject.mID, out Vector3 euler);
+            FunctionCalls.Transform_GetRotationQuat(gameObject.mID, out Quaternion quat);
             Position = pos;
             Scale = scale;
-            rotationQuat = Quaternion.FromEuler(euler);
+            rotationQuat = quat;
         }
         public Vector3 Position
         {
@@ -47,19 +47,15 @@ namespace SliceEngine
             }
         }
 
-
         private Quaternion rotationQuat;
 
         public Vector3 Rotation
         {
-            get
-            {
-                return rotationQuat.ToEuler();
-            }
+            get => rotationQuat.ToEuler();
             set
-            {                
-                FunctionCalls.Transform_SetRotation(gameObject.mID, ref value);
-                rotationQuat = Quaternion.FromEuler(value);
+            {
+                rotationQuat = Quaternion.FromEuler(value).Normalize();
+                FunctionCalls.Transform_SetRotationQuat(gameObject.mID, ref rotationQuat);
             }
         }
 
@@ -68,11 +64,11 @@ namespace SliceEngine
             get => rotationQuat;
             set
             {
-                rotationQuat = value;
-                Vector3 euler = rotationQuat.ToEuler();
-                FunctionCalls.Transform_SetRotation(gameObject.mID, ref euler);
+                rotationQuat = value.Normalize(); // normalize for stability
+                FunctionCalls.Transform_SetRotationQuat(gameObject.mID, ref rotationQuat);
             }
         }
+
         public Vector3 Right { get { return RotationQuat * Vector3.Right; } }
         public Vector3 Up { get { return RotationQuat * Vector3.Up; } }
         public Vector3 Forward { get { return RotationQuat * Vector3.Forward; } }
@@ -95,48 +91,21 @@ namespace SliceEngine
         }
 
         public void Rotate(float angleDegrees, Vector3 axis)
-        {       
-            if (axis == Vector3.Zero)
-                return; // No rotation if axis is zero
+        {
+            if (axis == Vector3.Zero) return;
 
             Quaternion delta = Quaternion.FromAxisAngle(axis.Normalize(), angleDegrees);
-
-            Quaternion tempRotationQuat = RotationQuat * delta;
-
-            tempRotationQuat.Normalize();
-
-            Vector3 rotation = tempRotationQuat.ToEuler();
-            rotation.x = 0.0f;
-
-            //if (gameObject.HasComponent<CameraController>())
-            {
-                Vector3 newUp = tempRotationQuat * Vector3.Up;
-                SliceLog.Log("Test New Up" + newUp.x + "," + newUp.y + "," + newUp.z);
-                //if(Vector3.Dot(newUp, originalUp) < 0.0f)
-                //    return;
-            }
-
-            FunctionCalls.Transform_SetRotation(gameObject.mID, ref rotation);
-
-            Rotation = rotation;
+            RotationQuat = (RotationQuat * delta).Normalize();
         }
 
-        public void LookAt(Vector3 targetPosition)
-        {
-            Vector3 direction = targetPosition - Position;
-            if (direction.Distance(targetPosition) < 1e-6f)
-                return; // no rotation if positions are the same
-
-            Rotation = Quaternion.LookRotation(direction, new Vector3(0, 1, 0)).ToEuler();
-        }
         public void LookAt(Vector3 targetPosition, Vector3 up)
         {
             Vector3 direction = targetPosition - Position;
-            if (direction.LengthSquared() < 1e-6f)
-                return;
+            if (direction.LengthSquared() < 1e-6f) return;
 
-            Rotation = Quaternion.LookRotation(direction, up).ToEuler();
+            RotationQuat = Quaternion.LookRotation(direction, up).Normalize();
         }
+
         public bool IsFlipped()
         {
             Vector3 originalUp = new Vector3(0, 1, 0);

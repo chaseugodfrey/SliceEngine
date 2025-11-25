@@ -95,6 +95,22 @@ namespace SliceEngine
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
+	static void Transform_GetRotationQuat(unsigned int entity, glm::quat* outRotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		*outRotation = transform.rotation; // REAL QUATERNION
+	}
+
+	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = glm::normalize(*rotation);
+
+		// update Euler hint only for inspector UI
+		transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+	}
+
+
 #pragma endregion
 
 #pragma region INPUT & ACTIONMAPPING FUNCTIONS
@@ -756,7 +772,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
-		ADD_INTERNAL_CALL(Transform_SetRotation);		
+		ADD_INTERNAL_CALL(Transform_SetRotation);
+		ADD_INTERNAL_CALL(Transform_GetRotationQuat);
+		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
 		ADD_INTERNAL_CALL(IsKeyPressed);
