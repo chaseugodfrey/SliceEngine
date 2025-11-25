@@ -73,21 +73,31 @@ namespace SliceEditor
 		void DisplayTransform(entt::entity entity);
 		void DisplaySceneGraph(entt::entity entity);
 		void DisplayAudioSource(entt::entity entity);
+		void DisplayAudioListener(entt::entity entity);
 		void DisplayMeshRenderer(entt::entity entity);
 		void DisplayCamera(entt::entity entity);
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
+		void DisplayNavAgent(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void DisplayLight(entt::entity entity);
 		void DisplayAnimator(entt::entity entity);
 		void DisplayParticleSystem(entt::entity entity);
 		void AddComponentButton(entt::entity entity);
+
+
+		void DisplayRectTransform(entt::entity entity);
+		void DisplaySpriteRenderer(entt::entity entity);
+		void DisplayCanvas(entt::entity entity);
+		void DisplayButton(entt::entity entity);
 #pragma endregion
 
 #pragma region Main Draw Functions
-
 		void DisplayEntity(EntityNode* node);
 		void DisplayMaterial(DirectoryNode* node);
+		void DisplayPrefab(EntityNode* node);
+		void DisplayState(StateNode* node);
+		void DisplayTransition(TransitionLinkNode* node);
 #pragma endregion
 	public:
 

@@ -123,7 +123,7 @@ namespace SliceEngine
 			}
 		}
 
-#pragma region PrefabSerializing
+#pragma region Prefab Serializing
 		std::string SerializePrefab(entt::entity entity)
 		{
 			json output;
@@ -145,7 +145,7 @@ namespace SliceEngine
 
 			// TODO: Find out a better way we shud be doing this
 			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
-			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			std::filesystem::path filePath = mAssetDirectory.string() + "/" + "Prefabs" + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
 			SerializeFile(output, filePath);
 
 			return filePath.string();
@@ -225,6 +225,7 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
 								std::array<uint64_t, 4>,
@@ -299,8 +300,9 @@ namespace SliceEngine
 			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
 			//{
 			//}
-			rootGO.SetName(rootGO.GetName());
+			//rootGO.SetName(rootGO.GetName());
 			
+			// might not need this anymore but i scared to remove
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
@@ -331,6 +333,14 @@ namespace SliceEngine
 					//	auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
 					//}
 				}
+
+				GameObject GO = factory.GetGOByEntity((Entity)entity);
+
+				// set the names of all the GOs created to prevent same names
+				GO.SetName(GO.GetName());
+
+
+				
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
@@ -426,6 +436,14 @@ namespace SliceEngine
 					}
 
 					rttr::variant propVal = property.get_value(componentData);
+					if (componentType == rttr::type::get<SceneGraph>())
+					{
+						if (propName == "entity_id")
+						{
+							propVal = entity;
+						}
+					}
+
 
 					std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
 
@@ -457,6 +475,7 @@ namespace SliceEngine
 						uint32_t,
 						uint64_t,
 						GUID,
+						Handle<SliceEngineTypes::Texture>,
 						Handle<SliceEngineTypes::Model>,
 						Handle<SliceEngineTypes::Material>,
 						std::array<uint64_t, 4>, 
@@ -514,6 +533,7 @@ namespace SliceEngine
 							uint32_t,
 							uint64_t,
 							GUID,
+							Handle<SliceEngineTypes::Texture>,
 							Handle<SliceEngineTypes::Model>,
 							Handle<SliceEngineTypes::Material>,
 							std::array<uint64_t, 4>,
@@ -620,6 +640,7 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
 								std::array<uint64_t, 4>,

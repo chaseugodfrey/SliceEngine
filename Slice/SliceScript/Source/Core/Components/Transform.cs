@@ -29,7 +29,7 @@ namespace SliceEngine
             set
             {
                 //Console.WriteLine($"Entity ID:{Entity.mID}");
-
+                
                 FunctionCalls.Transform_SetPosition(gameObject.mID, ref value);
             }
         }

@@ -20,7 +20,8 @@ namespace SliceEngine
 	// ---------------- Layers ----------------
 	namespace Layers
 	{
-		static constexpr JPH::uint NUM_LAYERS = 32;
+		static constexpr JPH::ObjectLayer COLLISION_OFF(32u);
+		static constexpr JPH::uint NUM_LAYERS = 33u;
 	}
 
 	namespace BPLayers

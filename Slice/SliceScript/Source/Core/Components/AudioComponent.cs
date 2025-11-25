@@ -11,6 +11,11 @@ namespace SliceEngine
 
     public class AudioComponent : Component
     {
+        public AudioComponent(GameObject gameObject)
+        {
+
+        }
+
         public enum VolumeRollOff
         {
             Logarithmic = 0,

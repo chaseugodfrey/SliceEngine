@@ -12,17 +12,30 @@ namespace SliceEditor
 
 	void SessionManager::Init()
 	{
+		mPrefabInspected = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
 		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
+		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
+
+		mAnimatorData = std::make_unique<AnimatorData>();
 		OpenPreferences();
 	}
 
 	void SessionManager::Update()
 	{
 		CreateEntityNodes();
+
+		if (mPrefabInspected)
+		{
+
+		}
+		else
+		{
+			mPrefabNodes.clear();
+		}
 	}
 
 	void SessionManager::OpenPreferences()
@@ -98,6 +111,11 @@ namespace SliceEditor
 		}
 	}
 
+	void SessionManager::CreatePrefabNodes()
+	{
+		//auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mPrefabParent.get()->entity);
+	}
+
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
 	{
 		if (event.isSceneLoaded)
@@ -123,11 +141,116 @@ namespace SliceEditor
 		}
 	}
 
+	void SessionManager::PrefabInspected(const PrefabInspectedEvent& event)
+	{
+		//Set mPrefabInspected
+		mPrefabInspected = event.prefabBeingInspected;
+
+		//SceneGraph Building
+		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//Prefab  now being inspected
+		if (event.prefabBeingInspected)
+		{
+			//Get the Prefab Handle
+			SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(event.prefabGUID);
+			//Set the rootEntity of the prefab
+			mPrefabRootEntity = SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+			//Clear the look-up table just incase
+			mPrefabNodes.clear();
+			//Build the mPrefabNodes lookup table
+			BuildPrefabTree(mPrefabRootEntity);
+		}
+		//Prefab no longer being inspected
+		else
+		{
+			//Delete the Root Entity from GOFactory
+			SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
+			
+			//Clear Session Manager Variables
+			mPrefabRootEntity = entt::null;
+			mPrefabNodes.clear();
+
+			registry.GetManager<SelectionManager>("Selection")->ClearSelection();
+		}
+	}
+
+	void SessionManager::BuildPrefabTree(Entity entity)
+	{
+		//Get Entity's SceneGraph
+		auto& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+
+		//Add the parent to mPrefabNodes (just a lookup table)
+		auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());
+		auto& prefabNodePtr = pair.first->second;
+		EntityNode& prefabNode = *prefabNodePtr;
+		prefabNode.entity = entity;
+		prefabNode.type = SelectionType::PREFAB_ENTITY;
+		prefabNode.isSelected = false;
+
+		//First child of this entity
+		Entity childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::DOWN];
+
+		while (childEntity != entt::null)
+		{
+
+			//Recursively build the child's subtree
+			BuildPrefabTree(childEntity);
+
+			// Move to next sibling via RIGHT
+			auto& childSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+
+			childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::Direction::RIGHT];
+		}
+	}
+
+	bool SessionManager::IsPrefabInspected()
+	{
+		return mPrefabInspected;
+	}
+
+	Entity SessionManager::GetPrefabInspected()
+	{
+		return mPrefabRootEntity;
+	}
+
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()
 	{
 		return mEntityNodes;
 	}
 
+	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetPrefabNodes()
+	{
+		return mPrefabNodes;
+	}
 
 
+	void SessionManager::LoadAnimatorData(SliceEngine::GUID guid)
+	{
+		auto filename = registry.GetAssetManager().GetFilenameFromGUID(guid);
+
+		if (!filename.has_value())
+			return SLICE_LOG_ERROR(".controller filename is wrong!");
+
+		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
+
+		if (!mAnimatorData->empty())
+			mAnimatorData->reset();
+
+		if (!mAnimatorData->Load(filepath))
+		{
+			mAnimatorData.reset();
+			SLICE_LOG_ERROR("Animator Data not loaded.");
+		}
+	}
+
+	void SessionManager::ClearAnimatorData()
+	{
+		mAnimatorData->reset();
+	}
+
+	AnimatorData* SessionManager::GetAnimatorData()
+	{
+		return mAnimatorData.get();
+	}
 }

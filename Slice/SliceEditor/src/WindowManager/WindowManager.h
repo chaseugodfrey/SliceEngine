@@ -58,7 +58,18 @@ namespace SliceEditor
 
 			return false;
 		}
-		
+
+		template <typename WindowType>
+		inline std::optional<WindowType*> GetWindow()
+		{
+			for (auto& window : list) {
+				if (auto result = dynamic_cast<WindowType*>(window.get())) {
+					return result;
+				}
+			}
+			return std::nullopt;
+		}
+
 		template <typename WindowType>
 		inline void AddWindow()
 		{

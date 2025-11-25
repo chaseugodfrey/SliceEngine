@@ -22,11 +22,9 @@ namespace SliceEngine
 		public:	
 
 			bool LoadAudioResource(std::string const&);
-			int GetCategory();
 			FMOD::Sound* GetSound();
 			void DestroyAudio();
 		private:
-			int category;
 			FMOD::Sound* sound = nullptr;
 		};
 	}
