@@ -815,10 +815,12 @@ namespace SliceEditor
 		{
 			if(!DisplayComponentHeader<SliceEngine::Animator>(entity))
 			{
-				ImGui::Text("Controller: ");
+
+				HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
+				/*ImGui::Text("Controller: ");
 				ImGui::SameLine(150.0f);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::Text("A00");
+				ImGui::Text("A00");*/
 
 				ImGui::Text("Playing: ");
 				ImGui::SameLine(150.f);
