@@ -36,10 +36,10 @@ float satf(float x);
 vec3 satv3(vec3 x);
 float discFade_HQ(float d, float s);
 vec3 hash33_fast(vec3 p);
-float has31_fast(vec3 p);
+float hash31_fast(vec3 p);
 float sphereFalloff(float d, float s);
 float fbm3(vec3 p);
-float noise3(vec3 p);
+float noisee3(vec3 p); // legally distinct noise3
 float blobDensity(vec3 localPos, vec3 cellSeed);
 vec4 linearToGamma(vec4 linearRGB);
 vec3 GammaToLinear(vec3 sRGB);
@@ -237,7 +237,7 @@ vec3 hash33_fast(vec3 p)
 	p += dot(p, p.yxz + vec3(33.33));
 	return fract((p.xxy + p.yzz) * p.zyx);
 }
-float has31_fast(vec3 p)
+float hash31_fast(vec3 p)
 {
 	p += cloudSeed;
 	p = fract(p * 0.1031);
@@ -250,26 +250,26 @@ float fbm3(vec3 p)
 	float a = 0.5;
 	for(int i = 0; i < 4; ++i)
 	{
-		v += noise3(p) * a;
+		v += noisee3(p) * a;
 		p *= 2.0;
 		a *= 0.5;
 	}
 	return v;
 }
-float noise3(vec3 p)
+float noisee3(vec3 p)
 {
 	vec3 i = floor(p);
 	vec3 f = fract(p);
 	vec3 u = f * f * (3.0 - 2.0 * f);
 
-	float n000 = has31_fast(i + vec3(0,0,0));
-	float n100 = has31_fast(i + vec3(1,0,0));
-	float n010 = has31_fast(i + vec3(0,1,0));
-	float n110 = has31_fast(i + vec3(1,1,0));
-	float n001 = has31_fast(i + vec3(0,0,1));
-	float n101 = has31_fast(i + vec3(1,0,1));
-	float n011 = has31_fast(i + vec3(0,1,1));
-	float n111 = has31_fast(i + vec3(1,1,1));
+	float n000 = hash31_fast(i + vec3(0,0,0));
+	float n100 = hash31_fast(i + vec3(1,0,0));
+	float n010 = hash31_fast(i + vec3(0,1,0));
+	float n110 = hash31_fast(i + vec3(1,1,0));
+	float n001 = hash31_fast(i + vec3(0,0,1));
+	float n101 = hash31_fast(i + vec3(1,0,1));
+	float n011 = hash31_fast(i + vec3(0,1,1));
+	float n111 = hash31_fast(i + vec3(1,1,1));
 
 	return mix(
 		mix(mix(n000, n100, u.x), mix(n010, n110, u.x), u.y),
