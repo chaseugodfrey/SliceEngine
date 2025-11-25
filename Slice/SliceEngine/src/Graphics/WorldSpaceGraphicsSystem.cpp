@@ -166,12 +166,15 @@ namespace SliceEngine
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
 
-				uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
-				glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
+				if(animator.IsValid())
+				{
+					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
+					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 
-				glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
-				uniformLoc = glGetUniformLocation(mShader, "inverse_root");
-				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+					glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+					uniformLoc = glGetUniformLocation(mShader, "inverse_root");
+					glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+				}
 			}
 			else {
 			//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");

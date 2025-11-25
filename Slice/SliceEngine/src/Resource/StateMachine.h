@@ -48,6 +48,7 @@ namespace SliceEngine
 
 		struct Transition
 		{
+			int id;
 			std::string sourceState;
 			std::string targetState;
 

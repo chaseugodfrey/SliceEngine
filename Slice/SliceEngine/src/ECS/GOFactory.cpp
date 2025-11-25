@@ -734,22 +734,7 @@ namespace SliceEngine
 
 		auto rm = Core::GetInstance()->GetResourceManager();
 		//if its the start of the tree, set it as the root
-		if (root == entt::null) {
-			root = go.GetEntity();
-			go.AddComponent<Animator>();
-		}
-
-		if (!is_static)
-		{
-			Bone tmpBone;
-			tmpBone.skeleton_root = root;
-			tmpBone.frame_idx = index;
-
-			go.AddComponent<Bone>(tmpBone);
-			//auto& bone = go.GetComponent<Bone>();
-			//bone.skeleton_root = root;
-			//bone.frame_idx = index;
-		}
+		
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
@@ -790,7 +775,29 @@ namespace SliceEngine
 				//rc.texture = (GUID)18349208178533231704;
 			}
 		}
-		
+
+		if (!is_static)
+		{
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
+		}
+
+		if (root == entt::null) {
+			root = go.GetEntity();
+			go.AddComponent<Animator>();
+			auto& animator = go.GetComponent<Animator>();
+			animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(15604823125079971656));
+			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16939318639615749652));
+
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+
+		}
 
 		for (auto& child : node.children) {
 			CreateGO_ModelNode(child, model_guid, go.GetEntity(), root, ++index, is_static);

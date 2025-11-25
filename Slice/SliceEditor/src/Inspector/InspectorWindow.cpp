@@ -840,6 +840,8 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
+		if (!animator.IsValid())
+			return;
 
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
@@ -1500,7 +1502,7 @@ namespace SliceEditor
 
 		auto params = anim_data->GetParameters();
 
-		auto& condition = transition.condition;
+		/*auto& condition = transition.condition;
 
 		if (condition.is_type<float>())
 		{
@@ -1515,7 +1517,7 @@ namespace SliceEditor
 		else if (condition.is_type<bool>())
 		{
 			BoolInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<bool>());
-		}
+		}*/
 
 		//auto& params = anim_data->mStateMachineAsset->parameters;
 		//auto& transition = anim_data->mTransitionNodes.at(node->id);
