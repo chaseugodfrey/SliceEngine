@@ -139,6 +139,7 @@ namespace SliceEditor
 			ImGui::OpenPopup("Debug Lines");
 		}
 		float height = ImGui::GetItemRectSize().y;
+		DebugDrawTogglePopup();
 		ImGui::SameLine();
 		std::stringstream ss;
 		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
@@ -146,7 +147,6 @@ namespace SliceEditor
 		ImGui::Button(ss.str().c_str()); //Speed Display
 		ImGui::PopItemFlag(); //End of Set Disabled
 		//Debug Drawing Settings:
-		DebugDrawTogglePopup();
 		ImGui::EndGroup();
 
 
@@ -563,7 +563,7 @@ namespace SliceEditor
 
 	void SceneViewWindow::DebugDrawTogglePopup()
 	{
-		if (ImGui::BeginPopupContextWindow("Debug Lines"))
+		if (ImGui::BeginPopupContextItem("Debug Lines"))
 		{
 			auto& tag = camObj->camera.renderTag;
 
