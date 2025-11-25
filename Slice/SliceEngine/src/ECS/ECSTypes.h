@@ -51,11 +51,6 @@ namespace SliceEngine
 		EngineEntity() : mActive(true) {}
 	};
 
-	struct testStruct
-	{
-		int val;
-	};
-
 	struct SceneGraph
 	{
 		uint32_t entity_id{};
@@ -113,7 +108,18 @@ namespace SliceEngine
 		glm::quat GetWorldRotation()
 		{
 			glm::mat4 rotMat = transform;
-			rotMat[3] = glm::vec4(0, 0, 0, 1); // remove translation
+
+			// Extract and normalize the basis vectors to remove scale
+			glm::vec3 col0 = glm::normalize(glm::vec3(rotMat[0]));
+			glm::vec3 col1 = glm::normalize(glm::vec3(rotMat[1]));
+			glm::vec3 col2 = glm::normalize(glm::vec3(rotMat[2]));
+
+			// Reconstruct a pure rotation matrix
+			rotMat[0] = glm::vec4(col0, 0.0f);
+			rotMat[1] = glm::vec4(col1, 0.0f);
+			rotMat[2] = glm::vec4(col2, 0.0f);
+			rotMat[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 			return glm::quat_cast(rotMat);
 		}
 
