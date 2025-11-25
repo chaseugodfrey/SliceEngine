@@ -93,10 +93,11 @@ namespace SliceEditor
 #pragma endregion
 
 #pragma region Main Draw Functions
-
 		void DisplayEntity(EntityNode* node);
 		void DisplayMaterial(DirectoryNode* node);
 		void DisplayPrefab(EntityNode* node);
+		void DisplayState(StateNode* node);
+		void DisplayTransition(TransitionLinkNode* node);
 #pragma endregion
 	public:
 

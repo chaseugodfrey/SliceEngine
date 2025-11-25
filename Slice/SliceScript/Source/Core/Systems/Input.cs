@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,19 +19,50 @@ namespace SliceEngine
             return FunctionCalls.IsKeyDown(key);
         }
 
-        public static bool IsMousePressed(MouseButtons mouseButton)
+        public static bool IsKeyReleased(Keys keyCode)
         {
-            return FunctionCalls.IsMousePressed(mouseButton);
+            return FunctionCalls.IsKeyReleased(keyCode);
         }
 
-        public static bool IsMouseDown(MouseButtons mouseButton)
+        public static bool IsMousePressed(MouseButtons button)
         {
-            return FunctionCalls.IsMouseDown(mouseButton);
+            return FunctionCalls.IsMousePressed(button);
         }
 
-        public static bool IsMouseReleased(MouseButtons mouseButton)
+        public static bool IsMouseDown(MouseButtons button)
         {
-            return FunctionCalls.IsMouseReleased(mouseButton);
+            return FunctionCalls.IsMouseDown(button);
         }
+
+        public static bool IsMouseReleased(MouseButtons button)
+        {
+            return FunctionCalls.IsMouseReleased(button);
+        }
+
+        public static Vector2 GetMousePosition()
+        {
+            return FunctionCalls.GetMousePosition(out Vector2 position);
+        }
+
+        public static void AM_EnableMap(string map, bool enable)
+        {
+            FunctionCalls.AM_EnableMap(map, enable);
+        }
+
+        public static bool AM_PerformedThisFrame(string map, string action)
+        {
+            return FunctionCalls.AM_PerformedThisFrame(map, action);
+        }
+
+        public static float AM_GetValue1D(string map, string action)
+        {
+            return FunctionCalls.AM_GetValue1D(map, action);
+        }
+
+        public static void AM_GetValue2D(string map, string action, out Vector2 value)
+        {
+            FunctionCalls.AM_GetValue2D(map, action, out value);
+        }
+
     }
 }
