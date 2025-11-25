@@ -637,6 +637,7 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
+
 						#pragma region Array Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
@@ -820,6 +821,8 @@ namespace SliceEditor
 						}
 
 						#pragma endregion
+
+						//Normal Variables
 						else
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -883,6 +886,21 @@ namespace SliceEditor
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
 								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
+							{
+								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
 									{
 										sp->SetFieldValue(name, val);
 									};

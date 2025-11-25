@@ -434,6 +434,33 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	{
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		static SliceEngine::GameObject oldVal{};
+
+		val.GetName();
+
+		ImGui::BeginDisabled();
+		bool changed = ImGui::InputText(id, &val.GetName(),ImGuiInputTextFlags_ReadOnly);
+		ImGui::EndDisabled();
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (oldVal != val)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
 #pragma endregion
 
 #pragma region Array Script Functions
