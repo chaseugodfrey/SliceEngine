@@ -546,6 +546,73 @@ namespace SliceEditor
 		return changed;
 	}
 	
+	bool DragVec3ArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<glm::vec3>)> func, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format, float inc, float min, float max)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<glm::vec3> oldList{};
+		int i = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(i);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(i);
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID+"_x"s).c_str(), &entry.x, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_y"s).c_str(), &entry.y, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_z"s).c_str(), &entry.z, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				i++;
+			}
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
 #pragma endregion
 
 #pragma region List Script Functions

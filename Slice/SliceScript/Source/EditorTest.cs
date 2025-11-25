@@ -15,18 +15,19 @@ namespace SliceEngine
         public int[] intArray = {1,3};
         public float[] floatArray = {1.0f,2.0f};
         public string[] stringArray = { "Test1", "Test2", "Test3" };
+        public Vector3[] vec3list = { new Vector3(), new Vector3()};
         public List<float> floatList = new List<float>{ 0.5f,2.0f };
         public List<int> intList = new List<int>{ 7,8 };
         public List<string> stringList = new List<string>{"Test","Test2"};
-        public List<Vector3> vec3List = new List<Vector3>{};
-        public Vector3 vec3;
+        //public List<Vector3> vec3List = new List<Vector3>{};
+        //public Vector3 vec3;
         public override void OnUpdate(float dt)
         {
 
             int i = 0;
 
-            SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
-            foreach (Vector3 var in vec3List)
+            //SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
+            foreach (Vector3 var in vec3list)
             {
                 SliceLog.Log("X: " + var.x + " Y: " + var.y + " Z: " + var.z);
                 i++;
