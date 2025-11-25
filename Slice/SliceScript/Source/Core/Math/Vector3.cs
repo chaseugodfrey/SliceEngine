@@ -259,7 +259,7 @@ namespace SliceEngine
                 return hash;
             }
         }
-        public static Vector3 Right { get { return new Vector3(-1f, 0f, 0f); } }
+        public static Vector3 Right { get { return new Vector3(1f, 0f, 0f); } }
         public static Vector3 Up { get { return new Vector3(0f, 1f, 0f); } }
         public static Vector3 Forward { get { return new Vector3(0f, 0f, 1f); } }
         public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)

@@ -1,5 +1,6 @@
 ﻿using SliceEngine;
 using System;
+using System.Collections;
 
 
 namespace SliceEngine
@@ -9,7 +10,6 @@ namespace SliceEngine
     {
         public float rotationSpeed = 50.0f;
         Animator animator;
-        Transform t;
         public string[] test3 = { "Test", "Test2" };
         public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
@@ -18,18 +18,21 @@ namespace SliceEngine
 
         // =============== Movement variables =============== 
         public float moveSpeed = 2.5f;
-        public float jumpHeight = 5f;
+        public float jumpForce = 5f;
+        public float gravity = -9.81f;
+        public float jumpDuration = 0.5f;
         private Vector3 input;
         private Vector3 moveDir;
         private bool canMove;
-        private bool canJump;
+        private bool isJumping, canJump;
+        private GroundCheck groundCheck;
 
         private CameraController camera;
 
         public override void OnCreate()
         {          
-            t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
+            groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
         }
 
         public override void OnUpdate(float dt)
@@ -127,7 +130,7 @@ namespace SliceEngine
             //    animator.SetBool("Attack", true);
             //}
             HandleInput();
-            HandleMovement(dt);
+            HandleMovement();
         }
         public void Initialize()
         {
@@ -147,24 +150,55 @@ namespace SliceEngine
 
             input = input.Normalize();
 
-            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) input += new Vector3(0f, jumpHeight, 0f);
+            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) StartCoroutine(Jump());
         }
-        private void HandleMovement(float dt)
+        private void HandleMovement()
         {
             Transform camTransform = camera.transform;
+            Vector3 vertical = Vector3.Zero;
             Vector3 camForward = camTransform.RotationQuat * Vector3.Forward;
             camForward.y = 0f;
             camForward = camForward.Normalize();
             Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
 
-            Vector3 speed = moveDir * moveSpeed;
-            t.Position += new Vector3(speed.x, speed.y, speed.z) * dt;
+            Vector3 horizontal = moveDir * moveSpeed;
+            if (!groundCheck.Grounded)
+            {
+                vertical += Vector3.Up * gravity * Time.deltaTime;
+                Console.WriteLine("Applying gravity");
+            }
+            else
+            {
+                vertical.y = 0f;
+                Console.WriteLine("Not applying gravity");
+            }
+            transform.Position += new Vector3(horizontal.x, vertical.y, horizontal.z) * Time.deltaTime;
+            Console.WriteLine($"Player Position: {transform.Position.x}, {transform.Position.y}, {transform.Position.z}");
+            Console.WriteLine($"Current speed vector: {horizontal.x}, {vertical.y}, {horizontal.z}");
+        }
+        private IEnumerator Jump()
+        {
+            isJumping = true;
+            canJump = false;
+            float elapsedTime = 0f;
+            while (elapsedTime < jumpDuration)
+            {
+                float jumpProgress = elapsedTime / jumpDuration;
+                transform.Position += new Vector3(0f, jumpForce, 0f) * Time.deltaTime;
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            isJumping = false;
         }
         #endregion
         public override void OnCollideEnter(uint other)
         {
            // SliceLog.Log("OADMOSMODASM");
            // gameObject.Destroy();
+        }
+        public void OnGrounded()
+        {
+            if (!isJumping) canJump = true; 
         }
     }
 }
