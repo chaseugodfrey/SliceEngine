@@ -20,7 +20,7 @@ namespace SliceEngine
 
 	void LayerManager::AddLayer(std::string name)
 	{
-		if (currentBit > MAX_LAYERS)
+		if (currentBit >= MAX_LAYERS)
 		{
 			SLICE_LOG_ERROR("wtf why are u trying to make more than 32 layers??");
 			return;
@@ -33,11 +33,12 @@ namespace SliceEngine
 			return;
 		}
 		uint32_t layerBit{};
+		uint32_t bit{};
 
 		if (removedBits.size() > 0)
 		{
 			// use the latest bit to be removed
-			uint32_t bit = removedBits.back();
+			bit = removedBits.back();
 			layerBit = 1 << bit;
 
 			collisionMask[name] = layerBit;
@@ -49,6 +50,7 @@ namespace SliceEngine
 		else
 		{
 			// get the bit for this layer
+			bit = currentBit;
 			layerBit = 1u << currentBit;
 
 			// update both map and vector
@@ -65,7 +67,7 @@ namespace SliceEngine
 		numberOflayers++;
 
 		// Jolt bodies need to know about the new layer and its mask
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(currentBit, layerBit);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(bit, layerBit);
 
 	}
 
@@ -131,7 +133,7 @@ namespace SliceEngine
 	// might not even be using this mayb
 	uint32_t LayerManager::GetMask(uint32_t index)
 	{
-		if (index >= currentBit)
+		if (index > currentBit)
 		{
 			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
 			return 0;
@@ -164,7 +166,7 @@ namespace SliceEngine
 
 	uint32_t LayerManager::GetLayer(uint32_t index)
 	{
-		if (index >= currentBit)
+		if (index > currentBit)
 		{
 			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
@@ -195,8 +197,8 @@ namespace SliceEngine
 	std::vector<std::string> LayerManager::GetLayerNameList()
 	{
 		std::vector<std::string> nameList{};
-		for (auto& [key, value] : nameToLayer)
-			nameList.push_back(key);
+		for (auto& [key, value] : indexToLayerName)
+			nameList.push_back(value);
 		return nameList;
 	}
 
@@ -215,7 +217,7 @@ namespace SliceEngine
 		{
 			SliceEntity& firstSlice = entityFirst.GetComponent<SliceEntity>();
 			SliceEntity& secondSlice = entitySecond.GetComponent<SliceEntity>();
-			if(firstSlice.mLayer == INVALID_LAYER || secondSlice.mLayer == INVALID_LAYER)
+			if(firstSlice.mLayer >= MAX_LAYERS || secondSlice.mLayer >= MAX_LAYERS)
 			{
 				return false;
 			}
@@ -229,8 +231,10 @@ namespace SliceEngine
 				return false;
 			}
 
-			// as long as its not 0, means they share a layer
-			return collisionMask[firstLayerName] & collisionMask[secondLayerName];
+			uint32_t firstMask = GetMask(firstLayerName);
+			uint32_t secondLayer = GetLayer(secondLayerName);
+
+			return (firstMask & (1u << secondLayer)) != 0u;
 		}
 
 		// if either one of them or both dont have transform component
@@ -241,7 +245,7 @@ namespace SliceEngine
 	bool LayerManager::CheckLayerInteraction(std::string first, std::string second)
 	{
 		uint32_t firstMask = GetMask(first);
-		uint32_t secondLayer =GetLayer(second);
+		uint32_t secondLayer = GetLayer(second);
 
 		return (firstMask & (1u << secondLayer)) != 0u;
 

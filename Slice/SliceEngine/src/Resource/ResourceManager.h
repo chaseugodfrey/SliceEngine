@@ -213,7 +213,7 @@ namespace SliceEngine
 
 		void RegisterResourceAsset(const std::string& path);
 
-		void UpdateEntityResources();
+		//void UpdateEntityResources();	//this func is litearlly not called, also removed any usage of handle.filename - elton
 
 		void Shutdown();
 
@@ -398,7 +398,7 @@ namespace SliceEngine
 		ResourceManager* mManager;
 		detail::Instance* mInstance;
 		GUID mGUID;
-		std::string fileName;
+		//std::string fileName;
 	};
 
 }

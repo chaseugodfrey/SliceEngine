@@ -221,6 +221,12 @@ namespace SliceEngine
 		auto go = GetGOByEntity(entity);
 		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
+		if (mDeleteList.contains(entity))
+		{
+			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			return;
+		}
+
 		//Check children and destroy them too
 		if(go.HasComponent<SceneGraph>())
 		{
@@ -645,6 +651,10 @@ namespace SliceEngine
 		go.AddComponent<RigidBody>();
 
 		return go;
+		//testing only
+		//return CreateGO_Model((GUID)17518266545644652909);
+
+
 	}
 
 	GameObject GOFactory::CreateGO_Capsule()
@@ -664,6 +674,44 @@ namespace SliceEngine
 		go.AddComponent<Camera>();
 		return go;
 	}
+
+	GameObject GOFactory::CreateGO_Canvas()
+	{
+		auto canvas = CreateGO("Canvas");
+		canvas.AddComponent<Canvas>();
+		canvas.AddComponent<RectTransform>();
+		auto& c_rect = canvas.GetComponent<RectTransform>();
+		c_rect.width = 1920; c_rect.height = 1080; c_rect.pos_x = 0; c_rect.pos_y = 0;
+
+		return canvas;
+	}
+	GameObject GOFactory::CreateGO_Image()
+	{
+		auto ui_ele = CreateGO("Image");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<SpriteRenderer>();
+		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
+		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
+		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_sprite.textureHandle = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+
+		return ui_ele;
+	}
+	GameObject GOFactory::CreateGO_Button()
+	{
+		auto ui_ele = CreateGO("Button");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+
+		ui_ele.AddComponent<SpriteRenderer>();
+		ui_ele.AddComponent<Button>();
+
+		return ui_ele;
+	}
+
 
 	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
 		//Get the resource handle first

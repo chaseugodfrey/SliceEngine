@@ -40,10 +40,18 @@ namespace SliceEngine
 
 		struct Transition
 		{
+			int id;
 			std::string targetState;
+
+			// maybe
+			//std::vector<std::pair<rttr::variant, ComparisonOp>> conditions;
 			rttr::variant condition;
 			ComparisonOp operation;
 			std::string parameterName;
+
+			bool hasExitTime{};
+			float exitTime = 1.0f;
+			float entryTime = 0.0f;
 
 			bool operator==(const Transition& other) const
 			{
@@ -55,15 +63,14 @@ namespace SliceEngine
 		{
 			std::string stateName;
 			unsigned int curr_anim_idx{};
-
-			bool hasExitTime{};
-			float exitTime = 1.0f;
-			float entryTime = 0.0f;
+			int fps{};
 			float animationTime{};
 
-			bool isLoop {false};
+			bool isLoop { false };
+			bool isFinish{ false };
 
 			std::vector<Transition> transitions;
+			Transition const* transitionUsed{ nullptr };
 
 			// node editor stuff
 
@@ -85,7 +92,7 @@ namespace SliceEngine
 			std::string nextState;
 			std::string prevState;
 
-			bool stateCon = false;
+			bool stateCon = false;;
 			std::unordered_map<std::string, rttr::variant> parameters;
 
 			static StateMachine LoadStateMachineResource(std::string const&);

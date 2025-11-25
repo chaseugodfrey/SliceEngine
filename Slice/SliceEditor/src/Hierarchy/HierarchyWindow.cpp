@@ -28,19 +28,34 @@ namespace SliceEditor
 	constexpr ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
 	constexpr ImGuiTreeNodeFlags childFlags = ImGuiTreeNodeFlags_Leaf;
 
-	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph)
+	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph, bool isPrefab)
 	{
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
+		SelectionNode* node = nullptr;
 
-		auto& map = mSession.GetEntityNodes();
-		if (map.find(entity) == map.end())
+		if (isPrefab)
 		{
-			return;
+			auto& map = mSession.GetPrefabNodes();
+			if (map.find(entity) == map.end())
+			{
+				return;
+			}
+			node = map[entity].get();
 		}
-		auto node = map[entity].get();
+		else
+		{
+			auto& map = mSession.GetEntityNodes();
+			if (map.find(entity) == map.end())
+			{
+				return;
+			}
+			node = map[entity].get();
+		}
+
+		
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
 
@@ -118,7 +133,7 @@ namespace SliceEditor
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(mSelection, mSession, child_entity, child_scene_graph);
+				DrawNode(mSelection, mSession, child_entity, child_scene_graph,isPrefab);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -141,7 +156,7 @@ namespace SliceEditor
 			while (child_entity != entt::null)
 			{
 				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph);
+				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph,false);
 				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 			}
 
@@ -149,10 +164,26 @@ namespace SliceEditor
 		}
 	}
 
+	void HierarchyWindow::DrawPrefabNode()
+	{
+		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
+		Entity parentEntity = sessionManager->GetPrefabInspected();
+		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
+		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
+		DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), parentEntity, sceneGraph,true);
+	}
+
 	void HierarchyWindow::DrawNodeGraph()
 	{
 		ImGui::BeginGroup();
-		DrawSceneNode();
+		if (mRegistry.GetManager<SessionManager>("Session")->IsPrefabInspected())
+		{
+			DrawPrefabNode();
+		}
+		else
+		{
+			DrawSceneNode();
+		}
 		ImGui::EndGroup();
 	}
 
@@ -219,30 +250,37 @@ namespace SliceEditor
 
 		DrawNodeGraph();
 
-		ImGui::BeginGroup();
-		ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
-		ImGui::EndGroup();
+		ImVec2 hierarchy_empty_space_size = ImGui::GetContentRegionAvail();
 
-		if (ImGui::IsItemClicked())
+		if (hierarchy_empty_space_size.x > 0 && hierarchy_empty_space_size.y > 0)
 		{
-			mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
-		}
+			ImGui::BeginGroup();
+			ImGui::InvisibleButton("##hierarchy_end", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+			ImGui::EndGroup();
 
-		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-		{
-			ImGui::OpenPopup("window_popup");
-		}
-
-		if (ImGui::BeginPopupContextItem("window_popup"))
-		{
-			if (ImGui::BeginMenu("Create"))
+			if (ImGui::IsItemClicked())
 			{
-				EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
-				ImGui::EndMenu();
+				mRegistry.GetManager<SelectionManager>("Selection")->ClearSelection();
 			}
 
-			ImGui::EndPopup();
+			if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("window_popup");
+			}
+
+			if (ImGui::BeginPopupContextItem("window_popup"))
+			{
+				if (ImGui::BeginMenu("Create"))
+				{
+					EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndPopup();
+			}
+
 		}
+
 
 		ImGui::End();
 	}

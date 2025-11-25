@@ -174,7 +174,8 @@ namespace SliceEngine
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("offSet", &ColliderShape::offSet)
-		.property("isTrigger", &ColliderShape::isTrigger);
+		.property("isTrigger", &ColliderShape::isTrigger)
+		.property("componentEnabled", &ColliderShape::componentEnabled);
 
 	rttr::registration::class_<Renderer>(typeid(Renderer).name())
 		.constructor<>()
@@ -187,8 +188,6 @@ namespace SliceEngine
 	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
 		.constructor<>()
 		.property("soundGUID", &AudioSource::soundGUID)
-		.property("channel", &AudioSource::channel)
-		.property("previewChannel", &AudioSource::previewChannel)
 		.property("currentVolume", &AudioSource::currentVolume)
 		.property("isMute", &AudioSource::isMute)
 		.property("isLoop", &AudioSource::isLoop)
@@ -203,9 +202,11 @@ namespace SliceEngine
 		.property("priority", &AudioSource::priority)
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
-		.property("minInterval", &AudioSource::minInterval)
-		.property("_playTrigger", &AudioSource::_playTrigger)
 		.property("playPreview", &AudioSource::playPreview);
+
+	rttr::registration::class_<AudioListener>(typeid(AudioListener).name())
+		.constructor<>()
+		.property("listenerPos", &AudioListener::listenerPos);
 		
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -221,6 +222,7 @@ namespace SliceEngine
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
+		.property("bloomExposure", &Camera::exposure)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness);
@@ -232,6 +234,41 @@ namespace SliceEngine
 			rttr::value("Directional", Light::LightType::Light_Directional),
 			rttr::value("Point", Light::LightType::Light_Point),
 			rttr::value("Spot", Light::LightType::Light_Spot)
+		);
+	rttr::registration::enumeration<RectTransform::HoriPivot>("HoriPivot")
+		(
+			rttr::value("Left", RectTransform::HoriPivot::LEFT),
+			rttr::value("Center", RectTransform::HoriPivot::CENTER),
+			rttr::value("Right", RectTransform::HoriPivot::RIGHT),
+			rttr::value("Stretch", RectTransform::HoriPivot::STRETCH_H)
+			);
+	rttr::registration::enumeration<RectTransform::VertPivot>("VertPivot")
+		(
+			rttr::value("Top", RectTransform::VertPivot::TOP),
+			rttr::value("Middle", RectTransform::VertPivot::MIDDLE),
+			rttr::value("Bottom", RectTransform::VertPivot::BOTTOM),
+			rttr::value("Stretch", RectTransform::VertPivot::STRETCH_V)
+			);
+	rttr::registration::enumeration<Canvas::Type>("CanvasType")
+		(
+			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
+	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
+		(
+			rttr::value("Color", Button::Transition::Color),
+			rttr::value("Sprite", Button::Transition::Sprite)
+			);
+	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
+		(
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+		);
+	rttr::registration::enumeration<AudioSource::Category>("Category")
+		(
+			rttr::value("SFX", AudioSource::Category::SFX),
+			rttr::value("BGM", AudioSource::Category::BGM),
+			rttr::value("UI", AudioSource::Category::UI),
+			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
@@ -331,6 +368,36 @@ namespace SliceEngine
 		.property("skeleton_root", &Bone::skeleton_root)
 		.property("frame_idx", &Bone::frame_idx);
 
+	rttr::registration::class_<Canvas>(typeid(Canvas).name())
+		.constructor<>()
+		.property("canvas_type", &Canvas::canvas_type)
+		.property("sort_order", &Canvas::sort_order)
+		.property("graphics_raycast", &Canvas::graphic_raycastable);
+
+	rttr::registration::class_<Button>(typeid(Button).name())
+		.constructor<>()
+		.property("transition", &Button::transition);
+		//.property("colors", &Button::color_transitions)
+		//.property("sprites", &Button::sprite_transitions);
+
+	rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
+		.constructor<>()
+		.property("hori_pivot", &RectTransform::hori_pivot)
+		.property("vert_pivot", &RectTransform::vert_pivot)
+		.property("pos_x", &RectTransform::pos_x)
+		.property("pos_y", &RectTransform::pos_y)
+		.property("left", &RectTransform::left)
+		.property("right", &RectTransform::right)
+		.property("top", &RectTransform::top)
+		.property("bot", &RectTransform::bot)
+		.property("width", &RectTransform::width)
+		.property("height", &RectTransform::height);
+
+	rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
+		.constructor<>()
+		.property("texture", &SpriteRenderer::textureHandle)
+		.property("rgba", &SpriteRenderer::rgba)
+		.property("raycast_target", &SpriteRenderer::raycast_target);
 	}
 }
 #endif

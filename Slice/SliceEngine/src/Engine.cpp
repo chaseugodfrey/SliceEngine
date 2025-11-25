@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/CameraSystem.h"
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
+#include "Graphics/CanvasSystem.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -41,6 +42,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
+#include "Test.h"
+#include "Configuration/AudioSettings.cpp"
 
 //using namespace rttr;
 
@@ -103,21 +106,31 @@ namespace SliceEngine
 		frm->Init();
 
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
+		
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		
-		glm::vec3 posVec = { -2.0f,0.0f,0.0f };
-		glm::vec3 velVec = { 0.0f,0.0f,1.0f };
-		glm::vec3 forwardVec = { -1.0f,0.0f,0.0f };
-		glm::vec3 upVec = { 0.0f,1.0f,0.0f };
-
-		mAudioManager->SetListenerAttributes(posVec, velVec, forwardVec, upVec);
+		AudioSettings temp_audio_setting;
+		mAudioSettings = &temp_audio_setting;
+		/*TestInit(mAudioManager->GetSoundSystem());
+		TestCreate();
+		TestAddSound();
+		TestVolume("Hit_Slime.Single", 0.3f);
+		TestVolume("Hit_Slime.Single", 0.5f);
+		TestMaxInstances("Hit_Slime.Single", 3);
+		TestMaxInstances("Hit_Slime.Single", 6);
+		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
+		TestSpatialBlend("Hit_Slime.Single", 0.5f);*/
 		
 		FactoryInstance.InitRootEntity();
-		Core::GetInstance()->InitSystem<SoundSystem>();
+		Core::GetInstance()->InitSystem<AudioSourceSystem>();
+		Core::GetInstance()->InitSystem<AudioListenerSystem>();
 		Core::GetInstance()->InitSystem<WorldSpaceGraphicsSystem>();
 		Core::GetInstance()->InitSystem<LightingSystem>();
 		Core::GetInstance()->InitSystem<TransformSystem>();
+
+		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<ButtonSystem>();
+
 		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
@@ -125,12 +138,14 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<BoneSystem>();
 		Core::GetInstance()->InitSystem<NavigationSystem>();
 
+		
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
+		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
+		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
-		Core::GetInstance()->GetSystem<SoundSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
 
 		gScriptSystem->Init();
@@ -144,28 +159,30 @@ namespace SliceEngine
 		
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
-		//mRender->CreateCamera();
-		
 
+
+		//mRender->CreateCamera();
+
+		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
+		mCanvas.Init();
+
+		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
+		//sButton.Init();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		auto mNetwork = Core::GetInstance()->GetNetwork();
 		mNetwork->Init();
 		//NetworkingThread::printAddr();
+		//TestPlaySFX();
 	
-		//GameObject NavmeshTest = Core::FactoryInstance.CreateGO("NavmeshTest");
-		//NavmeshTest.AddComponent<NavAgent>();
-		//NavmeshTest.GetComponent<Transform>().position = glm::vec3(3,0,3);
-		//NavmeshTest.GetComponent<NavAgent>().target = glm::vec3(10, 0, 10);
-		//NavmeshTest.GetComponent<NavAgent>().hasNewTarget = true;
-		//
 	}
 
 	void Engine::SceneInit()
 	{
 		LoadProjectSettings();
-
+		Core::GetInstance()->GetAudioSettings()->Init(Core::GetInstance()->GetAudioManager()->GetSoundSystem());
+		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
 	void Engine::Update()
@@ -178,6 +195,8 @@ namespace SliceEngine
 		auto sInputs = core->GetInputSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -207,6 +226,7 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					isPlaying = true;
+
 
 				}
 
@@ -257,7 +277,8 @@ namespace SliceEngine
 		frm->EndSystem("Input");
 
         frm->StartSystem("Audio");
-		core->GetSystem<SoundSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		sAudio->Update();
         frm->EndSystem("Audio");
         
@@ -271,8 +292,6 @@ namespace SliceEngine
 		frm->EndSystem("Script");
 
 		// TODO: Shouldn't be using input get mode to split play and editor mode
-
-
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
@@ -303,6 +322,7 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Physics");
 
+		
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -312,14 +332,25 @@ namespace SliceEngine
 				sAnimator.BoneUpdate();
 
 			}
+			frm->StartSystem("Button");
+			sButton.HandleMouse(*sInputs, sCanvas);
+			//sButton.UpdateCurrentButton();
+			frm->EndSystem("Button");
 		}
 
-		Core::GetInstance()->GetSystem<NavigationSystem>().Update(frm->getFixedDeltaTime());
-
+		
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
 		frm->EndSystem("Graphics");
+
+
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		sCanvas.DrawOverlay();
+		frm->EndSystem("Canvas");
+
 
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -343,9 +374,13 @@ namespace SliceEngine
 
 	void Engine::Exit()
 	{
+		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
+		mCanvas.Release();
+
 		auto mAudioManager = Core::GetInstance()->GetAudioManager();
 		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
+		Core::GetInstance()->GetAudioSettings()->Exit();
 		mAudioManager->Exit();
 
 		auto mNetwork = Core::GetInstance()->GetNetwork();
@@ -398,13 +433,12 @@ namespace SliceEngine
 			{
 				std::filesystem::path sceneFilePath(sceneToLoad);
 				auto path = sResourceManager->GetResourcePath(sceneFilePath.stem().string());
-
+				//To move out in future
 				if (path.has_value())
 				{
 					SLICE_LOG("Scene File Path" + path.value().string());
 					sScene->SetDefaultScenePath(sceneFilePath);
-					sScene->LoadScene(sceneFilePath);
-					sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
+					
 				}
 				
 				//sScene->LoadScene(sceneToLoad); // for now by filepath

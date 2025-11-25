@@ -42,6 +42,18 @@ namespace SliceEngine
 
         public virtual void OnCollideStay(uint other) { }
 
+        public virtual void OnCollideExit(uint other) { }
+
+        public virtual void OnTriggerEnter(uint other) { }
+
+        public virtual void OnTriggerStay(uint other) { }
+
+        public virtual void OnTriggerExit(uint other) { }
+
+
+        public virtual void OnButtonClick() { }
+        public virtual void OnButtonRelease() { }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
