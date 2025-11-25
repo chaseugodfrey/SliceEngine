@@ -4,7 +4,6 @@ layout (location=0) in vec3 vTexCoord;
 
 layout (location=0)	out vec4 fFragColor;
 
-const float PI			= 3.14159265359;
 const float liteSunConvergence = 4.5;
 const float liteCloudLightInt  = 1.0;
 const vec3 gamma = vec3(0.45454545454);
@@ -28,7 +27,7 @@ uniform float cloudScale = 2;					// (1, 2)
 uniform float cloudBaseHeight = 0.0;			// (0, 0.5)
 
 // ----- Skybox Generation -----
-vec4 ProcessSky(vec3 nom);
+vec3 ProcessSky(vec3 dir);
 vec4 ProcessClouds(vec3 nom, vec3 sky);
 vec3 ProcessSun(vec3 nom);
 
@@ -48,13 +47,13 @@ vec3 GammaToLinear(vec3 sRGB);
 void main(void){
 	vec3 nom = normalize(vTexCoord);
 
-	vec3 sky = ProcessSky(nom).rgb;
+	vec3 sky = ProcessSky(nom);
 
 	vec4 clouds = ProcessClouds(nom, sky);
 	vec3 result = mix(sky, clouds.rgb, clouds.a);
 
 	result += ProcessSun(nom) * (1.0 - clouds.a);
-	result += ProcessSun(nom) * (1.0 - clouds.a); // Idk why duplicate this
+	//result += ProcessSun(nom) * (1.0 - clouds.a); // Idk why duplicate this
 
 	result *= skyExposure;
 
@@ -63,9 +62,9 @@ void main(void){
 
 // ----- Skybox Generation -----
 
-vec4 ProcessSky(vec3 nom)
+vec3 ProcessSky(vec3 dir)
 {
-	float y			= satf(nom.y * 0.5 + 0.5) * 2.0 - 1.0;
+	float y			= satf(dir.y * 0.5 + 0.5) * 2.0 - 1.0;
 	float yShift	= y - horizonHeight;
 
 	float ySky		= satf(yShift);
@@ -75,11 +74,10 @@ vec4 ProcessSky(vec3 nom)
 	float tGround	= yGround;
 
 	vec3 top		= mix(horizonColor.rgb, zenithColor.rgb, tSky);
-	vec3 bot		= mix(groundColor.rgb, zenithColor.rgb, tGround);
+	vec3 bot		= mix(groundColor.rgb, horizonColor.rgb, tGround);
 
 	float blend		= smoothstep(-0.02, 0.02, yShift);
-	vec3 col		= mix(bot, top, blend);
-	return vec4(col, 1.0);
+	return mix(bot, top, blend);
 }
 
 vec4 ProcessClouds(vec3 nom, vec3 sky)
@@ -105,7 +103,7 @@ vec4 ProcessClouds(vec3 nom, vec3 sky)
 	float density = 0.0;
 	for(int l = 0; l < layers; ++l)
 	{
-		vec3 lp		= pos + rotDir * ((l - 1) * step);
+		vec3 lp		= pos + rotDir * (float(l - 1) * step);
 
 		vec3 gPos	= lp / cellSize;
 		vec3 b		= floor(gPos);
@@ -134,13 +132,13 @@ vec4 ProcessClouds(vec3 nom, vec3 sky)
 		const float maxR = 1.0 + cloudSoftness;
 		const float maxR2 = maxR * maxR;
 
-		for(int ix = minC.x; ix < maxC.x; ++ix)
+		for(int ix = minC.x; ix <= maxC.x; ++ix)
 		{
-			for(int iy = minC.y; iy < maxC.y; ++iy)
+			for(int iy = minC.y; iy <= maxC.y; ++iy)
 			{
-				for(int iz = minC.z; iz < maxC.z; ++iz)
+				for(int iz = minC.z; iz <= maxC.z; ++iz)
 				{
-					vec3 cell = vec3(ix, iy, iz);
+					vec3 cell = vec3(float(ix), float(iy), float(iz));
 					vec3 randOffset = hash33_fast(cell) - vec3(0.5);
 					vec3 centre = (cell + randOffset) * cellSize;
 					vec3 dv = lp - centre;
