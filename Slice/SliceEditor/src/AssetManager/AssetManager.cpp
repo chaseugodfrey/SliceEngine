@@ -120,14 +120,34 @@ namespace SliceEditor
 				HandleAssetModified(rawEvents);
 				//SLICE_LOG("Modifying file: " + rawEvents.begin()->filePath.string());
 			}
-			else if (rawEvents.begin()->changeType == filewatch::Event::added)
+			else
+			{
+				for (auto& eventType : rawEvents)
+				{
+					if (eventType.changeType == filewatch::Event::added)
+					{
+						if (!mFilenameToGUID.contains(eventType.filePath.filename().string()))
+						{
+							HandleAssetAdded(eventType);
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::removed)
+					{
+						if (mFilenameToGUID.contains(eventType.filePath.filename().string()))
+						{
+							HandleAssetRemoved(eventType);
+						}
+					}
+				}
+			}
+			/*else if (rawEvents.contains()->changeType == filewatch::Event::added)
 			{
 				HandleAssetAdded(rawEvents.at(0));
 			}
 			else if (rawEvents.begin()->changeType == filewatch::Event::removed)
 			{
 				HandleAssetRemoved(rawEvents.at(0));
-			}
+			}*/
 			
 		}
 		else

@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	//In the future add an ID 
 	struct SFXEntry
 	{
 		std::string key = "Default";
@@ -52,7 +53,7 @@ namespace SliceEngine
 		//std::vector<SFXEntry> mSfxMap;
 	public:
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
-		void Init(FMOD::System* system);
+		void Init();
 		void Exit();
 		void Serialize(const std::filesystem::path& desc_path);
 		void Deserialize(const std::filesystem::path& desc_path);
@@ -68,15 +69,6 @@ namespace SliceEngine
 		void RemoveFromSoundGroup(std::vector<GUID>& audioClips);
 		void SetMaxInstances(const std::string& key, int maxInstances);
 		const int GetMaxInstances(const std::string& key);
-		void SetMinIntervals(const std::string& key, float minIntervals);
-		void SetMinDistance(const std::string& key, float minDistance);
-		const float GetMinDistance(const std::string& key);
-		void SetMaxDistance(const std::string& key, float maxDistance);
-		const float GetMaxDistance(const std::string& key);
-		void SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend);
-		const float GetSoundGroupSpatialBlend(const std::string& key);
-		void SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial);
-		const bool GetSoundGroupSpatialBlendBool(const std::string& key);
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
 		void PlaySFX(const std::string& key);
 		void Release();

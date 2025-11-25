@@ -45,6 +45,8 @@ void main(void){
 	vec4 dif = texelFetch(uTex, p, 0);
 	vec4 roughMetal = texelFetch(uRoughMetalTex, p, 0);
 
+	fFragColor = vec4(0.0);
+
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
 		nom = normalize(nom);
@@ -74,10 +76,6 @@ void main(void){
 			l = l / dist;
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
-	}
-	else if(!any(notEqual(nom, vec3(0.0f))) && uLight.type == isDirectional)
-	{
-		fFragColor = vec4(0.75294f, 1.0f, 0.93333f, 1.0f);
 	}
 }
 

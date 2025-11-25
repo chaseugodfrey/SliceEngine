@@ -168,6 +168,7 @@ namespace SliceEngine
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
+         
                 if(jumpCounter < 2)
                { 
                     if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
@@ -179,6 +180,14 @@ namespace SliceEngine
                     {
                         animator.SetBool("JumpLoop", true);
                         t.Position += new Vector3(0, 5, 0);
+                        if(jumpCounter == 0)
+                        {
+                            AudioSettings.PlaySFX("Jump");
+                        }
+                        if(jumpCounter == 1)
+                        {
+                            AudioSettings.PlaySFX("DoubleJump");
+                        }
                         jumpCounter++;
                         
                     }

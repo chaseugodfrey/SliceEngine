@@ -23,9 +23,9 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	void AudioSettings::Init(FMOD::System* system)
+	void AudioSettings::Init()
 	{
-		mSystem = system;
+		mSystem = Core::GetInstance()->GetAudioManager()->GetSoundSystem();
 
 		srand((unsigned int)time(NULL)); // Initialize random seed
 
@@ -44,14 +44,19 @@ namespace SliceEngine
 	{
 		nlohmann::json audioSettingsOutput;
 
-		std::vector<SFXEntry> entriesList;
+		nlohmann::json sfxArray = nlohmann::json::array();
 
 		for (const auto& [key, entry] : mSFXMap)
 		{
-			entriesList.push_back(entry);
+
+			nlohmann::json entryJson;
+
+			to_json(entryJson, entry);
+
+			sfxArray.push_back(entryJson);
 		}
 
-		audioSettingsOutput["SFXEntries"] = entriesList;
+		audioSettingsOutput["SFXEntries"] = sfxArray;
 
 		std::ofstream outFile(desc_path);
 		if (outFile.is_open())
@@ -87,29 +92,39 @@ namespace SliceEngine
 		{
 			mSFXMap.clear();
 
-			auto entriesList = audioSettingsInput["SFXEntries"].get<std::vector<SFXEntry>>();
+			auto& entriesArray = audioSettingsInput["SFXEntries"];
 
-			for (const auto& entryData : entriesList)
+			if (entriesArray.is_array())
 			{
-				CreateSoundGroup(entryData.key);
-
-				SFXEntry* mapEntry = GetSFXEntry(entryData.key);
-
-				if (mapEntry)
+				for (const auto& jsonEntry : entriesArray)
 				{
-					FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
 
-					*mapEntry = entryData;
+					SFXEntry entryData;
 
-					mapEntry->soundGroup = currentSoundGroup;
+					from_json(jsonEntry, entryData);
 
-					if (mapEntry->soundGroup)
+					CreateSoundGroup(entryData.key);
+
+					SFXEntry* mapEntry = GetSFXEntry(entryData.key);
+
+					if (mapEntry)
 					{
-						mapEntry->soundGroup->setVolume(mapEntry->volume);
-						mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
+						FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
+
+						*mapEntry = entryData;
+
+						mapEntry->soundGroup = currentSoundGroup;
+
+						if (mapEntry->soundGroup)
+						{
+							mapEntry->soundGroup->setVolume(mapEntry->volume);
+							mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
+						}
 					}
 				}
+
 			}
+
 		}
 
 	}
@@ -397,128 +412,7 @@ namespace SliceEngine
 		}
 
 		return entry->maxInstances;
-	}
-
-	void AudioSettings::SetMinIntervals(const std::string& key, float minIntervals)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->minInterval = minIntervals;
-	}
-
-	void AudioSettings::SetMinDistance(const std::string& key, float minDistance)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->minDistance = minDistance;
-		SLICE_LOG("Set Sound Group min distance to %f", minDistance);
-	}
-
-	const float AudioSettings::GetMinDistance(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->minDistance;
-	}
-
-	void AudioSettings::SetMaxDistance(const std::string& key, float maxDistance)
-	{
-
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->maxDistance = maxDistance;
-		SLICE_LOG("Set Sound Group max distance to %f", maxDistance);
-	}
-
-	const float AudioSettings::GetMaxDistance(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->maxDistance;
-	}
-
-	void AudioSettings::SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->spatialBlend = spatialBlend;
-		SLICE_LOG("Set Sound Group spatial blend to %f", spatialBlend);
-	}
-
-	const float AudioSettings::GetSoundGroupSpatialBlend(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->spatialBlend;
-	}
-
-	void AudioSettings::SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->isSpatial = isSpatial;
-	}
-
-	const bool AudioSettings::GetSoundGroupSpatialBlendBool(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return false;
-		}
-
-		return entry->isSpatial;
-	}
+	}	
 
 	void AudioSettings::PlaySFX(const std::string& key)
 	{
@@ -663,8 +557,8 @@ namespace SliceEngine
 
 		for (const auto& audioClipsJson : audioClipsJsons)
 		{
-			GUID audioClip;
-			from_json(audioClipsJson, audioClip);
+			GUID audioClip = (GUID)audioClipsJson.get<uint64_t>();
+			//from_json(audioClipsJsons, audioClip);
 			entry.AudioClips.push_back(audioClip);
 		}
 

@@ -317,7 +317,7 @@ namespace SliceEngine
 			EditorSounds
 		};
 		//std::string soundName;
-		GUID soundGUID = (GUID)9244272128099795086;
+		GUID soundGUID = (GUID)10155432597037438324;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
 		int priority = 128;
