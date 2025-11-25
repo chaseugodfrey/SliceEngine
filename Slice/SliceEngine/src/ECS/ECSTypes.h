@@ -51,11 +51,6 @@ namespace SliceEngine
 		EngineEntity() : mActive(true) {}
 	};
 
-	struct testStruct
-	{
-		int val;
-	};
-
 	struct SceneGraph
 	{
 		uint32_t entity_id{};
