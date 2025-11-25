@@ -206,6 +206,8 @@ namespace SliceEngine
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sNav = core->GetSystem<NavigationSystem>();
+
 		static bool isPlaying = false;
 
 		if (!sScene->CheckQueueEmpty())
@@ -305,7 +307,6 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		frm->EndSystem("Transform");
 
-		frm->StartSystem("Physics");
 		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
@@ -317,6 +318,7 @@ namespace SliceEngine
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				frm->StartSystem("Physics");
 
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
 
@@ -325,28 +327,21 @@ namespace SliceEngine
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-			}
-			
-		}
-		frm->EndSystem("Physics");
+				frm->EndSystem("Physics");
 
-		
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
-
 			}
 			frm->StartSystem("Button");
 			sButton.HandleMouse(*sInputs, sCanvas);
 			//sButton.UpdateCurrentButton();
 			frm->EndSystem("Button");
-		}
 
-		
+			frm->StartSystem("Navigation System");
+			sNav.Update(static_cast<float>(frm->getDeltaTime()));
+			frm->EndSystem("Navigation System");
+		}
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
@@ -363,6 +358,7 @@ namespace SliceEngine
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
+
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();

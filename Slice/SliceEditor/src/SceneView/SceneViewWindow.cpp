@@ -133,11 +133,20 @@ namespace SliceEditor
 		auto& io = ImGui::GetIO();
 
 		// Draw Utility Bar
-
 		ImGui::BeginGroup();
-		ImGui::Text("Speed:");
+		if (ImGui::Button("Debug Options"))
+		{
+			ImGui::OpenPopup("Debug Lines");
+		}
+		float height = ImGui::GetItemRectSize().y;
+		DebugDrawTogglePopup();
 		ImGui::SameLine();
-		ImGui::Text("%.3f", mCameraSpeed);
+		std::stringstream ss;
+		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		ImGui::Button(ss.str().c_str()); //Speed Display
+		ImGui::PopItemFlag(); //End of Set Disabled
+		//Debug Drawing Settings:
 		ImGui::EndGroup();
 
 
@@ -168,7 +177,7 @@ namespace SliceEditor
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
+		//camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
@@ -536,5 +545,35 @@ namespace SliceEditor
 
 		ImGui::End();
 
+	}
+
+	//Can put a version of this in ComponentPropertiesGUI
+	void SceneViewWindow::MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit)
+	{
+		bool checked = (mask & bit) != 0;
+
+		if (ImGui::MenuItem(label, nullptr, checked))
+		{
+			if (checked)
+				mask &= ~bit;
+			else
+				mask |= bit;
+		}
+	}
+
+	void SceneViewWindow::DebugDrawTogglePopup()
+	{
+		if (ImGui::BeginPopupContextItem("Debug Lines"))
+		{
+			auto& tag = camObj->camera.renderTag;
+
+			MenuToggleBit("Debug All", tag, SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG);
+			ImGui::Separator();
+			MenuToggleBit("Obj", tag, SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG);
+			MenuToggleBit("Frustum", tag, SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG);
+			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
+			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
+			ImGui::EndPopup();
+		}
 	}
 }

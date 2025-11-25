@@ -43,6 +43,12 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool ColliderShape_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ColliderShape_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -193,5 +199,20 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_Stop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float NavAgent_GetSpeed(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool NavAgent_HasPath(uint entityID);
     }
 }

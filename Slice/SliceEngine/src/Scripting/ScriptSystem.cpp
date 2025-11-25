@@ -1004,7 +1004,7 @@ namespace SliceEngine
                 }
                 else if (nameSpace == "SliceEngine")
                 {
-                    image = mono_class_get_image(mono_type_get_class(type));
+                    image = mCoreAssemblyImage;
                 }
                 else
                 {

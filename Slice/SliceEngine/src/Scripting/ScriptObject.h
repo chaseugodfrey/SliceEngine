@@ -119,6 +119,7 @@ namespace SliceEngine
 
 		// Core functions
 		MonoMethod* mConstruct = nullptr;
+		MonoMethod* mOnAwake = nullptr;
 		MonoMethod* mOnCreate = nullptr;
 		MonoMethod* mOnUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
