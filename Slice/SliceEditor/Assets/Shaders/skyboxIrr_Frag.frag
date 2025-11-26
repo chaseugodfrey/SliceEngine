@@ -1,6 +1,6 @@
 #version 460 core
 
-layout (location=0) in vec3 vTexCoord;
+layout (location=0) in vec4 gFragPos;
 
 layout (location=0)	out vec4 fFragColor;
 
@@ -12,7 +12,7 @@ const float PI_2		= 6.28318530718;
 const float sampleDelta = 0.025;
 
 void main(void){
-	vec3 nom = normalize(vTexCoord);
+	vec3 nom = normalize(gFragPos.xyz);
 	vec3 irradiance = vec3(0.0);
 
 	vec3 up	= vec3(0.0, 1.0, 0.0);

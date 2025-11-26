@@ -1,2 +1,0 @@
-bloomSplit.vert
-bloomSplit.frag

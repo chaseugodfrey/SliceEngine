@@ -242,6 +242,15 @@ namespace SliceEditor
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
 				break;
+			case AssetType::VertShader:
+				CompileVertShaderAsset(static_cast<VertShaderData*>(metaData.get()));
+				break;
+			case AssetType::GeomShader:
+				CompileGeomShaderAsset(static_cast<GeomShaderData*>(metaData.get()));
+				break;
+			case AssetType::FragShader:
+				CompileFragShaderAsset(static_cast<FragShaderData*>(metaData.get()));
+				break;
 			case AssetType::Material:
 				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
 				break;
@@ -360,6 +369,15 @@ namespace SliceEditor
 		case AssetType::Shader:
 			CompileShaderAsset(static_cast<ShaderData*>(metaData));
 			break;
+		case AssetType::VertShader:
+			CompileVertShaderAsset(static_cast<VertShaderData*>(metaData));
+			break;
+		case AssetType::GeomShader:
+			CompileGeomShaderAsset(static_cast<GeomShaderData*>(metaData));
+			break;
+		case AssetType::FragShader:
+			CompileFragShaderAsset(static_cast<FragShaderData*>(metaData));
+			break;
 		case AssetType::Material:
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
 			break;
@@ -421,6 +439,18 @@ namespace SliceEditor
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::VertShader:
+			metaData = std::make_unique<VertShaderData>();
+			typeID = ResourceTypeIDs::VERT_SHADER;
+			break;
+		case AssetType::GeomShader:
+			metaData = std::make_unique<GeomShaderData>();
+			typeID = ResourceTypeIDs::GEOM_SHADER;
+			break;
+		case AssetType::FragShader:
+			metaData = std::make_unique<FragShaderData>();
+			typeID = ResourceTypeIDs::FRAG_SHADER;
 			break;
 		case AssetType::Material:
 			typeID = ResourceTypeIDs::MATERIAL;
@@ -551,29 +581,52 @@ namespace SliceEditor
 
 	void AssetManager::CompileShaderAsset(ShaderData* metaData)
 	{
-		std::string fileName = metaData->assetName;
 		std::filesystem::path filePath(metaData->assetPath);
-		std::filesystem::path parentPath = filePath.parent_path();
-		// get the vert and frag path
-		std::filesystem::path vertPath = parentPath / (fileName + ".vert");
-		std::filesystem::path fragPath = parentPath / (fileName + ".frag");
-		std::filesystem::path geomPath = parentPath / (fileName + ".geom");
-		// get the destination path for all 2 files
-		std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
-		std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
-		std::string tempGeomPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".geom";
-
-		// copy the 3 files over to resources
-		// cause loading shaders now come in 3s
-		// but they have the same name so their guid would end up being the same
-		// so only the main .shader file is used for guid generation
 		try
 		{
 			std::filesystem::copy(filePath, metaData->resourcePath);
-			std::filesystem::copy(vertPath, tempVertPath);
-			std::filesystem::copy(fragPath, tempFragPath);
-			if (std::filesystem::exists(geomPath))
-				std::filesystem::copy(geomPath, tempGeomPath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileVertShaderAsset(VertShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileGeomShaderAsset(GeomShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileFragShaderAsset(FragShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -664,33 +717,33 @@ namespace SliceEditor
 						std::string assetPath = metaData["assetPath"].get<std::string>();
 						std::string resourcePath = metaData["resourcePath"].get<std::string>();
 
-						// if its a shader file just delete that shit
-						// cause we got no file watcher to check if a shader was modified
-						// so we just delete them and recompile everytime its ran
-						if (fileType == ".shader")
-						{
-							inFile.close();
-							// and remove the meta file
-							std::filesystem::remove(filePath);
-
-							if (std::filesystem::exists(resourcePath))
-							{
-								std::filesystem::remove(resourcePath);
-							}
-
-							std::filesystem::path resourceFilePath = resourcePath;
-
-							resourceFilePath.replace_extension(".vert");
-
-							if (std::filesystem::exists(resourceFilePath))
-								std::filesystem::remove(resourceFilePath);
-							resourceFilePath.replace_extension(".frag");
-
-							if (std::filesystem::exists(resourceFilePath))
-								std::filesystem::remove(resourceFilePath);
-
-							//return;
-						}
+						//// if its a shader file just delete that shit
+						//// cause we got no file watcher to check if a shader was modified
+						//// so we just delete them and recompile everytime its ran
+						//if (fileType == ".shader")
+						//{
+						//	inFile.close();
+						//	// and remove the meta file
+						//	std::filesystem::remove(filePath);
+						//
+						//	if (std::filesystem::exists(resourcePath))
+						//	{
+						//		std::filesystem::remove(resourcePath);
+						//	}
+						//
+						//	std::filesystem::path resourceFilePath = resourcePath;
+						//
+						//	resourceFilePath.replace_extension(".vert");
+						//
+						//	if (std::filesystem::exists(resourceFilePath))
+						//		std::filesystem::remove(resourceFilePath);
+						//	resourceFilePath.replace_extension(".frag");
+						//
+						//	if (std::filesystem::exists(resourceFilePath))
+						//		std::filesystem::remove(resourceFilePath);
+						//
+						//	//return;
+						//}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
 						if (!std::filesystem::exists(assetPath) || !std::filesystem::exists(resourcePath))

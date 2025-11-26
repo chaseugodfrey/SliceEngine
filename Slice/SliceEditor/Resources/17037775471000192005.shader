@@ -1,2 +1,0 @@
-upSample.vert
-upSample.frag
