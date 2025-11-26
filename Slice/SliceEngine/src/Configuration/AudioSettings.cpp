@@ -414,7 +414,7 @@ namespace SliceEngine
 		return entry->maxInstances;
 	}	
 
-	void AudioSettings::PlaySFX(const std::string& key)
+	void AudioSettings::PlaySFX(const std::string& key, glm::vec3 position)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		SFXEntry* entry = GetSFXEntry(key);
@@ -452,22 +452,39 @@ namespace SliceEngine
 		{
 			auto newAudioObject = FactoryInstance.CreateGO(key);
 			newAudioObject.AddComponent<AudioSource>();
-			AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
 
-			// Find the Transform component
-			auto& transform = newAudioObject.GetComponent<Transform>();
+			if (FactoryInstance.SetParent(newAudioObject.GetEntity(), audioManagerObject.GetEntity()))
+			{
+				AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
 
-			audioComp.soundGUID = clipGUID;
+				audioComp.soundGUID = clipGUID;
 
-			// Copy volume/spatial settings from the entry to the component
-			audioComp.currentVolume = entry->volume;
-			audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-			audioComp.minDistance = entry->minDistance;
-			audioComp.maxDistance = entry->maxDistance;
-			audioComp.volumeRollOff = entry->volumeRollOff;
-			audioComp.playOnAwake = false;
+				// Copy volume/spatial settings from the entry to the component
+				audioComp.currentVolume = entry->volume;
+				audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+				audioComp.minDistance = entry->minDistance;
+				audioComp.maxDistance = entry->maxDistance;
+				audioComp.volumeRollOff = entry->volumeRollOff;
+				audioComp.playOnAwake = false;
 
-			audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+				bool isSFXPlaying = false;
+
+				audioComp.channel->isPlaying(&isSFXPlaying);
+
+				if (audioComp.channel == nullptr || !isSFXPlaying)
+				{
+				
+					audioComp.channel =  audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+				}
+
+			}
+			else
+			{
+				SLICE_LOG_ERROR("No AudioManager object in scene");
+				return;
+			}
+
 		}
 		else
 		{
@@ -477,7 +494,16 @@ namespace SliceEngine
 
 			audioComp.soundGUID = clipGUID;
 
-			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+			bool isSFXPlaying = false;
+
+			audioComp.channel->isPlaying(&isSFXPlaying);
+
+			if (audioComp.channel == nullptr || !isSFXPlaying)
+			{
+
+				audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+			}
 		}
 
 

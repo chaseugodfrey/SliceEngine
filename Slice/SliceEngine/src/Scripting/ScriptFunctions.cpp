@@ -376,17 +376,25 @@ namespace SliceEngine
 		auto* audioComp = GetAudioComponent(entity);
 		auto* transformComp = GetTransformComponent(entity);
 		
-		if (audioComp)
+		if (audioComp && !Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel))
 		{
 			
 			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
 	{
 		std::string key = MonoToString(string);
-		Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
+		if (position == glm::vec3(0.f))
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
+
+		}
+		else
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key, position);
+		}
 	}
 
 	static void Audio_Stop(unsigned int entity)

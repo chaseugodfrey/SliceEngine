@@ -353,7 +353,7 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Audio Listener", mBaseFlags))
 		{
-
+			DisplayComponentHeader<SliceEngine::AudioListener>(entity);
 			ImGui::TreePop();
 		}
 	}

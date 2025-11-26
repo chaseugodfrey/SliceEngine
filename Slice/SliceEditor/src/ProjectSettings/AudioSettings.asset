@@ -10,8 +10,8 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
             "volumeRollOff": 0
         },
         {
@@ -24,8 +24,8 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.5,
             "volumeRollOff": 0
         },
         {
@@ -39,8 +39,8 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
             "volumeRollOff": 0
         },
         {
@@ -49,12 +49,12 @@
             ],
             "isSpatial": false,
             "key": "A1",
-            "maxDistance": 29.700000762939453,
+            "maxDistance": 30.0,
             "maxInstances": 1,
             "minDistance": 1.0,
-            "minInterval": 2.799999952316284,
-            "spatialBlend": 0.6000000238418579,
-            "volume": 0.6000000238418579,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
             "volumeRollOff": 0
         },
         {
@@ -64,11 +64,11 @@
             "isSpatial": false,
             "key": "A2",
             "maxDistance": 30.0,
-            "maxInstances": 6,
+            "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.6000000238418579,
             "volumeRollOff": 0
         },
         {
@@ -81,21 +81,7 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                13758193088605000286
-            ],
-            "isSpatial": false,
-            "key": "Land",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
+            "spatialBlend": 0.0,
             "volume": 1.0,
             "volumeRollOff": 0
         },
@@ -109,7 +95,21 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                13758193088605000286
+            ],
+            "isSpatial": false,
+            "key": "Land",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
             "volume": 1.0,
             "volumeRollOff": 0
         },
@@ -137,64 +137,92 @@
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
             "volumeRollOff": 0
         },
         {
             "AudioClips": [
                 12280243463308685690
             ],
-            "isSpatial": false,
+            "isSpatial": true,
             "key": "Golem_Stop",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
+            "maxDistance": 60.0,
+            "maxInstances": -1,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.30000001192092896,
             "volumeRollOff": 0
         },
         {
             "AudioClips": [
                 17460899159601829869
             ],
-            "isSpatial": false,
+            "isSpatial": true,
             "key": "Golem_RightStomp",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
+            "maxDistance": 60.0,
+            "maxInstances": -1,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.30000001192092896,
             "volumeRollOff": 0
         },
         {
             "AudioClips": [
                 17417268538154140064
             ],
-            "isSpatial": false,
+            "isSpatial": true,
             "key": "Golem_PreStop",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
+            "maxDistance": 60.0,
+            "maxInstances": -1,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.20000000298023224,
             "volumeRollOff": 0
         },
         {
             "AudioClips": [
                 13180144252831457142
             ],
-            "isSpatial": false,
+            "isSpatial": true,
             "key": "Golem_Stand",
-            "maxDistance": 30.0,
+            "maxDistance": 60.0,
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.30000001192092896,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                12425916931137010818
+            ],
+            "isSpatial": false,
+            "key": "Hit_Slime.Multi",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.20000000298023224,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                17417268538154140064
+            ],
+            "isSpatial": true,
+            "key": "Golem_LeftStomp",
+            "maxDistance": 60.0,
+            "maxInstances": -1,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.30000001192092896,
             "volumeRollOff": 0
         }
     ]
