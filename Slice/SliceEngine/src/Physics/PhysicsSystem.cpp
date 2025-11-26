@@ -781,8 +781,8 @@ namespace SliceEngine
 		//glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
 		//JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
-		glm::vec3 scl, pos, skew; glm::vec4 persp; glm::quat rot;
-		glm::decompose(transform.transform, scl, rot, pos, skew, persp);
+		glm::vec3 pos = transform.GetWorldPosition();
+		glm::quat rot = transform.GetWorldRotation();
 
 		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
 		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
@@ -1028,8 +1028,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::PostStepSync()
 	{
-		HandleRemovedContacts();
-
 		auto view = mRegistry->view<Transform, ColliderShape>();
 
 		// Safe, iterator-free iteration
@@ -1037,6 +1035,8 @@ namespace SliceEngine
 		{
 			SyncPhysicsToECS(t, c);
 		}
+
+		HandleRemovedContacts();
 	}
 
 	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)

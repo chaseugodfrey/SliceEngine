@@ -301,12 +301,13 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Script");
 
-		// TODO: Shouldn't be using input get mode to split play and editor mode
+
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		frm->EndSystem("Transform");
 
+		// TODO: Shouldn't be using input get mode to split play and editor mode
 		/*if (sInputs->GetMode() == InputMode::Game)
 		{
 			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
@@ -314,6 +315,7 @@ namespace SliceEngine
 				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
 			}
 		}*/
+
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -329,8 +331,20 @@ namespace SliceEngine
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 				frm->EndSystem("Physics");
 
-				sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+				//sTransform.UpdateTransforms();
 
+			}
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+
+		}
+
+
+
+
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
@@ -346,6 +360,8 @@ namespace SliceEngine
 			sNav.Update(static_cast<float>(frm->getDeltaTime()));
 			frm->EndSystem("Navigation System");
 		}
+
+
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
