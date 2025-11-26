@@ -189,10 +189,7 @@ namespace SliceEngine
 			for (auto& [name, components] : prefab.items())
 			{
 				GameObject newObj = factory.CreateBlank();
-				if (Editor)
-				{
-					factory.RemoveFromNameMap(newObj.GetEntity());
-				}
+				factory.RemoveFromNameMap(newObj.GetEntity());
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -292,12 +289,17 @@ namespace SliceEngine
 			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
 			//{
 			//}
-			rootGO.SetName(rootGO.GetName());
-
-			if (rootGO.HasComponent<SliceEntity>())
+			if (!Editor)
 			{
-				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
+
+				//rootGO.SetName(rootGO.GetName());
+
+				if (rootGO.HasComponent<SliceEntity>())
+				{
+					rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
+				}
 			}
+
 
 			// fix the old to new entity IDs
 			for (auto entity : entityID)
@@ -318,13 +320,8 @@ namespace SliceEngine
 					}
 				}
 
-				if (!Editor)
-				{
-					GameObject GO = factory.GetGOByEntity((Entity)entity);
-
-					// set the names of all the GOs created to prevent same names
-					GO.SetName(GO.GetName());
-				}
+				// handle adding to name map here
+				FactoryInstance.AddToNameMap(entity);
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
