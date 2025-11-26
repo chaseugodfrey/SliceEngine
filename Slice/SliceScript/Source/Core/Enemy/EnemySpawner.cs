@@ -20,7 +20,7 @@ namespace SliceEngine
         public void StopSpawning() { isSpawning = false; }
         #endregion
 
-        private RigidBody rb; 
+        //private RigidBody rb; 
 
         public void Initialize()
         {
@@ -29,16 +29,16 @@ namespace SliceEngine
 
         public override void OnCreate() 
         { 
-            rb = this.GetComponent<RigidBody>(); 
+            //rb = this.GetComponent<RigidBody>(); 
             
-            if (rb == null) 
-            {
-                Console.WriteLine("NO RIGID BODY FOUND FOR ENEMY SPAWNER"); 
-            } 
-            else 
-            {
-                Console.WriteLine("RIGID BODY FOUND FOR ENEMY SPAWNER FOUND"); 
-            } 
+            //if (rb == null) 
+            //{
+            //    Console.WriteLine("NO RIGID BODY FOUND FOR ENEMY SPAWNER"); 
+            //} 
+            //else 
+            //{
+            //    Console.WriteLine("RIGID BODY FOUND FOR ENEMY SPAWNER FOUND"); 
+            //} 
             
 
 

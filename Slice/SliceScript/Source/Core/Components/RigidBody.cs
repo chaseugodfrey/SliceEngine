@@ -12,7 +12,7 @@ namespace SliceEngine
 
     public class RigidBody : Component
     {
-
+        public RigidBody() { }
         public RigidBody(GameObject entity)
         {
             gameObject = entity;

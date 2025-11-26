@@ -30,7 +30,7 @@ namespace SliceEngine
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
-            LevelDirector = gameObject.FindGameObjectWithName("LevelDirector")?.As<LevelDirector>();
+            //LevelDirector = gameObject.FindGameObjectWithName("LevelDirector")?.As<LevelDirector>();
             if (LevelDirector != null) Console.WriteLine("Level Director found");
             else Console.WriteLine("Level Director not found");
 
@@ -40,7 +40,7 @@ namespace SliceEngine
             // Calling initialize on each script
             CameraController.Initialize();
             Player.Initialize();
-            LevelDirector.Initialize();
+            LevelDirector?.Initialize();
         }
     }
 }

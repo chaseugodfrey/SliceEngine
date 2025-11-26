@@ -19,19 +19,24 @@ namespace SliceEngine
         // =============== Movement variables =============== 
         public float moveSpeed = 2.5f;
         public float jumpForce = 5f;
-        public float gravity = -9.81f;
+        public float gravityScale = 1;
+        private float Gravity => -9.81f * gravityScale;
         public float jumpDuration = 0.5f;
         private Vector3 input;
         private Vector3 moveDir;
         private bool canMove;
         private bool isJumping, canJump;
-        private GroundCheck groundCheck;
 
+        private RigidBody rb;
+        private GroundCheck groundCheck;
         private CameraController camera;
 
         public override void OnCreate()
-        {          
+        {
+            Console.WriteLine("Test");
             animator = GetComponent<Animator>();
+            rb = GetComponent<RigidBody>();
+            if (rb == null) Console.WriteLine("No rb found");
             groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
         }
 
@@ -155,7 +160,11 @@ namespace SliceEngine
 
             input = input.Normalize();
 
-            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) StartCoroutine(Jump());
+            if (Input.IsKeyDown(Keys.KEY_SPACEBAR))
+            {
+                rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
+                Console.WriteLine("Jumping");
+            }
         }
         private void HandleMovement()
         {
@@ -175,35 +184,9 @@ namespace SliceEngine
             camForward.y = 0f;
             camForward = camForward.Normalize();
             Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-
             Vector3 horizontal = moveDir * moveSpeed;
-            if (!groundCheck.Grounded)
-            {
-                vertical += Vector3.Up * gravity * Time.deltaTime;
-                Console.WriteLine("Applying gravity");
-            }
-            else
-            {
-                vertical.y = 0f;
-                Console.WriteLine("Not applying gravity");
-            }
-            transform.Position += new Vector3(horizontal.x, vertical.y, horizontal.z) * Time.deltaTime;
-            Console.WriteLine($"Player Position: {transform.Position.x}, {transform.Position.y}, {transform.Position.z}");
-            Console.WriteLine($"Current speed vector: {horizontal.x}, {vertical.y}, {horizontal.z}");
-        }
-        private IEnumerator Jump()
-        {
-            isJumping = true;
-            canJump = false;
-            float elapsedTime = 0f;
-            while (elapsedTime < jumpDuration)
-            {
-                float jumpProgress = elapsedTime / jumpDuration;
-                transform.Position += new Vector3(0f, jumpForce, 0f) * Time.deltaTime;
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-            isJumping = false;
+
+            rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y + vertical.y, horizontal.z) * Time.deltaTime;
         }
         #endregion
         public override void OnCollideEnter(uint other)
