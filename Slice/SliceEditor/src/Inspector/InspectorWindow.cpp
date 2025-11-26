@@ -905,11 +905,11 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-								}
+								}*/
 							}
 						}
 					}
