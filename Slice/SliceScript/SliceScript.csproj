@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -44,14 +42,16 @@
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\ButtonTest.cs" />
     <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
-    <Compile Include="Source\Core\Components\Component.cs" />
-    <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
+    <Compile Include="Source\Core\Components\Component.cs" />
+    <Compile Include="Source\Core\Components\NavAgent.cs" />
+    <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
@@ -62,10 +62,14 @@
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
+    <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\Systems\Bootstrap.cs" />
     <Compile Include="Source\Core\Systems\CoroutineManager.cs" />
+    <Compile Include="Source\Core\Systems\IInitializable.cs" />
     <Compile Include="Source\Core\Systems\Input.cs" />
     <Compile Include="Source\Core\Systems\Keys.cs" />
     <Compile Include="Source\Core\Systems\Scene.cs" />
@@ -78,13 +82,13 @@
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
+    <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
-    <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>

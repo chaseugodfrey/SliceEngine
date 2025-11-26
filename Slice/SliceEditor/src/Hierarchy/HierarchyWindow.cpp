@@ -34,7 +34,7 @@ namespace SliceEditor
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
 		flags |= ImGuiTreeNodeFlags_SpanFullWidth;
-		SelectionNode* node = nullptr;
+		EntityNode* node = nullptr;
 
 		if (isPrefab)
 		{
@@ -58,6 +58,8 @@ namespace SliceEditor
 		
 		if (node->isSelected)
 			flags |= ImGuiTreeNodeFlags_Selected;
+
+		
 
 
 		//Temporary Change
@@ -83,9 +85,16 @@ namespace SliceEditor
 		}
 
 		// tree node creation
-
+		if (node->isPrefab)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
+		}
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		if (node->isPrefab)
+		{
+			ImGui::PopStyleColor();
+		}
 		// check inputs
 
 		if (ImGui::IsItemClicked(ImGuiMouseButton_Right))

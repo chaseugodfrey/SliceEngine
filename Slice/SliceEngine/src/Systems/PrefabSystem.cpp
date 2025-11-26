@@ -30,18 +30,9 @@ namespace SliceEngine
 		//Assets/GameObject_1.prefab
 		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath);
 
-		//auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(prefabEntity);
-
-		//std::cout << "ALOYSIUSOVER HEREPrefab created: " << name << " at position (" << transform.position.x << ", " << transform.position.y << ", " << transform.position.z << ")\n";
-
 		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
-
+		//std::string goName = GO.GetName(); was for debugging
 		FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
-
-		//auto& transform = GO.GetComponent<Transform>();
-
-		//std::cout << "ALOYSIUSOVER HEREPrefab created: " << name << " at position (" << transform.position.x << ", " << transform.position.y << ", " << transform.position.z << ")\n";
-
 
 		mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 
@@ -70,23 +61,23 @@ namespace SliceEngine
 
 	void PrefabSystem::UpdatePrefabChild(Entity entity, GUID const& guid)
 	{
-			Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
-			GameObject GO = FactoryInstance.GetGOByEntity(entity);
-			GO.AddComponent<Prefab>();
-			GO.GetComponent<Prefab>().prefabGUID = guid;
-			GO.GetComponent<Prefab>().prefabHandle = prefab;
-			mPrefabMap[guid].push_back(GO.GetEntity());
-			auto& sceneGraph = GO.GetComponent<SceneGraph>();
-			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-			while (childEntity != entt::null)
-			{
-				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabChild(childEntity, guid);
-				//childGO.AddComponent<Prefab>();
-				//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
-				//childGO.GetComponent<Prefab>().prefabHandle = prefab;
-				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
-				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
-			}
+		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		GO.AddComponent<Prefab>();
+		GO.GetComponent<Prefab>().prefabGUID = guid;
+		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		mPrefabMap[guid].push_back(GO.GetEntity());
+		auto& sceneGraph = GO.GetComponent<SceneGraph>();
+		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+		while (childEntity != entt::null)
+		{
+			GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+			UpdatePrefabChild(childEntity, guid);
+			//childGO.AddComponent<Prefab>();
+			//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
+			//childGO.GetComponent<Prefab>().prefabHandle = prefab;
+			auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+			childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+		}
 	}
 }

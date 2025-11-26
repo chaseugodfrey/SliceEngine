@@ -18,24 +18,7 @@ namespace SliceEngine
 
 	void AnimatorSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto core = Core::GetInstance();
-
-		Animator& animator = reg.get<Animator>(entity);
-
-		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
-		//animator.stateMachine.EFSM = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
-		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
-
-		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(static_cast<GUID>(11169558507216259861));
-		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(static_cast<GUID>(16139273559357172266));
-
-		if(animator.IsValid())
-		{
-			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
-			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-
-			animator.stateMachine.InitState(animator.curr_anim_pkg);
-		}
+		InitAnimatorEntity(reg, entity);
 	}
 
 	void AnimatorSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -45,21 +28,27 @@ namespace SliceEngine
 	}
 	void AnimatorSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
+		
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.stateMachine.CheckStates();
 
 		animator.stateMachine.UpdateState(animator.current_time,dt);
 
-		UpdateAnimation(animator, dt);
+		UpdateAnimation(reg,entity,animator, dt);
 	}
 
-	void AnimatorSystem::UpdateAnimation(Animator& animator, float dt)
+	void AnimatorSystem::UpdateAnimation(entt::registry& reg, entt::entity entity, Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
-		if (!animator.IsValid()) return;
+		if (!animator.IsValid())
+		{
+			InitAnimatorEntity(reg, entity);
+		}
 
+
+		// have a blending timer, have blending per frame until timer reach
+		// then add blending weight blending timer/ blend length
 		if (animator.stateMachine.stateChanged)
 		{
 			if (animator.timeline.isPlaying)
@@ -123,7 +112,8 @@ namespace SliceEngine
 				//animator.inverse_map.clear();
 			}
 			//non bone animation
-			else {
+			else 
+			{
 
 			}
 		}
@@ -174,5 +164,29 @@ namespace SliceEngine
 			animator.timeline.isLoop = animator.stateMachine.EFSM.currState->isLoop;
 
 		}
+	}
+
+	
+	void AnimatorSystem::InitAnimatorEntity(entt::registry& reg, entt::entity entity)
+	{
+		auto core = Core::GetInstance();
+
+		Animator& animator = reg.get<Animator>(entity);
+		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
+		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
+		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
+
+		if (animator.Handle_stateMachine.IsValid())
+		{
+			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+		}
+
+		if (animator.IsValid())
+		{
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+			animator.stateMachine.InitState(animator.curr_anim_pkg);
+		}
+
 	}
 }

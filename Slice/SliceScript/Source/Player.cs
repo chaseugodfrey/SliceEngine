@@ -66,7 +66,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
                     animator.SetBool("Walk", true);
 
@@ -88,7 +88,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
                     animator.SetBool("Walk", true);
 
@@ -107,7 +107,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
                     animator.SetBool("Walk", true);
 
@@ -126,7 +126,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                   String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                   String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") == 0)
                     animator.SetBool("Walk", true);
 
@@ -154,7 +154,7 @@ namespace SliceEngine
                 if (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
                     animator.SetBool("Idle", true);
@@ -175,7 +175,7 @@ namespace SliceEngine
                         String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                     {
                         animator.SetBool("JumpLoop", true);
@@ -255,6 +255,10 @@ namespace SliceEngine
                     {
                         animator.SetBool("AttackToIdle2", true);
                         Attack_Collider_1.ComponentEnabled = false;
+                    }
+                    if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+                    {
+                        animator.SetBool("Attack3ToLoco", true);
                     }
 
                     startBuffer = false;

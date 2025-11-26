@@ -112,13 +112,17 @@ namespace SliceEngine
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
 
+	rttr::registration::class_<Handle<SliceEngineTypes::Skeleton>>("Skeleton Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Skeleton>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::AnimationPackage>>("AnimPkg Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::AnimationPackage>::mGUID);
+
 	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
-
-	rttr::registration::class_<FSMSystem>("stateMachine")
-		.constructor<>()
-		.property("EFSM", &FSMSystem::EFSM);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.property("scriptName", &Script::scriptName)
@@ -217,7 +221,8 @@ namespace SliceEngine
 		.property("far", &Camera::far)
 		.property("textureID", &Camera::textureID)
 		.property("depthTex", &Camera::depthTex)
-		.property("renderTag", &Camera::renderTag)
+		.property("debugRenderTag", &Camera::debugRenderToggles)
+		.property("postRenderTag", &Camera::postRenderToggles)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
@@ -361,7 +366,10 @@ namespace SliceEngine
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
 		.property("current_time", &Animator::current_time)
-		.property("stateMachine", &Animator::stateMachine);
+		.property("stateMachine Handle", &Animator::Handle_stateMachine)
+		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
+		.property("Skeleton Handle", &Animator::Handle_skeleton);
+
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())
 		.constructor<>()
@@ -398,6 +406,14 @@ namespace SliceEngine
 		.property("texture", &SpriteRenderer::textureHandle)
 		.property("rgba", &SpriteRenderer::rgba)
 		.property("raycast_target", &SpriteRenderer::raycast_target);
+
+	rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
+		.constructor<>()
+		.property("speed", &NavAgent::speed)
+		.property("target", &NavAgent::target)
+		.property("hasNewTarget", &NavAgent::hasNewTarget)
+		.property("currentPath", &NavAgent::currentPath)
+		.property("currentPathIndex", &NavAgent::currentPathIndex);
 	}
 }
 #endif

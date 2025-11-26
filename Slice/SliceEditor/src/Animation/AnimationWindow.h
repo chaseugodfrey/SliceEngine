@@ -35,6 +35,8 @@ namespace SliceEditor
 		//
 		SliceEngine::Animator* mCurrentAnimator{ nullptr };
 		//SliceEngine::Transform* mCurrentTransform;
+
+		entt::entity tmpEnt;
 		
 
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
@@ -48,7 +50,7 @@ namespace SliceEditor
 
 		void UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip,float time);
 		void UpdateBoneScene(Entity ent);
-		void UpdateBones(Entity ent);
+		void UpdateBones();
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};

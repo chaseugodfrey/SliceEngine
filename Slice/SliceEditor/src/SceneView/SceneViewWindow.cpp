@@ -124,6 +124,7 @@ namespace SliceEditor
 		SliceEngine::GameObject go = mRender->CreateCamera();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
+		camObj->camera.debugRenderToggles = SliceEngine::DEBUG_ALL_DEBUG;
 	}
 
 	void SceneViewWindow::Draw()
@@ -133,11 +134,20 @@ namespace SliceEditor
 		auto& io = ImGui::GetIO();
 
 		// Draw Utility Bar
-
 		ImGui::BeginGroup();
-		ImGui::Text("Speed:");
+		if (ImGui::Button("Debug Options"))
+		{
+			ImGui::OpenPopup("Debug Lines");
+		}
+		float height = ImGui::GetItemRectSize().y;
+		DebugDrawTogglePopup();
 		ImGui::SameLine();
-		ImGui::Text("%.3f", mCameraSpeed);
+		std::stringstream ss;
+		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		ImGui::Button(ss.str().c_str()); //Speed Display
+		ImGui::PopItemFlag(); //End of Set Disabled
+		//Debug Drawing Settings:
 		ImGui::EndGroup();
 
 
@@ -168,7 +178,7 @@ namespace SliceEditor
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
+		//camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
@@ -272,7 +282,7 @@ namespace SliceEditor
 					cameraYaw -= mouse_diff.x * sensitivity;
 					cameraPitch -= mouse_diff.y * sensitivity;
 
-					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+					cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
 
 					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
 					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -536,5 +546,36 @@ namespace SliceEditor
 
 		ImGui::End();
 
+	}
+
+	//Can put a version of this in ComponentPropertiesGUI
+	void SceneViewWindow::MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit)
+	{
+		bool checked = (mask & bit) != 0;
+
+		if (ImGui::MenuItem(label, nullptr, checked))
+		{
+			if (checked)
+				mask &= ~bit;
+			else
+				mask |= bit;
+		}
+	}
+
+	void SceneViewWindow::DebugDrawTogglePopup()
+	{
+		if (ImGui::BeginPopupContextItem("Debug Lines"))
+		{
+			auto& tag = camObj->camera.debugRenderToggles;
+
+			MenuToggleBit("Debug All", tag, SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG);
+			ImGui::Separator();
+			MenuToggleBit("Obj", tag, SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG);
+			MenuToggleBit("Frustum", tag, SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG);
+			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
+			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
+			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
+			ImGui::EndPopup();
+		}
 	}
 }

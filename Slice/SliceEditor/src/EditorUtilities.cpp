@@ -162,6 +162,13 @@ namespace SliceEditor
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
+		void GameObject_Clone(entt::entity entity)
+		{
+			SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::FactoryInstance.CloneGO(go);
+
+		}
+
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)
 		{
 			EventManager::GetInstance()->Publish<ClearSelectionEvent>();
@@ -288,39 +295,39 @@ namespace SliceEditor
 		{
 			if (ImGui::MenuItem("Empty"))
 			{
-				EditorUtilities::GameObject_CreateEmpty(entt::null, history);
+				EditorUtilities::GameObject_CreateEmpty(parent, history);
 			}
 
 			if (ImGui::MenuItem("Camera"))
 			{
-				EditorUtilities::GameObject_CreateCam(entt::null, history);
+				EditorUtilities::GameObject_CreateCam(parent, history);
 			}
 
 			if (ImGui::BeginMenu("3D Object"))
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					EditorUtilities::GameObject_CreateBox(entt::null, history);
+					EditorUtilities::GameObject_CreateBox(parent, history);
 				}
 
 				if (ImGui::MenuItem("Sphere"))
 				{
-					EditorUtilities::GameObject_CreateSphere(entt::null, history);
+					EditorUtilities::GameObject_CreateSphere(parent, history);
 				}
 
 				if (ImGui::MenuItem("Capsule"))
 				{
-					EditorUtilities::GameObject_CreateCapsule(entt::null, history);
+					EditorUtilities::GameObject_CreateCapsule(parent, history);
 				}
 
 				if (ImGui::MenuItem("Quad"))
 				{
-					EditorUtilities::GameObject_CreateBox(entt::null, history);
+					EditorUtilities::GameObject_CreateBox(parent, history);
 				}
 
 				if (ImGui::MenuItem("Plane"))
 				{
-					EditorUtilities::GameObject_CreateBox(entt::null, history);
+					EditorUtilities::GameObject_CreateBox(parent, history);
 				}
 
 				ImGui::EndMenu();

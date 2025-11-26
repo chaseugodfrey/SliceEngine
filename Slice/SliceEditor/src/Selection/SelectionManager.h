@@ -50,6 +50,8 @@ namespace SliceEditor
 		void ClearSelectionEventHandler(ClearSelectionEvent& event);
 		void ClearSelection(bool suppressHistory = false);
 		void DeleteSelectedObjects();
+		void CloneSelectedObjects();
+
 
 		std::unordered_set<entt::entity>& GetSelectedEntities();
 		std::unordered_set<SelectionNode*>& GetSelectedNodes();

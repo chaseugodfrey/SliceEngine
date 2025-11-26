@@ -1,2 +1,5 @@
-particles.vert
-particles.frag
+{
+    "VertexShader": "particles_Vert",
+    "FragmentShader": "particles_Frag",
+    "GeometryShader": ""
+}

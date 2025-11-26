@@ -1,2 +1,0 @@
-uiSprite.vert
-uiSprite.frag

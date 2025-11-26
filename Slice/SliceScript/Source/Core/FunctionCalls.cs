@@ -10,6 +10,9 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Debug_Console(string[] callStack, string msg, int level);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_GetPosition(uint entityID, out Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -26,6 +29,12 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotation(uint entityID, ref Vector3 rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetRotationQuat(uint entityID, out Quaternion rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
         internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
@@ -193,5 +202,20 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_Stop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float NavAgent_GetSpeed(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool NavAgent_HasPath(uint entityID);
     }
 }

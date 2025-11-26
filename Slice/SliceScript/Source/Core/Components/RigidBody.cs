@@ -12,6 +12,14 @@ namespace SliceEngine
 
     public class RigidBody : Component
     {
+
+        public RigidBody(GameObject entity)
+        {
+            gameObject = entity;
+            FunctionCalls.RigidBody_GetVelocity(gameObject.mID, out Vector3 vel);
+            Velocity = vel;
+        }
+
         public Vector3 Velocity
         {
             get

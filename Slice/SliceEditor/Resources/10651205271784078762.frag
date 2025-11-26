@@ -4,6 +4,7 @@ layout (location=0) in vec3 vTexCoord;
 
 layout (location=0)	out vec4 fFragColor;
 
+const float PI			= 3.14159265359;
 const float liteSunConvergence = 4.5;
 const float liteCloudLightInt  = 1.0;
 const vec3 gamma = vec3(0.45454545454);
@@ -27,7 +28,7 @@ uniform float cloudScale = 2;					// (1, 2)
 uniform float cloudBaseHeight = 0.0;			// (0, 0.5)
 
 // ----- Skybox Generation -----
-vec3 ProcessSky(vec3 dir);
+vec4 ProcessSky(vec3 nom);
 vec4 ProcessClouds(vec3 nom, vec3 sky);
 vec3 ProcessSun(vec3 nom);
 
@@ -36,10 +37,10 @@ float satf(float x);
 vec3 satv3(vec3 x);
 float discFade_HQ(float d, float s);
 vec3 hash33_fast(vec3 p);
-float hash31_fast(vec3 p);
+float has31_fast(vec3 p);
 float sphereFalloff(float d, float s);
 float fbm3(vec3 p);
-float noisee3(vec3 p); // legally distinct noise3
+float noise3(vec3 p);
 float blobDensity(vec3 localPos, vec3 cellSeed);
 vec4 linearToGamma(vec4 linearRGB);
 vec3 GammaToLinear(vec3 sRGB);
@@ -47,13 +48,13 @@ vec3 GammaToLinear(vec3 sRGB);
 void main(void){
 	vec3 nom = normalize(vTexCoord);
 
-	vec3 sky = ProcessSky(nom);
+	vec3 sky = ProcessSky(nom).rgb;
 
 	vec4 clouds = ProcessClouds(nom, sky);
 	vec3 result = mix(sky, clouds.rgb, clouds.a);
 
 	result += ProcessSun(nom) * (1.0 - clouds.a);
-	//result += ProcessSun(nom) * (1.0 - clouds.a); // Idk why duplicate this
+	result += ProcessSun(nom) * (1.0 - clouds.a); // Idk why duplicate this
 
 	result *= skyExposure;
 
@@ -62,9 +63,9 @@ void main(void){
 
 // ----- Skybox Generation -----
 
-vec3 ProcessSky(vec3 dir)
+vec4 ProcessSky(vec3 nom)
 {
-	float y			= satf(dir.y * 0.5 + 0.5) * 2.0 - 1.0;
+	float y			= satf(nom.y * 0.5 + 0.5) * 2.0 - 1.0;
 	float yShift	= y - horizonHeight;
 
 	float ySky		= satf(yShift);
@@ -74,10 +75,11 @@ vec3 ProcessSky(vec3 dir)
 	float tGround	= yGround;
 
 	vec3 top		= mix(horizonColor.rgb, zenithColor.rgb, tSky);
-	vec3 bot		= mix(groundColor.rgb, horizonColor.rgb, tGround);
+	vec3 bot		= mix(groundColor.rgb, zenithColor.rgb, tGround);
 
 	float blend		= smoothstep(-0.02, 0.02, yShift);
-	return mix(bot, top, blend);
+	vec3 col		= mix(bot, top, blend);
+	return vec4(col, 1.0);
 }
 
 vec4 ProcessClouds(vec3 nom, vec3 sky)
@@ -103,7 +105,7 @@ vec4 ProcessClouds(vec3 nom, vec3 sky)
 	float density = 0.0;
 	for(int l = 0; l < layers; ++l)
 	{
-		vec3 lp		= pos + rotDir * (float(l - 1) * step);
+		vec3 lp		= pos + rotDir * ((l - 1) * step);
 
 		vec3 gPos	= lp / cellSize;
 		vec3 b		= floor(gPos);
@@ -132,13 +134,13 @@ vec4 ProcessClouds(vec3 nom, vec3 sky)
 		const float maxR = 1.0 + cloudSoftness;
 		const float maxR2 = maxR * maxR;
 
-		for(int ix = minC.x; ix <= maxC.x; ++ix)
+		for(int ix = minC.x; ix < maxC.x; ++ix)
 		{
-			for(int iy = minC.y; iy <= maxC.y; ++iy)
+			for(int iy = minC.y; iy < maxC.y; ++iy)
 			{
-				for(int iz = minC.z; iz <= maxC.z; ++iz)
+				for(int iz = minC.z; iz < maxC.z; ++iz)
 				{
-					vec3 cell = vec3(float(ix), float(iy), float(iz));
+					vec3 cell = vec3(ix, iy, iz);
 					vec3 randOffset = hash33_fast(cell) - vec3(0.5);
 					vec3 centre = (cell + randOffset) * cellSize;
 					vec3 dv = lp - centre;
@@ -237,7 +239,7 @@ vec3 hash33_fast(vec3 p)
 	p += dot(p, p.yxz + vec3(33.33));
 	return fract((p.xxy + p.yzz) * p.zyx);
 }
-float hash31_fast(vec3 p)
+float has31_fast(vec3 p)
 {
 	p += cloudSeed;
 	p = fract(p * 0.1031);
@@ -250,26 +252,26 @@ float fbm3(vec3 p)
 	float a = 0.5;
 	for(int i = 0; i < 4; ++i)
 	{
-		v += noisee3(p) * a;
+		v += noise3(p) * a;
 		p *= 2.0;
 		a *= 0.5;
 	}
 	return v;
 }
-float noisee3(vec3 p)
+float noise3(vec3 p)
 {
 	vec3 i = floor(p);
 	vec3 f = fract(p);
 	vec3 u = f * f * (3.0 - 2.0 * f);
 
-	float n000 = hash31_fast(i + vec3(0,0,0));
-	float n100 = hash31_fast(i + vec3(1,0,0));
-	float n010 = hash31_fast(i + vec3(0,1,0));
-	float n110 = hash31_fast(i + vec3(1,1,0));
-	float n001 = hash31_fast(i + vec3(0,0,1));
-	float n101 = hash31_fast(i + vec3(1,0,1));
-	float n011 = hash31_fast(i + vec3(0,1,1));
-	float n111 = hash31_fast(i + vec3(1,1,1));
+	float n000 = has31_fast(i + vec3(0,0,0));
+	float n100 = has31_fast(i + vec3(1,0,0));
+	float n010 = has31_fast(i + vec3(0,1,0));
+	float n110 = has31_fast(i + vec3(1,1,0));
+	float n001 = has31_fast(i + vec3(0,0,1));
+	float n101 = has31_fast(i + vec3(1,0,1));
+	float n011 = has31_fast(i + vec3(0,1,1));
+	float n111 = has31_fast(i + vec3(1,1,1));
 
 	return mix(
 		mix(mix(n000, n100, u.x), mix(n010, n110, u.x), u.y),

@@ -17,7 +17,7 @@ namespace SliceEngine
         /// <summary>
         /// Smallest positive float value (approx. zero).
         /// </summary>
-        public const float Epsilon = 1.401298E-45f;
+        public const float Epsilon = 1e-6f;
 
         /// <summary>
         /// Smoothly interpolates a value towards a target using a critically damped spring.
@@ -61,10 +61,10 @@ namespace SliceEngine
         /// <summary>
         /// Clamps a value between a minimum and maximum limit.
         /// </summary>
-        public static float Clamp(float value, float min, float max)
-        {
-            if (value < min) return min;
-            if (value > max) return max;
+        public static T Clamp<T>(T value, T min, T max) where T : IComparable<T>
+        {            
+            if (value.CompareTo(min) < 0) return min;
+            if (value.CompareTo(max) > 0) return max;
             return value;
         }
 
@@ -134,11 +134,19 @@ namespace SliceEngine
         }
 
         /// <summary>
-        /// Returns the absolute value of a float.
+        /// Returns the min value of a comparable type.
         /// </summary>
-        public static float Abs(float value)
+        public static T Min<T>(T a, T b) where T : IComparable<T>
         {
-            return (value < 0f) ? -value : value;
+            return a.CompareTo(b) < 0 ? a : b;
+        }
+
+        /// <summary>
+        /// Returns the max value of a comparable type.
+        /// </summary>
+        public static T Max<T>(T a, T b) where T : IComparable<T>
+        {            
+            return a.CompareTo(b) > 0 ? a : b;
         }
 
         /// <summary>

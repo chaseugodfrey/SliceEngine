@@ -11,11 +11,11 @@ namespace SliceEditor
 	namespace EditorUtilities
 	{
 		//3D Objects
-		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateBox(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateSphere(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateCam(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr);
 
 		//2D Objects
 		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr);
@@ -26,6 +26,7 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 
+		void GameObject_Clone(entt::entity entity);
 		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);

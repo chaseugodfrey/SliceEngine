@@ -111,10 +111,11 @@ namespace SliceEngine
 
         public void Destroy()
         {
+            StopAllCoroutines();
             FunctionCalls.Destroy(gameObject.mID);
         }
 
-                public void StartCoroutine(IEnumerator routine)
+         public void StartCoroutine(IEnumerator routine)
         {
             if (routine != null)
                 CoroutineManager.StartCoroutine(routine, this);

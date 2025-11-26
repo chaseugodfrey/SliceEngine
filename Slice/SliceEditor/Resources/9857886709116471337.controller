@@ -35,21 +35,31 @@
             "stateName": "Attack1",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "AttackToIdle1",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "AttackToIdle1",
+                    "sourceState": "Attack1",
                     "targetState": "AttackToIdle1"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Attack2",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Attack2",
+                    "sourceState": "Attack1",
                     "targetState": "Attack2"
                 }
             ]
@@ -65,21 +75,31 @@
             "stateName": "Attack2",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "AttackToIdle2",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "AttackToIdle2",
+                    "sourceState": "Attack2",
                     "targetState": "AttackToIdle2"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Attack3",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Attack3",
+                    "sourceState": "Attack2",
                     "targetState": "Attack3"
                 }
             ]
@@ -95,13 +115,18 @@
             "stateName": "Attack3",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Attack3ToLoco",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Idle",
-                    "targetState": "Idle"
+                    "sourceState": "Attack3",
+                    "targetState": "Attack3ToLoco"
                 }
             ]
         },
@@ -116,21 +141,31 @@
             "stateName": "Attack3ToLoco",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Idle",
+                    "sourceState": "Attack3ToLoco",
                     "targetState": "Idle"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Walk",
+                    "sourceState": "Attack3ToLoco",
                     "targetState": "Walk"
                 }
             ]
@@ -146,21 +181,31 @@
             "stateName": "AttackToIdle1",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Idle",
+                    "sourceState": "AttackToIdle1",
                     "targetState": "Idle"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Walk",
+                    "sourceState": "AttackToIdle1",
                     "targetState": "Walk"
                 }
             ]
@@ -176,21 +221,31 @@
             "stateName": "AttackToIdle2",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Idle",
+                    "sourceState": "AttackToIdle2",
                     "targetState": "Idle"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Walk",
+                    "sourceState": "AttackToIdle2",
                     "targetState": "Walk"
                 }
             ]
@@ -206,30 +261,45 @@
             "stateName": "Idle",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Attack1",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "Attack1",
+                    "sourceState": "Idle",
                     "targetState": "Attack1"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "Walk",
+                    "sourceState": "Idle",
                     "targetState": "Walk"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "JumpLoop",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "JumpLoop",
+                    "sourceState": "Idle",
                     "targetState": "JumpLoop"
                 }
             ]
@@ -245,30 +315,45 @@
             "stateName": "JumpLoop",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Plunge",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 0.699999988079071,
                     "hasExitTime": true,
-                    "parameterName": "Plunge",
+                    "sourceState": "JumpLoop",
                     "targetState": "Plunge"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Land",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "Land",
+                    "sourceState": "JumpLoop",
                     "targetState": "Land"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "DoubleJump",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "DoubleJump",
+                    "sourceState": "JumpLoop",
                     "targetState": "DoubleJump"
                 }
             ]
@@ -284,12 +369,17 @@
             "stateName": "Plunge",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "PlungeLand",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "PlungeLand",
+                    "sourceState": "Plunge",
                     "targetState": "PlungeLand"
                 }
             ]
@@ -305,21 +395,31 @@
             "stateName": "PlungeLand",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "PlungeToWalk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "PlungeToWalk",
+                    "sourceState": "PlungeLand",
                     "targetState": "PlungeToWalk"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "PlungeToIdle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "PlungeToIdle",
+                    "sourceState": "PlungeLand",
                     "targetState": "PlungeToIdle"
                 }
             ]
@@ -335,12 +435,17 @@
             "stateName": "PlungeToIdle",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Idle",
+                    "sourceState": "PlungeToIdle",
                     "targetState": "Idle"
                 }
             ]
@@ -356,12 +461,17 @@
             "stateName": "PlungeToWalk",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
-                    "parameterName": "Walk",
+                    "sourceState": "PlungeToWalk",
                     "targetState": "Walk"
                 }
             ]
@@ -377,30 +487,45 @@
             "stateName": "Walk",
             "transitions": [
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Attack1",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "Attack1",
+                    "sourceState": "Walk",
                     "targetState": "Attack1"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "Idle",
+                    "sourceState": "Walk",
                     "targetState": "Idle"
                 },
                 {
-                    "comparisonOP": "IsTrue",
-                    "condition": null,
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "JumpLoop",
+                            "value": null
+                        }
+                    ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": false,
-                    "parameterName": "JumpLoop",
+                    "sourceState": "Walk",
                     "targetState": "JumpLoop"
                 }
             ]

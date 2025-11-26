@@ -108,6 +108,12 @@ namespace SliceEditor
 			{
 				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
 			}
+
+			auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+			for (auto entity : prefabView)
+			{
+				mEntityNodes[entity].get()->isPrefab = true;
+			}
 		}
 	}
 

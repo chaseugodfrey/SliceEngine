@@ -59,7 +59,9 @@ namespace SliceEditor
 		case SelectionType::ENTITY:
 			if (ImGui::Button("Prefab Create"))
 			{
-				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+				mRegistry.GetAssetManager().CreatePrefab(go);
+				//SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
 			}
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
 			break;
@@ -85,25 +87,41 @@ namespace SliceEditor
 		auto core = SliceEngine::Core::GetInstance();
 		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
-		ImGui::Checkbox("##is_active", &slice.mActive);
+		BoolInput(mRegistry, "##isActive", slice.mActive);
 		ImGui::SameLine();
 
 		std::string editable_name = original_name;
-		if (StringInput(mRegistry, "##name", editable_name, ImGui::GetContentRegionAvail().x))
-		{
-			if (editable_name != original_name)
-				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(editable_name);
-		}
+		std::string editable_tag = original_tag;
+
+		std::function<void(std::string name)> func = [&](std::string name)
+			{
+				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(name);
+			};
+		
+		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
 
 		ImGui::Text("Entity ID: %d", entity);
 
+		std::function<void(std::string name)> funcTag = [&](std::string name)
+			{
+				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
+			};
+
+		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Game Object Tags:
+		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
+		{
+			SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(slice.mTag);
+		}*/
+
 		// currently tags are unused
-		int tag = 0;
-		std::vector<std::string> tags {"unused"};
+		/*int tag = 0;
+		std::vector<std::string> tags {"unused"};*/
 
 		//ImGui::BeginDisabled();
 		//ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
@@ -373,15 +391,15 @@ namespace SliceEditor
 
 			using RenderTag = SliceEngine::RENDER_TAG;
 
-			bool isBloom = cam.renderTag & RenderTag::RENDER_BLOOM;
-			bool isFog = cam.renderTag & RenderTag::RENDER_FOG;
-			bool isVignette = cam.renderTag & RenderTag::RENDER_VIGNETTE;
+			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
+			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
+			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
 
 			ImGui::Text("Bloom");
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_BLOOM, isBloom);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_BLOOM, isBloom);
 			}
 
 			if (isBloom)
@@ -395,7 +413,7 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isFog", &isFog))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_VIGNETTE, isVignette);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_FOG, isFog);
 			}
 
 			if (isFog)
@@ -408,7 +426,7 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isVignette", &isVignette))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_FOG, isVignette);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_VIGNETTE, isVignette);
 			}
 
 			if (isVignette)
@@ -478,6 +496,7 @@ namespace SliceEditor
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
 			}, colliderData.shapeData);
+
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
 		{
 			if(!DisplayComponentHeader<SliceEngine::ColliderShape>(entity))
@@ -494,9 +513,38 @@ namespace SliceEditor
 						col.offSet = GLMtoJPH(glm3);
 					}
 
-					//static std::vector<std::string> colLayerNames{ "Non-Moving","Moving" };
+					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
+					{
+						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						{
+							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
+						}
+					}
 
-					//ComboHeader<JPH::ObjectLayer>(mRegistry, "Collider Layer", "##colDetect", col.layer, colLayerNames);
+					else if (std::holds_alternative<SliceEngine::ColliderShape::SphereData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::SphereData>(col.shapeData).radius;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", radius))
+						{
+							col.SetSphereData(SliceEngine::ColliderShape::SphereData(radius));
+						}
+					}
+
+					else if (std::holds_alternative<SliceEngine::ColliderShape::CapsuleData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::CapsuleData>(col.shapeData).radius;
+						float height = std::get<SliceEngine::ColliderShape::CapsuleData>(col.shapeData).height;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##capsuleRadius", radius))
+						{
+							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius,height));
+						}
+
+						if (DragFloatInputHeader(mRegistry, "Height", "##capsuleHeight", height))
+						{
+							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius, height));
+						}
+					}
 				});
 			}
 			ImGui::TreePop();
@@ -591,6 +639,7 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
+
 						#pragma region Array Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
@@ -636,6 +685,22 @@ namespace SliceEditor
 									};
 
 								if (DragIntArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetArrayFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								auto data = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
+
+								std::function<void(std::string, std::vector<glm::vec3>)> func = [sp = scriptRef](std::string name, std::vector<glm::vec3> val)
+									{
+										sp->SetArrayFieldValue(name, val);
+									};
+
+								if (DragVec3ArrayScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetArrayFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -728,9 +793,38 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								auto data = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<glm::vec3> list, glm::vec3 val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (DragVec3ListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
 						}
 
 						#pragma endregion
+
+						//Normal Variables
 						else
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -751,7 +845,11 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Bool)
 							{
 								bool data = scriptRef->GetFieldValue<bool>(it.second.mName);
-								if (BoolInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								std::function<void(std::string, bool)> func = [sp = scriptRef](std::string name, bool val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -760,8 +858,12 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::String)
 							{
 								std::string str = scriptRef->GetFieldValue<std::string>(it.second.mName);
+								std::function<void(std::string, std::string)> func = [sp = scriptRef](std::string name, std::string val)
+									{
+										sp->SetFieldValue(name, val);
+									};
 
-								if (StringInputHeader(mRegistry, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
@@ -781,6 +883,36 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
+							{
+								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
+							{
+								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}*/
+							}
 						}
 					}
 				}
@@ -794,47 +926,59 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-
-		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+		if (!animator.IsValid())
 		{
-			if(!DisplayComponentHeader<SliceEngine::Animator>(entity))
+			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 			{
-				ImGui::Text("Controller: ");
-				ImGui::SameLine(150.0f);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::Text("A00");
-
-				ImGui::Text("Playing: ");
-				ImGui::SameLine(150.f);
-				ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
-
-				std::string anim_file{};
-				ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
-
-				ImGui::Text("Loop: ");
-				ImGui::SameLine(150.f);
-				ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
-
-				ImGui::Text("Next: ");
-				ImGui::SameLine(150.f);
-				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
-				{
-					animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-				}
-
-				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
-
-				ImGui::Text("Prev: ");
-				ImGui::SameLine(150.f);
-				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
-				{
-					if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
-						animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
-					else
-						animator.stateMachine.EFSM.currState->curr_anim_idx--;
-				}
+				ImGui::Text("Animator is not valid \n :deadge_1");
 			}
 			ImGui::TreePop();
+		}
+		else
+		{
+			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+			{
+				if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
+				{
+
+					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
+					/*ImGui::Text("Controller: ");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::Text("A00");*/
+
+					ImGui::Text("Playing: ");
+					ImGui::SameLine(150.f);
+					ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+
+					std::string anim_file{};
+					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+					ImGui::Text("Loop: ");
+					ImGui::SameLine(150.f);
+					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+
+					ImGui::Text("Next: ");
+					ImGui::SameLine(150.f);
+					if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+					{
+						animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+					}
+
+					ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+
+					ImGui::Text("Prev: ");
+					ImGui::SameLine(150.f);
+					if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+					{
+						if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+							animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
+						else
+							animator.stateMachine.EFSM.currState->curr_anim_idx--;
+					}
+				}
+				ImGui::TreePop();
+			}
 		}
 	}
 
@@ -1298,6 +1442,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavAgent>(entity))
+			{
+				DisplayNavAgent(node->entity);
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
@@ -1400,6 +1550,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+
+		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->path);
+		}
 	}
 
 	void InspectorWindow::DisplayState(StateNode* node)
@@ -1446,7 +1601,7 @@ namespace SliceEditor
 
 		auto params = anim_data->GetParameters();
 
-		auto& condition = transition.condition;
+		/*auto& condition = transition.condition;
 
 		if (condition.is_type<float>())
 		{
@@ -1461,7 +1616,7 @@ namespace SliceEditor
 		else if (condition.is_type<bool>())
 		{
 			BoolInputHeader(mRegistry, stateOpt.value().get().stateName.c_str(), "##condition", condition.get_value<bool>());
-		}
+		}*/
 
 		//auto& params = anim_data->mStateMachineAsset->parameters;
 		//auto& transition = anim_data->mTransitionNodes.at(node->id);
