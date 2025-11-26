@@ -284,22 +284,10 @@ namespace SliceEngine
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
 			}
 
-			// idk check if the name in goFactory map is correct atm
-			// if its not a valid name then set the name
-			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
-			//{
-			//}
-			if (!Editor)
+			if (rootGO.HasComponent<SliceEntity>())
 			{
-
-				//rootGO.SetName(rootGO.GetName());
-
-				if (rootGO.HasComponent<SliceEntity>())
-				{
-					rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
-				}
+				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
 			}
-
 
 			// fix the old to new entity IDs
 			for (auto entity : entityID)
@@ -320,8 +308,11 @@ namespace SliceEngine
 					}
 				}
 
-				// handle adding to name map here
-				FactoryInstance.AddToNameMap(entity);
+				if (!Editor)
+				{
+					// handle adding to name map here
+					FactoryInstance.AddToNameMap(entity);
+				}
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
