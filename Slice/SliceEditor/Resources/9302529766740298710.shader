@@ -1,2 +1,0 @@
-final.vert
-final.frag

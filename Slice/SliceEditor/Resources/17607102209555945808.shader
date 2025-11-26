@@ -1,2 +1,0 @@
-skyboxLight.vert
-skyboxLight.frag

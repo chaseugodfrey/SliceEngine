@@ -213,6 +213,7 @@ namespace SliceEngine
 		void SetShader(ShaderOpt sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
+		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
 
 		void IDPick();
 	};

@@ -2,14 +2,23 @@ using SliceEngine;
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.IO.Pipes;
 
 
 namespace SliceEngine
 {
     public class EnemySpawner : Entity
     {
+
+        #region --- Level Director Field ---
+        public int stage = 0;
+        #endregion
+
+
         #region --- Spawning Field ---
         private bool isSpawning = false;
+
+        public bool IsSpawning { get {return isSpawning; } }
         public void StartSpawning() 
         { 
             if (isSpawning != true) 
@@ -20,7 +29,8 @@ namespace SliceEngine
         public void StopSpawning() { isSpawning = false; }
         #endregion
 
-        //private RigidBody rb; 
+        private RigidBody rb; 
+        //private Renderer
 
         public void Initialize()
         {
@@ -29,17 +39,18 @@ namespace SliceEngine
 
         public override void OnCreate() 
         { 
-            //rb = this.GetComponent<RigidBody>(); 
+            /*
+            rb = this.GetComponent<RigidBody>(); 
             
-            //if (rb == null) 
-            //{
-            //    Console.WriteLine("NO RIGID BODY FOUND FOR ENEMY SPAWNER"); 
-            //} 
-            //else 
-            //{
-            //    Console.WriteLine("RIGID BODY FOUND FOR ENEMY SPAWNER FOUND"); 
-            //} 
-            
+            if (rb == null) 
+            {
+                Console.WriteLine("NO RIGID BODY FOUND FOR ENEMY SPAWNER"); 
+            } 
+            else 
+            {
+                Console.WriteLine("RIGID BODY FOUND FOR ENEMY SPAWNER FOUND"); 
+            } 
+            */
 
 
         }
@@ -47,9 +58,8 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             //if (Input.IsKeyDown(Keys.KEY_0))
+            //{            //if (Input.IsKeyDown(Keys.KEY_0))
             //{
-            //    StartSpawning();
-            //}
             //if (Input.IsKeyDown(Keys.KEY_9))
             //{
             //    StopSpawning();

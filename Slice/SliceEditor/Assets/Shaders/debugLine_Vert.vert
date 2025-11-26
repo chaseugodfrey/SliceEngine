@@ -16,14 +16,14 @@ const float cPlaneSize = 250.0;
 
 uniform mat4 V; // View transform matrix
 uniform mat4 P; // Perspective transform matrix
-uniform vec2 uCamPos;
+uniform vec3 uCamPos;
 
 
 void main(void){
 	vPos = cIdxPos[cIndices[gl_VertexID]] * cPlaneSize;
 	
-	vPos.x += V[0][3];
-	vPos.z += V[1][3];
+	vPos.x += uCamPos.x;
+	vPos.z += uCamPos.z;
 	
 	gl_Position = P * V * vec4(vPos, 1.0);
 }
