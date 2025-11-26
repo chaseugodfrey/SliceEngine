@@ -1,2 +1,5 @@
-instanced.vert
-instanced.frag
+{
+    "VertexShader": "instanced_Vert",
+    "FragmentShader": "instanced_Frag",
+    "GeometryShader": ""
+}

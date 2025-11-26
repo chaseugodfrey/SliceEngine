@@ -159,15 +159,19 @@ namespace SliceEngine
 
 	enum RENDER_TAG : unsigned char
 	{
+		DEBUG_NONE			= 0x00,
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
-		DEBUG_ALL_DEBUG		= 0x0F,
-		RENDER_FOG			= 0x10,
-		RENDER_BLUR			= 0x20,
-		RENDER_BLOOM		= 0x40,
-		RENDER_VIGNETTE		= 0x80,
+		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_ALL_DEBUG		= 0xFF,
+
+		RENDER_NONE			= 0x00,
+		RENDER_FOG			= 0x01,
+		RENDER_BLUR			= 0x02,
+		RENDER_BLOOM		= 0x04,
+		RENDER_VIGNETTE		= 0x08,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -192,7 +196,6 @@ namespace SliceEngine
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
@@ -201,7 +204,8 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
-
+		unsigned char debugRenderToggles{};
+		unsigned char postRenderToggles{};
 		RTTR_ENABLE();
 	};
 

@@ -1,2 +1,0 @@
-bloomJoin.vert
-bloomJoin.frag

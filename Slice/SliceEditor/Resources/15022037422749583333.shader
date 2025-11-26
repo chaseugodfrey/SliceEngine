@@ -1,2 +1,0 @@
-particles.vert
-particles.frag

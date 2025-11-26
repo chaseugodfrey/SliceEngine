@@ -25,17 +25,35 @@ namespace SliceEngine
 		*/
 		class Shader {
 			//ngl no idea whr to put this so ill put this for now
-			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile);
-			static unsigned int CompileShader(const std::string& vertFile, const std::string& fragFile, const std::string& geomFile);
+			static unsigned int CompileShader(unsigned int vertShader, unsigned int fragShader, unsigned int geomShader);
 
 		public:
-
 			unsigned int s;
-
 			//takes in a shader resource file that links to shader files
 			//and compile
 			static Shader LoadShader(std::string const&);
 			void DestroyShader();
+		};
+		class VertShader {
+		public:
+			unsigned int s;
+
+			static VertShader LoadVertShader(std::string const&);
+			void DestroyVertShader();
+		};
+		class GeomShader {
+		public:
+			unsigned int s;
+
+			static GeomShader LoadGeomShader(std::string const&);
+			void DestroyGeomShader();
+		};
+		class FragShader {
+		public:
+			unsigned int s;
+
+			static FragShader LoadFragShader(std::string const&);
+			void DestroyFragShader();
 		};
 	}
 }

@@ -57,6 +57,9 @@ namespace SliceEditor
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
+		void CompileVertShaderAsset(VertShaderData* metaData);
+		void CompileGeomShaderAsset(GeomShaderData* metaData);
+		void CompileFragShaderAsset(FragShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 		void CompileNavMeshAsset(NavMeshData* metaData);
@@ -89,12 +92,13 @@ namespace SliceEditor
 			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
+			{".vert", {AssetType::VertShader, "VertShader"}},
+			{".geom", {AssetType::GeomShader, "GeomShader"}},
+			{".frag", {AssetType::FragShader, "FragShader"}},
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
 			{".controller",{AssetType::Controller, "Controller"}},
 			{".nav",{AssetType::NavMesh, "NavMesh"}}
-			//{".vert", AssetType::Shader},
-			//{".frag", AssetType::Shader}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
@@ -103,6 +107,9 @@ namespace SliceEditor
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
 			{AssetType::Shader, ".shader"},
+			{AssetType::VertShader, ".vert"},
+			{AssetType::GeomShader, ".geom"},
+			{AssetType::FragShader, ".frag"},
 			{AssetType::Audio, ".wav"},
 			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"},
