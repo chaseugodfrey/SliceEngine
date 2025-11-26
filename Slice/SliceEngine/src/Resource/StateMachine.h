@@ -15,6 +15,7 @@ namespace SliceEngine
 {
 	namespace SliceEngineTypes
 	{
+
 		enum class ComparisonOp
 		{
 			Equal,
@@ -38,16 +39,23 @@ namespace SliceEngine
 			{ComparisonOp::IsFalse, "IsFalse"}
 			})
 
+		struct Condition
+		{
+			std::string paramName;
+			rttr::variant value;
+			ComparisonOp op;
+		};
+
 		struct Transition
 		{
 			int id;
+			std::string sourceState;
 			std::string targetState;
 
-			// maybe
-			//std::vector<std::pair<rttr::variant, ComparisonOp>> conditions;
-			rttr::variant condition;
+			std::vector<Condition> conditions;
+			/*rttr::variant condition;
 			ComparisonOp operation;
-			std::string parameterName;
+			std::string parameterName;*/
 
 			bool hasExitTime{};
 			float exitTime = 1.0f;
@@ -55,7 +63,7 @@ namespace SliceEngine
 
 			bool operator==(const Transition& other) const
 			{
-				return targetState == other.targetState && condition == other.condition;
+				return std::strcmp(sourceState.c_str(), other.sourceState.c_str()) == 0 && std::strcmp(targetState.c_str(), other.targetState.c_str());
 			}
 		};
 

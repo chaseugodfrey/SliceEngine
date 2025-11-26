@@ -189,10 +189,7 @@ namespace SliceEngine
 			for (auto& [name, components] : prefab.items())
 			{
 				GameObject newObj = factory.CreateBlank();
-				if (Editor)
-				{
-					factory.RemoveFromNameMap(newObj.GetEntity());
-				}
+				factory.RemoveFromNameMap(newObj.GetEntity());
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -232,6 +229,9 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -287,13 +287,6 @@ namespace SliceEngine
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
 			}
 
-			// idk check if the name in goFactory map is correct atm
-			// if its not a valid name then set the name
-			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
-			//{
-			//}
-			rootGO.SetName(rootGO.GetName());
-
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
@@ -320,10 +313,8 @@ namespace SliceEngine
 
 				if (!Editor)
 				{
-					GameObject GO = factory.GetGOByEntity((Entity)entity);
-
-					// set the names of all the GOs created to prevent same names
-					GO.SetName(GO.GetName());
+					// handle adding to name map here
+					FactoryInstance.AddToNameMap(entity);
 				}
 			}
 
@@ -454,7 +445,10 @@ namespace SliceEngine
 						Handle<SliceEngineTypes::Texture>,
 						Handle<SliceEngineTypes::Model>,
 						Handle<SliceEngineTypes::Material>,
-						std::array<uint64_t, 4>,
+						Handle<SliceEngineTypes::Skeleton>,
+						Handle<SliceEngineTypes::AnimationPackage>,
+						Handle<SliceEngineTypes::StateMachine>,
+						std::array<uint64_t, 4>, 
 						std::array<Entity, 4>,
 						std::vector<uint64_t>,
 						glm::vec2,
@@ -512,6 +506,9 @@ namespace SliceEngine
 							Handle<SliceEngineTypes::Texture>,
 							Handle<SliceEngineTypes::Model>,
 							Handle<SliceEngineTypes::Material>,
+							Handle<SliceEngineTypes::Skeleton>,
+							Handle<SliceEngineTypes::AnimationPackage>,
+							Handle<SliceEngineTypes::StateMachine>,
 							std::array<uint64_t, 4>,
 							std::array<Entity, 4>,
 							std::vector<uint64_t>,
@@ -619,6 +616,9 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,

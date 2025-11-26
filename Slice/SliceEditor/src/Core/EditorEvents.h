@@ -72,6 +72,11 @@ namespace SliceEditor
 
 	};
 
+	struct CloneSelectedEntities
+	{
+
+	};
+
 	struct PrefabInspectedEvent
 	{
 		SliceEngine::GUID prefabGUID;

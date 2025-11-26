@@ -27,7 +27,7 @@ namespace SliceEditor
 
 			if (ImGui::IsKeyPressed(ImGuiKey_D))
 			{
-
+				EventManager::GetInstance()->Publish<CloneSelectedEntities>();
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_C))

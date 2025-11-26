@@ -262,6 +262,22 @@ namespace SliceEngine
 		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 	}
 
+	void GOFactory::AddToNameMap(Entity entity)
+	{
+		GameObject go = GetGOByEntity(entity);
+		if (mNameToEntity.find(go.GetName()) == mNameToEntity.end())
+		{
+			mNameToEntity[go.GetName()] = entity;
+		}
+		else
+		{
+			// already exist in the map
+			go.GetComponent<SliceEntity>().mName = CreateName(go.GetName());
+			mNameToEntity[go.GetName()] = entity;
+		}
+
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)
@@ -734,22 +750,7 @@ namespace SliceEngine
 
 		auto rm = Core::GetInstance()->GetResourceManager();
 		//if its the start of the tree, set it as the root
-		if (root == entt::null) {
-			root = go.GetEntity();
-			go.AddComponent<Animator>();
-		}
-
-		if (!is_static)
-		{
-			Bone tmpBone;
-			tmpBone.skeleton_root = root;
-			tmpBone.frame_idx = index;
-
-			go.AddComponent<Bone>(tmpBone);
-			//auto& bone = go.GetComponent<Bone>();
-			//bone.skeleton_root = root;
-			//bone.frame_idx = index;
-		}
+		
 
 		if (!node.mesh_ref.empty()) {
 			go.AddComponent<Renderer>();
@@ -790,7 +791,31 @@ namespace SliceEngine
 				//rc.texture = (GUID)18349208178533231704;
 			}
 		}
-		
+
+		if (!is_static)
+		{
+			Bone tmpBone;
+			tmpBone.skeleton_root = root;
+			tmpBone.frame_idx = index;
+
+			go.AddComponent<Bone>(tmpBone);
+			//auto& bone = go.GetComponent<Bone>();
+			//bone.skeleton_root = root;
+			//bone.frame_idx = index;
+		}
+
+		if (root == entt::null) {
+			root = go.GetEntity();
+			go.AddComponent<Animator>();
+			auto& animator = go.GetComponent<Animator>();
+
+			GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
+			GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
+			animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
+			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
+			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+
+		}
 
 		for (auto& child : node.children) {
 			CreateGO_ModelNode(child, model_guid, go.GetEntity(), root, ++index, is_static);

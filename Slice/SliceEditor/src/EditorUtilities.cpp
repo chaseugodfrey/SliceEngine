@@ -162,6 +162,13 @@ namespace SliceEditor
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
+		void GameObject_Clone(entt::entity entity)
+		{
+			SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::FactoryInstance.CloneGO(go);
+
+		}
+
 		void GameObject_Destroy(entt::entity target, HistoryManager* history)
 		{
 			EventManager::GetInstance()->Publish<ClearSelectionEvent>();
