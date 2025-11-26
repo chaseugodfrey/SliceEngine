@@ -565,7 +565,7 @@ namespace SliceEditor
 	{
 		if (ImGui::BeginPopupContextItem("Debug Lines"))
 		{
-			auto& tag = camObj->camera.renderTag;
+			auto& tag = camObj->camera.debugRenderToggles;
 
 			MenuToggleBit("Debug All", tag, SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG);
 			ImGui::Separator();
@@ -573,6 +573,7 @@ namespace SliceEditor
 			MenuToggleBit("Frustum", tag, SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG);
 			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
 			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
+			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			ImGui::EndPopup();
 		}
 	}

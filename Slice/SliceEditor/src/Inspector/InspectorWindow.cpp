@@ -389,15 +389,15 @@ namespace SliceEditor
 
 			using RenderTag = SliceEngine::RENDER_TAG;
 
-			bool isBloom = cam.renderTag & RenderTag::RENDER_BLOOM;
-			bool isFog = cam.renderTag & RenderTag::RENDER_FOG;
-			bool isVignette = cam.renderTag & RenderTag::RENDER_VIGNETTE;
+			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
+			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
+			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
 
 			ImGui::Text("Bloom");
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_BLOOM, isBloom);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_BLOOM, isBloom);
 			}
 
 			if (isBloom)
@@ -411,7 +411,7 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isFog", &isFog))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_VIGNETTE, isVignette);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_FOG, isFog);
 			}
 
 			if (isFog)
@@ -424,7 +424,7 @@ namespace SliceEditor
 			ImGui::SameLine(150.0f);
 			if (ImGui::Checkbox("##cam_isVignette", &isVignette))
 			{
-				SetBit(cam.renderTag, RenderTag::RENDER_FOG, isVignette);
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_VIGNETTE, isVignette);
 			}
 
 			if (isVignette)
