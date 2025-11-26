@@ -89,9 +89,16 @@ namespace SliceEngine
 		auto tr = mRegistry->try_get<Transform>(entity);
 		if (tr)
 		{
-			tr->transform_local = glm::inverse(parentWorld) * tr->transform;
-			glm::vec3 skew; glm::vec4 proj;
-			glm::decompose(tr->transform_local, tr->scale, tr->rotation, tr->position, skew, proj);
+			if (mRegistry->any_of<RigidBody>(entity))
+			{
+				tr->transform_local = glm::inverse(parentWorld) * tr->transform;
+				glm::vec3 skew; glm::vec4 proj;
+				glm::decompose(tr->transform_local, tr->scale, tr->rotation, tr->position, skew, proj);
+			}
+			else
+			{
+				tr->transform = parentWorld * tr->transform_local;
+			}
 
 			if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
 				entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
