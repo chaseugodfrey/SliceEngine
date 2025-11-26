@@ -16,12 +16,28 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/EventManager.h"
 #include "../ECS/GOFactory.h"
 #include "../Core/ComponentModified.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 #define EPSILON 0.0001f
+#define GLM_ENABLE_EXPERIMENTAL
+
 
 namespace SliceEngine
 {
+	namespace helpers
+	{
+		glm::vec3 JPHtoglm(JPH::Vec3 vec)
+		{
+			return glm::vec3(vec.GetX(), vec.GetY(), vec.GetZ());
+		}
+
+		JPH::Vec3 glmtoJPH(glm::vec3 vec)
+		{
+			return JPH::Vec3(vec.x, vec.y, vec.z);
+		}
+	}
+
 	PhysicsSystem::~PhysicsSystem()
 	{
 		Shutdown();
@@ -518,20 +534,15 @@ namespace SliceEngine
 		{
 			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
 			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
-			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
-															fabs(transform.scale.y),
-															fabs(transform.scale.z));
+			JPH::Vec3 tempScale = boxData.scale * scl;
 
 			if (tempScale == halfExtents)
 				return;
 
-			JPH::Vec3 newHalf(
-				boxData.scale.GetX() * fabs(transform.scale.x),
-				boxData.scale.GetY() * fabs(transform.scale.y),
-				boxData.scale.GetZ() * fabs(transform.scale.z)
-			);
+			JPH::Vec3 newHalf(boxData.scale * scl);
 
 			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -579,16 +590,17 @@ namespace SliceEngine
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
-			float tempScaleX = sphereData.radius * fabs(transform.scale.x);
-			float tempScaleY = sphereData.radius * fabs(transform.scale.y);
-			float tempScaleZ = sphereData.radius * fabs(transform.scale.z);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+			float tempScaleX = sphereData.radius * fabs(scl.GetX());
+			float tempScaleY = sphereData.radius * fabs(scl.GetY());
+			float tempScaleZ = sphereData.radius * fabs(scl.GetZ());
 
 			if (tempScaleX == sphereRadius && tempScaleY == sphereRadius && tempScaleZ == sphereRadius)
 			{
 				return;
 			}
 
-			float biggestScale = std::max({ fabs(transform.scale.x), fabs(transform.scale.y), fabs(transform.scale.z) });
+			float biggestScale = std::max({ fabs(scl.GetX()), fabs(scl.GetY()), fabs(scl.GetZ()) });
 
 			JPH::SphereShapeSettings *settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -638,16 +650,18 @@ namespace SliceEngine
 			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
 
 			auto& capsuleData = std::get < ColliderShape::CapsuleData >(colliderShape.shapeData);
-			float tempScaleX = capsuleData.radius * fabs(transform.scale.x);
-			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
-			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+
+			float tempScaleX = capsuleData.radius * fabs(scl.GetX());
+			float tempScaleZ = capsuleData.radius * fabs(scl.GetZ());
+			float tempScaleHeight = capsuleData.height * fabs(scl.GetY());
 
 			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
 			{
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
 			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -763,12 +777,18 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
-		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
-		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+		//JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
+		//glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		//JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
-		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
-		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
+		glm::vec3 pos = transform.GetWorldPosition();
+		glm::quat rot = transform.GetWorldRotation();
+
+		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
+		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
+
+		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -779,8 +799,13 @@ namespace SliceEngine
 
 		//glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
-		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
-		transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		//transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
+		//transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		
+		transform.transform = 
+			glm::translate(glm::mat4(1.0f), glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ())) *
+			glm::mat4_cast(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())) *
+			glm::scale(glm::mat4(1.0f), transform.GetWorldScale());
 
 	}
 
@@ -1003,8 +1028,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::PostStepSync()
 	{
-		HandleRemovedContacts();
-
 		auto view = mRegistry->view<Transform, ColliderShape>();
 
 		// Safe, iterator-free iteration
@@ -1012,6 +1035,8 @@ namespace SliceEngine
 		{
 			SyncPhysicsToECS(t, c);
 		}
+
+		HandleRemovedContacts();
 	}
 
 	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)
@@ -1121,6 +1146,56 @@ namespace SliceEngine
 	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
 	{
 		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
+	}
+
+	glm::vec3 PhysicsSystem::GetPosition(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
+
+		return glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());
+	}
+
+	glm::quat PhysicsSystem::GetRotation(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::quat();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
+		return glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+	}
+
+	glm::vec3 PhysicsSystem::GetScale(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		const JPH::Shape* shape = colliderShape.shape.GetPtr();
+		if (const JPH::BoxShape* boxShape = dynamic_cast<const JPH::BoxShape*>(shape))
+		{
+			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			return glm::vec3(halfExtents.GetX() * 2.0f, halfExtents.GetY() * 2.0f, halfExtents.GetZ() * 2.0f);
+		}
+		else if (const JPH::SphereShape* sphereShape = dynamic_cast<const JPH::SphereShape*>(shape))
+		{
+			float radius = sphereShape->GetRadius();
+			return glm::vec3(radius * 2.0f); // Uniform scale for sphere
+		}
+		else if (const JPH::CapsuleShape* capsuleShape = dynamic_cast<const JPH::CapsuleShape*>(shape))
+		{
+			float radius = capsuleShape->GetRadius();
+			float height = capsuleShape->GetHalfHeightOfCylinder() * 2.0f;
+			return glm::vec3(radius * 2.0f, height, radius * 2.0f); // Assuming Y-axis is the height
+		}
 	}
 
 }

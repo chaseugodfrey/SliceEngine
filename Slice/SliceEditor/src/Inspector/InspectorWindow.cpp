@@ -639,6 +639,7 @@ namespace SliceEditor
 					const auto& fields = scriptRef->GetScriptClass()->mFields;
 					for (const auto& it : fields)
 					{
+
 						#pragma region Array Variables
 						if (it.second.mContainerType == SliceEngine::ScriptFieldType::Array)
 						{
@@ -822,6 +823,8 @@ namespace SliceEditor
 						}
 
 						#pragma endregion
+
+						//Normal Variables
 						else
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -895,6 +898,21 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
+							{
+								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}*/
+							}
 						}
 					}
 				}
@@ -909,50 +927,57 @@ namespace SliceEditor
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
 		if (!animator.IsValid())
-			return;
-
-		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			if(!DisplayComponentHeader<SliceEngine::Animator>(entity))
+			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 			{
-
-				HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
-				/*ImGui::Text("Controller: ");
-				ImGui::SameLine(150.0f);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				ImGui::Text("A00");*/
-
-				ImGui::Text("Playing: ");
-				ImGui::SameLine(150.f);
-				ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
-
-				std::string anim_file{};
-				ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
-
-				ImGui::Text("Loop: ");
-				ImGui::SameLine(150.f);
-				ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
-
-				ImGui::Text("Next: ");
-				ImGui::SameLine(150.f);
-				if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
-				{
-					animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-				}
-
-				ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
-
-				ImGui::Text("Prev: ");
-				ImGui::SameLine(150.f);
-				if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
-				{
-					if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
-						animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
-					else
-						animator.stateMachine.EFSM.currState->curr_anim_idx--;
-				}
+				ImGui::Text("Animator is not valid \n :deadge_1");
 			}
-			ImGui::TreePop();
+		}
+		else
+		{
+			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+			{
+				if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
+				{
+
+					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
+					/*ImGui::Text("Controller: ");
+					ImGui::SameLine(150.0f);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					ImGui::Text("A00");*/
+
+					ImGui::Text("Playing: ");
+					ImGui::SameLine(150.f);
+					ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+
+					std::string anim_file{};
+					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+
+					ImGui::Text("Loop: ");
+					ImGui::SameLine(150.f);
+					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+
+					ImGui::Text("Next: ");
+					ImGui::SameLine(150.f);
+					if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+					{
+						animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+					}
+
+					ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+
+					ImGui::Text("Prev: ");
+					ImGui::SameLine(150.f);
+					if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+					{
+						if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+							animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
+						else
+							animator.stateMachine.EFSM.currState->curr_anim_idx--;
+					}
+				}
+				ImGui::TreePop();
+			}
 		}
 	}
 
@@ -1521,6 +1546,11 @@ namespace SliceEditor
 		}
 
 		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
+		{
+			mat.SerializeAsset(node->path);
+		}
+
+		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
 			mat.SerializeAsset(node->path);
 		}
