@@ -1,2 +1,5 @@
-vignette.vert
-vignette.frag
+{
+    "VertexShader": "fullScreen_Vert",
+    "FragmentShader": "vignette_Frag",
+    "GeometryShader": ""
+}

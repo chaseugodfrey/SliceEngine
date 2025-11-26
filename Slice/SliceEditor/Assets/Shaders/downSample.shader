@@ -1,2 +1,5 @@
-downSample.vert
-downSample.frag
+{
+    "VertexShader": "fullScreen_Vert",
+    "FragmentShader": "downSample_Frag",
+    "GeometryShader": ""
+}

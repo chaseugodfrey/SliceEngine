@@ -1,2 +1,5 @@
-deferred.vert
-deferred.frag
+{
+    "VertexShader": "deferred_Vert",
+    "FragmentShader": "deferred_Frag",
+    "GeometryShader": ""
+}

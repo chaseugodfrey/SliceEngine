@@ -1,6 +1,6 @@
 #version 460 core
 
-layout (location=0) in vec3 vTexCoord;
+layout (location=0) in vec4 gFragPos;
 
 layout (location=0)	out vec4 fFragColor;
 
@@ -45,7 +45,7 @@ vec4 linearToGamma(vec4 linearRGB);
 vec3 GammaToLinear(vec3 sRGB);
 
 void main(void){
-	vec3 nom = normalize(vTexCoord);
+	vec3 nom = normalize(gFragPos.xyz);
 
 	vec3 sky = ProcessSky(nom);
 

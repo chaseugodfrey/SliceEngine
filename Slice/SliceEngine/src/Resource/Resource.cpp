@@ -72,9 +72,6 @@ namespace SliceEngine
 	//Shader
 	std::unique_ptr<SliceEngineTypes::Shader> Type<SliceEngineTypes::Shader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		//unsigned int texture_id = SliceEngineTypes::Texture::LoadTexture(path);
-
-
 		return std::make_unique<SliceEngineTypes::Shader>( SliceEngineTypes::Shader::LoadShader(path));
 	}
 
@@ -84,6 +81,48 @@ namespace SliceEngine
 	}
 
 	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Vertex Shader
+	std::unique_ptr<SliceEngineTypes::VertShader> Type<SliceEngineTypes::VertShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::VertShader>( SliceEngineTypes::VertShader::LoadVertShader(path));
+	}
+
+	void Type<SliceEngineTypes::VertShader>::Destroy(SliceEngineTypes::VertShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyVertShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::VertShader>::Reload(SliceEngineTypes::VertShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Geometry Shader
+	std::unique_ptr<SliceEngineTypes::GeomShader> Type<SliceEngineTypes::GeomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::GeomShader>( SliceEngineTypes::GeomShader::LoadGeomShader(path));
+	}
+
+	void Type<SliceEngineTypes::GeomShader>::Destroy(SliceEngineTypes::GeomShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyGeomShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::GeomShader>::Reload(SliceEngineTypes::GeomShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Fragment Shader
+	std::unique_ptr<SliceEngineTypes::FragShader> Type<SliceEngineTypes::FragShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::FragShader>( SliceEngineTypes::FragShader::LoadFragShader(path));
+	}
+
+	void Type<SliceEngineTypes::FragShader>::Destroy(SliceEngineTypes::FragShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFragShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::FragShader>::Reload(SliceEngineTypes::FragShader* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
 

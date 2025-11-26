@@ -214,22 +214,24 @@ namespace SliceEngine
 		glViewport(0, 0, mSkyboxDim, mSkyboxDim);
 
 		glBindVertexArray(mdl.vao);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &proj[0][0]);
+		GLint uniformLoc;
 		// Skybox Settings
 
 
-
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "V");
-		for (int i{}; i < 6; ++i)
+		std::stringstream ss{};
+		for (size_t i{}; i < 6; ++i)
 		{
-			glm::mat4 view = glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up);
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &view[0][0]);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, SkyboxMap, 0);
-			ClearBuffer(BufferClearSetting::COLOR_ONLY);
-
-			glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+			glm::mat4 shadowMat{ proj * glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up) };
+			ss.str("");
+			ss << "uShadowMat[" << std::to_string(i) << "]";
+			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 		}
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxMap, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
 
 		// ----- Use generated Map to generate irradiance map -----
 		SetShader(S_SKY_IRRADIANCE);
@@ -239,19 +241,19 @@ namespace SliceEngine
 		glBindTextureUnit(0, SkyboxMap);
 		glBindVertexArray(mdl.vao);
 
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "P");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &proj[0][0]);
-
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "V");
-		for (int i{}; i < 6; ++i)
+		
+		for (size_t i{}; i < 6; ++i)
 		{
-			glm::mat4 view = glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up);
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &view[0][0]);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, SkyboxIrradianceMap, 0);
-			ClearBuffer(BufferClearSetting::COLOR_ONLY);
-
-			glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+			glm::mat4 shadowMat{ proj * glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up) };
+			ss.str("");
+			ss << "uShadowMat[" << std::to_string(i) << "]";
+			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 		}
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxIrradianceMap, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
 		LinkFrameBufferSettings(FB_FINAL, 1, 0);
 	}
 #pragma endregion
@@ -512,6 +514,8 @@ namespace SliceEngine
 			SetShader(S_DEBUG_LINE);
 			UpdateCamVP();
 			BindCameraDepth(cam);
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+			SetUniformVec3(uniformLoc, Core::GetInstance()->GetRegistry().get<Transform>(cam).GetWorldPosition());
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
@@ -809,11 +813,7 @@ namespace SliceEngine
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
-		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
-		glBindVertexArray(mdl.vao);
-		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 #pragma endregion
 
