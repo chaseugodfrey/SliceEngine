@@ -124,7 +124,7 @@ namespace SliceEditor
 		SliceEngine::GameObject go = mRender->CreateCamera();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		camObj->camera.renderTag = SliceEngine::DEBUG_ALL_DEBUG;
+		camObj->camera.debugRenderToggles = SliceEngine::DEBUG_ALL_DEBUG;
 	}
 
 	void SceneViewWindow::Draw()

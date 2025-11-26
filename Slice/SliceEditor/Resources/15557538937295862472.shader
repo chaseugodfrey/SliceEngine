@@ -1,2 +1,0 @@
-vignette.vert
-vignette.frag

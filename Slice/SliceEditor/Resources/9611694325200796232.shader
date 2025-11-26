@@ -1,2 +1,0 @@
-downSample.vert
-downSample.frag
