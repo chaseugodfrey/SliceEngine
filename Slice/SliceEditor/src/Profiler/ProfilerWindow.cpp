@@ -66,17 +66,17 @@ namespace SliceEditor
 		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
 
 		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
-		for (int i = 0; i < Logger::savedLogs.size(); i++)
+		for (int i = 0; i < Logger::engineLogs.size(); i++)
 		{
 			std::stringstream ss;
 
-			ss << " [" << Logger::LogLevelToString(Logger::savedLogs[i].first) << "] ";
+			ss << " [" << Logger::LogLevelToString(Logger::engineLogs[i].first) << "] ";
 
-			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::savedLogs[i].first), ss.str().c_str());
+			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::engineLogs[i].first), ss.str().c_str());
 
 			ImGui::SameLine();
 
-			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
+			ImGui::Text("%s", Logger::engineLogs[i].second.c_str());
 		}
 
 		if (mManager.mAutoScroll)
