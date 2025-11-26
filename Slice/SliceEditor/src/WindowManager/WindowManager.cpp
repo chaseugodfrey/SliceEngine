@@ -68,6 +68,7 @@ namespace SliceEditor
 		AddWindow<InspectorWindow>();
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
+		AddWindow<ConsoleWindow>();
 	}
 
 	void WindowManager::Update()

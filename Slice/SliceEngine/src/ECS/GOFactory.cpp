@@ -262,6 +262,22 @@ namespace SliceEngine
 		//mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 	}
 
+	void GOFactory::AddToNameMap(Entity entity)
+	{
+		GameObject go = GetGOByEntity(entity);
+		if (mNameToEntity.find(go.GetName()) == mNameToEntity.end())
+		{
+			mNameToEntity[go.GetName()] = entity;
+		}
+		else
+		{
+			// already exist in the map
+			go.GetComponent<SliceEntity>().mName = CreateName(go.GetName());
+			mNameToEntity[go.GetName()] = entity;
+		}
+
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)
