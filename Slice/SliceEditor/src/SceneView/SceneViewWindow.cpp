@@ -124,6 +124,7 @@ namespace SliceEditor
 		SliceEngine::GameObject go = mRender->CreateCamera();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
+		camObj->camera.renderTag = SliceEngine::DEBUG_ALL_DEBUG;
 	}
 
 	void SceneViewWindow::Draw()
@@ -281,7 +282,7 @@ namespace SliceEditor
 					cameraYaw -= mouse_diff.x * sensitivity;
 					cameraPitch -= mouse_diff.y * sensitivity;
 
-					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+					cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
 
 					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
 					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
