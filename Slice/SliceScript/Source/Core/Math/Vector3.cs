@@ -22,6 +22,11 @@ namespace SliceEngine
             this.z = val;
         }
 
+        public override string ToString()
+        {
+            return "(" + x.ToString() + ", " + y.ToString() + ", " + z.ToString() + ")";
+        }
+
         public static Vector3 Zero => new Vector3(0.0f);
 
         public static Vector3 operator -(Vector3 v1, Vector3 v2)
