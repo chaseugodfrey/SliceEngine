@@ -32,9 +32,10 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
-		void UpdateAnimation(Animator& animator,float dt);
+		void UpdateAnimation(entt::registry& reg, entt::entity entity, Animator& animator, float dt);
 		void BoneUpdate();
 		void InitSystem();
+		void InitAnimatorEntity(entt::registry& reg, entt::entity entity);
 	};
 
 	

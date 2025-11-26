@@ -652,15 +652,30 @@ namespace SliceEditor
 				j = nullptr;
 			}
 		}
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Condition& c)
+		{
+			to_json(j["value"], c.value);
+			j["paramName"] = c.paramName;
+			j["comparisonOP"] = c.op;
+		}
 		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Transition& t)
 		{
+			j["sourceState"] = t.sourceState;
 			j["targetState"] = t.targetState;
-			to_json(j["condition"], t.condition);
-			j["parameterName"] = t.parameterName;
-			j["comparisonOP"] = t.operation;
 			j["hasExitTime"] = t.hasExitTime;
 			j["exitTime"] = t.exitTime;
 			j["entryTime"] = t.entryTime;
+			for (const auto& it : t.conditions)
+			{
+				nlohmann::json tempTransJson;
+
+				// 4. Call your "working" Style 2 to_json to populate it
+				to_json(tempTransJson, it);
+
+				// 5. Add the populated object to the array
+				j["conditions"].push_back(tempTransJson);
+
+			}
 		}
 		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::State& s)
 		{
@@ -703,24 +718,37 @@ namespace SliceEditor
 				var = rttr::variant();
 			}
 		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::Condition& c)
+		{
+			j.at("paramName").get_to(c.paramName);
+			j.at("comparisonOP").get_to(c.op);
+			// Deserializing condition, which is an rttr::variant
+			if (j.contains("value")) {
+				from_json(j.at("value"), c.value);
+			}
+			else {
+				c.value = rttr::variant();
+			}
+		}
 		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::Transition& t)
 		{
 			// A helper lambda to convert the string operator to enum
-
+			j.at("sourceState").get_to(t.sourceState);
 			j.at("targetState").get_to(t.targetState);
-			j.at("parameterName").get_to(t.parameterName);
-			j.at("comparisonOP").get_to(t.operation);
-
 			j.at("hasExitTime").get_to(t.hasExitTime);
 			j.at("exitTime").get_to(t.exitTime);
 			j.at("entryTime").get_to(t.entryTime);
 
-			// Deserializing condition, which is an rttr::variant
-			if (j.contains("condition")) {
-				from_json(j.at("condition"), t.condition);
-			}
-			else {
-				t.condition = rttr::variant();
+			t.conditions.clear();
+			const auto& conditions_json = j.at("conditions");
+
+			// Iterate over the array of transitions
+			for (const auto& condition_json : conditions_json)
+			{
+				SliceEngine::SliceEngineTypes::Condition tmpCons;
+				// Call the Transition deserialization helper
+				from_json(condition_json, tmpCons);
+				t.conditions.push_back(tmpCons);
 			}
 		}
 		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::State& s)
@@ -852,35 +880,51 @@ namespace SliceEditor
 
 			SliceEngine::SliceEngineTypes::State tmpState;
 			SliceEngine::SliceEngineTypes::Transition tmpTran;
+			SliceEngine::SliceEngineTypes::Condition tmpCon;
 
 
 			// -------------------- Idle --------------------
 			tmpState.stateName = "Idle";
 			tmpState.isLoop = true;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Attack1";
-			tmpTran.parameterName = "Attack1";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpState.transitions.push_back(tmpTran);
 
+			tmpCon.paramName = "Attack1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Walk";
-			tmpTran.parameterName = "Walk";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpState.transitions.push_back(tmpTran);
 
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "JumpLoop";
-			tmpTran.parameterName = "JumpLoop";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+
+			tmpCon.paramName = "JumpLoop";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Idle"], tmpState);
 			tmpState.transitions.clear();
@@ -889,29 +933,44 @@ namespace SliceEditor
 			tmpState.stateName = "JumpLoop";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Plunge";
-			tmpTran.parameterName = "Plunge";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 0.7f;
-			tmpState.transitions.push_back(tmpTran);
 
+			tmpCon.paramName = "Plunge";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Land";
-			tmpTran.parameterName = "Land";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpState.transitions.push_back(tmpTran);
 
+			tmpCon.paramName = "Land";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "DoubleJump";
-			tmpTran.parameterName = "DoubleJump";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "DoubleJump";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["JumpLoop"], tmpState);
 			tmpState.transitions.clear();
@@ -920,13 +979,18 @@ namespace SliceEditor
 			tmpState.stateName = "Plunge";
 			tmpState.isLoop = true;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "PlungeLand";
-			tmpTran.parameterName = "PlungeLand";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "PlungeLand";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Plunge"], tmpState);
 			tmpState.transitions.clear();
@@ -935,21 +999,31 @@ namespace SliceEditor
 			tmpState.stateName = "PlungeLand";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "PlungeToWalk";
-			tmpTran.parameterName = "PlungeToWalk";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "PlungeToWalk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "PlungeToIdle";
-			tmpTran.parameterName = "PlungeToIdle";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "PlungeToIdle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["PlungeLand"], tmpState);
 			tmpState.transitions.clear();
@@ -958,13 +1032,18 @@ namespace SliceEditor
 			tmpState.stateName = "PlungeToIdle";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["PlungeToIdle"], tmpState);
 			tmpState.transitions.clear();
@@ -973,13 +1052,18 @@ namespace SliceEditor
 			tmpState.stateName = "PlungeToWalk";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Walk";
-			tmpTran.parameterName = "Walk";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["PlungeToWalk"], tmpState);
 			tmpState.transitions.clear();
@@ -988,29 +1072,44 @@ namespace SliceEditor
 			tmpState.stateName = "Walk";
 			tmpState.isLoop = true;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Attack1";
-			tmpTran.parameterName = "Attack1";
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "Attack1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "JumpLoop";
-			tmpTran.parameterName = "JumpLoop";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
 			tmpTran.hasExitTime = false;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "JumpLoop";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Walk"], tmpState);
 			tmpState.transitions.clear();
@@ -1019,21 +1118,31 @@ namespace SliceEditor
 			tmpState.stateName = "Attack1";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "AttackToIdle1";
-			tmpTran.parameterName = "AttackToIdle1";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "AttackToIdle1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Attack2";
-			tmpTran.parameterName = "Attack2";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Attack2";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Attack1"], tmpState);
 			tmpState.transitions.clear();
@@ -1042,21 +1151,31 @@ namespace SliceEditor
 			tmpState.stateName = "AttackToIdle1";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Walk";
-			tmpTran.parameterName = "Walk";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 
 			to_json(metaJson["stateMap"]["AttackToIdle1"], tmpState);
@@ -1066,21 +1185,31 @@ namespace SliceEditor
 			tmpState.stateName = "Attack2";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "AttackToIdle2";
-			tmpTran.parameterName = "AttackToIdle2";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "AttackToIdle2";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Attack3";
-			tmpTran.parameterName = "Attack3";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Attack3";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Attack2"], tmpState);
 			tmpState.transitions.clear();
@@ -1089,21 +1218,31 @@ namespace SliceEditor
 			tmpState.stateName = "AttackToIdle2";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Walk";
-			tmpTran.parameterName = "Walk";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 
 			to_json(metaJson["stateMap"]["AttackToIdle2"], tmpState);
@@ -1113,13 +1252,18 @@ namespace SliceEditor
 			tmpState.stateName = "Attack3";
 			tmpState.isLoop = false;
 
-			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack3ToLoco";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Attack3ToLoco";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Attack3"], tmpState);
 			tmpState.transitions.clear();
@@ -1128,21 +1272,31 @@ namespace SliceEditor
 			tmpState.stateName = "Attack3ToLoco";
 			tmpState.isLoop = false;
 
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
 
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
 			tmpTran.targetState = "Walk";
-			tmpTran.parameterName = "Walk";
 			tmpTran.hasExitTime = true;
 			tmpTran.entryTime = 0.0f;
 			tmpTran.exitTime = 1.0f;
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Attack3ToLoco"], tmpState);
 			tmpState.transitions.clear();
