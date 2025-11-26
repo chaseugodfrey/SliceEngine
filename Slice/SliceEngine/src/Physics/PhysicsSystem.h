@@ -122,6 +122,12 @@ namespace SliceEngine
 		JPH::uint GetNumBroadPhaseLayers();
 
 		JPH::BroadPhaseLayer GetBroadPhaseLayer(uint32_t layer);
+
+		glm::vec3 GetPosition(Entity entity);
+
+		glm::quat GetRotation(Entity entity);
+
+		glm::vec3 GetScale(Entity entity);
 	};
 }
 

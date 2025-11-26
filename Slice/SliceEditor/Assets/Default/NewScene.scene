@@ -2594,8 +2594,16 @@
     {
         "Player": {
             "struct SliceEngine::Animator": {
+                "AnimPkg Handle": {
+                    "GUID": "16939318639615749652"
+                },
+                "Skeleton Handle": {
+                    "GUID": "15604823125079971656"
+                },
                 "current_time": 0.0,
-                "stateMachine": ""
+                "stateMachine Handle": {
+                    "GUID": "9857886709116471337"
+                }
             },
             "struct SliceEngine::Bone": {
                 "frame_idx": 0,
