@@ -1538,6 +1538,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->path);
 		}
+
+		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->path);
+		}
 	}
 
 	void InspectorWindow::DisplayState(StateNode* node)
