@@ -14,9 +14,11 @@ namespace SliceEngine
         public int enemyPerSpawn        = 4;
         public float randomRadius       = 1f;
 
+        public string spawnTags = "Spawn Location";
+
         public string enemyPrefab = "EnemyTest";
 
-        public List<Vector3> spawnPoints = new List<Vector3>();
+        ///public List<Vector3> spawnPoints = new List<Vector3>();
 
         private List<Transform> possibleTransforms = new List<Transform>();
 
@@ -26,12 +28,23 @@ namespace SliceEngine
         public override void OnCreate()
         {          
             enemySpawners.Clear();
-
-
-            enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
+            //enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
+            //
+            SetUpSpawnLocations();
             //Look for SpawnPoint
 
         }
+
+        private void SetUpSpawnLocations()
+        {
+           GameObject[] temp =  gameObject.FindGameObjectsWithTag(spawnTags);
+
+            foreach(GameObject local in temp)
+            {
+                possibleTransforms.Add(local.GetComponent<Transform>());
+            }
+        }
+
 
         public override void OnUpdate(float dt)
         {
@@ -42,11 +55,14 @@ namespace SliceEngine
         {
             if (CanSpawn())
             {
-                for (int i = 0; i < enemyPerSpawn; i++)
+                foreach (EnemySpawner spawner in enemySpawners)
                 {
-                    GameObject just = CreateGameObject(enemyPrefab);
-                    Vector3 ran = Utilities.RandomInsideSphere(randomRadius);
-                    just.GetComponent<Transform>().Position = enemySpawners[0].transform.Position + new Vector3(ran.x, 0, ran.z);
+                    for (int i = 0; i < enemyPerSpawn; i++)
+                    {
+                        GameObject just = CreateGameObject(enemyPrefab);
+                        Vector3 ran = Utilities.RandomInsideSphere(randomRadius);
+                        just.GetComponent<Transform>().Position = spawner.transform.Position + new Vector3(ran.x, 0, ran.z);
+                    }
                 }
             }
         }

@@ -29,6 +29,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include <Systems/LayerManager.h>
 #include <WindowManager/WindowManager.h>
+#include <Systems/PrefabSystem.h>
 
 namespace SliceEditor
 {
