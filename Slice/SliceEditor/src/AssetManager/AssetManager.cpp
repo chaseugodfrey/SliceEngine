@@ -770,10 +770,10 @@ namespace SliceEditor
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
 		// Create the descriptor
-		std::string resourcePath = CreateDescriptorFile(filePath);
+		std::string resourcePath = CreateDescriptorFile(filePath, true);
 
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		resourceMgr->RegisterResourceAsset(resourcePath);
+		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//resourceMgr->RegisterResourceAsset(resourcePath);
 
 	}
 

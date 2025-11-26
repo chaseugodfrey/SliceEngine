@@ -59,7 +59,9 @@ namespace SliceEditor
 		case SelectionType::ENTITY:
 			if (ImGui::Button("Prefab Create"))
 			{
-				SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
+				mRegistry.GetAssetManager().CreatePrefab(go);
+				//SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
 			}
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
 			break;
