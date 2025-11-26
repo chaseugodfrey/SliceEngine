@@ -444,6 +444,8 @@ namespace SliceEngine
 			clipGUID = entry->AudioClips[randomIndex];
 		}
 
+		auto audioManagerObject = FactoryInstance.GetGOByName("AudioManager");
+
 		auto audioObject = FactoryInstance.GetGOByName(key);
 
 		if (audioObject.GetEntity() == entt::null)
