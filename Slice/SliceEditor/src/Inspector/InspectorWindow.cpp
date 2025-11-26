@@ -932,6 +932,7 @@ namespace SliceEditor
 			{
 				ImGui::Text("Animator is not valid \n :deadge_1");
 			}
+			ImGui::TreePop();
 		}
 		else
 		{
