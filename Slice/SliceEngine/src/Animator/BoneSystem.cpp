@@ -96,11 +96,16 @@ namespace SliceEngine
 			auto& animator = core->GetRegistry().get<Animator>(root_entity);
 			//auto& transform = core->GetRegistry().get<Transform>(entity);
 
-			if (Core::GetInstance()->GetRegistry().any_of<Renderer>(entity)) {
-				animator.inverse_flags.set(bone.frame_idx);
+			if(animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_skeleton.IsValid())
+			//if(animator.IsValid())
+			{
+				if (Core::GetInstance()->GetRegistry().any_of<Renderer>(entity)) {
+					animator.inverse_flags.set(bone.frame_idx);
+					animator.SetInverseRoot(bone.frame_idx);
+				}
 			}
 
-			animator.SetInverseRoot(bone.frame_idx);
+			
 
 			//animator.SetInverseRoots();
 		}

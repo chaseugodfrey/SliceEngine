@@ -33,6 +33,7 @@ namespace SliceEditor
 		mSelectedEntities.clear();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
 		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &SelectionManager::DeleteSelectedObjects>(this);
+		EventManager::GetInstance()->Subscribe<CloneSelectedEntities, &SelectionManager::CloneSelectedObjects>(this);
 
 	}
 
@@ -209,6 +210,18 @@ namespace SliceEditor
 		for(auto entity : deleteList)
 		{
 			EditorUtilities::GameObject_Destroy(entity);
+		}
+	}
+
+	void SelectionManager::CloneSelectedObjects()
+	{
+		for (auto* node : mSelectedNodes)
+		{
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode& entityNode = *static_cast<EntityNode*>(node);
+				EditorUtilities::GameObject_Clone(entityNode.entity);
+			}
 		}
 	}
 

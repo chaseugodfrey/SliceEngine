@@ -62,7 +62,7 @@ namespace SliceEngine
         /// Clamps a value between a minimum and maximum limit.
         /// </summary>
         public static T Clamp<T>(T value, T min, T max) where T : IComparable<T>
-        {
+        {            
             if (value.CompareTo(min) < 0) return min;
             if (value.CompareTo(max) > 0) return max;
             return value;
@@ -132,11 +132,6 @@ namespace SliceEngine
             if (delta > 180f) delta -= 360f;
             return delta;
         }
-
-        /// <summary>
-        /// Returns the absolute value of a float.
-        /// </summary>
-        public static float Abs(float f) => Math.Abs(f);
 
         /// <summary>
         /// Returns the min value of a comparable type.

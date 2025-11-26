@@ -76,18 +76,21 @@ namespace SliceEngine
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
-			if (EFSM.parameters.find(transition.parameterName) != EFSM.parameters.end())
+			for(const SliceEngineTypes::Condition& condition : transition.conditions)
 			{
-				const rttr::variant& currentParamValue = EFSM.parameters[transition.parameterName];
-
-				bool check = currentParamValue.to_bool();
-
-				if (EvalCon(currentParamValue, transition.operation, transition.condition))
+				if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
 				{
-					EFSM.nextState = transition.targetState;
-					EFSM.stateCon = true;
-					EFSM.currState->transitionUsed = &transition;
-					break;
+					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
+
+					//bool check = currentParamValue.to_bool();
+
+					if (EvalCon(currentParamValue, condition.op, condition.value))
+					{
+						EFSM.nextState = transition.targetState;
+						EFSM.stateCon = true;
+						EFSM.currState->transitionUsed = &transition;
+						break;
+					}
 				}
 			}
 		}
@@ -206,6 +209,8 @@ namespace SliceEngine
 
 		return (float)EFSM.currState->fps;
 	}
+
+	// change this, its supposed to be either condiiton change or param idk which
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
 		if (!EFSM.currState) return;
