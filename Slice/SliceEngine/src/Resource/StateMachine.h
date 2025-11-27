@@ -100,7 +100,7 @@ namespace SliceEngine
 			std::string nextState;
 			std::string prevState;
 
-			bool stateCon = false;;
+			bool stateCon = false;
 			std::unordered_map<std::string, rttr::variant> parameters;
 
 			static StateMachine LoadStateMachineResource(std::string const&);
