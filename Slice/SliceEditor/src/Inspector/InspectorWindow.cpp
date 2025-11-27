@@ -89,6 +89,7 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 
+		
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
@@ -106,6 +107,12 @@ namespace SliceEditor
 		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
 
 		ImGui::Text("Entity ID: %d", entity);
+
+		//Temp solution
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
+		{
+			ImGui::Text("Is Prefab");
+		}
 
 		std::function<void(std::string name)> funcTag = [&](std::string name)
 			{

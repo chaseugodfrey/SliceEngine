@@ -13,7 +13,7 @@ namespace SliceEngine
         Transform t;
         GameObject floor;
         ColliderShape Attack_Collider_1;
-        AudioComponent myAudio;
+        //AudioComponent myAudio;
 
 
         public string[] test3 = { "Test", "Test2" };
@@ -38,7 +38,7 @@ namespace SliceEngine
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-            myAudio = GetComponent<AudioComponent>();
+            //myAudio = GetComponent<AudioComponent>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
             Attack_Collider_1.ComponentEnabled = false;
@@ -245,12 +245,11 @@ namespace SliceEngine
 
             if (animator.GetCurrAnimName() == "Walk")
             {
-                myAudio.Play();
-                SliceLog.Log("Walking");
+                //myAudio.Play();
             }
             else
             {
-                myAudio.Stop();
+                //myAudio.Stop();
             }
 
             // duble bifferb for attack

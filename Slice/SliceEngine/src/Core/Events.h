@@ -121,6 +121,17 @@ struct OnButtonReleaseEvent
 {
 	Entity entity;
 };
+
+struct OnPrefabModifiedEvent
+{
+	SliceEngine::GUID guid;
+};
+
+struct OnPrefabDeletedEvent
+{
+	SliceEngine::GUID guid;
+};
+
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION

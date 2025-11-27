@@ -61,6 +61,13 @@ namespace SliceEngine
         }
         public new T GetComponent<T>() where T : Component
         {
+            Type componentType = typeof(T);
+            if (!FunctionCalls.Entity_HasComponent(gameObject.mID, componentType))
+            {
+                return null;
+            }
+
+
             var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
             if (ctor == null)
                 throw new InvalidOperationException(

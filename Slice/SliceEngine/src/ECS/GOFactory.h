@@ -168,6 +168,28 @@ namespace SliceEngine
 		void InitRootEntity();
 		void RemoveFromNameMap(Entity entity);
 		void AddToNameMap(Entity entity);
+
+		// THESE ARE FOR TESTING
+		// @GIDEON RMB TO DELETE OR ANYONE THAT READS THIS
+		inline std::string GetNameFromMap(Entity entity)
+		{
+			for (auto& [name, ent] : mNameToEntity)
+			{
+				if (ent == entity)
+				{
+					return name;
+				}
+			}
+
+			return "";
+		}
+		inline void PrintNameMap()
+		{
+			for(auto& [name, entity] : mNameToEntity)
+			{
+				SLICE_LOG_VALUES("NameMap Entry: " + name);
+			}
+		}
 		bool isDescendant(Entity target, Entity dest);
 		bool Unparent(Entity entity);
 		bool SetParent(Entity entity, Entity parentEntity = entt::null);
