@@ -73,6 +73,9 @@ namespace SliceEngine
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f ,0.f,0.f};
 
+		if (!audioComp.componentEnabled) // if not enabled do not need to update entity
+			return;
+
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			if (audioComp.previewChannel && audioComp.playPreview == true)
@@ -128,18 +131,26 @@ namespace SliceEngine
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-
-
+		auto& transform = reg.get<Transform>(entity);
+		glm::vec3 entityVel = { 0.f ,0.f,0.f };
+			
 		
 		if (audioComp.channel != nullptr)
 		{
 			audioManager->UpdateChannelFromComponent(audioComp.channel, audioComp);
 		}
 
+		// works for now but will get back with yy if the way i do it is wrong(should be wrong lol)
+		if (!audioComp.componentEnabled && audioManager->IsChannelPlaying(audioComp.channel))
+		{
+			audioManager->StopSound(audioComp.channel);
+		}
+		else if(audioComp.componentEnabled && !audioManager->IsChannelPlaying(audioComp.channel))
+		{
+			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+		}
+		// end of my changes
 		
-
-		
-
 		if (audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
 		{
 			
