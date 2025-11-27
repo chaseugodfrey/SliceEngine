@@ -1,0 +1,2 @@
+skyboxGeneration.vert
+skyboxGeneration.frag

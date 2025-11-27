@@ -190,6 +190,9 @@ namespace SliceEngine
 			{
 				GameObject newObj = factory.CreateBlank();
 				factory.RemoveFromNameMap(newObj.GetEntity());
+				//factory.PrintNameMap();
+			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
+				//factory.PrintNameMap();
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -210,6 +213,8 @@ namespace SliceEngine
 						for (auto& [propName, value] : props.items())
 						{
 							rttr::property prop = compType.get_property(propName);
+
+							//factory.PrintNameMap();
 
 							if (!prop.is_valid())
 								continue;
@@ -270,6 +275,8 @@ namespace SliceEngine
 				}
 			}
 
+			//factory.PrintNameMap();
+
 			// if its cloning an object, creating a prefab of an object
 			// and that object exist in the scene
 			// it would end up havint the same name
@@ -316,8 +323,13 @@ namespace SliceEngine
 
 				if (!Editor)
 				{
+					//factory.PrintNameMap();
+					//std::string goName = factory.GetNameFromMap(entity);
+
 					// handle adding to name map here
 					FactoryInstance.AddToNameMap(entity);
+					//factory.PrintNameMap();
+				//	goName = factory.GetNameFromMap(entity);
 				}
 			}
 
@@ -644,6 +656,11 @@ namespace SliceEngine
 							{
 								uint32_t oldID = value.get<uint32_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
+							}
+
+							if (propName == "mName" && componentName == typeid(SliceEntity).name())
+							{
+								FactoryInstance.UpdateName(value, node.GetEntity());
 							}
 						}
 
