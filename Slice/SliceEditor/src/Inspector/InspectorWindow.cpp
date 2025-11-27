@@ -20,7 +20,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
-#include "Session/SessionManager.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>

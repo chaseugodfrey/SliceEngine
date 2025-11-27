@@ -866,7 +866,7 @@ namespace SliceEngine
 
 		std::stringstream ss;
 		ss << "Uniform variable: " << str << " doesn't exist!!!\n";
-		SLICE_LOG_WARNING(ss.str());
+		//SLICE_LOG_WARNING(ss.str());
 		return false;
 	}
 #pragma endregion
