@@ -32,19 +32,6 @@ namespace SliceEngine
                 SliceLog.Console("String List Element " + i + ": " +  var);
                 i++;
             }
-
-            //int j = 0;
-            //foreach (string var in stringList)
-            //{
-            //    SliceLog.Log("String List Element " + i + ": " + var);
-            //    j++;
-            //}
-            //int k = 0;
-            //foreach (int var in intList)
-            //{
-            //    SliceLog.Log("Int List Element " + i + ": " + var);
-            //    k++;
-            //}
         }
     }
 }
