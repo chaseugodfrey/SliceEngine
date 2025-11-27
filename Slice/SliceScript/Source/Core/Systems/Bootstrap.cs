@@ -26,7 +26,7 @@ namespace SliceEngine
             if (CameraController != null) Console.WriteLine("Camera found");
             else Console.WriteLine("Camera not found");
 
-            Player = gameObject.FindGameObjectWithName("Player")?.As<PlayerController>();
+            Player = gameObject.FindGameObjectsWithTag("Player")[0]?.As<PlayerController>();
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
