@@ -19,7 +19,8 @@ namespace SliceEngine
         }
         public override void OnUpdate(float dt)
         {
-
+            Vector2 mousePos = Input.GetMousePosition();
+            //Console.WriteLine("Mouse Position: X=" + mousePos.x + " Y=" + mousePos.y);
             if (Input.IsKeyDown(Keys.KEY_J)) transform.Rotate(xSensitivity * dt, Vector3.Up, true);
             else if (Input.IsKeyDown(Keys.KEY_L)) transform.Rotate(-xSensitivity * dt, Vector3.Up, true);
 

@@ -5,14 +5,14 @@ using System.Runtime.CompilerServices;
 
 namespace SliceEngine
 {
+    public class Coroutine
+    {
+        public IEnumerator Enumerator;
+        public SliceBehaviour Owner;
+        public object CurrentYield = null;
+    }
     public class CoroutineManager
     {
-        public class Coroutine
-        {
-            public IEnumerator Enumerator;
-            public SliceBehaviour Owner;
-            public object CurrentYield = null;
-        }   
 
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();

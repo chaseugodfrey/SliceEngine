@@ -22,25 +22,27 @@ namespace SliceEngine
             base.OnCreate();
 
             // Finding references to each script
-            CameraController = gameObject.FindGameObjectsWithTag("Camera Rig")[0]?.As<CameraController>();
+            GameObject[] arr = gameObject.FindGameObjectsWithTag("Camera");
+            if (arr != null) CameraController = arr[0].As<CameraController>();
             if (CameraController != null) Console.WriteLine("Camera found");
             else Console.WriteLine("Camera not found");
 
-            Player = gameObject.FindGameObjectsWithTag("Player")[0]?.As<PlayerController>();
+            arr = gameObject.FindGameObjectsWithTag("Player");
+            if (arr != null) Player = arr[0].As<PlayerController>();
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
-            LevelDirector = gameObject.FindGameObjectsWithTag("Level Director")[0]?.As<LevelDirector>();
+            arr = gameObject.FindGameObjectsWithTag("Level Director"); 
+            LevelDirector = arr[0].As<LevelDirector>();
             if (LevelDirector != null) Console.WriteLine("Level Director found");
             else Console.WriteLine("Level Director not found");
 
-
-            Console.WriteLine("Awake called");
+            Console.WriteLine("Jiale called");
 
             // Calling initialize on each script
-            CameraController.Initialize();
-            Player.Initialize();
-            LevelDirector.Initialize();
+            if (CameraController != null) CameraController.Initialize();
+            if (Player != null) Player.Initialize();
+            if (LevelDirector != null) LevelDirector.Initialize();
         }
     }
 }

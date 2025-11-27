@@ -23,7 +23,6 @@ namespace SliceEngine
         public override void OnTriggerEnter(uint other)
         {
             base.OnTriggerEnter(other);
-            Console.WriteLine("Trigger entered, collided id " + other);
             if (other == groundObject.mID)
             {
                 Console.WriteLine("Player grounded");
