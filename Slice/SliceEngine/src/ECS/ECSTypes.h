@@ -70,6 +70,7 @@ namespace SliceEngine
 
 	struct Script
 	{
+		bool componentEnabled{ true };
 		std::string scriptName;
 
 		// purely for serialization and deserialization
