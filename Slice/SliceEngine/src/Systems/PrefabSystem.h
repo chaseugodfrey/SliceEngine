@@ -35,7 +35,7 @@ namespace SliceEngine
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-		GameObject CreatePrefab(const GUID& prefabGUID);
+		GameObject CreatePrefab(const GUID& prefabGUID, bool isEditor = false);
 		void UpdatePrefabChild(Entity entity, GUID const& guid);
 	};
 }

@@ -20,7 +20,7 @@ namespace SliceEngine
 
 	}
 
-	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID)
+	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID, bool isEditor)
 	{
 		//		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 
@@ -31,8 +31,11 @@ namespace SliceEngine
 		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath);
 
 		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
-		//std::string goName = GO.GetName(); was for debugging
-		FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+		//std::string goName = GO.GetName(); was for 
+		if(!isEditor)
+		{
+			FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+		}
 
 		mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 
