@@ -15,9 +15,9 @@ namespace SliceEngine
         public int enemyPerSpawn        = 4;
         public float randomRadius       = 1f;
 
-        private int currentStage = 0;
-
         private bool spawning = false;
+
+        private int currentStage = 0;
 
         private void IncreaseStage()
         {
@@ -30,10 +30,6 @@ namespace SliceEngine
 
         public string enemyPrefab = "EnemyTest";
         public string spawnerPrefab = "EnemySpawner";
-
-        ///public List<Vector3> spawnPoints = new List<Vector3>();
-
-        //private List<Transform> possibleTransforms = new List<Transform>();
 
         private List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
 
@@ -51,19 +47,14 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            CreateGameObject(enemyPrefab);
             //enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
-            //
-
-            //Look for SpawnPoint
-
         }
 
         public void Initialize()
         {
             enemySpawners.Clear();
             SetUpSpawnLocations();
-            SpawnSpawners();
+            //SpawnSpawners();
         }
 
         //Go through the list of transform for the current stage to spawn spawners
@@ -72,15 +63,14 @@ namespace SliceEngine
             Console.WriteLine("[[LEVEL DIRECTOR]] SPAWN SPAWNER IS CALLED");
             foreach (Transform local in stageTransforms[currentStage])
             {
-                //GameObject just = CreateGameObject(spawnerPrefab);
-                Console.WriteLine("[[LEVEL DIRECTOR]] TRYING TO SPAWN SPAWNER");
-                CreateGameObject(spawnerPrefab);
-                Console.WriteLine("[[LEVEL DIRECTOR]] TRYING SUCCEEDED");
-                // It crashes here idk why i have to find out
-                //just.GetComponent<Transform>().Position = local.Position;
-                //EnemySpawner a = just.As<EnemySpawner>();
-                //a.StartSpawning();
-                //enemySpawners.Add(a);
+                GameObject just = CreateGameObject(spawnerPrefab);
+                //Console.WriteLine("[[LEVEL DIRECTOR]] TRYING TO SPAWN SPAWNER");
+                //CreateGameObject(spawnerPrefab);
+                //Console.WriteLine("[[LEVEL DIRECTOR]] TRYING SUCCEEDED");
+                just.GetComponent<Transform>().Position = local.Position;
+                EnemySpawner a = just.As<EnemySpawner>();
+                a.StartSpawning();
+                enemySpawners.Add(a);
             }
         }
 
@@ -123,9 +113,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             if (spawning)
-            {
-                SpawnSpawnerEnemies();
-            }
+            { SpawnSpawnerEnemies(); }
 
             if (Input.IsKeyDown(Keys.KEY_0))
             {
