@@ -44,7 +44,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(float fixedDt, size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize( size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -60,8 +60,6 @@ namespace SliceEngine
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
 				}
 			}
-
-			collisionSteps = static_cast<int>(ceil(fixedDt / (1.0f / 60.f)));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -1204,6 +1202,16 @@ namespace SliceEngine
 			float height = capsuleShape->GetHalfHeightOfCylinder() * 2.0f;
 			return glm::vec3(radius * 2.0f, height, radius * 2.0f); // Assuming Y-axis is the height
 		}
+	}
+
+	int PhysicsSystem::GetCollisionSteps() const
+	{
+		return collisionSteps;
+	}
+
+	void PhysicsSystem::SetCollisionSteps(int steps)
+	{
+		collisionSteps = steps;
 	}
 
 }
