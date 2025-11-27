@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	//In the future add an ID 
 	struct SFXEntry
 	{
 		std::string key = "Default";
@@ -40,14 +41,22 @@ namespace SliceEngine
 		float minInterval = 0.f;
 	};
 
+	void to_json(nlohmann::json& j, const SFXEntry& entry);
+	void from_json(const nlohmann::json& j, SFXEntry& entry);
+
 	class AudioSettings
 	{
 		FMOD::System* mSystem = nullptr;
+
+		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
+
 		//std::vector<SFXEntry> mSfxMap;
 	public:
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
-		void Init(FMOD::System* system);
+		void Init();
 		void Exit();
+		void Serialize(const std::filesystem::path& desc_path);
+		void Deserialize(const std::filesystem::path& desc_path);
 		void CreateSoundGroup(const std::string& key);
 		void RemoveSoundGroup();
 		void AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips);
@@ -60,17 +69,8 @@ namespace SliceEngine
 		void RemoveFromSoundGroup(std::vector<GUID>& audioClips);
 		void SetMaxInstances(const std::string& key, int maxInstances);
 		const int GetMaxInstances(const std::string& key);
-		void SetMinIntervals(const std::string& key, float minIntervals);
-		void SetMinDistance(const std::string& key, float minDistance);
-		const float GetMinDistance(const std::string& key);
-		void SetMaxDistance(const std::string& key, float maxDistance);
-		const float GetMaxDistance(const std::string& key);
-		void SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend);
-		const float GetSoundGroupSpatialBlend(const std::string& key);
-		void SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial);
-		const bool GetSoundGroupSpatialBlendBool(const std::string& key);
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
-		void PlaySFX(const std::string& key);
+		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f));
 		void Release();
 	};
 }

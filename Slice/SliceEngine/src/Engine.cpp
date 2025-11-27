@@ -43,7 +43,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
-#include "Test.h"
 #include "Configuration/AudioSettings.cpp"
 
 //using namespace rttr;
@@ -118,8 +117,6 @@ namespace SliceEngine
 
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		AudioSettings temp_audio_setting;
-		mAudioSettings = &temp_audio_setting;
 		/*TestInit(mAudioManager->GetSoundSystem());
 		TestCreate();
 		TestAddSound();
@@ -190,7 +187,7 @@ namespace SliceEngine
 	void Engine::SceneInit()
 	{
 		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init(Core::GetInstance()->GetAudioManager()->GetSoundSystem());
+		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 

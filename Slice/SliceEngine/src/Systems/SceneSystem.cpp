@@ -29,6 +29,7 @@ namespace SliceEngine
 		UnloadCurrentScene();
 	}
 
+	
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
 		//isSceneUnloaded = false;
