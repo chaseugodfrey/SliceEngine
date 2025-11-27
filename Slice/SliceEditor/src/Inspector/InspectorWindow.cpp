@@ -358,10 +358,13 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAudioListener(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& al = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioListener>(entity);
+
 
 		if (ImGui::TreeNodeEx("Audio Listener", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::AudioListener>(entity);
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", al.componentEnabled);
 			ImGui::TreePop();
 		}
 	}
