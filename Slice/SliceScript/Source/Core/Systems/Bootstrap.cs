@@ -22,7 +22,7 @@ namespace SliceEngine
             base.OnCreate();
 
             // Finding references to each script
-            CameraController = gameObject.FindGameObjectWithName("Camera Rig")?.As<CameraController>();
+            CameraController = gameObject.FindGameObjectsWithTag("Camera Rig")[0]?.As<CameraController>();
             if (CameraController != null) Console.WriteLine("Camera found");
             else Console.WriteLine("Camera not found");
 
@@ -30,7 +30,7 @@ namespace SliceEngine
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
-            LevelDirector = gameObject.FindGameObjectWithName("Level Director")?.As<LevelDirector>();
+            LevelDirector = gameObject.FindGameObjectsWithTag("Level Director")[0]?.As<LevelDirector>();
             if (LevelDirector != null) Console.WriteLine("Level Director found");
             else Console.WriteLine("Level Director not found");
 

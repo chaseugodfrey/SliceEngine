@@ -50,8 +50,8 @@ namespace SliceEngine
 
 
         public override void OnCreate()
-        {          
-
+        {
+            CreateGameObject(enemyPrefab);
             //enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
             //
 
@@ -69,13 +69,18 @@ namespace SliceEngine
         //Go through the list of transform for the current stage to spawn spawners
         private void SpawnSpawners()
         {
+            Console.WriteLine("[[LEVEL DIRECTOR]] SPAWN SPAWNER IS CALLED");
             foreach (Transform local in stageTransforms[currentStage])
             {
-                GameObject just = CreateGameObject(spawnerPrefab);
-                just.GetComponent<Transform>().Position = local.Position;
-                EnemySpawner a = just.As<EnemySpawner>();
-                a.StartSpawning();
-                enemySpawners.Add(a);
+                //GameObject just = CreateGameObject(spawnerPrefab);
+                Console.WriteLine("[[LEVEL DIRECTOR]] TRYING TO SPAWN SPAWNER");
+                CreateGameObject(spawnerPrefab);
+                Console.WriteLine("[[LEVEL DIRECTOR]] TRYING SUCCEEDED");
+                // It crashes here idk why i have to find out
+                //just.GetComponent<Transform>().Position = local.Position;
+                //EnemySpawner a = just.As<EnemySpawner>();
+                //a.StartSpawning();
+                //enemySpawners.Add(a);
             }
         }
 
@@ -88,7 +93,13 @@ namespace SliceEngine
             {
                 if (local.Has<EnemySpawner>())
                 {
+                    SliceLog.Console("Enemy Spawner found at object ID:", local.mID);
                     EnemySpawner spwn = local.As<EnemySpawner>();
+
+                    if (spwn.stage == -1)
+                    {
+                        continue;
+                    }
 
                     if (spwn.stage >= stageTransforms.Count) // If index 0, the 
                     {
