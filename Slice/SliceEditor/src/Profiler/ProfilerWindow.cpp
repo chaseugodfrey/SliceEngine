@@ -106,6 +106,8 @@ namespace SliceEditor
 			mManager.UpdateDebugStatistics();
 		}
 
+		ImGui::Text("FPS: %f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetCurrFPS());
+
 		DrawSystemTimeline();
 
 		DrawSystemBreakdown();
