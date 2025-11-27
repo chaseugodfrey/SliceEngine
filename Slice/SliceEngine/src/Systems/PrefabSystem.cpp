@@ -80,4 +80,29 @@ namespace SliceEngine
 			childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 		}
 	}
+	void PrefabSystem::MakePrefab(Entity entity, GUID guid)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
+		GO.AddComponent<Prefab>();
+		GO.GetComponent<Prefab>().prefabGUID = guid;
+		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		mPrefabMap[guid].push_back(GO.GetEntity());
+		// add the children as well
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				UpdatePrefabChild(childEntity, guid);
+				//childGO.AddComponent<Prefab>();
+				//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
+				//childGO.GetComponent<Prefab>().prefabHandle = prefab;
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+	}
 }
