@@ -269,21 +269,23 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
 	}
 
-	static void RigidBody_AddForce(unsigned int entity, JPH::Vec3 *force, int mode)
+	static void RigidBody_AddForce(unsigned int entity, glm::vec3 *force, int mode)
 	{
+		JPH::Vec3 f(force->x, force->y, force->z);
+
 		switch (mode)
 		{
 		case 0: // Force
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, f);
 			break;
 		case 1: // Impulse
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, f);
 			break;
 		case 2: // Velocity Change
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, f);
 			break;
 		case 3: // Acceleration
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, f);
 			break;
 		default:
 			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
