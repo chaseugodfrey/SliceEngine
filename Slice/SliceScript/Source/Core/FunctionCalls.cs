@@ -123,7 +123,7 @@ namespace SliceEngine
         internal extern static bool IsMouseReleased(MouseButtons button);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static Vector2 GetMousePosition(out Vector2 position);
+        internal extern static void GetMousePosition(out Vector3 position);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void AM_EnableMap(string map, bool enable);
