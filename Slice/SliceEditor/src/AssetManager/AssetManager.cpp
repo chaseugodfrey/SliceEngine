@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+#include <Systems/PrefabSystem.h>
 #include <algorithm>
 
 namespace SliceEditor
@@ -844,7 +845,10 @@ namespace SliceEditor
 		std::filesystem::path filePath(path);
 		// Create the descriptor
 		std::string resourcePath = CreateDescriptorFile(filePath, true);
-
+		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
+		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
+		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity(), guid);
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//resourceMgr->RegisterResourceAsset(resourcePath);
 
