@@ -152,7 +152,11 @@ namespace SliceEngine
 		else if(audioComp.componentEnabled && audioComp.playOnAwake)
 		{
 			//audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
-			if(!audioManager->IsChannelPlaying(audioComp.channel))
+			if (!audioManager->IsChannelPlaying(audioComp.channel))
+
+			{
+
+			}
 			//audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
 		}
 		// end of my changes
