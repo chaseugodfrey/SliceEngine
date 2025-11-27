@@ -206,8 +206,12 @@ namespace SliceEngine
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto renderManager = Core::GetInstance()->GetRenderManager();
 
-
 		auto& transform = reg.get<Transform>(entity);
+		auto& audioListener = reg.get<AudioListener>(entity);
+
+		if (!audioListener.componentEnabled)
+			return;
+
 		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
 		glm::vec3 up, forward, right;
 		glm::vec3 vel( 0.f);
