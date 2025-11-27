@@ -3,6 +3,7 @@
 #include "Core/Core.h"
 #include "Serializer/JSONSerializer.h"
 
+
 namespace SliceEngine
 {
 	void PrefabSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
@@ -10,6 +11,37 @@ namespace SliceEngine
 		// TODO: When an entity comes into the system
 		// check if the prefab it references exists/is modified
 		// if not then unprefab it (remove prefab component)
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Prefab& prefab = GO.GetComponent<Prefab>();
+
+		// idk cause if I add a prefab component when a new prefab is made, it enters here straight
+		// so this check is to stop that??
+		if (prefab.prefabGUID == (GUID)0)
+		{
+			return;
+		}
+
+		// if the resource does not exist anymore
+		if (!Core::GetInstance()->GetResourceManager()->CheckResource(prefab.prefabGUID))
+		{
+			// actually i dont think this will ever trigger cause its on enter
+			if (mPrefabMap.find(prefab.prefabGUID) != mPrefabMap.end())
+			{
+				auto& vec = mPrefabMap[prefab.prefabGUID];
+
+				// remove from the vector
+				for (auto iter = vec.begin(); iter != vec.end(); ++iter)
+				{
+					if (*iter == entity)
+					{
+						// only remove if its already inside
+						GO.RemoveComponent<Prefab>();
+						vec.erase(iter);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -23,7 +55,7 @@ namespace SliceEngine
 		// if it has then update the instances createdw ith it
 	}
 
-	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID)
+	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID, bool isEditor)
 	{
 		//		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 
@@ -34,8 +66,11 @@ namespace SliceEngine
 		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath);
 
 		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
-		//std::string goName = GO.GetName(); was for debugging
-		FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+		//std::string goName = GO.GetName(); was for 
+		if(!isEditor)
+		{
+			FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+		}
 
 		mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 
@@ -83,6 +118,57 @@ namespace SliceEngine
 			childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 		}
 	}
+
+	void PrefabSystem::InitEvent()
+	{
+		auto* eventManager = EventManager::GetInstance();
+
+		eventManager->Subscribe<OnPrefabModifiedEvent, &PrefabSystem::OnPrefabModified>(this);
+		eventManager->Subscribe<OnPrefabDeletedEvent, &PrefabSystem::OnPrefabDeleted>(this);
+	}
+
+	void PrefabSystem::OnPrefabModified(const OnPrefabModifiedEvent& event)
+	{
+		for (auto& [guid, vec] : mPrefabMap)
+		{
+			if (guid == event.guid)
+			{
+				// iterate through the entities that are made from this prefab
+				for (auto entity : vec)
+				{
+					// idk yet tbh
+					
+				}
+			}
+		}
+	}
+
+	void PrefabSystem::OnPrefabDeleted(const OnPrefabDeletedEvent& event)
+	{
+		for (auto& [guid, vec] : mPrefabMap)
+		{
+			if (guid == event.guid)
+			{
+				// iterate through the entities that are made from this prefab
+				// and remove the prefab component from them
+				for (auto entity : vec)
+				{
+					// idk yet tbh
+					auto GO = FactoryInstance.GetGOByEntity(entity);
+					if (GO.HasComponent<Prefab>())
+					{
+						GO.RemoveComponent<Prefab>();
+					}
+				}
+
+				// then erase this prefab from the map
+				mPrefabMap.erase(event.guid);
+				break;
+			}
+		}
+
+	}
+	
 	void PrefabSystem::MakePrefab(Entity entity, GUID guid)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);

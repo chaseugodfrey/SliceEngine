@@ -2,6 +2,7 @@
 #include "SessionManager.h"
 #include "Selection/SelectionManager.h"
 #include "ContentBrowser/ContentBrowserManager.h"
+#include "../../SliceEngine/src/Systems/PrefabSystem.h"
 #include <Core/EventManager.h>
 
 namespace SliceEditor
@@ -108,8 +109,12 @@ namespace SliceEditor
 			{
 				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
 			}
-
-			auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		}
+		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		
+		SLICE_LOG("Prefab View size: " + std::to_string(prefabView.size()));
+		if (prefabView.size() != mPrefabNodes.size())
+		{
 			for (auto entity : prefabView)
 			{
 				mEntityNodes[entity].get()->isPrefab = true;
@@ -157,10 +162,8 @@ namespace SliceEditor
 		//Prefab  now being inspected
 		if (event.prefabBeingInspected)
 		{
-			//Get the Prefab Handle
-			SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(event.prefabGUID);
-			//Set the rootEntity of the prefab
-			mPrefabRootEntity = SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+			//Create the Prefab Instance
+			mPrefabRootEntity = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(event.prefabGUID).GetEntity();
 			//Clear the look-up table just incase
 			mPrefabNodes.clear();
 			//Build the mPrefabNodes lookup table
