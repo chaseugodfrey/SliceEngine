@@ -20,7 +20,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
-#include "Session/SessionManager.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -938,26 +937,33 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		if (!animator.IsValid())
+		//if (!animator.IsValid())
+		//{
+		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+		//	{
+		//		ImGui::Text("Animator is not valid \n :deadge_1");
+		//		ImGui::TreePop();
+		//	}
+		//}
+		//else
+		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
 			{
-				ImGui::Text("Animator is not valid \n :deadge_1");
-			}
-			ImGui::TreePop();
-		}
-		else
-		{
-			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-			{
-				if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
-				{
 
-					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
-					/*ImGui::Text("Controller: ");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Text("A00");*/
+				//Drag Drop for the controller when its not set
+				if(!animator.Handle_stateMachine.IsValid())
+				{
+					ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
+					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
+					{
+
+					}
+				}
+				//Controller has been set, should be changable
+				else
+				{
+					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
 
 					ImGui::Text("Playing: ");
 					ImGui::SameLine(150.f);
@@ -989,8 +995,8 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx--;
 					}
 				}
-				ImGui::TreePop();
 			}
+			ImGui::TreePop();
 		}
 	}
 

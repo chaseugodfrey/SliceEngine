@@ -27,24 +27,11 @@ namespace SliceEngine
             int i = 0;
 
             //SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
-            foreach (Vector3 var in vec3list)
+            foreach (string var in stringList)
             {
-                SliceLog.Log("X: " + var.x + " Y: " + var.y + " Z: " + var.z);
+                SliceLog.Console("String List Element " + i + ": " +  var);
                 i++;
             }
-
-            //int j = 0;
-            //foreach (string var in stringList)
-            //{
-            //    SliceLog.Log("String List Element " + i + ": " + var);
-            //    j++;
-            //}
-            //int k = 0;
-            //foreach (int var in intList)
-            //{
-            //    SliceLog.Log("Int List Element " + i + ": " + var);
-            //    k++;
-            //}
         }
     }
 }
