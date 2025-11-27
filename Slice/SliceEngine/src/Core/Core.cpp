@@ -83,6 +83,8 @@ namespace SliceEngine
 
 		mFactory.RegisterComponent<NavAgent>();
 
+		mFactory.RegisterComponent<Prefab>();
+
 		mResource->InitResourceManager();
 
 	}

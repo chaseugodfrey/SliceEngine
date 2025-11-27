@@ -7,7 +7,9 @@ namespace SliceEngine
 {
 	void PrefabSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-
+		// TODO: When an entity comes into the system
+		// check if the prefab it references exists/is modified
+		// if not then unprefab it (remove prefab component)
 	}
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -17,7 +19,8 @@ namespace SliceEngine
 
 	void PrefabSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
+		// TODO: Check if a prefab resource has been modified
+		// if it has then update the instances createdw ith it
 	}
 
 	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID)
