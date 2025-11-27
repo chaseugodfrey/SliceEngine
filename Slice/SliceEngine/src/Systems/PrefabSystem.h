@@ -25,7 +25,7 @@ namespace SliceEngine
 		// since the component keeps track of the handle
 		// we just need to know which GUID they reference from when its modified
 		// then update from there
-		std::map<GUID, std::vector<Entity>> mPrefabMap;
+		std::unordered_map<GUID, std::vector<Entity>> mPrefabMap;
 		//std::map<Handle<SliceEngineTypes::Prefab>, Entity, PrefabComparator> mPrefabToEntity;
 		// when a prefab is modified, send an event to the prefab system
 		// itll check which entities is made from the prefab
@@ -37,7 +37,9 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		GameObject CreatePrefab(const GUID& prefabGUID);
 		void UpdatePrefabChild(Entity entity, GUID const& guid);
-
+		void InitEvent();
+		void OnPrefabModified(const OnPrefabModifiedEvent& event);
+		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
 		/// <summary>
 		/// Add a prefab component to the entity after creating it as a prefab
 		/// </summary>
