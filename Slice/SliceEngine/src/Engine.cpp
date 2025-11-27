@@ -147,7 +147,7 @@ namespace SliceEngine
 
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
