@@ -29,16 +29,16 @@ namespace SliceEngine
             waypointSystem = new WaypointSystem();
             testList.Add(0.0f);
             // find a btr way :pepepray:
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint1).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint2).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint3).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint4).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint5).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint6).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint7).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint8).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint9).GetComponent<Transform>().Position);
-            waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint10).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint1).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint2).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint3).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint4).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint5).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint6).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint7).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint8).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint9).GetComponent<Transform>().Position);
+            //waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(Waypoint10).GetComponent<Transform>().Position);
         }
 
         public override void OnUpdate(float dt)

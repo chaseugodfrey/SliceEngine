@@ -570,6 +570,8 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
+
 			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
 
 			ImGui::TreePop();
