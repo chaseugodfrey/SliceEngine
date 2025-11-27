@@ -40,7 +40,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
-#include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
