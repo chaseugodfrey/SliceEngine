@@ -13,7 +13,7 @@ namespace SliceEngine
         Transform t;
         GameObject floor;
         ColliderShape Attack_Collider_1;
-        //AudioComponent myAudio;
+        AudioSource myAudio;
 
 
         public string[] test3 = { "Test", "Test2" };
@@ -38,7 +38,7 @@ namespace SliceEngine
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-            //myAudio = GetComponent<AudioSource>();
+            myAudio = GetComponent<AudioSource>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
             Attack_Collider_1.ComponentEnabled = false;
@@ -243,14 +243,15 @@ namespace SliceEngine
                 timeBuffer = 0.0f;
             }
 
-            if (animator.GetCurrAnimName() == "Walk")
-            {
-                //myAudio.Play();
-            }
-            else
-            {
-                //myAudio.Stop();
-            }
+            //Need to find another way to play the walking without it playing before the scene starts
+            //if (animator.GetCurrAnimName() == "Walk")
+            //{
+            //    //myAudio.Play();
+            //}
+            //else
+            //{
+            //    //myAudio.Stop();
+            //}
 
             // duble bifferb for attack
             if (startBuffer)
