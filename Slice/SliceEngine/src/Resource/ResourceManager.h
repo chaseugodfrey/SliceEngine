@@ -221,6 +221,8 @@ namespace SliceEngine
 
 		GUID GetAnimationGUIDFromModel(GUID modelGUID);
 
+		bool CheckResource(GUID guid);
+
 		std::optional<std::filesystem::path> GetResourcePath(std::string filename);
 		
 		std::unordered_map<std::string, GUID> mFileNameToGUID;
