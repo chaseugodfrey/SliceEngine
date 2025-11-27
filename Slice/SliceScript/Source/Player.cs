@@ -38,7 +38,7 @@ namespace SliceEngine
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
-            //myAudio = GetComponent<AudioComponent>();
+            //myAudio = GetComponent<AudioSource>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
             Attack_Collider_1.ComponentEnabled = false;
