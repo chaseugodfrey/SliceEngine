@@ -276,12 +276,15 @@ namespace SliceEngine
 			// which will break
 			auto& registry = Core::GetInstance()->GetRegistry();
 
-			auto rootEntity = sceneGraphMap.begin();
-			GameObject rootGO = factory.GetGOByEntity((Entity)rootEntity->second);
+			// idfk why using sceneGraphMap begin breaks if its creating objects made from fbx
+			// it works for any other type of prefabs 
+			// i just get the first entity in entityID instead cause thats the first obj created
+			auto rootEntity = entityID[0];
+			GameObject rootGO = factory.GetGOByEntity(rootEntity);
 			// the root prefab gameobject, should have no siblings as it's gonna be inserted into the graph
-			if (registry.any_of<SceneGraph>((Entity)rootEntity->second))
+			if (registry.any_of<SceneGraph>(rootEntity))
 			{
-				auto& sceneGraph = registry.get<SceneGraph>((Entity)rootEntity->second);
+				auto& sceneGraph = registry.get<SceneGraph>(rootEntity);
 
 				sceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
@@ -301,7 +304,7 @@ namespace SliceEngine
 				}
 
 				auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
-
+				sceneGraphComponent.entity_id = (unsigned int)entity;
 				for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
 				{
 					auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
@@ -349,7 +352,7 @@ namespace SliceEngine
 
 			}
 
-			return (Entity)rootEntity->second;
+			return rootEntity;
 		}
 #pragma endregion
 
@@ -448,7 +451,7 @@ namespace SliceEngine
 						Handle<SliceEngineTypes::Skeleton>,
 						Handle<SliceEngineTypes::AnimationPackage>,
 						Handle<SliceEngineTypes::StateMachine>,
-						std::array<uint64_t, 4>, 
+						std::array<uint64_t, 4>,
 						std::array<Entity, 4>,
 						std::vector<uint64_t>,
 						glm::vec2,
