@@ -41,11 +41,8 @@ namespace SliceEngine
 
         public static Vector2 GetMousePosition()
         {
-            FunctionCalls.GetMousePosition(out Vector3 position);
-            Vector2 pos;
-            pos.x = position.x;
-            pos.y = position.y;
-            return pos;
+            FunctionCalls.GetMousePosition(out Vector2 position);
+            return position;
         }
 
         public static void AM_EnableMap(string map, bool enable)
