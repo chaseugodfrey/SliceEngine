@@ -320,10 +320,10 @@ namespace SliceEngine
 		{
 			prop.set_value(componentInstance, value);
 
-			if (propName == "mName" && componentName == typeid(SliceEntity).name())
-			{
-				FactoryInstance.UpdateName(value, entity);
-			}
+			//if (propName == "mName" && componentName == typeid(SliceEntity).name())
+			//{
+			//	FactoryInstance.UpdateName(value, entity);
+			//}
 		}
 
 		// For Relationship array (up down left right stuff)

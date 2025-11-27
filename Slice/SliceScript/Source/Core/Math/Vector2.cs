@@ -14,11 +14,13 @@ Reproduction or disclosure of this file or its contents without the prior writte
 DigiPen Institute of Technology is prohibited.
 --------------------------------------------------------------------------------------------------*/
 
-
 using System;
+using System.Runtime.InteropServices;
 
 namespace SliceEngine
 {
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct Vector2
     {
         public float x, y;

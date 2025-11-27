@@ -82,7 +82,7 @@ namespace SliceEngine
 
 			}
 
-			if (audioComp.channel == nullptr && audioComp.playOnAwake == true)
+			if ((audioComp.channel == nullptr && audioComp.playOnAwake == true))
 			{
 				
 				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
