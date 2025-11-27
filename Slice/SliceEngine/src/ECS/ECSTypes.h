@@ -193,6 +193,7 @@ namespace SliceEngine
 
 	struct Camera
 	{
+		bool componentEnabled{ true };
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
@@ -217,6 +218,7 @@ namespace SliceEngine
 			,Light_Point
 			,Light_Spot
 		};
+		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 1.0f };
 		GLuint depthTex{};
@@ -342,6 +344,7 @@ namespace SliceEngine
 			EditorSounds
 		};
 		//std::string soundName;
+		bool componentEnabled{ true };
 		GUID soundGUID = (GUID)10155432597037438324;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
@@ -368,6 +371,7 @@ namespace SliceEngine
 
 	struct AudioListener
 	{
+		bool componentEnabled{ true };
 		glm::vec3 listenerPos{};
 
 		RTTR_ENABLE();
@@ -540,7 +544,7 @@ namespace SliceEngine
 
 	struct Animator
 	{
-
+		bool componentEnabled{ true };
 		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
 		FSMSystem stateMachine;
 		
@@ -621,6 +625,7 @@ namespace SliceEngine
 			//WORLD
 		};
 
+		bool componentEnabled{ true };
 		Type canvas_type{ OVERLAY };
 		unsigned int sort_order{};	//smaller number = draw first = behind others
 		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
@@ -667,6 +672,7 @@ namespace SliceEngine
 
 
 	struct SpriteRenderer {
+		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
 		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
@@ -689,6 +695,7 @@ namespace SliceEngine
 			Total_States
 		} state;
 
+		bool componentEnabled{ true };
 		glm::vec4 color_transitions[Total_States]{
 			{1.f, 1.f, 1.f, 1.f},	//white
 			{0.75f, 0.75f, 0.75f, 1.f},//light grey
@@ -725,6 +732,7 @@ namespace SliceEngine
 	// Component
 	struct NavAgent
 	{
+		bool componentEnabled{ true };
 		glm::vec3 target = glm::vec3(0.0f);
 		std::vector<glm::vec3> currentPath;
 		int currentPathIndex = 0;

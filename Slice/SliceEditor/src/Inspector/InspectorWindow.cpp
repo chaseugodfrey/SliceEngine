@@ -317,8 +317,11 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 			/*if (!DisplayComponentHeader<SliceEngine::AudioSource>(entity))
 			{*/
+			
 			reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 			{
+				BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
+
 				GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
 
 				DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);

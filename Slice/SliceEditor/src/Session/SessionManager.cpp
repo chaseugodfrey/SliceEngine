@@ -112,7 +112,7 @@ namespace SliceEditor
 		}
 		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
 		
-		SLICE_LOG("Prefab View size: " + std::to_string(prefabView.size()));
+		//SLICE_LOG("Prefab View size: " + std::to_string(prefabView.size()));
 		if (prefabView.size() != mPrefabNodes.size())
 		{
 			for (auto entity : prefabView)

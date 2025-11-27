@@ -1029,7 +1029,7 @@ namespace SliceEngine
 
 	void PhysicsSystem::StepWorld(float dt)
 	{
-		physicsSystem->Update(dt, 10, tempAllocator.get(), jobSystem.get());
+		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 	}
 
 	void PhysicsSystem::PostStepSync()
