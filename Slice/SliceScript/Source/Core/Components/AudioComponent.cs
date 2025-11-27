@@ -9,9 +9,9 @@ namespace SliceEngine
 {
 
 
-    public class AudioComponent : Component
+    public class AudioSource : Component
     {
-        public AudioComponent(GameObject gameObject)
+        public AudioSource(GameObject gameObject)
         {
 
         }
