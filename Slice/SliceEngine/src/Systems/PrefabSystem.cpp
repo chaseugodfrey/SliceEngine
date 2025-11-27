@@ -86,9 +86,6 @@ namespace SliceEngine
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
 				UpdatePrefabChild(childEntity, prefabGUID);
-				//childGO.AddComponent<Prefab>();
-				//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
-				//childGO.GetComponent<Prefab>().prefabHandle = prefab;
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
@@ -111,9 +108,6 @@ namespace SliceEngine
 		{
 			GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
 			UpdatePrefabChild(childEntity, guid);
-			//childGO.AddComponent<Prefab>();
-			//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
-			//childGO.GetComponent<Prefab>().prefabHandle = prefab;
 			auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 			childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 		}
@@ -133,11 +127,23 @@ namespace SliceEngine
 		{
 			if (guid == event.guid)
 			{
+				// get a handle to the prefab so we can load data from it
+				Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(event.guid);
+				std::string name = prefab.get()->filePath;
+				//Assets/GameObject_1.prefab
+				std::vector<rttr::variant> prefabComponents = JSONSerializer::DeserializePrefabComponents(prefab.get()->filePath);
+
 				// iterate through the entities that are made from this prefab
 				for (auto entity : vec)
 				{
-					// idk yet tbh
-					
+					// Note: maybe check if the component data is the same? before replacing
+					// also need to check if a component was deleted from the prefab then it should reflect
+					// and also maybe not all components should be replaced? like transform should be left alone
+					// get the prefab and it's data
+					for (auto& compVar : prefabComponents)
+					{
+						FactoryInstance.EmplaceComponents(entity, compVar);
+					}
 				}
 			}
 		}
