@@ -37,6 +37,12 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		GameObject CreatePrefab(const GUID& prefabGUID, bool isEditor = false);
 		void UpdatePrefabChild(Entity entity, GUID const& guid);
+
+		/// <summary>
+		/// Add a prefab component to the entity after creating it as a prefab
+		/// </summary>
+		/// <param name="entity"></param>
+		void MakePrefab(Entity entity, GUID guid);
 	};
 }
 

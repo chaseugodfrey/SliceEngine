@@ -148,7 +148,9 @@ namespace SliceEngine
 	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
 		.constructor<>()
 		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
-
+	rttr::registration::class_<Handle<SliceEngineTypes::Prefab>>("Prefab Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Prefab>::mGUID);
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.property("scriptName", &Script::scriptName)
 		.property("scriptableFieldMap", &Script::scriptableFieldMap);
@@ -439,6 +441,11 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("hasNewTarget", &NavAgent::hasNewTarget)
 	.property("currentPath", &NavAgent::currentPath)
 	.property("currentPathIndex", &NavAgent::currentPathIndex);
+
+rttr::registration::class_<Prefab>(typeid(Prefab).name())
+.constructor<>()
+.property("prefabGUID", &Prefab::prefabGUID)
+.property("prefabHandle", &Prefab::prefabHandle);
 	}
 }
 #pragma endregion

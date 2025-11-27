@@ -187,10 +187,9 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
 	}
 
-	static void GetMousePosition(glm::vec3 outPosition)
+	static void GetMousePosition(glm::vec2* outPosition)
 	{
-		glm::vec2 vec2Pos = Core::GetInstance()->GetInputSystem()->GetMousePosition();
-		outPosition = glm::vec3(vec2Pos.x, vec2Pos.y, 0.0f);
+		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
 	}
 
 	// allow enabling/disabling action maps from c#
