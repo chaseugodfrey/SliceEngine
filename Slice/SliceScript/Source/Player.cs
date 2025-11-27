@@ -246,6 +246,7 @@ namespace SliceEngine
             if (animator.GetCurrAnimName() == "Walk")
             {
                 myAudio.Play();
+                SliceLog.Log("Walking");
             }
             else
             {

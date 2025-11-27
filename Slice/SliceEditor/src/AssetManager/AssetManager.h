@@ -91,6 +91,7 @@ namespace SliceEditor
 			{".mp3", {AssetType::Audio, "Audio"}},
 			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
+			{".temp", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".vert", {AssetType::VertShader, "VertShader"}},
 			{".geom", {AssetType::GeomShader, "GeomShader"}},

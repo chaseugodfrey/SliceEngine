@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "Serializer/JSONSerializer.h"
+#include "Core/Core.h"
 #include "SceneSystem.h"
 
 namespace SliceEngine
@@ -42,20 +43,30 @@ namespace SliceEngine
 			return;
 		}
 
-		mCurrentScene = filePath;
+		mCurrentSceneName = filePath.filename().stem().string();
 
-		SLICE_LOG("Loading scene...");
+			mCurrentScene = filePath;
 
-		auto map = JSONSerializer::DeserializeScene(filePath);
+		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
-		SLICE_LOG("Scene loaded successfully.");
+		if (filePathGUID)
+		{
 
-		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			SLICE_LOG("Loading scene...");
 
-		OnSceneLoadedEvent event;
-		event.isSceneLoaded = true;
+			auto map = JSONSerializer::DeserializeScene(filePathGUID->GetFilePath());
 
-		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+			SLICE_LOG("Scene loaded successfully.");
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+		}
+
 	}
 
 	void SceneSystem::LoadNextScene()
@@ -76,7 +87,9 @@ namespace SliceEngine
 	{
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
-		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		std::filesystem::path CurrentSceneTemp = CurrentScene;
+
+		CurrentSceneTemp.replace_extension(".temp");
 
 
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
@@ -160,7 +173,9 @@ namespace SliceEngine
 
 		std::filesystem::path CurrentScene = mCurrentScene;
 
-		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		std::filesystem::path CurrentSceneTemp = CurrentScene;
+
+		CurrentSceneTemp.replace_extension(".temp");
 
 		if (std::filesystem::exists(CurrentSceneTemp))
 		{

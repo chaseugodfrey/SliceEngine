@@ -431,13 +431,20 @@ namespace SliceEngine
 			nlohmann::json j; in >> j;
 
 			if (j.contains("product") && j["product"].contains("name"))
+			{
 				s.productName = j["product"]["name"].get<std::string>();
-			if (j.contains("render")) {
+			}
+
+			if (j.contains("render")) 
+			{
 				s.width = j["render"].value("width", s.width);
 				s.height = j["render"].value("height", s.height);
 				s.vsync = j["render"].value("vsync", s.vsync);
 			}
-			if (j.contains("scenes")) s.scenes = j["scenes"].get<std::vector<std::string>>();
+			if (j.contains("scenes"))
+			{
+				s.scenes = j["scenes"].get<std::vector<std::string>>();
+			}
 			s.startupScene = j.value("startupScene", s.startupScene);
 
 			// Fallback: if startupScene empty, use first scene
@@ -453,14 +460,11 @@ namespace SliceEngine
 			else
 			{
 				std::filesystem::path sceneFilePath(sceneToLoad);
-				auto path = sResourceManager->GetResourcePath(sceneFilePath.stem().string());
-				//To move out in future
-				if (path.has_value())
-				{
-					SLICE_LOG("Scene File Path" + path.value().string());
-					sScene->SetDefaultScenePath(sceneFilePath);
+				
+				SLICE_LOG("Scene File Path" + sceneFilePath.string());
+				sScene->SetDefaultScenePath(sceneFilePath);
 
-				}
+				
 
 				//sScene->LoadScene(sceneToLoad); // for now by filepath
 				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;

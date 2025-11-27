@@ -1050,11 +1050,6 @@ namespace SliceEditor
 			}
 		}
 
-		if (addEvent.filePath.extension() == ".temp")
-		{
-			return;
-		}
-
 		
 		CreateDescriptorFile(addEvent.filePath, true);
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
@@ -1225,11 +1220,6 @@ namespace SliceEditor
 	void AssetManager::HandleAssetModified(std::vector<RawFileEvent>& events)
 	{
 		std::filesystem::path modifiedFilePath(events.begin()->filePath);
-
-		if (modifiedFilePath.extension() == ".temp")
-		{
-			return;
-		}
 
 		SliceEngine::GUID fileGUID;
 
