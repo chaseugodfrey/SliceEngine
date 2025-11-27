@@ -141,23 +141,26 @@ namespace SliceEngine
 		}
 
 		// works for now but will get back with yy if the way i do it is wrong(should be wrong lol)
-		if (!audioComp.componentEnabled && audioManager->IsChannelPlaying(audioComp.channel))
+		if (!audioComp.componentEnabled)
 		{
+			if(audioManager->IsChannelPlaying(audioComp.channel))
 			audioManager->StopSound(audioComp.channel);
+
+			if (audioManager->IsChannelPlaying(audioComp.previewChannel))
+			audioManager->StopSound(audioComp.previewChannel);
 		}
-		else if(audioComp.componentEnabled && !audioManager->IsChannelPlaying(audioComp.channel))
+		else if(audioComp.componentEnabled && audioComp.playOnAwake)
 		{
+			if(!audioManager->IsChannelPlaying(audioComp.channel))
 			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
 		}
 		// end of my changes
 		
-		if (audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
-		{
-			
-			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp);
-  			
-			
+		if (audioComp.componentEnabled && audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
+		{	
 
+			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp);
+  
 		}
 		else if(audioComp.playPreview == false && audioManager->IsChannelPlaying(audioComp.previewChannel) == true)
 		{
