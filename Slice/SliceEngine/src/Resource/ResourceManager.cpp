@@ -281,6 +281,14 @@ namespace SliceEngine
 		return (GUID)std::stoull(GUIDstr);
 	}
 
+	bool ResourceManager::CheckResource(GUID guid)
+	{
+		if (mGUIDToResource.find(guid) != mGUIDToResource.end())
+			return true;
+
+		return false;
+	}
+
 	std::optional<std::filesystem::path> ResourceManager::GetResourcePath(std::string filename)
 	{
 		auto it = mFileNameToGUID.find(filename);

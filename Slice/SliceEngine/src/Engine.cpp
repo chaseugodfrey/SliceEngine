@@ -571,6 +571,8 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		auto mNetwork = Core::GetInstance()->GetNetwork();
 		mNetwork->Init();
+
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 		//NetworkingThread::printAddr();
 		//TestPlaySFX();
 
