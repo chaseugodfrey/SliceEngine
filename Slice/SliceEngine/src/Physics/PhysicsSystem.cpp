@@ -155,16 +155,18 @@ namespace SliceEngine
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
 		}
 
+		//Temp fix for gravity factor and motion quality
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
+		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+		//Temp fix for mass properties
 
 		//Set physics properties
 		if (!rigidBody.isKinematic)
 		{
-			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
-			physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
-			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
-			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
 
 			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
 			if (lock.Succeeded())
@@ -466,6 +468,10 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		JPH::EMotionType motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+
 		if (rigidBody.isKinematic && motionType != JPH::EMotionType::Kinematic)
 		{
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Kinematic, JPH::EActivation::Activate);
@@ -965,6 +971,8 @@ namespace SliceEngine
 
 			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
 			//bodySettings.mFriction = 0.6f;
+			bodySettings.mRestitution = 0.0f;
+
 		}
 
 		//Set as sensor for triggers
@@ -1023,7 +1031,7 @@ namespace SliceEngine
 
 	void PhysicsSystem::StepWorld(float dt)
 	{
-		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+		physicsSystem->Update(dt, 10, tempAllocator.get(), jobSystem.get());
 	}
 
 	void PhysicsSystem::PostStepSync()
