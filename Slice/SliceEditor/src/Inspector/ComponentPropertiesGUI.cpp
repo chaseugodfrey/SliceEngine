@@ -1146,6 +1146,60 @@ namespace SliceEditor
 		return changed;
 	}
 
+	template <>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	{
+		bool changed = false;
+		std::string filename{ "(empty)" };
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+
+		auto& assetManager = reg.GetAssetManager();
+		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+
+		if (file.has_value())
+		{
+			filename = file.value();
+		}
+
+		ImGui::BeginDisabled();
+		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (handle.getGUID() != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(newGUID);
+
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>>(handle, handle, newHandle);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						handle = newHandle;
+					}
+
+					else
+						setFunc(newGUID);
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+
+	}
+
 }
 
 void SetBit(unsigned char& mask, unsigned char bit, bool enabled)
