@@ -636,6 +636,12 @@ namespace SliceEngine
 
 				}
 
+				if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+				{
+					sAudio->SetCategoryPause(0, false);
+					sAudio->SetCategoryPause(1, false);
+				}
+
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
@@ -643,6 +649,8 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sAudio->SetCategoryPause(0, true);
+				sAudio->SetCategoryPause(1, true);
 				isPlaying = false;
 				sScene->mCurrentState = SceneState::PAUSE_SCENE;
 			}
