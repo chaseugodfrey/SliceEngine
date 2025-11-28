@@ -21,6 +21,10 @@ namespace SliceEditor
 
 		std::unique_ptr<AnimatorData> mAnimatorData;
 
+		std::atomic<bool> isSavingScene{ false };
+		std::atomic<bool> isSavingDone{ false };
+		double duration = 0.0f;
+
 	public:
 		SessionManager(Registry& reg);
 		~SessionManager();
@@ -33,6 +37,8 @@ namespace SliceEditor
 		void CreateDefaultPreferenceFile();
 		void SavePreferences();
 		Preferences& GetPreferences();
+
+		void OnSceneSave(OnSceneSaveEvent);
 
 		void CreateEntityNodes();
 		void CreatePrefabNodes();

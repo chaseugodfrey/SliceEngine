@@ -7,10 +7,15 @@ namespace SliceEditor
 
 	class Command
 	{
+	protected:
+		std::string message;
+
 	public:
 		virtual void Redo() = 0;
 		virtual void Undo() = 0;
+		Command(std::string msg = "") : message(msg) {};
 		virtual ~Command() = default;
+		std::string const GetCommandMessage();
 	};
 
 	template<typename T>
@@ -20,7 +25,7 @@ namespace SliceEditor
 
 	public:
 
-		ValueCommand(T& r, T oldV, T newV) : ref(r), oldValue(oldV), newValue(newV) {}
+		ValueCommand(T& r, T oldV, T newV, std::string msg = "") : ref(r), oldValue(oldV), newValue(newV), Command(msg) {}
 		~ValueCommand() = default;
 
 		void Redo() override
@@ -42,7 +47,8 @@ namespace SliceEditor
 
 	public:
 
-		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func) : oldValue(oldV), newValue(newV), funcToExecute(func) {}
+		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func, std::string msg = "") 
+			: oldValue(oldV), newValue(newV), funcToExecute(func), Command(msg){}
 		~FunctionSetsValueCommand() = default;
 
 		void Redo() override
@@ -112,7 +118,9 @@ namespace SliceEditor
 		std::unordered_set<SelectionNode*> newNodes;
 	public:
 		SelectNodeCommand(SelectionManager& sys, std::unordered_set<SelectionNode*> oldN, std::unordered_set<SelectionNode*> newN) :
-			sSelection(sys), oldNodes(oldN), newNodes(newN) {}
+			sSelection(sys), oldNodes(oldN), newNodes(newN) 
+		{
+		}
 		~SelectNodeCommand() = default;
 		void Redo() override;
 		void Undo() override;
@@ -127,7 +135,10 @@ namespace SliceEditor
 	public:
 
 		SelectEntityCommand(SelectionManager& sys, std::unordered_set<entt::entity>const& oldE, std::unordered_set<entt::entity>const& newE) :
-			sSelection(sys), oldEntities(oldE), newEntities(newE) {}
+			sSelection(sys), oldEntities(oldE), newEntities(newE) 
+		{
+			message = "Selected Entity ";
+		}
 		~SelectEntityCommand() = default;
 
 		void Redo() override;

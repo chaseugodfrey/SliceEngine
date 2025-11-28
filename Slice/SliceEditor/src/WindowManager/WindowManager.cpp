@@ -98,6 +98,18 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
+
+		DrawSavePopupModal();
+	}
+
+	void WindowManager::CloseSaveScenePopup()
+	{
+		saveSceneAsPopupClose = true;
+	}
+
+	void WindowManager::OpenSaveScenePopup()
+	{
+		saveSceneAsPopupOpen = true;
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -136,7 +148,7 @@ namespace SliceEditor
 
 				}
 
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				EventManager::GetInstance()->Publish<OnSceneSaveEvent>();
 			}
 
 			if (ImGui::MenuItem("Save Scene As"))
@@ -169,6 +181,11 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
+			if (ImGui::MenuItem("Undo History"))
+			{
+				AddWindow<HistoryWindow>();
+			}
+
 			if (ImGui::MenuItem("Content Browser"))
 			{
 				AddWindow<ContentBrowserWindow>("ContentBrowser");
@@ -176,7 +193,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Console"))
 			{
-
+				AddWindow<ConsoleWindow>();
 			}
 
 			if (ImGui::MenuItem("Game"))
@@ -847,7 +864,7 @@ namespace SliceEditor
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
 					
-					sceneSystem->SaveScene(newScenePath);
+					sceneSystem->OnSceneSave(newScenePath);
 
 					
 					sceneSystem->SetCurrentScenePath(newScenePath);
@@ -910,6 +927,29 @@ namespace SliceEditor
 		if (!isOpen)
 		{
 			newScenePopupOpen = false;
+		}
+	}
+
+	void WindowManager::DrawSavePopupModal()
+	{
+		if (saveSceneAsPopupOpen)
+		{
+			ImGui::OpenPopup("SaveScenePopup");
+			saveSceneAsPopupOpen = false;
+		}
+
+
+		if (ImGui::BeginPopupModal("SaveScenePopup"))
+		{
+			ImGui::Text("Saving...");
+
+			if (saveSceneAsPopupClose)
+			{
+				ImGui::CloseCurrentPopup();
+				saveSceneAsPopupClose = false;
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 

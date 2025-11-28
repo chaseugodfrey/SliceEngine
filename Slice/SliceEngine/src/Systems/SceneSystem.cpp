@@ -99,7 +99,7 @@ namespace SliceEngine
 		return mDefaultScene;
 	}
 
-	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());
 
@@ -128,12 +128,12 @@ namespace SliceEngine
 
 	void SceneSystem::SaveCurrentScene()
 	{
-		SaveScene(mCurrentScene);
+		OnSceneSave(mCurrentScene);
 	}
 
 	void SceneSystem::SaveNextScene()
 	{
-		SaveScene(mNextScene);
+		OnSceneSave(mNextScene);
 	}
 
 	void SceneSystem::UnloadCurrentScene()
