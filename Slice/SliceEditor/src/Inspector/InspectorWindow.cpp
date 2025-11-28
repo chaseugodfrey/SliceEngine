@@ -976,23 +976,27 @@ namespace SliceEditor
 					ImGui::SameLine(150.f);
 					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
 
-					ImGui::Text("Next: ");
-					ImGui::SameLine(150.f);
-					if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+					// i have to check, what if an entity has no animation pkg, like the states deal w animation so do i just start balling?
+					if(animator.Handle_curr_anim_pkg.IsValid())
 					{
-						animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-					}
+						ImGui::Text("Next: ");
+						ImGui::SameLine(150.f);
+						if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+						{
+							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+						}
 
-					ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
 
-					ImGui::Text("Prev: ");
-					ImGui::SameLine(150.f);
-					if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
-					{
-						if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
-							animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
-						else
-							animator.stateMachine.EFSM.currState->curr_anim_idx--;
+						ImGui::Text("Prev: ");
+						ImGui::SameLine(150.f);
+						if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+						{
+							if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+								animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
+							else
+								animator.stateMachine.EFSM.currState->curr_anim_idx--;
+						}
 					}
 				}
 			}
