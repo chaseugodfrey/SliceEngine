@@ -10,15 +10,18 @@ namespace SliceEngine
     {
         public override void OnCreate()
         {
-            RigidBody rb = GetComponent<RigidBody>();
-            if (rb == null)
+            var objs = FindGameObjectsWithTag("A Tag That Will Never Exist");
+            if (objs.Length == 0)
             {
-                SliceLog.Log("Get Component Returned Null Successfully :)");
+                SliceLog.Log("FindGameObjectsWithTag in TestMisc script successfully returned null");
             }
-            else
+
+            var obj = FindGameObjectWithName("A Name That Will Never Exist");
+            if (obj is null)
             {
-                SliceLog.Log("Get Component Returned Something Else :(");
+                SliceLog.Log("FindGameObjectWithName in TestMisc script successfully returned null");
             }
+
         }
     }
 }
