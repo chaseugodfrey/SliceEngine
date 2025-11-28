@@ -815,6 +815,11 @@ namespace SliceEngine
 			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
 			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
+			if (animator.Handle_stateMachine.IsValid())
+			{
+				animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+				animator.stateMachine.InitState(animator.curr_anim_pkg);
+			}
 		}
 
 		for (auto& child : node.children) {
