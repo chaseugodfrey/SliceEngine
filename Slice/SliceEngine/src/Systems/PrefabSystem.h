@@ -44,7 +44,9 @@ namespace SliceEngine
 		/// Add a prefab component to the entity after turning it into a prefab
 		/// </summary>
 		/// <param name="entity"></param>
-		void MakePrefab(Entity entity, GUID guid);
+		void MakePrefab(Entity entity);
+
+		void UpdatePrefabComponent(Entity entity, GUID guid);
 
 		/// <summary>
 		/// Add an object to an existing prefab
@@ -52,6 +54,8 @@ namespace SliceEngine
 		/// <param name="entity"></param>
 		/// <param name="rootNode"></param>
 		void AddToPrefab(Entity entity, Entity rootNode);
+
+		bool IsNewGO(Entity entity, unsigned int prefabID);
 	};
 }
 

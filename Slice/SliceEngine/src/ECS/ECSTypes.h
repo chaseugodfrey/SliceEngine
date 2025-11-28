@@ -232,6 +232,8 @@ namespace SliceEngine
 
 	struct Prefab
 	{
+		unsigned int prefabID;
+
 		// GUID reference to original prefab
 		GUID prefabGUID;
 

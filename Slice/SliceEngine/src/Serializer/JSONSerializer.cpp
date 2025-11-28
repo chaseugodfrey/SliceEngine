@@ -369,15 +369,17 @@ namespace SliceEngine
 
 			return rootEntity;
 		}
-		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath)
+		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
 		{
-			std::vector<rttr::variant> componentInstances;
+			std::unordered_map<unsigned int, std::vector<rttr::variant>> componentInstances;
 
 			json prefab = DeserializeFile(filePath);
 			auto& factory = Core::GetInstance()->mFactory;
 
 			for (auto& [name, components] : prefab.items())
 			{
+				std::vector<rttr::variant> variantComponents;
+				uint32_t prefabID = UINT_MAX;
 				for (auto& [objName, objProps] : components.items())
 				{
 					for (auto& [componentName, props] : objProps.items())
@@ -437,6 +439,12 @@ namespace SliceEngine
 								ColliderShape::CapsuleData
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
+
+							if (propName == "prefabID" && componentName == typeid(Prefab).name())
+							{
+								prefabID = value.get<uint32_t>();
+							}
+
 						}
 
 
@@ -444,11 +452,16 @@ namespace SliceEngine
 							componentName != typeid(Transform).name() &&
 							componentName != typeid(SceneGraph).name())
 						{
-							componentInstances.push_back(componentInstance);
+							variantComponents.push_back(componentInstance);
 						}
+
+						
 						//AddComponentFromVariant(newObj, componentInstance, componentName);
 					}
 				}
+
+				if (prefabID != UINT_MAX)
+					componentInstances[prefabID] = variantComponents;
 			}
 			return componentInstances;
 		}

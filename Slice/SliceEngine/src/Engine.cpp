@@ -457,6 +457,7 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
+.property("prefabID", &Prefab::prefabID)
 .property("prefabGUID", &Prefab::prefabGUID)
 .property("prefabHandle", &Prefab::prefabHandle);
 	}

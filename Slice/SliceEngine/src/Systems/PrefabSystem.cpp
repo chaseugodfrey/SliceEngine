@@ -133,18 +133,41 @@ namespace SliceEngine
 				Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(event.guid);
 				std::string name = prefab.get()->filePath;
 				//Assets/GameObject_1.prefab
-				std::vector<rttr::variant> prefabComponents = JSONSerializer::DeserializePrefabComponents(prefab.get()->filePath);
+				std::unordered_map<unsigned int, std::vector<rttr::variant>> prefabComponents = JSONSerializer::DeserializePrefabComponents(prefab.get()->filePath);
 
 				// iterate through the entities that are made from this prefab
 				for (auto entity : vec)
 				{
+					GameObject GO = FactoryInstance.GetGOByEntity(entity);
+
+					auto& prefabComponent = GO.GetComponent<Prefab>();
+					bool prefabIDFound = false;
 					// Note: maybe check if the component data is the same? before replacing
 					// also need to check if a component was deleted from the prefab then it should reflect
 					// and also maybe not all components should be replaced? like transform should be left alone
 					// get the prefab and it's data
-					for (auto& compVar : prefabComponents)
+					for (auto& [prefabID, compVar] :prefabComponents)
 					{
-						FactoryInstance.EmplaceComponents(entity, compVar);
+						// if this GO has the same prefabID 
+						// cause each obj of a prefab has a unique ID
+						// since we need to know a relationship to which prefab obj is to which game object
+						// when theres more than 1 object in a prefab
+						if (prefabComponent.prefabID == prefabID)
+						{
+							prefabIDFound = true;
+							// then emplace teh components of that entity
+							for (auto& comp : compVar)
+							{
+								FactoryInstance.EmplaceComponents(entity, comp);
+							}
+						}
+						//FactoryInstance.EmplaceComponents(entity, compVar);
+					}
+
+					// 
+					if (prefabIDFound == false)
+					{
+						// this 
 					}
 				}
 			}
@@ -177,14 +200,14 @@ namespace SliceEngine
 
 	}
 	
-	void PrefabSystem::MakePrefab(Entity entity, GUID guid)
+	void PrefabSystem::MakePrefab(Entity entity)
 	{
+
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
-		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GO.AddComponent<Prefab>();
-		GO.GetComponent<Prefab>().prefabGUID = guid;
-		GO.GetComponent<Prefab>().prefabHandle = prefab;
-		mPrefabMap[guid].push_back(GO.GetEntity());
+		// maybe we can just use the entity id as a prefab id
+		// i dont think prefab IDs have to be unique across prefabs??
+		GO.GetComponent<Prefab>().prefabID = (unsigned int)entity;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
@@ -193,14 +216,36 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabChild(childEntity, guid);
-				//childGO.AddComponent<Prefab>();
-				//childGO.GetComponent<Prefab>().prefabGUID = prefabGUID;
-				//childGO.GetComponent<Prefab>().prefabHandle = prefab;
+				MakePrefab(childEntity);
+
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
+	}
+
+	void PrefabSystem::UpdatePrefabComponent(Entity entity, GUID guid)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
+		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		GO.GetComponent<Prefab>().prefabGUID = guid;
+
+		// add the children as well
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				UpdatePrefabComponent(childEntity, guid);
+
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+
 	}
 
 	void PrefabSystem::AddToPrefab(Entity entity, Entity rootNode)
@@ -215,5 +260,10 @@ namespace SliceEngine
 			GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
 			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
 		}
+	}
+
+	bool PrefabSystem::IsNewGO(Entity entity, unsigned int prefabID)
+	{
+
 	}
 }

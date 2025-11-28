@@ -840,6 +840,8 @@ namespace SliceEditor
 		// idk if this will work yet cause i need it implemented in the editor to test
 		// but this should create the prefab and compile it to create the resource as well 
 
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity());
+
 		// Create the prefab file
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
@@ -848,7 +850,8 @@ namespace SliceEditor
 		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
 		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
 		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
-		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity(), guid);
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(GO.GetEntity(), guid);
+
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//resourceMgr->RegisterResourceAsset(resourcePath);
 
