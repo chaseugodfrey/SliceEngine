@@ -181,6 +181,11 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
+			if (ImGui::MenuItem("Undo History"))
+			{
+				AddWindow<HistoryWindow>();
+			}
+
 			if (ImGui::MenuItem("Content Browser"))
 			{
 				AddWindow<ContentBrowserWindow>("ContentBrowser");
@@ -188,7 +193,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Console"))
 			{
-
+				AddWindow<ConsoleWindow>();
 			}
 
 			if (ImGui::MenuItem("Game"))
