@@ -29,7 +29,7 @@ namespace SliceEngine
 		//std::map<Handle<SliceEngineTypes::Prefab>, Entity, PrefabComparator> mPrefabToEntity;
 		// when a prefab is modified, send an event to the prefab system
 		// itll check which entities is made from the prefab
-		
+		std::unordered_map<GUID, Entity> mPrefabBaseEntities;
 
 	public:
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;

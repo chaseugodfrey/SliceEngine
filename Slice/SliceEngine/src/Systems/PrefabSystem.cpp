@@ -59,6 +59,15 @@ namespace SliceEngine
 	{
 		//		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
 
+		if (isEditor)
+		{
+			if (mPrefabBaseEntities.find(prefabGUID) != mPrefabBaseEntities.end())
+			{
+				GameObject GO = FactoryInstance.GetGOByEntity(mPrefabBaseEntities[prefabGUID]);
+				return GO;
+			}
+		}
+
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(prefabGUID);
 
 		std::string name = prefab.get()->filePath;
@@ -94,6 +103,12 @@ namespace SliceEngine
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
+		}
+
+		// if its editor, then store the root entity
+		if (isEditor)
+		{
+			mPrefabBaseEntities[prefabGUID] = GO.GetEntity();
 		}
 
 		return GO;

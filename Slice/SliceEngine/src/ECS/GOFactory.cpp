@@ -54,6 +54,15 @@ namespace SliceEngine
 		return go;
 	}
 
+	GameObject GOFactory::CreateBlanker()
+	{
+		Entity entity = mRegistry.create();
+		GameObject go(mRegistry, entity);
+		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+		return go;
+
+	}
+
 	GameObject GOFactory::CreateEO()
 	{
 		Entity entity = mRegistry.create();

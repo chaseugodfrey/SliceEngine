@@ -188,10 +188,10 @@ namespace SliceEngine
 
 			for (auto& [name, components] : prefab.items())
 			{
-				GameObject newObj = factory.CreateBlank();
+				GameObject newObj = factory.CreateBlanker();
 
 				newObj.AddComponent<PrefabEditingEntity>();
-				factory.RemoveFromNameMap(newObj.GetEntity());
+				//factory.RemoveFromNameMap(newObj.GetEntity());
 				//factory.PrintNameMap();
 			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
 				//factory.PrintNameMap();
@@ -325,7 +325,7 @@ namespace SliceEngine
 						sceneGraphComponent.neighbours[i] = (Entity)it->second;
 					}
 				}
-
+				//factory.PrintNameMap();
 				if (!Editor)
 				{
 					//factory.PrintNameMap();
@@ -334,8 +334,10 @@ namespace SliceEngine
 					// handle adding to name map here
 					FactoryInstance.AddToNameMap(entity);
 					//factory.PrintNameMap();
-				//	goName = factory.GetNameFromMap(entity);
+					//	goName = factory.GetNameFromMap(entity);
 				}
+				//factory.PrintNameMap();
+
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
