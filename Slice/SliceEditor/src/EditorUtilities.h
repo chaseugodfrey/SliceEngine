@@ -1,6 +1,9 @@
 #ifndef EDITOR_UTILS_H
 #define EDITOR_UTILS_H
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 namespace SliceEditor
 {
 	class HistoryManager;
@@ -52,7 +55,42 @@ namespace SliceEditor
 		EditorThemeType GetThemeTypeFromString(std::string themeName);
 		void SetTheme(EditorThemeType type);
 
-		
+		template <typename T>
+		std::string ValueToString(const T& v)
+		{
+			using Decayed = std::decay_t<T>;
+
+			if constexpr (std::is_same_v<Decayed, std::string>)
+			{
+				return v; // already a string
+			}
+			else if constexpr (std::is_same_v<Decayed, const char*>)
+			{
+				return v ? std::string(v) : std::string{};
+			}
+			else if constexpr (std::is_arithmetic_v<Decayed>)
+			{
+				return std::to_string(v);
+			}
+			else
+			{
+				// You are now *assuming* these are GLM types here
+				return glm::to_string(v);
+			}
+		}
+
+		// GUID overload
+		inline std::string ValueToString(const SliceEngine::GUID& v)
+		{
+			return v.toString();
+		}
+
+		// Handle<T> overload
+		template <typename T>
+		std::string ValueToString(const SliceEngine::Handle<T>& v)
+		{
+			return ValueToString(v.getGUID());
+		}
 	}
 }
 
