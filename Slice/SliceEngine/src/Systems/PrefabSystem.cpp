@@ -208,9 +208,22 @@ namespace SliceEngine
 								{
 									auto& animator = GO.GetComponent<Animator>();
 									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
+									if (!animator.Handle_stateMachine.IsValid())
+										animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
 									animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 									animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 
+									if (animator.Handle_stateMachine.IsValid())
+									{
+										animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+										animator.stateMachine.InitState();
+									}
+
+									if (animator.IsValid())
+									{
+										animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+										animator.stateMachine.InitState(animator.curr_anim_pkg);
+									}
 								}
 							}
 						}
