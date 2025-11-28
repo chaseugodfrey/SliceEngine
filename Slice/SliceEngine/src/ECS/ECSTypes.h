@@ -70,6 +70,7 @@ namespace SliceEngine
 
 	struct Script
 	{
+		bool componentEnabled{ true };
 		std::string scriptName;
 
 		// purely for serialization and deserialization
@@ -115,11 +116,11 @@ namespace SliceEngine
 
 		glm::vec3 GetWorldScale()
 		{
-			glm::vec3 scale;
-			scale.x = glm::length(glm::vec3(transform[0]));
-			scale.y = glm::length(glm::vec3(transform[1]));
-			scale.z = glm::length(glm::vec3(transform[2]));
-			return scale;
+			glm::vec3 _scale{};
+			_scale.x = glm::length(glm::vec3(transform[0]));
+			_scale.y = glm::length(glm::vec3(transform[1]));
+			_scale.z = glm::length(glm::vec3(transform[2]));
+			return _scale;
 		}
 
 		void SetWorldPosition(const glm::vec3& newPos)
@@ -184,6 +185,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
+		bool componentEnabled{ true };
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
 		bool skinned{ false };

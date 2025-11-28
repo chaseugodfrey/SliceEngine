@@ -3,8 +3,8 @@
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
 #include <ContentBrowser/ContentBrowserManager.h>
-#include <../src/Systems/SceneSystem.h>
-#include <../src/Systems/PrefabSystem.h>
+#include <Systems/SceneSystem.h>
+#include <Systems/PrefabSystem.h>
 
 
 namespace SliceEditor
@@ -12,7 +12,7 @@ namespace SliceEditor
 	namespace EditorUtilities
 	{
 
-		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO();
@@ -20,6 +20,11 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -28,7 +33,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Box();
@@ -36,6 +41,11 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -44,7 +54,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Sphere();
@@ -52,6 +62,11 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -60,7 +75,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Capsule();
@@ -68,6 +83,11 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -76,13 +96,18 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Cam();
 
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
+
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
 
 			if (history)
 			{
@@ -291,11 +316,11 @@ namespace SliceEditor
 			}
 		}
 
-		void MenuList_CreateGameObjects(HistoryManager* history, entt::entity parent)
+		void MenuList_CreateGameObjects(HistoryManager* history, entt::entity parent, bool isPrefabInspected)
 		{
 			if (ImGui::MenuItem("Empty"))
 			{
-				EditorUtilities::GameObject_CreateEmpty(parent, history);
+				EditorUtilities::GameObject_CreateEmpty(parent, history, isPrefabInspected);
 			}
 
 			if (ImGui::MenuItem("Camera"))
@@ -307,27 +332,27 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Box"))
 				{
-					EditorUtilities::GameObject_CreateBox(parent, history);
+					EditorUtilities::GameObject_CreateBox(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Sphere"))
 				{
-					EditorUtilities::GameObject_CreateSphere(parent, history);
+					EditorUtilities::GameObject_CreateSphere(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Capsule"))
 				{
-					EditorUtilities::GameObject_CreateCapsule(parent, history);
+					EditorUtilities::GameObject_CreateCapsule(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Quad"))
 				{
-					EditorUtilities::GameObject_CreateBox(parent, history);
+					EditorUtilities::GameObject_CreateBox(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Plane"))
 				{
-					EditorUtilities::GameObject_CreateBox(parent, history);
+					EditorUtilities::GameObject_CreateBox(parent, history, isPrefabInspected);
 				}
 
 				ImGui::EndMenu();

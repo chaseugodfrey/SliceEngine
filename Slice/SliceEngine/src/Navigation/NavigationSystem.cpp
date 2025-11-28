@@ -116,6 +116,9 @@ namespace SliceEngine
 		auto &agent = reg.get<NavAgent>(entity);
 		auto &transform = reg.get<Transform>(entity);
 
+		if (!agent.componentEnabled)
+			return;
+
 		if (agent.hasNewTarget)
 		{
 			SLICE_LOG_DEBUG("Agent computing path from {} to {}");

@@ -106,6 +106,8 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
 
+		if (!rc.componentEnabled) return;
+
 		auto model = rc.modelHandle;
 		
 		if (!model.IsValid()) return;

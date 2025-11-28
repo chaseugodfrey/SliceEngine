@@ -379,6 +379,8 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
+
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
 
@@ -394,6 +396,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
@@ -571,6 +575,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Nav Agent", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
 
 			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
 
@@ -1260,6 +1266,8 @@ namespace SliceEditor
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
 			DisplayComponentHeader<SliceEngine::Light>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
