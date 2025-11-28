@@ -185,6 +185,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
+		bool componentEnabled{ true };
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
 		bool skinned{ false };
