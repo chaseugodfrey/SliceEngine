@@ -182,13 +182,71 @@ namespace SliceEngine
         }
 
         /// <summary>
+        /// Computes 2D distance between two points using Vector2s.
+        /// When comparing distance, please use the squared version to prevent using sqrt.
+        /// </summary>
+        public static float Distance2D(Vector2 a, Vector2 b)
+        {
+            float dx = a.x - b.x;
+            float dy = a.y - b.y;
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>
+        /// Computes the squared 2D distance between two points using Vector2s.
+        /// Eg: Comparing distance between 2 points.
+        /// </summary>
+        public static float Distance2DSquared(Vector2 a, Vector2 b)
+        {
+            float dx = a.x - b.x;
+            float dy = a.y - b.y;
+            return (float)(dx * dx + dy * dy);
+        }
+
+        /// <summary>
         /// Computes 2D distance between two points on the XZ plane.
+        /// When comparing distance, please use the squared version to prevent using sqrt.
         /// </summary>
         public static float Distance2D(Vector3 a, Vector3 b)
         {
             float dx = a.x - b.x;
             float dz = a.z - b.z;
             return (float)Math.Sqrt(dx * dx + dz * dz);
+        }
+
+        /// <summary>
+        /// Computes the squared 2D distance between two points on the XZ plane.
+        /// Eg: Comparing distance between 2 points.
+        /// </summary>
+        public static float Distance2DSquared(Vector3 a, Vector3 b)
+        {
+            float dx = a.x - b.x;
+            float dz = a.z - b.z;
+            return (float)(dx * dx + dz * dz);
+        }
+
+        /// <summary>
+        /// Computes 3D distance between two points.
+        /// When comparing distance, please use the squared version to prevent using sqrt.
+        /// </summary>
+        public static float Distance3D(Vector3 a, Vector3 b)
+        {
+            float dx = b.x - a.x;
+            float dy = b.y - a.y;
+            float dz = b.z - a.z;
+            return (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        /// <summary>
+        /// Computes squared 3D distance between two points (to save cost from using sqrt).
+        /// Eg: Comparing distance between 2 points.
+        /// </summary>
+        public static float Distance3DSquared(Vector3 a, Vector3 b)
+        {
+            float dx = b.x - a.x;
+            float dy = b.y - a.y;
+            float dz = b.z - a.z;
+            return (float)(dx * dx + dy * dy + dz * dz);
         }
 
         /// <summary>
@@ -244,7 +302,7 @@ namespace SliceEngine
             {
                 float t = time / duration;
                 transform.Position = Parabola(start, end, height, t);
-                time += Time.deltaTime;
+                time += Time.deltaTime;               
                 yield return null;
             }
 
