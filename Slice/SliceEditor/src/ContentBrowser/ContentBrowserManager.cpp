@@ -225,6 +225,8 @@ namespace SliceEditor
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
+
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)

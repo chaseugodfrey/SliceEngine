@@ -1671,12 +1671,14 @@ namespace SliceEditor
 	void InspectorWindow::DisplayPrefab(EntityNode* node)
 	{
 		//Save Prefab
+		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
 			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
 			//Serialise the Prefab
 			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
 
+			historyManager->ClearFromCheckpoint();
 			PrefabInspectedEvent event;
 			event.prefabBeingInspected = false;
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
@@ -1685,6 +1687,7 @@ namespace SliceEditor
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
 		{
+			historyManager->ClearFromCheckpoint();
 			PrefabInspectedEvent event;
 			event.prefabBeingInspected = false;
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);

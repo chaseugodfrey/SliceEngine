@@ -82,11 +82,6 @@ namespace SliceEditor
 			PrefabInspectedEvent event(prefabGUID, true);
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 		}
-		
-		else if (node->type == SelectionType::PREFAB_ENTITY)
-		{
-
-		}
 
 		mSelectionType = node->type;
 
