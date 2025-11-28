@@ -346,15 +346,41 @@
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
-                            "paramName": "DoubleJump",
+                            "paramName": "AirDashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.7,
+                    "hasExitTime": true,
+                    "sourceState": "JumpLoop",
+                    "targetState": "AirDashStart"
+                }
+            ]
+        },
+	"AirDashStart": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "AirDashStart",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Plunge",
                             "value": null
                         }
                     ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "JumpLoop",
-                    "targetState": "DoubleJump"
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Plunge"
                 }
             ]
         },
@@ -381,7 +407,22 @@
                     "hasExitTime": false,
                     "sourceState": "Plunge",
                     "targetState": "PlungeLand"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "AirDashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Plunge",
+                    "targetState": "AirDashStart"
                 }
+
             ]
         },
         "PlungeLand": {
