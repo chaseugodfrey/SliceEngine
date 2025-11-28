@@ -189,8 +189,8 @@ namespace SliceEngine
 			for (auto& [name, components] : prefab.items())
 			{
 				GameObject newObj = factory.CreateBlanker();
-
-				newObj.AddComponent<PrefabEditingEntity>();
+				if(Editor)
+					newObj.AddComponent<PrefabEditingEntity>();
 				//factory.RemoveFromNameMap(newObj.GetEntity());
 				//factory.PrintNameMap();
 			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
