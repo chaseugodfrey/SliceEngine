@@ -2,7 +2,7 @@
 
 Module Code: CSD3401/UXG3450
 
-Milestone: 2
+Milestone: 3
 Team: SR3C
 Engine Name: Slice Engine
 
@@ -80,54 +80,70 @@ When running the engine for the first time, the engine will take a while to star
 
 ------------------------------------------------------------------------------------------------------
 
-## Changes Since Milestone 1
-1. Scene System
-Has been set up, added functionality to save and load scenes.
+## Changes Since Milestone 2
+<!-- 1. Scene System
+No changes. 
 
 2. Navmesh Building & Mesh Management
 Added NavigationWindow to edit and bake the NavMesh.
 
 3. Materials
-Functionality added to define how surfaces appear visually(color, texture, shininess, flexibility). Can create and edit settings of materials, system can save/load material files and apply them to meshes at runtime.
+Functionality added to define how surfaces appear visually(color, texture, shininess, flexibility). Can create and edit settings of materials, system can save/load material files and apply them to meshes at runtime. -->
 
 ## System Specific Changes
 ### Graphics
-Lighting with shadows(point & direction) implemented. Added functionality for object picking.
+- Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration
+- Improved Shader Loading System
+- Skybox & Lighting Enhancements. Implemented skybox generation features, updated lighting passes and added support for skybox irradiance lighting variations.
+- Added new unified asset types for materials, shaders, controllers and features.
 
 ### Animation
-Functionality for skinned mesh animations. When creating model entities, scene graph can be recreated in ECS with the engine's scene graph as long as the model has a scene graph in it. Added functionality for playing animation loops, State machine & finite state machine works together with animator system.
+- Animator Window overhaul. Rebuilt using ImNodes. Improvements include safer state editing, clearer visual presentation and better drag & drop support.
+- New FSM structures. Expanded FSM data, cleaner state naming conventions and better control transitions.
+- Scene Graph & Bone System updated. Improved bone transform handling & better support for FPS style animation logic.
+- Prefab compatibility with Animations. Animation data now serializes better.
 
 ### Audio
-Reduced the number of loops that system required to work. Added functionality so that audio sources have pointes to a channel instead.
+- Script based sound triggering as scripts can now play SFX & BGM directly from C#.
+- Attack, walk and BGM sounds included in default scenes for testing.
 
 ### Scripting
-Added functionality for hot reloading, able to recompile on button press.
+- Hot reload stability fixes. Reload no longer resets the entire scripting context incorrectly.
+- Added new rotation utilities, vec2 & vec3 helpers and templated clamp and general math extensions.
+- Improved rotation clamping and improved movement logic in Camera controller.
 
-### Navigation
-Navmesh generation(Recast) has been setup, navmeshes can be built. Debugger for grid added. Navmesh runtime (Detour) framework setup.
+### Navigation (Recast & Detour)
+- Recast Intregration stabilised. Fixed rasterization and region settigs, enabling agent visualisation.
+- Detour runtime functions added. Runtime structures added to engine, enabling NPC movement and path queries.
+- Inspector updates now expose more parameters and allow baking directly from editor.
 
-### ImGui
-Undo/Redo functionality added.
-Added AnimationWindow to test and look at animations from GameObjects
-Added Inspector for Materials
+### ImGui, Inspector, Windows
+- Updated console window, showing logs, warnings and script outputs.
+- Scene graph updated. Debug tool improvements for visualising parent-child relationships.
+- Added CTRL+D for duplication of game objects.
+- Better drag-&-drop behaviour for animation controllers and prefabs.
 
 ### Physics
-Added functionality for API creation for C# scripts
+- Transform & Rigidbody fixes. Overhauled sync logic to keep ECS transforms and physics bodies aligned.
+- Collider Runtime enhancements. Collder now de/activates correctly during gameplay events.
+- API Extensions for C#. Added missing constructors, helper functions and scripting hooks for rigidbody and collider manipulation.
 
 ### Serialization
-Changed serialization system to a templated structure, simplifying ways of adding new types to support. Increased flexibility to add more layers through the completetion of data side implementation.
+- Core serialisation converted to a templated system, improving type extensibility.
+- Added support for serialising animation controllers and state machine data.
 
 ### Input
-Added functionality for Action Mapping.
+- Better prefab saving ensures Input components persist correctly.
+- Full Action Mapping functionality exposed to C# scripts, including 1D and multiple action types.
 
 ### Networking
-Despite no plans for foreseeable future use of this feature, connection between clients has been setup. Clients can send packets to each other.
+- No changes as there are no plans to include multiplayer in the final product as of yet.
 
 ### Editor Gameplay
-        - Created a usable level "Level: Populated".
-        - Controls: press WASD to move & R to attack.
-        - Implemented Waypoint system for payload to automatically move from point to point.
-        - Implemented Spawner that creates enemies that chase and damage the player.
+- Created a usable level "Level: Populated".
+- Updated player logic in C# for movement and attacks.
+- Improved spawner and enemy behaviour stability.
+- Added support for animation driven attacks via collider activation.
 
 ------------------------------------------------------------------------------------------------------
 
