@@ -367,6 +367,89 @@ namespace SliceEngine
 
 			return rootEntity;
 		}
+		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath)
+		{
+			std::vector<rttr::variant> componentInstances;
+
+			json prefab = DeserializeFile(filePath);
+			auto& factory = Core::GetInstance()->mFactory;
+
+			for (auto& [name, components] : prefab.items())
+			{
+				for (auto& [objName, objProps] : components.items())
+				{
+					for (auto& [componentName, props] : objProps.items())
+					{
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							continue;
+						}
+
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
+						{
+							continue;
+						}
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+
+							//factory.PrintNameMap();
+
+							if (!prop.is_valid())
+								continue;
+
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								Entity,
+								uint32_t,
+								uint64_t,
+								GUID,
+								Handle<SliceEngineTypes::Texture>,
+								Handle<SliceEngineTypes::Model>,
+								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string,
+								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData
+								>
+								(componentInstance, prop, value, propName, componentName, (Entity)0);
+						}
+
+
+						if (componentName != typeid(SliceEntity).name() &&
+							componentName != typeid(Transform).name() &&
+							componentName != typeid(SceneGraph).name())
+						{
+							componentInstances.push_back(componentInstance);
+						}
+						//AddComponentFromVariant(newObj, componentInstance, componentName);
+					}
+				}
+			}
+			return componentInstances;
+		}
 #pragma endregion
 
 		json SerializeGameObject(entt::entity entity, entt::registry& registry)

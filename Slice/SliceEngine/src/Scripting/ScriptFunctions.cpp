@@ -892,6 +892,7 @@ namespace SliceEngine
 		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		RegisterComponent<NavAgent>();
+		RegisterComponent<AudioSource>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();

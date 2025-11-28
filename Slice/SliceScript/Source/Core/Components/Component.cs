@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SliceEngine
 {
@@ -40,6 +41,13 @@ namespace SliceEngine
         public T GetComponent<T>() where T : Component
         {
             return gameObject?.GetComponent<T>();
+        }
+
+        // Maybe need checks for required component in the future
+        public T GetRequiredComponent<T>() where T : Component
+        {
+            return GetComponent<T>()
+                ?? throw new Exception($"Required component {typeof(T)} missing on {gameObject?.mID}");
         }
 
         // Get component in children

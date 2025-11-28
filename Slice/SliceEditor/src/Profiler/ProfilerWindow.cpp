@@ -106,6 +106,8 @@ namespace SliceEditor
 			mManager.UpdateDebugStatistics();
 		}
 
+		ImGui::Text("FPS: %f", mManager.mCurrFPS);
+
 		DrawSystemTimeline();
 
 		DrawSystemBreakdown();
