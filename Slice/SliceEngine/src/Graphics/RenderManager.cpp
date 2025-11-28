@@ -317,6 +317,8 @@ namespace SliceEngine
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+			if (!camera.componentEnabled) continue;
 			mCurrFinalColAttachment = GOUT_FINAL;
 
 			CalculateVP(cam);
@@ -544,6 +546,7 @@ namespace SliceEngine
 			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 			for (auto entity : view)
 			{
+				//if (!rc.componentEnabled) continue; // Still render outline despite disable
 				if (--i < 0)
 					break;
 				auto& rc = Core::GetInstance()->GetRegistry().get<Renderer>(entity);
@@ -592,6 +595,7 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			if (light.type != Light::LightType::Light_Point) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
@@ -628,6 +632,7 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
@@ -654,7 +659,6 @@ namespace SliceEngine
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
 		glBindTextureUnit(2, SkyboxIrradianceMap);
 
-		LoadSettings(GPS_SKYBOX_AMBIENT); // first pass lol to draw over skybox
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	void RenderManager::RenderLighting(Entity cam)
@@ -672,6 +676,7 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
 			SetUniformVec3(uniformLoc, lightT.GetWorldPosition());
