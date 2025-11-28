@@ -56,12 +56,6 @@ namespace SliceEditor
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			if (ImGui::Button("Prefab Create"))
-			{
-				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
-				mRegistry.GetAssetManager().CreatePrefab(go);
-				//SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
-			}
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
 			break;
 		case SelectionType::MATERIAL:
@@ -1392,6 +1386,16 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayEntity(EntityNode* node)
 	{
+		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
+		{
+			if (ImGui::Button("Prefab Create"))
+			{
+				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
+				mRegistry.GetAssetManager().CreatePrefab(go);
+				node->isPrefab = true;
+			}
+		}
+
 		DisplayEntityData(node->entity);
 
 		//Loop through registered components and display them if they exist on the selected entity
