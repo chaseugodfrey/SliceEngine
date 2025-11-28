@@ -128,21 +128,20 @@ namespace SliceEditor
 						std::filesystem::path originalScenePath = currentScenePath;
 						originalScenePath.replace_extension(".scene");
 
-						//Check for the non temp scene and remove it
+						//Set to scene path and remove temp file
 						if (std::filesystem::exists(originalScenePath))
 						{
-							std::filesystem::remove(originalScenePath);
-							currentScenePath.replace_extension(".scene");
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentScenePath);
+							
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
+							std::filesystem::remove(currentScenePath);
 						}
 
 					}
 					
-
-
 				}
 
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				EditorUtilities::Scene_Save();
 			}
 
 			if (ImGui::MenuItem("Save Scene As"))

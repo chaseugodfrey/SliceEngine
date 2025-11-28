@@ -1111,9 +1111,11 @@ namespace SliceEditor
 
 	void AssetManager::HandleAssetRemoved(RawFileEvent& removeEvent)
 	{
-
 		std::filesystem::path removedFilePath(removeEvent.filePath);
-
+		if (removedFilePath.extension() == ".temp")
+		{
+			return;
+		}
 
 		SliceEngine::GUID fileGUID;
 

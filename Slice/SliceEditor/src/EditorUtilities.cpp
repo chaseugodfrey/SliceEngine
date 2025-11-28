@@ -278,6 +278,11 @@ namespace SliceEditor
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 		}
 
+		void Scene_CleanTempFiles(Registry& registry)
+		{
+			registry.GetAssetManager().CleanUpSceneTemp();
+		}
+
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
 		{
 			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
