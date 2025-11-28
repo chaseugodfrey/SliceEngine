@@ -58,6 +58,11 @@ namespace SliceEngine
 			EFSM.stateCon = false;
 		}
 	}
+	void FSMSystem::InitState()
+	{
+		EFSM.currState = &EFSM.stateMap[EFSM.entryState];
+		EFSM.stateCon = false;
+	}
 	void FSMSystem::CheckStates()
 	{
 		if (!EFSM.currState) return;

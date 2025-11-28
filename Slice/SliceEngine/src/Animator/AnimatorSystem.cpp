@@ -184,6 +184,7 @@ namespace SliceEngine
 		if (animator.Handle_stateMachine.IsValid())
 		{
 			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+			animator.stateMachine.InitState();
 		}
 
 		if (animator.IsValid())
