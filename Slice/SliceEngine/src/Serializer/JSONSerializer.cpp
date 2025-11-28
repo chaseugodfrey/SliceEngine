@@ -346,29 +346,20 @@ namespace SliceEngine
 				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
 			}
 
-			// Remapping Entity IDs after all GOs have been deserialized
-			//auto& registry = Core::GetInstance()->GetRegistry();
-			//auto& factory = Core::GetInstance()->mFactory;
-			if (rootGO.HasComponent<Bone>())
+			for (auto entity : entityID)
 			{
-				auto entityView = registry.view<Bone>();
-				for (auto entity : entityView)
+				if (!registry.any_of<Bone>(entity))
 				{
-					/*if (!registry.any_of<Bone>(entity))
-					{
-						continue;
-					}*/
-
-					auto& boneComponent = registry.get<Bone>(entity);
-
-					boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+					continue;
 				}
 
-				for (auto entity : entityView)
-				{
-					Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
-				}
+				auto& boneComponent = registry.get<Bone>(entity);
+				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+			}
 
+			for (auto entity : entityID)
+			{
+				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
 			return rootEntity;
@@ -682,13 +673,14 @@ namespace SliceEngine
 
 
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
-
+			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
-
+				// save every entity that is being created
+				entityID.push_back(node.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
 					for (auto& [componentName, props] : objProps.items())
@@ -779,47 +771,25 @@ namespace SliceEngine
 				}
 			}
 
-
-
 			// Remapping Entity IDs after all GOs have been deserialized
 			auto& registry = Core::GetInstance()->GetRegistry();
-			//auto& factory = Core::GetInstance()->mFactory;
-			auto entityView = registry.view<Bone>();
-			for (auto entity : entityView)
+			for (auto entity : entityID)
 			{
-				/*if (!registry.any_of<Bone>(entity))
+				if (!registry.any_of<Bone>(entity))
 				{
 					continue;
-				}*/
+				}
 
 				auto& boneComponent = registry.get<Bone>(entity);
-
 				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
 			}
 
-			for (auto entity : entityView)
+			for (auto entity : entityID)
 			{
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
-			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
-			//	
-			//	for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
-			//	{
-			//		auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
-			//		if (it != sceneGraphMap.end())
-			//		{
-			//			sceneGraphComponent.neighbours[i] = (Entity)it->second;
-			//		}
-
-			//		// if this is the new child of the root entity
-			//		// for it to be the new child, up is the root and there is no left children
-			//		if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
-			//		{
-			//			auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
-			//		}
-			//	}
-			//}
+			// Using scene graph map to fix scenegraph component is done in another function in scene system.
 
 			return sceneGraphMap;
 		}
