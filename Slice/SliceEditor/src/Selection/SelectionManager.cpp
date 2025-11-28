@@ -59,6 +59,8 @@ namespace SliceEditor
 
 		if (node->type == SelectionType::ENTITY)
 		{
+			EntityNode* entNode = static_cast<EntityNode*>(node);
+			SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
 		}
 		else if (node->type == SelectionType::PREFAB)
 		{
@@ -118,12 +120,23 @@ namespace SliceEditor
 		{
 			node->isSelected = true;
 			mSelectedNodes.insert(node);
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+			}
 		}
-
 		else
 		{
 			node->isSelected = false;
 			mSelectedNodes.erase(it);
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity);
+				if (go.HasComponent<SliceEngine::SelectedEntity>())
+					go.RemoveComponent<SliceEngine::SelectedEntity>();
+			}
 		}
 
 		if (!suppressHistory)
@@ -147,6 +160,10 @@ namespace SliceEditor
 			//if (!suppressHistory)
 			//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
 
+			auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
+			if (go.HasComponent<SliceEngine::SelectedEntity>())
+				go.RemoveComponent<SliceEngine::SelectedEntity>();
+			
 			mSelectedEntities.erase(it);
 		}
 
@@ -167,7 +184,14 @@ namespace SliceEditor
 		mSelectedNodes = selectedNodes;
 
 		for (auto& node : mSelectedNodes)
+		{
 			node->isSelected = true;
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+			}
+		}
 	}
 
 	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
@@ -189,7 +213,16 @@ namespace SliceEditor
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
 
 		for (auto& node : mSelectedNodes)
+		{
 			node->isSelected = false;
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity);
+				if (go.HasComponent<SliceEngine::SelectedEntity>())
+					go.RemoveComponent<SliceEngine::SelectedEntity>();
+			}
+		}
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();

@@ -25,6 +25,7 @@ namespace SliceEngine
 	{
 		void Update(float dt) override;
 		void Render(GLuint mShader, bool withTex);
+		void SetShaderAndWTexSettings(GLuint Shader, bool withTex);
 
 		void EntityOnEnter(entt::registry& reg, Entity entity) override;
 		void EntityOnExit(entt::registry& reg, Entity entity) override;
