@@ -230,7 +230,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 		GO.GetComponent<Prefab>().prefabGUID = guid;
-
+		mPrefabMap[guid].push_back(entity);
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
