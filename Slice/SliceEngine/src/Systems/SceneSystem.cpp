@@ -45,16 +45,23 @@ namespace SliceEngine
 
 		mCurrentSceneName = filePath.filename().stem().string();
 
-			mCurrentScene = filePath;
+		mCurrentScene = filePath;
 
 		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
 		if (filePathGUID)
 		{
 
+			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
+
+			if (mCurrentScene.extension() == ".temp")
+			{
+				filePathToLoad.replace_extension(".temp");
+			}
+
 			SLICE_LOG("Loading scene...");
 
-			auto map = JSONSerializer::DeserializeScene(filePathGUID->GetFilePath());
+			auto map = JSONSerializer::DeserializeScene(filePathToLoad);
 
 			SLICE_LOG("Scene loaded successfully.");
 
