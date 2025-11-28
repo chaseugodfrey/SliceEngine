@@ -131,10 +131,11 @@ namespace SliceEngine
 			if (animator.timeline.isPlaying)
 			{
 				
-				if (animator.is_bone) {
+				if (animator.is_bone)
+				{
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), glm::mat4{1.0f});
+					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
 					animator.SetInverseRoots();
 					anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
 				}
@@ -173,13 +174,17 @@ namespace SliceEngine
 
 		Animator& animator = reg.get<Animator>(entity);
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+
 		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
+		if(!animator.Handle_stateMachine.IsValid())
+			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
 			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+			animator.stateMachine.InitState();
 		}
 
 		if (animator.IsValid())

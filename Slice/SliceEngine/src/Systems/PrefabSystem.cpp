@@ -63,16 +63,16 @@ namespace SliceEngine
 
 		std::string name = prefab.get()->filePath;
 		//Assets/GameObject_1.prefab
-		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath, isEditor);
 
 		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
 		//std::string goName = GO.GetName(); was for 
 		if(!isEditor)
 		{
 			FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
+			mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 		}
 
-		mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
@@ -94,14 +94,16 @@ namespace SliceEngine
 		return GO;
 	}
 
-	void PrefabSystem::UpdatePrefabChild(Entity entity, GUID const& guid)
+	void PrefabSystem::UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor)
 	{
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = guid;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
-		mPrefabMap[guid].push_back(GO.GetEntity());
+		if (isEditor)
+			mPrefabMap[guid].push_back(GO.GetEntity());
+		
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
 		while (childEntity != entt::null)
@@ -198,6 +200,20 @@ namespace SliceEngine
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
+		}
+	}
+
+	void PrefabSystem::AddToPrefab(Entity entity, Entity rootNode)
+	{
+		GameObject rootGO = FactoryInstance.GetGOByEntity(rootNode);
+
+		if (rootGO.HasComponent<Prefab>())
+		{
+			// same as the root GO
+			GameObject GO = FactoryInstance.GetGOByEntity(entity);
+			GO.AddComponent<Prefab>();
+			GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
+			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
 		}
 	}
 }

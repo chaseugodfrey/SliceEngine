@@ -548,6 +548,12 @@ namespace SliceEngine
 
 			JPH::Vec3 newHalf(boxData.scale * scl);
 
+			// ensure minimum size for each dimension
+			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
+			newHalf.SetX(JPH::max(newHalf.GetX(), minSize));
+			newHalf.SetY(JPH::max(newHalf.GetY(), minSize));
+			newHalf.SetZ(JPH::max(newHalf.GetZ(), minSize));
+
 			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				colliderShape.offSet,

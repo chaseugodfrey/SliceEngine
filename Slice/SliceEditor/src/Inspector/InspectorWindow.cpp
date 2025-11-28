@@ -377,6 +377,8 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
+
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
 
@@ -392,6 +394,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
@@ -978,23 +982,27 @@ namespace SliceEditor
 					ImGui::SameLine(150.f);
 					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
 
-					ImGui::Text("Next: ");
-					ImGui::SameLine(150.f);
-					if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+					// i have to check, what if an entity has no animation pkg, like the states deal w animation so do i just start balling?
+					if(animator.Handle_curr_anim_pkg.IsValid())
 					{
-						animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
-					}
+						ImGui::Text("Next: ");
+						ImGui::SameLine(150.f);
+						if (ImGui::Button("##anim_Next", ImVec2(50, 25)))
+						{
+							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
+						}
 
-					ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
 
-					ImGui::Text("Prev: ");
-					ImGui::SameLine(150.f);
-					if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
-					{
-						if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
-							animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
-						else
-							animator.stateMachine.EFSM.currState->curr_anim_idx--;
+						ImGui::Text("Prev: ");
+						ImGui::SameLine(150.f);
+						if (ImGui::Button("##anim_Prev", ImVec2(50, 25)))
+						{
+							if (animator.stateMachine.EFSM.currState->curr_anim_idx == 0)
+								animator.stateMachine.EFSM.currState->curr_anim_idx = static_cast<unsigned int>(animator.curr_anim_pkg.animations.size() - 1);
+							else
+								animator.stateMachine.EFSM.currState->curr_anim_idx--;
+						}
 					}
 				}
 			}
@@ -1260,6 +1268,8 @@ namespace SliceEditor
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
 			DisplayComponentHeader<SliceEngine::Light>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);

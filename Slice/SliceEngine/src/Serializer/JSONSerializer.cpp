@@ -294,8 +294,10 @@ namespace SliceEngine
 			{
 				auto& sceneGraph = registry.get<SceneGraph>(rootEntity);
 
+				// it becomes a root for now, so it wont have an up, left or right
 				sceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+				sceneGraph.neighbours[SceneGraph::UP] = entt::null;
 			}
 
 			if (rootGO.HasComponent<SliceEntity>())
