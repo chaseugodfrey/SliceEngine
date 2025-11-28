@@ -243,14 +243,15 @@ namespace SliceEngine
                 timeBuffer = 0.0f;
             }
 
-            if (animator.GetCurrAnimName() == "Walk")
-            {
-                myAudio.Play();
-            }
-            else
-            {
-                myAudio.Stop();
-            }
+            //Need to find another way to play the walking without it playing before the scene starts
+            //if (animator.GetCurrAnimName() == "Walk")
+            //{
+            //    //myAudio.Play();
+            //}
+            //else
+            //{
+            //    //myAudio.Stop();
+            //}
 
             // duble bifferb for attack
             if (startBuffer)

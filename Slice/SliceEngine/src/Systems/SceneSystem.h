@@ -74,10 +74,11 @@ namespace SliceEngine
 		//can change to other identifier
 
 		std::queue<std::filesystem::path> mSceneQueue;
-		std::filesystem::path mCurrentScene{};	
+		std::filesystem::path mCurrentScene{};
 		std::filesystem::path mNextScene{};
 		std::filesystem::path mDefaultScene{};
 		
+		std::string mCurrentSceneName{};
 	};
 }
 

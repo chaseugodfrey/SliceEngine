@@ -133,21 +133,27 @@ namespace SliceEditor
 				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
 					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = currentScenePath.replace_extension(".temp"); //SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
 
-
-					if (std::filesystem::exists(currentSceneTemp))
+					//Check if the current scene set is already a temp scene
+					if (currentScenePath.extension() == ".temp")
 					{
-						
-						std::filesystem::remove(currentScenePath);
-						currentSceneTemp.replace_extension(".scene");
-						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
-							
-						
-					}
+						std::filesystem::path originalScenePath = currentScenePath;
+						originalScenePath.replace_extension(".scene");
 
+						//Set to scene path and remove temp file
+						if (std::filesystem::exists(originalScenePath))
+						{
+							
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
+							std::filesystem::remove(currentScenePath);
+						}
+
+					}
+					
 				}
 
+				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				EditorUtilities::Scene_Save();
 				EventManager::GetInstance()->Publish<OnSceneSaveEvent>();
 			}
 

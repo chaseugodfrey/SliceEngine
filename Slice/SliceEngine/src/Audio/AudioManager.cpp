@@ -569,6 +569,11 @@ namespace SliceEngine
 		}
 	}
 
+	void AudioManager::SetPauseStateAllSound(bool pauseState)
+	{
+		master->setPaused(pauseState);
+	}
+
 	void AudioManager::StopSound(FMOD::Channel* channel)
 	{
 		if (channel)

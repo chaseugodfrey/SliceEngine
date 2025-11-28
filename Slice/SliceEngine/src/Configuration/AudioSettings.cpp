@@ -467,6 +467,8 @@ namespace SliceEngine
 				audioComp.volumeRollOff = entry->volumeRollOff;
 				audioComp.playOnAwake = false;
 
+				
+
 				bool isSFXPlaying = false;
 
 				audioComp.channel->isPlaying(&isSFXPlaying);

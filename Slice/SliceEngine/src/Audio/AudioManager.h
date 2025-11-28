@@ -204,6 +204,8 @@ namespace SliceEngine
 		 */
 		void SetPauseState(FMOD::Channel* channel, bool pauseState);
 
+		void SetPauseStateAllSound(bool pauseState);
+
 		/**
 		 * @brief Stops a sound currently playing for a given entity.
 		 */
