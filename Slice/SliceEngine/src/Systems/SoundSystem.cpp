@@ -42,7 +42,20 @@ namespace SliceEngine
 		
 		//audioManager->PlaySound(audioComp.soundName, SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, audioComp.is3D, audioComp.isPaused, audioComp.isLoop, audioComp.currentVolume, entity, transform.position);
 
+		auto audioManager = Core::GetInstance()->GetAudioManager();
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+		auto& audioComp = reg.get<AudioSource>(entity);
+		auto& transform = reg.get<Transform>(entity);
+		glm::vec3 entityVel = { 0.f, 0.f, 0.f }; // Placeholder for physics velocity
+
 		
+		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE && audioComp.playOnAwake)
+		{
+			if (audioComp.componentEnabled && !audioComp.channel)
+			{
+				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+			}
+		}
 
 		std::cout << "Entity entering sound system" << std::endl;
 	}
