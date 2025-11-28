@@ -36,15 +36,22 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		GameObject CreatePrefab(const GUID& prefabGUID, bool isEditor = false);
-		void UpdatePrefabChild(Entity entity, GUID const& guid);
+		void UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor = false);
 		void InitEvent();
 		void OnPrefabModified(const OnPrefabModifiedEvent& event);
 		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
 		/// <summary>
-		/// Add a prefab component to the entity after creating it as a prefab
+		/// Add a prefab component to the entity after turning it into a prefab
 		/// </summary>
 		/// <param name="entity"></param>
 		void MakePrefab(Entity entity, GUID guid);
+
+		/// <summary>
+		/// Add an object to an existing prefab
+		/// </summary>
+		/// <param name="entity"></param>
+		/// <param name="rootNode"></param>
+		void AddToPrefab(Entity entity, Entity rootNode);
 	};
 }
 

@@ -70,6 +70,7 @@ namespace SliceEngine
 
 	struct Script
 	{
+		bool componentEnabled{ true };
 		std::string scriptName;
 
 		// purely for serialization and deserialization
@@ -184,6 +185,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
+		bool componentEnabled{ true };
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
 		bool skinned{ false };

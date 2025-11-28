@@ -451,6 +451,12 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
+
             scriptRef->InvokeOnConstruct((unsigned int)id);
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
@@ -468,6 +474,14 @@ namespace SliceEngine
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
             std::string entityName = FactoryInstance.GetGOByEntity(id).GetName();
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             if (scriptRef == nullptr)
             {
                 SLICE_LOG_ERROR("Error in initializing script reference");
@@ -1128,7 +1142,15 @@ namespace SliceEngine
                 continue;
             }
 
+            //if the script component is disabled ignore and collision invoke in the script
+            auto& scriptComponent = mRegistry->get<Script>(event.entity);
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             auto scriptInstance = mEntityInstances[event.entity];
+
             if (!scriptInstance) continue;
 
             switch (event.type)
