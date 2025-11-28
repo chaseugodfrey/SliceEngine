@@ -250,7 +250,8 @@ namespace SliceEditor
 
 		void Scene_Save()
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+
+
 		}
 
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)

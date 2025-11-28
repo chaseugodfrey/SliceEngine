@@ -98,6 +98,18 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
+
+		DrawSavePopupModal();
+	}
+
+	void WindowManager::CloseSaveScenePopup()
+	{
+		saveSceneAsPopupClose = true;
+	}
+
+	void WindowManager::OpenSaveScenePopup()
+	{
+		saveSceneAsPopupOpen = true;
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -847,7 +859,7 @@ namespace SliceEditor
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
 					
-					sceneSystem->SaveScene(newScenePath);
+					sceneSystem->OnSceneSave(newScenePath);
 
 					
 					sceneSystem->SetCurrentScenePath(newScenePath);
@@ -910,6 +922,29 @@ namespace SliceEditor
 		if (!isOpen)
 		{
 			newScenePopupOpen = false;
+		}
+	}
+
+	void WindowManager::DrawSavePopupModal()
+	{
+		if (saveSceneAsPopupOpen)
+		{
+			ImGui::OpenPopup("SaveScenePopup");
+			saveSceneAsPopupOpen = false;
+		}
+
+
+		if (ImGui::BeginPopupModal("SaveScenePopup"))
+		{
+			ImGui::Text("Saving...");
+
+			if (saveSceneAsPopupClose)
+			{
+				ImGui::CloseCurrentPopup();
+				saveSceneAsPopupClose = false;
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 

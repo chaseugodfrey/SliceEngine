@@ -42,7 +42,7 @@ namespace SliceEditor
 
 	};
 
-	struct SaveSceneEvent
+	struct OnSceneSaveEvent
 	{
 
 	};
