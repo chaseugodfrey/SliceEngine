@@ -11,7 +11,13 @@ namespace SliceEngine
         public static void PlaySFX(string message)
         {
             // Console.WriteLine($"[LOG] {message}");
-            FunctionCalls.Audio_PlaySFX(message);
+            FunctionCalls.Audio_PlaySFX(message, ref Vector3.Zero);
+        }
+
+        public static void PlaySFX(string message, Vector3 position)
+        {
+            // Console.WriteLine($"[LOG] {message}");
+            FunctionCalls.Audio_PlaySFX(message, ref position);
         }
     }
 }

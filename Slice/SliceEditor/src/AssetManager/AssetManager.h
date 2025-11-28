@@ -91,6 +91,7 @@ namespace SliceEditor
 			{".mp3", {AssetType::Audio, "Audio"}},
 			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
+			{".temp", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
 			{".vert", {AssetType::VertShader, "VertShader"}},
 			{".geom", {AssetType::GeomShader, "GeomShader"}},
@@ -143,8 +144,8 @@ namespace SliceEditor
 
 		void HandleAssetAdded(RawFileEvent& addEvent);
 		void HandleAssetRemoved(RawFileEvent& removeEvent);
-		void HandleAssetRenamed(std::vector<RawFileEvent>& events);
-		void HandleAssetModified(std::vector<RawFileEvent>& events);
+		void HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew);
+		void HandleAssetModified(RawFileEvent& event);
 		void HandleAssetMoved(std::vector<RawFileEvent>& events);
 		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector
