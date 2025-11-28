@@ -24,6 +24,7 @@ void EventManager::SetupEventManager()
 	RegisterEvent<NetworkClientConnectEvent>();
 	RegisterEvent<NetworkBindPortEvent>();
 	RegisterEvent<GONetworkEvent>();
+	RegisterEvent<SliceEntityModifiedEvent>();
 	RegisterEvent<ColliderShapeModifiedEvent>();
 	RegisterEvent<RigidBodyModifiedEvent>();
 	RegisterEvent<OnSceneLoadedEvent>();

@@ -54,6 +54,12 @@ struct GONetworkEvent {
 	Entity entity;
 	bool create;
 };
+
+struct SliceEntityModifiedEvent
+{
+	Entity entity;
+};
+
 struct ColliderShapeModifiedEvent
 {
 	Entity entity;

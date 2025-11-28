@@ -87,12 +87,17 @@ namespace SliceEditor
 		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
-
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
-		BoolInput(mRegistry, "##isActive", slice.mActive);
+		//using patch cause i need 
+		reg.patch<SliceEngine::SliceEntity>(entity, [&](auto& entity)
+			{
+				BoolInput(mRegistry, "##isActive", entity.mActive);
+			});
+
 		ImGui::SameLine();
 
 		std::string editable_name = original_name;
@@ -590,6 +595,7 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Script", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Script>(entity);
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", script.componentEnabled);
 
 			std::string script_name = script.scriptName;
 			if (script_name.empty())

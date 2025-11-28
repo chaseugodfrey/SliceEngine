@@ -18,7 +18,13 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+    void NotifySliceEntityModified(entt::registry& reg, entt::entity entity)
+    {
+        SliceEntityModifiedEvent event;
+        event.entity = entity;
 
+        EventManager::GetInstance()->Publish<SliceEntityModifiedEvent>(event);
+    }
 
     void NotifyColliderShapeModified(entt::registry& reg, entt::entity entity)
     {
