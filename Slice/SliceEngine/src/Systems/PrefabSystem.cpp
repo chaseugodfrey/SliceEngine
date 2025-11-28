@@ -224,13 +224,18 @@ namespace SliceEngine
 		}
 	}
 
+	/// <summary>
+	/// Only used when a new prefab is created, and we have to update the existing entity in the scene
+	/// </summary>
+	/// <param name="entity">entity that we created prefab from</param>
+	/// <param name="guid">GUID of the prefab</param>
 	void PrefabSystem::UpdatePrefabComponent(Entity entity, GUID guid)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 		GO.GetComponent<Prefab>().prefabGUID = guid;
-
+		mPrefabMap[guid].push_back(entity);
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
