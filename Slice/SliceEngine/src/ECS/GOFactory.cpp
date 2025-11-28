@@ -30,7 +30,7 @@ namespace SliceEngine
 		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
-		mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModiefied>();
+		mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
 	}
 
 	GOFactory::~GOFactory()
