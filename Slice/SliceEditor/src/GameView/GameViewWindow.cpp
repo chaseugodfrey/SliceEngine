@@ -69,7 +69,7 @@ namespace SliceEditor
 			}
 		}
 
-		if (camObjs.size() > 0)
+		if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
 		{
 			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
 
@@ -106,7 +106,9 @@ namespace SliceEditor
 				uvCropMax.x -= 0.5f - 0.5f * percentScreenShown;
 
 				worldSpaceOffsetX = uvCropMin.x * worldSpaceDim.x;
-				worldSpaceDim.x *= percentScreenShown;
+				//this ui crop thing seems to be bugged, ignoring this offset stuff for now to get correct mouse pos
+				//worldSpaceDim.x *= percentScreenShown;	
+				
 			}
 			
 
@@ -135,7 +137,10 @@ namespace SliceEditor
 			*/
 
 #pragma region Mouse Click
-			ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x + worldSpaceOffsetX, worldSpaceDim.y - ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
+			// mouse position should always be relative to top left, so that it is consistent with the glfwgetcursorpos
+			// also removing the worldspace offset thingy for now
+			//ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x + worldSpaceOffsetX, worldSpaceDim.y - ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
+			ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x, ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
 
 			auto* input = SliceEngine::Core::GetInstance()->GetInputSystem();
 

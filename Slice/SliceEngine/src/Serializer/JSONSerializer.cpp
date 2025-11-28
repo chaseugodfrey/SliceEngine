@@ -190,6 +190,9 @@ namespace SliceEngine
 			{
 				GameObject newObj = factory.CreateBlank();
 				factory.RemoveFromNameMap(newObj.GetEntity());
+				//factory.PrintNameMap();
+			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
+				//factory.PrintNameMap();
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -210,6 +213,8 @@ namespace SliceEngine
 						for (auto& [propName, value] : props.items())
 						{
 							rttr::property prop = compType.get_property(propName);
+
+							//factory.PrintNameMap();
 
 							if (!prop.is_valid())
 								continue;
@@ -232,6 +237,7 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::Skeleton>,
 								Handle<SliceEngineTypes::AnimationPackage>,
 								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -270,6 +276,8 @@ namespace SliceEngine
 				}
 			}
 
+			//factory.PrintNameMap();
+
 			// if its cloning an object, creating a prefab of an object
 			// and that object exist in the scene
 			// it would end up havint the same name
@@ -286,8 +294,10 @@ namespace SliceEngine
 			{
 				auto& sceneGraph = registry.get<SceneGraph>(rootEntity);
 
+				// it becomes a root for now, so it wont have an up, left or right
 				sceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+				sceneGraph.neighbours[SceneGraph::UP] = entt::null;
 			}
 
 			if (rootGO.HasComponent<SliceEntity>())
@@ -316,8 +326,13 @@ namespace SliceEngine
 
 				if (!Editor)
 				{
+					//factory.PrintNameMap();
+					//std::string goName = factory.GetNameFromMap(entity);
+
 					// handle adding to name map here
 					FactoryInstance.AddToNameMap(entity);
+					//factory.PrintNameMap();
+				//	goName = factory.GetNameFromMap(entity);
 				}
 			}
 
@@ -353,6 +368,89 @@ namespace SliceEngine
 			}
 
 			return rootEntity;
+		}
+		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath)
+		{
+			std::vector<rttr::variant> componentInstances;
+
+			json prefab = DeserializeFile(filePath);
+			auto& factory = Core::GetInstance()->mFactory;
+
+			for (auto& [name, components] : prefab.items())
+			{
+				for (auto& [objName, objProps] : components.items())
+				{
+					for (auto& [componentName, props] : objProps.items())
+					{
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							continue;
+						}
+
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
+						{
+							continue;
+						}
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+
+							//factory.PrintNameMap();
+
+							if (!prop.is_valid())
+								continue;
+
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								Entity,
+								uint32_t,
+								uint64_t,
+								GUID,
+								Handle<SliceEngineTypes::Texture>,
+								Handle<SliceEngineTypes::Model>,
+								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string,
+								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData
+								>
+								(componentInstance, prop, value, propName, componentName, (Entity)0);
+						}
+
+
+						if (componentName != typeid(SliceEntity).name() &&
+							componentName != typeid(Transform).name() &&
+							componentName != typeid(SceneGraph).name())
+						{
+							componentInstances.push_back(componentInstance);
+						}
+						//AddComponentFromVariant(newObj, componentInstance, componentName);
+					}
+				}
+			}
+			return componentInstances;
 		}
 #pragma endregion
 
@@ -451,6 +549,7 @@ namespace SliceEngine
 						Handle<SliceEngineTypes::Skeleton>,
 						Handle<SliceEngineTypes::AnimationPackage>,
 						Handle<SliceEngineTypes::StateMachine>,
+						Handle<SliceEngineTypes::Prefab>,
 						std::array<uint64_t, 4>,
 						std::array<Entity, 4>,
 						std::vector<uint64_t>,
@@ -512,6 +611,7 @@ namespace SliceEngine
 							Handle<SliceEngineTypes::Skeleton>,
 							Handle<SliceEngineTypes::AnimationPackage>,
 							Handle<SliceEngineTypes::StateMachine>,
+							Handle<SliceEngineTypes::Prefab>,
 							std::array<uint64_t, 4>,
 							std::array<Entity, 4>,
 							std::vector<uint64_t>,
@@ -622,6 +722,7 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::Skeleton>,
 								Handle<SliceEngineTypes::AnimationPackage>,
 								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -644,6 +745,11 @@ namespace SliceEngine
 							{
 								uint32_t oldID = value.get<uint32_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
+							}
+
+							if (propName == "mName" && componentName == typeid(SliceEntity).name())
+							{
+								FactoryInstance.UpdateName(value, node.GetEntity());
 							}
 						}
 

@@ -47,7 +47,7 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
-		int collisionSteps{};
+		int collisionSteps{4};
 
 	private:
 		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
@@ -85,7 +85,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(float fixedDt,size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized() const;
 
@@ -128,6 +128,10 @@ namespace SliceEngine
 		glm::quat GetRotation(Entity entity);
 
 		glm::vec3 GetScale(Entity entity);
+
+		int GetCollisionSteps() const;
+
+		void SetCollisionSteps(int steps);
 	};
 }
 

@@ -2,6 +2,7 @@
 #include "SessionManager.h"
 #include "Selection/SelectionManager.h"
 #include "ContentBrowser/ContentBrowserManager.h"
+#include "../../SliceEngine/src/Systems/PrefabSystem.h"
 #include <Core/EventManager.h>
 
 namespace SliceEditor
@@ -100,6 +101,7 @@ namespace SliceEditor
 	void SessionManager::CreateEntityNodes()
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
+		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
 
 		if (view.size() != mEntityNodes.size())
 		{
@@ -109,10 +111,20 @@ namespace SliceEditor
 				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
 			}
 
-			auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
 			for (auto entity : prefabView)
 			{
 				mEntityNodes[entity].get()->isPrefab = true;
+			}
+		}
+		
+		if (prefabView.size() != mPrefabNodes.size())
+		{
+			mPrefabNodes.clear();
+			for (auto entity : prefabView)
+			{
+				mPrefabNodes.emplace(entity, std::make_unique<EntityNode>(entity));
+				mPrefabNodes[entity].get()->isPrefab = true;
+				mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
 			}
 		}
 	}
@@ -157,10 +169,8 @@ namespace SliceEditor
 		//Prefab  now being inspected
 		if (event.prefabBeingInspected)
 		{
-			//Get the Prefab Handle
-			SliceEngine::Handle<SliceEngine::SliceEngineTypes::Prefab> prefab = rm->get<SliceEngine::SliceEngineTypes::Prefab>(event.prefabGUID);
-			//Set the rootEntity of the prefab
-			mPrefabRootEntity = SliceEngine::JSONSerializer::DeserializePrefab(prefab.get()->filePath);
+			//Create the Prefab Instance
+			mPrefabRootEntity = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(event.prefabGUID, true).GetEntity();
 			//Clear the look-up table just incase
 			mPrefabNodes.clear();
 			//Build the mPrefabNodes lookup table
@@ -191,6 +201,7 @@ namespace SliceEditor
 		auto& prefabNodePtr = pair.first->second;
 		EntityNode& prefabNode = *prefabNodePtr;
 		prefabNode.entity = entity;
+		prefabNode.isPrefab = true;
 		prefabNode.type = SelectionType::PREFAB_ENTITY;
 		prefabNode.isSelected = false;
 
