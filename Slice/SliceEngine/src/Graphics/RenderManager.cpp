@@ -138,6 +138,14 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// unint_8 object to outline
+		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE], 1, GL_R8UI, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// unint_8 the surrounding of the object
+		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], 1, GL_R8UI, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_16 rgba Final Image To Send to Camera Texture
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -518,6 +526,61 @@ namespace SliceEngine
 			SetUniformVec3(uniformLoc, Core::GetInstance()->GetRegistry().get<Transform>(cam).GetWorldPosition());
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		// Draw Debug Outline
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_OUTLINE_SELECTED_TAG)
+		{
+			SetShader(S_DEBUG_OUTLINE);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE]);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			BindCameraDepth(cam); // for the viewPort call
+			LoadSettings(GPS_BLOOM);
+
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+			glm::mat4 vpMat = P * V;
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &vpMat[0][0]);
+			// -- TODO -- Cuurently just outlines the first 2 objects
+			int i = 2;
+			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+			for (auto entity : view)
+			{
+				if (--i < 0)
+					break;
+				auto& rc = Core::GetInstance()->GetRegistry().get<Renderer>(entity);
+				auto model = rc.modelHandle;
+
+				if (!model.IsValid()) continue;
+
+				auto& mesh = model.get()->meshes[rc.meshOffset];
+				glBindVertexArray(mesh.vao);
+
+				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
+				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+
+				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+			}
+			// "Blur" Passes
+			SetShader(S_DEBUG_OUT_BLUR);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // Out
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			LoadSettings(GPS_BLOOM2); // Add
+			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE]); // In
+			//LoadSettings(); // Same Settings
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			// Final Draw Back on texture
+			SetShader(S_DEBUG_OUTLJOIN);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			BindCameraDepth(cam); // for the viewPort call
+			LoadSettings(GPS_DEBUG_OUTLINE_BLEND); // Blend?
+			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // In
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
+			SetUniformVec3(uniformLoc, glm::vec3(1.f));
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
