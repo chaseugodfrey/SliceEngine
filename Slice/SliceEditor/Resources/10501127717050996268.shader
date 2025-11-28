@@ -1,2 +1,5 @@
-skybox.vert
-skybox.frag
+{
+    "VertexShader": "skybox_Vert",
+    "FragmentShader": "skybox_Frag",
+    "GeometryShader": ""
+}
