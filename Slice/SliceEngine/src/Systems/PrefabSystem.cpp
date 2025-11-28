@@ -264,6 +264,6 @@ namespace SliceEngine
 
 	bool PrefabSystem::IsNewGO(Entity entity, unsigned int prefabID)
 	{
-
+		return false;
 	}
 }

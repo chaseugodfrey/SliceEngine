@@ -124,6 +124,10 @@ struct OnButtonReleaseEvent
 
 struct OnPrefabModifiedEvent
 {
+	OnPrefabModifiedEvent(SliceEngine::GUID g_uid) : guid(g_uid)
+	{
+
+	}
 	SliceEngine::GUID guid;
 };
 

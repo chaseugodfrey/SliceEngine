@@ -1274,6 +1274,10 @@ namespace SliceEditor
 						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
+						if (modifiedFilePath.extension() == ".prefab")
+						{
+							EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
+						}
 						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 					
 					
