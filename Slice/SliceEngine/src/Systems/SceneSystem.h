@@ -53,7 +53,7 @@ namespace SliceEngine
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
 		void SetDefaultScenePath(std::filesystem::path const& filePath);
 		
-		void SaveScene(std::filesystem::path const filePath);
+		void OnSceneSave(std::filesystem::path const filePath);
 		void SaveCurrentScene();
 		void SaveNextScene();
 		void UnloadCurrentScene();

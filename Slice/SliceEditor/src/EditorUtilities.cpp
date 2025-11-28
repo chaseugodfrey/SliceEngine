@@ -275,7 +275,8 @@ namespace SliceEditor
 
 		void Scene_Save()
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+
+
 		}
 
 		void Scene_CleanTempFiles(Registry& registry)
