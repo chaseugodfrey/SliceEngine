@@ -82,6 +82,11 @@ namespace SliceEngine
                 gameObjects[i] = new GameObject(entityIDs[i]);
             }
 
+            if (gameObjects.Length == 0)
+            {
+                return null;
+            }
+
             return gameObjects;
         }
 
