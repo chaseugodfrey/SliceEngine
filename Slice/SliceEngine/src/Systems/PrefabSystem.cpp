@@ -155,6 +155,7 @@ namespace SliceEngine
 
 		eventManager->Subscribe<OnPrefabModifiedEvent, &PrefabSystem::OnPrefabModified>(this);
 		eventManager->Subscribe<OnPrefabDeletedEvent, &PrefabSystem::OnPrefabDeleted>(this);
+		eventManager->Subscribe<OnPrefabSerializedEvent, &PrefabSystem::OnPrefabSerialized>(this);
 	}
 
 	void PrefabSystem::OnPrefabModified(const OnPrefabModifiedEvent& event)
@@ -286,14 +287,26 @@ namespace SliceEngine
 
 	}
 	
-	void PrefabSystem::MakePrefab(Entity entity)
+	void PrefabSystem::OnPrefabSerialized(const OnPrefabSerializedEvent& event)
 	{
 
+	}
+
+	/// <summary>
+	/// Only ever called when making an object into a prefab for the first time
+	/// Prefab IDs are just gonna be an incremental int value for each object in the prefab
+	/// </summary>
+	/// <param name="entity"></param>
+	void PrefabSystem::MakePrefab(Entity entity)
+	{
+		unsigned int prefabID = 0;
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
-		GO.GetComponent<Prefab>().prefabID = (unsigned int)entity;
+		GO.GetComponent<Prefab>().prefabID = prefabID;
+		prefabID++;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
@@ -302,12 +315,37 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				MakePrefab(childEntity);
+				MakePrefabChild(childEntity, prefabID);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
+	}
+
+	void PrefabSystem::MakePrefabChild(Entity entity, unsigned int& prefabID)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		GO.AddComponent<Prefab>();
+		// maybe we can just use the entity id as a prefab id
+		// i dont think prefab IDs have to be unique across prefabs??
+		GO.GetComponent<Prefab>().prefabID = prefabID;
+		prefabID++;
+		// add the children as well
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				MakePrefabChild(childEntity, prefabID);
+
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+
 	}
 
 	/// <summary>
@@ -322,6 +360,7 @@ namespace SliceEngine
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 		GO.GetComponent<Prefab>().prefabGUID = guid;
 		mPrefabMap[guid].insert(entity);
+		mPrefabIDs[guid].push_back(GO.GetComponent<Prefab>().prefabID);
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{

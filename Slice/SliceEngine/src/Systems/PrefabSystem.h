@@ -31,6 +31,8 @@ namespace SliceEngine
 		// itll check which entities is made from the prefab
 		std::unordered_map<GUID, Entity> mPrefabBaseEntities;
 
+		std::unordered_map<GUID, std::vector<unsigned int>> mPrefabIDs;
+
 	public:
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
@@ -40,11 +42,14 @@ namespace SliceEngine
 		void InitEvent();
 		void OnPrefabModified(const OnPrefabModifiedEvent& event);
 		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
+		void OnPrefabSerialized(const OnPrefabSerializedEvent& event);
 		/// <summary>
 		/// Add a prefab component to the entity after turning it into a prefab
 		/// </summary>
 		/// <param name="entity"></param>
 		void MakePrefab(Entity entity);
+
+		void MakePrefabChild(Entity entity, unsigned int& prefabID);
 
 		void UpdatePrefabComponent(Entity entity, GUID guid);
 

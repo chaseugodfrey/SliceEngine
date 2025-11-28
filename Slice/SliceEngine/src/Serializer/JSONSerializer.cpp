@@ -135,7 +135,7 @@ namespace SliceEngine
 			// Now serialize the children
 			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
 			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-
+			
 			while (childEntity != entt::null)
 			{
 				SerializePrefabChild(output, childEntity, registry);
@@ -146,6 +146,15 @@ namespace SliceEngine
 			// TODO: Find out a better way we shud be doing this
 			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
 			std::filesystem::path filePath = mAssetDirectory.string() + "/" + "Prefabs" + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			
+			// if the prefab already exist, then it means we're modifying/updating an existing prefab
+			// so we need to check if there was any change in the objects created
+			// i need to find out how to retrieve all the components of gameobjects to store in a map
+			// prefabID to list of components, then compare that to the new one being serialized
+			// Store the ones taht are new and deleted in two different maps
+			// send that info to prefab system to handle updating existing prefab instances in the scene
+
+			
 			SerializeFile(output, filePath);
 
 			return filePath.string();
