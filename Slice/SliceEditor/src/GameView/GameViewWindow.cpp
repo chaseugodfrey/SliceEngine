@@ -69,7 +69,7 @@ namespace SliceEditor
 			}
 		}
 
-		if (camObjs.size() > 0)
+		if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
 		{
 			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
 
