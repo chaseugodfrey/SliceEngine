@@ -446,7 +446,8 @@ namespace SliceEngine
 						if (componentName != typeid(SliceEntity).name() &&
 							componentName != typeid(Transform).name() &&
 							componentName != typeid(SceneGraph).name() &&
-							componentName != typeid(Prefab).name())
+							componentName != typeid(Prefab).name() &&
+							componentName != typeid(Bone).name())
 						{
 							variantComponents.push_back(componentInstance);
 						}
