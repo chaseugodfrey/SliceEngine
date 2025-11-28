@@ -81,16 +81,6 @@ When running the engine for the first time, the engine will take a while to star
 ------------------------------------------------------------------------------------------------------
 
 ## Changes Since Milestone 2
-<!-- 1. Scene System
-No changes. 
-
-2. Navmesh Building & Mesh Management
-Added NavigationWindow to edit and bake the NavMesh.
-
-3. Materials
-Functionality added to define how surfaces appear visually(color, texture, shininess, flexibility). Can create and edit settings of materials, system can save/load material files and apply them to meshes at runtime. -->
-
-## System Specific Changes
 ### Graphics
 - Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration
 - Improved Shader Loading System
@@ -166,10 +156,11 @@ To move game objects around, left click on specified game object, the game's 3D-
         - Hold & drag green arrow to move object along Y-axis
         - Hold & drag red or blue arrow to move object along X-axis and Z-axis
 
-Undo/Redo/Save
+Undo/Redo/Save/Duplicate
         - Press Ctrl + Z to undo
         - Press Ctrl + Y to redo
         - Press Ctrl + S to save
+        - Press Ctrl + D to duplicate after clicking on game object in hierarchy window
 
 WHILE holding the scrollwheel,
         - Scroll up to increase the speed of camera movement
@@ -186,7 +177,7 @@ Allows users to edit and adjust game object Transform, Renderer and Script value
         - Script: Type in which script you'd like object to subscribe to and adjust script speed
 
         - Click Add Component button to add Rigidbody, Object Colliders, Audio & Light Sources 
-          and Animator components.
+          Script, Renderer, Nav Agent, AudioListener, Lightsource, Particle System and Animator components.
 
 #### Navigation
         - Click selected desired object and key in new values to edit Rasterization, Agent, Region
@@ -217,8 +208,14 @@ This window is used primarily for camera game objects
           in order to achieve the viewpoint desired.
         - Use WASD Keys to move the camera around.
 
+#### Animator
+Users can use the animtor to create sequences of movement for characters, creatures, and objects.
+        - Right click mouse to create a node in the animator window.
+        - Left click on a node and drag to move it around, click on its side nodules to create a link 
+          that can connect nodes to each other.
+
 #### Animation
-Users can choose and play animation clips from the animation resource but cannot edit as of now
+Users can choose and play animation clips from the animation resource.
         - Drag & drop an .fbx asset from the content browser, then click on the root node to play,
           pause and stop the animations in the editor.
 
@@ -250,8 +247,7 @@ Users can choose and play animation clips from the animation resource but cannot
         - Click to create a window if it does not exist.
 
 ##### "GameObject" Options:
-        - Create Objects:
-                        Click to create camera, 3D object or UI components.
+        - Create Objects: Click to create camera, 3D object or UI components.
 
 ------------------------------------------------------------------------------------------------------
 
