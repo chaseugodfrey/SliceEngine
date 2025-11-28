@@ -73,6 +73,11 @@ namespace SliceEngine
 			mPrefabMap[prefabGUID].push_back(GO.GetEntity());
 		}
 
+		//if (isEditor)
+		//{
+		// do this in DeserializePrefab instead
+		//	mRegistry->emplace<PrefabEditingEntity>(prefabEntity);
+		//}
 
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
@@ -101,9 +106,16 @@ namespace SliceEngine
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = guid;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
-		if (isEditor)
+
+		if (!isEditor)
+		{
 			mPrefabMap[guid].push_back(GO.GetEntity());
-		
+		}
+
+		if (isEditor)
+		{
+			mRegistry->emplace<PrefabEditingEntity>(entity);
+		}
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
 		while (childEntity != entt::null)
@@ -159,6 +171,32 @@ namespace SliceEngine
 							for (auto& comp : compVar)
 							{
 								FactoryInstance.EmplaceComponents(entity, comp);
+
+								rttr::type type = comp.get_type();
+								if (type.is_wrapper())
+								{
+									type = type.get_wrapped_type();
+								}
+
+								std::string typeName = type.get_name().to_string();
+
+								// reload all the handles here idfk how else to do it tbh
+								// emplacing components will replace handles 
+								// the other way is to retrieve specific variables only
+								if (type.get_raw_type() == rttr::type::get<Renderer>())
+								{
+									auto& renderer = GO.GetComponent<Renderer>();
+									renderer.materialHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Material>(renderer.materialHandle.getGUID());
+									renderer.modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(renderer.modelHandle.getGUID());
+								}
+								else if (comp.is_type<Animator>())
+								{
+									auto& animator = GO.GetComponent<Animator>();
+									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
+									animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
+									animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
+
+								}
 							}
 						}
 						//FactoryInstance.EmplaceComponents(entity, compVar);

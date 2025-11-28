@@ -30,7 +30,7 @@ namespace SliceEngine
 		mHasRenderTexture = withTex;
 		//ResetVisibleEntities();
 
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
 			EntityDraw(entity);

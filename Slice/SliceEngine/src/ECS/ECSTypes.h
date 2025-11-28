@@ -33,6 +33,11 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct PrefabEditingEntity
+	{
+
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;

@@ -189,6 +189,8 @@ namespace SliceEngine
 			for (auto& [name, components] : prefab.items())
 			{
 				GameObject newObj = factory.CreateBlank();
+
+				newObj.AddComponent<PrefabEditingEntity>();
 				factory.RemoveFromNameMap(newObj.GetEntity());
 				//factory.PrintNameMap();
 			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
@@ -450,7 +452,8 @@ namespace SliceEngine
 
 						if (componentName != typeid(SliceEntity).name() &&
 							componentName != typeid(Transform).name() &&
-							componentName != typeid(SceneGraph).name())
+							componentName != typeid(SceneGraph).name() &&
+							componentName != typeid(Prefab).name())
 						{
 							variantComponents.push_back(componentInstance);
 						}
