@@ -102,14 +102,6 @@ namespace SliceEngine
 			}
 		}
 
-		if (sceneSystem->mNextState == SceneState::STOP_SCENE)
-		{
-			if (audioComp.channel)
-			{
-				audioManager->StopSound(audioComp.channel);
-			}
-		}
-
 		if (audioComp.spatialBlend > 0.0f)
 		{
 			if (audioComp.channel && sceneSystem->mCurrentState == SceneState::PLAY_SCENE)

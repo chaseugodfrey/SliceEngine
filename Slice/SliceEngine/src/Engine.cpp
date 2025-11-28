@@ -522,15 +522,6 @@ namespace SliceEngine
 
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		/*TestInit(mAudioManager->GetSoundSystem());
-		TestCreate();
-		TestAddSound();
-		TestVolume("Hit_Slime.Single", 0.3f);
-		TestVolume("Hit_Slime.Single", 0.5f);
-		TestMaxInstances("Hit_Slime.Single", 3);
-		TestMaxInstances("Hit_Slime.Single", 6);
-		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
-		TestSpatialBlend("Hit_Slime.Single", 0.5f);*/
 
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<AudioSourceSystem>();
@@ -661,6 +652,7 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sAudio->StopAllSound();
 				sScene->ReloadScene();
 				isPlaying = false;
 
