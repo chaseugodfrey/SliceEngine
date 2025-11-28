@@ -56,7 +56,7 @@ namespace SliceEditor
 
 	void HistoryWindow::DrawRedoHistory()
 	{
-		auto& redoStack = mHistoryManager->GetUndoStack();
+		auto& redoStack = mHistoryManager->GetRedoStack();
 
 		if (ImGui::BeginTable("##undo_table", 1, ImGuiTableFlags_RowBg))
 		{
