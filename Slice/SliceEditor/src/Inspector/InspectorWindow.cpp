@@ -20,7 +20,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
-#include "Session/SessionManager.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -319,6 +318,8 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 					{
+						BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
+
 						GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
 
 						DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
@@ -358,10 +359,13 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAudioListener(entt::entity entity)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& al = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioListener>(entity);
+
 
 		if (ImGui::TreeNodeEx("Audio Listener", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::AudioListener>(entity);
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", al.componentEnabled);
 			ImGui::TreePop();
 		}
 	}
@@ -373,6 +377,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Renderer", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
@@ -389,6 +395,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
@@ -566,6 +574,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Nav Agent", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
 
 			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
 
@@ -934,26 +944,33 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		if (!animator.IsValid())
+		//if (!animator.IsValid())
+		//{
+		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+		//	{
+		//		ImGui::Text("Animator is not valid \n :deadge_1");
+		//		ImGui::TreePop();
+		//	}
+		//}
+		//else
+		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
-			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
+			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
 			{
-				ImGui::Text("Animator is not valid \n :deadge_1");
-			}
-			ImGui::TreePop();
-		}
-		else
-		{
-			if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-			{
-				if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
-				{
 
-					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller");
-					/*ImGui::Text("Controller: ");
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-					ImGui::Text("A00");*/
+				//Drag Drop for the controller when its not set
+				if(!animator.Handle_stateMachine.IsValid())
+				{
+					ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
+					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
+					{
+
+					}
+				}
+				//Controller has been set, should be changable
+				else
+				{
+					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
 
 					ImGui::Text("Playing: ");
 					ImGui::SameLine(150.f);
@@ -985,8 +1002,8 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx--;
 					}
 				}
-				ImGui::TreePop();
 			}
+			ImGui::TreePop();
 		}
 	}
 
@@ -1248,6 +1265,8 @@ namespace SliceEditor
 			auto& light = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Light>(entity);
 
 			DisplayComponentHeader<SliceEngine::Light>(entity);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);

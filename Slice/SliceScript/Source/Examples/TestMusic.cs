@@ -13,7 +13,7 @@ namespace SliceEngine
         {
             
 
-            AudioComponent myAudio = gameObject.GetComponent<AudioComponent>();
+            AudioSource myAudio = gameObject.GetComponent<AudioSource>();
             
             if(myAudio != null)
             {

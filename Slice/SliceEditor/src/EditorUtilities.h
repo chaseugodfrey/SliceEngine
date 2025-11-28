@@ -11,11 +11,11 @@ namespace SliceEditor
 	namespace EditorUtilities
 	{
 		//3D Objects
-		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 
 		//2D Objects
 		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr);
@@ -38,7 +38,7 @@ namespace SliceEditor
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);
-		void MenuList_CreateGameObjects(HistoryManager* history = nullptr, entt::entity parent = entt::null);
+		void MenuList_CreateGameObjects(HistoryManager* history = nullptr, entt::entity parent = entt::null, bool isPrefabInspected = false);
 
 
 		//File Creation

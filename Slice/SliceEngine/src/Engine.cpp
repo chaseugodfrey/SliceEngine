@@ -40,7 +40,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
-#include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
@@ -214,7 +213,8 @@ namespace SliceEngine
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
-		.property("meshOffset", &Renderer::meshOffset);
+		.property("meshOffset", &Renderer::meshOffset)
+		.property("componentEnabled", &Renderer::componentEnabled);
 
 	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
 		.constructor<>()
@@ -233,11 +233,14 @@ namespace SliceEngine
 		.property("priority", &AudioSource::priority)
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
-		.property("playPreview", &AudioSource::playPreview);
+		.property("playPreview", &AudioSource::playPreview)
+		.property("componentEnabled", &AudioSource::componentEnabled);
 
 	rttr::registration::class_<AudioListener>(typeid(AudioListener).name())
 		.constructor<>()
-		.property("listenerPos", &AudioListener::listenerPos);
+		.property("listenerPos", &AudioListener::listenerPos)
+		.property("componentEnabled", &AudioListener::componentEnabled);
+
 
 	rttr::registration::class_<Camera>(typeid(Camera).name())
 		.constructor<>()
@@ -257,10 +260,13 @@ namespace SliceEngine
 		.property("bloomExposure", &Camera::exposure)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
-		.property("vignetteSmoothness", &Camera::vignetteSmoothness);
+		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("componentEnabled", &Camera::componentEnabled);
+
 	rttr::registration::class_<Script>(typeid(Script).name())
 		.constructor<>()
 		.property("scriptName", &Script::scriptName);
+
 	rttr::registration::enumeration<Light::LightType>("LightType")
 		(
 			rttr::value("Directional", Light::LightType::Light_Directional),
@@ -306,7 +312,9 @@ namespace SliceEngine
 		.constructor<>()
 		.property("type", &Light::type)
 		.property("color", &Light::color)
-		.property("intensity", &Light::intensity);
+		.property("intensity", &Light::intensity)
+		.property("componentEnabled", &Light::componentEnabled);
+
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
 		.constructor<uint64_t>()
@@ -395,7 +403,8 @@ namespace SliceEngine
 		.property("current_time", &Animator::current_time)
 		.property("stateMachine Handle", &Animator::Handle_stateMachine)
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
-		.property("Skeleton Handle", &Animator::Handle_skeleton);
+		.property("Skeleton Handle", &Animator::Handle_skeleton)
+		.property("componentEnabled", &Animator::componentEnabled);
 
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())
@@ -407,11 +416,13 @@ namespace SliceEngine
 		.constructor<>()
 		.property("canvas_type", &Canvas::canvas_type)
 		.property("sort_order", &Canvas::sort_order)
-		.property("graphics_raycast", &Canvas::graphic_raycastable);
+		.property("graphics_raycast", &Canvas::graphic_raycastable)
+		.property("componentEnabled", &Canvas::componentEnabled);
 
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
-		.property("transition", &Button::transition);
+		.property("transition", &Button::transition)
+		.property("componentEnabled", &Button::componentEnabled);
 	//.property("colors", &Button::color_transitions)
 	//.property("sprites", &Button::sprite_transitions);
 
@@ -429,10 +440,11 @@ rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.property("height", &RectTransform::height);
 
 rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
-	.constructor<>()
-	.property("texture", &SpriteRenderer::textureHandle)
-	.property("rgba", &SpriteRenderer::rgba)
-	.property("raycast_target", &SpriteRenderer::raycast_target);
+.constructor<>()
+.property("texture", &SpriteRenderer::textureHandle)
+.property("rgba", &SpriteRenderer::rgba)
+.property("raycast_target", &SpriteRenderer::raycast_target)
+.property("componentEnabled", &SpriteRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.constructor<>()
@@ -440,7 +452,8 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("target", &NavAgent::target)
 	.property("hasNewTarget", &NavAgent::hasNewTarget)
 	.property("currentPath", &NavAgent::currentPath)
-	.property("currentPathIndex", &NavAgent::currentPathIndex);
+	.property("currentPathIndex", &NavAgent::currentPathIndex)
+	.property("componentEnabled", &NavAgent::componentEnabled);
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()

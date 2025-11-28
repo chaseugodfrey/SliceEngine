@@ -166,7 +166,6 @@
     <ClInclude Include="src\Scripting\ScriptSystem.h" />
     <ClInclude Include="src\Serializer\CSVSerializer.h" />
     <ClInclude Include="src\Serializer\JSONSerializer.h" />
-    <ClInclude Include="src\Systems\CoroutineManager.h" />
     <ClInclude Include="src\Systems\FramerateManager.h" />
     <ClInclude Include="src\Systems\GameStateManager.h" />
     <ClInclude Include="src\Systems\LayerManager.h" />
@@ -226,7 +225,6 @@
     <ClCompile Include="src\Scripting\ScriptSystem.cpp" />
     <ClCompile Include="src\Serializer\CSVSerializer.cpp" />
     <ClCompile Include="src\Serializer\JSONSerializer.cpp" />
-    <ClCompile Include="src\Systems\CoroutineManager.cpp" />
     <ClCompile Include="src\Systems\FramerateManager.cpp" />
     <ClCompile Include="src\Systems\GameStateManager.cpp" />
     <ClCompile Include="src\Systems\LayerManager.cpp" />
