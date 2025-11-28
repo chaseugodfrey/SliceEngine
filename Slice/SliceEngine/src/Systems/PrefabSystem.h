@@ -25,7 +25,7 @@ namespace SliceEngine
 		// since the component keeps track of the handle
 		// we just need to know which GUID they reference from when its modified
 		// then update from there
-		std::unordered_map<GUID, std::vector<Entity>> mPrefabMap;
+		std::unordered_map<GUID, std::set<Entity>> mPrefabMap;
 		//std::map<Handle<SliceEngineTypes::Prefab>, Entity, PrefabComparator> mPrefabToEntity;
 		// when a prefab is modified, send an event to the prefab system
 		// itll check which entities is made from the prefab

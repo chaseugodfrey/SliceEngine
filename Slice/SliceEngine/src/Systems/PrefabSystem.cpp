@@ -2,7 +2,7 @@
 #include "PrefabSystem.h"
 #include "Core/Core.h"
 #include "Serializer/JSONSerializer.h"
-
+#include "Scripting/ScriptSystem.h"
 
 namespace SliceEngine
 {
@@ -42,6 +42,13 @@ namespace SliceEngine
 				}
 			}
 		}
+		// if the rsource exists, check if the entity is already in the map
+		// cause if we're loading a new scene, this cehcks that
+		else
+		{
+			// add it to prefab map
+			mPrefabMap[prefab.prefabGUID].insert(entity);
+		}
 	}
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -79,7 +86,7 @@ namespace SliceEngine
 		if(!isEditor)
 		{
 			FactoryInstance.SetParent(GO.GetEntity()); // parent to scene?? idk
-			mPrefabMap[prefabGUID].push_back(GO.GetEntity());
+			mPrefabMap[prefabGUID].insert(GO.GetEntity());
 		}
 
 		//if (isEditor)
@@ -124,7 +131,7 @@ namespace SliceEngine
 
 		if (!isEditor)
 		{
-			mPrefabMap[guid].push_back(GO.GetEntity());
+			mPrefabMap[guid].insert(GO.GetEntity());
 		}
 
 		if (isEditor)
@@ -203,6 +210,19 @@ namespace SliceEngine
 									auto& renderer = GO.GetComponent<Renderer>();
 									renderer.materialHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Material>(renderer.materialHandle.getGUID());
 									renderer.modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(renderer.modelHandle.getGUID());
+								}
+								else if (type.get_raw_type() == rttr::type::get<Script>())
+								{
+									gScriptSystem->UpdateScriptVariables(entity);
+									//auto& script = GO.GetComponent<Script>();
+									////Script scriptComp = comp.get_value<Script>();
+									//for(auto & [fieldName, fieldValue] : script.scriptableFieldMap)
+									//{
+									//	SLICE_LOG_DEBUG(fieldName);
+									//	// set the field value to the component's field map
+									//	//
+									//	//script.scriptableFieldMap[fieldName] = fieldValue;
+									//}
 								}
 								else if (comp.is_type<Animator>())
 								{
@@ -301,7 +321,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 		GO.GetComponent<Prefab>().prefabGUID = guid;
-		mPrefabMap[guid].push_back(entity);
+		mPrefabMap[guid].insert(entity);
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
