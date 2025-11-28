@@ -523,15 +523,6 @@ namespace SliceEngine
 
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		/*TestInit(mAudioManager->GetSoundSystem());
-		TestCreate();
-		TestAddSound();
-		TestVolume("Hit_Slime.Single", 0.3f);
-		TestVolume("Hit_Slime.Single", 0.5f);
-		TestMaxInstances("Hit_Slime.Single", 3);
-		TestMaxInstances("Hit_Slime.Single", 6);
-		TestMinMaxDistance("Hit_Slime.Single", 2.0f, 60.0f);
-		TestSpatialBlend("Hit_Slime.Single", 0.5f);*/
 
 		FactoryInstance.InitRootEntity();
 		Core::GetInstance()->InitSystem<AudioSourceSystem>();
@@ -646,6 +637,12 @@ namespace SliceEngine
 
 				}
 
+				if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+				{
+					sAudio->SetCategoryPause(0, false);
+					sAudio->SetCategoryPause(1, false);
+				}
+
 				sScene->mCurrentState = SceneState::PLAY_SCENE;
 			}
 
@@ -653,6 +650,8 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sAudio->SetCategoryPause(0, true);
+				sAudio->SetCategoryPause(1, true);
 				isPlaying = false;
 				sScene->mCurrentState = SceneState::PAUSE_SCENE;
 			}
@@ -662,6 +661,7 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sAudio->StopAllSound();
 				sScene->ReloadScene();
 				isPlaying = false;
 
@@ -839,13 +839,20 @@ namespace SliceEngine
 			nlohmann::json j; in >> j;
 
 			if (j.contains("product") && j["product"].contains("name"))
+			{
 				s.productName = j["product"]["name"].get<std::string>();
-			if (j.contains("render")) {
+			}
+
+			if (j.contains("render")) 
+			{
 				s.width = j["render"].value("width", s.width);
 				s.height = j["render"].value("height", s.height);
 				s.vsync = j["render"].value("vsync", s.vsync);
 			}
-			if (j.contains("scenes")) s.scenes = j["scenes"].get<std::vector<std::string>>();
+			if (j.contains("scenes"))
+			{
+				s.scenes = j["scenes"].get<std::vector<std::string>>();
+			}
 			s.startupScene = j.value("startupScene", s.startupScene);
 
 			// Fallback: if startupScene empty, use first scene
@@ -861,14 +868,11 @@ namespace SliceEngine
 			else
 			{
 				std::filesystem::path sceneFilePath(sceneToLoad);
-				auto path = sResourceManager->GetResourcePath(sceneFilePath.stem().string());
-				//To move out in future
-				if (path.has_value())
-				{
-					SLICE_LOG("Scene File Path" + path.value().string());
-					sScene->SetDefaultScenePath(sceneFilePath);
+				
+				SLICE_LOG("Scene File Path" + sceneFilePath.string());
+				sScene->SetDefaultScenePath(sceneFilePath);
 
-				}
+				
 
 				//sScene->LoadScene(sceneToLoad); // for now by filepath
 				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;

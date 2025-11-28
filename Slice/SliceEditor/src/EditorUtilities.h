@@ -34,6 +34,7 @@ namespace SliceEditor
 		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
 		void Scene_Save();
+		void Scene_CleanTempFiles(Registry& registry);
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
 
 		// Global Popup
