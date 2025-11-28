@@ -19,19 +19,114 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Audio.h"
+#include "Serializer/JSONSerializer.h"
 
 namespace SliceEngine
 {
-	void AudioSettings::Init(FMOD::System* system)
+	void AudioSettings::Init()
 	{
-		mSystem = system;
+		mSystem = Core::GetInstance()->GetAudioManager()->GetSoundSystem();
 
 		srand((unsigned int)time(NULL)); // Initialize random seed
+
+
+		SLICE_LOG("Current file path " + std::filesystem::current_path().string());
+		Deserialize(AUDIO_SETTINGS_PATH);
 	}
 
 	void AudioSettings::Exit()
 	{
+		Serialize(AUDIO_SETTINGS_PATH);
 		mSystem = nullptr;
+	}
+
+	void AudioSettings::Serialize(const std::filesystem::path& desc_path)
+	{
+		nlohmann::json audioSettingsOutput;
+
+		nlohmann::json sfxArray = nlohmann::json::array();
+
+		for (const auto& [key, entry] : mSFXMap)
+		{
+
+			nlohmann::json entryJson;
+
+			to_json(entryJson, entry);
+
+			sfxArray.push_back(entryJson);
+		}
+
+		audioSettingsOutput["SFXEntries"] = sfxArray;
+
+		std::ofstream outFile(desc_path);
+		if (outFile.is_open())
+		{
+			outFile << audioSettingsOutput.dump(4);
+			outFile.close();
+			SLICE_LOG("AudioSettings saved to: " + desc_path.string());
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Failed to open file for writing: " + desc_path.string());
+		}
+	}
+
+	void AudioSettings::Deserialize(const std::filesystem::path& desc_path)
+	{
+
+		std::ifstream inFile(desc_path);
+		nlohmann::json audioSettingsInput;
+
+		if (!inFile.is_open())
+		{
+			SLICE_LOG_WARNING("File not found for Deserialisation!");
+			return;
+		}
+		else
+		{
+			inFile >> audioSettingsInput;
+			inFile.close();
+		}
+
+		if (audioSettingsInput.contains("SFXEntries"))
+		{
+			mSFXMap.clear();
+
+			auto& entriesArray = audioSettingsInput["SFXEntries"];
+
+			if (entriesArray.is_array())
+			{
+				for (const auto& jsonEntry : entriesArray)
+				{
+
+					SFXEntry entryData;
+
+					from_json(jsonEntry, entryData);
+
+					CreateSoundGroup(entryData.key);
+
+					SFXEntry* mapEntry = GetSFXEntry(entryData.key);
+
+					if (mapEntry)
+					{
+						FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
+
+						*mapEntry = entryData;
+
+						mapEntry->soundGroup = currentSoundGroup;
+
+						if (mapEntry->soundGroup)
+						{
+							mapEntry->soundGroup->setVolume(mapEntry->volume);
+							mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
+						}
+					}
+				}
+
+			}
+
+		}
+
 	}
 
 	void AudioSettings::CreateSoundGroup(const std::string& key)
@@ -317,130 +412,9 @@ namespace SliceEngine
 		}
 
 		return entry->maxInstances;
-	}
+	}	
 
-	void AudioSettings::SetMinIntervals(const std::string& key, float minIntervals)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->minInterval = minIntervals;
-	}
-
-	void AudioSettings::SetMinDistance(const std::string& key, float minDistance)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->minDistance = minDistance;
-		SLICE_LOG("Set Sound Group min distance to %f", minDistance);
-	}
-
-	const float AudioSettings::GetMinDistance(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->minDistance;
-	}
-
-	void AudioSettings::SetMaxDistance(const std::string& key, float maxDistance)
-	{
-
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->maxDistance = maxDistance;
-		SLICE_LOG("Set Sound Group max distance to %f", maxDistance);
-	}
-
-	const float AudioSettings::GetMaxDistance(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->maxDistance;
-	}
-
-	void AudioSettings::SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->spatialBlend = spatialBlend;
-		SLICE_LOG("Set Sound Group spatial blend to %f", spatialBlend);
-	}
-
-	const float AudioSettings::GetSoundGroupSpatialBlend(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return 0.0f;
-		}
-
-		return entry->spatialBlend;
-	}
-
-	void AudioSettings::SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return;
-		}
-
-		entry->isSpatial = isSpatial;
-	}
-
-	const bool AudioSettings::GetSoundGroupSpatialBlendBool(const std::string& key)
-	{
-		SFXEntry* entry = GetSFXEntry(key);
-
-		if (!entry)
-		{
-			SLICE_LOG("SoundGroup '" + key + "' not found");
-			return false;
-		}
-
-		return entry->isSpatial;
-	}
-
-	void AudioSettings::PlaySFX(const std::string& key)
+	void AudioSettings::PlaySFX(const std::string& key, glm::vec3 position)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		SFXEntry* entry = GetSFXEntry(key);
@@ -470,28 +444,47 @@ namespace SliceEngine
 			clipGUID = entry->AudioClips[randomIndex];
 		}
 
+		auto audioManagerObject = FactoryInstance.GetGOByName("AudioManager");
+
 		auto audioObject = FactoryInstance.GetGOByName(key);
 
 		if (audioObject.GetEntity() == entt::null)
 		{
 			auto newAudioObject = FactoryInstance.CreateGO(key);
 			newAudioObject.AddComponent<AudioSource>();
-			AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
 
-			// Find the Transform component
-			auto& transform = newAudioObject.GetComponent<Transform>();
+			if (FactoryInstance.SetParent(newAudioObject.GetEntity(), audioManagerObject.GetEntity()))
+			{
+				AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
 
-			audioComp.soundGUID = clipGUID;
+				audioComp.soundGUID = clipGUID;
 
-			// Copy volume/spatial settings from the entry to the component
-			audioComp.currentVolume = entry->volume;
-			audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-			audioComp.minDistance = entry->minDistance;
-			audioComp.maxDistance = entry->maxDistance;
-			audioComp.volumeRollOff = entry->volumeRollOff;
-			audioComp.playOnAwake = false;
+				// Copy volume/spatial settings from the entry to the component
+				audioComp.currentVolume = entry->volume;
+				audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+				audioComp.minDistance = entry->minDistance;
+				audioComp.maxDistance = entry->maxDistance;
+				audioComp.volumeRollOff = entry->volumeRollOff;
+				audioComp.playOnAwake = false;
 
-			audioComp.channel =  audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+				bool isSFXPlaying = false;
+
+				audioComp.channel->isPlaying(&isSFXPlaying);
+
+				if (audioComp.channel == nullptr || !isSFXPlaying)
+				{
+				
+					audioComp.channel =  audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+				}
+
+			}
+			else
+			{
+				SLICE_LOG_ERROR("No AudioManager object in scene");
+				return;
+			}
+
 		}
 		else
 		{
@@ -501,10 +494,109 @@ namespace SliceEngine
 
 			audioComp.soundGUID = clipGUID;
 
-			audioComp.channel = audioManager->PlaySound(audioComp, transform.position, glm::vec3{ 0.f });
+			bool isSFXPlaying = false;
+
+			audioComp.channel->isPlaying(&isSFXPlaying);
+
+			if (audioComp.channel == nullptr || !isSFXPlaying)
+			{
+
+				audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+			}
 		}
 
 
 		//entry->_lastPlayed = currentTime;
+	}
+
+	void to_json(nlohmann::json& j, const SFXEntry& entry)
+	{
+		j["key"] = entry.key;
+		j["volume"] = entry.volume;
+		j["maxInstances"] = entry.maxInstances;
+		j["isSpatial"] = entry.isSpatial;
+		j["spatialBlend"] = entry.spatialBlend;
+		j["minDistance"] = entry.minDistance;
+		j["maxDistance"] = entry.maxDistance;
+		j["minInterval"] = entry.minInterval;
+		j["volumeRollOff"] = static_cast<int>(entry.volumeRollOff);
+
+		j["AudioClips"] = nlohmann::json::array();
+
+		for (auto& clips : entry.AudioClips)
+		{
+			nlohmann::json tempJson;
+
+			to_json(tempJson, clips);
+
+			j["AudioClips"].push_back(tempJson);
+
+		}
+	}
+
+	//from_json
+
+	void from_json(const nlohmann::json& j, SFXEntry& entry)
+	{
+		if (j.contains("key"))
+		{
+			j.at("key").get_to(entry.key);
+		}
+		if (j.contains("volume"))
+		{
+			j.at("volume").get_to(entry.volume);
+		}
+		if (j.contains("maxInstances"))
+		{
+			j.at("maxInstances").get_to(entry.maxInstances);
+		}
+		if (j.contains("isSpatial"))
+		{
+			j.at("isSpatial").get_to(entry.isSpatial);
+		}
+		if (j.contains("spatialBlend"))
+		{
+			j.at("spatialBlend").get_to(entry.spatialBlend);
+		}
+		if (j.contains("minDistance"))
+		{
+			j.at("minDistance").get_to(entry.minDistance);
+		}
+		if (j.contains("maxDistance"))
+		{
+			j.at("maxDistance").get_to(entry.maxDistance);
+		}
+		if (j.contains("minInterval"))
+		{
+			j.at("minInterval").get_to(entry.minInterval);
+		}
+
+		if (j.contains("volumeRollOff"))
+		{
+			int rollOff = 0;
+			j.at("volumeRollOff").get_to(rollOff);
+			entry.volumeRollOff = static_cast<AudioSource::VolumeRollOff>(rollOff);
+		}
+
+		entry.AudioClips.clear();
+
+		const auto& audioClipsJsons = j.at("AudioClips");
+
+		for (const auto& audioClipsJson : audioClipsJsons)
+		{
+			GUID audioClip = (GUID)audioClipsJson.get<uint64_t>();
+			//from_json(audioClipsJsons, audioClip);
+			entry.AudioClips.push_back(audioClip);
+		}
+
+		/*if (j.contains("AudioClips"))
+		{
+			j.at("AudioClips").get_to(entry.AudioClips);
+		}*/
+
+		// Initialize runtime defaults
+		entry.soundGroup = nullptr;
+		entry._lastPlayed = -999.0f;
 	}
 }

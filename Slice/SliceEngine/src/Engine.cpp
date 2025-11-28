@@ -40,24 +40,428 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
-#include "Systems/CoroutineManager.h"
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
-#include "Test.h"
 #include "Configuration/AudioSettings.cpp"
+#pragma region RTTR REGISTRATION STUFF
+namespace SliceEngine
+{
+	template<typename T, std::size_t N>
+	void register_std_array(const std::string& name)
+	{
+		using Arr = std::array<T, N>;
 
-//using namespace rttr;
+		rttr::registration::class_<Arr>(name)
+			.constructor<>()
+			.method("size", &Arr::size)
+			.method("at", static_cast<T & (Arr::*)(std::size_t)>(&Arr::at))
+			.method("fill", &Arr::fill)
+			.method("front", static_cast<T & (Arr::*)()>(&Arr::front))
+			.method("back", static_cast<T & (Arr::*)()>(&Arr::back));
+	}
 
-//struct MyStruct { MyStruct() {}; void func(double) {}; int data; };
+	RTTR_REGISTRATION
+	{
+	rttr::registration::class_<glm::vec3>("vec3")
+		.constructor<>()
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
 
-//RTTR_REGISTRATION
-//{
-//	registration::class_<MyStruct>("MyStruct")
-//		 .constructor<>()
-//		 .property("data", &MyStruct::data)
-//		 .method("func", &MyStruct::func);
-//}
+	rttr::registration::class_<glm::vec4>("vec4")
+		.constructor<>()
+		.property("x", &glm::vec4::x)
+		.property("y", &glm::vec4::y)
+		.property("z", &glm::vec4::z)
+		.property("w", &glm::vec4::w);
 
+	rttr::registration::class_<glm::quat>("quat")
+		.constructor<>()
+		.property("w", &glm::quat::w)
+		.property("x", &glm::quat::x)
+		.property("y", &glm::quat::y)
+		.property("z", &glm::quat::z);
+
+	rttr::registration::class_<std::vector<uint32_t>>("VectorUInt32")
+		.constructor<>()
+		.method("size", &std::vector<uint32_t>::size)
+		.method("at", static_cast<uint32_t& (std::vector<uint32_t>::*)(size_t)>(&std::vector<uint32_t>::at))
+		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(const uint32_t&)>(&std::vector<uint32_t>::push_back))
+		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
+
+
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	register_std_array<Entity, 4>("Array4Entity");
+
+	rttr::registration::class_<glm::vec2>("glm::vec2")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec2::x)
+		.property("y", &glm::vec2::y);
+
+	rttr::registration::class_<glm::vec3>("glm::vec3")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
+
+	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
+	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<float>>("std::vector<float>");
+	rttr::registration::class_<std::vector<int>>("std::vector<int>");
+
+	rttr::registration::class_<std::string>("std::string")
+		// Constructors
+		.constructor<>()
+		.constructor<const char*>()
+		.constructor<const std::string&>()
+
+		// Methods
+		.method("size", &std::string::size)
+		.method("length", &std::string::length)
+		.method("clear", &std::string::clear)
+		.method("empty", &std::string::empty)
+		.method("c_str", &std::string::c_str);
+
+	rttr::registration::class_<std::unordered_map<std::string, rttr::variant>>("StringVariantMap");
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Texture>>("Texture Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Texture>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Material>>("Material Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Material>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Model>>("Model Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Model>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::Skeleton>>("Skeleton Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Skeleton>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::AnimationPackage>>("AnimPkg Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::AnimationPackage>::mGUID);
+
+	rttr::registration::class_<Handle<SliceEngineTypes::StateMachine>>("stateMachine Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::StateMachine>::mGUID);
+	rttr::registration::class_<Handle<SliceEngineTypes::Prefab>>("Prefab Handle")
+		.constructor<>()
+		.property("GUID", &Handle<SliceEngineTypes::Prefab>::mGUID);
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.property("scriptName", &Script::scriptName)
+		.property("scriptableFieldMap", &Script::scriptableFieldMap);
+
+	rttr::registration::class_<Transform>(typeid(Transform).name())
+		.constructor<>()
+		.property("position", &Transform::position)
+		.property("rotation", &Transform::rotation)
+		.property("scale", &Transform::scale)
+		.property("euler_hint", &Transform::eulerAnglesHint);
+
+	rttr::registration::class_<SceneGraph>(typeid(SceneGraph).name())
+		.constructor<>()
+		.property("entity_id", &SceneGraph::entity_id)
+		.property("neighbours", &SceneGraph::neighbours);
+
+	rttr::registration::class_<SliceEntity>(typeid(SliceEntity).name())
+		.constructor<>()
+		.property("mActive", &SliceEntity::mActive)
+		.property("mTag", &SliceEntity::mTag)
+		.property("mName", &SliceEntity::mName)
+		.property("mLayer", &SliceEntity::mLayer);
+
+	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
+		.constructor<>()
+		.property("isKinematic", &RigidBody::isKinematic)
+		.property("gravityFactor", &RigidBody::gravityFactor)
+		.property("CollisionDetection", &RigidBody::CollisionDetection)
+		.property("mass", &RigidBody::mass)
+		.property("friction", &RigidBody::friction)
+		.property("restituition", &RigidBody::restitution)
+		.property("linearDamping", &RigidBody::linearDamping)
+		.property("angularDamping", &RigidBody::angularDamping);
+
+	//Collider Shapes
+	rttr::registration::class_<ColliderShape::BoxData>("BoxData")
+		.constructor<>()
+		.property("scale", &ColliderShape::BoxData::scale);
+
+	rttr::registration::class_<ColliderShape::SphereData>("SphereData")
+		.constructor<>()
+		.property("radius", &ColliderShape::SphereData::radius);
+
+	rttr::registration::class_<ColliderShape::CapsuleData>("CapsuleData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
+	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
+		.constructor<>()
+		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
+		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
+		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
+		.property("offSet", &ColliderShape::offSet)
+		.property("isTrigger", &ColliderShape::isTrigger)
+		.property("componentEnabled", &ColliderShape::componentEnabled);
+
+	rttr::registration::class_<Renderer>(typeid(Renderer).name())
+		.constructor<>()
+		.property("model", &Renderer::modelHandle)
+		.property("material", &Renderer::materialHandle)
+		.property("renderTag", &Renderer::renderTag)
+		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("meshOffset", &Renderer::meshOffset)
+		.property("componentEnabled", &Renderer::componentEnabled);
+
+	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
+		.constructor<>()
+		.property("soundGUID", &AudioSource::soundGUID)
+		.property("currentVolume", &AudioSource::currentVolume)
+		.property("isMute", &AudioSource::isMute)
+		.property("isLoop", &AudioSource::isLoop)
+		.property("isPaused", &AudioSource::isPaused)
+		.property("pitch", &AudioSource::pitch)
+		.property("stereoPan", &AudioSource::stereoPan)
+		.property("spatialBlend", &AudioSource::spatialBlend)
+		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("spread", &AudioSource::spread)
+		.property("minDistance", &AudioSource::minDistance)
+		.property("maxDistance", &AudioSource::maxDistance)
+		.property("priority", &AudioSource::priority)
+		.property("playOnAwake", &AudioSource::playOnAwake)
+		.property("volumeRollOff", &AudioSource::volumeRollOff)
+		.property("playPreview", &AudioSource::playPreview)
+		.property("componentEnabled", &AudioSource::componentEnabled);
+
+	rttr::registration::class_<AudioListener>(typeid(AudioListener).name())
+		.constructor<>()
+		.property("listenerPos", &AudioListener::listenerPos)
+		.property("componentEnabled", &AudioListener::componentEnabled);
+
+
+	rttr::registration::class_<Camera>(typeid(Camera).name())
+		.constructor<>()
+		.property("width", &Camera::width)
+		.property("height", &Camera::height)
+		.property("pov", &Camera::pov)
+		.property("near", &Camera::near)
+		.property("far", &Camera::far)
+		.property("textureID", &Camera::textureID)
+		.property("depthTex", &Camera::depthTex)
+		.property("debugRenderTag", &Camera::debugRenderToggles)
+		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("fogColor", &Camera::fogColor)
+		.property("fogIntensity", &Camera::fogIntensity)
+		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
+		.property("bloomExposure", &Camera::exposure)
+		.property("vignetteCenter", &Camera::vignetteCenter)
+		.property("vignetteIntensity", &Camera::vignetteIntensity)
+		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("componentEnabled", &Camera::componentEnabled);
+
+	rttr::registration::class_<Script>(typeid(Script).name())
+		.constructor<>()
+		.property("scriptName", &Script::scriptName);
+
+	rttr::registration::enumeration<Light::LightType>("LightType")
+		(
+			rttr::value("Directional", Light::LightType::Light_Directional),
+			rttr::value("Point", Light::LightType::Light_Point),
+			rttr::value("Spot", Light::LightType::Light_Spot)
+		);
+	rttr::registration::enumeration<RectTransform::HoriPivot>("HoriPivot")
+		(
+			rttr::value("Left", RectTransform::HoriPivot::LEFT),
+			rttr::value("Center", RectTransform::HoriPivot::CENTER),
+			rttr::value("Right", RectTransform::HoriPivot::RIGHT),
+			rttr::value("Stretch", RectTransform::HoriPivot::STRETCH_H)
+			);
+	rttr::registration::enumeration<RectTransform::VertPivot>("VertPivot")
+		(
+			rttr::value("Top", RectTransform::VertPivot::TOP),
+			rttr::value("Middle", RectTransform::VertPivot::MIDDLE),
+			rttr::value("Bottom", RectTransform::VertPivot::BOTTOM),
+			rttr::value("Stretch", RectTransform::VertPivot::STRETCH_V)
+			);
+	rttr::registration::enumeration<Canvas::Type>("CanvasType")
+		(
+			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
+	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
+		(
+			rttr::value("Color", Button::Transition::Color),
+			rttr::value("Sprite", Button::Transition::Sprite)
+			);
+	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
+		(
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
+			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+		);
+	rttr::registration::enumeration<AudioSource::Category>("Category")
+		(
+			rttr::value("SFX", AudioSource::Category::SFX),
+			rttr::value("BGM", AudioSource::Category::BGM),
+			rttr::value("UI", AudioSource::Category::UI),
+			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+		);
+	rttr::registration::class_<Light>(typeid(Light).name())
+		.constructor<>()
+		.property("type", &Light::type)
+		.property("color", &Light::color)
+		.property("intensity", &Light::intensity)
+		.property("componentEnabled", &Light::componentEnabled);
+
+	rttr::registration::class_<GUID>("GUID")
+		.constructor<>()
+		.constructor<uint64_t>()
+		.property_readonly("Value", &GUID::GetGUID);
+
+	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
+		(
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
+			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
+			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
+			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
+			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
+			);
+
+	rttr::registration::class_<Particle>(typeid(Particle).name())
+		.constructor<>()
+		.property("active", &Particle::active)
+		.property("age", &Particle::age)
+		.property("position", &Particle::position)
+		.property("rotation", &Particle::rotation)
+		.property("scale", &Particle::scale)
+		.property("velocity", &Particle::velocity)
+		.property("colour", &Particle::colour);
+
+	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
+		.constructor<>()
+		.property("duration", &ParticleSystem::duration)
+		.property("speed",&ParticleSystem::speed)
+		.property("isRepeating", &ParticleSystem::isRepeating)
+		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
+
+		.property("initialLifetimeType",&ParticleSystem::initialLifetimeType)
+		.property("lifetime", &ParticleSystem::lifetime)
+		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
+		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
+
+		.property("isInitialRotation3D", &ParticleSystem::isInitialRotation3D)
+		.property("initialRotationType", &ParticleSystem::initialRotationType)
+		.property("rotation", &ParticleSystem::rotation)
+		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
+		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+
+		.property("scaleType",&ParticleSystem::scaleType)
+		.property("scale", &ParticleSystem::scale)
+		.property("minRandomScale", &ParticleSystem::minRandomScale)
+		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
+
+		.property("emissionRate", &ParticleSystem::emissionRate)
+		.property("coneAngle", &ParticleSystem::coneAngle)
+		.property("shapeArc", &ParticleSystem::shapeArc)
+		.property("shapeType", &ParticleSystem::shapeType)
+		.property("axis", &ParticleSystem::axis)
+		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
+		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
+		.property("velocity", &ParticleSystem::velocity)
+		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
+		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
+
+		.property("colorValueType", &ParticleSystem::colorValueType)
+		.property("colour", &ParticleSystem::colour)
+		.property("minRandomColour", &ParticleSystem::minRandomColour)
+		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
+		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
+
+		.property("gForce", &ParticleSystem::gForce)
+		.property("hasCollision", &ParticleSystem::hasCollision)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
+		.property("maxParticles", &ParticleSystem::maxParticles)
+		.property("oldestIndex", &ParticleSystem::oldestIndex)
+		.property("particles", &ParticleSystem::particles)
+
+		.property("bursts", &ParticleSystem::bursts);
+
+	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
+		.constructor<>()
+		.property("numParticles", &ParticleSystem::Burst::numParticles)
+		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
+		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
+		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
+		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<Animator>(typeid(Animator).name())
+		.constructor<>()
+		.property("current_time", &Animator::current_time)
+		.property("stateMachine Handle", &Animator::Handle_stateMachine)
+		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
+		.property("Skeleton Handle", &Animator::Handle_skeleton)
+		.property("componentEnabled", &Animator::componentEnabled);
+
+
+	rttr::registration::class_<Bone>(typeid(Bone).name())
+		.constructor<>()
+		.property("skeleton_root", &Bone::skeleton_root)
+		.property("frame_idx", &Bone::frame_idx);
+
+	rttr::registration::class_<Canvas>(typeid(Canvas).name())
+		.constructor<>()
+		.property("canvas_type", &Canvas::canvas_type)
+		.property("sort_order", &Canvas::sort_order)
+		.property("graphics_raycast", &Canvas::graphic_raycastable)
+		.property("componentEnabled", &Canvas::componentEnabled);
+
+	rttr::registration::class_<Button>(typeid(Button).name())
+		.constructor<>()
+		.property("transition", &Button::transition)
+		.property("componentEnabled", &Button::componentEnabled);
+	//.property("colors", &Button::color_transitions)
+	//.property("sprites", &Button::sprite_transitions);
+
+rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
+	.constructor<>()
+	.property("hori_pivot", &RectTransform::hori_pivot)
+	.property("vert_pivot", &RectTransform::vert_pivot)
+	.property("pos_x", &RectTransform::pos_x)
+	.property("pos_y", &RectTransform::pos_y)
+	.property("left", &RectTransform::left)
+	.property("right", &RectTransform::right)
+	.property("top", &RectTransform::top)
+	.property("bot", &RectTransform::bot)
+	.property("width", &RectTransform::width)
+	.property("height", &RectTransform::height);
+
+rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
+.constructor<>()
+.property("texture", &SpriteRenderer::textureHandle)
+.property("rgba", &SpriteRenderer::rgba)
+.property("raycast_target", &SpriteRenderer::raycast_target)
+.property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
+	.constructor<>()
+	.property("speed", &NavAgent::speed)
+	.property("target", &NavAgent::target)
+	.property("hasNewTarget", &NavAgent::hasNewTarget)
+	.property("currentPath", &NavAgent::currentPath)
+	.property("currentPathIndex", &NavAgent::currentPathIndex)
+	.property("componentEnabled", &NavAgent::componentEnabled);
+
+rttr::registration::class_<Prefab>(typeid(Prefab).name())
+.constructor<>()
+.property("prefabGUID", &Prefab::prefabGUID)
+.property("prefabHandle", &Prefab::prefabHandle);
+	}
+}
+#pragma endregion
 
 namespace SliceEngine
 {
@@ -118,8 +522,6 @@ namespace SliceEngine
 
 		//audio->LoadSound("Assets/Audio/BGM_MainMenu_Mix1.wav");
 		mAudioManager->Init();
-		AudioSettings temp_audio_setting;
-		mAudioSettings = &temp_audio_setting;
 		/*TestInit(mAudioManager->GetSoundSystem());
 		TestCreate();
 		TestAddSound();
@@ -150,7 +552,7 @@ namespace SliceEngine
 
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
 		Core::GetInstance()->InitSystem<ScriptSystem>();
-		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize(static_cast<float>(frm->getFixedDeltaTime()));
+		Core::GetInstance()->GetSystem<PhysicsSystem>().Initialize();
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SubscribeToEvents();
 		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
@@ -182,6 +584,8 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		auto mNetwork = Core::GetInstance()->GetNetwork();
 		mNetwork->Init();
+
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 		//NetworkingThread::printAddr();
 		//TestPlaySFX();
 
@@ -190,7 +594,7 @@ namespace SliceEngine
 	void Engine::SceneInit()
 	{
 		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init(Core::GetInstance()->GetAudioManager()->GetSoundSystem());
+		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 

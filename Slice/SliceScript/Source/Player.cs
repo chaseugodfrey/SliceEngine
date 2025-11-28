@@ -13,6 +13,7 @@ namespace SliceEngine
         Transform t;
         GameObject floor;
         ColliderShape Attack_Collider_1;
+        AudioSource myAudio;
 
 
         public string[] test3 = { "Test", "Test2" };
@@ -37,6 +38,7 @@ namespace SliceEngine
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
+            myAudio = GetComponent<AudioSource>();
             floor = gameObject.FindGameObjectWithName("FloorQuad");
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
             Attack_Collider_1.ComponentEnabled = false;
@@ -168,6 +170,7 @@ namespace SliceEngine
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
+         
                 if(jumpCounter < 2)
                { 
                     if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
@@ -179,6 +182,15 @@ namespace SliceEngine
                     {
                         animator.SetBool("JumpLoop", true);
                         t.Position += new Vector3(0, 5, 0);
+                        if(jumpCounter == 0)
+                        {
+                            AudioSettings.PlaySFX("Jump");
+                        }
+                        else if(jumpCounter > 1)
+                        {
+                            //Put it as more than once cause idk why when its == 1 the jump and the double jump plays at the same time
+                            AudioSettings.PlaySFX("DoubleJump");
+                        }
                         jumpCounter++;
                         
                     }
@@ -212,11 +224,13 @@ namespace SliceEngine
                 {
                     animator.SetBool("Attack1", true);
                     Attack_Collider_1.ComponentEnabled = true;
+                    AudioSettings.PlaySFX("A1");
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
                     animator.SetBool("Attack2", true);
                     Attack_Collider_1.ComponentEnabled = true;
+                    AudioSettings.PlaySFX("A2");
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                 {
@@ -229,12 +243,20 @@ namespace SliceEngine
                 timeBuffer = 0.0f;
             }
 
+            if (animator.GetCurrAnimName() == "Walk")
+            {
+                myAudio.Play();
+            }
+            else
+            {
+                myAudio.Stop();
+            }
 
             // duble bifferb for attack
-            if(startBuffer)
+            if (startBuffer)
             {
                 timeBuffer += dt;
-                
+
                 if (timeBuffer > 0.5f)
                 {
                     if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
@@ -242,7 +264,7 @@ namespace SliceEngine
                         animator.SetBool("AttackToIdle1", true);
                         Attack_Collider_1.ComponentEnabled = false;
                     }
-                    if(String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                    if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                     {
                         animator.SetBool("AttackToIdle2", true);
                         Attack_Collider_1.ComponentEnabled = false;
@@ -250,6 +272,7 @@ namespace SliceEngine
                     if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
                     {
                         animator.SetBool("Attack3ToLoco", true);
+                        AudioSettings.PlaySFX("A3");
                     }
 
                     startBuffer = false;

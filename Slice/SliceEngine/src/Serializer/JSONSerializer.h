@@ -34,11 +34,13 @@ namespace SliceEngine
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+#pragma region Prefab Serialization
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
-
 		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
+		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath);
 
+#pragma endregion
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
 
@@ -320,10 +322,10 @@ namespace SliceEngine
 		{
 			prop.set_value(componentInstance, value);
 
-			if (propName == "mName" && componentName == typeid(SliceEntity).name())
-			{
-				FactoryInstance.UpdateName(value, entity);
-			}
+			//if (propName == "mName" && componentName == typeid(SliceEntity).name())
+			//{
+			//	FactoryInstance.UpdateName(value, entity);
+			//}
 		}
 
 		// For Relationship array (up down left right stuff)

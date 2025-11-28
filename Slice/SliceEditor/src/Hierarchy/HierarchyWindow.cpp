@@ -279,9 +279,17 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopupContextItem("window_popup"))
 			{
+				auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
 				if (ImGui::BeginMenu("Create"))
 				{
-					EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), entt::null);
+					if(sessionManager->IsPrefabInspected())
+					{
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected());
+					}
+					else
+					{
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"));
+					}
 					ImGui::EndMenu();
 				}
 

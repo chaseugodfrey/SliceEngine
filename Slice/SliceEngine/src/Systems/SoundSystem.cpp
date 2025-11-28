@@ -73,6 +73,9 @@ namespace SliceEngine
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f ,0.f,0.f};
 
+		if (!audioComp.componentEnabled) // if not enabled do not need to update entity
+			return;
+
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			if (audioComp.previewChannel && audioComp.playPreview == true)
@@ -82,7 +85,7 @@ namespace SliceEngine
 
 			}
 
-			if (audioComp.channel == nullptr && audioComp.playOnAwake == true)
+			if ((audioComp.channel == nullptr && audioComp.playOnAwake == true))
 			{
 				
 				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
@@ -128,25 +131,41 @@ namespace SliceEngine
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-
-
+		auto& transform = reg.get<Transform>(entity);
+		glm::vec3 entityVel = { 0.f ,0.f,0.f };
+			
 		
 		if (audioComp.channel != nullptr)
 		{
 			audioManager->UpdateChannelFromComponent(audioComp.channel, audioComp);
 		}
 
-		
-
-		
-
-		if (audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
+		// works for now but will get back with yy if the way i do it is wrong(should be wrong lol)
+		if (!audioComp.componentEnabled)
 		{
-			
-			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp);
-  			
-			
+			if(audioManager->IsChannelPlaying(audioComp.channel))
+			audioManager->StopSound(audioComp.channel);
 
+			if (audioManager->IsChannelPlaying(audioComp.previewChannel))
+			audioManager->StopSound(audioComp.previewChannel);
+		}
+		else if(audioComp.componentEnabled && audioComp.playOnAwake)
+		{
+			//audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+			if (!audioManager->IsChannelPlaying(audioComp.channel))
+
+			{
+
+			}
+			//audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+		}
+		// end of my changes
+		
+		if (audioComp.componentEnabled && audioComp.playPreview && (audioManager->IsChannelPlaying(audioComp.previewChannel) == false || audioComp.previewChannel == nullptr))
+		{	
+
+			audioComp.previewChannel = audioManager->PlayEditorPreview(audioComp);
+  
 		}
 		else if(audioComp.playPreview == false && audioManager->IsChannelPlaying(audioComp.previewChannel) == true)
 		{
@@ -192,8 +211,12 @@ namespace SliceEngine
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto renderManager = Core::GetInstance()->GetRenderManager();
 
-
 		auto& transform = reg.get<Transform>(entity);
+		auto& audioListener = reg.get<AudioListener>(entity);
+
+		if (!audioListener.componentEnabled)
+			return;
+
 		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
 		glm::vec3 up, forward, right;
 		glm::vec3 vel( 0.f);

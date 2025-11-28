@@ -187,9 +187,9 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
 	}
 
-	static glm::vec2 GetMousePosition()
+	static void GetMousePosition(glm::vec2* outPosition)
 	{
-		return Core::GetInstance()->GetInputSystem()->GetMousePosition();
+		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
 	}
 
 	// allow enabling/disabling action maps from c#
@@ -269,21 +269,23 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
 	}
 
-	static void RigidBody_AddForce(unsigned int entity, JPH::Vec3 *force, int mode)
+	static void RigidBody_AddForce(unsigned int entity, glm::vec3 *force, int mode)
 	{
+		JPH::Vec3 f(force->x, force->y, force->z);
+
 		switch (mode)
 		{
 		case 0: // Force
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, f);
 			break;
 		case 1: // Impulse
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, f);
 			break;
 		case 2: // Velocity Change
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, f);
 			break;
 		case 3: // Acceleration
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, f);
 			break;
 		default:
 			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
@@ -376,17 +378,25 @@ namespace SliceEngine
 		auto* audioComp = GetAudioComponent(entity);
 		auto* transformComp = GetTransformComponent(entity);
 		
-		if (audioComp)
+		if (audioComp && !Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel))
 		{
 			
 			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
 	{
 		std::string key = MonoToString(string);
-		Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
+		if (position == glm::vec3(0.f))
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
+
+		}
+		else
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key, position);
+		}
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -882,6 +892,7 @@ namespace SliceEngine
 		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		RegisterComponent<NavAgent>();
+		RegisterComponent<AudioSource>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
