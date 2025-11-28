@@ -965,16 +965,13 @@ namespace SliceEditor
 				{
 					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
 
-					ImGui::Text("Playing: ");
-					ImGui::SameLine(150.f);
-					ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);
 
-					std::string anim_file{};
-					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+					//Idk what this is for so im hiding it first
+					/*std::string anim_file{};
+					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);*/
 
-					ImGui::Text("Loop: ");
-					ImGui::SameLine(150.f);
-					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+					BoolInputHeader(mRegistry, "Loop: ", "##animIsLoop", animator.timeline.isLoop);
 
 					// i have to check, what if an entity has no animation pkg, like the states deal w animation so do i just start balling?
 					if(animator.Handle_curr_anim_pkg.IsValid())
