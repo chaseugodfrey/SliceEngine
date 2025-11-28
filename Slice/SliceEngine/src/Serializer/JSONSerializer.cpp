@@ -359,6 +359,11 @@ namespace SliceEngine
 
 			for (auto entity : entityID)
 			{
+				if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}
+
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
@@ -787,6 +792,11 @@ namespace SliceEngine
 
 			for (auto entity : entityID)
 			{
+				if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}
+
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
