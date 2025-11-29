@@ -45,7 +45,7 @@ namespace SliceEngine
             // --- Interactive Tests ---
 
             // Press 'T' to go to a "Target"
-            if (FunctionCalls.IsKeyPressed(Keys.KEY_T))
+            if (Input.IsKeyPressed(Keys.KEY_T))
             {
                 Vector3 target = new Vector3(10.0f, 0.0f, 10.0f);
                 agent.SetDestination(target);
@@ -53,7 +53,7 @@ namespace SliceEngine
             }
 
             // Press 'O' to go back to "Origin"
-            if (FunctionCalls.IsKeyPressed(Keys.KEY_O))
+            if (Input.IsKeyPressed(Keys.KEY_O))
             {
                 Vector3 origin = new Vector3(0.0f, 0.0f, 0.0f);
                 agent.SetDestination(origin);
@@ -61,7 +61,7 @@ namespace SliceEngine
             }
 
             // Press 'S' to Stop
-            if (FunctionCalls.IsKeyPressed(Keys.KEY_S))
+            if (Input.IsKeyPressed(Keys.KEY_S))
             {
                 agent.Stop();
                 FunctionCalls.Log("TestNavigation: User commanded Stop");
