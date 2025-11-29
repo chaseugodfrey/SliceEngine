@@ -304,8 +304,7 @@ namespace SliceEditor
 
 				if (isPlaying) // if its play, enable game input
 				{
-					scene->Play();
-					
+					EventManager::GetInstance()->Publish<OnPlayEvent>();
 				}
 							
 			}
