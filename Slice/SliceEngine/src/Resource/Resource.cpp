@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include "Prefab.h"
 #include <Serializer/JSONSerializer.h>
+#include "Core/Core.h"
+#include "Systems/SceneSystem.h"
 
 namespace SliceEngine
 {
@@ -248,6 +250,7 @@ namespace SliceEngine
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		auto scene = std::make_unique<SliceEngineTypes::Scene>(path);
+
 		return scene;
 	}
 
@@ -259,6 +262,46 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Scene>::Reload(SliceEngineTypes::Scene* resource, ResourceManager& mgr, const std::string& path)
 	{
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+
+		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			SLICE_LOG_WARNING("Ignored Scene Hot-Reload because Engine is in Play Mode: " + path);
+			return;
+		}
+
+		std::filesystem::path reloadedPath(path);
+		std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
+
+		bool isCurrentScene = false;
+		try
+		{
+			if (std::filesystem::exists(reloadedPath) && !currentPath.empty())
+			{
+				isCurrentScene = std::filesystem::equivalent(reloadedPath, currentPath);
+			}
+		}
+		catch (...)
+		{
+			// Handle edge cases where paths might be invalid
+			isCurrentScene = (reloadedPath == currentPath);
+		}
+
+		if (isCurrentScene)
+		{
+			SLICE_LOG("Hot-Reloading Current Scene: " + path);
+
+			Core::GetInstance()->mFactory.ClearGameObjects();
+			Core::GetInstance()->mFactory.UpdateDestroyed(); // Force immediate cleanup
+
+			auto map = JSONSerializer::DeserializeScene(path);
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+		}
 	}
 
 	//Audio

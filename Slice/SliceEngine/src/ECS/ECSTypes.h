@@ -156,6 +156,8 @@ namespace SliceEngine
 		// blank for now because I just need to use this for factory stuff
 	};
 
+	struct SelectedEntity{};
+
 	//XPROPERTY_REG(Transform);
 
 	enum RENDER_TAG : unsigned char
@@ -185,9 +187,9 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
 
-		bool componentEnabled{ true };
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
+		bool componentEnabled{ true };
 		bool skinned{ false };
 
 		RTTR_ENABLE();
@@ -195,7 +197,6 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		bool componentEnabled{ true };
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
@@ -209,6 +210,7 @@ namespace SliceEngine
 		float vignetteSmoothness{ 0.7f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
 

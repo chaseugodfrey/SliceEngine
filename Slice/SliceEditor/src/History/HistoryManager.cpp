@@ -5,8 +5,8 @@ namespace SliceEditor
 {
 	void HistoryManager::Init()
 	{
-		undoStack = std::stack<std::unique_ptr<Command>>();
-		redoStack = std::stack<std::unique_ptr<Command>>();
+		undoStack = HistoryStack();
+		redoStack = HistoryStack();
 
 		EventManager::GetInstance()->Subscribe<UndoEvent, &HistoryManager::Undo>(this);
 		EventManager::GetInstance()->Subscribe<RedoEvent, &HistoryManager::Redo>(this);
@@ -19,9 +19,9 @@ namespace SliceEditor
 
 	void HistoryManager::AddCommand(std::unique_ptr<Command> command)
 	{
-		undoStack.push(std::move(command));
-		while (!redoStack.empty())
-			redoStack.pop();
+		undoStack.push_back(std::move(command));
+		if (!redoStack.empty())
+			redoStack.clear();
 	}
 
 	void HistoryManager::AddCommandFromEvent(AddCommandEvent& event)
@@ -34,11 +34,10 @@ namespace SliceEditor
 		if (undoStack.empty())
 			return;
 
-		SLICE_LOG("undo stack size: " + std::to_string(undoStack.size()));
-		auto& command = undoStack.top();
+		auto command = std::move(undoStack.back());
+		undoStack.pop_back();
 		command->Undo();
-		redoStack.push(std::move(command));
-		undoStack.pop();
+		redoStack.push_back(std::move(command));
 	}
 
 	void HistoryManager::Redo()
@@ -46,19 +45,46 @@ namespace SliceEditor
 		if (redoStack.empty())
 			return;
 
-		SLICE_LOG("redo stack size: " + std::to_string(redoStack.size()));
-		auto& command = redoStack.top();
+		auto command = std::move(redoStack.back());
+		redoStack.pop_back();
 		command->Redo();
-		undoStack.push(std::move(command));
-		redoStack.pop();
+		undoStack.push_back(std::move(command));
 	}
 
 	void HistoryManager::SetStackSize(size_t size)
 	{
-		stackSize = size;
-		while (undoStack.size() > stackSize)
-			undoStack.pop();
-		while (redoStack.size() > stackSize)
-			redoStack.pop();
+		//stackSize = size;
+		//while (undoStack.size() > stackSize)
+		//	undoStack.pop();
+		//while (redoStack.size() > stackSize)
+		//	redoStack.pop();
+	}
+
+	void HistoryManager::CreateCheckpoint()
+	{
+		checkpoint = undoStack.size();
+	}
+
+	void HistoryManager::ClearFromCheckpoint()
+	{
+		if (!checkpoint.has_value())
+			return;
+
+		if (checkpoint.value() > undoStack.size())
+		{
+			checkpoint.reset();
+			return;
+		}
+
+		undoStack.erase(undoStack.begin() + checkpoint.value(), undoStack.end());
+	}
+
+	const HistoryStack& HistoryManager::GetUndoStack()
+	{
+		return undoStack;
+	}
+	const HistoryStack& HistoryManager::GetRedoStack()
+	{
+		return redoStack;
 	}
 }

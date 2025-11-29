@@ -243,6 +243,7 @@ namespace SliceEngine
                 timeBuffer = 0.0f;
             }
 
+            //Need to find another way to play the walking
             if (animator.GetCurrAnimName() == "Walk")
             {
                 myAudio.Play();
