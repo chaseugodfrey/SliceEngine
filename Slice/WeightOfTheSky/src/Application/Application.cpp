@@ -1,0 +1,48 @@
+#include <pch.h>
+#include "Application.h"
+
+#include <Engine.h>
+#include <Input/InputSystem.h>
+
+namespace SliceBuild
+{
+	//Time class for physics simulation or any other system that uses fixeddt
+	void EnableMemoryLeakChecking(int breakAlloc = -1)
+	{
+		int tmpDbgFlag = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+		tmpDbgFlag |= _CRTDBG_LEAK_CHECK_DF;
+		_CrtSetDbgFlag(tmpDbgFlag);
+
+		if (breakAlloc != -1) _CrtSetBreakAlloc(breakAlloc);
+	}
+
+	void Application::Init()
+	{
+		//SLICE_LOG("Initializing Application.");
+		EnableMemoryLeakChecking(-1);
+
+		engine.Init();
+
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
+
+		engine.SceneInit();
+
+		inputSys->SetMode(SliceEngine::InputMode::Editor);
+
+	}
+
+	void Application::Run()
+	{
+		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
+		{
+			engine.Update();
+			engine.EndFrame();
+		}
+	}
+
+	void Application::Exit()
+	{
+		engine.Exit();
+	}
+}

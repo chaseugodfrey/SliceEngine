@@ -811,23 +811,25 @@ namespace SliceEngine
 			//auto& bone = go.GetComponent<Bone>();
 			//bone.skeleton_root = root;
 			//bone.frame_idx = index;
-		}
 
-		if (root == entt::null) {
-			root = go.GetEntity();
-			go.AddComponent<Animator>();
-			auto& animator = go.GetComponent<Animator>();
 
-			GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
-			GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
-			animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
-			animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
-			animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
-			if (animator.Handle_stateMachine.IsValid())
-			{
-				animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-				animator.stateMachine.InitState(animator.curr_anim_pkg);
+			if (root == entt::null) {
+				root = go.GetEntity();
+				go.AddComponent<Animator>();
+				auto& animator = go.GetComponent<Animator>();
+
+				GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
+				GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
+				animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
+				animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
+				animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+
+				if (animator.Handle_stateMachine.IsValid())
+				{
+					animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+					animator.stateMachine.InitState(animator.curr_anim_pkg);
+				}
 			}
 		}
 

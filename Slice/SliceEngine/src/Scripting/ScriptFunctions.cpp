@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Audio/AudioManager.h"
 #include "../Configuration/AudioSettings.h"
 #include "../Input/ActionMapping.h"
+#include "Graphics/RenderManager.h"
 
 namespace SliceEngine
 {
@@ -305,6 +306,26 @@ namespace SliceEngine
 		}
 	}
 
+	static float RigidBody_GetGravityFactor(unsigned int entity)
+	{	
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().GetGravityFactor((Entity)entity);
+	}
+
+	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+	}
+
+	static bool RigidBody_IsGravityOff(unsigned int entity)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().IsGravityOff((Entity)entity);
+	}
+
+	static void RigidBody_OffGravity(unsigned int entity, bool condition)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+	}
+
 #pragma endregion
 
 #pragma region ColliderShape FUNCTIONS
@@ -545,6 +566,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
 			SLICE_LOG_ERROR("Entity does not have script attached");
@@ -819,6 +841,16 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region CAMERA FUNCTIONS
+
+	static void Camera_SetMainCamera(unsigned int entityID)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+#pragma endregion
+
 #pragma region COMPONENT REGISTRATION
 	template <typename T>
 	static void RegisterComponent()
@@ -934,6 +966,9 @@ namespace SliceEngine
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
 
+		//Camera
+		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
@@ -983,6 +1018,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
 		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
 		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
+		ADD_INTERNAL_CALL(RigidBody_GetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
+		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

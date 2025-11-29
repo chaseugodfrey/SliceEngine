@@ -17,6 +17,7 @@ namespace SliceEngine
         {
             gameObject = entity;
             FunctionCalls.RigidBody_GetVelocity(gameObject.mID, out Vector3 vel);
+            gravityFactor = FunctionCalls.RigidBody_GetGravityFactor(gameObject.mID);
             Velocity = vel;
         }
 
@@ -34,6 +35,28 @@ namespace SliceEngine
 
                 FunctionCalls.RigidBody_SetVelocity(gameObject.mID, ref value);
             }
+        }
+
+        public float gravityFactor
+        {
+            get
+            {
+               return FunctionCalls.RigidBody_GetGravityFactor(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RigidBody_SetGravityFactor(gameObject.mID, value);
+            }
+        }
+
+        public bool IsGravityOff()
+        {
+                return FunctionCalls.RigidBody_IsGravityOff(gameObject.mID);
+        }
+
+        public void OffGravity(bool isOff)
+        {
+              FunctionCalls.RigidBody_OffGravity(gameObject.mID, isOff);
         }
 
         public void AddForce(Vector3 force, ForceMode mode = ForceMode.Force)
