@@ -252,15 +252,16 @@ namespace SliceEngine
 
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (colliderShape.componentEnabled) // if true set the layer so it can collide
+		if (colliderShape.componentEnabled && slice.mActive) // if true set the layer so it can collide
 		{
-			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 			{
 				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
 			}
 		}
-		else //else set to collision off layer
+		if(!colliderShape.componentEnabled && slice.mActive)
 		{
+			
 			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
 		}
 
@@ -531,6 +532,29 @@ namespace SliceEngine
 		}
 
 		//std::cout << (int)event.entity <<"Rigidbody modified\n";
+	}
+
+	void PhysicsSystem::OnSliceEntityModified(SliceEntityModifiedEvent& event)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+		if (slice.mActive && colliderShape.componentEnabled)
+		{
+			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			{
+				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			}
+		}
+		if(!slice.mActive)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+		}
+
 	}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
@@ -1102,6 +1126,8 @@ namespace SliceEngine
 		eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
 
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
+
+		eventManager->Subscribe<SliceEntityModifiedEvent, &PhysicsSystem::OnSliceEntityModified>(this);
 
 	}
 
