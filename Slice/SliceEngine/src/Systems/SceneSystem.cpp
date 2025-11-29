@@ -38,6 +38,7 @@ namespace SliceEngine
 	{
 		//isSceneUnloaded = false;
 
+		SLICE_LOG(std::filesystem::current_path().string());
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
 		if (!std::filesystem::exists(filePath))

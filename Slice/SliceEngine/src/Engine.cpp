@@ -584,7 +584,7 @@ namespace SliceEngine
 	}
 
 	void Engine::SceneInit()
-	{
+ 	{
 		LoadProjectSettings();
 		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();

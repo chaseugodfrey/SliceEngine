@@ -23,13 +23,15 @@ namespace SliceBuild
 
 		engine.Init();
 
+		auto window = SliceEngine::Core::GetInstance()->GetWindow();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
-		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
+		inputSys->BindCallbacksToWindow(window);
 
 		engine.SceneInit();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 
+		EventManager::GetInstance()->Publish<OnPlayEvent>();
 	}
 
 	void Application::Run()
@@ -37,6 +39,7 @@ namespace SliceBuild
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			engine.Update();
+			engine.Draw();
 			engine.EndFrame();
 		}
 	}
