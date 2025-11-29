@@ -80,7 +80,7 @@ namespace SliceEditor
 		//}
 		auto& possibleCam = SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera();
 		//if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
-		if(possibleCam.has_value())
+		if(possibleCam.has_value() && SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Camera>(possibleCam.value()) != NULL)
 		{
 			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(possibleCam.value());
 
