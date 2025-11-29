@@ -18,7 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
-#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include <Systems/SceneSystem.h>
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 #include <Systems/PrefabSystem.h>
 #include <algorithm>
@@ -1104,6 +1104,39 @@ namespace SliceEditor
 		{
 			
 			CreateDescriptorFile(addEvent.filePath, true);
+
+			if (addEvent.filePath.extension() == ".navmesh")
+			{
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+				std::filesystem::path metaFilePath = GetMetaDataFromFilename(sScene->GetCurrentSceneName());
+
+				std::ifstream inFile(metaFilePath);
+				nlohmann::json metaJson;
+				inFile >> metaJson;
+				inFile.close();
+
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				auto navMeshPath = resourceMgr->GetResourcePath(addEvent.filePath.stem().string());
+
+				if (navMeshPath.has_value())
+				{
+					metaJson["navMeshFile"] = navMeshPath.value();
+					SliceEngine::GUID navMeshGUID = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+					metaJson["navMeshGUID"] = navMeshGUID;
+
+					std::ofstream outFile(metaFilePath);
+					outFile << metaJson.dump(4); // 4 spaces for pretty printing
+					outFile.close();
+
+					SLICE_LOG("Scene Updated with Navmesh file");
+				}
+				else
+				{
+					SLICE_LOG_ERROR("Could not find navmesh");
+				}
+
+			}
 
 		}
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
