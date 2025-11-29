@@ -224,6 +224,8 @@ namespace SliceEngine
 		return glm::vec2(value.first, value.second);
 	}
 
+#pragma endregion
+
 #pragma region CONSOLE LOGGING FUNCTIONS
 
 	static void Log(MonoString *string)
@@ -684,6 +686,21 @@ namespace SliceEngine
 	{
 		FactoryInstance.Destroy((Entity)entity);
 	}
+
+	static uint32_t Entity_FindEntityWithID(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (go.IsValid())
+		{
+			return static_cast<uint32_t>(go.GetEntity());
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -918,6 +935,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_GetTag);
 		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
