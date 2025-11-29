@@ -336,41 +336,44 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 			/*if (!DisplayComponentHeader<SliceEngine::AudioSource>(entity))
 			{*/
-			
-			reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
+			if (reg.all_of<SliceEngine::AudioSource>(entity))
 			{
-				BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
 
-				GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
-
-				DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
-				BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
-				BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
-				BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
-				BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
-				SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
-				SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
-				if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
+				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 				{
-					SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
-					SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
-					//To add volume rolloff dropdown
-					SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-					SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
-				}
+					BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
+
+					GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
+
+					DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
+					BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
+					BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
+					BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
+					BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
+					SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
+					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
+					{
+						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
+						SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
+						//To add volume rolloff dropdown
+						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
+						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+					}
 						
 
 
-				//Someone help disable this button when scene is running pwease ;^;
-				ImGui::Text("Play Preview");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
-					as.playPreview = !as.playPreview;
+					//Someone help disable this button when scene is running pwease ;^;
+					ImGui::Text("Play Preview");
+					ImGui::SameLine(150);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+						as.playPreview = !as.playPreview;
 						
-			});
+				});
+			}
 			//}
 			ImGui::TreePop();
 		}
@@ -982,7 +985,7 @@ namespace SliceEditor
 				//Drag Drop for the controller when its not set
 				if(!animator.Handle_stateMachine.IsValid())
 				{
-					ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
+					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
 

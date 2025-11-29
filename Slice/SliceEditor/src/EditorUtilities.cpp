@@ -302,7 +302,7 @@ namespace SliceEditor
 
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
 		{
-			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+			contentBrowserManager.RebuildDirectory();
 		}
 
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)

@@ -37,7 +37,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Reload"))
 			{
-				mManager.RebuildDirectory(*mManager.rootNode);
+				mManager.RebuildDirectory();
 			}
 
 			/*Setting the ItemSpacing Style to 0, 0 for the 2 child windows*/

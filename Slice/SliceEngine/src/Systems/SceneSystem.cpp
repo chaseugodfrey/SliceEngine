@@ -54,6 +54,12 @@ namespace SliceEngine
 
 			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
 
+			std::filesystem::path metaFile = filePathGUID->GetFilePath();
+
+			metaFile.replace_extension(".meta");
+
+			//LoadNavMeshFromMeta(metaFile);
+
 			if (mCurrentScene.extension() == ".temp")
 			{
 				filePathToLoad.replace_extension(".temp");
@@ -74,6 +80,24 @@ namespace SliceEngine
 
 		}
 
+	}
+
+	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
+	{
+		std::ifstream meta(metaFile);
+
+		nlohmann::json metaData;
+
+		meta >> metaData;
+
+		meta.close();
+
+		std::filesystem::path navMeshFile(metaData["navMeshFile"].get<std::string>());
+
+		if (std::filesystem::exists(navMeshFile))
+		{
+			//Do sth idk
+		}
 	}
 
 	void SceneSystem::LoadNextScene()
