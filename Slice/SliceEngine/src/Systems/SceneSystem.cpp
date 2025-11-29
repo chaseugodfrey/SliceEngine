@@ -22,6 +22,9 @@ namespace SliceEngine
 		//Will do all the loading of the resources based on the scene file
 		LoadScene(mDefaultScene);
 		mCurrentState = mNextState = SceneState::DEFAULT;
+
+		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
+
 	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
@@ -225,10 +228,14 @@ namespace SliceEngine
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);*/
 	}
 
+	void SceneSystem::OnPlay(OnPlayEvent e)
+	{
+		Play();
+	}
+
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
-		
 	}
 
 	void SceneSystem::Pause()

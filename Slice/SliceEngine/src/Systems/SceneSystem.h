@@ -57,6 +57,7 @@ namespace SliceEngine
 		void UnloadCurrentScene();
 		void ReloadScene();		
 
+		void OnPlay(OnPlayEvent e);
 		void Play();
 		void Pause();
 		void Stop();
