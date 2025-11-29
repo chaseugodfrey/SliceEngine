@@ -15,7 +15,7 @@ namespace SliceEngine
         ColliderShape Attack_Collider_1;
         AudioSource myAudio;
 
-
+        public int CameraID = 14;
         public string[] test3 = { "Test", "Test2" };
         public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
         public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
@@ -53,7 +53,19 @@ namespace SliceEngine
             Vector3 targetFacingDirection = this.direction;
             float rotationSpeedFrame = rotationSpeed * dt;
 
-            
+            if(Input.IsKeyPressed(Keys.KEY_K))
+            {
+                Console.WriteLine("PRESSING THE K KEY");
+                GameObject GO = gameObject.FindGameObjectWithID((uint)CameraID);
+                Camera.SetMainCamera(GO);
+            }
+
+            if (Input.IsKeyPressed(Keys.KEY_L))
+            {
+                Console.WriteLine("PRESSING THE L KEY");
+                GameObject GO = FindGameObjectWithName("Camera_1");
+                Camera.SetMainCamera(GO);
+            }
 
             //if (testingShit == false)
             //{

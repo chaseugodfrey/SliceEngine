@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Audio/AudioManager.h"
 #include "../Configuration/AudioSettings.h"
 #include "../Input/ActionMapping.h"
+#include "Graphics/RenderManager.h"
 
 namespace SliceEngine
 {
@@ -839,6 +840,16 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region CAMERA FUNCTIONS
+
+	static void Camera_SetMainCamera(unsigned int entityID)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+#pragma endregion
+
 #pragma region COMPONENT REGISTRATION
 	template <typename T>
 	static void RegisterComponent()
@@ -953,6 +964,9 @@ namespace SliceEngine
 	void ScriptFunctions::RegisterFunctions()
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
+
+		//Camera
+		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);

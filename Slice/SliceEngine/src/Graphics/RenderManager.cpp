@@ -280,9 +280,16 @@ namespace SliceEngine
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 	void RenderManager::SetMainGameCamera(Entity cam)
 	{
-		Core::GetInstance()->GetSystem<CameraSystem>().mainCam.emplace(cam);
-		//mainCam.emplace(cam);
+		auto& camSys = Core::GetInstance()->GetSystem<CameraSystem>();
+
+		std::optional<Entity> camEntity = camSys.GetCamera(cam);
+
+		if (camEntity.has_value())
+			camSys.mainCam.emplace(cam);
+		else
+			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
+
 	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
 		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
