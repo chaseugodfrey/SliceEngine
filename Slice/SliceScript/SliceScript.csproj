@@ -37,9 +37,23 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'WeightOfTheSky|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>.\</OutputPath>
+    <BaseIntermediateOutputPath>obj\WeightOfTheSky\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorDebug|x64' ">
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'WeightOfTheSky|x64' ">
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Attack_1.cs" />

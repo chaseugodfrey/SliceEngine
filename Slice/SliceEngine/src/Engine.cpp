@@ -623,9 +623,7 @@ namespace SliceEngine
 				sInputs->SetEnabled(true);
 				if (sScene->mCurrentState == SceneState::DEFAULT)
 				{
-
 					sScene->WriteTempFile();
-
 				}
 
 				if (!isPlaying)
@@ -633,8 +631,6 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					isPlaying = true;
-
-
 				}
 
 				if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
@@ -661,6 +657,7 @@ namespace SliceEngine
 			{
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
+				sInputs->ResetCursorState();
 				sAudio->StopAllSound();
 				sScene->ReloadScene();
 				isPlaying = false;
@@ -685,6 +682,7 @@ namespace SliceEngine
 		sInputs->UpdatePrevInput();
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
+
 		// process all enabled action maps in Game mode
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -712,15 +710,6 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		frm->EndSystem("Transform");
 
-		// TODO: Shouldn't be using input get mode to split play and editor mode
-		/*if (sInputs->GetMode() == InputMode::Game)
-		{
-			for (size_t step = 0; step < frm.getCurrentNumberOfSteps(); ++step)
-			{
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm.getFixedDeltaTime()));
-			}
-		}*/
-
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -743,9 +732,6 @@ namespace SliceEngine
 
 		}
 
-
-
-
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
@@ -754,7 +740,6 @@ namespace SliceEngine
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
 			}
-
 
 			frm->StartSystem("Button");
 			sButton.HandleMouse(*sInputs, sCanvas);
@@ -766,19 +751,14 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
-
-
 		frm->StartSystem("Graphics");
 		sRender->Render();
 		frm->EndSystem("Graphics");
-
-
 
 		frm->StartSystem("Canvas");
 		sCanvas.UpdateHierachy();
 		sCanvas.DrawOverlay();
 		frm->EndSystem("Canvas");
-
 
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -787,6 +767,11 @@ namespace SliceEngine
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();
+	}
+
+	void Engine::Draw()
+	{
+		Core::GetInstance()->GetRenderManager()->Draw();
 	}
 
 	void Engine::EndFrame()

@@ -7,41 +7,65 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
+    public static class Cursor
+    {
+        public enum STATE : int
+        {
+            DEFAULT = 0,
+            HIDDEN = 1,
+            CONFINED = 2,
+            DISABLED = 3
+        }
+
+        public static STATE state
+        {
+            get
+            {
+                return (STATE)FunctionCalls.Input_GetCursorState();
+            }
+
+            set
+            {
+                FunctionCalls.Input_SetCursorState((int)value);
+            }
+        }
+    }
+
     public class Input
     {
         public static bool IsKeyPressed(Keys key)
         {
-            return FunctionCalls.IsKeyPressed(key);
+            return FunctionCalls.Input_IsKeyPressed(key);
         }
 
         public static bool IsKeyDown(Keys key)
         {
-            return FunctionCalls.IsKeyDown(key);
+            return FunctionCalls.Input_IsKeyDown(key);
         }
 
         public static bool IsKeyReleased(Keys keyCode)
         {
-            return FunctionCalls.IsKeyReleased(keyCode);
+            return FunctionCalls.Input_IsKeyReleased(keyCode);
         }
 
         public static bool IsMousePressed(MouseButtons button)
         {
-            return FunctionCalls.IsMousePressed(button);
+            return FunctionCalls.Input_IsMousePressed(button);
         }
 
         public static bool IsMouseDown(MouseButtons button)
         {
-            return FunctionCalls.IsMouseDown(button);
+            return FunctionCalls.Input_IsMouseDown(button);
         }
 
         public static bool IsMouseReleased(MouseButtons button)
         {
-            return FunctionCalls.IsMouseReleased(button);
+            return FunctionCalls.Input_IsMouseReleased(button);
         }
 
         public static Vector2 GetMousePosition()
         {
-            FunctionCalls.GetMousePosition(out Vector2 position);
+            FunctionCalls.Input_GetMousePosition(out Vector2 position);
             return position;
         }
 

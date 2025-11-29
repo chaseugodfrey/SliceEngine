@@ -50,7 +50,6 @@ namespace SliceEngine
 		int collisionSteps{4};
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
 
 		void Shutdown();
 
@@ -132,6 +131,16 @@ namespace SliceEngine
 		int GetCollisionSteps() const;
 
 		void SetCollisionSteps(int steps);
+
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
+
+		float GetGravityFactor(Entity entity) const;
+
+		void SetGravityFactor(Entity entity, float factor);
+
+		void OffGravity(Entity entity, bool condition);
+
+		bool IsGravityOff(Entity entity) const;
 	};
 }
 

@@ -245,6 +245,11 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+
+		if(colliderShape.shape == nullptr)
+			return;
+
+
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
 		if (colliderShape.componentEnabled) // if true set the layer so it can collide
@@ -1100,22 +1105,6 @@ namespace SliceEngine
 
 	}
 
-	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
-	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
-
-		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
-
-		return velocity;
-	}
-
-	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
-	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
-	}
-
 	void PhysicsSystem::SetCollisionMask(uint32_t layer, uint32_t mask)
 	{
 		if (layer == Layers::COLLISION_OFF) // cannot set collision mask for COLLISION_OFF layer
@@ -1219,5 +1208,59 @@ namespace SliceEngine
 	{
 		collisionSteps = steps;
 	}
+
+
+	float PhysicsSystem::GetGravityFactor(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		return physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+	}
+
+	void PhysicsSystem::SetGravityFactor(Entity entity, float factor)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, factor);
+	}
+
+	void PhysicsSystem::OffGravity(Entity entity, bool condition)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		if (condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID,0.0f);
+		}
+		else if (!condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, 1.0f);
+		}
+	}
+
+	bool PhysicsSystem::IsGravityOff(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		 float factor = physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+		 return factor > 0.0f ? false : true;
+	}
+
+	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
+
+		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
+
+		return velocity;
+	}
+
+	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
+	}
+
+
+
 
 }
