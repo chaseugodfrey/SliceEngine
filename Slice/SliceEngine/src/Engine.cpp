@@ -788,6 +788,11 @@ namespace SliceEngine
 		frm->CalculateSystemPercentages();
 	}
 
+	void Engine::Draw()
+	{
+		Core::GetInstance()->GetRenderManager()->Draw();
+	}
+
 	void Engine::EndFrame()
 	{
 		Core::FactoryInstance.UpdateDestroyed();

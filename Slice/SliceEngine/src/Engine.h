@@ -51,6 +51,7 @@ namespace SliceEngine
 		void SceneInit();
 
 		void Update();
+		void Draw();
 		void EndFrame();
 		void Exit();
 
