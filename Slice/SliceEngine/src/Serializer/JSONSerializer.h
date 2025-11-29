@@ -740,6 +740,11 @@ namespace rttr
 
 			return rttr::variant(valueJson.get<std::string>());
 		}
+		else
+		{
+			SLICE_LOG_ERROR("JsonToVariant doesnt match any supported type.");
+			return rttr::variant();
+		}
 	}
 
 	/// <summary>

@@ -5,15 +5,15 @@ using System.Runtime.CompilerServices;
 
 namespace SliceEngine
 {
-    public class CoroutineManager
+    public class Coroutine
     {
-        public class Coroutine
-        {
-            public IEnumerator Enumerator;
-            public SliceBehaviour Owner;
-            public object CurrentYield = null;
-        }   
+        public IEnumerator Enumerator;
+        public SliceBehaviour Owner;
+        public object CurrentYield = null;
+    }
 
+    public class CoroutineManager
+    { 
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
 
@@ -191,9 +191,9 @@ namespace SliceEngine
 
     public class WaitForCoroutine : IYieldInstruction
     {
-        private readonly CoroutineManager.Coroutine target;
+        private readonly Coroutine target;
 
-        public WaitForCoroutine(CoroutineManager.Coroutine coroutine)
+        public WaitForCoroutine(Coroutine coroutine)
         {
             target = coroutine;
         }
