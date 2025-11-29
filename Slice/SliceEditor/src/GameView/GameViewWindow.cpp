@@ -14,22 +14,32 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include "GameViewWindow.h"
-#include "../../SliceEngine/src/Graphics/RenderManager.h"
-#include "../../SliceEngine/src/Graphics/CameraSystem.h"
-#include "../../SliceEngine/src/Input/InputSystem.h"
-
+#include <Graphics/RenderManager.h>
+#include <Graphics/CameraSystem.h>
+#include <Input/InputSystem.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
 	void GameViewWindow::Init()
 	{
+		EventManager::GetInstance()->Subscribe<OnPlayEvent, &GameViewWindow::OnPlay>(this);
+	}
 
+	void GameViewWindow::OnPlay(OnPlayEvent e)
+	{
+		mRequestToFocus = true;
 	}
 
 	void GameViewWindow::Draw()
 	{
 		ImGui::Begin("Game");
 
+		if (mRequestToFocus)
+		{
+			ImGui::SetWindowFocus();
+			mRequestToFocus = false;
+		}
 
 		auto& io = ImGui::GetIO();
 
@@ -111,7 +121,6 @@ namespace SliceEditor
 				
 			}
 			
-
 			pos += winOffset;
 			float scene_x = pos.x + winScreenDim.x; // Refers to the bottom right point of the scene window in screen space
 			float scene_y = pos.y + winScreenDim.y;
@@ -123,14 +132,6 @@ namespace SliceEditor
 				ImVec2(0, 1),
 				ImVec2(1, 0)
 			);
-
-
-
-
-
-
-
-
 
 			/*
 			* Somehow linking editor window mouse stuff to engine input system
@@ -149,10 +150,37 @@ namespace SliceEditor
 				input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
 			}
 
+			static SliceEngine::CursorState game_cursor_state;
+			static bool onFocus{ false };
+			static bool isFocused{ false };
+
+			if (ImGui::IsWindowFocused())
+			{
+				if (!isFocused)
+					onFocus = true;
+
+				isFocused = true;
+
+				if (core->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::PLAY_SCENE)
+				{
+					if (onFocus)
+					{
+						input->SetCursorState(game_cursor_state);
+					}
+
+					else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+					{
+						game_cursor_state = input->GetCursorState();
+						input->SetCursorState(SliceEngine::CursorState::DEFAULT);
+						ImGui::SetWindowFocus(NULL);
+						isFocused = false;
+					}
+				}
+
+				onFocus = false;
+			}
+
 #pragma endregion
-
-
-
 
 		}
 
