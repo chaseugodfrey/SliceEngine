@@ -1,6 +1,8 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+
+
 namespace SliceEditor
 {
 	class SelectionManager;
@@ -13,7 +15,6 @@ namespace SliceEditor
 	public:
 		virtual void Redo() = 0;
 		virtual void Undo() = 0;
-		Command(std::string msg = "") : message(msg) {};
 		virtual ~Command() = default;
 		std::string const GetCommandMessage();
 	};
@@ -25,16 +26,44 @@ namespace SliceEditor
 
 	public:
 
-		ValueCommand(T& r, T oldV, T newV, std::string msg = "") : ref(r), oldValue(oldV), newValue(newV), Command(msg) {}
+		ValueCommand(T& r, T oldV, T newV) : ref(r), oldValue(oldV), newValue(newV) {}
 		~ValueCommand() = default;
 
 		void Redo() override
 		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
 			ref = newValue;
+
 		}
 
 		void Undo() override
 		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
+			ref = oldValue;
+		}
+	};
+
+
+	template<typename T>
+	class ValueCommand<SliceEngine::Handle<T>> : public Command
+	{
+		SliceEngine::Handle<T>& ref, oldValue, newValue;
+
+	public:
+
+		ValueCommand(SliceEngine::Handle<T>& r, SliceEngine::Handle<T> oldV, SliceEngine::Handle<T> newV) : ref(r), oldValue(oldV), newValue(newV) {}
+		~ValueCommand() = default;
+
+		void Redo() override
+		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
+			ref = newValue;
+
+		}
+
+		void Undo() override
+		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
 			ref = oldValue;
 		}
 	};
@@ -47,8 +76,8 @@ namespace SliceEditor
 
 	public:
 
-		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func, std::string msg = "") 
-			: oldValue(oldV), newValue(newV), funcToExecute(func), Command(msg){}
+		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func) 
+			: oldValue(oldV), newValue(newV), funcToExecute(func){}
 		~FunctionSetsValueCommand() = default;
 
 		void Redo() override
@@ -116,10 +145,34 @@ namespace SliceEditor
 		SelectionManager& sSelection;
 		std::unordered_set<SelectionNode*> oldNodes;
 		std::unordered_set<SelectionNode*> newNodes;
+
+		std::string ConvertSelectionTypeToString(std::unordered_set<SelectionNode*> const & nodes)
+		{
+			SelectionType type = SelectionType::NONE;
+			bool first = true;
+			for (auto& node : nodes)
+			{
+				if (first)
+					type = node->type;
+				else
+					if (type != node->type)
+					{
+						type = SelectionType::MIXED;
+						break;
+					}
+
+				first = false;
+			}
+
+			return mSelectionTypeToString.at(type);
+		}
+
 	public:
 		SelectNodeCommand(SelectionManager& sys, std::unordered_set<SelectionNode*> oldN, std::unordered_set<SelectionNode*> newN) :
 			sSelection(sys), oldNodes(oldN), newNodes(newN) 
 		{
+
+			message = "Selected " + ConvertSelectionTypeToString(newNodes);
 		}
 		~SelectNodeCommand() = default;
 		void Redo() override;

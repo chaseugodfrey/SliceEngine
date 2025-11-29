@@ -1,5 +1,5 @@
 {
-    "VertexShader": "shadow_Vert",
+    "VertexShader": "deferred_Vert",
     "FragmentShader": "debugOutline_Frag",
     "GeometryShader": ""
 }

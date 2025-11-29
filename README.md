@@ -57,7 +57,7 @@ Role: Systems Designer & Technical Designer
 
 This file will contain the guide to the Slice Engine. Enjoy your time here.
 This document provides an overview of the setup and controls for efficient utilization of our game engine.
-It also details major changes to the engine since Milestone 1.
+It also details major changes to the engine since Milestone 2.
 
 ## Setup
 The game engine solution was developed in Visual Studio 2022.
@@ -82,10 +82,10 @@ When running the engine for the first time, the engine will take a while to star
 
 ## Changes Since Milestone 2
 ### Graphics
-- Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration
-- Improved Shader Loading System
-- Skybox & Lighting Enhancements. Implemented skybox generation features, updated lighting passes and added support for skybox irradiance lighting variations.
-- Added new unified asset types for materials, shaders, controllers and features.
+- Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration.
+- Improved Shader Loading System.
+- Skybox & Skybox lighting. Skybox is code generated, and provides global illumination.
+- Added more Post-post processing effects
 
 ### Animation
 - Animator Window overhaul. Rebuilt using ImNodes. Improvements include safer state editing, clearer visual presentation and better drag & drop support.
@@ -94,13 +94,13 @@ When running the engine for the first time, the engine will take a while to star
 - Prefab compatibility with Animations. Animation data now serializes better.
 
 ### Audio
-- Script based sound triggering as scripts can now play SFX & BGM directly from C#.
 - Attack, walk and BGM sounds included in default scenes for testing.
 
 ### Scripting
 - Hot reload stability fixes. Reload no longer resets the entire scripting context incorrectly.
 - Added new rotation utilities, vec2 & vec3 helpers and templated clamp and general math extensions.
 - Improved rotation clamping and improved movement logic in Camera controller.
+- Script based sound triggering as scripts can now play SFX & BGM directly from C#.
 
 ### Navigation (Recast & Detour)
 - Recast Intregration stabilised. Fixed rasterization and region settigs, enabling agent visualisation.

@@ -79,6 +79,11 @@ namespace SliceEngine
 
 	FMOD::Channel* AudioManager::PlaySound(const AudioSource& audioComp, glm::vec3 soundPos, glm::vec3 vel)
 	{
+		if (!audioComp.componentEnabled)
+		{
+			return nullptr;
+		}
+
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioComp.soundGUID).get();
 		if (!audioClip)
 		{
@@ -569,6 +574,37 @@ namespace SliceEngine
 		}
 	}
 
+	void AudioManager::SetCategoryPause(int categoryType, bool pauseState)
+	{
+		switch (categoryType)
+		{
+		case 0: // SFX
+			if (sfx)
+			{
+				sfx->setPaused(pauseState);
+			}
+			break;
+		case 1: // BGM
+			if (bgm)
+			{
+				bgm->setPaused(pauseState);
+			}
+			break;
+		case 2: // UI
+			if (ui)
+			{
+				ui->setPaused(pauseState);
+			}
+			break;
+		case 3: // Editor
+			if (editorSounds)
+			{
+				editorSounds->setPaused(pauseState);
+			}
+			break;
+		}
+	}
+
 	void AudioManager::SetPauseStateAllSound(bool pauseState)
 	{
 		master->setPaused(pauseState);
@@ -602,255 +638,5 @@ namespace SliceEngine
 		}
 		SLICE_LOG("Shutting down FMOD Studio.");
 	}
-#pragma endregion
-
-#pragma region AUDIO_ORGANISER
-
-	//static nlohmann::json ToJson(const )
-
-	//void AudioSettings::Init(FMOD::System* system)
-	//{
-	//	mSystem = system;
-	//}
-
-	//void AudioSettings::Exit()
-	//{
-	//	mSystem = nullptr;
-	//}
-
-	//void AudioSettings::CreateSoundGroup(const std::string& key)
-	//{
-	//	if (mSFXMap.contains(key))
-	//	{
-	//		return;
-	//	}
-
-	//	FMOD::SoundGroup* soundGroup = nullptr;
-	//	FMOD_RESULT soundGroupCreation = mSystem->createSoundGroup(key.c_str(), &soundGroup);
-
-	//	if (soundGroupCreation != FMOD_OK)
-	//	{
-	//		SLICE_LOG_ERROR("Sound Group creation failed");
-	//		return;
-	//	}
-
-	//	SFXEntry entryData{};
-
-	//	entryData.key = key;
-
-	//	entryData.soundGroup = soundGroup;
-	//	mSFXMap.emplace(key, entryData);
-	//	
-	//	SLICE_LOG("Sound Group has been created");
-
-	//		//->createSoundGroup(key.c_str(), soundGroup);
-	//	
-	//}
-
-	//void AudioSettings::SetSoundGroup(std::string soundName, const std::string& key)
-	//{
-	//	auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
-
-	//	if (audioClip->GetSound() == nullptr)
-	//	{
-	//		SLICE_LOG_ERROR("SetSoundGroup: Audio clip or FMOD::Sound is null.");
-	//		return;
-	//	}
-
-	//	FMOD::SoundGroup* soundGroup = GetSoundGroup(key);
-
-	//	audioClip->GetSound()->setSoundGroup(soundGroup);
-	//}
-
-	//FMOD::SoundGroup* AudioSettings::GetSoundGroup(const std::string& key)
-	//{
-	//	auto it = mSFXMap.find(key);
-
-	//	if (it != mSFXMap.end())
-	//	{
-	//		return it->second.soundGroup;
-	//	}
-
-	//	return nullptr;
-	//}
-
-	//SFXEntry* AudioSettings::GetSFXEntry(const std::string& key)
-	//{
-	//	auto it = mSFXMap.find(key);
-
-	//	if (it != mSFXMap.end())
-	//	{
-	//		return &it->second;
-	//	}
-
-	//	return nullptr;
-	//}
-
-	//void AudioSettings::SetSoundGroupVolume(const std::string& key, float volume)
-	//{
-
-	//	SFXEntry* entry = GetSFXEntry(key);
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->volume = volume;
-
-	//	if (entry->soundGroup)
-	//	{
-	//		entry->soundGroup->setVolume(volume);
-	//	}
-	//}
-
-	//const float AudioSettings::GetSoundGroupVolume(const std::string& key)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return 0.0f;
-	//	}
-
-	//	float volume = 0.0f;
-
-	//	if (entry->soundGroup)
-	//	{
-	//		entry->soundGroup->getVolume(&volume);
-	//	}
-
-	//	return volume;
-	//}
-
-	//void AudioSettings::SetMaxInstances(const std::string& key, int maxInstances)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->maxInstances = maxInstances;
-
-	//	if (entry->soundGroup)
-	//	{
-	//		entry->soundGroup->setMaxAudible(maxInstances);
-	//	}
-	//}
-
-	//const int AudioSettings::GetMaxInstances(const std::string& key)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return 0;
-	//	}
-
-	//	return entry->maxInstances;
-	//}
-
-	//void AudioSettings::SetMinIntervals(const std::string& key, float minIntervals)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->minInterval = minIntervals;
-	//}
-
-	//void AudioSettings::SetMinDistance(const std::string& key, float minDistance)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->minDistance = minDistance;
-	//}
-
-	//void AudioSettings::SetMaxDistance(const std::string& key, float maxDistance)
-	//{
-
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->maxDistance = maxDistance;
-	//}
-
-	//void AudioSettings::SetSoundGroupSpatialBlend(const std::string& key, float spatialBlend)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->spatialBlend = spatialBlend;
-	//}
-
-	//const float AudioSettings::GetSoundGroupSpatialBlend(const std::string& key)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return 0.0f;
-	//	}
-
-	//	return entry->spatialBlend;
-	//}
-
-	//void AudioSettings::SetSoundGroupSpatialBlendBool(const std::string& key, bool isSpatial)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return;
-	//	}
-
-	//	entry->isSpatial = isSpatial;
-	//}
-
-	//const bool AudioSettings::GetSoundGroupSpatialBlendBool(const std::string& key)
-	//{
-	//	SFXEntry* entry = GetSFXEntry(key);
-
-	//	if (!entry)
-	//	{
-	//		SLICE_LOG("SoundGroup '" + key + "' not found");
-	//		return false;
-	//	}
-
-	//	return entry->isSpatial;
-	//}
-
-	
-
-
-
-	
 #pragma endregion
 }

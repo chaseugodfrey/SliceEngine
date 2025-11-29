@@ -78,7 +78,7 @@ namespace SliceEngine
 			return GUID(0);
 		}
 
-		std::string toString()
+		std::string toString() const
 		{
 			return std::to_string(this->mValue);
 		}

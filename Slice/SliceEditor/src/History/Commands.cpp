@@ -71,13 +71,13 @@ namespace SliceEditor
 
 	void SelectNodeCommand::Redo()
 	{
-		message = "Selected Entities";
+		message = "Selected " + ConvertSelectionTypeToString(oldNodes);
 		sSelection.SelectMultiple(newNodes, true);
 	}
 
 	void SelectNodeCommand::Undo()
 	{
-		message = "Deselect Entities";
+		message = "Selected " + ConvertSelectionTypeToString(newNodes);
 		sSelection.SelectMultiple(oldNodes, true);
 	}
 
