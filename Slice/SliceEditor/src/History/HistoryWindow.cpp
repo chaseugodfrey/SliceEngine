@@ -47,7 +47,6 @@ namespace SliceEditor
 			{
 				ImGui::TableNextColumn();
 				const auto& msg = undoStack[i]->GetCommandMessage();
-				ImGui::Text(std::to_string(i).c_str());
 				ImGui::TextUnformatted(msg.c_str());
 			}
 
@@ -57,6 +56,18 @@ namespace SliceEditor
 
 	void HistoryWindow::DrawRedoHistory()
 	{
+		auto& redoStack = mHistoryManager->GetRedoStack();
 
+		if (ImGui::BeginTable("##undo_table", 1, ImGuiTableFlags_RowBg))
+		{
+			for (int i = (int)redoStack.size() - 1; i >= 0; i--)
+			{
+				ImGui::TableNextColumn();
+				const auto& msg = redoStack[i]->GetCommandMessage();
+				ImGui::TextUnformatted(msg.c_str());
+			}
+
+			ImGui::EndTable();
+		}
 	}
 }
