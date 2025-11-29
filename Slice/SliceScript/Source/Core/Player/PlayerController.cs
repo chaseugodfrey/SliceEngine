@@ -18,12 +18,19 @@ namespace SliceEngine
 
         // =============== Movement variables =============== 
         public float moveSpeed = 2.5f;
+        public float dashMultiplier = 5f;
+        public float dashDuration = 0.2f;
+        private bool isDashing = false;
+        private Vector3 dashVelocityInput;
         public float jumpForce = 5f;
+        public float fallForce = 5f;
+        public float fallVelocityThreshold = 20f;
         public int maxJumps = 2;
-        private Coroutine groundCheckCoroutine;
+        public float groundCheckDelay = 0.05f;
+        private float groundCheckTimer = 0f;
+        private bool grounded, groundCheckLocked;
         private int jumpCounter = 0;
         private Vector3 input;
-        private bool canJump;
 
         private RigidBody rb;
         private GroundCheck groundCheck;
@@ -36,10 +43,12 @@ namespace SliceEngine
             rb = GetComponent<RigidBody>();
             if (rb == null) Console.WriteLine("No rb found");
             groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
+            if (groundCheck == null) Console.WriteLine("No ground check found");
         }
         
         public override void OnUpdate(float dt)
         {
+            GroundCheckLockout();
             HandleInput();
             HandleMovement();
         }
@@ -66,11 +75,12 @@ namespace SliceEngine
 
             input = input.Normalize();
 
-            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) TryJump();
+            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
             if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) Attack();
         }
         private void HandleMovement()
         {
+
             Transform camTransform;
 
             if (camera == null)
@@ -82,24 +92,80 @@ namespace SliceEngine
                 camTransform = camera.transform;
             }
 
-            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward;
-            camForward.y = 0f;
-            camForward = camForward.Normalize();
+            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+            camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+            camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-            Vector3 horizontal = moveDir * moveSpeed;
 
-            rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+            if (isDashing) return;
+
+            // Handle regular movement
+            Vector3 movement = moveDir * moveSpeed;
+            bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
+            if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
+
+            rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
+
+
+            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+            {
+                if (!isDashing) StartCoroutine(Dash(moveDir));
+            }
         }
         private void TryJump()
         {
-            if (canJump)
+            if (CanJump())
             {
+                rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
                 jumpCounter++;
-                if (jumpCounter < maxJumps) canJump = false;
                 rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
+                groundCheckLocked = true;
+                grounded = false;
 
                 Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
             }
+        }
+        private bool CanJump()
+        {
+            return grounded || jumpCounter < maxJumps;
+        }
+        private void GroundCheckLockout()
+        {
+            if (groundCheckLocked)
+            {
+                groundCheckTimer += Time.deltaTime;
+                if (groundCheckTimer >= groundCheckDelay)
+                {
+                    groundCheckLocked = false;
+                    groundCheckTimer = 0f;
+                    Console.WriteLine("Ground check unlocked");
+                }
+            }
+
+            // Can only be grounded if initial delay is over
+            if (!groundCheckLocked)
+            {
+                grounded = groundCheck.Grounded;
+                if (grounded)
+                {
+                    jumpCounter = 0;
+                }
+            }
+        }
+        private IEnumerator Dash(Vector3 dashDir)
+        {
+            isDashing = true;
+
+            Vector3 dash = Vector3.Zero;
+
+            if (input == Vector3.Zero) dash = transform.Backward * dashMultiplier;
+            else dash = dashDir * dashMultiplier;
+
+            rb.Velocity = new Vector3(dash.x, 0f, dash.z);
+
+            yield return new WaitForSeconds(dashDuration);
+
+            isDashing = false;
         }
         private void ExampleMovement()
         {
@@ -210,6 +276,7 @@ namespace SliceEngine
         }
         public void OnGrounded()
         {
+
         }
     }
 }

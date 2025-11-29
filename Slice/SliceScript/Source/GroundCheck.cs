@@ -22,7 +22,6 @@ namespace SliceEngine
         }
         public override void OnTriggerEnter(uint other)
         {
-            base.OnTriggerEnter(other);
             if (other == groundObject.mID)
             {
                 Console.WriteLine("Player grounded");
@@ -32,9 +31,11 @@ namespace SliceEngine
         }
         public override void OnTriggerExit(uint other)
         {
-            base.OnTriggerEnter(other);
-
-            if (other == groundObject.mID) grounded = false;
+            if (other == groundObject.mID)
+            {
+                Console.WriteLine("Player off ground");
+                grounded = false;
+            }
         }
     }
 }
