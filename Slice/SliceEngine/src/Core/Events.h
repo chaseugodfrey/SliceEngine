@@ -136,6 +136,11 @@ struct OnPrefabDeletedEvent
 	SliceEngine::GUID guid;
 };
 
+struct OnPrefabSerializedEvent
+{
+
+};
+
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION
