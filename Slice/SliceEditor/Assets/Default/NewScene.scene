@@ -6,6 +6,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -22,7 +23,7 @@
                     67,
                     4294967295,
                     4294967295,
-                    69
+                    2
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -247,6 +248,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -488,6 +490,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -637,6 +640,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -878,6 +882,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -1165,6 +1170,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -1222,6 +1228,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -1325,6 +1332,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -1888,6 +1896,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -1945,6 +1954,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2094,6 +2104,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2151,6 +2162,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2254,6 +2266,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2495,6 +2508,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2554,12 +2568,14 @@
                 "Skeleton Handle": {
                     "GUID": "15604823125079971656"
                 },
+                "componentEnabled": true,
                 "current_time": 0.8833271861076355,
                 "stateMachine Handle": {
                     "GUID": "9857886709116471337"
                 }
             },
             "struct SliceEngine::AudioSource": {
+                "componentEnabled": true,
                 "currentVolume": 0.30000001192092896,
                 "dopplerLevel": 1.0,
                 "isLoop": true,
@@ -2709,6 +2725,7 @@
     {
         "GameObject_2": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -2794,6 +2811,7 @@
                     1.0,
                     1.0
                 ],
+                "componentEnabled": true,
                 "intensity": 0.5,
                 "type": "Directional"
             },
@@ -2840,6 +2858,7 @@
     {
         "Camera": {
             "struct SliceEngine::AudioListener": {
+                "componentEnabled": true,
                 "listenerPos": [
                     0.0,
                     0.0,
@@ -2850,6 +2869,7 @@
                 "bloomExposure": 10.0,
                 "bloomFilterRadius": 0.004999999888241291,
                 "bloomStrength": 0.03999999910593033,
+                "componentEnabled": true,
                 "debugRenderTag": "0",
                 "depthTex": 28,
                 "far": 200.0,
@@ -2974,6 +2994,7 @@
     {
         "GameObject_3": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3027,6 +3048,7 @@
     {
         "Waypoint1": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3080,6 +3102,7 @@
     {
         "Waypoint2": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3133,6 +3156,7 @@
     {
         "Waypoint3": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3186,6 +3210,7 @@
     {
         "Waypoint4": {
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3255,6 +3280,7 @@
                 ]
             },
             "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
                 "material": {
                     "GUID": "10819322238111217941"
                 },
@@ -3411,6 +3437,7 @@
     {
         "BGM": {
             "struct SliceEngine::AudioSource": {
+                "componentEnabled": true,
                 "currentVolume": 0.800000011920929,
                 "dopplerLevel": 1.0,
                 "isLoop": true,
@@ -3475,7 +3502,7 @@
                 "skeleton_root": 16
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 69,
+                "entity_id": 2,
                 "neighbours": [
                     67,
                     4294967295,

@@ -204,6 +204,13 @@ namespace SliceEngine
 		 */
 		void SetPauseState(FMOD::Channel* channel, bool pauseState);
 
+		/** * @brief Pauses or unpauses a specific channel group (Category).
+		 * 0 = SFX, 1 = BGM, 2 = UI, 3 = Editor
+		 */
+		void SetCategoryPause(int categoryType, bool pauseState);
+
+		void SetPauseStateAllSound(bool pauseState);
+
 		/**
 		 * @brief Stops a sound currently playing for a given entity.
 		 */

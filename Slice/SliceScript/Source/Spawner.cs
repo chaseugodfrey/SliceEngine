@@ -22,7 +22,7 @@ namespace SliceEngine
             //StartCoroutine(SpawnLoop());            
             for(int i = 0; i < testList.Count; ++i)
             {
-                SliceLog.Log(testList[i].ToString());
+                //SliceLog.Log(testList[i].ToString());
             }
         }
 

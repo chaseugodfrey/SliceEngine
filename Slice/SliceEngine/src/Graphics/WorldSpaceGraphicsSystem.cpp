@@ -26,15 +26,23 @@ namespace SliceEngine
 {
 	void WorldSpaceGraphicsSystem::Render(GLuint shader, bool withTex)
 	{
-		mShader = shader;
-		mHasRenderTexture = withTex;
+		SetShaderAndWTexSettings(shader, withTex);
+		
 		//ResetVisibleEntities();
 
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
+			if (!Core::GetInstance()->GetRegistry().get<Renderer>(entity).componentEnabled) continue;
+
 			EntityDraw(entity);
 		}
+	}
+
+	void WorldSpaceGraphicsSystem::SetShaderAndWTexSettings(GLuint shader, bool withTex)
+	{
+		mShader = shader;
+		mHasRenderTexture = withTex;
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
@@ -106,8 +114,7 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
 
-		auto model = rc.modelHandle;
-		
+		auto model = rc.modelHandle;		
 		if (!model.IsValid()) return;
 
 		auto& mesh = model.get()->meshes[rc.meshOffset];
