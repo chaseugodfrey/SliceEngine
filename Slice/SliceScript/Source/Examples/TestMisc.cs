@@ -10,15 +10,21 @@ namespace SliceEngine
     {
         public override void OnCreate()
         {
-            RigidBody rb = GetComponent<RigidBody>();
-            if (rb == null)
-            {
-                SliceLog.Log("Get Component Returned Null Successfully :)");
-            }
-            else
-            {
-                SliceLog.Log("Get Component Returned Something Else :(");
-            }
+            //var objs = FindGameObjectsWithTag("A Tag That Will Never Exist");
+            //if (objs is null)
+            //{
+            //    SliceLog.Log("FindGameObjectsWithTag in TestMisc script successfully returned null");
+            //}
+
+            //var obj = FindGameObjectWithName("A Name That Will Never Exist");
+            //if (obj is null)
+            //{
+            //    SliceLog.Log("FindGameObjectWithName in TestMisc script successfully returned null");
+            //}
+
+            //Heresy?
+            FindGameObjectWithName("A Name That Will Never Exist")?.GetComponent<RigidBody>()?.AddForce(Vector3.Zero);
+            FindGameObjectsWithTag("A Tag That Will Never Exist")?[0]?.GetComponent<RigidBody>()?.AddForce(Vector3.Zero);
         }
     }
 }

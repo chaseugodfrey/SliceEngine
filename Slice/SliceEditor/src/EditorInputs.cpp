@@ -22,7 +22,8 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_S))
 			{
-				EditorUtilities::Scene_Save();
+				//EditorUtilities::Scene_Save();
+				EventManager::GetInstance()->Publish<OnSceneSaveEvent>();
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_D))

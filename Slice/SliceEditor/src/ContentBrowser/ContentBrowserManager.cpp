@@ -29,6 +29,7 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Content Browser Data.");
 		LoadDefaultIcons();
 		BuildTree();
+		EventManager::GetInstance()->Subscribe<RefreshContentBrowser, &ContentBrowserManager::RebuildDirectory>(this);
 	}
 
 	void ContentBrowserManager::Update()
@@ -86,10 +87,10 @@ namespace SliceEditor
 		selectedFolder = &*rootNode;
 	}
 
-	void ContentBrowserManager::RebuildDirectory(DirectoryNode& node)
+	void ContentBrowserManager::RebuildDirectory()
 	{
-		ResetRootDirectory(node);
-		CreateDirectoryNode(node);
+		ResetRootDirectory(*rootNode);
+		CreateDirectoryNode(*rootNode);
 	}
 
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
@@ -187,6 +188,7 @@ namespace SliceEditor
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
 			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
@@ -225,6 +227,8 @@ namespace SliceEditor
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
+
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)

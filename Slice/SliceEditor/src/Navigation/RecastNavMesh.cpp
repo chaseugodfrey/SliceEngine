@@ -14,12 +14,14 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "RecastNavMesh.h"
 #include <cstring>
+#include <filesystem>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
 #include "Core/Core.h"
 #include <Navigation/NavigationSystem.h>
+#include <Systems/SceneSystem.h>
 #include <ECS/ECSTypes.h>
 
 namespace SliceEditor
@@ -202,7 +204,16 @@ namespace SliceEditor
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
-		std::ofstream objFile("Resources/navmesh_debug.obj");
+		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::filesystem::path path(debugPath);
+		if (!std::filesystem::exists(path.parent_path()))
+		{
+			std::filesystem::create_directories(path.parent_path());
+		}
+
+		std::ofstream objFile(debugPath);
+		//std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -221,12 +232,15 @@ namespace SliceEditor
 			}
 
 			objFile.close();
-			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+			std::cout << "NavMesh exported to " << debugPath << " (" << detailMesh->nverts
 				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+			/*std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;*/
 		}
 		else
 		{
-			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+			std::cout << "Failed to write " << debugPath << std::endl;
+			//std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
 		for (int i = 0; i < polyMesh->npolys; ++i)
@@ -402,7 +416,16 @@ namespace SliceEditor
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
-		std::ofstream objFile("Resources/navmesh_debug.obj");
+		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::filesystem::path path(debugPath);
+		if (!std::filesystem::exists(path.parent_path()))
+		{
+			std::filesystem::create_directories(path.parent_path());
+		}
+
+		std::ofstream objFile(debugPath);
+		//std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -421,12 +444,15 @@ namespace SliceEditor
 			}
 
 			objFile.close();
-			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+			std::cout << "NavMesh exported to " << debugPath << " (" << detailMesh->nverts
 				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+			/*std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;*/
 		}
 		else
 		{
-			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+			std::cout << "Failed to write " << debugPath << std::endl;
+			//std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
 		for (int i = 0; i < polyMesh->npolys; ++i)

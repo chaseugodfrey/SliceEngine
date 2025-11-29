@@ -42,7 +42,7 @@ namespace SliceEditor
 
 	};
 
-	struct SaveSceneEvent
+	struct OnSceneSaveEvent
 	{
 
 	};
@@ -65,6 +65,11 @@ namespace SliceEditor
 	struct GetGUIDEvent
 	{
 		std::string fileName;
+	};
+
+	struct RefreshContentBrowser
+	{
+
 	};
 
 	struct DeleteSelectedEntities

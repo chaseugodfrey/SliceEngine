@@ -535,34 +535,20 @@ namespace SliceEngine
 			SetShader(S_DEBUG_OUTLINE);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE]);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			UpdateCamVP();
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_BLOOM);
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
-			glm::mat4 vpMat = P * V;
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &vpMat[0][0]);
-			// -- TODO -- Cuurently just outlines the first 2 objects
-			int i = 2;
-			auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().SetShaderAndWTexSettings(mCurrShader.second, false);
+
+			auto view = Core::GetInstance()->GetRegistry().view<SelectedEntity>(); // renderEntity
 			for (auto entity : view)
 			{
-				//if (!rc.componentEnabled) continue; // Still render outline despite disable
-				if (--i < 0)
-					break;
-				auto& rc = Core::GetInstance()->GetRegistry().get<Renderer>(entity);
-				auto model = rc.modelHandle;
+				auto entityGO = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
+				if (!entityGO.HasComponent<Renderer>() || !entityGO.HasComponent<Transform>())
+					continue;
 
-				if (!model.IsValid()) continue;
-
-				auto& mesh = model.get()->meshes[rc.meshOffset];
-				glBindVertexArray(mesh.vao);
-
-				auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
-				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-
-				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-
+				Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().EntityDraw(entity);
 			}
 			// "Blur" Passes
 			SetShader(S_DEBUG_OUT_BLUR);
@@ -579,7 +565,7 @@ namespace SliceEngine
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_DEBUG_OUTLINE_BLEND); // Blend?
 			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // In
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
 			SetUniformVec3(uniformLoc, glm::vec3(1.f));
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);

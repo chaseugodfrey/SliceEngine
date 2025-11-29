@@ -286,6 +286,15 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
+
+			if (ImGui::AcceptDragDropPayload("Prefab"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Prefab"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreatePrefab(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+				}
+			}
 			ImGui::EndDragDropTarget();
 		}
 

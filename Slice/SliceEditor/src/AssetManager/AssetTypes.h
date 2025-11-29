@@ -398,6 +398,9 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 
+		std::string navMeshFile;
+		SliceEngine::GUID navMeshGUID;
+
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
@@ -410,7 +413,10 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+
 			// specific properties to scene goes here but we dh that yet
+			metaJson["navMeshFile"] = navMeshFile;
+			metaJson["navMeshGUID"] = navMeshGUID.GetGUID();
 			// now create the meta file
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())

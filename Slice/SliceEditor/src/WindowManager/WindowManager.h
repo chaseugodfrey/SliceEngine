@@ -35,8 +35,12 @@ namespace SliceEditor
 		void DrawSaveSceneAsPopup();
 		void DrawNewScenePopup();
 
+		void DrawSavePopupModal();
+
 		bool projectSettingsPopupOpen{ false };
-		bool saveSceneAsPopupOpen{ false };
+		bool saveSceneAsPopup{ false };
+		bool saveScenePopupOpen{ false };
+		bool saveScenePopupClose{ false };
 		bool newScenePopupOpen{ false };
 		bool preferenceSettingsPopupOpen{ false };
 
@@ -112,6 +116,8 @@ namespace SliceEditor
 		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();
 
+		void OpenSaveScenePopup();
+		void CloseSaveScenePopup();
 	};
 }
 

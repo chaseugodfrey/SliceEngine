@@ -275,12 +275,18 @@ namespace SliceEditor
 
 		void Scene_Save()
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+
+
+		}
+
+		void Scene_CleanTempFiles(Registry& registry)
+		{
+			registry.GetAssetManager().CleanUpSceneTemp();
 		}
 
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
 		{
-			contentBrowserManager.RebuildDirectory(*contentBrowserManager.rootNode);
+			contentBrowserManager.RebuildDirectory();
 		}
 
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)

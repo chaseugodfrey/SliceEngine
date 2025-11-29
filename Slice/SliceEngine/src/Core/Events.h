@@ -124,12 +124,21 @@ struct OnButtonReleaseEvent
 
 struct OnPrefabModifiedEvent
 {
+	OnPrefabModifiedEvent(SliceEngine::GUID g_uid) : guid(g_uid)
+	{
+
+	}
 	SliceEngine::GUID guid;
 };
 
 struct OnPrefabDeletedEvent
 {
 	SliceEngine::GUID guid;
+};
+
+struct OnPrefabSerializedEvent
+{
+
 };
 
 // lol this is stupid but whatever

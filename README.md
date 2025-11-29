@@ -2,7 +2,7 @@
 
 Module Code: CSD3401/UXG3450
 
-Milestone: 2
+Milestone: 3
 Team: SR3C
 Engine Name: Slice Engine
 
@@ -57,7 +57,7 @@ Role: Systems Designer & Technical Designer
 
 This file will contain the guide to the Slice Engine. Enjoy your time here.
 This document provides an overview of the setup and controls for efficient utilization of our game engine.
-It also details major changes to the engine since Milestone 1.
+It also details major changes to the engine since Milestone 2.
 
 ## Setup
 The game engine solution was developed in Visual Studio 2022.
@@ -80,54 +80,60 @@ When running the engine for the first time, the engine will take a while to star
 
 ------------------------------------------------------------------------------------------------------
 
-## Changes Since Milestone 1
-1. Scene System
-Has been set up, added functionality to save and load scenes.
-
-2. Navmesh Building & Mesh Management
-Added NavigationWindow to edit and bake the NavMesh.
-
-3. Materials
-Functionality added to define how surfaces appear visually(color, texture, shininess, flexibility). Can create and edit settings of materials, system can save/load material files and apply them to meshes at runtime.
-
-## System Specific Changes
+## Changes Since Milestone 2
 ### Graphics
-Lighting with shadows(point & direction) implemented. Added functionality for object picking.
+- Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration.
+- Improved Shader Loading System.
+- Skybox & Skybox lighting. Skybox is code generated, and provides global illumination.
+- Added more Post-post processing effects
 
 ### Animation
-Functionality for skinned mesh animations. When creating model entities, scene graph can be recreated in ECS with the engine's scene graph as long as the model has a scene graph in it. Added functionality for playing animation loops, State machine & finite state machine works together with animator system.
+- Animator Window overhaul. Rebuilt using ImNodes. Improvements include safer state editing, clearer visual presentation and better drag & drop support.
+- New FSM structures. Expanded FSM data, cleaner state naming conventions and better control transitions.
+- Scene Graph & Bone System updated. Improved bone transform handling & better support for FPS style animation logic.
+- Prefab compatibility with Animations. Animation data now serializes better.
 
 ### Audio
-Reduced the number of loops that system required to work. Added functionality so that audio sources have pointes to a channel instead.
+- Attack, walk and BGM sounds included in default scenes for testing.
 
 ### Scripting
-Added functionality for hot reloading, able to recompile on button press.
+- Hot reload stability fixes. Reload no longer resets the entire scripting context incorrectly.
+- Added new rotation utilities, vec2 & vec3 helpers and templated clamp and general math extensions.
+- Improved rotation clamping and improved movement logic in Camera controller.
+- Script based sound triggering as scripts can now play SFX & BGM directly from C#.
 
-### Navigation
-Navmesh generation(Recast) has been setup, navmeshes can be built. Debugger for grid added. Navmesh runtime (Detour) framework setup.
+### Navigation (Recast & Detour)
+- Recast Intregration stabilised. Fixed rasterization and region settigs, enabling agent visualisation.
+- Detour runtime functions added. Runtime structures added to engine, enabling NPC movement and path queries.
+- Inspector updates now expose more parameters and allow baking directly from editor.
 
-### ImGui
-Undo/Redo functionality added.
-Added AnimationWindow to test and look at animations from GameObjects
-Added Inspector for Materials
+### ImGui, Inspector, Windows
+- Updated console window, showing logs, warnings and script outputs.
+- Scene graph updated. Debug tool improvements for visualising parent-child relationships.
+- Added CTRL+D for duplication of game objects.
+- Better drag-&-drop behaviour for animation controllers and prefabs.
 
 ### Physics
-Added functionality for API creation for C# scripts
+- Transform & Rigidbody fixes. Overhauled sync logic to keep ECS transforms and physics bodies aligned.
+- Collider Runtime enhancements. Collder now de/activates correctly during gameplay events.
+- API Extensions for C#. Added missing constructors, helper functions and scripting hooks for rigidbody and collider manipulation.
 
 ### Serialization
-Changed serialization system to a templated structure, simplifying ways of adding new types to support. Increased flexibility to add more layers through the completetion of data side implementation.
+- Core serialisation converted to a templated system, improving type extensibility.
+- Added support for serialising animation controllers and state machine data.
 
 ### Input
-Added functionality for Action Mapping.
+- Better prefab saving ensures Input components persist correctly.
+- Full Action Mapping functionality exposed to C# scripts, including 1D and multiple action types.
 
 ### Networking
-Despite no plans for foreseeable future use of this feature, connection between clients has been setup. Clients can send packets to each other.
+- No changes as there are no plans to include multiplayer in the final product as of yet.
 
 ### Editor Gameplay
-        - Created a usable level "Level: Populated".
-        - Controls: press WASD to move & R to attack.
-        - Implemented Waypoint system for payload to automatically move from point to point.
-        - Implemented Spawner that creates enemies that chase and damage the player.
+- Created a usable level "Level: Populated".
+- Updated player logic in C# for movement and attacks.
+- Improved spawner and enemy behaviour stability.
+- Added support for animation driven attacks via collider activation.
 
 ------------------------------------------------------------------------------------------------------
 
@@ -150,10 +156,11 @@ To move game objects around, left click on specified game object, the game's 3D-
         - Hold & drag green arrow to move object along Y-axis
         - Hold & drag red or blue arrow to move object along X-axis and Z-axis
 
-Undo/Redo/Save
+Undo/Redo/Save/Duplicate
         - Press Ctrl + Z to undo
         - Press Ctrl + Y to redo
         - Press Ctrl + S to save
+        - Press Ctrl + D to duplicate after clicking on game object in hierarchy window
 
 WHILE holding the scrollwheel,
         - Scroll up to increase the speed of camera movement
@@ -170,7 +177,7 @@ Allows users to edit and adjust game object Transform, Renderer and Script value
         - Script: Type in which script you'd like object to subscribe to and adjust script speed
 
         - Click Add Component button to add Rigidbody, Object Colliders, Audio & Light Sources 
-          and Animator components.
+          Script, Renderer, Nav Agent, AudioListener, Lightsource, Particle System and Animator components.
 
 #### Navigation
         - Click selected desired object and key in new values to edit Rasterization, Agent, Region
@@ -201,8 +208,14 @@ This window is used primarily for camera game objects
           in order to achieve the viewpoint desired.
         - Use WASD Keys to move the camera around.
 
+#### Animator
+Users can use the animtor to create sequences of movement for characters, creatures, and objects.
+        - Right click mouse to create a node in the animator window.
+        - Left click on a node and drag to move it around, click on its side nodules to create a link 
+          that can connect nodes to each other.
+
 #### Animation
-Users can choose and play animation clips from the animation resource but cannot edit as of now
+Users can choose and play animation clips from the animation resource.
         - Drag & drop an .fbx asset from the content browser, then click on the root node to play,
           pause and stop the animations in the editor.
 
@@ -234,8 +247,7 @@ Users can choose and play animation clips from the animation resource but cannot
         - Click to create a window if it does not exist.
 
 ##### "GameObject" Options:
-        - Create Objects:
-                        Click to create camera, 3D object or UI components.
+        - Create Objects: Click to create camera, 3D object or UI components.
 
 ------------------------------------------------------------------------------------------------------
 
