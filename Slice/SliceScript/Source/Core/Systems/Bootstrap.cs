@@ -17,10 +17,8 @@ namespace SliceEngine
         public static PlayerController Player { get; private set; }
         public static LevelDirector LevelDirector { get; private set; }
         
-        public override void OnCreate()
+        public override void OnAwake()
         {
-            base.OnCreate();
-
             // Finding references to each script
             GameObject[] arr = gameObject.FindGameObjectsWithTag("Camera");
             if (arr != null) CameraController = arr[0].As<CameraController>();

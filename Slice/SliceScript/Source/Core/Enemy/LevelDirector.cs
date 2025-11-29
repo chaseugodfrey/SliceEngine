@@ -14,6 +14,8 @@ namespace SliceEngine
         public float waitBetweenSpawns  = 5f;
         public int enemySlimePerSpawn        = 4;
         public float randomRadius       = 1f;
+        private Dictionary<uint, EnemySlime> enemyList = new Dictionary<uint, EnemySlime>();
+        public Dictionary<uint, EnemySlime> EnemyList => enemyList;
 
         private bool spawning = true;
 
@@ -170,7 +172,9 @@ namespace SliceEngine
             }
             return false;
         }
-
-        
+        public void OnSpawn(GameObject spawnedObject)
+        {
+            enemyList.Add(spawnedObject.mID, spawnedObject.As<EnemySlime>());
+        }
     }
 }
