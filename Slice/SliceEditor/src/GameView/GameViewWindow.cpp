@@ -68,20 +68,21 @@ namespace SliceEditor
 
 
 		// todo : push this to gameview manager
-		std::vector<SliceEngine::GameObject> camObjs{};
-
-		for (auto& cam_entt : view)
+		//std::vector<SliceEngine::GameObject> camObjs{};
+		//
+		//for (auto& cam_entt : view)
+		//{
+		//	auto go = core->mFactory.GetGOByEntity(cam_entt);
+		//	if (auto scene_graph_comp = core->GetRegistry().try_get<SliceEngine::SceneGraph>(cam_entt))
+		//	{
+		//		camObjs.push_back(core->mFactory.GetGOByEntity(cam_entt));
+		//	}
+		//}
+		auto& possibleCam = SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		//if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
+		if(possibleCam.has_value())
 		{
-			auto go = core->mFactory.GetGOByEntity(cam_entt);
-			if (auto scene_graph_comp = core->GetRegistry().try_get<SliceEngine::SceneGraph>(cam_entt))
-			{
-				camObjs.push_back(core->mFactory.GetGOByEntity(cam_entt));
-			}
-		}
-
-		if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
-		{
-			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
+			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(possibleCam.value());
 
 			ImTextureID tex = static_cast<ImTextureID>(cam.textureID);
 

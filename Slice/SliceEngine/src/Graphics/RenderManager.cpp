@@ -870,12 +870,12 @@ namespace SliceEngine
 	}
 	void RenderManager::Draw()
 	{
+		LinkFrameBufferSettings(FB_TOTAL, 0);
+		LoadSettings(GPS_DEFAULT);
+		ClearBuffer(BufferClearSetting::ALL);
 		if (GetGameCamera().has_value())
 		{
 			SetShader(ShaderOpt::S_COPY);
-			LinkFrameBufferSettings(FB_TOTAL, 0);
-			LoadSettings(GPS_DEFAULT);
-			ClearBuffer(BufferClearSetting::ALL);
 			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
