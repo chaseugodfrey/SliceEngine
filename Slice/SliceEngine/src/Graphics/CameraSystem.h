@@ -24,6 +24,9 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		const int maxHeight{ 1080 }, maxWidth{ 1920 };
+
+		std::optional<Entity> mainCam;
+		std::vector<Entity> gameCameras;
 	};
 }
 

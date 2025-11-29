@@ -278,13 +278,14 @@ namespace SliceEngine
 		return newCam;
 	}
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-	void RenderManager::SetMainGameCamera(GameObject cam)
+	void RenderManager::SetMainGameCamera(Entity cam)
 	{
-		mainCam.emplace(cam);
+		Core::GetInstance()->GetSystem<CameraSystem>().mainCam.emplace(cam);
+		//mainCam.emplace(cam);
 	}
-	std::optional<GameObject>& RenderManager::GetGameCamera()
+	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
-		return mainCam;
+		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{

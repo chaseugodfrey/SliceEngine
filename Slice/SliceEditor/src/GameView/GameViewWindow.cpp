@@ -54,7 +54,7 @@ namespace SliceEditor
 #pragma endregion
 	
 		auto core = SliceEngine::Core::GetInstance();
-		auto view = core->GetRegistry().view<SliceEngine::Camera>();
+		auto view = core->GetRegistry().view<SliceEngine::Camera>(entt::exclude<SliceEngine::EngineEntity>);
 
 
 		// todo : push this to gameview manager

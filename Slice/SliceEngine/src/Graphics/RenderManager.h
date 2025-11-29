@@ -36,8 +36,8 @@ namespace SliceEngine
 		void RegenerateSkybox();
 		// Camera related functions
 		GameObject CreateCamera();
-		void SetMainGameCamera(GameObject cam);
-		std::optional<GameObject>& GetGameCamera();
+		void SetMainGameCamera(Entity cam);
+		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void SelectCamIDPick(Entity cam);
@@ -198,7 +198,6 @@ namespace SliceEngine
 		Entity mCurrentCamIDHover{};
 		unsigned int mIDHovered{};
 
-		std::optional<GameObject> mainCam;
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;

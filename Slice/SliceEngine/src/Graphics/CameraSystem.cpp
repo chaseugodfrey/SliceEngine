@@ -19,6 +19,16 @@ namespace SliceEngine
 	{
 		auto& cam = reg.get<Camera>(entity);
 
+		if (reg.any_of<SliceEntity>(entity))
+		{
+			if (gameCameras.empty())
+			{
+				mainCam = entity;
+			}
+
+			gameCameras.push_back(entity);
+		}
+
 		//glfwGetWindowSize(Core::GetInstance()->GetWindow(), &cam.width, &cam.height);
 
 		// Create Textures
