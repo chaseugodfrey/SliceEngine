@@ -53,6 +53,25 @@ namespace SliceEngine
 		if (auto temp = reg.try_get<EngineEntity>(entity))
 			return;
 
+		for (auto it = gameCameras.begin(); it != gameCameras.end(); it++)
+		{
+			if (*it == entity)
+			{
+				gameCameras.erase(it);
+				break;
+			}
+		}
+		
+		if (entity == mainCam)
+		{
+			// get the next camera in the vector
+			if (!gameCameras.empty())
+				mainCam = *gameCameras.begin();
+			else
+				// if game camera is empty, then set it to a null opt
+				mainCam = std::nullopt;
+		}
+
 		glDeleteTextures(1, &cam.textureID);
 		//glDeleteTextures(1, &mScene.picker_id);
 		glDeleteTextures(1, &cam.depthTex);
@@ -60,5 +79,17 @@ namespace SliceEngine
 	void CameraSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		
+	}
+	std::optional<Entity> CameraSystem::GetCamera(Entity entity)
+	{
+		for (auto camEntity : gameCameras)
+		{
+			if (camEntity == entity)
+			{
+				return entity;
+			}
+		}
+
+		return std::nullopt;
 	}
 }
