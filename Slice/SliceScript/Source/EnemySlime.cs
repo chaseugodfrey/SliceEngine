@@ -13,11 +13,25 @@ namespace SliceEngine
         Transform playerT = null;
 
         public bool active = false;
+        public bool stunned = false;
+
+        public float horKnockback = 1f;
+        public float vertKnockback = 1f;
+
+        public float attackRange = 1f;
+        private bool attacking = false;
+
+        private enum state 
+        {Chase,  Attack, Stunned};
+
+        private state currentState = state.Chase;
+
+        private RigidBody rb;
 
         public override void OnCreate()
         {
             enemyT = GetComponent<Transform>();
-            //player = gameObject.FindGameObjectWithName("RootNode");
+            rb = GetComponent<RigidBody>();
         }
 
         //Function called when you want the enemy to be active
@@ -29,12 +43,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (active && playerT != null)
-            {
-                Vector3 direction_diff = playerT.Position - enemyT.Position;
-
-                enemyT.Position += direction_diff.Normalize() * movementSpeed * dt;
-            }
+            DoActionBasedOnState(dt);
 
             //if (Input.IsKeyDown(Keys.KEY_B))
             //{
@@ -55,23 +64,51 @@ namespace SliceEngine
 
         }
 
+        private void DoActionBasedOnState(float deltaTime)
+        {
+            switch (currentState) 
+            {
+                case state.Chase:
+                    if (active && playerT != null && !stunned)
+                    {
+                        Vector3 direction_diff = playerT.Position - enemyT.Position;
+
+
+
+                        enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
+
+                        if (direction_diff.Magnitude() <= attackRange)
+                        {
+                            //attack state
+                        }
+
+                    }
+                    break;
+                case state.Attack:
+
+                    break;
+                case state.Stunned:
+
+                    break;
+            } 
+        }
+
+
         public override void OnCollideEnter(uint other)
         {
-         //   SliceLog.Log("OADMOSMODASM");
-            //gameObject.Destroy();
+
         }
 
         public override void OnCollideStay(uint other)
         {
-          //  gameObject.Destroy();
+
         }
 
 
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         { 
-            /*rb.AddForce(new Vector3(0, 1, 1), ForceMode.Impulse); */
-
+            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
         }
 
         private bool isDead = false;
