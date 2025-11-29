@@ -381,6 +381,34 @@
                     "hasExitTime": true,
                     "sourceState": "AirDashStart",
                     "targetState": "Plunge"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Idle"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Walk"
                 }
             ]
         },

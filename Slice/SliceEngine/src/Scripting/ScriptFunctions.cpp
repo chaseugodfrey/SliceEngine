@@ -533,6 +533,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
 			SLICE_LOG_ERROR("Entity does not have script attached");

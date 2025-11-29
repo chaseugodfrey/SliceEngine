@@ -227,6 +227,7 @@ namespace SliceEngine
 								}
 								else if (comp.is_type<Animator>())
 								{
+									
 									auto& animator = GO.GetComponent<Animator>();
 									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 									if (!animator.Handle_stateMachine.IsValid())

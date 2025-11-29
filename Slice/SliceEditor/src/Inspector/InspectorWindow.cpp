@@ -962,13 +962,20 @@ namespace SliceEditor
 					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
-
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
 					}
 				}
 				//Controller has been set, should be changable
 				else
 				{
-					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
+					if(HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller")) //For changing
+					{
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
+					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);
 
