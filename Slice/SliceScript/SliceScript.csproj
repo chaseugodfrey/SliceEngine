@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -81,8 +79,8 @@
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\EditorTest.cs" />
-    <Compile Include="Source\EnemySlime.cs" />
     <Compile Include="Source\EnemyChase.cs" />
+    <Compile Include="Source\EnemySlime.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
@@ -96,6 +94,7 @@
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\Payload.cs" />
+    <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>

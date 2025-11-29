@@ -23,7 +23,7 @@ namespace SliceEngine
         { 
             if (isSpawning != true) 
             { 
-                isSpawning = true; StartCoroutine(Jiggle()); 
+                isSpawning = true; //StartCoroutine(Jiggle()); 
             } 
         }
         public void StopSpawning() { isSpawning = false; }

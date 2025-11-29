@@ -36,10 +36,10 @@ namespace SliceEngine
                 enemyT.Position += direction_diff.Normalize() * movementSpeed * dt;
             }
 
-            if (Input.IsKeyDown(Keys.KEY_B))
-            {
-                SetUp();
-            }
+            //if (Input.IsKeyDown(Keys.KEY_B))
+            //{
+            //    SetUp();
+            //}
 
             //if (player.Has<Player>())
             //{

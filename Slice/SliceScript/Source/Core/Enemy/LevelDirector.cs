@@ -12,23 +12,24 @@ namespace SliceEngine
 
         private float internalTimer     = 0f;
         public float waitBetweenSpawns  = 5f;
-        public int enemyPerSpawn        = 4;
+        public int enemySlimePerSpawn        = 4;
         public float randomRadius       = 1f;
 
-        private bool spawning = false;
+        private bool spawning = true;
 
         private int currentStage = 0;
 
         private void IncreaseStage()
         {
             ClearSpawner();
+            firstSpawn = true;
             currentStage++;
             SpawnSpawners();
         }
 
         public string spawnTags = "Spawn Location";
 
-        public string enemyPrefab = "EnemyTest";
+        public string enemySlimePrefabName = "EnemyTest";
         public string spawnerPrefab = "EnemySpawner";
 
         private List<EnemySpawner> enemySpawners = new List<EnemySpawner>();
@@ -47,27 +48,25 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            //enemySpawners.Add(gameObject.FindGameObjectWithName("EnemySpawner").GetComponent<EnemySpawner>());
         }
 
         public void Initialize()
         {
             enemySpawners.Clear();
             SetUpSpawnLocations();
-            //SpawnSpawners();
+            SpawnSpawners();
         }
 
         //Go through the list of transform for the current stage to spawn spawners
         private void SpawnSpawners()
         {
-            Console.WriteLine("[[LEVEL DIRECTOR]] SPAWN SPAWNER IS CALLED");
+            //SliceLog.Console("[[LEVEL DIRECTOR]] SPAWN SPAWNER IS CALLED, stage tranform length at: ", stageTransforms.Count);
             foreach (Transform local in stageTransforms[currentStage])
             {
+                SliceLog.Console("looping through stageTrasnforms");
                 GameObject just = CreateGameObject(spawnerPrefab);
-                //Console.WriteLine("[[LEVEL DIRECTOR]] TRYING TO SPAWN SPAWNER");
-                //CreateGameObject(spawnerPrefab);
-                //Console.WriteLine("[[LEVEL DIRECTOR]] TRYING SUCCEEDED");
                 just.GetComponent<Transform>().Position = local.Position;
+                SliceLog.Console("Just spawned has been set to ", just.GetComponent<Transform>().Position);
                 EnemySpawner a = just.As<EnemySpawner>();
                 a.StartSpawning();
                 enemySpawners.Add(a);
@@ -132,20 +131,38 @@ namespace SliceEngine
                         continue;
                     }
 
-                    for (int i = 0; i < enemyPerSpawn; i++)
+                    for (int i = 0; i < enemySlimePerSpawn; i++)
                     {
-                        GameObject just = CreateGameObject(enemyPrefab);
+                        GameObject just = CreateGameObject(enemySlimePrefabName);
                         Vector3 ran = Utilities.RandomInsideSphere(randomRadius);
                         just.GetComponent<Transform>().Position = spawner.transform.Position + new Vector3(ran.x, 0, ran.z);
+                        if (just.Has<EnemySlime>())
+                        {
+                            Console.WriteLine("THERE IS A SLIME COMPONENT BUT LETS SEE IF IT CRASHESSs");
+                            SliceLog.Console("Enemy Slime component found");
+                            just.As<EnemySlime>().SetUp();
+                        }
+                        else
+                        {
+                            SliceLog.Console("No Enemy Sline component found");
+                        }
                     }
                 }
             }
         }
 
+        private bool firstSpawn = true;
+
         private bool CanSpawn()
         {
             internalTimer += Time.deltaTime;
-            
+
+            //if (firstSpawn == true)
+            //{
+            //    firstSpawn = false;
+            //    return true;
+            //}
+
             if (internalTimer >= waitBetweenSpawns)
             {
                 internalTimer = 0f;
