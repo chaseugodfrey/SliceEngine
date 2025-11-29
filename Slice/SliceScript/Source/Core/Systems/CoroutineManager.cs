@@ -11,6 +11,7 @@ namespace SliceEngine
         public SliceBehaviour Owner;
         public object CurrentYield = null;
     }
+
     public class CoroutineManager
     {
 
@@ -191,9 +192,9 @@ namespace SliceEngine
 
     public class WaitForCoroutine : IYieldInstruction
     {
-        private readonly CoroutineManager.Coroutine target;
+        private readonly Coroutine target;
 
-        public WaitForCoroutine(CoroutineManager.Coroutine coroutine)
+        public WaitForCoroutine(Coroutine coroutine)
         {
             target = coroutine;
         }
