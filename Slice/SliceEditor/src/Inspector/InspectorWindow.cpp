@@ -304,35 +304,35 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayAudioSource(entt::entity entity)
 	{
-		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& audioComp = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioSource>(entity);
 		if (ImGui::TreeNodeEx("Audio Source", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 			/*if (!DisplayComponentHeader<SliceEngine::AudioSource>(entity))
 			{*/
 			
-			reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
-			{
-				BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
+			/*reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
+			{*/
+				BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", audioComp.componentEnabled);
 
-				GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
+				GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", audioComp.soundGUID, "Audio");
 
-				DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
-				BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
-				BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
-				BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
-				BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
-				SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
-				SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+				DragIntInputHeader(mRegistry, "Priority", "##priority", audioComp.priority, "%d", 0, 256);
+				BoolInputHeader(mRegistry, "Is Mute", "##Mute", audioComp.isMute);
+				BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", audioComp.playOnAwake);
+				BoolInputHeader(mRegistry, "Is Loop", "##looping", audioComp.isLoop);
+				BoolInputHeader(mRegistry, "Is Paused", "##isPaused", audioComp.isPaused);
+				SliderFloatInputHeader(mRegistry, "Volume", "##currVol", audioComp.currentVolume, "%.1f", 0.0, 1.0);
+				SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", audioComp.pitch, "%.1f", -3.0, 3.0);
+				SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", audioComp.stereoPan, "%.1f", -1.0, 1.0);
+				SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", audioComp.spatialBlend, "%.1f", 0.0, 1.0);
 				if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
 				{
-					SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
-					SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
+					SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", audioComp.dopplerLevel, "%.1f", 0.0, 5.0);
+					SliderFloatInputHeader(mRegistry, "Spread", "##spread", audioComp.spread, "%.1f", 0.0, 360.0);
 					//To add volume rolloff dropdown
-					SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-					SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+					SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", audioComp.minDistance);
+					SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", audioComp.maxDistance);
 				}
 						
 
@@ -341,10 +341,10 @@ namespace SliceEditor
 				ImGui::Text("Play Preview");
 				ImGui::SameLine(150);
 				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
-					as.playPreview = !as.playPreview;
+				if (ImGui::Button(audioComp.playPreview ? "Stop Preview" : "Play Preview"))
+					audioComp.playPreview = !audioComp.playPreview;
 						
-			});
+			//});
 			//}
 			ImGui::TreePop();
 		}
