@@ -870,13 +870,16 @@ namespace SliceEngine
 	}
 	void RenderManager::Draw()
 	{
-		SetShader(ShaderOpt::S_COPY);
-		LinkFrameBufferSettings(FB_TOTAL, 0);
-		LoadSettings(GPS_DEFAULT);
-		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>((Entity)57).textureID);
+		if (GetGameCamera().has_value())
+		{
+			SetShader(ShaderOpt::S_COPY);
+			LinkFrameBufferSettings(FB_TOTAL, 0);
+			LoadSettings(GPS_DEFAULT);
+			ClearBuffer(BufferClearSetting::ALL);
+			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 	}
 #pragma endregion
 
