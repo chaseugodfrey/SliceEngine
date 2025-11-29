@@ -66,6 +66,7 @@ namespace SliceEditor
 		MATERIAL = 8,
 		PREFAB = 9,
 		PREFAB_ENTITY = 10,
+		CONTROLLER = 11,
 		STATE = 12,
 		TRANSITION = 13,
 		TEXTFILE = 14,
@@ -97,7 +98,26 @@ namespace SliceEditor
 			{".shader", SelectionType::SHADER},
 			{".mat", SelectionType::MATERIAL},
 			{".txt", SelectionType::TEXTFILE},
-			{".prefab", SelectionType::PREFAB}
+			{".prefab", SelectionType::PREFAB},
+			{".controller", SelectionType::CONTROLLER}
+	};
+
+	const std::unordered_map<SelectionType, std::string> mSelectionTypeToString =
+	{
+			{ SelectionType::ENTITY, "GameObject"},
+			{ SelectionType::FOLDER, "Folder"},
+			{ SelectionType::TEXTURE, "Texture"},
+			{ SelectionType::MATERIAL, "Material"},
+			{ SelectionType::MODEL, "Model"},
+			{ SelectionType::PREFAB, "Prefab"},
+			{ SelectionType::PREFAB_ENTITY, "Prefab"},
+			{ SelectionType::TEXTFILE, "File"},
+			{ SelectionType::SCENE, "Scene"},
+			{ SelectionType::SHADER, "Shader"},
+			{ SelectionType::AUDIO, "Audio"},
+			{ SelectionType::MIXED, "Mixed"},
+			{ SelectionType::NONE, "None"},
+			{ SelectionType::CONTROLLER, "Controller"}
 	};
 
 	struct EntityNode : SelectionNode

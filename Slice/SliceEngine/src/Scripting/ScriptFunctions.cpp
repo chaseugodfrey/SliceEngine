@@ -157,39 +157,49 @@ namespace SliceEngine
 
 #pragma region INPUT & ACTIONMAPPING FUNCTIONS
 
-	static bool IsKeyPressed(Keys keyCode)
+	static bool Input_IsKeyPressed(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
-	static bool IsKeyDown(Keys keyCode)
+	static bool Input_IsKeyDown(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
-	static bool IsKeyReleased(Keys keyCode)
+	static bool Input_IsKeyReleased(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
 	}
 
-	static bool IsMousePressed(MouseButtons button)
+	static bool Input_IsMousePressed(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMousePressed(button);
 	}
 
-	static bool IsMouseDown(MouseButtons button)
+	static bool Input_IsMouseDown(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
 	}
 
-	static bool IsMouseReleased(MouseButtons button)
+	static bool Input_IsMouseReleased(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
 	}
 
-	static void GetMousePosition(glm::vec2* outPosition)
+	static void Input_GetMousePosition(glm::vec2* outPosition)
 	{
 		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
+	}
+
+	static int Input_GetCursorState()
+	{
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+	}
+
+	static void Input_SetCursorState(int lockState)
+	{
+		Core::GetInstance()->GetInputSystem()->SetCursorState(static_cast<CursorState>(lockState));
 	}
 
 	// allow enabling/disabling action maps from c#
@@ -223,6 +233,8 @@ namespace SliceEngine
 		auto value = GetActionMappingSystem().GetValue2D(mapName, actionName);
 		return glm::vec2(value.first, value.second);
 	}
+
+#pragma endregion
 
 #pragma region CONSOLE LOGGING FUNCTIONS
 
@@ -291,6 +303,26 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
 			break;
 		}
+	}
+
+	static float RigidBody_GetGravityFactor(unsigned int entity)
+	{	
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().GetGravityFactor((Entity)entity);
+	}
+
+	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+	}
+
+	static bool RigidBody_IsGravityOff(unsigned int entity)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().IsGravityOff((Entity)entity);
+	}
+
+	static void RigidBody_OffGravity(unsigned int entity, bool condition)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
 	}
 
 #pragma endregion
@@ -684,6 +716,21 @@ namespace SliceEngine
 	{
 		FactoryInstance.Destroy((Entity)entity);
 	}
+
+	static uint32_t Entity_FindEntityWithID(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (go.IsValid())
+		{
+			return static_cast<uint32_t>(go.GetEntity());
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -918,6 +965,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_GetTag);
 		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -930,22 +978,19 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
-		ADD_INTERNAL_CALL(IsKeyPressed);
-		ADD_INTERNAL_CALL(IsKeyDown);
-		ADD_INTERNAL_CALL(IsKeyReleased);
-		ADD_INTERNAL_CALL(IsMousePressed);
-		ADD_INTERNAL_CALL(IsMouseDown);
-		ADD_INTERNAL_CALL(IsMouseReleased);
-		ADD_INTERNAL_CALL(GetMousePosition);
+		ADD_INTERNAL_CALL(Input_IsKeyPressed);
+		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(Input_IsKeyReleased);
+		ADD_INTERNAL_CALL(Input_IsMousePressed);
+		ADD_INTERNAL_CALL(Input_IsMouseDown);
+		ADD_INTERNAL_CALL(Input_IsMouseReleased);
+		ADD_INTERNAL_CALL(Input_GetCursorState);
+		ADD_INTERNAL_CALL(Input_SetCursorState);
+		ADD_INTERNAL_CALL(Input_GetMousePosition);
 		ADD_INTERNAL_CALL(AM_EnableMap);
 		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
 		ADD_INTERNAL_CALL(AM_GetValue2D);
 		ADD_INTERNAL_CALL(AM_GetValue1D);
-
-		// Mouse input
-		ADD_INTERNAL_CALL(IsMousePressed);
-		ADD_INTERNAL_CALL(IsMouseDown);
-		ADD_INTERNAL_CALL(IsMouseReleased);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
@@ -958,6 +1003,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
 		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
 		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
+		ADD_INTERNAL_CALL(RigidBody_GetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
+		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

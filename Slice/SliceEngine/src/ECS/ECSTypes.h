@@ -33,6 +33,11 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct PrefabEditingEntity
+	{
+
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;
@@ -224,7 +229,7 @@ namespace SliceEngine
 		};
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
-		float intensity{ 1.0f };
+		float intensity{ 0.5f };
 		GLuint depthTex{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
@@ -234,6 +239,8 @@ namespace SliceEngine
 
 	struct Prefab
 	{
+		unsigned int prefabID;
+
 		// GUID reference to original prefab
 		GUID prefabGUID;
 
@@ -290,9 +297,8 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
-		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
 		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
-		JPH::ShapeRefC shape;												  // Jolt shape ref
+		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
 		bool isTrigger = false;	

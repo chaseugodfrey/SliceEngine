@@ -38,8 +38,9 @@ namespace SliceEditor
 		void DrawSavePopupModal();
 
 		bool projectSettingsPopupOpen{ false };
-		bool saveSceneAsPopupOpen{ false };
-		bool saveSceneAsPopupClose{ false };
+		bool saveSceneAsPopup{ false };
+		bool saveScenePopupOpen{ false };
+		bool saveScenePopupClose{ false };
 		bool newScenePopupOpen{ false };
 		bool preferenceSettingsPopupOpen{ false };
 

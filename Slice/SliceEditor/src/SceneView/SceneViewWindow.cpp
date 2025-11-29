@@ -31,7 +31,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-
+	#pragma region GLM Function Helpers
 	// Convert Euler angles (in degrees) to quaternion
 	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
 		glm::vec3 euler_radians = glm::radians(euler_degrees);
@@ -112,6 +112,7 @@ namespace SliceEditor
 
 		return new_transform;
 	}
+	#pragma endregion
 
 	void SceneViewWindow::UpdateCam()
 	{
@@ -132,6 +133,7 @@ namespace SliceEditor
 		ImGui::Begin("Scene");
 
 		auto& io = ImGui::GetIO();
+		auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
 
 		// Draw Utility Bar
 		ImGui::BeginGroup();
@@ -184,6 +186,28 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowFocused())
 		{
+			if (ImGui::IsKeyDown(ImGuiKey_F))
+			{
+				auto& selectedEntities = mSelection->GetSelectedNodes();
+				if(!selectedEntities.empty())
+				{
+					auto& inspectedNode = *selectedEntities.begin();
+					if (inspectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(inspectedNode)->entity);
+
+						if (go.HasComponent<SliceEngine::Transform>())
+						{
+							auto targetTr = go.GetComponent<SliceEngine::Transform>();
+							
+							glm::vec3 camPos = targetTr.position + glm::vec3(-2.0f, 0.0f, 0.0f);
+
+							cam_tr.position = camPos;
+						}
+					}
+				}
+			}
+
 			if (io.KeyShift || ImGui::IsMouseDown(ImGuiMouseButton_Right))
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
@@ -374,6 +398,7 @@ namespace SliceEditor
 			}
 			ImGui::EndDragDropTarget();
 		}
+	#pragma endregion
 
 #pragma region ImGuizmos
 		// ======= IMGUIZMO =======
@@ -500,7 +525,7 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
-			auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
+			
 
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{

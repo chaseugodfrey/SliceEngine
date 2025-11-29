@@ -30,7 +30,7 @@ namespace SliceEngine
 		
 		//ResetVisibleEntities();
 
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
 			if (!Core::GetInstance()->GetRegistry().get<Renderer>(entity).componentEnabled) continue;
@@ -117,8 +117,9 @@ namespace SliceEngine
 		auto model = rc.modelHandle;		
 		if (!model.IsValid()) return;
 
-		auto& mesh = model.get()->meshes[rc.meshOffset];
-		
+		// --TODO-- Cursed model Error Checking loading
+		auto& mesh = model.get()->meshes[std::min(rc.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1))];
+
 		/*model.meshes[rc.meshOffset];*/
 		glBindVertexArray(mesh.vao);
 
@@ -146,7 +147,11 @@ namespace SliceEngine
 
 			//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 
-			glBindTextureUnit(0, albedoTex.get()->texture_id);
+			// --TODO-- Cursed Texture exist check, Fix Resource Manager
+			if (reinterpret_cast<void*>(albedoTex.get()) != (void*)0xdddddddddddddddd)
+				glBindTextureUnit(0, albedoTex.get()->texture_id);
+			else
+				glBindTextureUnit(0, Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->texture_id);
 		}
 
 		//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);

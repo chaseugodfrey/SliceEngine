@@ -18,7 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
-#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include <Systems/SceneSystem.h>
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 #include <Systems/PrefabSystem.h>
 #include <algorithm>
@@ -857,6 +857,8 @@ namespace SliceEditor
 		// idk if this will work yet cause i need it implemented in the editor to test
 		// but this should create the prefab and compile it to create the resource as well 
 
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity());
+
 		// Create the prefab file
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
@@ -865,7 +867,10 @@ namespace SliceEditor
 		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
 		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
 		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
-		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity(), guid);
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(GO.GetEntity(), guid);
+
+		EventManager::GetInstance()->Publish<RefreshContentBrowser>();
+
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//resourceMgr->RegisterResourceAsset(resourcePath);
 
@@ -1101,6 +1106,39 @@ namespace SliceEditor
 		{
 			
 			CreateDescriptorFile(addEvent.filePath, true);
+
+			if (addEvent.filePath.extension() == ".navmesh")
+			{
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+				std::filesystem::path metaFilePath = GetMetaDataFromFilename(sScene->GetCurrentSceneName());
+
+				std::ifstream inFile(metaFilePath);
+				nlohmann::json metaJson;
+				inFile >> metaJson;
+				inFile.close();
+
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				auto navMeshPath = resourceMgr->GetResourcePath(addEvent.filePath.stem().string());
+
+				if (navMeshPath.has_value())
+				{
+					metaJson["navMeshFile"] = navMeshPath.value();
+					SliceEngine::GUID navMeshGUID = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+					metaJson["navMeshGUID"] = navMeshGUID;
+
+					std::ofstream outFile(metaFilePath);
+					outFile << metaJson.dump(4); // 4 spaces for pretty printing
+					outFile.close();
+
+					SLICE_LOG("Scene Updated with Navmesh file");
+				}
+				else
+				{
+					SLICE_LOG_ERROR("Could not find navmesh");
+				}
+
+			}
 
 		}
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
@@ -1343,7 +1381,10 @@ namespace SliceEditor
 						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
-
+						if (modifiedFilePath.extension() == ".prefab")
+						{
+							EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
+						}
 						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 					
 					

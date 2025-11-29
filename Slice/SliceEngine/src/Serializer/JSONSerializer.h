@@ -38,7 +38,7 @@ namespace SliceEngine
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
 		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
-		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath);
+		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath);
 
 #pragma endregion
 		json SerializeSceneResources();
@@ -739,6 +739,11 @@ namespace rttr
 			}
 
 			return rttr::variant(valueJson.get<std::string>());
+		}
+		else
+		{
+			SLICE_LOG_ERROR("JsonToVariant doesnt match any supported type.");
+			return rttr::variant();
 		}
 	}
 

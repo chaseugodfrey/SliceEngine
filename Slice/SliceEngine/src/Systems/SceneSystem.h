@@ -37,17 +37,15 @@ namespace SliceEngine
 	{
 	public:
 		
-		
-
 		SceneState mCurrentState;
 		SceneState mNextState;
 		
-
 		void Init();
 
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
 		void LoadScene(std::filesystem::path const filePath);
 		void LoadScene(uint32_t const index);
+		void LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
 		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
@@ -59,6 +57,7 @@ namespace SliceEngine
 		void UnloadCurrentScene();
 		void ReloadScene();		
 
+		void OnPlay(OnPlayEvent e);
 		void Play();
 		void Pause();
 		void Stop();

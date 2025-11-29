@@ -46,6 +46,18 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float RigidBody_GetGravityFactor(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_SetGravityFactor(uint entityID, float factor);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody_IsGravityOff(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_OffGravity(uint entityID, bool condition);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool ColliderShape_IsEnabled(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -105,25 +117,31 @@ namespace SliceEngine
         //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsKeyPressed(Keys key);
+        internal extern static bool Input_IsKeyPressed(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsKeyDown(Keys key);
+        internal extern static bool Input_IsKeyDown(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsKeyReleased(Keys keyCode);
+        internal extern static bool Input_IsKeyReleased(Keys keyCode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsMousePressed(MouseButtons button);
+        internal extern static bool Input_IsMousePressed(MouseButtons button);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsMouseDown(MouseButtons button);
+        internal extern static bool Input_IsMouseDown(MouseButtons button);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsMouseReleased(MouseButtons button);
+        internal extern static bool Input_IsMouseReleased(MouseButtons button);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void GetMousePosition(out Vector2 position);
+        internal extern static void Input_GetMousePosition(out Vector2 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int Input_GetCursorState();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_SetCursorState(int cursorState);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void AM_EnableMap(string map, bool enable);
@@ -157,6 +175,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithName(string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_FindEntityWithID(uint id);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);

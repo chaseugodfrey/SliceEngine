@@ -99,7 +99,7 @@ namespace SliceEditor
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
 			{".controller",{AssetType::Controller, "Controller"}},
-			{".nav",{AssetType::NavMesh, "NavMesh"}}
+			{".navmesh",{AssetType::NavMesh, "NavMesh"}}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
@@ -117,7 +117,7 @@ namespace SliceEditor
 			{AssetType::Skeleton, ".skl"},
 			{AssetType::Animation, ".animpkg"},
 			{AssetType::Controller, ".controller" },
-			{AssetType::NavMesh, ".nav" }
+			{AssetType::NavMesh, ".navmesh" }
 		};
 
 		std::unordered_map<AssetType, std::string> mDefaultNames =

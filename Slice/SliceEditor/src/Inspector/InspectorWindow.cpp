@@ -56,12 +56,6 @@ namespace SliceEditor
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			if (ImGui::Button("Prefab Create"))
-			{
-				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
-				mRegistry.GetAssetManager().CreatePrefab(go);
-				//SliceEngine::JSONSerializer::SerializePrefab(static_cast<EntityNode*>(*selected_nodes.begin())->entity);
-			}
 			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
 			break;
 		case SelectionType::MATERIAL:
@@ -316,41 +310,44 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::AudioSource>(entity);
 			/*if (!DisplayComponentHeader<SliceEngine::AudioSource>(entity))
 			{*/
-			
-			reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
+			if (reg.all_of<SliceEngine::AudioSource>(entity))
 			{
-				BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
 
-				GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
-
-				DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
-				BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
-				BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
-				BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
-				BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
-				SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
-				SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
-				SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
-				if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
+				reg.patch<SliceEngine::AudioSource>(entity, [&](auto& as)
 				{
-					SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
-					SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
-					//To add volume rolloff dropdown
-					SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-					SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
-				}
+					BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
+
+					GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
+
+					DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
+					BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
+					BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
+					BoolInputHeader(mRegistry, "Is Loop", "##looping", as.isLoop);
+					BoolInputHeader(mRegistry, "Is Paused", "##isPaused", as.isPaused);
+					SliderFloatInputHeader(mRegistry, "Volume", "##currVol", as.currentVolume, "%.1f", 0.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
+					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
+					{
+						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
+						SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
+						//To add volume rolloff dropdown
+						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
+						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+					}
 						
 
 
-				//Someone help disable this button when scene is running pwease ;^;
-				ImGui::Text("Play Preview");
-				ImGui::SameLine(150);
-				ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-				if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
-					as.playPreview = !as.playPreview;
+					//Someone help disable this button when scene is running pwease ;^;
+					ImGui::Text("Play Preview");
+					ImGui::SameLine(150);
+					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+					if (ImGui::Button(as.playPreview ? "Stop Preview" : "Play Preview"))
+						as.playPreview = !as.playPreview;
 						
-			});
+				});
+			}
 			//}
 			ImGui::TreePop();
 		}
@@ -962,7 +959,7 @@ namespace SliceEditor
 				//Drag Drop for the controller when its not set
 				if(!animator.Handle_stateMachine.IsValid())
 				{
-					ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
+					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
 
@@ -973,16 +970,13 @@ namespace SliceEditor
 				{
 					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
 
-					ImGui::Text("Playing: ");
-					ImGui::SameLine(150.f);
-					ImGui::Checkbox("##anim_isPlaying", &animator.timeline.isPlaying);
+					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);
 
-					std::string anim_file{};
-					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);
+					//Idk what this is for so im hiding it first
+					/*std::string anim_file{};
+					ImGui::InputText("##anim", &anim_file, ImGuiInputTextFlags_ReadOnly);*/
 
-					ImGui::Text("Loop: ");
-					ImGui::SameLine(150.f);
-					ImGui::Checkbox("##anim_isLoop", &animator.timeline.isLoop);
+					BoolInputHeader(mRegistry, "Loop: ", "##animIsLoop", animator.timeline.isLoop);
 
 					// i have to check, what if an entity has no animation pkg, like the states deal w animation so do i just start balling?
 					if(animator.Handle_curr_anim_pkg.IsValid())
@@ -1398,6 +1392,16 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayEntity(EntityNode* node)
 	{
+		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
+		{
+			if (ImGui::Button("Prefab Create"))
+			{
+				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
+				mRegistry.GetAssetManager().CreatePrefab(go);
+				node->isPrefab = true;
+			}
+		}
+
 		DisplayEntityData(node->entity);
 
 		//Loop through registered components and display them if they exist on the selected entity
@@ -1672,12 +1676,14 @@ namespace SliceEditor
 	void InspectorWindow::DisplayPrefab(EntityNode* node)
 	{
 		//Save Prefab
+		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
 			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
 			//Serialise the Prefab
 			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
 
+			historyManager->ClearFromCheckpoint();
 			PrefabInspectedEvent event;
 			event.prefabBeingInspected = false;
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
@@ -1686,6 +1692,7 @@ namespace SliceEditor
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
 		{
+			historyManager->ClearFromCheckpoint();
 			PrefabInspectedEvent event;
 			event.prefabBeingInspected = false;
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);

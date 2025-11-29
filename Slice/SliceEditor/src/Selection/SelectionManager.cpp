@@ -52,7 +52,7 @@ namespace SliceEditor
 		//std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
 		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
 
-		ClearSelection(suppressHistory);
+		ClearSelection(true);
 		//mSelectedEntities.insert(entity);
 		mSelectedNodes.insert(node);
 		node->isSelected = true;
@@ -83,11 +83,6 @@ namespace SliceEditor
 
 			PrefabInspectedEvent event(prefabGUID, true);
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
-		}
-		
-		else if (node->type == SelectionType::PREFAB_ENTITY)
-		{
-
 		}
 
 		mSelectionType = node->type;
