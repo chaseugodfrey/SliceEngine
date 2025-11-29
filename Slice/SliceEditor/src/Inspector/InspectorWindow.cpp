@@ -960,7 +960,7 @@ namespace SliceEditor
 				//Drag Drop for the controller when its not set
 				if(!animator.Handle_stateMachine.IsValid())
 				{
-					ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
+					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
 

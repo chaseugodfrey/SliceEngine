@@ -107,6 +107,15 @@ namespace SliceEngine
             return new GameObject(entityID);
         }
 
+        public GameObject FindGameObjectWithID(uint id)
+        {
+            uint entityID = FunctionCalls.Entity_FindEntityWithID(id);
+            if (entityID == 0)
+                return null;
+
+            return new GameObject(entityID);
+        }
+
         public void Destroy()
         {
             if (mID != 0)

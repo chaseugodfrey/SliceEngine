@@ -104,12 +104,12 @@ namespace SliceEditor
 
 	void WindowManager::CloseSaveScenePopup()
 	{
-		saveSceneAsPopupClose = true;
+		saveScenePopupClose = true;
 	}
 
 	void WindowManager::OpenSaveScenePopup()
 	{
-		saveSceneAsPopupOpen = true;
+		saveScenePopupOpen = true;
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -159,7 +159,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene As"))
 			{
-				saveSceneAsPopupOpen = true;
+				saveSceneAsPopup = true;
 
 			}
 
@@ -842,7 +842,7 @@ namespace SliceEditor
 
 	void WindowManager::DrawSaveSceneAsPopup()
 	{
-		if (!saveSceneAsPopupOpen)
+		if (!saveSceneAsPopup)
 		{
 			return;
 		}
@@ -881,7 +881,9 @@ namespace SliceEditor
 					sceneSystem->LoadSceneIntoQueue(newScenePath);
 
 				
-					saveSceneAsPopupOpen = false;
+					saveSceneAsPopup = false;
+
+					
 				}
 			}
 
@@ -890,7 +892,7 @@ namespace SliceEditor
 
 		if (!isOpen)
 		{
-			saveSceneAsPopupOpen = false;
+			saveSceneAsPopup = false;
 		}
 	}
 
@@ -938,10 +940,10 @@ namespace SliceEditor
 
 	void WindowManager::DrawSavePopupModal()
 	{
-		if (saveSceneAsPopupOpen)
+		if (saveScenePopupOpen)
 		{
 			ImGui::OpenPopup("SaveScenePopup");
-			saveSceneAsPopupOpen = false;
+			saveScenePopupOpen = false;
 		}
 
 
@@ -949,10 +951,10 @@ namespace SliceEditor
 		{
 			ImGui::Text("Saving...");
 
-			if (saveSceneAsPopupClose)
+			if (saveScenePopupClose)
 			{
 				ImGui::CloseCurrentPopup();
-				saveSceneAsPopupClose = false;
+				saveScenePopupClose = false;
 			}
 
 			ImGui::EndPopup();

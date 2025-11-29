@@ -869,6 +869,8 @@ namespace SliceEditor
 		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(GO.GetEntity(), guid);
 
+		EventManager::GetInstance()->Publish<RefreshContentBrowser>();
+
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//resourceMgr->RegisterResourceAsset(resourcePath);
 

@@ -249,7 +249,7 @@ namespace SliceEditor
 			}
 		}
 		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		manager->RebuildDirectory(*manager->rootNode);
+		manager->RebuildDirectory();
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)

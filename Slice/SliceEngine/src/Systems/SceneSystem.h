@@ -37,12 +37,9 @@ namespace SliceEngine
 	{
 	public:
 		
-		
-
 		SceneState mCurrentState;
 		SceneState mNextState;
 		
-
 		void Init();
 
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);

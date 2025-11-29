@@ -67,6 +67,11 @@ namespace SliceEditor
 		std::string fileName;
 	};
 
+	struct RefreshContentBrowser
+	{
+
+	};
+
 	struct DeleteSelectedEntities
 	{
 

@@ -245,6 +245,11 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+
+		if(colliderShape.shape == nullptr)
+			return;
+
+
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
 		if (colliderShape.componentEnabled) // if true set the layer so it can collide
