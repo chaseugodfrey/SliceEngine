@@ -272,8 +272,6 @@ namespace SliceEngine
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
 		auto& transform = newCam.GetComponent<Transform>();
-		transform.position = glm::vec3(-2.f, 1.f, 0.f);
-		transform.rotation = glm::quat(glm::radians(glm::vec3(0.f, 0.f, -10.f)));
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 
@@ -682,7 +680,7 @@ namespace SliceEngine
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
 				SetUniformVec3(uniformLoc, -lightT.GetWorldPosition());
 
-				SetDirectionalLightMtx(camT.position, lightT.position);
+				SetDirectionalLightMtx(camT.GetWorldPosition(), lightT.GetWorldPosition());
 
 				glBindTextureUnit(4, light.depthTex);
 
@@ -695,13 +693,13 @@ namespace SliceEngine
 			}
 			case Light::LightType::Light_Point:
 			{
-				if(glm::distance(camT.position, lightT.position) > mPointLightFar * 0.5f)
+				if(glm::distance(camT.GetWorldPosition(), lightT.GetWorldPosition()) > mPointLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
 				else
 					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightT.position);
+				M = glm::translate(M, lightT.GetWorldPosition());
 				M = glm::scale(M, glm::vec3(mPointLightFar, mPointLightFar, mPointLightFar));
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
