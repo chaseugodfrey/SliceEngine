@@ -157,39 +157,49 @@ namespace SliceEngine
 
 #pragma region INPUT & ACTIONMAPPING FUNCTIONS
 
-	static bool IsKeyPressed(Keys keyCode)
+	static bool Input_IsKeyPressed(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
-	static bool IsKeyDown(Keys keyCode)
+	static bool Input_IsKeyDown(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
-	static bool IsKeyReleased(Keys keyCode)
+	static bool Input_IsKeyReleased(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
 	}
 
-	static bool IsMousePressed(MouseButtons button)
+	static bool Input_IsMousePressed(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMousePressed(button);
 	}
 
-	static bool IsMouseDown(MouseButtons button)
+	static bool Input_IsMouseDown(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
 	}
 
-	static bool IsMouseReleased(MouseButtons button)
+	static bool Input_IsMouseReleased(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
 	}
 
-	static void GetMousePosition(glm::vec2* outPosition)
+	static void Input_GetMousePosition(glm::vec2* outPosition)
 	{
 		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
+	}
+
+	static int Input_GetCursorState()
+	{
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+	}
+
+	static void Input_SetCursorState(int lockState)
+	{
+		Core::GetInstance()->GetInputSystem()->SetCursorState(static_cast<CursorState>(lockState));
 	}
 
 	// allow enabling/disabling action maps from c#
@@ -948,22 +958,19 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
-		ADD_INTERNAL_CALL(IsKeyPressed);
-		ADD_INTERNAL_CALL(IsKeyDown);
-		ADD_INTERNAL_CALL(IsKeyReleased);
-		ADD_INTERNAL_CALL(IsMousePressed);
-		ADD_INTERNAL_CALL(IsMouseDown);
-		ADD_INTERNAL_CALL(IsMouseReleased);
-		ADD_INTERNAL_CALL(GetMousePosition);
+		ADD_INTERNAL_CALL(Input_IsKeyPressed);
+		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(Input_IsKeyReleased);
+		ADD_INTERNAL_CALL(Input_IsMousePressed);
+		ADD_INTERNAL_CALL(Input_IsMouseDown);
+		ADD_INTERNAL_CALL(Input_IsMouseReleased);
+		ADD_INTERNAL_CALL(Input_GetCursorState);
+		ADD_INTERNAL_CALL(Input_SetCursorState);
+		ADD_INTERNAL_CALL(Input_GetMousePosition);
 		ADD_INTERNAL_CALL(AM_EnableMap);
 		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
 		ADD_INTERNAL_CALL(AM_GetValue2D);
 		ADD_INTERNAL_CALL(AM_GetValue1D);
-
-		// Mouse input
-		ADD_INTERNAL_CALL(IsMousePressed);
-		ADD_INTERNAL_CALL(IsMouseDown);
-		ADD_INTERNAL_CALL(IsMouseReleased);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);

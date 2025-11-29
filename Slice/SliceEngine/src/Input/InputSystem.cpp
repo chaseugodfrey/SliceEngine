@@ -245,6 +245,37 @@ namespace SliceEngine
         return currMousePos.y; 
     }
 
+    void InputSystem::SetCursorState()
+    {
+        auto window = Core::GetInstance()->GetWindow();
+        int mode{};
+        switch (cursorState)
+        {
+            case CursorState::DEFAULT: mode = GLFW_CURSOR_NORMAL; break;
+            case CursorState::HIDDEN: mode = GLFW_CURSOR_HIDDEN; break;
+            case CursorState::CONFINED: mode = GLFW_CURSOR_CAPTURED; break;
+            case CursorState::DISABLED: mode = GLFW_CURSOR_DISABLED; break;
+            default: mode = GLFW_CURSOR_NORMAL; break;
+        }
+
+        glfwSetInputMode(window, GLFW_CURSOR, mode);
+    }
+
+    void InputSystem::SetCursorState(CursorState state)
+    {
+        cursorState = state;
+        SetCursorState();
+    }
+
+    CursorState InputSystem::GetCursorState()
+    {
+        return cursorState;
+    }
+
+    void InputSystem::ResetCursorState()
+    {
+        SetCursorState(CursorState::DEFAULT);
+    }
 
 #pragma endregion
 
@@ -276,6 +307,7 @@ namespace SliceEngine
 
 
 #pragma region glm integration
+
     // func to convert keycode to string, for chars that are not printable, provide own fallback names
     const char* InputSystem::KeyNameFallback(int key)
     {
