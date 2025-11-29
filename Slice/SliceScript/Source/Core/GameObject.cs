@@ -24,10 +24,10 @@ namespace SliceEngine
                 return null;
             }
 
-            var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
+            var ctor = componentType.GetConstructor(new[] { typeof(GameObject) });
             if (ctor == null)
                 throw new InvalidOperationException(
-                    $"Type {typeof(T).Name} must declare a public constructor {typeof(T).Name}({nameof(GameObject)})");
+                    $"Type {componentType.Name} must declare a public constructor {componentType.Name}({nameof(GameObject)})");
 
             T component = (T)ctor.Invoke(new object[] { this });
             component.gameObject = this;
@@ -80,6 +80,11 @@ namespace SliceEngine
             for (int i = 0; i < entityIDs.Length; i++)
             {
                 gameObjects[i] = new GameObject(entityIDs[i]);
+            }
+
+            if (gameObjects.Length == 0)
+            {
+                return null;
             }
 
             return gameObjects;

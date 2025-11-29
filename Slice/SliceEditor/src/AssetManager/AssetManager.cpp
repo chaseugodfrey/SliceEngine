@@ -105,6 +105,8 @@ namespace SliceEditor
 
 		if (rawEvents.size() > 1)
 		{
+			RawFileEvent previousAction{};
+
 			if (rawEvents.begin()->changeType == filewatch::Event::removed && rawEvents.at(1).changeType == filewatch::Event::added)
 			{
 
@@ -113,12 +115,12 @@ namespace SliceEditor
 			else if (rawEvents.begin()->changeType == filewatch::Event::renamed_old && rawEvents.at(1).changeType == filewatch::Event::renamed_new)
 			{
 				
-				HandleAssetRenamed(rawEvents);
+				HandleAssetRenamed(rawEvents.at(0), rawEvents.at(1));
 				
 			}
 			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
 			{
-				HandleAssetModified(rawEvents);
+				HandleAssetModified(rawEvents.at(0));
 				//SLICE_LOG("Modifying file: " + rawEvents.begin()->filePath.string());
 			}
 			else
@@ -127,28 +129,43 @@ namespace SliceEditor
 				{
 					if (eventType.changeType == filewatch::Event::added)
 					{
-						if (!mFilenameToGUID.contains(eventType.filePath.filename().string()))
+						if (!mFilenameToGUID.contains(eventType.filePath.stem().string()))
 						{
 							HandleAssetAdded(eventType);
+							previousAction = eventType;
 						}
 					}
 					else if (eventType.changeType == filewatch::Event::removed)
 					{
-						if (mFilenameToGUID.contains(eventType.filePath.filename().string()))
+						if (mFilenameToGUID.contains(eventType.filePath.stem().string()))
 						{
 							HandleAssetRemoved(eventType);
+							previousAction = eventType;
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::modified)
+					{
+						//if(previousAction.changeType == filewatch::Event::removed && previousAction.change)
+						if (mFilenameToGUID.contains(eventType.filePath.stem().string()))
+						{
+							HandleAssetModified(eventType);
+							previousAction = eventType;
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::renamed_old)
+					{
+						previousAction = eventType;
+						continue;
+					}
+					else if (eventType.changeType == filewatch::Event::renamed_new)
+					{
+						if (previousAction.changeType == filewatch::Event::renamed_old)
+						{
+							HandleAssetRenamed(previousAction, eventType);
 						}
 					}
 				}
 			}
-			/*else if (rawEvents.contains()->changeType == filewatch::Event::added)
-			{
-				HandleAssetAdded(rawEvents.at(0));
-			}
-			else if (rawEvents.begin()->changeType == filewatch::Event::removed)
-			{
-				HandleAssetRemoved(rawEvents.at(0));
-			}*/
 			
 		}
 		else
@@ -169,7 +186,7 @@ namespace SliceEditor
 				}
 				case filewatch::Event::modified:
 				{
-					HandleAssetModified(rawEvents);
+					HandleAssetModified(rawEvents.at(0));
 					//SLICE_LOG("Modifying file single event: " + rawEvents.begin()->filePath.string());
 					break;
 				}
@@ -840,6 +857,8 @@ namespace SliceEditor
 		// idk if this will work yet cause i need it implemented in the editor to test
 		// but this should create the prefab and compile it to create the resource as well 
 
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity());
+
 		// Create the prefab file
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
@@ -848,7 +867,8 @@ namespace SliceEditor
 		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
 		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
 		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
-		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity(), guid);
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(GO.GetEntity(), guid);
+
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//resourceMgr->RegisterResourceAsset(resourcePath);
 
@@ -896,6 +916,14 @@ namespace SliceEditor
 				{
 					std::filesystem::remove(file.path());
 				}
+			}
+		}
+
+		for (const auto& file : std::filesystem::directory_iterator(mResourcesDirectory))
+		{
+			if (file.is_regular_file() && file.path().extension() == ".temp")
+			{
+				std::filesystem::remove(file.path());
 			}
 		}
 
@@ -1056,11 +1084,28 @@ namespace SliceEditor
 
 		if (addEvent.filePath.extension() == ".temp")
 		{
-			return;
-		}
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID sceneGUID = mFilenameToGUID[addEvent.filePath.stem().string()];
+			
+			std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
+			std::filesystem::path destPath = mResourcesDirectory / guidFilename;
 
-		
-		CreateDescriptorFile(addEvent.filePath, true);
+			try
+			{
+				std::filesystem::copy_file(addEvent.filePath, destPath, std::filesystem::copy_options::overwrite_existing);
+
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
+			}
+		}
+		else
+		{
+			
+			CreateDescriptorFile(addEvent.filePath, true);
+
+		}
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 
 		AssetFileChangedEvent processEvent = { true };
@@ -1070,6 +1115,10 @@ namespace SliceEditor
 	void AssetManager::HandleAssetRemoved(RawFileEvent& removeEvent)
 	{
 		std::filesystem::path removedFilePath(removeEvent.filePath);
+		if (removedFilePath.extension() == ".temp")
+		{
+			return;
+		}
 
 		SliceEngine::GUID fileGUID;
 
@@ -1091,7 +1140,8 @@ namespace SliceEditor
 
 				mGUIDtoFilename.erase(fileGUID);
 
-				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
+				resourceMgr->mFileNameToGUID.erase(removedFilePath.stem().string());
+				mFilenameToGUID.erase(removedFilePath.stem().string());
 				//resourceMgr->mGUIDToResource.erase()
 
 
@@ -1111,10 +1161,10 @@ namespace SliceEditor
 		SLICE_LOG("Removed event at " + removeEvent.filePath.string());
 	}
 
-	void AssetManager::HandleAssetRenamed(std::vector<RawFileEvent>& events)
+	void AssetManager::HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew)
 	{
-		std::filesystem::path oldFilePath(events.begin()->filePath);
-		std::filesystem::path newFilePath(events.at(1).filePath);
+		std::filesystem::path oldFilePath(renamedOld.filePath);
+		std::filesystem::path newFilePath(renamedNew.filePath);
 
 		SliceEngine::GUID fileGUID;
 
@@ -1226,12 +1276,35 @@ namespace SliceEditor
 		}
 	}
 
-	void AssetManager::HandleAssetModified(std::vector<RawFileEvent>& events)
+	void AssetManager::HandleAssetModified(RawFileEvent& event)
 	{
-		std::filesystem::path modifiedFilePath(events.begin()->filePath);
+		std::filesystem::path modifiedFilePath(event.filePath);
 
 		if (modifiedFilePath.extension() == ".temp")
 		{
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID sceneGUID = mFilenameToGUID[modifiedFilePath.stem().string()];
+
+			std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
+			std::filesystem::path destPath = mResourcesDirectory / guidFilename;
+
+			try
+			{
+				std::filesystem::copy_file(modifiedFilePath, destPath, std::filesystem::copy_options::overwrite_existing);
+
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
+			}
+
+
+			return;
+		}
+
+		if (modifiedFilePath.extension() == ".resource")
+		{
+			//return for now
 			return;
 		}
 
@@ -1264,13 +1337,19 @@ namespace SliceEditor
 					try
 					{	
 						
+
 						std::filesystem::remove(path.value());
 
 						//CreateResource(metaData, assetType);
 
+
 						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
+						if (modifiedFilePath.extension() == ".prefab")
+						{
+							EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
+						}
 						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 					
 					

@@ -187,6 +187,7 @@ namespace SliceEditor
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
 			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
@@ -225,6 +226,8 @@ namespace SliceEditor
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
+
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}
 
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)

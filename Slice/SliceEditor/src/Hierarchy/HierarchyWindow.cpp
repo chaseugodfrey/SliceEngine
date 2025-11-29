@@ -41,6 +41,7 @@ namespace SliceEditor
 			auto& map = mSession.GetPrefabNodes();
 			if (map.find(entity) == map.end())
 			{
+				SLICE_LOG_DEBUG("Entity in Scene Graph, isPrefab in the EntityNode but not in prefabMap");
 				return;
 			}
 			node = map[entity].get();
@@ -179,7 +180,39 @@ namespace SliceEditor
 		Entity parentEntity = sessionManager->GetPrefabInspected();
 		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
 		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
-		DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), parentEntity, sceneGraph,true);
+		auto treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
+
+		auto childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+		if (childEntity == entt::null)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
+		}
+		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
+		if (ImGui::TreeNodeEx(parentName.c_str(), treeNodeFlags))
+		{
+			if (ImGui::IsItemHovered()&&ImGui::IsItemClicked())
+			{
+				if (!sessionManager->GetPrefabNodes()[parentEntity])
+				{
+					SLICE_LOG_ERROR("Parent Prefab Node not in the mPrefabNodes!");
+				}
+				else
+				{
+					mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(sessionManager->GetPrefabNodes()[parentEntity].get());
+				}
+			}
+
+			while(childEntity != entt::null)
+			{
+				auto& childSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), childEntity, childSceneGraph, true);
+				childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopStyleColor();
+		
 	}
 
 	void HierarchyWindow::DrawNodeGraph()
@@ -253,6 +286,15 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
+
+			if (ImGui::AcceptDragDropPayload("Prefab"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Prefab"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					EditorUtilities::GameObject_CreatePrefab(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+				}
+			}
 			ImGui::EndDragDropTarget();
 		}
 
@@ -284,7 +326,7 @@ namespace SliceEditor
 				{
 					if(sessionManager->IsPrefabInspected())
 					{
-						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected());
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected(), sessionManager->IsPrefabInspected());
 					}
 					else
 					{

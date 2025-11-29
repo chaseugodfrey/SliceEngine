@@ -33,6 +33,11 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct PrefabEditingEntity
+	{
+
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;
@@ -70,6 +75,7 @@ namespace SliceEngine
 
 	struct Script
 	{
+		bool componentEnabled{ true };
 		std::string scriptName;
 
 		// purely for serialization and deserialization
@@ -115,11 +121,11 @@ namespace SliceEngine
 
 		glm::vec3 GetWorldScale()
 		{
-			glm::vec3 scale;
-			scale.x = glm::length(glm::vec3(transform[0]));
-			scale.y = glm::length(glm::vec3(transform[1]));
-			scale.z = glm::length(glm::vec3(transform[2]));
-			return scale;
+			glm::vec3 _scale{};
+			_scale.x = glm::length(glm::vec3(transform[0]));
+			_scale.y = glm::length(glm::vec3(transform[1]));
+			_scale.z = glm::length(glm::vec3(transform[2]));
+			return _scale;
 		}
 
 		void SetWorldPosition(const glm::vec3& newPos)
@@ -155,6 +161,8 @@ namespace SliceEngine
 		// blank for now because I just need to use this for factory stuff
 	};
 
+	struct SelectedEntity{};
+
 	//XPROPERTY_REG(Transform);
 
 	enum RENDER_TAG : unsigned char
@@ -186,6 +194,7 @@ namespace SliceEngine
 
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
+		bool componentEnabled{ true };
 		bool skinned{ false };
 
 		RTTR_ENABLE();
@@ -193,7 +202,6 @@ namespace SliceEngine
 
 	struct Camera
 	{
-		bool componentEnabled{ true };
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
@@ -207,6 +215,7 @@ namespace SliceEngine
 		float vignetteSmoothness{ 0.7f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
 
@@ -230,6 +239,8 @@ namespace SliceEngine
 
 	struct Prefab
 	{
+		unsigned int prefabID;
+
 		// GUID reference to original prefab
 		GUID prefabGUID;
 

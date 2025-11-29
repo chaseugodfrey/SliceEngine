@@ -118,6 +118,16 @@ namespace SliceEngine
             return entity;
         }
 
+        public GameObject[] FindGameObjectsWithTag(string tag)
+        {
+            return gameObject.FindGameObjectsWithTag(tag);
+        }
+
+        public GameObject FindGameObjectWithName(string name)
+        {
+            return gameObject.FindGameObjectWithName(name);
+        }
+
         public void Destroy()
         {
             StopAllCoroutines();

@@ -148,6 +148,7 @@ namespace SliceEngine
 		}
 
 		GameObject CreateBlank(); // for deserializing
+		GameObject CreateBlanker(); // for prefab editing. doesn't add to mNameToEntity
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");

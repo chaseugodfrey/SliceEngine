@@ -24,11 +24,12 @@ namespace SliceEngine
 			//	return new Scene(path);
 			//}
 			Scene() = default;
-			Scene(std::string name) : filePath(name) {}
+			Scene(std::filesystem::path name) : filePath(name) {}
 			~Scene() = default;
-			inline std::string GetFilePath() const { return filePath; }
+			inline std::filesystem::path GetFilePath() const { return filePath; }
+			GUID GetNavMeshGUID();
 		private:
-			std::string filePath;
+			std::filesystem::path filePath;
 		};
 	}
 }
