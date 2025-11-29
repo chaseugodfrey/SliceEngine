@@ -77,9 +77,15 @@ namespace SliceEngine
                 return Vector3.Zero;
             }
         }
+
+        public float SquareMagnitude()
+        {
+            return (float)(x * x + y * y + z * z);
+        }
+
         public float Magnitude()
         {
-            return (float)Math.Sqrt(x * x + y * y + z * z); 
+            return (float)Math.Sqrt(x * x + y * y + z * z);
         }
 
         public float Distance(Vector3 v)
@@ -313,6 +319,25 @@ namespace SliceEngine
 
             if (dist <= maxDelta || dist == 0f) return target;
             return current + delta / dist * maxDelta;
+        }
+
+        public static Vector3 Project(Vector3 a, Vector3 b)
+        {
+            float denom = b.SquareMagnitude();
+            if (denom < Utilities.Epsilon) return new Vector3(0f);
+            return b * (Vector3.Dot(a, b) / denom);
+        }
+
+        // For Bouncy bounce
+        public static Vector3 Reflect(Vector3 direction, Vector3 normal)
+        {
+            return direction - 2f * Vector3.Dot(direction, normal) * normal;
+        }
+
+        // For movement on uneven terrain
+        public static Vector3 ProjectOnPlane(Vector3 v, Vector3 normal)
+        {
+            return v - Project(v, normal);
         }
     }
 }

@@ -32,7 +32,6 @@ namespace SliceEngine
         {
             time = 0.0f;
             //fixedTime = 0.0f;
-            //SliceLog.Log("Kroniichiwa");
         }
 
         // Done this way to prevent overhead caused by reaching all the way into the engine to get its delta time in framrate manager
@@ -40,14 +39,12 @@ namespace SliceEngine
         {
             deltaTime = dt;
             time += dt;
-            //SliceLog.Log("Im from Arizona");
         }        
         // Not working idk why
         //public void OnFixedUpdate(float dt)
         //{
         //    fixedDeltaTime = dt;
         //    fixedTime += fixedDeltaTime;
-        //    SliceLog.Log("Suicide by 5 rounds to the back of the head RIP");
         //}       
     }
 }

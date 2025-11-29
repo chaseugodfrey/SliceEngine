@@ -22,14 +22,11 @@ namespace SliceEngine
         {
             get
             {
-                //Console.WriteLine($"Entity ID:{Entity.mID}");
                 FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 position);
                 return position;
             }
             set
             {
-                //Console.WriteLine($"Entity ID:{Entity.mID}");
-                
                 FunctionCalls.Transform_SetPosition(gameObject.mID, ref value);
             }
         }

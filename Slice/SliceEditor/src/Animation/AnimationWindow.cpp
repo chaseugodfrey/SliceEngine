@@ -434,28 +434,30 @@ namespace SliceEditor
 						float safe_time = std::min(mCurrentTime, anim->duration);
 						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
 						UpdateTransform(anim, safe_time);
+						UpdateBoneScene(tmpEnt);
+						UpdateBones();
 					}
 				}
 
 				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
 
-				if (!ret)
-				{
+				//if (!ret)
+				//{
 					// update scenegraph
 					//auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
 					//for (auto entity : viewBone)
-					{
+					/*{
 						UpdateBoneScene(tmpEnt);
-					}
+					}*/
 
-					UpdateBones();
+					//UpdateBones();
 
 					/*auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
 					for (auto entity : viewAnimator)
 					{
 						UpdateBones(entity);
 					}*/
-				}
+				//}
 				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 			}
 		}

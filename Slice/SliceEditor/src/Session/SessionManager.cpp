@@ -4,6 +4,10 @@
 #include "ContentBrowser/ContentBrowserManager.h"
 #include "../../SliceEngine/src/Systems/PrefabSystem.h"
 #include <Core/EventManager.h>
+#include <WindowManager/WindowManager.h>
+
+#include <Systems/SceneSystem.h>
+#include <Systems/PrefabSystem.h>
 
 namespace SliceEditor
 {
@@ -18,6 +22,7 @@ namespace SliceEditor
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
 		eventManager->Subscribe<OnSceneStopEvent, &SessionManager::OnSceneStop>(this);
+		eventManager->Subscribe<OnSceneSaveEvent, &SessionManager::OnSceneSave>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 
@@ -96,6 +101,34 @@ namespace SliceEditor
 	Preferences& SessionManager::GetPreferences()
 	{
 		return *mPreferences.get();
+	}
+
+	void SessionManager::OnSceneSave(OnSceneSaveEvent e)
+	{
+		auto windowManager = registry.GetManager<WindowManager>("Windows");
+
+		if (isSavingScene)
+			return;
+
+		isSavingScene = true;
+		isSavingDone = false;
+		windowManager->OpenSaveScenePopup();
+
+		std::thread([&, windowManager]()
+			{
+				std::chrono::steady_clock::time_point before = std::chrono::steady_clock::now();
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				std::chrono::steady_clock::time_point after = std::chrono::steady_clock::now();
+				std::chrono::duration<double, std::milli> dur = after - before;
+				duration = dur.count();
+
+				SLICE_LOG("Scene saving took (" + std::to_string(duration) + "ms.)");
+
+				isSavingScene = false;
+				isSavingDone = true;
+				windowManager->CloseSaveScenePopup();
+
+			}).detach();
 	}
 
 	void SessionManager::CreateEntityNodes()
@@ -180,7 +213,7 @@ namespace SliceEditor
 		else
 		{
 			//Delete the Root Entity from GOFactory
-			SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
+			//SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
 			
 			//Clear Session Manager Variables
 			mPrefabRootEntity = entt::null;

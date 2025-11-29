@@ -275,7 +275,13 @@ namespace SliceEditor
 
 		void Scene_Save()
 		{
-			SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+
+
+		}
+
+		void Scene_CleanTempFiles(Registry& registry)
+		{
+			registry.GetAssetManager().CleanUpSceneTemp();
 		}
 
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)

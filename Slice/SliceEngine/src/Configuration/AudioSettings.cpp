@@ -467,6 +467,8 @@ namespace SliceEngine
 				audioComp.volumeRollOff = entry->volumeRollOff;
 				audioComp.playOnAwake = false;
 
+				
+
 				bool isSFXPlaying = false;
 
 				audioComp.channel->isPlaying(&isSFXPlaying);
@@ -498,7 +500,7 @@ namespace SliceEngine
 
 			audioComp.channel->isPlaying(&isSFXPlaying);
 
-			if (audioComp.channel == nullptr || !isSFXPlaying)
+			if ((audioComp.channel == nullptr || !isSFXPlaying))
 			{
 
 				audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });

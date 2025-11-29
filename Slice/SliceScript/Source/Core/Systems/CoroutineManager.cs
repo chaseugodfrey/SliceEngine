@@ -13,8 +13,7 @@ namespace SliceEngine
     }
 
     public class CoroutineManager
-    {
-
+    { 
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
 

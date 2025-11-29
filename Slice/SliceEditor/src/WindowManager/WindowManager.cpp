@@ -98,6 +98,18 @@ namespace SliceEditor
 		{
 			window->Draw();
 		}
+
+		DrawSavePopupModal();
+	}
+
+	void WindowManager::CloseSaveScenePopup()
+	{
+		saveSceneAsPopupClose = true;
+	}
+
+	void WindowManager::OpenSaveScenePopup()
+	{
+		saveSceneAsPopupOpen = true;
 	}
 
 	void WindowManager::DrawMainMenu()
@@ -121,22 +133,28 @@ namespace SliceEditor
 				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
 					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-					std::filesystem::path currentSceneTemp = currentScenePath.replace_extension(".temp"); //SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath().replace_extension(".temp");
 
-
-					if (std::filesystem::exists(currentSceneTemp))
+					//Check if the current scene set is already a temp scene
+					if (currentScenePath.extension() == ".temp")
 					{
-						
-						std::filesystem::remove(currentScenePath);
-						currentSceneTemp.replace_extension(".scene");
-						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(currentSceneTemp);
-							
-						
-					}
+						std::filesystem::path originalScenePath = currentScenePath;
+						originalScenePath.replace_extension(".scene");
 
+						//Set to scene path and remove temp file
+						if (std::filesystem::exists(originalScenePath))
+						{
+							
+							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
+							std::filesystem::remove(currentScenePath);
+						}
+
+					}
+					
 				}
 
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				EditorUtilities::Scene_Save();
+				EventManager::GetInstance()->Publish<OnSceneSaveEvent>();
 			}
 
 			if (ImGui::MenuItem("Save Scene As"))
@@ -169,6 +187,11 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
+			if (ImGui::MenuItem("Undo History"))
+			{
+				AddWindow<HistoryWindow>();
+			}
+
 			if (ImGui::MenuItem("Content Browser"))
 			{
 				AddWindow<ContentBrowserWindow>("ContentBrowser");
@@ -176,7 +199,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Console"))
 			{
-
+				AddWindow<ConsoleWindow>();
 			}
 
 			if (ImGui::MenuItem("Game"))
@@ -847,7 +870,7 @@ namespace SliceEditor
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
 					
-					sceneSystem->SaveScene(newScenePath);
+					sceneSystem->OnSceneSave(newScenePath);
 
 					
 					sceneSystem->SetCurrentScenePath(newScenePath);
@@ -910,6 +933,29 @@ namespace SliceEditor
 		if (!isOpen)
 		{
 			newScenePopupOpen = false;
+		}
+	}
+
+	void WindowManager::DrawSavePopupModal()
+	{
+		if (saveSceneAsPopupOpen)
+		{
+			ImGui::OpenPopup("SaveScenePopup");
+			saveSceneAsPopupOpen = false;
+		}
+
+
+		if (ImGui::BeginPopupModal("SaveScenePopup"))
+		{
+			ImGui::Text("Saving...");
+
+			if (saveSceneAsPopupClose)
+			{
+				ImGui::CloseCurrentPopup();
+				saveSceneAsPopupClose = false;
+			}
+
+			ImGui::EndPopup();
 		}
 	}
 

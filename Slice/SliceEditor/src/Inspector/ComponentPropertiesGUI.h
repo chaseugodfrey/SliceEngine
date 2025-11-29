@@ -169,6 +169,9 @@ namespace SliceEditor
 
 	}
 
+	template <>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
+
 	template <typename Enum>
 	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
 	{
