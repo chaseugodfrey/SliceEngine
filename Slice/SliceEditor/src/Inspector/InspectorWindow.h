@@ -90,6 +90,7 @@ namespace SliceEditor
 		void DisplaySpriteRenderer(entt::entity entity);
 		void DisplayCanvas(entt::entity entity);
 		void DisplayButton(entt::entity entity);
+		void DisplaySlider(entt::entity entity);
 #pragma endregion
 
 #pragma region Main Draw Functions

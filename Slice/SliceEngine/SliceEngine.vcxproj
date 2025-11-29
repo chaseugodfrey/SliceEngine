@@ -137,6 +137,7 @@
     <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
+    <ClInclude Include="src\Graphics\UI_Interactible.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
     <ClInclude Include="src\Input\ActionMapping.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
+    <ClCompile Include="src\Graphics\UI_Interactible.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
     <ClCompile Include="src\Input\ActionMapping.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />

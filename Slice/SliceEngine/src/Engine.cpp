@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
 #include "Graphics/CanvasSystem.h"
+#include "Graphics/UI_Interactible.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
 #include "Systems/FramerateManager.h"
@@ -295,6 +296,16 @@ namespace SliceEngine
 			rttr::value("Color", Button::Transition::Color),
 			rttr::value("Sprite", Button::Transition::Sprite)
 			);
+	rttr::registration::enumeration<Slider::Axis>("SliderAxis")
+		(
+			rttr::value("X_Axis", Slider::Axis::X_Axis),
+			rttr::value("Y_Axis", Slider::Axis::Y_Axis)
+			);
+	rttr::registration::enumeration<Slider::Direction>("SliderDirection")
+		(
+			rttr::value("Positive", Slider::Direction::Positive),
+			rttr::value("Negative", Slider::Direction::Negative)
+			);
 	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
 		(
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
@@ -422,6 +433,15 @@ namespace SliceEngine
 		.constructor<>()
 		.property("transition", &Button::transition)
 		.property("componentEnabled", &Button::componentEnabled);
+
+	rttr::registration::class_<Slider>(typeid(Slider).name())
+		.constructor<>()
+		.property("Axis", &Slider::axis)
+		.property("Direction", &Slider::direction)
+		.property("handle", &Slider::handle)
+		.property("fill", &Slider::fill)
+		.property("value", &Slider::value)
+		.property("enabled", &Slider::componentEnabled);
 	//.property("colors", &Button::color_transitions)
 	//.property("sprites", &Button::sprite_transitions);
 
@@ -540,6 +560,7 @@ namespace SliceEngine
 
 		Core::GetInstance()->InitSystem<CanvasSystem>();
 		Core::GetInstance()->InitSystem<ButtonSystem>();
+		Core::GetInstance()->InitSystem<SliderSystem>();
 
 		Core::GetInstance()->InitSystem<ParticleSystemManager>();
 		Core::GetInstance()->InitSystem<PrefabSystem>();
@@ -609,6 +630,7 @@ namespace SliceEngine
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
 
 		static bool isPlaying = false;
@@ -754,10 +776,17 @@ namespace SliceEngine
 			}
 
 
-			frm->StartSystem("Button");
-			sButton.HandleMouse(*sInputs, sCanvas);
-			//sButton.UpdateCurrentButton();
-			frm->EndSystem("Button");
+			//somehow convert to pixel coord
+			glm::vec2 mouse_coord = sInputs->GetMousePosition();
+			//for now im just gona directly convert to game screen coord
+			unsigned int mouse_x = (unsigned int)mouse_coord.x;
+			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
+		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
+			frm->StartSystem("UI Interaction");
+			sButton.HandleMouse(*sInputs, raycast_target);
+			sSlider.HandleMouse(*sInputs, raycast_target);
+			frm->EndSystem("UI Interaction");
 
 			frm->StartSystem("Navigation System");
 			sNav.Update(static_cast<float>(frm->getDeltaTime()));

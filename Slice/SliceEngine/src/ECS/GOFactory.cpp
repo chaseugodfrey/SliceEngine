@@ -735,6 +735,40 @@ namespace SliceEngine
 
 		return ui_ele;
 	}
+	GameObject GOFactory::CreateGO_Slider()
+	{
+		auto ui_ele = CreateGO("Slider");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 200; ui_rect.height = 50; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+
+		ui_ele.AddComponent<SpriteRenderer>();
+		ui_ele.AddComponent<Slider>();
+
+		GameObject fill = CreateGO_Image();
+		fill.SetName("fill");
+		SetParent(fill.GetEntity(), ui_ele.GetEntity());
+		auto& fill_image = fill.GetComponent<SpriteRenderer>();
+		fill_image.rgba = { 1.f,1.f,1.f,1.f };
+		fill_image.raycast_target = false;
+
+		GameObject handle = CreateGO_Image();
+		handle.SetName("handle");
+		SetParent(handle.GetEntity(), ui_ele.GetEntity());
+		auto& handle_image = handle.GetComponent<SpriteRenderer>();
+		handle_image.rgba = { 0.f,0.f,1.f,1.f };
+		handle_image.raycast_target = false;
+		auto& handle_rect = handle.GetComponent<RectTransform>();
+		handle_rect.width = 50;
+		handle_rect.height = 50;
+
+		auto& slider = ui_ele.GetComponent<Slider>();
+		slider.handle = handle.GetEntity();
+		slider.fill = fill.GetEntity();
+		slider.SetValue(0.f, ui_ele.GetEntity());
+
+		return ui_ele;
+	}
 
 
 	GameObject GOFactory::CreateGO_Model(GUID model_guid) {

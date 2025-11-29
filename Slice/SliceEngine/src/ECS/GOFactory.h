@@ -211,6 +211,7 @@ namespace SliceEngine
 		GameObject CreateGO_Canvas();
 		GameObject CreateGO_Image();
 		GameObject CreateGO_Button();
+		GameObject CreateGO_Slider();
 
 		Registry mRegistry;
 

@@ -223,6 +223,7 @@ namespace SliceEngine
 		auto value = GetActionMappingSystem().GetValue2D(mapName, actionName);
 		return glm::vec2(value.first, value.second);
 	}
+#pragma endregion
 
 #pragma region CONSOLE LOGGING FUNCTIONS
 
@@ -792,27 +793,6 @@ namespace SliceEngine
 
 #pragma endregion
 
-#pragma region COMPONENT REGISTRATION
-	template <typename T>
-	static void RegisterComponent()
-	{
-		std::string_view typeName = typeid(T).name();
-		size_t pos = typeName.find_last_of(':');
-		std::string_view structName = typeName.substr(pos + 1);
-		// so that we can match the C# equivalent of the component
-		std::string modifiedTypename = std::format("SliceEngine.{}", structName);
-
-		MonoType *monoType = mono_reflection_type_from_name(modifiedTypename.data(), gScriptSystem->mCoreAssemblyImage);
-		if (!monoType)
-		{
-			SLICE_LOG_ERROR("Couldn't find component");
-			assert("Can't find component");
-			return;
-		}
-		// Old method of storing has component functions
-		mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>(); };
-	}
-
 #pragma region SCENE FUNCTIONS
 
 
@@ -878,6 +858,64 @@ namespace SliceEngine
 
 	}
 #pragma endregion
+
+
+#pragma region UI FUNCTIONS
+
+	static float Slider_GetValue(uint32_t entityID)
+	{
+		auto* core = SliceEngine::Core::GetInstance();
+
+		entt::registry& registry = core->GetRegistry();
+
+		entt::entity e = (entt::entity)entityID;
+		if (!registry.valid(e) || !registry.any_of<Slider>(e))
+		{
+			return 0.f;
+		}
+
+		auto const& slider = registry.get<Slider>(e);
+		return slider.GetValue();
+	}
+
+	static void Slider_SetValue(uint32_t entityID, float value)
+	{
+		auto* core = SliceEngine::Core::GetInstance();
+
+		entt::registry& registry = core->GetRegistry();
+
+		entt::entity e = (entt::entity)entityID;
+		if (!registry.valid(e) || !registry.any_of<Slider>(e))
+		{
+			return;
+		}
+
+		auto& slider = registry.get<Slider>(e);
+		slider.SetValue(value, e);
+	}
+
+#pragma endregion
+
+#pragma region COMPONENT REGISTRATION
+	template <typename T>
+	static void RegisterComponent()
+	{
+		std::string_view typeName = typeid(T).name();
+		size_t pos = typeName.find_last_of(':');
+		std::string_view structName = typeName.substr(pos + 1);
+		// so that we can match the C# equivalent of the component
+		std::string modifiedTypename = std::format("SliceEngine.{}", structName);
+
+		MonoType* monoType = mono_reflection_type_from_name(modifiedTypename.data(), gScriptSystem->mCoreAssemblyImage);
+		if (!monoType)
+		{
+			SLICE_LOG_ERROR("Couldn't find component");
+			assert("Can't find component");
+			return;
+		}
+		// Old method of storing has component functions
+		mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>(); };
+	}
 	/// <summary>
 /// Register the component. Clear the map before registering
 /// </summary>
@@ -892,6 +930,7 @@ namespace SliceEngine
 		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
 		RegisterComponent<NavAgent>();
+		RegisterComponent<Slider>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
@@ -998,6 +1037,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_HasPath);
 
+		//UI
+		ADD_INTERNAL_CALL(Slider_GetValue);
+		ADD_INTERNAL_CALL(Slider_SetValue);
 	}
 
 #pragma endregion

@@ -365,6 +365,17 @@ namespace SliceEngine
 
 			}
 
+			if (rootGO.HasComponent<Slider>()) {	//handle and fill entity remapping for slider
+				auto entityView = registry.view<Slider>();
+				for (auto entity : entityView) {
+					auto& slider = registry.get<Slider>(entity);
+
+					slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+				}
+			}
+
+
 			return rootEntity;
 		}
 		std::vector<rttr::variant> DeserializePrefabComponents(std::filesystem::path const& filePath)
@@ -780,6 +791,15 @@ namespace SliceEngine
 			for (auto entity : entityView)
 			{
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+			}
+
+			//remap for slider
+			auto sliderView = registry.view<Slider>();
+			for (auto entity : sliderView) {
+				auto& slider = registry.get<Slider>(entity);
+
+				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
 			}
 
 			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);

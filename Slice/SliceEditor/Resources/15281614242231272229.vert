@@ -8,17 +8,7 @@ layout (location=0) out vec2 vTextureCoord;
 uniform mat4 canvas_to_ndc;		//from canvas
 uniform mat4 M;					//from recttransform
 
-/*
-struct InstanceData{
-	mat4 pos;
-	vec4 color;
-	//ivec4 rect_eid_depth;   //dont really need this additional info yet
-};
 
-layout(std430, binding = 1) readonly buffer InstanceBuffer {
-    InstanceData instance_data[];
-};
-*/
 
 void main(void){
 	vTextureCoord 	= aTextureCoord;
