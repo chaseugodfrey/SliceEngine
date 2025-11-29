@@ -305,6 +305,26 @@ namespace SliceEngine
 		}
 	}
 
+	static float RigidBody_GetGravityFactor(unsigned int entity)
+	{	
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().GetGravityFactor((Entity)entity);
+	}
+
+	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+	}
+
+	static bool RigidBody_IsGravityOff(unsigned int entity)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().IsGravityOff((Entity)entity);
+	}
+
+	static void RigidBody_OffGravity(unsigned int entity, bool condition)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+	}
+
 #pragma endregion
 
 #pragma region ColliderShape FUNCTIONS
@@ -983,6 +1003,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
 		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
 		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
+		ADD_INTERNAL_CALL(RigidBody_GetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
+		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

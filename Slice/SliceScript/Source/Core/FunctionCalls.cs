@@ -46,6 +46,18 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float RigidBody_GetGravityFactor(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_SetGravityFactor(uint entityID, float factor);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody_IsGravityOff(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_OffGravity(uint entityID, bool condition);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool ColliderShape_IsEnabled(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
