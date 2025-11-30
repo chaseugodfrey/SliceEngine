@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include "pch.h"
 #include "CanvasSystem.h"
 #include "../Core/Core.h"
+#include "CameraSystem.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -109,20 +110,15 @@ namespace SliceEngine {
 		* for now just draw game camera, deal with scene view later
 		*/
 		auto core = SliceEngine::Core::GetInstance();
-		auto cam_view = core->GetRegistry().view<SliceEngine::Camera>();
 
-		if (cam_view.size() == 0)
-		{
-			return;
-		}
-
-		auto first_cam = *cam_view.begin();
-		if (!core->GetRegistry().any_of<SliceEngine::SceneGraph>(first_cam)) {
+		auto const& cam_sys = core->GetSystem<CameraSystem>();
+		auto main_cam = cam_sys.mainCam.value_or(entt::null);
+		if (main_cam == entt::null) {
 			return;	//not a game camera
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(first_cam);
+		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(main_cam);
 		glViewport(0, 0, cam.width, cam.height);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cam.textureID, 0);
@@ -167,7 +163,7 @@ namespace SliceEngine {
 		glDrawBuffers(2, render_targets);
 		CheckGLError();
 		for (auto entity : overlay_canvas) {
-			render_ui_overlay(entity, first_cam, entities_to_draw);
+			render_ui_overlay(entity, main_cam, entities_to_draw);
 		}
 		CheckGLError();
 
@@ -176,7 +172,7 @@ namespace SliceEngine {
 		//glDrawBuffers(1, render_eid);
 		CheckGLError();
 		for (auto entity : overlay_canvas) {
-			render_ui_eids(entity, first_cam, entities_to_draw);
+			render_ui_eids(entity, main_cam, entities_to_draw);
 		}
 		CheckGLError();
 
