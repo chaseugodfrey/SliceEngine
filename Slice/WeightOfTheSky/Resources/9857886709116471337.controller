@@ -346,15 +346,83 @@
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
-                            "paramName": "DoubleJump",
+                            "paramName": "AirDashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.7,
+                    "hasExitTime": true,
+                    "sourceState": "JumpLoop",
+                    "targetState": "AirDashStart"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
                             "value": null
                         }
                     ],
                     "entryTime": 0.0,
                     "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "JumpLoop",
-                    "targetState": "DoubleJump"
+                    "hasExitTime": true,
+                    "sourceState": "Idle",
+                    "targetState": "Idle"
+                }
+            ]
+        },
+	"AirDashStart": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "AirDashStart",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Plunge",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Plunge"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Idle"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Walk"
                 }
             ]
         },
@@ -381,7 +449,22 @@
                     "hasExitTime": false,
                     "sourceState": "Plunge",
                     "targetState": "PlungeLand"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "AirDashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Plunge",
+                    "targetState": "AirDashStart"
                 }
+
             ]
         },
         "PlungeLand": {
