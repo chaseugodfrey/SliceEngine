@@ -1,0 +1,41 @@
+using SliceEngine;
+using System;
+
+
+namespace SliceEngine
+{
+    public class MainMenuButtons : SliceBehaviour
+    {
+        public float isPlay = 1.0f;
+
+        public override void OnButtonClick()
+        {
+            AudioSource myAudio = gameObject.FindGameObjectWithName("MainMenu_Sfx").GetComponent<AudioSource>();
+
+            if (isPlay > 0.5f)
+            {
+                gameObject.FindGameObjectWithName("MainMenu_Cam").As<MainMenuCamera>().ActivateMainMenuCamera();
+                if (myAudio != null)
+                {
+                    myAudio.Play();
+                    SliceLog.Log("MainMenu Audio");
+                }
+                SliceLog.Log("Click Play");
+            }
+            else
+            {
+                if (myAudio != null)
+                {
+                    myAudio.Play();
+                    SliceLog.Log("MainMenu Audio");
+                }
+                SliceLog.Log("Click Exit");
+            }
+        }
+
+        public override void OnButtonRelease()
+        {
+            gameObject.FindGameObjectWithName("MainMenu_Canvas").Destroy();
+        }
+    }
+}
