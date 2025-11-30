@@ -29,6 +29,26 @@ namespace SliceEngine
             SpawnSpawners();
         }
 
+        private void ProgressCheck()
+        {
+            //Check if they need to increase the stage
+        }
+
+        private void StartGame()
+        {
+            //Begin Game
+            spawning = true;
+        }
+
+        public void Win()
+        {
+            //End game through winning
+        }
+        private void Lose()
+        {
+            //End game through losing
+        }
+
         public string spawnTags = "Spawn Location";
 
         public string enemySlimePrefabName = "EnemyTest";
@@ -116,10 +136,12 @@ namespace SliceEngine
             if (spawning)
             { SpawnSpawnerEnemies(); }
 
+            /*
             if (Input.IsKeyDown(Keys.KEY_0))
             {
                 IncreaseStage();
             }
+            */
         }
 
         private void SpawnSpawnerEnemies()
@@ -143,6 +165,7 @@ namespace SliceEngine
                             Console.WriteLine("THERE IS A SLIME COMPONENT BUT LETS SEE IF IT CRASHESSs");
                             SliceLog.Console("Enemy Slime component found");
                             just.As<EnemySlime>().SetUp();
+                            OnSpawn(just);
                         }
                         else
                         {
@@ -159,11 +182,11 @@ namespace SliceEngine
         {
             internalTimer += Time.deltaTime;
 
-            //if (firstSpawn == true)
-            //{
-            //    firstSpawn = false;
-            //    return true;
-            //}
+            if (firstSpawn == true)
+            {
+                firstSpawn = false;
+                return true;
+            }
 
             if (internalTimer >= waitBetweenSpawns)
             {
@@ -172,6 +195,7 @@ namespace SliceEngine
             }
             return false;
         }
+
         public void OnSpawn(GameObject spawnedObject)
         {
             enemyList.Add(spawnedObject.mID, spawnedObject.As<EnemySlime>());
