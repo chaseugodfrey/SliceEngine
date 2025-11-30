@@ -35,7 +35,7 @@ namespace SliceEngine
             //float deltaToApply = newPitch - pitch;
             //pitch = newPitch;
 
-            //transform.Rotate(clampedPitch, Vector3.Right);
+            transform.Rotate(clampedPitch, Vector3.Right);
 
             //Vector2 mousePos = Input.GetMousePosition();
             //Console.WriteLine("Mouse Position: X=" + mousePos.x + " Y=" + mousePos.y);

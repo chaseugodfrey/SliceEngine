@@ -61,36 +61,9 @@ namespace SliceEngine
     // function is used to track mouse position
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
-        static double lastX = 0.0;
-        static double lastY = 0.0;
-        static bool first = true;
-
         auto inputS = Core::GetInstance()->GetInputSystem();
 
         inputS->SetMousePosition(xpos, ypos);
-
-        if (inputS->GetCursorState() == SliceEngine::CursorState::DISABLED)
-        {
-            if (first)
-            {
-                lastX = xpos;
-                lastY = ypos;
-                first = false;
-            }
-
-            double dx = xpos - lastX;
-            double dy = ypos - lastY;
-
-            lastX = xpos;
-            lastY = ypos;
-
-            inputS->SetMouseDelta(dx, dy);
-        }
-        else
-        {
-            first = true;
-            inputS->SetMouseDelta(0, 0); // or reset however you want
-        }
     }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -120,6 +93,7 @@ namespace SliceEngine
             return;
         }
 
+        mouseDelta = { 0.0f, 0.0f };
         scrollDelta = 0.0f; // reset each frame
     }
 
@@ -165,6 +139,7 @@ namespace SliceEngine
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
+        mouseDelta = prevMousePos - currMousePos;
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
     }

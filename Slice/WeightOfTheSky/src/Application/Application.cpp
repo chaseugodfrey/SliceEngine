@@ -29,7 +29,7 @@ namespace SliceBuild
 
 		engine.SceneInit();
 
-		inputSys->SetMode(SliceEngine::InputMode::Editor);
+		//inputSys->SetMode(SliceEngine::InputMode::Editor);
 
 		EventManager::GetInstance()->Publish<OnPlayEvent>();
 
