@@ -76,6 +76,10 @@ namespace SliceEngine
             return a + (b - a) * t;
         }
 
+        public static Vector3 Lerp(Vector3 a, Vector3 b, float t)
+        {
+            return new Vector3(Lerp(a.x, b.x, t), Lerp(a.y, b.y, t), Lerp(a.z, b.z, t));
+        }
         /// <summary>
         /// Calculates the normalized interpolation factor between two values.
         /// </summary>

@@ -65,6 +65,22 @@ namespace SliceEngine
                 FunctionCalls.Transform_SetRotationQuat(gameObject.mID, ref rotationQuat);
             }
         }
+        public Vector3 WorldPosition
+        {
+            get
+            {
+                FunctionCalls.Transform_GetWorldPosition(gameObject.mID, out Vector3 worldPosition);
+                return worldPosition;
+            }
+        }
+        public Quaternion WorldRotationQuat
+        {
+            get
+            {
+                FunctionCalls.Transform_GetWorldRotationQuat(gameObject.mID, out Quaternion worldRotataionQuat);
+                return worldRotataionQuat;
+            }
+        }
 
         public Vector3 Right { get { return RotationQuat * Vector3.Right; } }
         public Vector3 Left { get { return RotationQuat * Vector3.Left; } }

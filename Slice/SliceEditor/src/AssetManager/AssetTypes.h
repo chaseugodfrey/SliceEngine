@@ -42,9 +42,21 @@ namespace SliceEditor
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
+		//ima be real idk whats the diff between signed and unsigned, im just yoinking these enums from compressonator
+		//same as idk what exactly these are used for, will ask tomas next time
+		//ref: https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/#bc1
+		
 		//		RGBA_UNCOMPRESSED,
-		RGB_BC1,
-		RGBA_BC3
+		BC1,	//RGB + single bit A, color maps, cutout color maps, normal maps
+		BC2,	//rgba kind off, mostly not used anymore
+		BC3,	//rgba, color maps with full alpha, packing color and mono maps together
+		BC4,	//grayscale, height maps, gloss maps, font atlas, any grayscale image
+		BC4s,	//bc4 but signed
+		BC5,	//2x grayscale, tangent maps
+		BC5s,	//bc5 but signed
+		BC6,	//RGB, floats, HDR
+		BC6s,	//bc6 but signed
+		BC7		//RGB/RGBA, high quality color maps, color maps with full alpha
 	};
 	enum MipMapFilter : std::uint8_t {
 		NONE,
@@ -177,7 +189,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::RGBA_BC3 };
+		CompressionFormat cmp_format{ CompressionFormat::BC3 };
 		MipMapFilter mip_filter{ MipMapFilter::NONE };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };

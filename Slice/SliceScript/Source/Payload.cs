@@ -74,7 +74,7 @@ namespace SliceEngine
             {
                 if (!playSound)
                 {
-                    AudioSettings.PlaySFX("Golem_LeftStomp");
+                    AudioSettings.PlaySFX("Golem_LeftStomp", t.Position);
                     playSound = true;
                 }
             }

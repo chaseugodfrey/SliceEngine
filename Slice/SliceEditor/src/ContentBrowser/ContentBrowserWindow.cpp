@@ -504,7 +504,7 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		static std::vector<std::string> compressionFormatNames{ "RGB_BC1" , "RGBA_BC3" };
+		static std::vector<std::string> compressionFormatNames{ "BC1", "BC2" , "BC3", "BC4", "BC4s", "BC5", "BC5s", "BC6", "BC6s", "BC7"};
 		Label("Compression Format: ");
 		if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
 		{

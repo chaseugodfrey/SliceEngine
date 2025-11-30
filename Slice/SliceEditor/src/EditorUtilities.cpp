@@ -182,6 +182,22 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateSlider(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Slider();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
@@ -275,8 +291,26 @@ namespace SliceEditor
 
 		void Scene_Save()
 		{
+			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+			{
+				std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
 
+				//Check if the current scene set is already a temp scene
+				if (currentScenePath.extension() == ".temp")
+				{
+					std::filesystem::path originalScenePath = currentScenePath;
+					originalScenePath.replace_extension(".scene");
 
+					//Set to scene path and remove temp file
+					if (std::filesystem::exists(originalScenePath))
+					{
+						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
+						std::filesystem::remove(currentScenePath);
+					}
+				}
+
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+			}
 		}
 
 		void Scene_CleanTempFiles(Registry& registry)
@@ -388,7 +422,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Slider"))
 				{
-					//EditorUtilities::GameObject_CreateSlider(entt::null, history); - its jsut button with extra stuff
+					EditorUtilities::GameObject_CreateSlider(entt::null, history);
 				}
 
 				ImGui::EndMenu();
