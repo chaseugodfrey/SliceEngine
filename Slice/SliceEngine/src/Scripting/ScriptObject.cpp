@@ -158,6 +158,7 @@ namespace SliceEngine
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
@@ -229,6 +230,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnEntityDestroy(unsigned int id)
+	{
+		if (mOnEntityDestroy)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityDestroy, &param);
 		}
 	}
 
