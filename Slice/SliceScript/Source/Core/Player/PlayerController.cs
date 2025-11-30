@@ -94,6 +94,7 @@ namespace SliceEngine
             HandleInput();
             if (canMove) HandleMovement();
             AttackResetTimer();
+            //AnimationStateHandling();
         }
         private void HandleInput()
         {
@@ -164,10 +165,29 @@ namespace SliceEngine
         {
             if (CanJump())
             {
-                animator.SetBool("JumpLoop", true);
 
                 rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
                 jumpCounter++;
+
+                if (jumpCounter == 1)
+                {
+                    if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+                            String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+                            String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                            String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                            String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+                            String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+                        animator.SetBool("JumpLoop", true);
+                }
+                else if (jumpCounter == 2)
+                {
+                    if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                                String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+                    {
+                        animator.SetBool("AirDashStart", true);
+                    }
+                }
+
                 rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
                 groundCheckLocked = true;
                 grounded = false;
@@ -198,7 +218,13 @@ namespace SliceEngine
                 if (grounded)
                 {
                     jumpCounter = 0;
-                    animator.SetBool("Idle", true);
+                    if (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                        String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
+                        animator.SetBool("Idle", true);
                 }
             }
         }
@@ -335,24 +361,27 @@ namespace SliceEngine
         }
         private void TryAttack()
         {
-            attackCounter++;
-            if (attackCounter > 3) attackCounter = 1;
-            switch (attackCounter)
+            if (!isAttacking)
             {
-                case 1:
-                    attack1HB.OnAttack.Invoke();
-                    break;
-                case 2:
-                    attack2HB.OnAttack.Invoke();
-                    break;
-                case 3:
-                    attack3HB.OnAttack.Invoke();
-                    break;
-                default:
-                    break;
+                attackCounter++;
+                if (attackCounter > 3) attackCounter = 1;
+                switch (attackCounter)
+                {
+                    case 1:
+                        attack1HB.OnAttack.Invoke();
+                        break;
+                    case 2:
+                        attack2HB.OnAttack.Invoke();
+                        break;
+                    case 3:
+                        attack3HB.OnAttack.Invoke();
+                        break;
+                    default:
+                        break;
+                }
+                attackResetTimer = 0f;
+                Console.WriteLine("Attack Counter: " + attackCounter);
             }
-            attackResetTimer = 0f;
-            Console.WriteLine("Attack Counter: " + attackCounter);
         }
         private void AttackResetTimer()
         {
@@ -365,13 +394,20 @@ namespace SliceEngine
         }
         private void Attack1()
         {
+            //if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
+            //{
+            //    animator.SetBool("Attack1", true);
+            //}
+            //StartCoroutine(InAttackCoroutine(attack1Duration, null));
             animator.SetBool("Attack1", true);
             StartCoroutine(InAttackCoroutine(attack1Duration, () =>
             {
                 animator.SetBool("AttackToIdle1", true);
                 Console.WriteLine("Attack 1 finished");
+                Console.WriteLine(animator.GetCurrAnimName());
                 StartCoroutine(AnimationCoroutine(1.316f, () =>
                 {
+                    Console.WriteLine(animator.GetCurrAnimName());
                     animator.SetBool("Idle", true);
                     Console.WriteLine("Returned to idle");
                 }));
@@ -385,10 +421,15 @@ namespace SliceEngine
         }
         private void Attack2()
         {
+            //if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+            //{
+            //    animator.SetBool("Attack2", true);
+            //}
+            //StartCoroutine(InAttackCoroutine(attack2Duration, null));
             animator.SetBool("Attack2", true);
             StartCoroutine(InAttackCoroutine(attack2Duration, () =>
             {
-                animator.SetBool("AttackToIdle2", true); 
+                animator.SetBool("AttackToIdle2", true);
                 Console.WriteLine("Attack 2 finished");
                 StartCoroutine(AnimationCoroutine(0.816f, () =>
                 {
@@ -405,6 +446,11 @@ namespace SliceEngine
         }
         private void Attack3()
         {
+            //if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+            //{
+            //    animator.SetBool("Attack3", true);
+            //}
+            //StartCoroutine(InAttackCoroutine(attack3Duration, null));
             animator.SetBool("Attack3", true);
             StartCoroutine(InAttackCoroutine(attack3Duration, null));
             List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
@@ -429,6 +475,21 @@ namespace SliceEngine
         {
             yield return new WaitForSeconds(duration);
             endAction?.Invoke();
+        }
+        private void AnimationStateHandling()
+        {
+            if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+            {
+                animator.SetBool("AttackToIdle1", true);
+            }
+            if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+            {
+                animator.SetBool("AttackToIdle2", true);
+            }
+            if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+            {
+                animator.SetBool("Attack3ToLoco", true);
+            }
         }
         #endregion
         public override void OnCollideEnter(uint other)
