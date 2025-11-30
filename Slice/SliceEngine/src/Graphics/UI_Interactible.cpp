@@ -283,6 +283,11 @@ namespace SliceEngine {
 #pragma endregion
 
 #pragma region Button
+
+	void ButtonSystem::InitSystem() {
+		current_button = entt::null;
+	}
+
 	/*
 	* there are 2 possibilities
 	* mouse is down/up
