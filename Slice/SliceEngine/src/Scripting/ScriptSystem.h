@@ -159,6 +159,8 @@ namespace SliceEngine
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
 
+		//Slider events
+		void OnSliderValue(const OnSliderValueEvent& event);
 
 		// Variables
 		MonoDomain* mRootDomain;

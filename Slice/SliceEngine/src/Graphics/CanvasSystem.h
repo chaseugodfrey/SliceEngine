@@ -72,44 +72,17 @@ namespace SliceEngine
 	private:
 		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
 
-		void get_node_render(std::vector<std::pair<Entity, GUID>>&, Entity);
+		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
-		void render_ui_overlay(Entity canvas, std::vector<std::pair<Entity, GUID>> const& elements);
+		void render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 
 		//k i realised how render manager uses fbo now
 		unsigned int fbo{};
 		unsigned int raycast_tex{};
+		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
 	};
 
-	/*
-	* logically only 1 button should ever be pressed at a time, gona go with this constraint for now
-	* this also means only 1 button should ever need to update, which depends on input system
-	*/
-	struct buttonEntity {};
-	struct ButtonSystem : BaseSystem<buttonEntity, Button, RectTransform, SpriteRenderer>
-	{
-		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
-
-		//updates the current button and its state depending on input system and canvas raycast
-		void HandleMouse(InputSystem&, CanvasSystem const&);
-
-	private:
-		Entity current_button{ entt::null };
-
-		enum Events {
-			None,
-			Highlight,
-			LeaveHighlight,
-			Click,
-			Cancel,
-			Release
-		};
-
-		//updates the image state of the current button if there is one
-		void update_button(Entity, Events);
-	};
 
 	//do i need a system for 2d, prob no for now
 	//struct canvasEntity {};

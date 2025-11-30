@@ -121,6 +121,11 @@ struct OnButtonReleaseEvent
 {
 	Entity entity;
 };
+struct OnSliderValueEvent
+{
+	Entity entity;
+	float value;
+};
 
 struct OnPrefabModifiedEvent
 {

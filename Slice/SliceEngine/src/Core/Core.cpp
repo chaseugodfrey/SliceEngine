@@ -80,6 +80,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
 		mFactory.RegisterComponent<Button>();
+		mFactory.RegisterComponent<Slider>();
 
 		mFactory.RegisterComponent<NavAgent>();
 
