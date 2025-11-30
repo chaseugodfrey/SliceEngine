@@ -19,6 +19,9 @@ namespace SliceEngine
         internal extern static void Transform_GetPosition(uint entityID, out Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldPosition(uint entityID, out Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetPosition(uint entityID, ref Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -35,6 +38,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_GetRotationQuat(uint entityID, out Quaternion rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldRotationQuat(uint entityID, out Quaternion rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);

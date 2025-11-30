@@ -23,10 +23,10 @@ namespace SliceEngine
         {
             isActivated = true;
             timeSinceActivated = 0.0f;
-            startCamPosition = transform.Position;
-            startCamRot = transform.RotationQuat;
-            finalCamPosition = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().Position;
-            finalCamRot = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().RotationQuat;
+            startCamPosition = transform.WorldPosition;
+            startCamRot = transform.WorldRotationQuat;
+            finalCamPosition = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().WorldPosition;
+            finalCamRot = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().WorldRotationQuat;
         }
 
         public void Initialize()
