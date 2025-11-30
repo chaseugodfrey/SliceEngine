@@ -58,7 +58,8 @@ namespace SliceEngine
         private Hitbox attack3HB;
 
         // =============== Internal variables =============== 
-        public bool canMove = true;
+        public bool canInput = false;
+        public bool canMove = false;
         private RigidBody rb;
         private GroundCheck groundCheck;
         private Animator animator;
@@ -93,7 +94,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             GroundCheck();
-            HandleInput();
+            if (canInput) HandleInput();
             if (canMove) HandleMovement();
             AttackResetTimer();
         }
@@ -563,6 +564,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source) 
         {
+            Console.WriteLine("Player Taking Damage. Current Health: ");
+            Console.WriteLine(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
         }
 

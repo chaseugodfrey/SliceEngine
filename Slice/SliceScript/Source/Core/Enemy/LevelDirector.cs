@@ -54,17 +54,20 @@ namespace SliceEngine
             //Begin Game
             spawning = true;
             Cursor.state = Cursor.STATE.DISABLED;
+            Bootstrap.HUDManager.SetHealth(1f);
         }
 
         public void Win()
         {
             //End game through winning
+
             spawning = false;
+            Bootstrap.HUDManager.GameWinScreen();
         }
         public void Lose()
         {
             //End game through losing
-            
+            Bootstrap.HUDManager.GameLoseScreen();
         }
 
         public string spawnTags = "Spawn Location";

@@ -27,6 +27,16 @@
             "struct SliceEngine::RigidBody": {
                 "CollisionDetection": "",
                 "angularDamping": 0.05000000074505806,
+                "freezePosition": [
+                    false,
+                    false,
+                    false
+                ],
+                "freezeRotation": [
+                    true,
+                    false,
+                    true
+                ],
                 "friction": 0.5,
                 "gravityFactor": 1.0,
                 "isKinematic": false,
@@ -35,10 +45,10 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145852,
+                "entity_id": 1048662,
                 "neighbours": [
                     4294967295,
-                    3145851,
+                    1048661,
                     4294967295,
                     4294967295
                 ]
@@ -52,11 +62,11 @@
                     },
                     "attackCheckRange": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 3.0
                     },
                     "attackRange": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 4.0
                     },
                     "attackWindUpTiming": {
                         "Type": "float",
@@ -68,7 +78,7 @@
                     },
                     "damage": {
                         "Type": "int",
-                        "Value": 100
+                        "Value": 7
                     },
                     "horKnockback": {
                         "Type": "float",
@@ -80,7 +90,7 @@
                     },
                     "movementSpeed": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 4.0
                     },
                     "stunned": {
                         "Type": "bool",
@@ -145,9 +155,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145851,
+                "entity_id": 1048661,
                 "neighbours": [
-                    3145852,
+                    1048662,
                     4294967295,
                     4294967295,
                     4294967295
@@ -161,18 +171,18 @@
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    180.0,
+                    -90.0,
                     0.0,
                     0.0
                 ],
                 "position": [
                     0.0,
                     0.0,
-                    0.0
+                    -0.10000000149011612
                 ],
                 "rotation": [
-                    -4.371138828673793e-08,
-                    1.0,
+                    -0.7071067690849304,
+                    0.7071067690849304,
                     -0.0,
                     0.0
                 ],

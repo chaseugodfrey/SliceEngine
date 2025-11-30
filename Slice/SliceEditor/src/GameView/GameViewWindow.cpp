@@ -176,7 +176,7 @@ namespace SliceEditor
 
 					input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
 					if (fabs(worldSpaceMouse.x - lastWorldSpaceMouse.x) < 100.f && fabs(worldSpaceMouse.y - lastWorldSpaceMouse.y) < 100.f)
-						input->SetMouseDelta(worldSpaceMouse.x - lastWorldSpaceMouse.x, worldSpaceMouse.y - lastWorldSpaceMouse.y);
+						input->SetMouseDelta(lastWorldSpaceMouse.x - worldSpaceMouse.x,lastWorldSpaceMouse.y - worldSpaceMouse.y);
 					else
 						input->SetMouseDelta(0.0, 0.0);
 					lastWorldSpaceMouse = worldSpaceMouse;

@@ -8,10 +8,12 @@ namespace SliceEngine
     {
 
         Slider health;
-        string healthSliderName;
+        public string healthSliderName;
 
-        
-
+        SpriteRenderer victory;
+        public string victoryName;
+        SpriteRenderer defeat;
+        public string defeatName;
         public override void OnCreate()
         {
 
@@ -21,6 +23,17 @@ namespace SliceEngine
         public void SetHealth(float input)
         {
             health.SetValue(input);
+        }
+
+        public void GameWinScreen()
+        {
+            victory.SetEnabled(true);
+        }
+
+        public void GameLoseScreen()
+        {
+
+            defeat.SetEnabled(true);
         }
 
         public override void OnButtonClick()
@@ -36,6 +49,8 @@ namespace SliceEngine
         public void Initialize()
         {
             health = gameObject.FindGameObjectWithName(healthSliderName).GetComponent<Slider>();
+            victory = gameObject.FindGameObjectWithName(victoryName).GetComponent<SpriteRenderer>();
+            defeat = gameObject.FindGameObjectWithName(defeatName).GetComponent<SpriteRenderer>();
         }
     }
 }
