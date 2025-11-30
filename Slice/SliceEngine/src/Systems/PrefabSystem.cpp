@@ -62,6 +62,22 @@ namespace SliceEngine
 				break;
 			}
 		}
+
+		auto& prefab = reg.get<Prefab>(entity);
+
+		if (mPrefabMap.find(prefab.prefabGUID) != mPrefabMap.end())
+		{
+			auto& vec = mPrefabMap[prefab.prefabGUID];
+			// remove from the vector
+			for (auto iter = vec.begin(); iter != vec.end(); ++iter)
+			{
+				if (*iter == entity)
+				{
+					vec.erase(iter);
+					break;
+				}
+			}
+		}
 	}
 
 	void PrefabSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
