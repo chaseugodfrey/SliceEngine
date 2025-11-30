@@ -45,6 +45,7 @@ namespace SliceEngine {
 		//updates the current button and its state depending on input system and canvas raycast
 		void HandleMouse(InputSystem&, Entity raycast_target);
 
+		void InitSystem();
 	private:
 		Entity current_button{ entt::null };
 

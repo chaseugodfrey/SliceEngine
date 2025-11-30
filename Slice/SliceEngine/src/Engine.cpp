@@ -652,6 +652,7 @@ namespace SliceEngine
 				{
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
+					sButton.InitSystem();
 					isPlaying = true;
 				}
 

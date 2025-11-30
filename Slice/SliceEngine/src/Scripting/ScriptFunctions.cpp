@@ -92,6 +92,13 @@ namespace SliceEngine
 		*outPosition = transform.position;
 	}
 
+	static void Transform_GetWorldPosition(unsigned int entity, glm::vec3* outPosition)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+
+		*outPosition = transform.GetWorldPosition();
+	}
+
 	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
@@ -131,6 +138,12 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		*outRotation = transform.rotation; // REAL QUATERNION
+	}
+
+	static void Transform_GetWorldRotationQuat(unsigned int entity, glm::quat* outRotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		*outRotation = transform.GetWorldRotation(); // REAL QUATERNION	
 	}
 
 	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
@@ -1028,12 +1041,14 @@ namespace SliceEngine
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
+		ADD_INTERNAL_CALL(Transform_GetWorldPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
 		ADD_INTERNAL_CALL(Transform_SetRotation);
 		ADD_INTERNAL_CALL(Transform_GetRotationQuat);
+		ADD_INTERNAL_CALL(Transform_GetWorldRotationQuat);
 		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva

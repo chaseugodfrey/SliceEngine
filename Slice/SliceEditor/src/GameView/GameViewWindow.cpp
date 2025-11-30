@@ -193,7 +193,7 @@ namespace SliceEditor
 
 		position = ImGui::GetWindowPos();
 		size = ImGui::GetWindowSize();
-		center = { position.x + size.x, position.y + size.y };
+		center = { position.x + size.x / 2.0f, position.y + size.y / 2.0f };
 
 		ImGui::End();
 	}
