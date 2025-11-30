@@ -176,6 +176,7 @@ namespace SliceEngine
 		//UI Functions
 		mOnButtonClick = scClass->GetMethod("OnButtonClick", 0);
 		mOnButtonRelease = scClass->GetMethod("OnButtonRelease", 0);
+		mOnSliderValue = scClass->GetMethod("OnSliderValue", 1);
 
 		//mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
 		//mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
@@ -252,6 +253,15 @@ namespace SliceEngine
 		if (mOnButtonRelease)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonRelease);
+		}
+	}
+
+	void ScriptObject::InvokeOnSliderValue(float val)
+	{
+		if (mOnSliderValue)
+		{
+			void* param = &val;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnSliderValue, &param);
 		}
 	}
 
