@@ -141,6 +141,9 @@ namespace SliceEngine
         internal extern static void Input_GetMousePosition(out Vector2 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_GetMouseDelta(out Vector2 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static int Input_GetCursorState();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
