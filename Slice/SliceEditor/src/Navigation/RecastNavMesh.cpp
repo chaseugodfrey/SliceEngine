@@ -41,7 +41,7 @@ namespace SliceEditor
 		config.walkableSlopeAngle = 45.0f;
 		config.walkableHeight = (int)ceilf(2.0f / config.ch);
 		config.walkableClimb = (int)floorf(0.5f / config.ch);
-		config.walkableRadius = (int)ceilf(0.4f / config.cs);
+		config.walkableRadius = (int)ceilf(1.5 / config.cs);
 		config.maxEdgeLen = (int)(12.0f / config.cs);
 		config.maxSimplificationError = 1.1f;
 		config.minRegionArea = (int)rcSqr(8);
@@ -186,7 +186,7 @@ namespace SliceEditor
 			return false;
 		}
 
-		//rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield);
+		rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield);
 
 		contourSet = rcAllocContourSet();
 		if (!contourSet) return false;
@@ -322,13 +322,21 @@ namespace SliceEditor
 		std::vector<SliceEngine::SliceEngineTypes::Vertex> vertices;
 		std::vector<unsigned int> indices;
 
+		std::vector<size_t> modelIndexEndPoints;
+
 		size_t vertexOffset = 0;
 		for (size_t i = 0; i < models.size(); ++i)
 		{
 			const auto &mdl = *models[i];
-			const auto &baseTransform = transform[i];
+			glm::mat4 baseTransform = transform[i];
+
+			// Optional: Lift obstacles slightly (e.g., 0.1f) if you still see merging issues
+			// if (i > 0) baseTransform = glm::translate(baseTransform, glm::vec3(0.0f, 0.1f, 0.0f));
 
 			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
+
+			// --- RESTORED: Save index count ---
+			modelIndexEndPoints.push_back(indices.size());
 		}
 
 		if (vertices.empty() || indices.empty())
@@ -349,9 +357,9 @@ namespace SliceEditor
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
 
 
-		if (bmax[1] - bmin[1] < 0.01f)
+		if (bmax[1] - bmin[1] < 5.0f)
 		{
-			bmax[1] = bmin[1] + 0.01f;
+			bmax[1] = bmin[1] + 5.0f;
 		}
 
 		rcCalcGridSize(bmin, bmax, config.cs, &config.width, &config.height);
@@ -366,6 +374,35 @@ namespace SliceEditor
 		std::vector<unsigned char> areas(recastIndices.size() / 3, RC_WALKABLE_AREA);
 
 
+		// Mark based on slope (this marks the floor AND the top of the wall as walkable)
+		rcMarkWalkableTriangles(&ctx, config.walkableSlopeAngle,
+			verts.data(), (int)verts.size() / 3,
+			recastIndices.data(), (int)recastIndices.size() / 3,
+			areas.data());
+
+		// --- RESTORED: Force Walls to be Unwalkable ---
+		// This overwrites the "Walkable" mark on the top of the wall.
+		size_t currentIndexStart = 0;
+		for (size_t i = 0; i < models.size(); ++i)
+		{
+			size_t currentIndexEnd = modelIndexEndPoints[i];
+
+			// Assume Model 0 is Floor, Model 1+ are Obstacles
+			if (i > 0)
+			{
+				size_t startTriIndex = currentIndexStart / 3;
+				size_t endTriIndex = currentIndexEnd / 3;
+
+				for (size_t t = startTriIndex; t < endTriIndex; ++t)
+				{
+					if (t < areas.size())
+					{
+						areas[t] = RC_NULL_AREA; // Force Unwalkable (Area 0)
+					}
+				}
+			}
+			currentIndexStart = currentIndexEnd;
+		}
 		rcRasterizeTriangles(&ctx, verts.data(), (int)verts.size() / 3,
 			recastIndices.data(), areas.data(), (int)(recastIndices.size() / 3),
 			*heightfield, config.walkableClimb);
@@ -385,11 +422,28 @@ namespace SliceEditor
 
 		compactHeightfield = rcAllocCompactHeightfield();
 		if (!compactHeightfield) return false;
+
 		if (!rcBuildCompactHeightfield(&ctx, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
 			return false;
 
+		if (!rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield))
+		{
+			std::cerr << "ERROR: Failed to erode walkable area!" << std::endl;
+			return false;
+		}
+
 		if (!rcBuildDistanceField(&ctx, *compactHeightfield))
 			return false;
+
+
+		std::cout << "[RecastDebug] Compact Span Count: " << compactHeightfield->spanCount << std::endl;
+
+		if (compactHeightfield->spanCount == 0)
+		{
+			std::cerr << "ERROR: Recast found ZERO walkable spans! Check your winding order or model size." << std::endl;
+			return false;
+		}
+
 
 		if (!rcBuildRegions(&ctx, *compactHeightfield, 0, config.minRegionArea, config.mergeRegionArea))
 			return false;
@@ -400,7 +454,6 @@ namespace SliceEditor
 			std::cout << "ERROR: No regions were created!" << std::endl;
 			return false;
 		}
-
 
 		contourSet = rcAllocContourSet();
 		if (!contourSet) return false;
@@ -456,11 +509,11 @@ namespace SliceEditor
 		}
 
 		for (int i = 0; i < polyMesh->npolys; ++i)
-		{
+		{/*
 			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
-			{
+			{*/
 				polyMesh->flags[i] = 1;
-			}
+			//}
 		}
 
 		dtNavMeshCreateParams params{};
