@@ -63,6 +63,7 @@ namespace SliceEngine
         private GroundCheck groundCheck;
         private Animator animator;
         private CameraController camera;
+        private AudioSource audio;
 
         public void Initialize()
         {
@@ -79,6 +80,7 @@ namespace SliceEngine
             animator = playerModel?.GetComponent<Animator>();
             if (animator == null) Console.WriteLine("No animator found");
             else Console.WriteLine("Animator found");
+            audio = gameObject.GetComponent<AudioSource>();
             rb = GetComponent<RigidBody>();
             if (rb == null) Console.WriteLine("No rb found");
             else Console.WriteLine("RB found");
@@ -158,6 +160,8 @@ namespace SliceEngine
             {
                 if (!isDashing) StartCoroutine(Dash(moveDir));
             }
+
+
             //Console.WriteLine(animator.GetCurrAnimName());
         }
         private void TryJump()
@@ -177,6 +181,7 @@ namespace SliceEngine
                             String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                             String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                         animator.SetBool("JumpLoop", true);
+                    AudioSettings.PlaySFX("Jump");
                 }
                 else if (jumpCounter == 2)
                 {
@@ -185,6 +190,7 @@ namespace SliceEngine
                     {
                         animator.SetBool("AirDashStart", true);
                     }
+                    AudioSettings.PlaySFX("DoubleJump");
                 }
 
                 rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
@@ -231,7 +237,9 @@ namespace SliceEngine
         private IEnumerator Dash(Vector3 dashDir)
         {
             isDashing = true;
-            
+
+            AudioSettings.PlaySFX("Dash");
+
             Vector3 dash = Vector3.Zero;
 
             animator.SetBool("AirDashStart", true);
@@ -409,6 +417,7 @@ namespace SliceEngine
         {
             StartCoroutine(InAttackCoroutine(attack1Duration, null));
             animator.SetBool("Attack1", true);
+            AudioSettings.PlaySFX("A1");
             //if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
             //{
             //    animator.SetBool("Attack1", true);
@@ -439,6 +448,7 @@ namespace SliceEngine
                 animator.SetBool("Attack2", true);
             }
             StartCoroutine(InAttackCoroutine(attack2Duration, null));
+            AudioSettings.PlaySFX("A2");
             //animator.SetBool("Attack2", true);
             //StartCoroutine(InAttackCoroutine(attack2Duration, () =>
             //{
@@ -464,6 +474,7 @@ namespace SliceEngine
                 animator.SetBool("Attack3", true);
             }
             StartCoroutine(InAttackCoroutine(attack3Duration, null));
+            AudioSettings.PlaySFX("A3");
             //animator.SetBool("Attack3", true);
             //StartCoroutine(InAttackCoroutine(attack3Duration, null));
             List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;

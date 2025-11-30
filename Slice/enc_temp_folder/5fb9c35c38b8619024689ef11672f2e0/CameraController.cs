@@ -19,7 +19,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
-            //Cursor.state = Cursor.STATE.DISABLED;
+            Cursor.state = Cursor.STATE.DISABLED;
         }
         public override void OnUpdate(float dt)
         {
@@ -36,9 +36,6 @@ namespace SliceEngine
             float deltaToApply = newPitch - pitch;
             pitch = newPitch;
             transform.Rotate(deltaToApply, Vector3.Right);
-
-            transform.Position = Bootstrap.Player.transform.Position;
-
             /*
             Vector2 mouseDelta = Input.GetMouseDelta();
             SliceLog.Console("Mouse Delta: X=" + mouseDelta.x + " Y=" + mouseDelta.y);
