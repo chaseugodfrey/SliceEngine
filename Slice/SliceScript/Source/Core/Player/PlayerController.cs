@@ -58,6 +58,7 @@ namespace SliceEngine
         private Hitbox attack3HB;
 
         // =============== Internal variables =============== 
+        public bool canInput = false;
         public bool canMove = true;
         private RigidBody rb;
         private GroundCheck groundCheck;
@@ -93,7 +94,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             GroundCheck();
-            HandleInput();
+            if (canInput) HandleInput();
             if (canMove) HandleMovement();
             AttackResetTimer();
         }
