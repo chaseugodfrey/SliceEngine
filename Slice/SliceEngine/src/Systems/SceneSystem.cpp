@@ -41,11 +41,11 @@ namespace SliceEngine
 		SLICE_LOG(std::filesystem::current_path().string());
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
-		if (!std::filesystem::exists(filePath))
+		/*if (!std::filesystem::exists(filePath))
 		{
 			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
 			return;
-		}
+		}*/
 
 		mCurrentSceneName = filePath.filename().stem().string();
 
@@ -82,6 +82,11 @@ namespace SliceEngine
 
 			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Scene not found");
+			return;
 		}
 
 	}

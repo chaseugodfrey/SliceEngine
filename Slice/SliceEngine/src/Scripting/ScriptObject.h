@@ -143,6 +143,7 @@ namespace SliceEngine
 		MonoMethod* mOnClick = nullptr;			//this too
 		MonoMethod* mOnButtonClick{};
 		MonoMethod* mOnButtonRelease{};
+		MonoMethod* mOnSliderValue{};
 
 		// FSM Functions
 		MonoMethod* mOnStateEnter = nullptr;
@@ -210,6 +211,7 @@ namespace SliceEngine
 
 		void InvokeButtonOnClick();
 		void InvokeButtonOnRelease();
+		void InvokeOnSliderValue(float);
 
 		/// <summary>
 		/// Call when obj collides, if it has a script with an onCollide function

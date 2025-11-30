@@ -25,11 +25,18 @@ namespace SliceEditor
 		Registry& mRegistry;
 
 	public:
+		ImVec2 position;
+		ImVec2 size;
+		ImVec2 center;
+
 		bool markForRemoval{ false };
+
 		virtual void Init() = 0;
 		virtual void Draw() = 0;
 		EditorWindow(Registry& registry) : mRegistry(registry) {}
 		virtual ~EditorWindow() = default;
+
+
 	};
 }
 

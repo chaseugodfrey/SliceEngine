@@ -190,6 +190,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
 			//glm::vec3 rgb;
 			//rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
 			//DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
@@ -234,6 +235,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
 			static std::vector<std::string> canvas_types{ "Overlay" };
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
@@ -253,6 +255,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Button>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
 			static std::vector<std::string> transitions{ "Color, Sprite" };
 			ComboHeader<SliceEngine::Button::Transition>(mRegistry, "Button Transitions", "##btntransitions", button.transition, transitions);
@@ -296,6 +299,29 @@ namespace SliceEditor
 				}
 			}
 				break;
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySlider(entt::entity entity) {
+		if (ImGui::TreeNodeEx("Slider", mBaseFlags))
+		{
+			auto& slider = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Slider>(entity);
+
+			DisplayComponentHeader<SliceEngine::Slider>(entity, false);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", slider.componentEnabled);
+
+			static std::vector<std::string> axis_enums{ "X Axis", "Y Axis" };
+			static std::vector<std::string> direction_enums{ "Positive", "Negative" };
+			ComboHeader<SliceEngine::Slider::Axis>(mRegistry, "Axis", "##slideraxis", slider.axis, axis_enums);
+			ComboHeader<SliceEngine::Slider::Direction>(mRegistry, "Direction", "##sliderdirection", slider.direction, direction_enums);
+
+			float new_val = slider.GetValue();
+			if (SliderFloatInputHeader(mRegistry, "Value", "##sliderVal", new_val, "%.1f", 0.0, 1.0)) {
+				slider.SetValue(new_val, entity);
 			}
 
 			ImGui::TreePop();
@@ -962,13 +988,20 @@ namespace SliceEditor
 					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
-
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
 					}
 				}
 				//Controller has been set, should be changable
 				else
 				{
-					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
+					if(HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller")) //For changing
+					{
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
+					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);
 
@@ -1442,6 +1475,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Button>(entity))
 			{
 				DisplayButton(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Slider>(entity))
+			{
+				DisplaySlider(node->entity);
 				ImGui::Separator();
 			}
 
