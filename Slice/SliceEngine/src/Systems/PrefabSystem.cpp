@@ -54,7 +54,14 @@ namespace SliceEngine
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
+		for (auto& [guid, ent] : mPrefabBaseEntities)
+		{
+			if (ent == entity)
+			{
+				mPrefabBaseEntities.erase(guid);
+				break;
+			}
+		}
 	}
 
 	void PrefabSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -239,6 +246,7 @@ namespace SliceEngine
 								}
 								else if (comp.is_type<Animator>())
 								{
+									
 									auto& animator = GO.GetComponent<Animator>();
 									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 									if (!animator.Handle_stateMachine.IsValid())

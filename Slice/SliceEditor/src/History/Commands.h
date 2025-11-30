@@ -152,6 +152,11 @@ namespace SliceEditor
 			bool first = true;
 			for (auto& node : nodes)
 			{
+				if (!node)
+				{
+					continue;
+				}
+
 				if (first)
 					type = node->type;
 				else
@@ -162,6 +167,11 @@ namespace SliceEditor
 					}
 
 				first = false;
+			}
+
+			if (!mSelectionTypeToString.contains(type))
+			{
+				return mSelectionTypeToString.at(SelectionType::NONE);
 			}
 
 			return mSelectionTypeToString.at(type);

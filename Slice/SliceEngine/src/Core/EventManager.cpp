@@ -43,6 +43,7 @@ void EventManager::SetupEventManager()
 	//ui events
 	RegisterEvent<OnButtonClickEvent>();
 	RegisterEvent<OnButtonReleaseEvent>();
+	RegisterEvent<OnSliderValueEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

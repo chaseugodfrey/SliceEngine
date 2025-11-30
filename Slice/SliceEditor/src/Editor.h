@@ -31,7 +31,7 @@ namespace SliceEditor
 		SliceEngine::Engine engine;
 		AssetManager assetManager;
 		Registry registry;
-		EditorInputs inputs;
+		std::unique_ptr<EditorInputs> inputs;
 		RecastNavMesh navMesh;
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();

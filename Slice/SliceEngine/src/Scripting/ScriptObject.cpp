@@ -158,6 +158,7 @@ namespace SliceEngine
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
@@ -176,6 +177,7 @@ namespace SliceEngine
 		//UI Functions
 		mOnButtonClick = scClass->GetMethod("OnButtonClick", 0);
 		mOnButtonRelease = scClass->GetMethod("OnButtonRelease", 0);
+		mOnSliderValue = scClass->GetMethod("OnSliderValue", 1);
 
 		//mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
 		//mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
@@ -231,6 +233,15 @@ namespace SliceEngine
 		}
 	}
 
+	void ScriptObject::InvokeOnEntityDestroy(unsigned int id)
+	{
+		if (mOnEntityDestroy)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityDestroy, &param);
+		}
+	}
+
 
 	void ScriptObject::InvokeOnClick()
 	{
@@ -252,6 +263,15 @@ namespace SliceEngine
 		if (mOnButtonRelease)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonRelease);
+		}
+	}
+
+	void ScriptObject::InvokeOnSliderValue(float val)
+	{
+		if (mOnSliderValue)
+		{
+			void* param = &val;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnSliderValue, &param);
 		}
 	}
 

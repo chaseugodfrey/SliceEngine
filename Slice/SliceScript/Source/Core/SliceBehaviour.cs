@@ -53,6 +53,8 @@ namespace SliceEngine
 
         public virtual void OnButtonClick() { }
         public virtual void OnButtonRelease() { }
+        public virtual void OnSliderValue(float value) { }
+//        public virtual void OnButtonRelease() { }
 
         public bool HasComponent<T>() where T : Component, new()
         {
@@ -126,6 +128,10 @@ namespace SliceEngine
             return gameObject.FindGameObjectWithName(name);
         }
 
+        public GameObject FindGameObjectWithID(uint id)
+        {
+            return gameObject.FindGameObjectWithID(id);
+        }
         public void Destroy()
         {
             StopAllCoroutines();

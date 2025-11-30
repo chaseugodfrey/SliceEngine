@@ -376,6 +376,17 @@ namespace SliceEngine
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
+			if (rootGO.HasComponent<Slider>()) {	//handle and fill entity remapping for slider
+				auto entityView = registry.view<Slider>();
+				for (auto entity : entityView) {
+					auto& slider = registry.get<Slider>(entity);
+
+					slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+				}
+			}
+
+
 			return rootEntity;
 		}
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
@@ -809,6 +820,14 @@ namespace SliceEngine
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
+			//remap for slider
+			auto sliderView = registry.view<Slider>();
+			for (auto entity : sliderView) {
+				auto& slider = registry.get<Slider>(entity);
+
+				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+			}
 			// Using scene graph map to fix scenegraph component is done in another function in scene system.
 
 			return sceneGraphMap;

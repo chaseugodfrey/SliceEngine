@@ -91,6 +91,7 @@ namespace SliceEditor
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
+		inputs = std::make_unique<EditorInputs>(registry);
 
 		assetManager.ScanResourceFolder();
 		assetManager.Init();
@@ -117,7 +118,7 @@ namespace SliceEditor
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
-		inputs.isActive = true;
+		inputs->isActive = true;
 
 
 		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
@@ -134,7 +135,7 @@ namespace SliceEditor
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			registry.Update();
-			inputs.Update();
+			inputs->Update();
 			assetManager.UpdateFolder();
 			engine.Update();
 			Render();
@@ -149,12 +150,6 @@ namespace SliceEditor
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
-
-		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
-		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
-		ImGuiIO& io = ImGui::GetIO();
-		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		input->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
 
 		registry.GetManager<WindowManager>("Windows")->Render();
 

@@ -9,6 +9,10 @@
       <Configuration>EditorRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="WeightOfTheSky|x64">
+      <Configuration>WeightOfTheSky</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}</ProjectGuid>
@@ -29,6 +33,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -36,6 +46,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -49,6 +62,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
     <OutDir>$(ProjectDir).\</OutDir>
     <IntDir>$(ProjectDir)obj\EditorRelease\</IntDir>
+    <TargetName>SliceEngine</TargetName>
+    <TargetExt>.lib</TargetExt>
+    <ExternalIncludePath>thirdparty\Mono\bin;$(ExternalIncludePath)</ExternalIncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
+    <OutDir>$(ProjectDir).\</OutDir>
+    <IntDir>$(ProjectDir)obj\WeightOfTheSky\</IntDir>
     <TargetName>SliceEngine</TargetName>
     <TargetExt>.lib</TargetExt>
     <ExternalIncludePath>thirdparty\Mono\bin;$(ExternalIncludePath)</ExternalIncludePath>
@@ -111,6 +131,28 @@
       <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release\Jolt.pdb" "."</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <MinimalRebuild>false</MinimalRebuild>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;mono-2.0-sgen.lib;MonoPosixHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Animator\AnimatorSystem.h" />
     <ClInclude Include="src\Animator\BoneSystem.h" />
@@ -137,6 +179,7 @@
     <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
+    <ClInclude Include="src\Graphics\UI_Interactible.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
     <ClInclude Include="src\Input\ActionMapping.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
@@ -198,6 +241,7 @@
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
+    <ClCompile Include="src\Graphics\UI_Interactible.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
     <ClCompile Include="src\Input\ActionMapping.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />

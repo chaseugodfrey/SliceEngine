@@ -9,22 +9,23 @@ namespace SliceEngine
     public class EnemyChase : SliceBehaviour
     {
         public float moveSpeed = 5.0f;
-
+        public string targetObject;
+        Transform targetTransform;
         Transform enemyT;
-        //GameObject player;
+        GameObject player;
         Transform playerT = null;
         public Vector3[] test;
 
         public override void OnCreate()
         {
             enemyT = GetComponent<Transform>();
-            //player = gameObject.FindGameObjectWithName("RootNode");
 
-            //if (player != null)
-            //{
-                playerT = gameObject.FindGameObjectWithName("RootNode").GetComponent<Transform>();
-            //}
+            player = gameObject.FindGameObjectWithName("RootNode");
 
+            if (player != null)
+            {
+                playerT = player.GetComponent<Transform>();
+            }
         }
 
         public override void OnUpdate(float dt)
@@ -42,11 +43,27 @@ namespace SliceEngine
             //    SliceLog.Log(playerComp.direction.ToString());
             //}
 
-            if (playerT.gameObject.Has<PlayerController>())
+            if (player.Has<PlayerController>())
             {
-                PlayerController playerComp = playerT.gameObject.As<PlayerController>();
+                PlayerController playerComp = player.As<PlayerController>();
                 SliceLog.Log(playerComp.direction.ToString());
             }
+
+            if (targetTransform != null)
+            {
+                //Console.WriteLine("Has target Transform");
+                if (HasComponent<NavAgent>())
+                {
+                   // Console.WriteLine("Has nav agent");
+                    if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                    {
+                       // Console.WriteLine("Pressed backspace");
+                        NavAgent agent = GetComponent<NavAgent>();
+                        agent.SetDestination(targetTransform.Position);
+                    }
+                }
+            }
+
 
         }
 

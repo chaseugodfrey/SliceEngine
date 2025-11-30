@@ -278,13 +278,21 @@ namespace SliceEngine
 		return newCam;
 	}
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-	void RenderManager::SetMainGameCamera(GameObject cam)
+	void RenderManager::SetMainGameCamera(Entity cam)
 	{
-		mainCam.emplace(cam);
+		auto& camSys = Core::GetInstance()->GetSystem<CameraSystem>();
+
+		std::optional<Entity> camEntity = camSys.GetCamera(cam);
+
+		if (camEntity.has_value())
+			camSys.mainCam.emplace(cam);
+		else
+			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
-	std::optional<GameObject>& RenderManager::GetGameCamera()
+
+	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
-		return mainCam;
+		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
@@ -866,6 +874,19 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	void RenderManager::Draw()
+	{
+		LinkFrameBufferSettings(FB_TOTAL, 0);
+		LoadSettings(GPS_DEFAULT);
+		ClearBuffer(BufferClearSetting::ALL);
+		if (GetGameCamera().has_value())
+		{
+			SetShader(ShaderOpt::S_COPY);
+			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 	}
 #pragma endregion
 

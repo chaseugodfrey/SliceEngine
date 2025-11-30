@@ -835,6 +835,8 @@ namespace SliceEngine
     /// <param name="entity">Entity being removed</param>
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
+        mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
+
         for (auto& it : mEntityInstances)
         {
             if (it.first == entity)
@@ -1098,6 +1100,7 @@ namespace SliceEngine
         //UI System
         eventManager->Subscribe<OnButtonClickEvent, &ScriptSystem::OnButtonClick>(this);
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
+        eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
     }
 
@@ -1282,6 +1285,18 @@ namespace SliceEngine
         if (scriptInstance)
         {
             scriptInstance->InvokeButtonOnRelease();
+        }
+    }
+
+    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnSliderValue(event.value);
         }
     }
 }

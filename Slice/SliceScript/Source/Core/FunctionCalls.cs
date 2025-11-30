@@ -10,6 +10,9 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetMainCamera(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -138,6 +141,9 @@ namespace SliceEngine
         internal extern static void Input_GetMousePosition(out Vector2 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_GetMouseDelta(out Vector2 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static int Input_GetCursorState();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -238,5 +244,11 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool NavAgent_HasPath(uint entityID);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Slider_SetValue(uint entityID, float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Slider_GetValue(uint entityID);
     }
 }

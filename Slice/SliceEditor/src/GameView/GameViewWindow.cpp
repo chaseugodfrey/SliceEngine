@@ -64,24 +64,25 @@ namespace SliceEditor
 #pragma endregion
 	
 		auto core = SliceEngine::Core::GetInstance();
-		auto view = core->GetRegistry().view<SliceEngine::Camera>();
+		auto view = core->GetRegistry().view<SliceEngine::Camera>(entt::exclude<SliceEngine::EngineEntity>);
 
 
 		// todo : push this to gameview manager
-		std::vector<SliceEngine::GameObject> camObjs{};
-
-		for (auto& cam_entt : view)
+		//std::vector<SliceEngine::GameObject> camObjs{};
+		//
+		//for (auto& cam_entt : view)
+		//{
+		//	auto go = core->mFactory.GetGOByEntity(cam_entt);
+		//	if (auto scene_graph_comp = core->GetRegistry().try_get<SliceEngine::SceneGraph>(cam_entt))
+		//	{
+		//		camObjs.push_back(core->mFactory.GetGOByEntity(cam_entt));
+		//	}
+		//}
+		auto& possibleCam = SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		//if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
+		if(possibleCam.has_value() && SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Camera>(possibleCam.value()) != NULL)
 		{
-			auto go = core->mFactory.GetGOByEntity(cam_entt);
-			if (auto scene_graph_comp = core->GetRegistry().try_get<SliceEngine::SceneGraph>(cam_entt))
-			{
-				camObjs.push_back(core->mFactory.GetGOByEntity(cam_entt));
-			}
-		}
-
-		if (camObjs.size() > 0 && SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity()).componentEnabled)
-		{
-			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(camObjs[0].GetEntity());
+			auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(possibleCam.value());
 
 			ImTextureID tex = static_cast<ImTextureID>(cam.textureID);
 
@@ -145,11 +146,6 @@ namespace SliceEditor
 
 			auto* input = SliceEngine::Core::GetInstance()->GetInputSystem();
 
-			if (ImGui::IsWindowHovered())
-			{
-				input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
-			}
-
 			static SliceEngine::CursorState game_cursor_state;
 			static bool onFocus{ false };
 			static bool isFocused{ false };
@@ -175,6 +171,9 @@ namespace SliceEditor
 						ImGui::SetWindowFocus(NULL);
 						isFocused = false;
 					}
+
+					input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
+					input->SetMouseDelta(io.MouseDelta.x, io.MouseDelta.y);
 				}
 
 				onFocus = false;
@@ -191,6 +190,10 @@ namespace SliceEditor
 			ImGui::SetCursorScreenPos(middle_pos);
 			ImGui::Text(msg.c_str());
 		}
+
+		position = ImGui::GetWindowPos();
+		size = ImGui::GetWindowSize();
+		center = { position.x + size.x / 2.0f, position.y + size.y / 2.0f };
 
 		ImGui::End();
 	}
