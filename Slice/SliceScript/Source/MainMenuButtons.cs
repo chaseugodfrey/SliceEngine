@@ -29,6 +29,7 @@ namespace SliceEngine
                 gameObject.FindGameObjectWithName("MainMenu_Canvas").Destroy();
                 Bootstrap.LevelDirector.StartGame();
                 Bootstrap.Player.canInput = true;
+                Bootstrap.Player.canMove = true;
             }
             else
             {

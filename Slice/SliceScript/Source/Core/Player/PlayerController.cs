@@ -59,7 +59,7 @@ namespace SliceEngine
 
         // =============== Internal variables =============== 
         public bool canInput = false;
-        public bool canMove = true;
+        public bool canMove = false;
         private RigidBody rb;
         private GroundCheck groundCheck;
         private Animator animator;
