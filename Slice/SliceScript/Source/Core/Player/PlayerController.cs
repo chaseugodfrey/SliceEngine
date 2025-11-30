@@ -37,20 +37,24 @@ namespace SliceEngine
         public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
         private int attackCounter = 0;
+        private bool isAttacking = false;
 
         public string attack1HBName;
         public int attack1Damage;
         public Vector3 attack1Window; 
+        public float attack1Duration;
         private Hitbox attack1HB; 
 
         public string attack2HBName;
         public int attack2Damage;
         public Vector3 attack2Window;
+        public float attack2Duration;
         private Hitbox attack2HB;
 
         public string attack3HBName;
         public int attack3Damage;
         public Vector3 attack3Window;
+        public float attack3Duration;
         private Hitbox attack3HB;
 
         // =============== Internal variables =============== 
@@ -348,7 +352,7 @@ namespace SliceEngine
         }
         private void AttackResetTimer()
         {
-            attackResetTimer += Time.deltaTime;
+            if (!isAttacking) attackResetTimer += Time.deltaTime;
             if (attackResetTimer >= attackResetTime)
             {
                 attackCounter = 0;
@@ -357,6 +361,7 @@ namespace SliceEngine
         }
         private void Attack1()
         {
+            StartCoroutine(InAttackCoroutine(attack1Duration));
             List<EnemySlime> enemiesHit = attack1HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
@@ -366,6 +371,7 @@ namespace SliceEngine
         }
         private void Attack2()
         {
+            StartCoroutine(InAttackCoroutine(attack2Duration));
             List<EnemySlime> enemiesHit = attack2HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
@@ -375,12 +381,21 @@ namespace SliceEngine
         }
         private void Attack3()
         {
+            StartCoroutine(InAttackCoroutine(attack3Duration));
             List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
                 enemy.TakeDamage(attack1Damage);
             }
             Console.WriteLine("Attack 3 executed");
+        }
+        private IEnumerator InAttackCoroutine(float duration)
+        {
+            isAttacking = true;
+            Console.WriteLine("Is attacking");
+            yield return new WaitForSeconds(duration);
+            Console.WriteLine("Can attack");
+            isAttacking = false;
         }
         #endregion
         public override void OnCollideEnter(uint other)
