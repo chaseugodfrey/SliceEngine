@@ -67,6 +67,9 @@ namespace SliceEngine
         inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game; }
         inline bool allowGameMouse() const { return enabled && mode == InputMode::Game; }
 
+        CursorState cursorState{ CursorState::DEFAULT };
+        void SetCursorState();
+
         // installation state for callbacks
         bool callbacksBound = false; // to prevent double-binding
 
@@ -113,6 +116,11 @@ namespace SliceEngine
         glm::vec2 GetMousePosition() const;
         double GetMouseX() const;
         double GetMouseY() const;
+
+        // cursor states
+        void SetCursorState(CursorState state);
+        CursorState GetCursorState();
+        void ResetCursorState();
 
 #ifdef SLICE_INPUT_USE_GLM
         // this is used to interface with glm, why are we using this function? its so that we dont have to include glm in this header

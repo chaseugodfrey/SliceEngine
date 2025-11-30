@@ -128,6 +128,10 @@ namespace SliceEngine
             return gameObject.FindGameObjectWithName(name);
         }
 
+        public GameObject FindGameObjectWithID(uint id)
+        {
+            return gameObject.FindGameObjectWithID(id);
+        }
         public void Destroy()
         {
             StopAllCoroutines();

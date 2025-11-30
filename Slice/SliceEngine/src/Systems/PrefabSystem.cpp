@@ -3,6 +3,7 @@
 #include "Core/Core.h"
 #include "Serializer/JSONSerializer.h"
 #include "Scripting/ScriptSystem.h"
+#include "../Physics/PhysicsSystem.h"
 
 namespace SliceEngine
 {
@@ -177,6 +178,8 @@ namespace SliceEngine
 
 					auto& prefabComponent = GO.GetComponent<Prefab>();
 					bool prefabIDFound = false;
+					JPH::BodyID dummyBodyID{};
+					bool JoltBodyIDfound = false;
 					// Note: maybe check if the component data is the same? before replacing
 					// also need to check if a component was deleted from the prefab then it should reflect
 					// and also maybe not all components should be replaced? like transform should be left alone
@@ -193,13 +196,22 @@ namespace SliceEngine
 							// then emplace teh components of that entity
 							for (auto& comp : compVar)
 							{
-								FactoryInstance.EmplaceComponents(entity, comp);
-
 								rttr::type type = comp.get_type();
 								if (type.is_wrapper())
 								{
 									type = type.get_wrapped_type();
 								}
+
+								if (type.get_raw_type() == rttr::type::get<ColliderShape>())
+								{
+									// just to prevent jolt bodyID issues
+									auto& colliderShape = GO.GetComponent<ColliderShape>();
+									dummyBodyID = colliderShape.bodyID;
+									JoltBodyIDfound = true;
+								}
+
+								FactoryInstance.EmplaceComponents(entity, comp);
+
 
 								std::string typeName = type.get_name().to_string();
 
@@ -227,6 +239,7 @@ namespace SliceEngine
 								}
 								else if (comp.is_type<Animator>())
 								{
+									
 									auto& animator = GO.GetComponent<Animator>();
 									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 									if (!animator.Handle_stateMachine.IsValid())
@@ -245,6 +258,15 @@ namespace SliceEngine
 										animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 										animator.stateMachine.InitState(animator.curr_anim_pkg);
 									}
+								}
+								else if (JoltBodyIDfound && type.get_raw_type() == rttr::type::get<ColliderShape>())
+								{
+									auto& colliderShape = GO.GetComponent<ColliderShape>();
+									auto& transform = GO.GetComponent<Transform>();
+
+									colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
+									colliderShape.bodyID = dummyBodyID;
+
 								}
 							}
 						}

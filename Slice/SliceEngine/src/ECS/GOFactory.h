@@ -228,7 +228,7 @@ namespace SliceEngine
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
-		// I really dont like how this emplacing is being done imo
+		// I really dont like how this emplacing is being done imo(i agree)
 		std::unordered_map<rttr::type, ComponentEmplacer> mCESmartPtr;
 		std::unordered_map<rttr::type, ComponentEmplacer> mComponentEmplacer;
 

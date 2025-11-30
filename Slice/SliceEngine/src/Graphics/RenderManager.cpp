@@ -272,21 +272,27 @@ namespace SliceEngine
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
 		auto& transform = newCam.GetComponent<Transform>();
-		transform.position = glm::vec3(-2.f, 1.f, 0.f);
-		transform.rotation = glm::quat(glm::radians(glm::vec3(0.f, 0.f, -10.f)));
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 
 		return newCam;
 	}
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-	void RenderManager::SetMainGameCamera(GameObject cam)
+	void RenderManager::SetMainGameCamera(Entity cam)
 	{
-		mainCam.emplace(cam);
+		auto& camSys = Core::GetInstance()->GetSystem<CameraSystem>();
+
+		std::optional<Entity> camEntity = camSys.GetCamera(cam);
+
+		if (camEntity.has_value())
+			camSys.mainCam.emplace(cam);
+		else
+			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
-	std::optional<GameObject>& RenderManager::GetGameCamera()
+
+	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
-		return mainCam;
+		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
@@ -682,7 +688,7 @@ namespace SliceEngine
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
 				SetUniformVec3(uniformLoc, -lightT.GetWorldPosition());
 
-				SetDirectionalLightMtx(camT.position, lightT.position);
+				SetDirectionalLightMtx(camT.GetWorldPosition(), lightT.GetWorldPosition());
 
 				glBindTextureUnit(4, light.depthTex);
 
@@ -695,13 +701,13 @@ namespace SliceEngine
 			}
 			case Light::LightType::Light_Point:
 			{
-				if(glm::distance(camT.position, lightT.position) > mPointLightFar * 0.5f)
+				if(glm::distance(camT.GetWorldPosition(), lightT.GetWorldPosition()) > mPointLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
 				else
 					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightT.position);
+				M = glm::translate(M, lightT.GetWorldPosition());
 				M = glm::scale(M, glm::vec3(mPointLightFar, mPointLightFar, mPointLightFar));
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
@@ -868,6 +874,19 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	void RenderManager::Draw()
+	{
+		LinkFrameBufferSettings(FB_TOTAL, 0);
+		LoadSettings(GPS_DEFAULT);
+		ClearBuffer(BufferClearSetting::ALL);
+		if (GetGameCamera().has_value())
+		{
+			SetShader(ShaderOpt::S_COPY);
+			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 	}
 #pragma endregion
 

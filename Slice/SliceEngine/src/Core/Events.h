@@ -146,6 +146,11 @@ struct OnPrefabSerializedEvent
 
 };
 
+struct OnPlayEvent
+{
+
+};
+
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION

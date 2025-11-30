@@ -185,6 +185,14 @@ namespace SliceEngine
         HOLD,
         DRAGGING
     };
+
+    enum class CursorState : int
+    {
+        DEFAULT = 0,
+        HIDDEN,
+        CONFINED,
+        DISABLED
+    };
 }
 
 #endif

@@ -36,8 +36,8 @@ namespace SliceEngine
 		void RegenerateSkybox();
 		// Camera related functions
 		GameObject CreateCamera();
-		void SetMainGameCamera(GameObject cam);
-		std::optional<GameObject>& GetGameCamera();
+		void SetMainGameCamera(Entity cam);
+		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void SelectCamIDPick(Entity cam);
@@ -61,6 +61,7 @@ namespace SliceEngine
 		void RenderBloom(Entity cam);
 		void RenderVignette(Entity cam);
 		void RenderGammaCorrection(Entity cam);
+		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
 		//void LinkTransformInstancing(GUID guid);
@@ -142,7 +143,8 @@ namespace SliceEngine
 			S_VIGNETTE		= 15557538937295862472,
 			S_SKY_IRRADIANCE= 12553626097981143487,
 			S_SKY_GENERATE	= 10651205271784078762,
-			S_FINAL			= 9302529766740298710
+			S_FINAL			= 9302529766740298710,
+			S_COPY			= 9478454777993022509
 		};
 		enum GPU_OUT : unsigned char
 		{
@@ -198,7 +200,6 @@ namespace SliceEngine
 		Entity mCurrentCamIDHover{};
 		unsigned int mIDHovered{};
 
-		std::optional<GameObject> mainCam;
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<ShaderOpt, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;

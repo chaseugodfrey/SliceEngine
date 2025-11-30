@@ -22,6 +22,9 @@ namespace SliceEngine
 		//Will do all the loading of the resources based on the scene file
 		LoadScene(mDefaultScene);
 		mCurrentState = mNextState = SceneState::DEFAULT;
+
+		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
+
 	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
@@ -37,11 +40,11 @@ namespace SliceEngine
 
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
-		if (!std::filesystem::exists(filePath))
+		/*if (!std::filesystem::exists(filePath))
 		{
 			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
 			return;
-		}
+		}*/
 
 		mCurrentSceneName = filePath.filename().stem().string();
 
@@ -78,6 +81,11 @@ namespace SliceEngine
 
 			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Scene not found");
+			return;
 		}
 
 	}
@@ -225,10 +233,14 @@ namespace SliceEngine
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);*/
 	}
 
+	void SceneSystem::OnPlay(OnPlayEvent e)
+	{
+		Play();
+	}
+
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
-		
 	}
 
 	void SceneSystem::Pause()
