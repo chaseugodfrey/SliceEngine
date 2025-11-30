@@ -405,10 +405,11 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateCanvas(entt::null, history);
 				}
 
-				if (ImGui::MenuItem("Text"))
-				{
-					//next tri
-				}
+				//Hidden Till it Works
+				//if (ImGui::MenuItem("Text"))
+				//{
+				//	//next tri
+				//}
 
 				if (ImGui::MenuItem("Image"))
 				{

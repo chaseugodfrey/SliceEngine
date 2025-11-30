@@ -152,6 +152,11 @@ namespace SliceEditor
 			bool first = true;
 			for (auto& node : nodes)
 			{
+				if (!node)
+				{
+					continue;
+				}
+
 				if (first)
 					type = node->type;
 				else

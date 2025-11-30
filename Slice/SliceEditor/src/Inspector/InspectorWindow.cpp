@@ -199,6 +199,8 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
+
+
 			ImGui::Text("Image");
 			ImGui::SameLine(150.0f);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
@@ -498,9 +500,9 @@ namespace SliceEditor
 
 						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
-						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
+						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping, "%.3f", 0.0f, FLT_MAX);
 
-						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
+						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping, "%.3f", 0.0f, FLT_MAX);
 
 						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1f, FLT_MAX);
 
