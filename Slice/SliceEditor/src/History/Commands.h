@@ -169,6 +169,11 @@ namespace SliceEditor
 				first = false;
 			}
 
+			if (!mSelectionTypeToString.contains(type))
+			{
+				return mSelectionTypeToString.at(SelectionType::NONE);
+			}
+
 			return mSelectionTypeToString.at(type);
 		}
 
