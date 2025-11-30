@@ -34,7 +34,7 @@ namespace SliceEngine
             //Check if they need to increase the stage
         }
 
-        private void StartGame()
+        public void StartGame()
         {
             //Begin Game
             spawning = true;
@@ -44,7 +44,7 @@ namespace SliceEngine
         {
             //End game through winning
         }
-        private void Lose()
+        public void Lose()
         {
             //End game through losing
         }

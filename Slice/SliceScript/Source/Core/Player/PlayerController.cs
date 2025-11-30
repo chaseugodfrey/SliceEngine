@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace SliceEngine
 {
 
-    public class PlayerController : SliceBehaviour, IInitializable
+    public class PlayerController : Entity, IInitializable
     {
         //public float rotationSpeed = 50.0f;
         //public string[] test3 = { "Test", "Test2" };
@@ -501,5 +501,23 @@ namespace SliceEngine
         {
 
         }
+
+        #region On Overrides
+        protected override void OnHeal() { }
+        protected override void OnDamaged(GameObject source) { }
+
+        private bool isDead = false;
+
+        public override void OnDeath()
+        {
+            if (!isDead)
+            {
+                isDead = true;
+
+                Bootstrap.LevelDirector.Lose();
+                //this.gameObject.Destroy();
+            }
+        }
+        #endregion
     }
 }
