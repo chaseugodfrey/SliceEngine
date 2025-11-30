@@ -114,7 +114,7 @@ namespace SliceEngine
 
             if (direction_diff.Magnitude() <= attackCheckRange)
             {
-                //Bootstrap.Player.
+                Bootstrap.Player.TakeDamage(damage);
                 //Make player take damage( waiting for rayan and jiale to do their thing)
             }
 

@@ -504,7 +504,10 @@ namespace SliceEngine
 
         #region On Overrides
         protected override void OnHeal() { }
-        protected override void OnDamaged(GameObject source) { }
+        protected override void OnDamaged(GameObject source) 
+        {
+            Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+        }
 
         private bool isDead = false;
 

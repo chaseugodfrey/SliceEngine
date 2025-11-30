@@ -16,6 +16,9 @@ namespace SliceEngine
         public float randomRadius       = 1f;
         private Dictionary<uint, EnemySlime> enemyList = new Dictionary<uint, EnemySlime>();
         public Dictionary<uint, EnemySlime> EnemyList => enemyList;
+        public int enemiesKilled = 0;
+
+        public List<int> enemiesToKill = new List<int>();
 
         private bool spawning = true;
 
@@ -26,12 +29,24 @@ namespace SliceEngine
             ClearSpawner();
             firstSpawn = true;
             currentStage++;
-            SpawnSpawners();
+            if (currentStage >= enemiesToKill.Count)
+            {
+                Win();
+            }
+            else
+            {
+                SpawnSpawners();
+            }
+
         }
 
         private void ProgressCheck()
         {
             //Check if they need to increase the stage
+            if (enemiesKilled >= enemiesToKill[currentStage])
+            {
+                IncreaseStage();
+            }
         }
 
         public void StartGame()
@@ -43,10 +58,12 @@ namespace SliceEngine
         public void Win()
         {
             //End game through winning
+            spawning = false;
         }
         public void Lose()
         {
             //End game through losing
+            
         }
 
         public string spawnTags = "Spawn Location";
@@ -134,7 +151,12 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             if (spawning)
-            { SpawnSpawnerEnemies(); }
+            { 
+                SpawnSpawnerEnemies();
+                ProgressCheck();
+            }
+
+
 
             /*
             if (Input.IsKeyDown(Keys.KEY_0))
