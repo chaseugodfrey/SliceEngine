@@ -835,6 +835,8 @@ namespace SliceEngine
     /// <param name="entity">Entity being removed</param>
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
+        mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
+
         for (auto& it : mEntityInstances)
         {
             if (it.first == entity)
