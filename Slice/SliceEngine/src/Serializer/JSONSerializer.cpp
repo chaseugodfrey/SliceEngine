@@ -261,7 +261,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -456,7 +457,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -597,7 +599,8 @@ namespace SliceEngine
 						JPH::Vec3,
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
-						ColliderShape::CapsuleData
+						ColliderShape::CapsuleData,
+						RigidBody::FreezeOptions
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -659,7 +662,8 @@ namespace SliceEngine
 							JPH::Vec3,
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
-							ColliderShape::CapsuleData
+							ColliderShape::CapsuleData,
+							RigidBody::FreezeOptions
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -771,7 +775,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
