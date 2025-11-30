@@ -199,6 +199,8 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
+			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.1f", 0.f, 1.f);
+
 			SliceEngine::GUID tex_guid = sprite.textureHandle;
 			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 			sprite.textureHandle = tex_guid;
