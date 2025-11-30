@@ -843,7 +843,10 @@ namespace SliceEngine
 #pragma endregion
 	
 #pragma region SCENE FUNCTIONS
-
+	static void QuitGame()
+	{
+		EventManager::GetInstance()->Publish<OnGameStopEvent>();
+	}
 
 #pragma endregion
 
@@ -1005,6 +1008,7 @@ namespace SliceEngine
 	void ScriptFunctions::RegisterFunctions()
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
+		ADD_INTERNAL_CALL(QuitGame);
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);

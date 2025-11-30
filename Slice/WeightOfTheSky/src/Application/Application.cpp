@@ -32,6 +32,8 @@ namespace SliceBuild
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 
 		EventManager::GetInstance()->Publish<OnPlayEvent>();
+
+		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &Application::QuitGameEvent>(this);
 	}
 
 	void Application::Run()
@@ -47,5 +49,10 @@ namespace SliceBuild
 	void Application::Exit()
 	{
 		engine.Exit();
+	}
+
+	void Application::QuitGameEvent(OnGameStopEvent e)
+	{
+		glfwSetWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_TRUE);
 	}
 }

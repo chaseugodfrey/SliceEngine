@@ -3,6 +3,8 @@
 
 #include <Engine.h>
 
+struct OnGameStopEvent;
+
 namespace SliceBuild
 {
 	class Application
@@ -10,6 +12,7 @@ namespace SliceBuild
 		SliceEngine::Engine engine;
 
 	public:
+		void QuitGameEvent(OnGameStopEvent e);
 		void Init();
 		void Run();
 		void Exit();
