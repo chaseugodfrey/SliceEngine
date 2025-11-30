@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,11 @@ namespace SliceEngine
         public float vertKnockback = 1f;
 
         public float attackRange = 1f;
+        public float attackCheckRange = 1f;
+        public float attackWindUpTiming = 1f;
+        //public float flickerTiming = 1f;
         private bool attacking = false;
+        private float _attackCounter = 0f;
 
         private enum state 
         {Chase,  Attack, Stunned};
@@ -79,18 +84,49 @@ namespace SliceEngine
 
                         if (direction_diff.Magnitude() <= attackRange)
                         {
+                            StartCoroutine(AttackCoroutine());
                             //attack state
                         }
 
                     }
                     break;
                 case state.Attack:
+                    if (!attacking)
+                    {
 
+                    }
                     break;
                 case state.Stunned:
 
                     break;
             } 
+        }
+
+        IEnumerator AttackCoroutine()
+        {
+            attacking = true;
+
+            new WaitForSeconds(attackWindUpTiming);
+
+            // flicker on
+
+            Vector3 direction_diff = playerT.Position - enemyT.Position;
+
+            if (direction_diff.Magnitude() <= attackCheckRange)
+            {
+                //Bootstrap.Player.
+                //Make player take damage( waiting for rayan and jiale to do their thing)
+            }
+
+            //new WaitForSeconds(flickerTiming);
+
+            // flicker off
+
+            attacking = false;
+
+            currentState = state.Stunned;
+
+            yield break;
         }
 
 
@@ -104,11 +140,21 @@ namespace SliceEngine
 
         }
 
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            Console.WriteLine("Enemy is taking damage");
+            SliceLog.Console("Enemy is taking damage");
+            base.TakeDamage(amount, source);
+
+        }
+
+
 
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
-        { 
+        {
             rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
+            SliceLog.Console("ENEMY IS BEING HIT");
         }
 
         private bool isDead = false;
