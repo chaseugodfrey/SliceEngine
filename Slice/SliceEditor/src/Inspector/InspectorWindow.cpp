@@ -199,30 +199,11 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
-			ImGui::Text("Image");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(sprite.textureHandle.GetGUID());
-			std::string textureFileName;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle];
-			}
-			else //Its a default model
-			{
-				textureFileName = texture_guid_string;
-			}
-			ImGui::InputText("##Image", &textureFileName, ImGuiInputTextFlags_ReadOnly);
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Image"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					sprite.textureHandle = recievedPayload;
-					// update the handle after
-				}
-			}
+			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.1f", 0.f, 1.f);
 
+			SliceEngine::GUID tex_guid = sprite.textureHandle;
+			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+			sprite.textureHandle = tex_guid;
 
 			ImGui::TreePop();
 		}
@@ -498,9 +479,9 @@ namespace SliceEditor
 
 						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
-						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
+						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping, "%.3f", 0.0f, FLT_MAX);
 
-						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
+						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping, "%.3f", 0.0f, FLT_MAX);
 
 						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1f, FLT_MAX);
 
