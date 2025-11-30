@@ -355,6 +355,20 @@
                     "hasExitTime": true,
                     "sourceState": "JumpLoop",
                     "targetState": "AirDashStart"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "Idle",
+                    "targetState": "Idle"
                 }
             ]
         },
