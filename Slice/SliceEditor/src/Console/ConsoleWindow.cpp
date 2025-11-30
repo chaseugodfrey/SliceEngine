@@ -13,10 +13,15 @@ namespace SliceEditor
 		auto& logs = Logger::consoleLogs;
 
 		ImGui::Begin("Console");
+
+		if (ImGui::Button("Clear"))
+		{
+			logs.clear();
+		}
 		
 		if (ImGui::BeginTable("console_logs", 1, ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg))
 		{
-			for (size_t i = 0; i < logs.size(); i++)
+			for (int i = (int)logs.size() - 1; i >= 0; i--)
 			{
 				ImGui::TableNextColumn();
 
