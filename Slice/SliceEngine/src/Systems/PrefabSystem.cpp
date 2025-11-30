@@ -54,7 +54,14 @@ namespace SliceEngine
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
+		for (auto& [guid, ent] : mPrefabBaseEntities)
+		{
+			if (ent == entity)
+			{
+				mPrefabBaseEntities.erase(guid);
+				break;
+			}
+		}
 	}
 
 	void PrefabSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
