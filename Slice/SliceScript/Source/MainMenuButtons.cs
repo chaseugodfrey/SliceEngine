@@ -10,6 +10,11 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
+
+        }
+
+        public override void OnButtonRelease()
+        {
             AudioSource myAudio = gameObject.FindGameObjectWithName("MainMenu_Sfx").GetComponent<AudioSource>();
 
             if (isPlay > 0.5f)
@@ -32,11 +37,6 @@ namespace SliceEngine
                 }
                 SliceLog.Log("Click Exit");
             }
-        }
-
-        public override void OnButtonRelease()
-        {
-
         }
     }
 }
