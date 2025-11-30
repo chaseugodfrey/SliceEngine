@@ -35,10 +35,10 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145852,
+                "entity_id": 1048751,
                 "neighbours": [
                     4294967295,
-                    3145851,
+                    1048750,
                     4294967295,
                     4294967295
                 ]
@@ -52,11 +52,11 @@
                     },
                     "attackCheckRange": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 3.0
                     },
                     "attackRange": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 4.0
                     },
                     "attackWindUpTiming": {
                         "Type": "float",
@@ -68,7 +68,7 @@
                     },
                     "damage": {
                         "Type": "int",
-                        "Value": 100
+                        "Value": 10
                     },
                     "horKnockback": {
                         "Type": "float",
@@ -145,9 +145,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145851,
+                "entity_id": 1048750,
                 "neighbours": [
-                    3145852,
+                    1048751,
                     4294967295,
                     4294967295,
                     4294967295

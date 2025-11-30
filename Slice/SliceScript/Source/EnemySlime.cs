@@ -84,7 +84,7 @@ namespace SliceEngine
 
                         if (direction_diff.Magnitude() <= attackRange)
                         {
-                            StartCoroutine(AttackCoroutine());
+                            currentState = state.Attack;
                             //attack state
                         }
 
@@ -93,7 +93,7 @@ namespace SliceEngine
                 case state.Attack:
                     if (!attacking)
                     {
-
+                        StartCoroutine(AttackCoroutine());
                     }
                     break;
                 case state.Stunned:
@@ -106,7 +106,7 @@ namespace SliceEngine
         {
             attacking = true;
 
-            new WaitForSeconds(attackWindUpTiming);
+            yield return new WaitForSeconds(attackWindUpTiming);
 
             // flicker on
 
@@ -124,7 +124,7 @@ namespace SliceEngine
 
             attacking = false;
 
-            currentState = state.Stunned;
+            currentState = state.Chase;
 
             yield break;
         }
