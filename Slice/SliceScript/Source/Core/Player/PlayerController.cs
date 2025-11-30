@@ -94,7 +94,6 @@ namespace SliceEngine
             HandleInput();
             if (canMove) HandleMovement();
             AttackResetTimer();
-            //AnimationStateHandling();
         }
         private void HandleInput()
         {
@@ -218,10 +217,11 @@ namespace SliceEngine
                 if (grounded)
                 {
                     jumpCounter = 0;
-                    if (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+                    if (!isAttacking &&
+                        (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 && input == Vector3.Zero) ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
                         animator.SetBool("Idle", true);
@@ -390,28 +390,41 @@ namespace SliceEngine
             {
                 attackCounter = 0;
                 attackResetTimer = 0f;
+
+                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                {
+                    animator.SetBool("AttackToIdle1", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                {
+                    animator.SetBool("AttackToIdle2", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+                {
+                    animator.SetBool("Attack3ToLoco", true);
+                }
             }
         }
         private void Attack1()
         {
+            StartCoroutine(InAttackCoroutine(attack1Duration, null));
+            animator.SetBool("Attack1", true);
             //if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
             //{
             //    animator.SetBool("Attack1", true);
             //}
-            //StartCoroutine(InAttackCoroutine(attack1Duration, null));
-            animator.SetBool("Attack1", true);
-            StartCoroutine(InAttackCoroutine(attack1Duration, () =>
-            {
-                animator.SetBool("AttackToIdle1", true);
-                Console.WriteLine("Attack 1 finished");
-                Console.WriteLine(animator.GetCurrAnimName());
-                StartCoroutine(AnimationCoroutine(1.316f, () =>
-                {
-                    Console.WriteLine(animator.GetCurrAnimName());
-                    animator.SetBool("Idle", true);
-                    Console.WriteLine("Returned to idle");
-                }));
-            }));
+            //StartCoroutine(InAttackCoroutine(attack1Duration, () =>
+            //{
+            //    animator.SetBool("AttackToIdle1", true);
+            //    Console.WriteLine("Attack 1 finished");
+            //    Console.WriteLine(animator.GetCurrAnimName());
+            //    StartCoroutine(AnimationCoroutine(1.316f, () =>
+            //    {
+            //        Console.WriteLine(animator.GetCurrAnimName());
+            //        animator.SetBool("Idle", true);
+            //        Console.WriteLine("Returned to idle");
+            //    }));
+            //}));
             List<EnemySlime> enemiesHit = attack1HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
@@ -421,42 +434,42 @@ namespace SliceEngine
         }
         private void Attack2()
         {
-            //if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-            //{
-            //    animator.SetBool("Attack2", true);
-            //}
-            //StartCoroutine(InAttackCoroutine(attack2Duration, null));
-            animator.SetBool("Attack2", true);
-            StartCoroutine(InAttackCoroutine(attack2Duration, () =>
+            if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
             {
-                animator.SetBool("AttackToIdle2", true);
-                Console.WriteLine("Attack 2 finished");
-                StartCoroutine(AnimationCoroutine(0.816f, () =>
-                {
-                    animator.SetBool("Idle", true);
-                    Console.WriteLine("Returned to idle");
-                }));
-            }));
+                animator.SetBool("Attack2", true);
+            }
+            StartCoroutine(InAttackCoroutine(attack2Duration, null));
+            //animator.SetBool("Attack2", true);
+            //StartCoroutine(InAttackCoroutine(attack2Duration, () =>
+            //{
+            //    animator.SetBool("AttackToIdle2", true);
+            //    Console.WriteLine("Attack 2 finished");
+            //    StartCoroutine(AnimationCoroutine(0.816f, () =>
+            //    {
+            //        animator.SetBool("Idle", true);
+            //        Console.WriteLine("Returned to idle");
+            //    }));
+            //}));
             List<EnemySlime> enemiesHit = attack2HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
-                enemy.TakeDamage(attack1Damage);
+                enemy.TakeDamage(attack2Damage);
             }
             Console.WriteLine("Attack 2 executed");
         }
         private void Attack3()
         {
-            //if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-            //{
-            //    animator.SetBool("Attack3", true);
-            //}
-            //StartCoroutine(InAttackCoroutine(attack3Duration, null));
-            animator.SetBool("Attack3", true);
+            if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+            {
+                animator.SetBool("Attack3", true);
+            }
             StartCoroutine(InAttackCoroutine(attack3Duration, null));
+            //animator.SetBool("Attack3", true);
+            //StartCoroutine(InAttackCoroutine(attack3Duration, null));
             List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
-                enemy.TakeDamage(attack1Damage);
+                enemy.TakeDamage(attack3Damage);
             }
             Console.WriteLine("Attack 3 executed");
         }
@@ -471,10 +484,19 @@ namespace SliceEngine
             canMove = true;
             isAttacking = false;
         }
-        private IEnumerator AnimationCoroutine(float duration, Action endAction)
+        private bool AttackAnimationState()
         {
-            yield return new WaitForSeconds(duration);
-            endAction?.Invoke();
+            if (!isAttacking)
+            {
+                if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 || 
+                    String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+                    return true;
+            }
+            return false;
         }
         private void AnimationStateHandling()
         {
@@ -490,6 +512,30 @@ namespace SliceEngine
             {
                 animator.SetBool("Attack3ToLoco", true);
             }
+
+            if (isAttacking)
+            {
+                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                {
+                    animator.SetBool("Attack2", false);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                {
+                    animator.SetBool("Attack3", false);
+                }
+            }
+            if (!isAttacking)
+            {
+                if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+                String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+                String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0)
+                    animator.SetBool("Idle", true);
+            }
+        }
+        private IEnumerator AnimationCoroutine(float duration, Action endAction)
+        {
+            yield return new WaitForSeconds(duration);
+            endAction?.Invoke();
         }
         #endregion
         public override void OnCollideEnter(uint other)
