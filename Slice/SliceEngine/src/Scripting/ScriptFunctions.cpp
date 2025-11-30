@@ -873,7 +873,6 @@ namespace SliceEngine
 
 #pragma endregion
 
-
 #pragma region NAVIGATION FUNCTIONS
 
 
@@ -935,6 +934,19 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region SpriteRenderer FUNCTIONS
+	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			spriteRenderer.componentEnabled = enabled;
+		}
+	}
+
+#pragma endregion
 
 #pragma region UI FUNCTIONS
 
@@ -1008,6 +1020,7 @@ namespace SliceEngine
 		RegisterComponent<NavAgent>();
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
+		RegisterComponent<SpriteRenderer>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
@@ -1038,6 +1051,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
+		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

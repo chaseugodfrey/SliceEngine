@@ -259,5 +259,8 @@ namespace SliceEngine
         internal extern static void Slider_SetValue(uint entityID, float value);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
     }
 }
