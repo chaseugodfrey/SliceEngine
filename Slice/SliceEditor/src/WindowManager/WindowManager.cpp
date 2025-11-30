@@ -938,6 +938,7 @@ namespace SliceEditor
 	void WindowManager::QuitGameEvent(OnGameStopEvent e)
 	{
 		isPlaying = false;
+		isPaused = false;
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->Stop();
 	}
 

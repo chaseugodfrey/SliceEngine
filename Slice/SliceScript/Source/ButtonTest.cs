@@ -9,7 +9,6 @@ namespace SliceEngine
         public override void OnButtonClick()
         {
             SliceLog.Log("Button CLick");
-            FunctionCalls.QuitGame();
         }
 
         public override void OnButtonRelease()
