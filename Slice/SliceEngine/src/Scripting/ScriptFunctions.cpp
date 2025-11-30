@@ -206,6 +206,11 @@ namespace SliceEngine
 		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
 	}
 
+	static void Input_GetMouseDelta(glm::vec2* outDelta)
+	{
+		*outDelta = Core::GetInstance()->GetInputSystem()->GetMouseDelta();
+	}
+
 	static int Input_GetCursorState()
 	{
 		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
@@ -1052,6 +1057,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Input_GetCursorState);
 		ADD_INTERNAL_CALL(Input_SetCursorState);
 		ADD_INTERNAL_CALL(Input_GetMousePosition);
+		ADD_INTERNAL_CALL(Input_GetMouseDelta);
 		ADD_INTERNAL_CALL(AM_EnableMap);
 		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
 		ADD_INTERNAL_CALL(AM_GetValue2D);

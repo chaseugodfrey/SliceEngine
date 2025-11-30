@@ -670,7 +670,7 @@ namespace SliceEngine
 				sInputs->SetEnabled(false);
 				sAudio->SetCategoryPause(0, true);
 				sAudio->SetCategoryPause(1, true);
-				isPlaying = false;
+				//isPlaying = false;
 				sScene->mCurrentState = SceneState::PAUSE_SCENE;
 			}
 

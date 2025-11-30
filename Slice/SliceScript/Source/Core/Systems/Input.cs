@@ -69,6 +69,12 @@ namespace SliceEngine
             return position;
         }
 
+        public static Vector2 GetMouseDelta()
+        {
+            FunctionCalls.Input_GetMouseDelta(out Vector2 delta);
+            return delta;
+        }
+
         public static void AM_EnableMap(string map, bool enable)
         {
             FunctionCalls.AM_EnableMap(map, enable);
