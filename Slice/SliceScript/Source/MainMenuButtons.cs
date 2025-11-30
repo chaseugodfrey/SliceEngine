@@ -27,6 +27,7 @@ namespace SliceEngine
                 }
                 SliceLog.Log("Click Play");
                 gameObject.FindGameObjectWithName("MainMenu_Canvas").Destroy();
+                Bootstrap.LevelDirector.StartGame();
             }
             else
             {

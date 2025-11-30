@@ -19,35 +19,19 @@ namespace SliceEngine
 
         public void Initialize()
         {
-            //Cursor.state = Cursor.STATE.DISABLED;
+
         }
         public override void OnUpdate(float dt)
         {
-            Vector2 mousePos = Input.GetMousePosition();
-
-            Vector2 delta = mousePos - lastMousePos;
-            lastMousePos = mousePos;
-
-            float yawDelta = -delta.x * sensitivity.x * dt;
-            float pitchDelta = -delta.y * sensitivity.y * dt;
-            transform.Rotate(yawDelta, Vector3.Up, true);
-
-            float newPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
-            float deltaToApply = newPitch - pitch;
-            pitch = newPitch;
-            transform.Rotate(deltaToApply, Vector3.Right);
-
-            transform.Position = Bootstrap.Player.transform.Position;
-
-            /*
             Vector2 mouseDelta = Input.GetMouseDelta();
-            SliceLog.Console("Mouse Delta: X=" + mouseDelta.x + " Y=" + mouseDelta.y);
-            float yawDelta = Utilities.Clamp(mouseDelta.x, -90, 90) * sensitivity.x * dt;
-            float pitchDelta = Utilities.Clamp(mouseDelta.y, -90, 90) * sensitivity.y * dt;
+
+            float yawDelta = mouseDelta.x * sensitivity.x * dt;
+            float pitchDelta = mouseDelta.y * sensitivity.y * dt;
             transform.Rotate(yawDelta, Vector3.Up, true);
 
             float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
-            */
+
+            transform.Position = Bootstrap.Player.transform.Position;
             //float deltaToApply = newPitch - pitch;
             //pitch = newPitch;
 
