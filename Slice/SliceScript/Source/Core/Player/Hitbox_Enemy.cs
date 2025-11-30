@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class Hitbox : SliceBehaviour
+    public class Hitbox_Enemy : SliceBehaviour
     {
         private List<EnemySlime> enemiesInRange = new List<EnemySlime>();
         public List<EnemySlime> EnemiesInRange => enemiesInRange;
