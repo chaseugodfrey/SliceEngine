@@ -252,9 +252,9 @@ Users can choose and play animation clips from the animation resource.
 ------------------------------------------------------------------------------------------------------
 
 ## Known Limitations:
-1. Undo/redo doesn't work for everything in the scene, namely works on only some inspector values, changes made using gizmo movements and undoing of adding of gameobjects/components.
+1. Input system between game and engine doesn't work.
 
-2. UI components within the hierarchy window do not exist as of yet.
+2. No fonts, no transparency on 3D objects. No custom shaders for editor users.
 
 ------------------------------------------------------------------------------------------------------
 

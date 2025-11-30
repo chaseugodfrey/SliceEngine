@@ -61,9 +61,37 @@ namespace SliceEngine
     // function is used to track mouse position
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
-        Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
-    }
+        static double lastX = 0.0;
+        static double lastY = 0.0;
+        static bool first = true;
 
+        auto inputS = Core::GetInstance()->GetInputSystem();
+
+        inputS->SetMousePosition(xpos, ypos);
+
+        if (inputS->GetCursorState() == SliceEngine::CursorState::DISABLED)
+        {
+            if (first)
+            {
+                lastX = xpos;
+                lastY = ypos;
+                first = false;
+            }
+
+            double dx = xpos - lastX;
+            double dy = ypos - lastY;
+
+            lastX = xpos;
+            lastY = ypos;
+
+            inputS->SetMouseDelta(dx, dy);
+        }
+        else
+        {
+            first = true;
+            inputS->SetMouseDelta(0, 0); // or reset however you want
+        }
+    }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
@@ -178,9 +206,9 @@ namespace SliceEngine
     }
 
     // setter function to set input mode to whatever i want
-    void InputSystem::SetMode(InputMode m) 
-    { 
-        mode = m; 
+    void InputSystem::SetMode(InputMode m)
+    {
+        mode = m;
     }
 
     // call this function to set whether imgui is consuming keyboard/mouse input this frame
@@ -209,61 +237,63 @@ namespace SliceEngine
 
     bool InputSystem::IsKeyDown(int key)
     {
-		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
+        return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
     }
 
-    bool InputSystem::IsMousePressed(MouseButtons b)  
+    bool InputSystem::IsMousePressed(MouseButtons b)
     {
         int key = (int)b;
         return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsMouseReleased(MouseButtons b)  
+    bool InputSystem::IsMouseReleased(MouseButtons b)
     {
         int key = (int)b;
         return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsMouseDown(MouseButtons b)  
+    bool InputSystem::IsMouseDown(MouseButtons b)
     {
         int key = (int)b;
         return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
-    glm::vec2 InputSystem::GetMousePosition() const 
-    { 
-        return currMousePos; 
+    glm::vec2 InputSystem::GetMousePosition() const
+    {
+        return currMousePos;
     }
 
-    glm::vec2 InputSystem::GetMouseDelta() const 
-    { 
-        return mouseDelta; 
+    glm::vec2 InputSystem::GetMouseDelta() const
+    {
+        return mouseDelta;
     }
 
-    double InputSystem::GetMouseX() const 
-    { 
-        return currMousePos.x; 
+    double InputSystem::GetMouseX() const
+    {
+        return currMousePos.x;
     }
 
-    double InputSystem::GetMouseY() const 
-    { 
-        return currMousePos.y; 
+    double InputSystem::GetMouseY() const
+    {
+        return currMousePos.y;
     }
 
     void InputSystem::SetCursorState()
     {
         auto window = Core::GetInstance()->GetWindow();
         int mode{};
+        bool rawInput{};
         switch (cursorState)
         {
-            case CursorState::DEFAULT: mode = GLFW_CURSOR_NORMAL; break;
-            case CursorState::HIDDEN: mode = GLFW_CURSOR_HIDDEN; break;
-            case CursorState::CONFINED: mode = GLFW_CURSOR_CAPTURED; break;
-            case CursorState::DISABLED: mode = GLFW_CURSOR_DISABLED; break;
-            default: mode = GLFW_CURSOR_NORMAL; break;
+        case CursorState::DEFAULT: mode = GLFW_CURSOR_NORMAL; break;
+        case CursorState::HIDDEN: mode = GLFW_CURSOR_HIDDEN; break;
+        case CursorState::CONFINED: mode = GLFW_CURSOR_CAPTURED; break;
+        case CursorState::DISABLED: mode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+        default: mode = GLFW_CURSOR_NORMAL; break;
         }
 
         glfwSetInputMode(window, GLFW_CURSOR, mode);
+        glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, rawInput);
     }
 
     void InputSystem::SetCursorState(CursorState state)

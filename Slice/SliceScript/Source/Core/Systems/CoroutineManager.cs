@@ -119,6 +119,11 @@ namespace SliceEngine
             }
         }
 
+        public static void OnEntityDestroy(uint owner)
+        {
+            EntityDestroyed(owner);
+        }
+
         public static bool IsRunning(Coroutine coroutine)
         {
             return coroutines.Contains(coroutine) || newCoroutines.Contains(coroutine);
