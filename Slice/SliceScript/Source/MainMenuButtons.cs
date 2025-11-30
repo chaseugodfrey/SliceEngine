@@ -21,6 +21,7 @@ namespace SliceEngine
                     SliceLog.Log("MainMenu Audio");
                 }
                 SliceLog.Log("Click Play");
+                gameObject.FindGameObjectWithName("MainMenu_Canvas").Destroy();
             }
             else
             {
@@ -35,7 +36,7 @@ namespace SliceEngine
 
         public override void OnButtonRelease()
         {
-            gameObject.FindGameObjectWithName("MainMenu_Canvas").Destroy();
+
         }
     }
 }
