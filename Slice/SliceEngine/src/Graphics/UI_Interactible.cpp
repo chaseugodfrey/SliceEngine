@@ -146,12 +146,13 @@ namespace SliceEngine {
 				handle_rect.vert_pivot = RectTransform::MIDDLE;
 				handle_rect.pos_y = 0.f;
 
-				handle_rect.pos_x = handle_pos;
 				if (direction == Positive) {
 					handle_rect.hori_pivot = RectTransform::LEFT;
+					handle_rect.pos_x = handle_pos;
 				}
 				else {
 					handle_rect.hori_pivot = RectTransform::RIGHT;
+					handle_rect.pos_x = -handle_pos;
 				}
 			}
 
@@ -190,12 +191,13 @@ namespace SliceEngine {
 				handle_rect.hori_pivot = RectTransform::CENTER;
 				handle_rect.pos_x = 0.f;
 
-				handle_rect.pos_y = handle_pos;
 				if (direction == Positive) {
 					handle_rect.vert_pivot = RectTransform::BOTTOM;
+					handle_rect.pos_y = handle_pos;
 				}
 				else {
 					handle_rect.vert_pivot = RectTransform::TOP;
+					handle_rect.pos_y = -handle_pos;
 				}
 			}
 
