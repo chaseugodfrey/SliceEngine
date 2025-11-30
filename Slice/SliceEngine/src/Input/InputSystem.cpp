@@ -235,6 +235,11 @@ namespace SliceEngine
         return currMousePos; 
     }
 
+    glm::vec2 InputSystem::GetMouseDelta() const 
+    { 
+        return mouseDelta; 
+    }
+
     double InputSystem::GetMouseX() const 
     { 
         return currMousePos.x; 
@@ -296,6 +301,11 @@ namespace SliceEngine
     void InputSystem::SetMousePosition(double x, double y)
     {
         currMousePos = { x, y };
+    }
+
+    void InputSystem::SetMouseDelta(double x, double y)
+    {
+        mouseDelta = { x , y };
     }
 
     void InputSystem::SetScrollOffset(double offset)
