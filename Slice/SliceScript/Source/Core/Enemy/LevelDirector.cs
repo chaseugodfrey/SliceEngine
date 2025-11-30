@@ -20,7 +20,7 @@ namespace SliceEngine
 
         public List<int> enemiesToKill = new List<int>();
 
-        private bool spawning = true;
+        private bool spawning = false;
 
         private int currentStage = 0;
 
@@ -53,6 +53,7 @@ namespace SliceEngine
         {
             //Begin Game
             spawning = true;
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void Win()
