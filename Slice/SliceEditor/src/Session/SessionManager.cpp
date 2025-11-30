@@ -117,7 +117,7 @@ namespace SliceEditor
 		std::thread([&, windowManager]()
 			{
 				std::chrono::steady_clock::time_point before = std::chrono::steady_clock::now();
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+				EditorUtilities::Scene_Save();
 				std::chrono::steady_clock::time_point after = std::chrono::steady_clock::now();
 				std::chrono::duration<double, std::milli> dur = after - before;
 				duration = dur.count();

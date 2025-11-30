@@ -241,5 +241,11 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool NavAgent_HasPath(uint entityID);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Slider_SetValue(uint entityID, float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Slider_GetValue(uint entityID);
     }
 }
