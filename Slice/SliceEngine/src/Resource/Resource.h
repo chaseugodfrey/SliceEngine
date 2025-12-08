@@ -70,6 +70,48 @@ namespace SliceEngine
 	};
 
 	template <>
+	struct Type<SliceEngineTypes::VertShader>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::VertShader> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::VertShader& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::VertShader* resource, ResourceManager& mgr, const std::string& path);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::GeomShader>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::GeomShader> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::GeomShader& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::GeomShader* resource, ResourceManager& mgr, const std::string& path);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::FragShader>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::FragShader> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::FragShader& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::FragShader* resource, ResourceManager& mgr, const std::string& path);
+
+	};
+
+	template <>
 	struct Type<SliceEngineTypes::Material>
 	{
 		constexpr static inline uint64_t defaultResourceGUID = 10819322238111217941;

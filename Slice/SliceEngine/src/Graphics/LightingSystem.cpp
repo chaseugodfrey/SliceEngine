@@ -14,8 +14,8 @@ namespace SliceEngine
 		auto& light = reg.get<Light>(entity);
 
 		// Setup Basic Camera Components
-		light.color = glm::vec3(1.0f, 1.0f, 1.0f);
-		light.intensity = 0.5f;
+		//light.color = glm::vec3(1.0f, 1.0f, 1.0f);
+		//light.intensity = 0.5f;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &light.depthTex);
 		glTextureStorage2D(light.depthTex, 1, GL_DEPTH_COMPONENT32F, SHADOW_DIMENSION, SHADOW_DIMENSION);

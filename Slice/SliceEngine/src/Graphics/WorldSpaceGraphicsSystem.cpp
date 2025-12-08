@@ -26,15 +26,23 @@ namespace SliceEngine
 {
 	void WorldSpaceGraphicsSystem::Render(GLuint shader, bool withTex)
 	{
-		mShader = shader;
-		mHasRenderTexture = withTex;
+		SetShaderAndWTexSettings(shader, withTex);
+		
 		//ResetVisibleEntities();
 
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
 		for (auto entity : view)
 		{
+			if (!Core::GetInstance()->GetRegistry().get<Renderer>(entity).componentEnabled) continue;
+
 			EntityDraw(entity);
 		}
+	}
+
+	void WorldSpaceGraphicsSystem::SetShaderAndWTexSettings(GLuint shader, bool withTex)
+	{
+		mShader = shader;
+		mHasRenderTexture = withTex;
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
@@ -106,12 +114,12 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto& rc = core->GetRegistry().get<Renderer>(entity);
 
-		auto model = rc.modelHandle;
-		
+		auto model = rc.modelHandle;		
 		if (!model.IsValid()) return;
 
-		auto& mesh = model.get()->meshes[rc.meshOffset];
-		
+		// --TODO-- Cursed model Error Checking loading
+		auto& mesh = model.get()->meshes[std::min(rc.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1))];
+
 		/*model.meshes[rc.meshOffset];*/
 		glBindVertexArray(mesh.vao);
 
@@ -139,7 +147,11 @@ namespace SliceEngine
 
 			//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 
-			glBindTextureUnit(0, albedoTex.get()->texture_id);
+			// --TODO-- Cursed Texture exist check, Fix Resource Manager
+			if (reinterpret_cast<void*>(albedoTex.get()) != (void*)0xdddddddddddddddd)
+				glBindTextureUnit(0, albedoTex.get()->texture_id);
+			else
+				glBindTextureUnit(0, Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->texture_id);
 		}
 
 		//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
@@ -166,12 +178,16 @@ namespace SliceEngine
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
 
-				uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
-				glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
+				// only update if theres a anim pkg and skeleton
+				if(animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_skeleton.IsValid())
+				{
+					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
+					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 
-				glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
-				uniformLoc = glGetUniformLocation(mShader, "inverse_root");
-				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+					glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+					uniformLoc = glGetUniformLocation(mShader, "inverse_root");
+					glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+				}
 			}
 			else {
 			//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");

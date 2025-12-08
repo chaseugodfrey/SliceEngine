@@ -529,7 +529,7 @@ struct Settings
     bool                 m_IsDirty;
     SaveReasonFlags      m_DirtyReason;
 
-    vector<NodeSettings> m_Nodes;
+    vector<NodeSettings> mNodeList;
     vector<ObjectId>     m_Selection;
     ImVec2               m_ViewScroll;
     float                m_ViewZoom;
@@ -1424,7 +1424,7 @@ struct EditorContext
     }
 
     ImRect GetSelectionBounds() { return GetBounds(m_SelectedObjects); }
-    ImRect GetContentBounds() { return GetBounds(m_Nodes); }
+    ImRect GetContentBounds() { return GetBounds(mNodeList); }
 
     ImU32 GetColor(StyleColor colorIndex) const;
     ImU32 GetColor(StyleColor colorIndex, float alpha) const;
@@ -1495,9 +1495,9 @@ private:
 
     Style               m_Style;
 
-    vector<ObjectWrapper<Node>> m_Nodes;
+    vector<ObjectWrapper<Node>> mNodeList;
     vector<ObjectWrapper<Pin>>  m_Pins;
-    vector<ObjectWrapper<Link>> m_Links;
+    vector<ObjectWrapper<Link>> mLinkList;
 
     vector<Object*>     m_SelectedObjects;
 

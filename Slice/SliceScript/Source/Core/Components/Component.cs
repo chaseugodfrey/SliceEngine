@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SliceEngine
 {
@@ -12,16 +14,19 @@ namespace SliceEngine
         //public SliceBehaviour Entity { get; internal set; }
         public GameObject gameObject { get; internal set; }
 
-        //  // Unique name or tag (like Unity's GameObject.tag)
-        //  public string Tag
-        //  {
-        //      //get => Entity?.Tag ?? string.Empty;
-        //      //set
-        //      //{
-        //      //    if (Entity != null)
-        //      //        Entity.Tag = value;
-        //      //}
-        //  }
+        // Unique name or tag (like Unity's GameObject.tag)
+        public string tag
+        {
+            get
+            {
+                return FunctionCalls.Entity_GetTag(gameObject.mID);
+            }
+
+            set
+            {
+                FunctionCalls.Entity_SetTag(gameObject.mID, value);
+            }
+        }
 
         // Whether the entity is active in the scene
         public bool activeSelf { get; set; } = true;
@@ -36,6 +41,13 @@ namespace SliceEngine
         public T GetComponent<T>() where T : Component
         {
             return gameObject?.GetComponent<T>();
+        }
+
+        // Maybe need checks for required component in the future
+        public T GetRequiredComponent<T>() where T : Component
+        {
+            return GetComponent<T>()
+                ?? throw new Exception($"Required component {typeof(T)} missing on {gameObject?.mID}");
         }
 
         // Get component in children

@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+#pragma region AUDIO MANAGER
 	/*
 	* Init initialises and creates the FMOD System
 	*/
@@ -60,7 +61,7 @@ namespace SliceEngine
 		mSoundSystem->createChannelGroup("Editor", &editorSounds);
 		editorSounds->setVolume(1.0f);
 
-		srand((unsigned int)time(NULL)); // Initialize random seed
+		
 	}
 
 	FMOD::System* AudioManager::GetSoundSystem()
@@ -78,6 +79,11 @@ namespace SliceEngine
 
 	FMOD::Channel* AudioManager::PlaySound(const AudioSource& audioComp, glm::vec3 soundPos, glm::vec3 vel)
 	{
+		if (!audioComp.componentEnabled)
+		{
+			return nullptr;
+		}
+
 		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioComp.soundGUID).get();
 		if (!audioClip)
 		{
@@ -90,28 +96,28 @@ namespace SliceEngine
 
 		FMOD_RESULT result = FMOD_OK;
 
-		switch (audioClip->GetCategory())
+		switch (audioComp.category)
 		{
 		case 0:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), sfx, audioComp.isPaused, &channel);
 			break;
 		};
 		case 1:
 		{
 
-			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), bgm, audioComp.isPaused, &channel);
 			break;
 		};
 		case 2:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), ui, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
 			break;
 		};
 		case 3:
 		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, true, &channel);
+			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
 			break;
 		};
 
@@ -136,24 +142,24 @@ namespace SliceEngine
 			{
 				finalMode |= FMOD_3D_LINEARROLLOFF;
 			}
+			channel->setMode(finalMode);
+			SetSpatialBlend(channel, audioComp.spatialBlend);
+			FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
+			FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
+			channel->set3DAttributes(&soundPosition, &velocity);
+			channel->set3DMinMaxDistance(audioComp.minDistance, audioComp.maxDistance);
+			channel->set3DDopplerLevel(audioComp.dopplerLevel);
+			channel->set3DSpread(audioComp.spread);
+			channel->setPan(audioComp.stereoPan);
 		}
 
-		channel->setMode(finalMode);
 		channel->setPriority(audioComp.priority);
 		channel->setVolume(audioComp.currentVolume);
-		SetSpatialBlend(channel, audioComp.spatialBlend);
-		FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
-		FMOD_VECTOR velocity = Vec3ToFMODVec3(vel);
-		channel->set3DAttributes(&soundPosition, &velocity);
-		channel->set3DMinMaxDistance(audioComp.minDistance, audioComp.maxDistance);
-		channel->set3DDopplerLevel(audioComp.dopplerLevel);
-		channel->set3DSpread(audioComp.spread);
-		channel->setMute(audioComp.isMute);
 		channel->setPitch(audioComp.pitch);
-		channel->setPan(audioComp.stereoPan);
+		channel->setMute(audioComp.isMute);
 
-		// Start paused. SoundSystem will unpause if needed.
-		channel->setPaused(true);
+
+		
 
 
 		return channel;
@@ -221,11 +227,10 @@ namespace SliceEngine
 		return { minDist,maxDist };
 	}
 
-	void AudioManager::SetCategoryVolume(GUID soundName, float volume)
+	void AudioManager::SetCategoryVolume(int categoryType, float volume)
 	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundName).get();
-
-		switch (audioClip->GetCategory())
+		
+		switch (categoryType)
 		{
 			case 0:
 			{
@@ -251,6 +256,37 @@ namespace SliceEngine
 		}
 	}
 
+	const float AudioManager::GetCategoryVolume(int categoryType)
+	{
+		float volume = 0.0f;
+		switch (categoryType)
+		{
+			case 0:
+			{
+				sfx->getVolume(&volume);
+				break;
+			}
+			case 1:
+			{
+				bgm->getVolume(&volume);
+				break;
+			}
+			case 2:
+			{
+				ui->getVolume(&volume);
+				break;
+			}
+			case 3:
+			{
+				editorSounds->getVolume(&volume);
+				break;
+			}
+
+		}
+
+		return volume;
+	}
+
 	float AudioManager::GetChannelVolume(FMOD::Channel* channel)
 	{
 		float volume;
@@ -265,53 +301,7 @@ namespace SliceEngine
 		channel->setVolume(volume);
 	}
 
-	void AudioManager::CreateSoundGroup(std::string& soundGroupName, int maxInstances, FMOD_SOUNDGROUP_BEHAVIOR behaviour)
-	{
-		if (mSoundGroups.find(soundGroupName) != mSoundGroups.end())
-		{
-			SLICE_LOG_ERROR("Sound Group already exists");
-			return;
-		}
 
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		FMOD_RESULT result = mSoundSystem->createSoundGroup(soundGroupName.c_str(), &soundGroup);
-
-		if (result == FMOD_OK)
-		{
-			soundGroup->setMaxAudible(maxInstances);
-			soundGroup->setMaxAudibleBehavior(behaviour);
-			mSoundGroups.emplace(soundGroupName, soundGroup);
-
-		}
-	}
-
-	void AudioManager::SetSoundGroup(GUID soundGUID, std::string soundGroupName)
-	{
-		auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(soundGUID).get();
-
-		if (!audioClip->GetSound())
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: Audio clip has no FMOD::Sound.");
-			return;
-		}
-
-		FMOD::SoundGroup* soundGroup = nullptr;
-
-		auto it = mSoundGroups.find(soundGroupName);
-
-		if (it != mSoundGroups.end())
-		{
-			soundGroup = it->second;
-		}
-		else
-		{
-			SLICE_LOG_ERROR("SetSoundGroup: SoundGroup '%s' not found.", soundGroupName.c_str());
-			mSoundSystem->getMasterSoundGroup(&soundGroup);
-		}
-
-		audioClip->GetSound()->setSoundGroup(soundGroup);
-	}
 
 	void AudioManager::SetSpatialBlend(FMOD::Channel* channel, float blend)
 	{
@@ -584,6 +574,42 @@ namespace SliceEngine
 		}
 	}
 
+	void AudioManager::SetCategoryPause(int categoryType, bool pauseState)
+	{
+		switch (categoryType)
+		{
+		case 0: // SFX
+			if (sfx)
+			{
+				sfx->setPaused(pauseState);
+			}
+			break;
+		case 1: // BGM
+			if (bgm)
+			{
+				bgm->setPaused(pauseState);
+			}
+			break;
+		case 2: // UI
+			if (ui)
+			{
+				ui->setPaused(pauseState);
+			}
+			break;
+		case 3: // Editor
+			if (editorSounds)
+			{
+				editorSounds->setPaused(pauseState);
+			}
+			break;
+		}
+	}
+
+	void AudioManager::SetPauseStateAllSound(bool pauseState)
+	{
+		master->setPaused(pauseState);
+	}
+
 	void AudioManager::StopSound(FMOD::Channel* channel)
 	{
 		if (channel)
@@ -612,4 +638,5 @@ namespace SliceEngine
 		}
 		SLICE_LOG("Shutting down FMOD Studio.");
 	}
+#pragma endregion
 }

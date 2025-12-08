@@ -100,7 +100,7 @@ namespace SliceEngine
 			}
 		}
 
-		if (ps.hasBursts)
+		if (!ps.bursts.empty())
 		{
 			ApplyBurst(ps, dt);
 		}
@@ -116,7 +116,7 @@ namespace SliceEngine
 
 				ApplyVeloctiy(p, ps, dt);
 
-				if (ps.hasGravity)
+				if (ps.gForce != 0.0f)
 				{
 					ApplyGravity(p, ps, dt);
 				}
@@ -234,7 +234,7 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeRotation(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.hasRandomInitialRotation)
+		if (ps.initialRotationType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			// Interpolate between min and max quaternion
 			std::uniform_real_distribution<float> tDist(0.0f, 1.0f);
@@ -243,7 +243,7 @@ namespace SliceEngine
 			// Spherical linear interpolation between min and max rotations
 			p.rotation = glm::slerp(ps.minRandomRotation, ps.maxRandomRotation, t);
 		}
-		else
+		else 
 		{
 			p.rotation = ps.rotation;
 		}
@@ -253,15 +253,14 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.hasRandomScale)
+		if (ps.scaleType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> distX(ps.minRandomScale.x, ps.maxRandomScale.x);
 			std::uniform_real_distribution<float> distY(ps.minRandomScale.y, ps.maxRandomScale.y);
 			std::uniform_real_distribution<float> distZ(ps.minRandomScale.z, ps.maxRandomScale.z);
-
 			p.scale = glm::vec3(distX(gen), distY(gen), distZ(gen));
 		}
-		else
+		else 
 		{
 			p.scale = ps.scale;
 		}
@@ -272,12 +271,11 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.hasRandomVelocity)
+		if (ps.velocityValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> distX(ps.minRandomVelocity.x, ps.maxRandomVelocity.x);
 			std::uniform_real_distribution<float> distY(ps.minRandomVelocity.y, ps.maxRandomVelocity.y);
 			std::uniform_real_distribution<float> distZ(ps.minRandomVelocity.z, ps.maxRandomVelocity.z);
-
 			p.velocity = glm::vec3(distX(gen), distY(gen), distZ(gen));
 		}
 		else
@@ -287,7 +285,7 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeColour(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.hasRandomColour)
+		if (ps.colorValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> distR(ps.minRandomColour.r, ps.maxRandomColour.r);
 			std::uniform_real_distribution<float> distG(ps.minRandomColour.g, ps.maxRandomColour.g);
@@ -309,7 +307,7 @@ namespace SliceEngine
 
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.position += p.velocity * dt;
+		p.position += p.velocity * ps.speed * dt;
 	}
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{

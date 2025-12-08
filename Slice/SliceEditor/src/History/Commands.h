@@ -1,16 +1,22 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+
+
 namespace SliceEditor
 {
 	class SelectionManager;
 
 	class Command
 	{
+	protected:
+		std::string message;
+
 	public:
 		virtual void Redo() = 0;
 		virtual void Undo() = 0;
 		virtual ~Command() = default;
+		std::string const GetCommandMessage();
 	};
 
 	template<typename T>
@@ -25,11 +31,39 @@ namespace SliceEditor
 
 		void Redo() override
 		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
 			ref = newValue;
+
 		}
 
 		void Undo() override
 		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
+			ref = oldValue;
+		}
+	};
+
+
+	template<typename T>
+	class ValueCommand<SliceEngine::Handle<T>> : public Command
+	{
+		SliceEngine::Handle<T>& ref, oldValue, newValue;
+
+	public:
+
+		ValueCommand(SliceEngine::Handle<T>& r, SliceEngine::Handle<T> oldV, SliceEngine::Handle<T> newV) : ref(r), oldValue(oldV), newValue(newV) {}
+		~ValueCommand() = default;
+
+		void Redo() override
+		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
+			ref = newValue;
+
+		}
+
+		void Undo() override
+		{
+			message = std::string("Changed value to ") + EditorUtilities::ValueToString(oldValue);
 			ref = oldValue;
 		}
 	};
@@ -42,7 +76,8 @@ namespace SliceEditor
 
 	public:
 
-		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func) : oldValue(oldV), newValue(newV), funcToExecute(func) {}
+		FunctionSetsValueCommand(T oldV, T newV, std::function<void(T)> func) 
+			: oldValue(oldV), newValue(newV), funcToExecute(func){}
 		~FunctionSetsValueCommand() = default;
 
 		void Redo() override
@@ -79,14 +114,76 @@ namespace SliceEditor
 		}
 	};
 
+	template <typename T>
+	class ScriptListSetterCommand : public Command
+	{
+		std::function<void(const char*, std::string, std::vector<T>, T, int)> funcToExecute;
+		std::string fieldName;
+		const char* funcType;
+		std::vector<T> oldList, newList;
+		int index;
+
+	public:
+		ScriptListSetterCommand(std::function<void(const char*, std::string, std::vector<T>, T, int)>func, const char* type, std::string name, std::vector<T> oldL, std::vector<T> newL, int idx = 0) :
+			funcToExecute(func), funcType(type), fieldName(name), oldList(oldL), newList(newL),index(idx) {
+		}
+		~ScriptListSetterCommand() = default;
+
+		void Redo() override
+		{
+			funcToExecute(funcType, fieldName, newList, newList[index], index);
+		}
+
+		void Undo() override
+		{
+			funcToExecute(funcType, fieldName, oldList, oldList[index], index);
+		}
+	};
+
 	class SelectNodeCommand : public Command
 	{
 		SelectionManager& sSelection;
 		std::unordered_set<SelectionNode*> oldNodes;
 		std::unordered_set<SelectionNode*> newNodes;
+
+		std::string ConvertSelectionTypeToString(std::unordered_set<SelectionNode*> const & nodes)
+		{
+			SelectionType type = SelectionType::NONE;
+			bool first = true;
+			for (auto& node : nodes)
+			{
+				if (!node)
+				{
+					continue;
+				}
+
+				if (first)
+					type = node->type;
+				else
+					if (type != node->type)
+					{
+						type = SelectionType::MIXED;
+						break;
+					}
+
+				first = false;
+			}
+
+			if (!mSelectionTypeToString.contains(type))
+			{
+				return mSelectionTypeToString.at(SelectionType::NONE);
+			}
+
+			return mSelectionTypeToString.at(type);
+		}
+
 	public:
 		SelectNodeCommand(SelectionManager& sys, std::unordered_set<SelectionNode*> oldN, std::unordered_set<SelectionNode*> newN) :
-			sSelection(sys), oldNodes(oldN), newNodes(newN) {}
+			sSelection(sys), oldNodes(oldN), newNodes(newN) 
+		{
+
+			message = "Selected " + ConvertSelectionTypeToString(newNodes);
+		}
 		~SelectNodeCommand() = default;
 		void Redo() override;
 		void Undo() override;
@@ -101,7 +198,10 @@ namespace SliceEditor
 	public:
 
 		SelectEntityCommand(SelectionManager& sys, std::unordered_set<entt::entity>const& oldE, std::unordered_set<entt::entity>const& newE) :
-			sSelection(sys), oldEntities(oldE), newEntities(newE) {}
+			sSelection(sys), oldEntities(oldE), newEntities(newE) 
+		{
+			message = "Selected Entity ";
+		}
 		~SelectEntityCommand() = default;
 
 		void Redo() override;

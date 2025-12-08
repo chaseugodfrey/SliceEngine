@@ -47,10 +47,9 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
-		int collisionSteps{};
+		int collisionSteps{4};
 
 	private:
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
 
 		void Shutdown();
 
@@ -85,7 +84,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(float fixedDt,size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
 
 		bool IsInitialized() const;
 
@@ -113,9 +112,36 @@ namespace SliceEngine
 
 		void AddAccelerationToEntity(Entity entity, const JPH::Vec3& acceleration);
 
+		void SetCollisionMask(uint32_t layer, uint32_t mask);
+
+		void SetBodyLayer(Entity entity, uint32_t layer);
+
+		void SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer);
+
+		JPH::uint GetNumBroadPhaseLayers();
+
+		JPH::BroadPhaseLayer GetBroadPhaseLayer(uint32_t layer);
+
+		glm::vec3 GetPosition(Entity entity);
+
+		glm::quat GetRotation(Entity entity);
+
+		glm::vec3 GetScale(Entity entity);
+
+		int GetCollisionSteps() const;
+
+		void SetCollisionSteps(int steps);
+
+		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
+
+		float GetGravityFactor(Entity entity) const;
+
+		void SetGravityFactor(Entity entity, float factor);
+
+		void OffGravity(Entity entity, bool condition);
+
+		bool IsGravityOff(Entity entity) const;
 	};
-
-
 }
 
 #endif

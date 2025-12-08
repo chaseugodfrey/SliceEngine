@@ -76,6 +76,11 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Instance something something");
 			return nullptr;
 		}
+		/*if (instance->synchronisation == nullptr || instance->vtable == nullptr)
+		{
+			SLICE_LOG_ERROR("Instance something something");
+			return nullptr;
+		}*/
 
 		if (mono_object_get_class(instance) == nullptr)
 		{
@@ -149,9 +154,11 @@ namespace SliceEngine
 		mConstruct = mEntityClass.GetMethod(".ctor", 1);
 
 		// These are the other functions that every other script that inherits Entity will have
+		mOnAwake = scClass->GetMethod("OnAwake", 0);
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 
 		//// Collision functions
@@ -166,6 +173,11 @@ namespace SliceEngine
 		//mOnMouseEnter = scClass->GetMethod("OnMouseEnter", 0);
 		//mOnMouseExit = scClass->GetMethod("OnMouseExit", 0);
 		//mOnMouseHover = scClass->GetMethod("OnMouseHover", 0);
+
+		//UI Functions
+		mOnButtonClick = scClass->GetMethod("OnButtonClick", 0);
+		mOnButtonRelease = scClass->GetMethod("OnButtonRelease", 0);
+		mOnSliderValue = scClass->GetMethod("OnSliderValue", 1);
 
 		//mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
 		//mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
@@ -187,6 +199,11 @@ namespace SliceEngine
 			void* param = &id;
 			mScriptClass->InvokeMethod(mMonoInstance, mConstruct, &param);
 
+		}
+
+		if (mOnAwake)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnAwake);
 		}
 	}
 
@@ -216,12 +233,45 @@ namespace SliceEngine
 		}
 	}
 
+	void ScriptObject::InvokeOnEntityDestroy(unsigned int id)
+	{
+		if (mOnEntityDestroy)
+		{
+			void* param = &id;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityDestroy, &param);
+		}
+	}
+
 
 	void ScriptObject::InvokeOnClick()
 	{
 		if (mOnClick)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnClick);
+		}
+	}
+
+	void ScriptObject::InvokeButtonOnClick()
+	{
+		if (mOnButtonClick)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonClick);
+		}
+	}
+	void ScriptObject::InvokeButtonOnRelease()
+	{
+		if (mOnButtonRelease)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonRelease);
+		}
+	}
+
+	void ScriptObject::InvokeOnSliderValue(float val)
+	{
+		if (mOnSliderValue)
+		{
+			void* param = &val;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnSliderValue, &param);
 		}
 	}
 

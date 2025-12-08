@@ -32,6 +32,9 @@ namespace SliceEditor
 		Audio,
 		Scene,
 		Shader,
+		VertShader,
+		GeomShader,
+		FragShader,
 		Material,
 		Prefab,
 		Controller,
@@ -39,9 +42,21 @@ namespace SliceEditor
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
+		//ima be real idk whats the diff between signed and unsigned, im just yoinking these enums from compressonator
+		//same as idk what exactly these are used for, will ask tomas next time
+		//ref: https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/#bc1
+		
 		//		RGBA_UNCOMPRESSED,
-		RGB_BC1,
-		RGBA_BC3
+		BC1,	//RGB + single bit A, color maps, cutout color maps, normal maps
+		BC2,	//rgba kind off, mostly not used anymore
+		BC3,	//rgba, color maps with full alpha, packing color and mono maps together
+		BC4,	//grayscale, height maps, gloss maps, font atlas, any grayscale image
+		BC4s,	//bc4 but signed
+		BC5,	//2x grayscale, tangent maps
+		BC5s,	//bc5 but signed
+		BC6,	//RGB, floats, HDR
+		BC6s,	//bc6 but signed
+		BC7		//RGB/RGBA, high quality color maps, color maps with full alpha
 	};
 	enum MipMapFilter : std::uint8_t {
 		NONE,
@@ -68,19 +83,16 @@ namespace SliceEditor
 		CREATE_STREAM
 	};
 
-	enum AudioCategory : std::uint8_t
-	{
-		SFX,
-		BGM,
-		UI,
-		EditorSounds
-	};
+	
 
 	// type UUIDs 
 	namespace ResourceTypeIDs
 	{
 		constexpr uint64_t TEXTURE = SliceEngine::FNVHash::fnv1a("Texture");
 		constexpr uint64_t SHADER = SliceEngine::FNVHash::fnv1a("Shader");
+		constexpr uint64_t VERT_SHADER = SliceEngine::FNVHash::fnv1a("VertShader");
+		constexpr uint64_t GEOM_SHADER = SliceEngine::FNVHash::fnv1a("GeomShader");
+		constexpr uint64_t FRAG_SHADER = SliceEngine::FNVHash::fnv1a("FragShader");
 		constexpr uint64_t MATERIAL = SliceEngine::FNVHash::fnv1a("Material");
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SKELETON = SliceEngine::FNVHash::fnv1a("Skeleton");
@@ -111,6 +123,7 @@ namespace SliceEditor
 			std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
 			uint64_t typeID = 0;
+			assetName = path.stem().string();
 			switch (type)
 			{
 			case AssetType::Texture:
@@ -121,9 +134,11 @@ namespace SliceEditor
 				break;
 			case AssetType::Skeleton:
 				typeID = ResourceTypeIDs::SKELETON;
+				assetName = path.stem().string() + "_skl";
 				break;
 			case AssetType::Animation:
 				typeID = ResourceTypeIDs::ANIMATION;
+				assetName = path.stem().string() + "_animpkg";
 				break;
 			case AssetType::Audio:
 				typeID = ResourceTypeIDs::SOUND;
@@ -133,6 +148,15 @@ namespace SliceEditor
 				break;
 			case AssetType::Shader:
 				typeID = ResourceTypeIDs::SHADER;
+				break;
+			case AssetType::VertShader:
+				typeID = ResourceTypeIDs::VERT_SHADER;
+				break;
+			case AssetType::GeomShader:
+				typeID = ResourceTypeIDs::GEOM_SHADER;
+				break;
+			case AssetType::FragShader:
+				typeID = ResourceTypeIDs::FRAG_SHADER;
 				break;
 			case AssetType::Prefab:
 				typeID = ResourceTypeIDs::PREFAB;
@@ -149,7 +173,7 @@ namespace SliceEditor
 			}
 
 
-			assetName = path.stem().string();
+			
 			guid = SliceEngine::GUID::Generate(assetName, typeID);
 			assetType = typeName;
 			assetPath = path.string();
@@ -165,7 +189,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::RGBA_BC3 };
+		CompressionFormat cmp_format{ CompressionFormat::BC3 };
 		MipMapFilter mip_filter{ MipMapFilter::NONE };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
@@ -251,7 +275,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
-		bool is_static{ true };
+		bool is_static{ false };
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 
@@ -386,6 +410,9 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 
+		std::string navMeshFile;
+		SliceEngine::GUID navMeshGUID;
+
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
@@ -398,7 +425,10 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
+
 			// specific properties to scene goes here but we dh that yet
+			metaJson["navMeshFile"] = navMeshFile;
+			metaJson["navMeshGUID"] = navMeshGUID.GetGUID();
 			// now create the meta file
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 			if (outFile.is_open())
@@ -419,7 +449,7 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SOUND;
 
 		AudioStream stream{ AudioStream::CREATE_SAMPLE };
-		AudioCategory category{ AudioCategory::SFX };
+		
 		
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
@@ -434,7 +464,6 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			metaJson["stream"] = stream;
-			metaJson["category"] = category;
 			
 
 
@@ -494,6 +523,93 @@ namespace SliceEditor
 	struct ShaderData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SHADER;
+		
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties to shader goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+		}
+	};
+	struct VertShaderData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::VERT_SHADER;
+		
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties to shader goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+		}
+	};
+	struct GeomShaderData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::GEOM_SHADER;
+		
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties to shader goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+		}
+	};
+	struct FragShaderData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::FRAG_SHADER;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -621,7 +737,6 @@ namespace SliceEditor
 
 	struct StateMachineData : public MetaData
 	{
-
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
 		std::map<std::string, rttr::variant> parameters;
@@ -657,21 +772,38 @@ namespace SliceEditor
 				j = nullptr;
 			}
 		}
+		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Condition& c)
+		{
+			to_json(j["value"], c.value);
+			j["paramName"] = c.paramName;
+			j["comparisonOP"] = c.op;
+		}
 		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::Transition& t)
 		{
+			j["sourceState"] = t.sourceState;
 			j["targetState"] = t.targetState;
-			to_json(j["condition"], t.condition);
-			j["parameterName"] = t.parameterName;
-			j["comparisonOP"] = t.operation;
+			j["hasExitTime"] = t.hasExitTime;
+			j["exitTime"] = t.exitTime;
+			j["entryTime"] = t.entryTime;
+			for (const auto& it : t.conditions)
+			{
+				nlohmann::json tempTransJson;
+
+				// 4. Call your "working" Style 2 to_json to populate it
+				to_json(tempTransJson, it);
+
+				// 5. Add the populated object to the array
+				j["conditions"].push_back(tempTransJson);
+
+			}
 		}
 		void to_json(nlohmann::json& j, const SliceEngine::SliceEngineTypes::State& s)
 		{
 			j["stateName"] = s.stateName;
 			j["currAnimIdx"] = s.curr_anim_idx;
-			j["hasExitTime"] = s.hasExitTime;
-			j["exitTime"] = s.exitTime;
-			j["entryTime"] = s.entryTime;
 			j["isLoop"] = s.isLoop;
+			j["mNodePos"] = s.mNodePos;
+			j["fps"] = s.fps;
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -685,7 +817,78 @@ namespace SliceEditor
 				// 5. Add the populated object to the array
 				j["transitions"].push_back(tempTransJson);
 
-				//to_json(j["transition"], it);
+			}
+		}
+		void from_json(const nlohmann::json& j, rttr::variant& var)
+		{
+			if (j.is_number_integer()) {
+				var = j.get<int>();
+			}
+			else if (j.is_number_float()) {
+				var = j.get<float>();
+			}
+			else if (j.is_boolean()) {
+				var = j.get<bool>();
+			}
+			else if (j.is_string()) {
+				var = j.get<std::string>();
+			}
+			else {
+				// Handle unknown or null types if necessary
+				var = rttr::variant();
+			}
+		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::Condition& c)
+		{
+			j.at("paramName").get_to(c.paramName);
+			j.at("comparisonOP").get_to(c.op);
+			// Deserializing condition, which is an rttr::variant
+			if (j.contains("value")) {
+				from_json(j.at("value"), c.value);
+			}
+			else {
+				c.value = rttr::variant();
+			}
+		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::Transition& t)
+		{
+			// A helper lambda to convert the string operator to enum
+			j.at("sourceState").get_to(t.sourceState);
+			j.at("targetState").get_to(t.targetState);
+			j.at("hasExitTime").get_to(t.hasExitTime);
+			j.at("exitTime").get_to(t.exitTime);
+			j.at("entryTime").get_to(t.entryTime);
+
+			t.conditions.clear();
+			const auto& conditions_json = j.at("conditions");
+
+			// Iterate over the array of transitions
+			for (const auto& condition_json : conditions_json)
+			{
+				SliceEngine::SliceEngineTypes::Condition tmpCons;
+				// Call the Transition deserialization helper
+				from_json(condition_json, tmpCons);
+				t.conditions.push_back(tmpCons);
+			}
+		}
+		void from_json(const nlohmann::json& j, SliceEngine::SliceEngineTypes::State& s)
+		{
+			j.at("stateName").get_to(s.stateName);
+			j.at("currAnimIdx").get_to(s.curr_anim_idx);
+			j.at("isLoop").get_to(s.isLoop);
+			j.at("mNodePos").get_to(s.mNodePos);
+			j.at("fps").get_to(s.fps);
+
+			s.transitions.clear();
+			const auto& transitions_json = j.at("transitions");
+
+			// Iterate over the array of transitions
+			for (const auto& transition_json : transitions_json)
+			{
+				SliceEngine::SliceEngineTypes::Transition tmpTrans;
+				// Call the Transition deserialization helper
+				from_json(transition_json, tmpTrans);
+				s.transitions.push_back(tmpTrans);
 			}
 		}
 
@@ -729,93 +932,495 @@ namespace SliceEditor
 
 		void SerializeAsset(const std::filesystem::path& desc_path)
 		{
+			nlohmann::json assetJson;
+
+			assetJson["entryState"] = entryState;
+			
+			nlohmann::json parametersJson;
+			for (const auto& pair : parameters)
+			{
+				to_json(parametersJson[pair.first], pair.second);
+			}
+			assetJson["parameters"] = parametersJson;
+
+			nlohmann::json stateMapJson;
+			for (const auto& pair : stateMap)
+			{
+				to_json(stateMapJson[pair.first], pair.second);
+			}
+			assetJson["stateMap"] = stateMapJson;
+
+			std::ofstream output(desc_path);
+			if (output.is_open())
+			{
+				output << assetJson.dump(4);
+				output.close();
+			}
+			else
+			{
+				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
+			}
+		}
+
+
+		/// <summary>
+		/// For creating the default player controller while editor is still being fixed
+		/// </summary>
+		/// <param name="desc_path"></param>
+		void SerializePlayerAsset(const std::filesystem::path& desc_path)
+		{
 			nlohmann::json metaJson;
 
 			metaJson["entryState"] = "Idle";
 
-			//for (auto it : parameters)
-			//{
-			//	//metaJson["parameters"][it.first] = it.second.get_value<it.second.get_type()>();
-			//	to_json(metaJson["parameters"][it.first], it.second);
-			//}
-
-			//for (auto it : stateMap)
-			//{
-			//	to_json(metaJson["stateMap"][it.first], it.second);
-			//}
-
 			rttr::variant tmpVar;
 			tmpVar = false;
 
-			to_json(metaJson["parameters"]["Attack"], tmpVar);
-
-			to_json(metaJson["parameters"]["Run"], tmpVar);
-
-			to_json(metaJson["parameters"]["Idle"], tmpVar);
+			to_json(metaJson["parameters"]["AirDashStart"], tmpVar);
+			to_json(metaJson["parameters"]["Attack1"], tmpVar);
+			to_json(metaJson["parameters"]["Attack1_Fast"], tmpVar);
+			to_json(metaJson["parameters"]["AttackToIdle1"], tmpVar);
+			to_json(metaJson["parameters"]["Attack2"], tmpVar);
+			to_json(metaJson["parameters"]["Attack2_Fast"], tmpVar);
+			to_json(metaJson["parameters"]["AttackToIdle2"], tmpVar);
+			to_json(metaJson["parameters"]["Attack3"], tmpVar);
+			to_json(metaJson["parameters"]["Attack3_Fast"], tmpVar);
+			to_json(metaJson["parameters"]["Attack3ToLoco"], tmpVar);
+			to_json(metaJson["parameters"]["Attack3_FastToLoco"], tmpVar);
+			to_json(metaJson["parameters"]["BackDashStart"], tmpVar);
+			to_json(metaJson["parameters"]["DashStart"], tmpVar);
+			to_json(metaJson["parameters"]["Fall"], tmpVar);
+			to_json(metaJson["parameters"]["Walk"], tmpVar);
+			to_json(metaJson["parameters"]["JumpLoop"], tmpVar);
+			to_json(metaJson["parameters"]["Land"], tmpVar);
+			to_json(metaJson["parameters"]["Plunge"], tmpVar);
+			to_json(metaJson["parameters"]["PlungeLand"], tmpVar);
+			to_json(metaJson["parameters"]["PlungeToIdle"], tmpVar);
+			to_json(metaJson["parameters"]["PlungeToWalk"], tmpVar);
 
 			SliceEngine::SliceEngineTypes::State tmpState;
 			SliceEngine::SliceEngineTypes::Transition tmpTran;
+			SliceEngine::SliceEngineTypes::Condition tmpCon;
 
 
-			tmpState.curr_anim_idx = 13;
+			// -------------------- Idle --------------------
 			tmpState.stateName = "Idle";
-			tmpState.hasExitTime = false;
-			tmpState.entryTime = 0;
-			tmpState.exitTime = 1;
 			tmpState.isLoop = true;
 
-			tmpTran.targetState = "Attack";
-			tmpTran.parameterName = "Attack";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack1";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
 
-			tmpTran.targetState = "Run";
-			tmpTran.parameterName = "Run";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpCon.paramName = "Attack1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
 			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Walk";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "JumpLoop";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+
+			tmpCon.paramName = "JumpLoop";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
 
 			to_json(metaJson["stateMap"]["Idle"], tmpState);
 			tmpState.transitions.clear();
 
-			tmpState.curr_anim_idx = 21;
-			tmpState.stateName = "Run";
-			tmpState.hasExitTime = false;
-			tmpState.entryTime = 0;
-			tmpState.exitTime = 1;
-			tmpState.isLoop = true;
-
-			tmpTran.targetState = "Attack";
-			tmpTran.parameterName = "Attack";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;;
-			tmpState.transitions.push_back(tmpTran);
-
-			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
-
-			to_json(metaJson["stateMap"]["Run"], tmpState);
-			tmpState.transitions.clear();
-
-			tmpState.curr_anim_idx = 6;
-			tmpState.stateName = "Attack";
-			tmpState.hasExitTime = true;
-			tmpState.entryTime = 0;
-			tmpState.exitTime = 1;
+			// -------------------- JumpLoop --------------------
+			tmpState.stateName = "JumpLoop";
 			tmpState.isLoop = false;
 
-			tmpTran.targetState = "Idle";
-			tmpTran.parameterName = "Idle";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Plunge";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 0.7f;
 
-			tmpTran.targetState = "Run";
-			tmpTran.parameterName = "Run";
-			tmpTran.operation = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-			tmpState.transitions.push_back(tmpTran);
+			tmpCon.paramName = "Plunge";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
 
-			to_json(metaJson["stateMap"]["Attack"], tmpState);
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Land";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+
+			tmpCon.paramName = "Land";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "DoubleJump";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "DoubleJump";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["JumpLoop"], tmpState);
 			tmpState.transitions.clear();
+
+			// -------------------- Plunge --------------------
+			tmpState.stateName = "Plunge";
+			tmpState.isLoop = true;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "PlungeLand";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "PlungeLand";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Plunge"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- PlungeLand --------------------
+			tmpState.stateName = "PlungeLand";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "PlungeToWalk";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "PlungeToWalk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "PlungeToIdle";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "PlungeToIdle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["PlungeLand"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- PlungeToIdle --------------------
+			tmpState.stateName = "PlungeToIdle";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Idle";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["PlungeToIdle"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- PlungeToWalk --------------------
+			tmpState.stateName = "PlungeToWalk";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Walk";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["PlungeToWalk"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- Walk --------------------
+			tmpState.stateName = "Walk";
+			tmpState.isLoop = true;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack1";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Attack1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Idle";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "JumpLoop";
+			tmpTran.hasExitTime = false;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "JumpLoop";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Walk"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- Attack1 --------------------
+			tmpState.stateName = "Attack1";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "AttackToIdle1";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "AttackToIdle1";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack2";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Attack2";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Attack1"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- AttackToIdle1 --------------------
+			tmpState.stateName = "AttackToIdle1";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Idle";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Walk";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+
+			to_json(metaJson["stateMap"]["AttackToIdle1"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- Attack2 --------------------
+			tmpState.stateName = "Attack2";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "AttackToIdle2";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "AttackToIdle2";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack3";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Attack3";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Attack2"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- AttackToIdle2 --------------------
+			tmpState.stateName = "AttackToIdle2";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Idle";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Walk";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+
+			to_json(metaJson["stateMap"]["AttackToIdle2"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- Attack3 --------------------
+			tmpState.stateName = "Attack3";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Attack3ToLoco";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Attack3ToLoco";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Attack3"], tmpState);
+			tmpState.transitions.clear();
+
+			// -------------------- Attack3ToLoco --------------------
+			tmpState.stateName = "Attack3ToLoco";
+			tmpState.isLoop = false;
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Idle";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+
+			tmpCon.paramName = "Idle";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			tmpTran.sourceState = tmpState.stateName;
+			tmpTran.targetState = "Walk";
+			tmpTran.hasExitTime = true;
+			tmpTran.entryTime = 0.0f;
+			tmpTran.exitTime = 1.0f;
+			
+			tmpCon.paramName = "Walk";
+			tmpCon.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpTran.conditions.push_back(tmpCon);
+
+			tmpState.transitions.push_back(tmpTran);
+			tmpTran.conditions.clear();
+
+			to_json(metaJson["stateMap"]["Attack3ToLoco"], tmpState);
+			tmpState.transitions.clear();
+
 
 			std::ofstream output(desc_path);
 
@@ -824,6 +1429,38 @@ namespace SliceEditor
 				output << metaJson.dump(4);
 				output.close();
 			}
+		}
+	
+		bool DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return false;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+			entryState = assetJson["entryState"];
+			auto params = assetJson["parameters"];
+
+			for (auto it = params.begin(); it != params.end(); ++it)
+			{
+				rttr::variant var;
+				from_json(it.value(), var);
+				parameters[it.key()] = var;
+				//parameters[it.]
+			}
+
+			auto states = assetJson["stateMap"];
+
+			for (auto it = states.begin(); it != states.end(); ++it)
+			{
+				SliceEngine::SliceEngineTypes::State state;
+				from_json(it.value(), state);
+				stateMap[it.key()] = state;
+			}
+			
+			return true;
 		}
 	};
 

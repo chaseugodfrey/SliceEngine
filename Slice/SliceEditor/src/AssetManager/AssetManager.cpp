@@ -18,8 +18,9 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetManager.h"
 #include "AssetTypes.h"
 #include <Serializer/JSONSerializer.h>
-#include "../../SliceEngine/src/Systems/SceneSystem.h"
+#include <Systems/SceneSystem.h>
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
+#include <Systems/PrefabSystem.h>
 #include <algorithm>
 
 namespace SliceEditor
@@ -104,6 +105,8 @@ namespace SliceEditor
 
 		if (rawEvents.size() > 1)
 		{
+			RawFileEvent previousAction{};
+
 			if (rawEvents.begin()->changeType == filewatch::Event::removed && rawEvents.at(1).changeType == filewatch::Event::added)
 			{
 
@@ -112,21 +115,56 @@ namespace SliceEditor
 			else if (rawEvents.begin()->changeType == filewatch::Event::renamed_old && rawEvents.at(1).changeType == filewatch::Event::renamed_new)
 			{
 				
-				HandleAssetRenamed(rawEvents);
+				HandleAssetRenamed(rawEvents.at(0), rawEvents.at(1));
 				
 			}
 			else if (rawEvents.begin()->changeType == rawEvents.at(1).changeType && rawEvents.begin()->filePath == rawEvents.at(1).filePath)
 			{
-				HandleAssetModified(rawEvents);
+				HandleAssetModified(rawEvents.at(0));
 				//SLICE_LOG("Modifying file: " + rawEvents.begin()->filePath.string());
 			}
-			else if (rawEvents.begin()->changeType == filewatch::Event::added)
+			else
 			{
-				HandleAssetAdded(rawEvents.at(0));
-			}
-			else if (rawEvents.begin()->changeType == filewatch::Event::removed)
-			{
-				HandleAssetRemoved(rawEvents.at(0));
+				for (auto& eventType : rawEvents)
+				{
+					if (eventType.changeType == filewatch::Event::added)
+					{
+						if (!mFilenameToGUID.contains(eventType.filePath.stem().string()))
+						{
+							HandleAssetAdded(eventType);
+							previousAction = eventType;
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::removed)
+					{
+						if (mFilenameToGUID.contains(eventType.filePath.stem().string()))
+						{
+							HandleAssetRemoved(eventType);
+							previousAction = eventType;
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::modified)
+					{
+						//if(previousAction.changeType == filewatch::Event::removed && previousAction.change)
+						if (mFilenameToGUID.contains(eventType.filePath.stem().string()))
+						{
+							HandleAssetModified(eventType);
+							previousAction = eventType;
+						}
+					}
+					else if (eventType.changeType == filewatch::Event::renamed_old)
+					{
+						previousAction = eventType;
+						continue;
+					}
+					else if (eventType.changeType == filewatch::Event::renamed_new)
+					{
+						if (previousAction.changeType == filewatch::Event::renamed_old)
+						{
+							HandleAssetRenamed(previousAction, eventType);
+						}
+					}
+				}
 			}
 			
 		}
@@ -148,7 +186,7 @@ namespace SliceEditor
 				}
 				case filewatch::Event::modified:
 				{
-					HandleAssetModified(rawEvents);
+					HandleAssetModified(rawEvents.at(0));
 					//SLICE_LOG("Modifying file single event: " + rawEvents.begin()->filePath.string());
 					break;
 				}
@@ -242,6 +280,15 @@ namespace SliceEditor
 			case AssetType::Shader:
 				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
 				break;
+			case AssetType::VertShader:
+				CompileVertShaderAsset(static_cast<VertShaderData*>(metaData.get()));
+				break;
+			case AssetType::GeomShader:
+				CompileGeomShaderAsset(static_cast<GeomShaderData*>(metaData.get()));
+				break;
+			case AssetType::FragShader:
+				CompileFragShaderAsset(static_cast<FragShaderData*>(metaData.get()));
+				break;
 			case AssetType::Material:
 				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
 				break;
@@ -273,7 +320,7 @@ namespace SliceEditor
 			// Update the descriptor map
 			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
 			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
-			mFilenameToGUID[filePath.filename().stem().string()] = metaData->guid;
+			mFilenameToGUID[metaData->assetName] = metaData->guid;
 
 			if (AddToRM)
 			{
@@ -304,11 +351,46 @@ namespace SliceEditor
 			CompileTextureAsset(metaPath);
 			break;
 		case AssetType::Skeleton:
+		{
+			CompileFBXAsset(metaPath);
+			// after creating resource file
+			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			// Assets/Models/Player.fbx <-- asset path
+			std::filesystem::path target = metaData->assetPath;
+			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+
+			std::string assetFullname = metaData->assetName + metaData->assetType;
+
+			target = target / assetFullname;
+
+			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+
+			break;
+		}
 		case AssetType::Animation:
+		{
+			CompileFBXAsset(metaPath);
+			// after creating resource file
+			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			// Assets/Models/Player.fbx <-- asset path
+			std::filesystem::path target = metaData->assetPath;
+			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+
+			std::string assetFullname = metaData->assetName + metaData->assetType;
+
+			target = target / assetFullname;
+
+			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+
+			//then add to the map pepeHand
+			// if static
+			break;
+		}
+
 		case AssetType::Model:
 			// Compile the model file and write into the resource folder
 			CompileFBXAsset(metaPath);
-			// if static
+
 			break;
 		case AssetType::Audio:
 			// idk audio yet
@@ -324,6 +406,15 @@ namespace SliceEditor
 			break;
 		case AssetType::Shader:
 			CompileShaderAsset(static_cast<ShaderData*>(metaData));
+			break;
+		case AssetType::VertShader:
+			CompileVertShaderAsset(static_cast<VertShaderData*>(metaData));
+			break;
+		case AssetType::GeomShader:
+			CompileGeomShaderAsset(static_cast<GeomShaderData*>(metaData));
+			break;
+		case AssetType::FragShader:
+			CompileFragShaderAsset(static_cast<FragShaderData*>(metaData));
 			break;
 		case AssetType::Material:
 			CompileMaterialAsset(static_cast<MaterialData*>(metaData));
@@ -386,6 +477,18 @@ namespace SliceEditor
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			typeID = ResourceTypeIDs::SHADER;
+			break;
+		case AssetType::VertShader:
+			metaData = std::make_unique<VertShaderData>();
+			typeID = ResourceTypeIDs::VERT_SHADER;
+			break;
+		case AssetType::GeomShader:
+			metaData = std::make_unique<GeomShaderData>();
+			typeID = ResourceTypeIDs::GEOM_SHADER;
+			break;
+		case AssetType::FragShader:
+			metaData = std::make_unique<FragShaderData>();
+			typeID = ResourceTypeIDs::FRAG_SHADER;
 			break;
 		case AssetType::Material:
 			typeID = ResourceTypeIDs::MATERIAL;
@@ -516,29 +619,52 @@ namespace SliceEditor
 
 	void AssetManager::CompileShaderAsset(ShaderData* metaData)
 	{
-		std::string fileName = metaData->assetName;
 		std::filesystem::path filePath(metaData->assetPath);
-		std::filesystem::path parentPath = filePath.parent_path();
-		// get the vert and frag path
-		std::filesystem::path vertPath = parentPath / (fileName + ".vert");
-		std::filesystem::path fragPath = parentPath / (fileName + ".frag");
-		std::filesystem::path geomPath = parentPath / (fileName + ".geom");
-		// get the destination path for all 2 files
-		std::string tempVertPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".vert";
-		std::string tempFragPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".frag";
-		std::string tempGeomPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + ".geom";
-
-		// copy the 3 files over to resources
-		// cause loading shaders now come in 3s
-		// but they have the same name so their guid would end up being the same
-		// so only the main .shader file is used for guid generation
 		try
 		{
 			std::filesystem::copy(filePath, metaData->resourcePath);
-			std::filesystem::copy(vertPath, tempVertPath);
-			std::filesystem::copy(fragPath, tempFragPath);
-			if (std::filesystem::exists(geomPath))
-				std::filesystem::copy(geomPath, tempGeomPath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileVertShaderAsset(VertShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileGeomShaderAsset(GeomShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+
+	}
+	void AssetManager::CompileFragShaderAsset(FragShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(filePath, metaData->resourcePath);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -629,33 +755,33 @@ namespace SliceEditor
 						std::string assetPath = metaData["assetPath"].get<std::string>();
 						std::string resourcePath = metaData["resourcePath"].get<std::string>();
 
-						// if its a shader file just delete that shit
-						// cause we got no file watcher to check if a shader was modified
-						// so we just delete them and recompile everytime its ran
-						if (fileType == ".shader")
-						{
-							inFile.close();
-							// and remove the meta file
-							std::filesystem::remove(filePath);
-
-							if (std::filesystem::exists(resourcePath))
-							{
-								std::filesystem::remove(resourcePath);
-							}
-
-							std::filesystem::path resourceFilePath = resourcePath;
-
-							resourceFilePath.replace_extension(".vert");
-
-							if (std::filesystem::exists(resourceFilePath))
-								std::filesystem::remove(resourceFilePath);
-							resourceFilePath.replace_extension(".frag");
-
-							if (std::filesystem::exists(resourceFilePath))
-								std::filesystem::remove(resourceFilePath);
-
-							//return;
-						}
+						//// if its a shader file just delete that shit
+						//// cause we got no file watcher to check if a shader was modified
+						//// so we just delete them and recompile everytime its ran
+						//if (fileType == ".shader")
+						//{
+						//	inFile.close();
+						//	// and remove the meta file
+						//	std::filesystem::remove(filePath);
+						//
+						//	if (std::filesystem::exists(resourcePath))
+						//	{
+						//		std::filesystem::remove(resourcePath);
+						//	}
+						//
+						//	std::filesystem::path resourceFilePath = resourcePath;
+						//
+						//	resourceFilePath.replace_extension(".vert");
+						//
+						//	if (std::filesystem::exists(resourceFilePath))
+						//		std::filesystem::remove(resourceFilePath);
+						//	resourceFilePath.replace_extension(".frag");
+						//
+						//	if (std::filesystem::exists(resourceFilePath))
+						//		std::filesystem::remove(resourceFilePath);
+						//
+						//	//return;
+						//}
 						// now check both asset path and resource path
 						// if both exist then the asset is fine
 						if (!std::filesystem::exists(assetPath) || !std::filesystem::exists(resourcePath))
@@ -731,14 +857,22 @@ namespace SliceEditor
 		// idk if this will work yet cause i need it implemented in the editor to test
 		// but this should create the prefab and compile it to create the resource as well 
 
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().MakePrefab(GO.GetEntity());
+
 		// Create the prefab file
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
 		// Create the descriptor
-		std::string resourcePath = CreateDescriptorFile(filePath);
+		std::string resourcePath = CreateDescriptorFile(filePath, true);
+		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
+		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
+		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(GO.GetEntity(), guid);
 
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		resourceMgr->RegisterResourceAsset(resourcePath);
+		EventManager::GetInstance()->Publish<RefreshContentBrowser>();
+
+		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//resourceMgr->RegisterResourceAsset(resourcePath);
 
 	}
 
@@ -784,6 +918,14 @@ namespace SliceEditor
 				{
 					std::filesystem::remove(file.path());
 				}
+			}
+		}
+
+		for (const auto& file : std::filesystem::directory_iterator(mResourcesDirectory))
+		{
+			if (file.is_regular_file() && file.path().extension() == ".temp")
+			{
+				std::filesystem::remove(file.path());
 			}
 		}
 
@@ -944,11 +1086,61 @@ namespace SliceEditor
 
 		if (addEvent.filePath.extension() == ".temp")
 		{
-			return;
-		}
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID sceneGUID = mFilenameToGUID[addEvent.filePath.stem().string()];
+			
+			std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
+			std::filesystem::path destPath = mResourcesDirectory / guidFilename;
 
-		
-		CreateDescriptorFile(addEvent.filePath, true);
+			try
+			{
+				std::filesystem::copy_file(addEvent.filePath, destPath, std::filesystem::copy_options::overwrite_existing);
+
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
+			}
+		}
+		else
+		{
+			
+			CreateDescriptorFile(addEvent.filePath, true);
+
+			if (addEvent.filePath.extension() == ".navmesh")
+			{
+				auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+				std::filesystem::path metaFilePath = GetMetaDataFromFilename(sScene->GetCurrentSceneName());
+
+				std::ifstream inFile(metaFilePath);
+				nlohmann::json metaJson;
+				inFile >> metaJson;
+				inFile.close();
+
+				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+				auto navMeshPath = resourceMgr->GetResourcePath(addEvent.filePath.stem().string());
+
+				if (navMeshPath.has_value())
+				{
+					metaJson["navMeshFile"] = navMeshPath.value();
+					SliceEngine::GUID navMeshGUID = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+					metaJson["navMeshGUID"] = navMeshGUID;
+
+					std::ofstream outFile(metaFilePath);
+					outFile << metaJson.dump(4); // 4 spaces for pretty printing
+					outFile.close();
+
+					SLICE_LOG("Scene Updated with Navmesh file");
+				}
+				else
+				{
+					SLICE_LOG_ERROR("Could not find navmesh");
+				}
+
+			}
+
+		}
 		SLICE_LOG("Added event at " + addEvent.filePath.filename().string());
 
 		AssetFileChangedEvent processEvent = { true };
@@ -958,6 +1150,10 @@ namespace SliceEditor
 	void AssetManager::HandleAssetRemoved(RawFileEvent& removeEvent)
 	{
 		std::filesystem::path removedFilePath(removeEvent.filePath);
+		if (removedFilePath.extension() == ".temp")
+		{
+			return;
+		}
 
 		SliceEngine::GUID fileGUID;
 
@@ -979,7 +1175,8 @@ namespace SliceEditor
 
 				mGUIDtoFilename.erase(fileGUID);
 
-				resourceMgr->mFileNameToGUID.erase(path.value().stem().string());
+				resourceMgr->mFileNameToGUID.erase(removedFilePath.stem().string());
+				mFilenameToGUID.erase(removedFilePath.stem().string());
 				//resourceMgr->mGUIDToResource.erase()
 
 
@@ -999,10 +1196,10 @@ namespace SliceEditor
 		SLICE_LOG("Removed event at " + removeEvent.filePath.string());
 	}
 
-	void AssetManager::HandleAssetRenamed(std::vector<RawFileEvent>& events)
+	void AssetManager::HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew)
 	{
-		std::filesystem::path oldFilePath(events.begin()->filePath);
-		std::filesystem::path newFilePath(events.at(1).filePath);
+		std::filesystem::path oldFilePath(renamedOld.filePath);
+		std::filesystem::path newFilePath(renamedNew.filePath);
 
 		SliceEngine::GUID fileGUID;
 
@@ -1114,12 +1311,35 @@ namespace SliceEditor
 		}
 	}
 
-	void AssetManager::HandleAssetModified(std::vector<RawFileEvent>& events)
+	void AssetManager::HandleAssetModified(RawFileEvent& event)
 	{
-		std::filesystem::path modifiedFilePath(events.begin()->filePath);
+		std::filesystem::path modifiedFilePath(event.filePath);
 
 		if (modifiedFilePath.extension() == ".temp")
 		{
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID sceneGUID = mFilenameToGUID[modifiedFilePath.stem().string()];
+
+			std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
+			std::filesystem::path destPath = mResourcesDirectory / guidFilename;
+
+			try
+			{
+				std::filesystem::copy_file(modifiedFilePath, destPath, std::filesystem::copy_options::overwrite_existing);
+
+			}
+			catch (const std::filesystem::filesystem_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
+			}
+
+
+			return;
+		}
+
+		if (modifiedFilePath.extension() == ".resource")
+		{
+			//return for now
 			return;
 		}
 
@@ -1152,13 +1372,19 @@ namespace SliceEditor
 					try
 					{	
 						
+
 						std::filesystem::remove(path.value());
 
 						//CreateResource(metaData, assetType);
 
+
 						CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
+						if (modifiedFilePath.extension() == ".prefab")
+						{
+							EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
+						}
 						//SLICE_LOG("Modified event at " + events.begin()->filePath.string());
 					
 					

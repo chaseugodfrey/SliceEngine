@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "Navigation/NavigationSystem.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -32,7 +33,6 @@ DigiPen Institute of Technology is prohibited.
 // My Comments to (Ctrl + f): -TODO- MAYDO:
 // -TODO- Currently not using mat in the InstanceData struct (original intention is to keep track of which textures to use)
 // -TODO- Make Gather Render Commands, and then draw using these commands instead lol
-#define IS_USE_BLOOM true
 
 namespace SliceEngine
 {
@@ -49,6 +49,12 @@ namespace SliceEngine
 		glDeleteTextures(GOUT_TOTAL, mColAttachment);
 		for (auto i : mBloomMips)
 			glDeleteTextures(1, &i.tex);
+
+		if (SkyboxMap != 0)
+			glDeleteTextures(1, &SkyboxMap);
+
+		if (SkyboxIrradianceMap != 0)
+			glDeleteTextures(1, &SkyboxIrradianceMap);
 
 		glDeleteBuffers(2, pboIds);
 	}
@@ -132,10 +138,22 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// unint_8 object to outline
+		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE], 1, GL_R8UI, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// unint_8 the surrounding of the object
+		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], 1, GL_R8UI, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_16 rgba Final Image To Send to Camera Texture
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgba Post Processing for toggling Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		mBloomMips.reserve(mMaxBloom + 1);
 		glm::ivec2 intMip{ maxWidth, maxHeight };
@@ -155,6 +173,96 @@ namespace SliceEngine
 			intMip /= 2;
 			mipDim /= 2.f;
 		}
+
+		// Read the texture for loading into skybox
+		//GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)18349208178533231704).get()->texture_id;
+		//GLuint faceTexID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT).get()->texture_id;
+		//GLint srcInternalFmt, width, height;
+		//glBindTexture(GL_TEXTURE_2D, faceTexID);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &srcInternalFmt);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width);
+		//glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height);
+		
+		// ----- Generates Skybox Texture -----
+		glGenTextures(1, &SkyboxMap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxMap);
+		//glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, srcInternalFmt, width, height);
+		for (u_int i{}; i < 6; ++i)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, mSkyboxDim, mSkyboxDim, 0, GL_RGB, GL_FLOAT, NULL);
+			//glCopyImageSubData(faceTexID, GL_TEXTURE_2D, 0, 0, 0, 0, SkyboxMap, GL_TEXTURE_CUBE_MAP, 0, 0, 0, i, width, height, 1);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		// Generates Skybox Irradiance Texture
+		glGenTextures(1, &SkyboxIrradianceMap);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxIrradianceMap);
+		for (u_int i{}; i < 6; ++i)
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, mSkyboxIrrDim, mSkyboxIrrDim, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		RegenerateSkybox();
+	}
+	void RenderManager::RegenerateSkybox()
+	{
+		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
+		glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, 0.1f, 10.f);
+
+		// ----- Generate Skybox -----
+		SetShader(S_SKY_GENERATE);
+		LinkFrameBufferSettings(FB_FINAL, 0);
+		LoadSettings(GPS_NONE); // Means just draw irregardlesss
+		glViewport(0, 0, mSkyboxDim, mSkyboxDim);
+
+		glBindVertexArray(mdl.vao);
+		GLint uniformLoc;
+		// Skybox Settings
+
+
+		std::stringstream ss{};
+		for (size_t i{}; i < 6; ++i)
+		{
+			glm::mat4 shadowMat{ proj * glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up) };
+			ss.str("");
+			ss << "uShadowMat[" << std::to_string(i) << "]";
+			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
+		}
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxMap, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+
+		// ----- Use generated Map to generate irradiance map -----
+		SetShader(S_SKY_IRRADIANCE);
+		//LinkFrameBufferSettings(FB_FINAL, 0);
+		//LoadSettings(GPS_NONE); // Means just draw irregardlesss
+		glViewport(0, 0, mSkyboxIrrDim, mSkyboxIrrDim);
+		glBindTextureUnit(0, SkyboxMap);
+		glBindVertexArray(mdl.vao);
+
+		
+		for (size_t i{}; i < 6; ++i)
+		{
+			glm::mat4 shadowMat{ proj * glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up) };
+			ss.str("");
+			ss << "uShadowMat[" << std::to_string(i) << "]";
+			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
+		}
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxIrradianceMap, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+		LinkFrameBufferSettings(FB_FINAL, 1, 0);
 	}
 #pragma endregion
 
@@ -164,21 +272,27 @@ namespace SliceEngine
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
 		auto& transform = newCam.GetComponent<Transform>();
-		transform.position = glm::vec3(-2.f, 1.f, 0.f);
-		transform.rotation = glm::quat(glm::radians(glm::vec3(0.f, 0.f, -10.f)));
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 
 		return newCam;
 	}
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
-	void RenderManager::SetMainGameCamera(GameObject cam)
+	void RenderManager::SetMainGameCamera(Entity cam)
 	{
-		mainCam.emplace(cam);
+		auto& camSys = Core::GetInstance()->GetSystem<CameraSystem>();
+
+		std::optional<Entity> camEntity = camSys.GetCamera(cam);
+
+		if (camEntity.has_value())
+			camSys.mainCam.emplace(cam);
+		else
+			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
-	std::optional<GameObject>& RenderManager::GetGameCamera()
+
+	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
-		return mainCam;
+		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
@@ -195,6 +309,7 @@ namespace SliceEngine
 #pragma region Render
 	void RenderManager::Render()
 	{
+		ForceResetDefaultSettings();
 		//Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Update(0.f);
 		//GatherDrawCalls();// Does nothing atm
 
@@ -208,6 +323,10 @@ namespace SliceEngine
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
 		for (auto cam : cams)
 		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+			if (!camera.componentEnabled) continue;
+			mCurrFinalColAttachment = GOUT_FINAL;
+
 			CalculateVP(cam);
 			SetShader(S_SHADOW);
 			LinkFrameBufferSettings(FB_NIL, 0);
@@ -225,11 +344,23 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::ALL);
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, true);
 
-			SetShader(S_LIGHTING);
-			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_FINAL]);
+			SetShader(S_SKYBOX);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LoadSettings(GPS_SKYBOX);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			RenderSkybox();
+
+			SetShader(S_SKYBOX_Light);
+			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LoadSettings(GPS_SKYBOX_AMBIENT);
+			RenderSkyboxLighting();
+
+			SetShader(S_LIGHTING);
+			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			UpdateCamVP();
+			BindCameraDepth(cam);
 			RenderLighting(cam);
 
 			SetShader(S_PARTICLES);
@@ -239,15 +370,20 @@ namespace SliceEngine
 			LoadSettings(GPS_PARTICLES);
 			RenderAfterLighting(cam);
 			
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag)
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
 				RenderDebug(cam);
 			}
-			LoadSettings(GPS_DEFAULT);
-			if (IS_USE_BLOOM)
-				RenderBloom();
+			// Post Processings
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
+				RenderFog(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
+				RenderBloom(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
+				RenderVignette(cam);
 
+			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
 		
@@ -258,7 +394,7 @@ namespace SliceEngine
 	void RenderManager::RenderDebug(Entity cam)
 	{
 		// Draw other cameras' frustrum
-		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_FRUSTRUM_TAG)
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_FRUSTRUM_TAG)
 		{
 			SetShader(S_INSTANCED);
 			UpdateCamVP();
@@ -289,7 +425,7 @@ namespace SliceEngine
 		}
 		
 		// Draw Instance Debug Box
-		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_OBJ_TAG)
 		{
 			SetShader(S_INSTANCED);
 			UpdateCamVP();
@@ -322,26 +458,30 @@ namespace SliceEngine
 				{
 					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 					auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
+
+					if (!shape.componentEnabled) // if not enabled should not draw
+						continue;
+
 					if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
 					{
 						if (i != 0)
 							continue;
 						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(),shape.offSet.GetY(),shape.offSet.GetZ())), glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
 					{
 						if (i != 1)
 							continue;
 						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(sphereData.radius * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(sphereData.radius * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
 					{
 						if (i != 2)
 							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(transform.transform, glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
+						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
 					}
 
 					num++;
@@ -363,35 +503,79 @@ namespace SliceEngine
 		}
 
 		// Draw Recast Navigation Data
-		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_OBJ_TAG)
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_NAVMESH_TAG)
 		{
 			SetShader(S_BASIC);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uColor");
-			auto& navDat = Core::GetInstance()->debugNavMesh;
-			if (navDat[0].vao != 0)
+			auto& navDatOpt = Core::GetInstance()->GetSystem<NavigationSystem>().GetNavMeshDebugData();
+			if (navDatOpt.has_value())
 			{
+				auto& navDat = navDatOpt.value();
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Base.r, mNavMeshDebugColor_Base.g, mNavMeshDebugColor_Base.b, mNavMeshDebugColor_Base.a);
 				glUniform4f(uniformLoc, 0.f, 0.f, 0.7f, 0.4f);
-				glBindVertexArray(navDat[0].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[0].drawCnt);
-			}
-			if (navDat[1].vao != 0)
-			{
+				glBindVertexArray(navDat.data[0].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[0].drawCnt);
 				glUniform4f(uniformLoc, 0.f, 0.2f, 0.25f, 0.85f);
-				glBindVertexArray(navDat[1].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat[1].drawCnt);
+				//glUniform4f(uniformLoc, mNavMeshDebugColor_Bounds.r, mNavMeshDebugColor_Bounds.g, mNavMeshDebugColor_Bounds.b, mNavMeshDebugColor_Bounds.a);
+				glBindVertexArray(navDat.data[1].vao);
+				glDrawArrays(GL_TRIANGLES, 0, navDat.data[1].drawCnt);
 			}
 		}
 
 		// Draw Debug Line
-		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).renderTag & DEBUG_GRID_TAG)
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_GRID_TAG)
 		{
 			SetShader(S_DEBUG_LINE);
 			UpdateCamVP();
 			BindCameraDepth(cam);
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+			SetUniformVec3(uniformLoc, Core::GetInstance()->GetRegistry().get<Transform>(cam).GetWorldPosition());
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		// Draw Debug Outline
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_OUTLINE_SELECTED_TAG)
+		{
+			SetShader(S_DEBUG_OUTLINE);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE]);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			UpdateCamVP();
+			BindCameraDepth(cam); // for the viewPort call
+			LoadSettings(GPS_BLOOM);
+
+			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().SetShaderAndWTexSettings(mCurrShader.second, false);
+
+			auto view = Core::GetInstance()->GetRegistry().view<SelectedEntity>(); // renderEntity
+			for (auto entity : view)
+			{
+				auto entityGO = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
+				if (!entityGO.HasComponent<Renderer>() || !entityGO.HasComponent<Transform>())
+					continue;
+
+				Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().EntityDraw(entity);
+			}
+			// "Blur" Passes
+			SetShader(S_DEBUG_OUT_BLUR);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // Out
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			LoadSettings(GPS_BLOOM2); // Add
+			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE]); // In
+			//LoadSettings(); // Same Settings
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
+			// Final Draw Back on texture
+			SetShader(S_DEBUG_OUTLJOIN);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			BindCameraDepth(cam); // for the viewPort call
+			LoadSettings(GPS_DEBUG_OUTLINE_BLEND); // Blend?
+			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // In
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
+			SetUniformVec3(uniformLoc, glm::vec3(1.f));
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
@@ -403,6 +587,7 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			if (light.type != Light::LightType::Light_Point) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
@@ -410,14 +595,15 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::ALL);
 
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightPos");
-			glUniform3f(uniformLoc, transform.position.x, transform.position.y, transform.position.z);
+			const auto& wPos = transform.GetWorldPosition();
+			SetUniformVec3(uniformLoc, wPos);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-			glUniform1f(uniformLoc, pointLightFar);
-			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, pointLightFar);
+			glUniform1f(uniformLoc, mPointLightFar);
+			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, mPointLightFar);
 			std::stringstream ss{};
 			for (size_t i{}; i < 6; ++i)
 			{
-				glm::mat4 shadowMat{ lightP * glm::lookAt(transform.position, transform.position + mShadowCamDir[i].target, mShadowCamDir[i].up) };
+				glm::mat4 shadowMat{ lightP * glm::lookAt(wPos, wPos + mShadowCamDir[i].target, mShadowCamDir[i].up) };
 				ss.str("");
 				ss << "uShadowMat[" << std::to_string(i) << "]";
 				uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
@@ -438,16 +624,34 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			if (light.type != Light::LightType::Light_Directional) continue;
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			SetDirectionalLightMtx(camT.position, transform.position);
+			SetDirectionalLightMtx(camT.GetWorldPosition(), transform.GetWorldPosition());
 
 			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().Render(mCurrShader.second, false);
 		}
+	}
+	void RenderManager::RenderSkybox()
+	{
+		//glBindTextureUnit(0, SkyboxMap);
+		glBindTextureUnit(0, SkyboxMap);
+
+		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
+		glBindVertexArray(mdl.vao);
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+	}
+	void RenderManager::RenderSkyboxLighting()
+	{
+		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
+		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
+		glBindTextureUnit(2, SkyboxIrradianceMap);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 	void RenderManager::RenderLighting(Entity cam)
 	{
@@ -458,15 +662,16 @@ namespace SliceEngine
 
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
-		glUniform3f(uniformLoc, camT.position.x, camT.position.y, camT.position.z);
+		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
 			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
-			glUniform3f(uniformLoc, lightT.position.x, lightT.position.y, lightT.position.z);
+			SetUniformVec3(uniformLoc, lightT.GetWorldPosition());
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.color");
 			glUniform4f(uniformLoc, light.color.r, light.color.g, light.color.b, light.intensity);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.type");
@@ -481,9 +686,9 @@ namespace SliceEngine
 				LoadSettings(GPS_ADDITION);
 
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
-				glUniform3f(uniformLoc, -lightT.position.x, -lightT.position.y, -lightT.position.z);
+				SetUniformVec3(uniformLoc, -lightT.GetWorldPosition());
 
-				SetDirectionalLightMtx(camT.position, lightT.position);
+				SetDirectionalLightMtx(camT.GetWorldPosition(), lightT.GetWorldPosition());
 
 				glBindTextureUnit(4, light.depthTex);
 
@@ -496,18 +701,18 @@ namespace SliceEngine
 			}
 			case Light::LightType::Light_Point:
 			{
-				if(glm::distance(camT.position, lightT.position) > pointLightFar * 0.5f)
+				if(glm::distance(camT.GetWorldPosition(), lightT.GetWorldPosition()) > mPointLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
 				else
 					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightT.position);
-				M = glm::scale(M, glm::vec3(pointLightFar, pointLightFar, pointLightFar));
+				M = glm::translate(M, lightT.GetWorldPosition());
+				M = glm::scale(M, glm::vec3(mPointLightFar, mPointLightFar, mPointLightFar));
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-				glUniform1f(uniformLoc, pointLightFar);
+				glUniform1f(uniformLoc, mPointLightFar);
 
 				glBindTextureUnit(5, light.shadowCubeMap);
 
@@ -557,12 +762,37 @@ namespace SliceEngine
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
 		}
 	}
-	void RenderManager::RenderBloom()
+	void RenderManager::RenderFog(Entity cam)
 	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+
+		SetShader(S_FOG);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
+		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
+		SetUniformVec3(uniformLoc, camera.fogColor);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
+		glUniform1f(uniformLoc, camera.fogIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	void RenderManager::RenderBloom(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
 		// Extract the Bright
 		SetShader(S_BLOOM_SPLIT);
 		LoadSettings(GPS_BLOOM);
-		glBindTextureUnit(0, mColAttachment[GOUT_FINAL]);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -588,7 +818,7 @@ namespace SliceEngine
 		LoadSettings(GPS_BLOOM);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
-		glUniform1f(uniformLoc, 0.005f);
+		glUniform1f(uniformLoc, camera.bloomFilterRadius * mBloomFilterMult);
 
 		for (int i{ mMaxBloom - 1 }; i > 0; --i)
 		{
@@ -597,31 +827,66 @@ namespace SliceEngine
 			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+
+		SetShader(S_BLOOM_JOIN);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, mBloomMips[0].tex);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uBloomStrength");
+		glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	void RenderManager::RenderVignette(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		SetShader(S_VIGNETTE);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
+		glUniform2f(uniformLoc, camera.vignetteCenter.x, camera.vignetteCenter.y);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteIntensity");
+		glUniform1f(uniformLoc, camera.vignetteIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteSmoothness");
+		glUniform1f(uniformLoc, camera.vignetteSmoothness);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
 		SetShader(ShaderOpt::S_FINAL);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, mColAttachment[GPU_OUT::GOUT_FINAL]);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uIsBloom");
-		if (IS_USE_BLOOM)
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
+		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	void RenderManager::Draw()
+	{
+		LinkFrameBufferSettings(FB_TOTAL, 0);
+		LoadSettings(GPS_DEFAULT);
+		ClearBuffer(BufferClearSetting::ALL);
+		if (GetGameCamera().has_value())
 		{
-			glUniform1i(uniformLoc, true);
-			glBindTextureUnit(1, mBloomMips[0].tex);
+			SetShader(ShaderOpt::S_COPY);
+			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		else
-			glUniform1i(uniformLoc, false);
-
-		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-		auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
-		glBindVertexArray(mdl.vao);
-		//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
-
-		//auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-		//glBindVertexArray(mdl.get()->vao);
-		//glDrawElements(mdl.get()->drawMode, mdl.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 #pragma endregion
 
@@ -820,6 +1085,15 @@ namespace SliceEngine
 				mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ setting);
 		}
 	}
+	void RenderManager::ForceResetDefaultSettings()
+	{
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		glEnable(GL_DEPTH_TEST);
+		glCullFace(GL_BACK);
+		glDepthFunc(GL_LESS);
+		mCurrGPUSetting = GPS_DEFAULT;
+	}
 	// Changes Shader if not current
 	void RenderManager::SetShader(ShaderOpt sh)
 	{
@@ -856,6 +1130,17 @@ namespace SliceEngine
 			break;
 		}
 		}
+	}
+	void RenderManager::ToggleFinalTexture()
+	{
+		if (mCurrFinalColAttachment == GOUT_FINAL)
+			mCurrFinalColAttachment = GOUT_POST;
+		else
+			mCurrFinalColAttachment = GOUT_FINAL;
+	}
+	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
+	{
+		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	//void RenderManager::LinkTransformInstancing(GUID guid)

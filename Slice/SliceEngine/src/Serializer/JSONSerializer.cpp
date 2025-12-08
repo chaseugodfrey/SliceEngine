@@ -26,7 +26,7 @@ namespace SliceEngine
 				return false;
 
 			FactoryInstance.EmplaceComponents(node.GetEntity(), componentInstance);
-		
+
 			return false; // unknown type
 		}
 
@@ -77,7 +77,7 @@ namespace SliceEngine
 			for (auto entity : entityView)
 			{
 				FactoryInstance.VisitComponents(entity, [&resourceManager](rttr::type type, rttr::variant& component)
-				{
+					{
 						for (const auto& property : type.get_properties())
 						{
 							// this should be the component's property data
@@ -95,7 +95,7 @@ namespace SliceEngine
 
 							// for now, we'll ignore resources in c# scripts cause i have to loop through the scriptable data map
 						}
-				});
+					});
 			}
 
 			json GUIDFile;
@@ -111,7 +111,7 @@ namespace SliceEngine
 		// idk what would be passed in when deserializing in scene system
 		void DeserializeSceneResource(std::filesystem::path const& filePath)
 		{
-			
+
 			std::filesystem::path outPath(filePath);
 			std::string resourcePath = outPath.replace_extension(".resource").string();
 
@@ -119,7 +119,7 @@ namespace SliceEngine
 
 			for (auto guid : sceneResource.items())
 			{
-				
+
 			}
 		}
 
@@ -135,7 +135,7 @@ namespace SliceEngine
 			// Now serialize the children
 			auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
 			auto childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-
+			
 			while (childEntity != entt::null)
 			{
 				SerializePrefabChild(output, childEntity, registry);
@@ -145,7 +145,16 @@ namespace SliceEngine
 
 			// TODO: Find out a better way we shud be doing this
 			std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
-			std::filesystem::path filePath = mAssetDirectory.string() + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			std::filesystem::path filePath = mAssetDirectory.string() + "/" + "Prefabs" + "/" + registry.get<SliceEntity>(entity).mName + ".prefab";
+			
+			// if the prefab already exist, then it means we're modifying/updating an existing prefab
+			// so we need to check if there was any change in the objects created
+			// i need to find out how to retrieve all the components of gameobjects to store in a map
+			// prefabID to list of components, then compare that to the new one being serialized
+			// Store the ones taht are new and deleted in two different maps
+			// send that info to prefab system to handle updating existing prefab instances in the scene
+
+			
 			SerializeFile(output, filePath);
 
 			return filePath.string();
@@ -173,7 +182,7 @@ namespace SliceEngine
 
 		}
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath)
+		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor)
 		{
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
@@ -188,7 +197,13 @@ namespace SliceEngine
 
 			for (auto& [name, components] : prefab.items())
 			{
-				GameObject newObj = factory.CreateBlank();
+				GameObject newObj = factory.CreateBlanker();
+				if(Editor)
+					newObj.AddComponent<PrefabEditingEntity>();
+				//factory.RemoveFromNameMap(newObj.GetEntity());
+				//factory.PrintNameMap();
+			//std::string goName = factory.GetNameFromMap(newObj.GetEntity());
+				//factory.PrintNameMap();
 				entityID.push_back(newObj.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
@@ -210,6 +225,8 @@ namespace SliceEngine
 						{
 							rttr::property prop = compType.get_property(propName);
 
+							//factory.PrintNameMap();
+
 							if (!prop.is_valid())
 								continue;
 
@@ -225,8 +242,13 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -239,21 +261,10 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
-
-							// DEBUG: Check if position.x is being read correctly
-							//if (componentName == typeid(Transform).name() && propName == "position")
-							//{
-							//	auto posValue = prop.get_value(componentInstance);
-							//	if (posValue.can_convert<glm::vec3>())
-							//	{
-							//		glm::vec3 pos = posValue.convert<glm::vec3>();
-							//		std::cout << "Position read: x=" << pos.x << ", y=" << pos.y << ", z=" << pos.z << std::endl;
-							//	}
-							//}
-
 							// Anything that needs a second pass
 							// scene graph map stuff
 							if (propName == "entity_id" && componentName == typeid(SceneGraph).name())
@@ -277,30 +288,30 @@ namespace SliceEngine
 				}
 			}
 
+			//factory.PrintNameMap();
+
 			// if its cloning an object, creating a prefab of an object
 			// and that object exist in the scene
 			// it would end up havint the same name
 			// which will break
 			auto& registry = Core::GetInstance()->GetRegistry();
 
-			auto rootEntity = sceneGraphMap.begin();
-			GameObject rootGO = factory.GetGOByEntity((Entity)rootEntity->second);
+			// idfk why using sceneGraphMap begin breaks if its creating objects made from fbx
+			// it works for any other type of prefabs 
+			// i just get the first entity in entityID instead cause thats the first obj created
+			auto rootEntity = entityID[0];
+			GameObject rootGO = factory.GetGOByEntity(rootEntity);
 			// the root prefab gameobject, should have no siblings as it's gonna be inserted into the graph
-			if (registry.any_of<SceneGraph>((Entity)rootEntity->second))
+			if (registry.any_of<SceneGraph>(rootEntity))
 			{
-				auto& sceneGraph = registry.get<SceneGraph>((Entity)rootEntity->second);
+				auto& sceneGraph = registry.get<SceneGraph>(rootEntity);
 
+				// it becomes a root for now, so it wont have an up, left or right
 				sceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
 				sceneGraph.neighbours[SceneGraph::RIGHT] = entt::null;
+				sceneGraph.neighbours[SceneGraph::UP] = entt::null;
 			}
 
-			// idk check if the name in goFactory map is correct atm
-			// if its not a valid name then set the name
-			//if (!FactoryInstance.CheckValidName(rootGO.GetEntity()))
-			//{
-			//}
-			rootGO.SetName(rootGO.GetName());
-			
 			if (rootGO.HasComponent<SliceEntity>())
 			{
 				rootGO.GetComponent<SceneGraph>().entity_id = (uint32_t)rootGO.GetEntity();
@@ -315,7 +326,7 @@ namespace SliceEngine
 				}
 
 				auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
-
+				sceneGraphComponent.entity_id = (unsigned int)entity;
 				for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
 				{
 					auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
@@ -323,14 +334,20 @@ namespace SliceEngine
 					{
 						sceneGraphComponent.neighbours[i] = (Entity)it->second;
 					}
-
-					// if this is the new child of the root entity
-					// for it to be the new child, up is the root and there is no left children
-					//if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
-					//{
-					//	auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
-					//}
 				}
+				//factory.PrintNameMap();
+				if (!Editor)
+				{
+					//factory.PrintNameMap();
+					//std::string goName = factory.GetNameFromMap(entity);
+
+					// handle adding to name map here
+					FactoryInstance.AddToNameMap(entity);
+					//factory.PrintNameMap();
+					//	goName = factory.GetNameFromMap(entity);
+				}
+				//factory.PrintNameMap();
+
 			}
 
 			// only once all the fixing of entity IDs and stuff is done, then we add the component
@@ -339,32 +356,138 @@ namespace SliceEngine
 				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
 			}
 
-			// Remapping Entity IDs after all GOs have been deserialized
-			//auto& registry = Core::GetInstance()->GetRegistry();
-			//auto& factory = Core::GetInstance()->mFactory;
-			if (rootGO.HasComponent<Bone>())
+			for (auto entity : entityID)
 			{
-				auto entityView = registry.view<Bone>();
-				for (auto entity : entityView)
+				if (!registry.any_of<Bone>(entity))
 				{
-					/*if (!registry.any_of<Bone>(entity))
-					{
-						continue;
-					}*/
-
-					auto& boneComponent = registry.get<Bone>(entity);
-
-					boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+					continue;
 				}
 
-				for (auto entity : entityView)
-				{
-					Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
-				}
-
+				auto& boneComponent = registry.get<Bone>(entity);
+				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
 			}
 
-			return (Entity)rootEntity->second;
+			for (auto entity : entityID)
+			{
+				if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}
+
+				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
+			}
+
+			if (rootGO.HasComponent<Slider>()) {	//handle and fill entity remapping for slider
+				auto entityView = registry.view<Slider>();
+				for (auto entity : entityView) {
+					auto& slider = registry.get<Slider>(entity);
+
+					slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+				}
+			}
+
+
+			return rootEntity;
+		}
+		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
+		{
+			std::unordered_map<unsigned int, std::vector<rttr::variant>> componentInstances;
+
+			json prefab = DeserializeFile(filePath);
+			auto& factory = Core::GetInstance()->mFactory;
+
+			for (auto& [name, components] : prefab.items())
+			{
+				std::vector<rttr::variant> variantComponents;
+				uint32_t prefabID = UINT_MAX;
+				for (auto& [objName, objProps] : components.items())
+				{
+					for (auto& [componentName, props] : objProps.items())
+					{
+						rttr::type compType = rttr::type::get_by_name(componentName);
+						if (!compType)
+						{
+							continue;
+						}
+
+						rttr::variant componentInstance = compType.create();
+						if (!componentInstance.is_valid())
+						{
+							continue;
+						}
+
+						for (auto& [propName, value] : props.items())
+						{
+							rttr::property prop = compType.get_property(propName);
+
+							//factory.PrintNameMap();
+
+							if (!prop.is_valid())
+								continue;
+
+							DeserializeProp
+								<
+								int,
+								unsigned int,
+								unsigned char,
+								float,
+								double,
+								bool,
+								Entity,
+								uint32_t,
+								uint64_t,
+								GUID,
+								Handle<SliceEngineTypes::Texture>,
+								Handle<SliceEngineTypes::Model>,
+								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
+								std::array<uint64_t, 4>,
+								std::array<Entity, 4>,
+								std::vector<uint64_t>,
+								glm::vec2,
+								glm::vec3,
+								glm::vec4,
+								glm::quat,
+								std::string,
+								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
+								ColliderShape::BoxData,
+								ColliderShape::SphereData,
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
+								>
+								(componentInstance, prop, value, propName, componentName, (Entity)0);
+
+							if (propName == "prefabID" && componentName == typeid(Prefab).name())
+							{
+								prefabID = value.get<uint32_t>();
+							}
+
+						}
+
+
+						if (componentName != typeid(SliceEntity).name() &&
+							componentName != typeid(Transform).name() &&
+							componentName != typeid(SceneGraph).name() &&
+							componentName != typeid(Prefab).name() &&
+							componentName != typeid(Bone).name())
+						{
+							variantComponents.push_back(componentInstance);
+						}
+
+						
+						//AddComponentFromVariant(newObj, componentInstance, componentName);
+					}
+				}
+
+				if (prefabID != UINT_MAX)
+					componentInstances[prefabID] = variantComponents;
+			}
+			return componentInstances;
 		}
 #pragma endregion
 
@@ -446,24 +569,29 @@ namespace SliceEngine
 					// of Serialize(...) in the header file
 					// Add supported types here + DeserializeProp below
 					SerializeProp
-					<
-						int, 
+						<
+						int,
 						unsigned int,
 						unsigned char,
-						float, 
-						double, 
-						bool, 
+						float,
+						double,
+						bool,
 						Entity,
 						uint32_t,
 						uint64_t,
 						GUID,
+						Handle<SliceEngineTypes::Texture>,
 						Handle<SliceEngineTypes::Model>,
 						Handle<SliceEngineTypes::Material>,
-						std::array<uint64_t, 4>, 
+						Handle<SliceEngineTypes::Skeleton>,
+						Handle<SliceEngineTypes::AnimationPackage>,
+						Handle<SliceEngineTypes::StateMachine>,
+						Handle<SliceEngineTypes::Prefab>,
+						std::array<uint64_t, 4>,
 						std::array<Entity, 4>,
 						std::vector<uint64_t>,
-						glm::vec2, 
-						glm::vec3, 
+						glm::vec2,
+						glm::vec3,
 						glm::vec4,
 						glm::quat,
 						std::string,
@@ -471,8 +599,9 @@ namespace SliceEngine
 						JPH::Vec3,
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
-						ColliderShape::CapsuleData
-					>
+						ColliderShape::CapsuleData,
+						RigidBody::FreezeOptions
+						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
 			}
@@ -514,8 +643,13 @@ namespace SliceEngine
 							uint32_t,
 							uint64_t,
 							GUID,
+							Handle<SliceEngineTypes::Texture>,
 							Handle<SliceEngineTypes::Model>,
 							Handle<SliceEngineTypes::Material>,
+							Handle<SliceEngineTypes::Skeleton>,
+							Handle<SliceEngineTypes::AnimationPackage>,
+							Handle<SliceEngineTypes::StateMachine>,
+							Handle<SliceEngineTypes::Prefab>,
 							std::array<uint64_t, 4>,
 							std::array<Entity, 4>,
 							std::vector<uint64_t>,
@@ -528,7 +662,8 @@ namespace SliceEngine
 							JPH::Vec3,
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
-							ColliderShape::CapsuleData
+							ColliderShape::CapsuleData,
+							RigidBody::FreezeOptions
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -556,7 +691,7 @@ namespace SliceEngine
 				Logger::LogError("JSONSerializer::Deserialize", "Unable to find/load JSON in path: " + filePath.string());
 				return json{};
 			}
-			
+
 			json output;
 			ifs >> output;
 			return output;
@@ -568,13 +703,14 @@ namespace SliceEngine
 
 
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
-
+			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
-
+				// save every entity that is being created
+				entityID.push_back(node.GetEntity());
 				for (auto& [objName, objProps] : components.items())
 				{
 					for (auto& [componentName, props] : objProps.items())
@@ -601,7 +737,7 @@ namespace SliceEngine
 
 						for (auto& [propName, value] : props.items())
 						{
-							rttr::property prop = compType.get_property(propName);							
+							rttr::property prop = compType.get_property(propName);
 
 							if (!prop.is_valid())
 								continue;
@@ -620,8 +756,13 @@ namespace SliceEngine
 								uint32_t,
 								uint64_t,
 								GUID,
+								Handle<SliceEngineTypes::Texture>,
 								Handle<SliceEngineTypes::Model>,
 								Handle<SliceEngineTypes::Material>,
+								Handle<SliceEngineTypes::Skeleton>,
+								Handle<SliceEngineTypes::AnimationPackage>,
+								Handle<SliceEngineTypes::StateMachine>,
+								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
 								std::array<Entity, 4>,
 								std::vector<uint64_t>,
@@ -631,9 +772,11 @@ namespace SliceEngine
 								glm::quat,
 								std::string,
 								std::unordered_map<std::string, rttr::variant>,
+								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
@@ -643,6 +786,11 @@ namespace SliceEngine
 							{
 								uint32_t oldID = value.get<uint32_t>();
 								sceneGraphMap[oldID] = entt::to_integral(node.GetEntity());
+							}
+
+							if (propName == "mName" && componentName == typeid(SliceEntity).name())
+							{
+								FactoryInstance.UpdateName(value, node.GetEntity());
 							}
 						}
 
@@ -654,48 +802,39 @@ namespace SliceEngine
 				}
 			}
 
-	
-
 			// Remapping Entity IDs after all GOs have been deserialized
 			auto& registry = Core::GetInstance()->GetRegistry();
-			//auto& factory = Core::GetInstance()->mFactory;
-			auto entityView = registry.view<Bone>();
-			for (auto entity : entityView)
+			for (auto entity : entityID)
 			{
-				/*if (!registry.any_of<Bone>(entity))
+				if (!registry.any_of<Bone>(entity))
 				{
 					continue;
-				}*/
+				}
 
 				auto& boneComponent = registry.get<Bone>(entity);
-
 				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
 			}
 
-			for (auto entity : entityView)
+			for (auto entity : entityID)
 			{
+				if (!registry.any_of<Bone>(entity))
+				{
+					continue;
+				}
+
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
-			//	auto& sceneGraphComponent = registry.get<SceneGraph>(entity);
-			//	
-			//	for (int i = 0; i < sceneGraphComponent.neighbours.size(); ++i)
-			//	{
-			//		auto it = sceneGraphMap.find((uint64_t)sceneGraphComponent.neighbours[i]);
-			//		if (it != sceneGraphMap.end())
-			//		{
-			//			sceneGraphComponent.neighbours[i] = (Entity)it->second;
-			//		}
+			//remap for slider
+			auto sliderView = registry.view<Slider>();
+			for (auto entity : sliderView) {
+				auto& slider = registry.get<Slider>(entity);
 
-			//		// if this is the new child of the root entity
-			//		// for it to be the new child, up is the root and there is no left children
-			//		if (sceneGraphComponent.neighbours[SceneGraph::UP] == factory.GetRootEntity() && sceneGraphComponent.neighbours[SceneGraph::LEFT] == entt::null)
-			//		{
-			//			auto& rootSceneGraph = registry.get<SceneGraph>(factory.GetRootEntity());
-			//		}
-			//	}
-			//}
-			
+				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+			}
+			// Using scene graph map to fix scenegraph component is done in another function in scene system.
+
 			return sceneGraphMap;
 		}
 
@@ -730,6 +869,7 @@ namespace SliceEngine
 
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
 			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
+			if (t == rttr::type::get<JPH::Vec3>()) { return v.get_value<JPH::Vec3>(); }
 			if (t == rttr::type::get<float>()) { return v.get_value<float>(); }
 			if (t == rttr::type::get<int>()) { return v.get_value<int>(); }
 			if (t == rttr::type::get<double>()) { return v.get_value<double>(); }
@@ -882,7 +1022,7 @@ namespace SliceEngine
 				auto& childScenegraph = child.GetComponent<SceneGraph>();
 				childScenegraph.entity_id = entt::to_integral(child.GetEntity());
 
-				factory.SetParent(child.GetEntity(),parent.GetEntity());				
+				factory.SetParent(child.GetEntity(), parent.GetEntity());
 
 				SerializeScene(testPath + std::string("JSONTest3.json"));
 

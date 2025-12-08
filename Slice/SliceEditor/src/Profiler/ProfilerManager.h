@@ -47,6 +47,8 @@ namespace SliceEditor
 
 		std::unordered_map<std::string, DebugStats> mDebugStats;
 
+		float mCurrFPS;
+
 		//SliceEngine::FramerateManager& framerateManager;
 
 		ProfilerManager(Registry& reg) : IBaseManager(reg) {};

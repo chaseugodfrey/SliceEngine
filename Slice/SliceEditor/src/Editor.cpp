@@ -35,8 +35,8 @@ namespace SliceEditor
 
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
 		{
@@ -54,6 +54,25 @@ namespace SliceEditor
 	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (input->GetMode() == SliceEngine::InputMode::Game)
+		{
+			//ImGuiIO& io = ImGui::GetIO();
+			//if (io.WantCaptureMouse)
+			//{
+			//	return;
+			//}
+
+			if (action == GLFW_PRESS)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+				std::cout << "Mouse Button Pressed: " << std::endl;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			}
+		}
 
 		// 2. Check if ImGui wants to capture the mouse
 		ImGuiIO& io = ImGui::GetIO();
@@ -62,15 +81,7 @@ namespace SliceEditor
 			return; // Stop processing, ImGui has it
 		}
 
-		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (action == GLFW_PRESS)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
-		}
+		
 	}
 
 	void Editor::Init()
@@ -80,6 +91,7 @@ namespace SliceEditor
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
+		inputs = std::make_unique<EditorInputs>(registry);
 
 		assetManager.ScanResourceFolder();
 		assetManager.Init();
@@ -93,6 +105,9 @@ namespace SliceEditor
 		// reminder to change scene root to a list in case we want to have multiple scenes
 		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
 
+		// default controller here pls
+		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
+
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		SLICE_LOG("Initializing Editor Systems.");
 
@@ -103,7 +118,15 @@ namespace SliceEditor
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
-		inputs.isActive = true;
+		inputs->isActive = true;
+
+
+		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
+		//NavmeshTest.AddComponent<SliceEngine::NavAgent>();
+		//NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
+
 		
 	}
 
@@ -112,7 +135,7 @@ namespace SliceEditor
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			registry.Update();
-			inputs.Update();
+			inputs->Update();
 			assetManager.UpdateFolder();
 			engine.Update();
 			Render();
@@ -128,12 +151,6 @@ namespace SliceEditor
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 
-		// in order to toggle game input on/off from editor UI w/o restarting, tell inputsystem if imgui is capturing input this frame
-		// editor tells inputsystem each frame whether imgui is using keyboard/mouse
-		ImGuiIO& io = ImGui::GetIO();
-		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		input->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse); // set imgui capture state in inputsystem to capture input
-
 		registry.GetManager<WindowManager>("Windows")->Render();
 
 		ImGui::Render();
@@ -147,8 +164,10 @@ namespace SliceEditor
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
+
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
+		ImNodes::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
@@ -162,6 +181,7 @@ namespace SliceEditor
 		SLICE_LOG("Creating ImGui Context.");
 		SLICE_LOG_VALUES("ImGui Version: ", IMGUI_VERSION);
 		ImGui::CreateContext();
+		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -176,6 +196,13 @@ namespace SliceEditor
 		glfwSetKeyCallback(window, MasterKeyCallback);
 		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
+
+		//glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
+		//	{
+		//		ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+		//		//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		//		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
+		//	});
 	}
 
 	void Editor::InitManagers()
@@ -217,7 +244,7 @@ namespace SliceEditor
 			}
 		}
 		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		manager->RebuildDirectory(*manager->rootNode);
+		manager->RebuildDirectory();
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)

@@ -90,7 +90,7 @@ namespace Geometry {
 	void Animation::Init(aiAnimation const* animation, Skeleton const& skeleton, aiScene const* scene) {
 		duration = animation->mDuration / animation->mTicksPerSecond;
 		fps = 60;
-
+		name = animation->mName.C_Str();
 		// 
 		TargetAnim(animation, skeleton);
 
