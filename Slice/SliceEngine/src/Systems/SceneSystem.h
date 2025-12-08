@@ -37,28 +37,27 @@ namespace SliceEngine
 	{
 	public:
 		
-		
-
 		SceneState mCurrentState;
 		SceneState mNextState;
 		
-
 		void Init();
 
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
 		void LoadScene(std::filesystem::path const filePath);
 		void LoadScene(uint32_t const index);
+		void LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
 		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
 		void SetDefaultScenePath(std::filesystem::path const& filePath);
 		
-		void SaveScene(std::filesystem::path const filePath);
+		void OnSceneSave(std::filesystem::path const filePath);
 		void SaveCurrentScene();
 		void SaveNextScene();
 		void UnloadCurrentScene();
 		void ReloadScene();		
 
+		void OnPlay(OnPlayEvent e);
 		void Play();
 		void Pause();
 		void Stop();
@@ -74,10 +73,11 @@ namespace SliceEngine
 		//can change to other identifier
 
 		std::queue<std::filesystem::path> mSceneQueue;
-		std::filesystem::path mCurrentScene{};	
+		std::filesystem::path mCurrentScene{};
 		std::filesystem::path mNextScene{};
 		std::filesystem::path mDefaultScene{};
 		
+		std::string mCurrentSceneName{};
 	};
 }
 

@@ -33,6 +33,11 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	struct PrefabEditingEntity
+	{
+
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;
@@ -49,11 +54,6 @@ namespace SliceEngine
 		bool mActive;
 		
 		EngineEntity() : mActive(true) {}
-	};
-
-	struct testStruct
-	{
-		int val;
 	};
 
 	struct SceneGraph
@@ -75,6 +75,7 @@ namespace SliceEngine
 
 	struct Script
 	{
+		bool componentEnabled{ true };
 		std::string scriptName;
 
 		// purely for serialization and deserialization
@@ -95,6 +96,63 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
+		glm::vec3 GetWorldPosition()
+		{
+			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
+		}
+
+		glm::quat GetWorldRotation()
+		{
+			glm::mat4 rotMat = transform;
+
+			// Extract and normalize the basis vectors to remove scale
+			glm::vec3 col0 = glm::normalize(glm::vec3(rotMat[0]));
+			glm::vec3 col1 = glm::normalize(glm::vec3(rotMat[1]));
+			glm::vec3 col2 = glm::normalize(glm::vec3(rotMat[2]));
+
+			// Reconstruct a pure rotation matrix
+			rotMat[0] = glm::vec4(col0, 0.0f);
+			rotMat[1] = glm::vec4(col1, 0.0f);
+			rotMat[2] = glm::vec4(col2, 0.0f);
+			rotMat[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+			return glm::quat_cast(rotMat);
+		}
+
+		glm::vec3 GetWorldScale()
+		{
+			glm::vec3 _scale{};
+			_scale.x = glm::length(glm::vec3(transform[0]));
+			_scale.y = glm::length(glm::vec3(transform[1]));
+			_scale.z = glm::length(glm::vec3(transform[2]));
+			return _scale;
+		}
+
+		void SetWorldPosition(const glm::vec3& newPos)
+		{
+			transform[3] = glm::vec4(newPos, 1.0f);
+		}
+
+		void SetWorldRotation(const glm::quat& newRot)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+			glm::vec3 currentPos = GetWorldPosition();
+
+			glm::mat4 rotMat = glm::mat4_cast(newRot);
+			transform = glm::scale(rotMat, currentScale);
+			transform[3] = glm::vec4(currentPos, 1.0f);
+		}
+
+		void SetWorldScale(const glm::vec3& newScale)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+
+			// Scale each basis vector
+			transform[0] *= (newScale.x / currentScale.x);
+			transform[1] *= (newScale.y / currentScale.y);
+			transform[2] *= (newScale.z / currentScale.z);
+		}
+
 		RTTR_ENABLE();
     };
 
@@ -103,19 +161,25 @@ namespace SliceEngine
 		// blank for now because I just need to use this for factory stuff
 	};
 
+	struct SelectedEntity{};
+
 	//XPROPERTY_REG(Transform);
 
 	enum RENDER_TAG : unsigned char
 	{
+		DEBUG_NONE			= 0x00,
 		DEBUG_OBJ_TAG		= 0x01,
 		DEBUG_FRUSTRUM_TAG	= 0x02,
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
-		DEBUG_ALL_DEBUG		= 0x0F,
-		RENDER_FOG			= 0x10,
-		RENDER_BLUR			= 0x20,
-		RENDER_BLOOM		= 0x40,
-		RENDER_VIGNETTE		= 0x80,
+		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_ALL_DEBUG		= 0xFF,
+
+		RENDER_NONE			= 0x00,
+		RENDER_FOG			= 0x01,
+		RENDER_BLUR			= 0x02,
+		RENDER_BLOOM		= 0x04,
+		RENDER_VIGNETTE		= 0x08,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -130,6 +194,7 @@ namespace SliceEngine
 
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
+		bool componentEnabled{ true };
 		bool skinned{ false };
 
 		RTTR_ENABLE();
@@ -140,15 +205,17 @@ namespace SliceEngine
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
-		unsigned char renderTag{}; // Currently Filled w/ renderTag stuff, like debug toggles, and post processing toggles
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
-		float bloomFilterRadius{0.005f};
-		float bloomStrength{ 0.04f };
+		float bloomFilterRadius{ 5.f };
+		float bloomStrength{ 0.4f };
+		float exposure{ 10.f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
-
+		unsigned char debugRenderToggles{};
+		unsigned char postRenderToggles{};
+		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
 
@@ -160,8 +227,9 @@ namespace SliceEngine
 			,Light_Point
 			,Light_Spot
 		};
+		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
-		float intensity{ 1.0f };
+		float intensity{ 0.5f };
 		GLuint depthTex{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
@@ -171,6 +239,8 @@ namespace SliceEngine
 
 	struct Prefab
 	{
+		unsigned int prefabID;
+
 		// GUID reference to original prefab
 		GUID prefabGUID;
 
@@ -227,12 +297,12 @@ namespace SliceEngine
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
-		//JPH::ObjectLayer layer = Layers::MOVING;							  // Collision layer :D
 		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
-		JPH::ShapeRefC shape;												  // Jolt shape ref
+		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
-		bool isTrigger = false;												  
+		bool isTrigger = false;	
+		bool componentEnabled = true;
 
 		ColliderShape() = default;
 		ColliderShape(BoxData data) : shapeData(data) {};
@@ -275,15 +345,25 @@ namespace SliceEngine
 			Logarithmic = 0,
 			Linear = 1
 		};
+
+		enum Category : int
+		{
+			SFX,
+			BGM,
+			UI,
+			EditorSounds
+		};
 		//std::string soundName;
-		GUID soundGUID = (GUID)9244272128099795086;
+		bool componentEnabled{ true };
+		GUID soundGUID = (GUID)10155432597037438324;
 		FMOD::Channel* channel = nullptr;
 		FMOD::Channel* previewChannel = nullptr;
 		int priority = 128;
 		bool isMute = false;
 		bool isLoop = false;
-		bool isPaused = true;
-		float currentVolume = 0.3f;
+		bool isPaused = false;
+		float currentVolume = 1.0f;
+		Category category = SFX;
 		float pitch = 1.0f;
 		float stereoPan = 0.0f;
 		float spatialBlend = 1.0f;
@@ -293,11 +373,7 @@ namespace SliceEngine
 		VolumeRollOff volumeRollOff = Logarithmic;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
-
-		float minInterval = 0.0f;
 		bool playOnAwake = false;
-
-		bool _playTrigger = false;
 		bool playPreview = false;
 
 		RTTR_ENABLE();
@@ -305,7 +381,10 @@ namespace SliceEngine
 
 	struct AudioListener
 	{
+		bool componentEnabled{ true };
 		glm::vec3 listenerPos{};
+
+		RTTR_ENABLE();
 	};
 
 	// placeholder particle system component structure for reference
@@ -475,7 +554,7 @@ namespace SliceEngine
 
 	struct Animator
 	{
-
+		bool componentEnabled{ true };
 		Handle<SliceEngineTypes::StateMachine> Handle_stateMachine;
 		FSMSystem stateMachine;
 		
@@ -531,7 +610,7 @@ namespace SliceEngine
 			return final_tforms;
 		}
 
-		bool IsValid()
+		bool IsValid() const
 		{
 			return (Handle_skeleton.IsValid() && Handle_curr_anim_pkg.IsValid() && Handle_stateMachine.IsValid());
 		}
@@ -545,6 +624,132 @@ namespace SliceEngine
 		unsigned int frame_idx{};
 
 		RTTR_ENABLE();
+	};
+
+	//for canvas, sprite renderer, rect transform, read comments in canvas system.h
+	struct Canvas
+	{
+		enum Type {
+			OVERLAY
+			//CAMERA
+			//WORLD
+		};
+
+		bool componentEnabled{ true };
+		Type canvas_type{ OVERLAY };
+		unsigned int sort_order{};	//smaller number = draw first = behind others
+		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
+									//only for overlay canvas
+
+		RTTR_ENABLE();
+	};
+
+	struct RectTransform {
+		enum HoriPivot {
+			LEFT,
+			CENTER,
+			RIGHT,
+			STRETCH_H
+		};
+		enum VertPivot {
+			TOP,
+			MIDDLE,
+			BOTTOM,
+			STRETCH_V
+		};
+
+		//Settings only for imgui's display and component function calls
+		//old pivot serves as a flag to know how to update intermediate values during the update call
+		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
+		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
+
+		//Intermediate settings used by imgui, all in local space
+		int pos_x{}, pos_y{};			//pixel coord
+		int width{ 100 }, height{ 100 };//pixel size
+		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+
+		//Actual settings used to draw
+		int final_x{}, final_y{};				//position with center of quad as position
+		int final_width{ 100 }, final_height{ 100 };
+
+		//Parent/Canvas reference - done via passing param through the recursive func call maybe
+		void Update(Canvas const& ctx, RectTransform const& parent);
+
+		glm::mat4 ToMatrix() const;
+
+		RTTR_ENABLE();
+	};
+
+
+	struct SpriteRenderer {
+		bool componentEnabled{ true };
+		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
+		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
+		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct Button {
+		RTTR_ENABLE();
+	public:
+		enum Transition : unsigned char {
+			Color,
+			Sprite
+		} transition;
+
+		enum ButtonState : unsigned char {
+			Normal = 0,
+			Highlighted = 1,
+			Pressed = 2,
+			Total_States
+		} state;
+
+		bool componentEnabled{ true };
+		glm::vec4 color_transitions[Total_States]{
+			{1.f, 1.f, 1.f, 1.f},	//white
+			{0.75f, 0.75f, 0.75f, 1.f},//light grey
+			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		};
+		GUID sprite_transitions[Total_States]{
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
+			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT
+		};
+		//Entity target_graphic;	//if the entity that gets modified by transition not the same
+		//im gona move the click stuff to script only
+	};
+
+	struct Slider {
+		RTTR_ENABLE();
+	public:
+		//the direction the handle will move along(no diagonal sliders)
+		enum Axis : unsigned char {
+			X_Axis,
+			Y_Axis
+		} axis{ X_Axis };
+		
+		//whehter the value moves in the positive or negative axis
+		enum Direction : unsigned char {
+			Positive,
+			Negative
+		} direction{ Positive };
+
+
+		/*
+		* There entities are always children of the slider
+		* and their positions will always be relative to it
+		*/
+		Entity handle{ entt::null };	//basically the slider knob
+		Entity fill{ entt::null };		//basically the "filled" portion of a slider, gets stretched depending on val
+
+		//sets the value, positions the handle and fill, and calls c# callback
+		void SetValue(float, Entity self);
+		float GetValue() const;	//not actually sure if this func is needed
+
+		bool componentEnabled{ true };
+		//for now only allow a normalized value - 0 to 1
+		float value{ 0 };
 	};
 
 	// Not a component but a base data obj for nav mesh
@@ -569,6 +774,7 @@ namespace SliceEngine
 	// Component
 	struct NavAgent
 	{
+		bool componentEnabled{ true };
 		glm::vec3 target = glm::vec3(0.0f);
 		std::vector<glm::vec3> currentPath;
 		int currentPathIndex = 0;

@@ -28,6 +28,23 @@ namespace SliceEngine
 	enum class ScriptFieldType : int;
 	struct ScriptEntity {};
 
+	enum class ScriptCollisionType
+	{
+		CollideEnter,
+		CollideStay,
+		CollideExit,
+		TriggerEnter,
+		TriggerStay,
+		TriggerExit
+	};
+
+	struct QueuedCollisionEvent
+	{
+		ScriptCollisionType type;
+		Entity entity; // The entity with the script
+		Entity other;  // The entity it hit
+	};
+
 	class ScriptSystem : public BaseSystem<ScriptEntity, Script>
 	{
 	public:
@@ -111,6 +128,8 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
+		void UnsubscribeToEvents();
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -133,7 +152,15 @@ namespace SliceEngine
 		void OnTriggerEnter(const OnTriggerEnterEvent& event);
 		void OnTriggerStay(const OnTriggerStayEvent& event);
 		void OnTriggerExit(const OnTriggerExitEvent& event);
+		void QueueCollision(ScriptCollisionType, Entity entity1, Entity entity2);
+		void ProcessCollisionQueue();
 
+		//button events
+		void OnButtonClick(const OnButtonClickEvent& event);
+		void OnButtonRelease(const OnButtonReleaseEvent& event);
+
+		//Slider events
+		void OnSliderValue(const OnSliderValueEvent& event);
 
 		// Variables
 		MonoDomain* mRootDomain;
@@ -160,6 +187,10 @@ namespace SliceEngine
 		// ill store new entities thats added in a vector
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
+
+		std::vector<QueuedCollisionEvent> mCollisionQueue;
+		std::mutex mQueueLock;
+
 	};
 
 	extern ScriptSystem* gScriptSystem;

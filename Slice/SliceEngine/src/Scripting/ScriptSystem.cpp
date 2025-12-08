@@ -32,6 +32,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/Core.h"
 #include "../Input/InputSystem.h"
 #include "../Systems/SceneSystem.h"
+#include <shared_mutex>
+
 namespace SliceEngine
 {
     ScriptSystem* gScriptSystem = NULL;
@@ -268,15 +270,28 @@ namespace SliceEngine
 
     void ScriptSystem::ReloadAssembly()
     {
+
+
+        // save the current script variables
+        for (auto [entity, instance] : mEntityInstances)
+        {
+            UpdateScriptComponent(entity);
+        }
+
         // temporary until we find a btr way
         // cause itll freeze the engine for a bit
         // mayb a pop up window to show its recompiling or smth by having this threaded
-
         int buildResult = system("dotnet build \"../SliceScript/SliceScript.csproj\"");
-
+        UnsubscribeToEvents();
         if (buildResult != 0)
         {
             return;
+        }
+
+        // clear the collision queue events 
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            mCollisionQueue.clear();
         }
 
         for (auto [entity, instance] : mEntityInstances)
@@ -289,6 +304,11 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mono_gchandle_free(mCoroutineInstance->mHandle);
+        mono_gchandle_free(mTimeInstance->mHandle);
+
+        mCoroutineInstance.reset();
+        mTimeInstance.reset();
         mEntityInstances.clear();
         mono_domain_set(mono_get_root_domain(), false);
 
@@ -303,12 +323,45 @@ namespace SliceEngine
         //ScriptFunctions::RegisterFunctions();
         LoadEntityClasses();
 
+        // one issue i foresee is if they modify a variable starting value
+        // like if they default initialize a list with 1 element in it
+        // then when I update with the previously saved value in the script component
+        // it might overwrite 
+
         ScriptFunctions::RegisterComponents();
 
 
         mCoroutineManager = std::make_shared<ScriptClass>("SliceEngine", "CoroutineManager");
         mCoroutineManager->Instantiate();
         mCoroutineInstance = std::make_unique<ScriptObject>(mCoroutineManager, static_cast<Entity>(0));
+
+        mTime = std::make_shared<ScriptClass>("SliceEngine", "Time");
+        mTime->Instantiate();
+        mTimeInstance = std::make_unique<ScriptObject>(mTime, static_cast<Entity>(0));
+
+        for (auto entity = entityAdded.begin(); entity != entityAdded.end(); ++entity)
+        {
+            if (mEntityInstances.count(*entity) == 0)
+            {
+                auto& scriptComponent = mRegistry->get<Script>(*entity);//ComponentManager::GetInstance()->GetComponent<Script>(*entity);
+                if (HasEntityClass(scriptComponent.scriptName)) // Technically dont have to check IMGUI only allows for entity classes to be picked
+                {
+                    std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], *entity);
+                    //  scriptRef->SetUpEntity(id); // Instantiate and set up the method handling
+
+                    mEntityInstances[*entity] = scriptObj;
+
+                    UpdateScriptVariables(*entity);
+
+                    // entity = entityAdded.begin();
+                }
+            }
+        }
+
+        entityAdded.clear();
+        
+        SubscribeToEvents();
+
         SLICE_LOG("mCorout");
         //PrintAssemblyTypes(mCoreAssembly);
     }
@@ -398,6 +451,12 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
+
             scriptRef->InvokeOnConstruct((unsigned int)id);
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
@@ -406,14 +465,32 @@ namespace SliceEngine
 
     void ScriptSystem::OnUpdate(float dt)
     {
+        ProcessCollisionQueue();
+
         mCoroutineInstance->InvokeOnUpdate(dt);
         mTimeInstance->InvokeOnUpdate(dt);
 
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
-            scriptRef->InvokeOnUpdate(dt);
-            UpdateScriptComponent(id);
+            std::string entityName = FactoryInstance.GetGOByEntity(id).GetName();
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+            }
+            else
+            {
+                scriptRef->InvokeOnUpdate(dt);
+                UpdateScriptComponent(id);
+            }
         }
     }
 
@@ -758,6 +835,8 @@ namespace SliceEngine
     /// <param name="entity">Entity being removed</param>
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
+        mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
+
         for (auto& it : mEntityInstances)
         {
             if (it.first == entity)
@@ -941,7 +1020,7 @@ namespace SliceEngine
                 }
                 else if (nameSpace == "SliceEngine")
                 {
-                    image = mono_class_get_image(mono_type_get_class(type));
+                    image = mCoreAssemblyImage;
                 }
                 else
                 {
@@ -1005,6 +1084,7 @@ namespace SliceEngine
     {
         auto* eventManager = EventManager::GetInstance();
 
+        //Collision System
         eventManager->Subscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
 
         eventManager->Subscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
@@ -1017,57 +1097,206 @@ namespace SliceEngine
 
         eventManager->Subscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
 
+        //UI System
+        eventManager->Subscribe<OnButtonClickEvent, &ScriptSystem::OnButtonClick>(this);
+        eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
+        eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
+
+    }
+
+    void ScriptSystem::UnsubscribeToEvents()
+    {
+        auto* eventManager = EventManager::GetInstance();
+
+        eventManager->Unsubscribe<OnCollisionEnterEvent, &ScriptSystem::OnCollideEnter>(this);
+
+        eventManager->Unsubscribe<OnCollisionStayEvent, &ScriptSystem::OnCollideStay>(this);
+
+        eventManager->Unsubscribe<OnCollisionExitEvent, &ScriptSystem::OnCollideExit>(this);
+
+        eventManager->Unsubscribe<OnTriggerEnterEvent, &ScriptSystem::OnTriggerEnter>(this);
+
+        eventManager->Unsubscribe<OnTriggerStayEvent, &ScriptSystem::OnTriggerStay>(this);
+
+        eventManager->Unsubscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
+
+    }
+
+    void ScriptSystem::QueueCollision(ScriptCollisionType type, Entity entity, Entity otherEntity)
+    {
+        std::lock_guard<std::mutex> lock(mQueueLock);
+        mCollisionQueue.push_back({ type, entity, otherEntity });
+    }
+
+    void ScriptSystem::ProcessCollisionQueue()
+    {
+        std::vector<QueuedCollisionEvent> tempQueue;
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            if (mCollisionQueue.empty()) return;
+            tempQueue.swap(mCollisionQueue);
+        }
+
+        for (const auto& event : tempQueue)
+        {
+            // make sure entity is still alive
+            if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            {
+                continue;
+            }
+
+            //if the script component is disabled ignore and collision invoke in the script
+            auto& scriptComponent = mRegistry->get<Script>(event.entity);
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            auto scriptInstance = mEntityInstances[event.entity];
+
+            if (!scriptInstance) continue;
+
+            switch (event.type)
+            {
+            case ScriptCollisionType::CollideEnter:
+                scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::CollideStay:
+                scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::CollideExit:
+                scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerEnter:
+                scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerStay:
+                scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+                break;
+            case ScriptCollisionType::TriggerExit:
+                scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+                break;
+            }
+        }
     }
 
     void ScriptSystem::OnCollideEnter(const OnCollisionEnterEvent& event)
     {
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
 
-            //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
-            scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
-        }
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        QueueCollision(ScriptCollisionType::CollideEnter, event.entity, event.other);
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+
+        //    //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
+        //    scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
     {
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
-        }
+
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+        QueueCollision(ScriptCollisionType::CollideStay, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
     {
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
-        }
+
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+        QueueCollision(ScriptCollisionType::CollideExit, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
     {
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
-        }
+
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        QueueCollision(ScriptCollisionType::TriggerEnter, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+        //}
 
     }
     void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
     {
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
-        }
+
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+        QueueCollision(ScriptCollisionType::TriggerStay, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+        //}
     }
     void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
     {
+
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+        QueueCollision(ScriptCollisionType::TriggerExit, event.entity, event.other);
+
+        //auto scriptInstance = mEntityInstances[event.entity];
+        //if (scriptInstance)
+        //{
+        //    scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        //}
+    }
+
+    //button funcs
+    void ScriptSystem::OnButtonClick(const OnButtonClickEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
         auto scriptInstance = mEntityInstances[event.entity];
         if (scriptInstance)
         {
-            scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+            scriptInstance->InvokeButtonOnClick();
+        }
+    }
+
+    void ScriptSystem::OnButtonRelease(const OnButtonReleaseEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnRelease();
+        }
+    }
+
+    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnSliderValue(event.value);
         }
     }
 }

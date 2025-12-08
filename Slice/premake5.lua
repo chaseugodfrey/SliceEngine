@@ -1,5 +1,5 @@
 workspace "Slice"
-    configurations { "EditorDebug", "EditorRelease" }
+    configurations { "EditorDebug", "EditorRelease"}
     architecture "x64"
     startproject "SliceEditor"
     flags { "MultiProcessorCompile" }

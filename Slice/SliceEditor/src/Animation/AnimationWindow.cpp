@@ -39,7 +39,6 @@ namespace SliceEditor
 			ClearData();
 			return false;
 		}
-
 		auto& nodes = selectionManager->GetSelectedNodes();
 		Entity entity = entt::null;
 
@@ -51,7 +50,7 @@ namespace SliceEditor
 
 			// check if first entity has animator component
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-
+			tmpEnt = entity;
 			// if anim exists
 			if (anim && anim->IsValid())
 			{
@@ -160,10 +159,11 @@ namespace SliceEditor
 
 	void AnimationWindow::ClearData()
 	{
-		if (!mCurrentAnimator)
-			return;
+		//if (!mCurrentAnimator)
+			//return;
 
 		mCurrentAnimator = nullptr;
+		tmpEnt = entt::null;
 
 		mPropertyGroups.clear();
 	}
@@ -177,38 +177,53 @@ namespace SliceEditor
 	{
 		auto core = SliceEngine::Core::GetInstance();
 
-		auto const& bone = core->GetRegistry().get<SliceEngine::Bone>(ent);
-		Entity root_entity = bone.skeleton_root;
-		if (root_entity == ent) {
-			return;
+		auto const& bone = core->GetRegistry().try_get<SliceEngine::Bone>(ent);
+		if(bone)
+		{
+			Entity root_entity = bone->skeleton_root;
+			if (root_entity != ent)
+			{
+				//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
+				auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
+
+				//if (!mTimeline.isPlaying)
+					///continue;
+
+				//some pseudo code
+				glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone->frame_idx];
+				glm::vec3 translation, scale, skew;
+				glm::vec4 perspective;
+				glm::quat rotation;
+				glm::decompose(frame, scale, rotation, translation, skew, perspective);
+				transform.position = translation;
+				transform.rotation = rotation;
+				transform.scale = scale;
+
+				//if is a renderer, tell skeleton to calculate inverse for this index
+				if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
+					mCurrentAnimator->inverse_flags.set(bone->frame_idx);
+				}
+			}
+
+			if (auto scene_graph = core->GetRegistry().try_get<SliceEngine::SceneGraph>(ent)) {
+				entt::entity child = scene_graph->neighbours[SliceEngine::SceneGraph::DOWN];
+				while (child != entt::null)
+				{
+					UpdateBoneScene(child);
+					child = core->GetRegistry().get<SliceEngine::SceneGraph>(child).neighbours[SliceEngine::SceneGraph::RIGHT];
+				}
+			}
 		}
 
-		//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
-		auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
 
-		//if (!mTimeline.isPlaying)
-			///continue;
 
-		//some pseudo code
-		glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone.frame_idx];
-		glm::vec3 translation, scale, skew;
-		glm::vec4 perspective;
-		glm::quat rotation;
-		glm::decompose(frame, scale, rotation, translation, skew, perspective);
-		transform.position = translation;
-		transform.rotation = rotation;
-		transform.scale = scale;
-
-		//if is a renderer, tell skeleton to calculate inverse for this index
-		if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
-			mCurrentAnimator->inverse_flags.set(bone.frame_idx);
-		}
+		
 	}
 
-	void AnimationWindow::UpdateBones(Entity ent)
+	void AnimationWindow::UpdateBones()
 	{
 		//SliceEngine::Animator& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		SliceEngine::Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(ent);
+		SliceEngine::Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(tmpEnt);
 		if (mCurrentAnimator->is_bone)
 		{
 			auto& anim = animationClips[mCurrentClipIndex];
@@ -257,18 +272,20 @@ namespace SliceEditor
 			//animationClips[mCurrentClipIndex]->UpdateTransforms(mCurrentAnimator->final_tforms, 0, *mCurrentAnimator->Handle_skeleton.get());
 			UpdateTransform(animationClips[mCurrentClipIndex], 0);
 			// update scenegraph
-			auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+			//auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
 
-			for (auto entity : viewBone)
+			//for (auto entity : viewBone)
 			{
-				UpdateBoneScene(entity);
+				UpdateBoneScene(tmpEnt);
 			}
 
-			auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+			UpdateBones();
+
+			/*auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
 			for (auto entity : viewAnimator)
 			{
 				UpdateBones(entity);
-			}
+			}*/
 		}
 
 		ImGui::SameLine();
@@ -417,26 +434,30 @@ namespace SliceEditor
 						float safe_time = std::min(mCurrentTime, anim->duration);
 						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
 						UpdateTransform(anim, safe_time);
+						UpdateBoneScene(tmpEnt);
+						UpdateBones();
 					}
 				}
 
 				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
 
-				if (!ret)
-				{
+				//if (!ret)
+				//{
 					// update scenegraph
-					auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-					for (auto entity : viewBone)
-					{
-						UpdateBoneScene(entity);
-					}
+					//auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
+					//for (auto entity : viewBone)
+					/*{
+						UpdateBoneScene(tmpEnt);
+					}*/
 
-					auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
+					//UpdateBones();
+
+					/*auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
 					for (auto entity : viewAnimator)
 					{
 						UpdateBones(entity);
-					}
-				}
+					}*/
+				//}
 				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 			}
 		}

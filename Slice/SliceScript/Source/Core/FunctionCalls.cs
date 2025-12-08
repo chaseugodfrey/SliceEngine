@@ -10,7 +10,19 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetMainCamera(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Debug_Console(string[] callStack, string msg, int level);
+        
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void QuitGame();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_GetPosition(uint entityID, out Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldPosition(uint entityID, out Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetPosition(uint entityID, ref Vector3 position);
@@ -27,6 +39,15 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotation(uint entityID, ref Vector3 rotation);
 
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetRotationQuat(uint entityID, out Quaternion rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldRotationQuat(uint entityID, out Quaternion rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
         internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
 
@@ -37,10 +58,31 @@ namespace SliceEngine
         internal extern static void RigidBody_AddForce(uint entityID, out Vector3 force, int mode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float RigidBody_GetGravityFactor(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_SetGravityFactor(uint entityID, float factor);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody_IsGravityOff(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody_OffGravity(uint entityID, bool condition);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool ColliderShape_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void ColliderShape_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Play(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
@@ -87,10 +129,46 @@ namespace SliceEngine
         //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsKeyPressed(Keys key);
+        internal extern static bool Input_IsKeyPressed(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool IsKeyDown(Keys key);
+        internal extern static bool Input_IsKeyDown(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsKeyReleased(Keys keyCode);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMousePressed(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMouseDown(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMouseReleased(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_GetMousePosition(out Vector2 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_GetMouseDelta(out Vector2 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int Input_GetCursorState();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Input_SetCursorState(int cursorState);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_EnableMap(string map, bool enable);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static bool AM_PerformedThisFrame(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static float AM_GetValue1D(string map, string action);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void AM_GetValue2D(string map, string action, out Vector2 value);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);
@@ -112,6 +190,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithName(string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_FindEntityWithID(uint id);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
@@ -138,6 +219,18 @@ namespace SliceEngine
         internal extern static void SetFloat(uint entity, string parameter, float val);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string GetCurrAnimName(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float GetCurrAnimTime(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float GetCurrAnimFPS(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool IsCurrAnimFin(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -145,5 +238,29 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_Stop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float NavAgent_GetSpeed(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool NavAgent_HasPath(uint entityID);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Slider_SetValue(uint entityID, float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Slider_GetValue(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
     }
 }

@@ -34,11 +34,13 @@ namespace SliceEngine
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
 
+#pragma region Prefab Serialization
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
+		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
+		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath);
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath);
-
+#pragma endregion
 		json SerializeSceneResources();
 		void DeserializeSceneResource(std::filesystem::path const& filePath);
 
@@ -178,6 +180,13 @@ namespace SliceEngine
 		{
 			output[name][typeName][propName]["radius"] = data.radius;
 			output[name][typeName][propName]["height"] = data.height;
+		}
+
+		template<>
+		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const RigidBody::FreezeOptions& data, const Entity& entity)
+		{
+			output[name][typeName][propName] = { data.freezeX, data.freezeY, data.freezeZ };
 		}
 
 		// For glm::vec4
@@ -320,10 +329,10 @@ namespace SliceEngine
 		{
 			prop.set_value(componentInstance, value);
 
-			if (propName == "mName" && componentName == typeid(SliceEntity).name())
-			{
-				FactoryInstance.UpdateName(value, entity);
-			}
+			//if (propName == "mName" && componentName == typeid(SliceEntity).name())
+			//{
+			//	FactoryInstance.UpdateName(value, entity);
+			//}
 		}
 
 		// For Relationship array (up down left right stuff)
@@ -443,6 +452,24 @@ namespace SliceEngine
 			}
 			return false;
 		}
+
+		template<>
+		inline bool TryDeserializeType<RigidBody::FreezeOptions>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<RigidBody::FreezeOptions>()) {
+				RigidBody::FreezeOptions data;
+				if (value.is_array() && value.size() == 3) {
+					data.freezeX = value[0];
+					data.freezeY = value[1];
+					data.freezeZ = value[2];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
 		template <typename... Types>
 		void DeserializeProp(rttr::variant& componentInstance, rttr::property& prop,
 			const json& value, const std::string& propName, const std::string& componentName,
@@ -453,7 +480,6 @@ namespace SliceEngine
 			//	return;
 			//}
 			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
-
 			if (!handled)
 			{
 				rttr::type propType = prop.get_type();
@@ -712,6 +738,12 @@ namespace rttr
 				return rttr::variant(valueJson.get<glm::vec2>());
 			}
 
+			// JPH types
+			if (typeName == "JPH::Vec3")
+			{
+				return rttr::variant(valueJson.get<JPH::Vec3>());
+			}
+
 			// Vector types
 			if (typeName == "std::vector<float>")
 			{
@@ -729,6 +761,13 @@ namespace rttr
 			{
 				return rttr::variant(valueJson.get<std::vector<int>>());
 			}
+
+			return rttr::variant(valueJson.get<std::string>());
+		}
+		else
+		{
+			SLICE_LOG_ERROR("JsonToVariant doesnt match any supported type.");
+			return rttr::variant();
 		}
 	}
 

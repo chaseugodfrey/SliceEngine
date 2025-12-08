@@ -36,7 +36,13 @@ void EventManager::SetupEventManager()
 	RegisterEvent<OnTriggerEnterEvent>();
 	RegisterEvent<OnTriggerStayEvent>();
 	RegisterEvent<OnTriggerExitEvent>();
-	//UwU
+
+	//who wrote that stupid commment
+
+	//ui events
+	RegisterEvent<OnButtonClickEvent>();
+	RegisterEvent<OnButtonReleaseEvent>();
+	RegisterEvent<OnSliderValueEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

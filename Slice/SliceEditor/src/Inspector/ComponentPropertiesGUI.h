@@ -32,12 +32,16 @@ namespace SliceEditor
 
 	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
+
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min = 0, int max = 0);
 	
 	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt32Input(Registry& reg, const char* id, uint32_t& val, const char* format, uint32_t min = 0, uint32_t max = 0);
 
-	bool BoolInput(Registry& reg, const char* id, bool& valselecte);
+	bool BoolInput(Registry& reg, const char* id, bool& val);
 	
+	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec);
+
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec);
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
@@ -48,15 +52,18 @@ namespace SliceEditor
 
 	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 	
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "%.3f", int min = 0, int max = 0);
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "X: %llu", uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt32InputHeader(Registry& reg, const char* property_label, const char* id, uint32_t& val, const char* format = "X: %u", uint32_t min = 0, uint32_t max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
 
+	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val);
+
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
 	
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width);
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func = nullptr);
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f);
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, std::function<void(std::string)> func = nullptr);
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
@@ -64,11 +71,23 @@ namespace SliceEditor
 
 	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
+
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int min = 0, int max = 0);
 
 	bool StringArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list);
+
+	bool DragVec3ArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<glm::vec3>)> func, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format = "%.3f", float inc =0.1f, float min = 0.f, float max = 0.f);
+
+	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector<std::string>& list);
+
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
+
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int inc = 1, int min = 0, int max = 0);
+
+	bool DragVec3ListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> editFunc, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format ="%.3f", float inc =.1f, float min =0.f, float max =0.f);
 
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& color);
 
@@ -83,7 +102,7 @@ namespace SliceEditor
 	//void DragDoubleInputHeader(const char* property_label, const char* id, double& val, const char* format = "%.3f", std::function<void(double)> setFunc = nullptr);
 	//void DragVec2InputHeader(const char* property_label, const char* id, MathLib::vec2& val);
 
-	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
+	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr);
 
 	// if need to pass in lambda
 	// example code:
@@ -150,7 +169,8 @@ namespace SliceEditor
 
 	}
 
-
+	template <>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
 
 	template <typename Enum>
 	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
@@ -192,6 +212,12 @@ namespace SliceEditor
 		return changed;
 	}
 }
+
+void SetBit(unsigned char& mask, unsigned char bit, bool enabled);
+
+// using char for now
+//bool ComboMultiSelectHeader(Registry& reg, std::string property_label, const char* id, char& value, std::vector<std::string>& container);
+
 
 
 /*void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);

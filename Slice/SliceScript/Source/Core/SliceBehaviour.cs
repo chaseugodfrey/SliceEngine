@@ -42,6 +42,20 @@ namespace SliceEngine
 
         public virtual void OnCollideStay(uint other) { }
 
+        public virtual void OnCollideExit(uint other) { }
+
+        public virtual void OnTriggerEnter(uint other) { }
+
+        public virtual void OnTriggerStay(uint other) { }
+
+        public virtual void OnTriggerExit(uint other) { }
+
+
+        public virtual void OnButtonClick() { }
+        public virtual void OnButtonRelease() { }
+        public virtual void OnSliderValue(float value) { }
+//        public virtual void OnButtonRelease() { }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
@@ -49,6 +63,13 @@ namespace SliceEngine
         }
         public new T GetComponent<T>() where T : Component
         {
+            Type componentType = typeof(T);
+            if (!FunctionCalls.Entity_HasComponent(gameObject.mID, componentType))
+            {
+                return null;
+            }
+
+
             var ctor = typeof(T).GetConstructor(new[] { typeof(GameObject) });
             if (ctor == null)
                 throw new InvalidOperationException(
@@ -97,12 +118,27 @@ namespace SliceEngine
             return entity;
         }
 
+        public GameObject[] FindGameObjectsWithTag(string tag)
+        {
+            return gameObject.FindGameObjectsWithTag(tag);
+        }
+
+        public GameObject FindGameObjectWithName(string name)
+        {
+            return gameObject.FindGameObjectWithName(name);
+        }
+
+        public GameObject FindGameObjectWithID(uint id)
+        {
+            return gameObject.FindGameObjectWithID(id);
+        }
         public void Destroy()
         {
+            StopAllCoroutines();
             FunctionCalls.Destroy(gameObject.mID);
         }
 
-                public void StartCoroutine(IEnumerator routine)
+         public void StartCoroutine(IEnumerator routine)
         {
             if (routine != null)
                 CoroutineManager.StartCoroutine(routine, this);

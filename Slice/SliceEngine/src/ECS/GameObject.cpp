@@ -26,6 +26,13 @@ namespace SliceEngine
 	{
 		if (HasComponent<SliceEntity>())
 		{
+			// if the current GO in the map is the same as the current entity and the name is the same
+			// then dont do anything
+			if (FactoryInstance.GetGOByName(name).mEntity == mEntity)
+			{
+				return;
+			}
+
 			std::string newName = FactoryInstance.CreateName(name);
 			FactoryInstance.UpdateName(newName, mEntity);
 			GetComponent<SliceEntity>().mName = newName;

@@ -9,8 +9,13 @@ namespace SliceEngine
 {
 
 
-    public class AudioComponent : Component
+    public class AudioSource : Component
     {
+        public AudioSource(GameObject gameObject)
+        {
+
+        }
+
         public enum VolumeRollOff
         {
             Logarithmic = 0,

@@ -16,13 +16,27 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/EventManager.h"
 #include "../ECS/GOFactory.h"
 #include "../Core/ComponentModified.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 #define EPSILON 0.0001f
+#define GLM_ENABLE_EXPERIMENTAL
+
 
 namespace SliceEngine
 {
+	namespace helpers
+	{
+		glm::vec3 JPHtoglm(JPH::Vec3 vec)
+		{
+			return glm::vec3(vec.GetX(), vec.GetY(), vec.GetZ());
+		}
 
+		JPH::Vec3 glmtoJPH(glm::vec3 vec)
+		{
+			return JPH::Vec3(vec.x, vec.y, vec.z);
+		}
+	}
 
 	PhysicsSystem::~PhysicsSystem()
 	{
@@ -30,7 +44,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(float fixedDt, size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize( size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -46,8 +60,6 @@ namespace SliceEngine
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
 				}
 			}
-
-			collisionSteps = static_cast<int>(ceil(fixedDt / (1.0f / 60.f)));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -141,16 +153,18 @@ namespace SliceEngine
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
 		}
 
+		//Temp fix for gravity factor and motion quality
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
+		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+		//Temp fix for mass properties
 
 		//Set physics properties
 		if (!rigidBody.isKinematic)
 		{
-			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
-			physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
-			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
-			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
 
 			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
 			if (lock.Succeeded())
@@ -221,6 +235,7 @@ namespace SliceEngine
 
 	}
 
+	// componeent enable check
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
@@ -230,11 +245,23 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
 		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+
+		if(colliderShape.shape == nullptr)
+			return;
+
+
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
 
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		if (colliderShape.componentEnabled) // if true set the layer so it can collide
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			{
+				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			}
+		}
+		else //else set to collision off layer
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
 		}
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
@@ -444,6 +471,10 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		JPH::EMotionType motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+
 		if (rigidBody.isKinematic && motionType != JPH::EMotionType::Kinematic)
 		{
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Kinematic, JPH::EActivation::Activate);
@@ -512,20 +543,21 @@ namespace SliceEngine
 		{
 			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
 			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
-			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
-															fabs(transform.scale.y),
-															fabs(transform.scale.z));
+			JPH::Vec3 tempScale = boxData.scale * scl;
 
 			if (tempScale == halfExtents)
 				return;
 
-			JPH::Vec3 newHalf(
-				boxData.scale.GetX() * fabs(transform.scale.x),
-				boxData.scale.GetY() * fabs(transform.scale.y),
-				boxData.scale.GetZ() * fabs(transform.scale.z)
-			);
+			JPH::Vec3 newHalf(boxData.scale * scl);
+
+			// ensure minimum size for each dimension
+			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
+			newHalf.SetX(JPH::max(newHalf.GetX(), minSize));
+			newHalf.SetY(JPH::max(newHalf.GetY(), minSize));
+			newHalf.SetZ(JPH::max(newHalf.GetZ(), minSize));
 
 			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -573,16 +605,17 @@ namespace SliceEngine
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
-			float tempScaleX = sphereData.radius * fabs(transform.scale.x);
-			float tempScaleY = sphereData.radius * fabs(transform.scale.y);
-			float tempScaleZ = sphereData.radius * fabs(transform.scale.z);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+			float tempScaleX = sphereData.radius * fabs(scl.GetX());
+			float tempScaleY = sphereData.radius * fabs(scl.GetY());
+			float tempScaleZ = sphereData.radius * fabs(scl.GetZ());
 
 			if (tempScaleX == sphereRadius && tempScaleY == sphereRadius && tempScaleZ == sphereRadius)
 			{
 				return;
 			}
 
-			float biggestScale = std::max({ fabs(transform.scale.x), fabs(transform.scale.y), fabs(transform.scale.z) });
+			float biggestScale = std::max({ fabs(scl.GetX()), fabs(scl.GetY()), fabs(scl.GetZ()) });
 
 			JPH::SphereShapeSettings *settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -632,16 +665,18 @@ namespace SliceEngine
 			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
 
 			auto& capsuleData = std::get < ColliderShape::CapsuleData >(colliderShape.shapeData);
-			float tempScaleX = capsuleData.radius * fabs(transform.scale.x);
-			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
-			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+
+			float tempScaleX = capsuleData.radius * fabs(scl.GetX());
+			float tempScaleZ = capsuleData.radius * fabs(scl.GetZ());
+			float tempScaleHeight = capsuleData.height * fabs(scl.GetY());
 
 			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
 			{
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
 			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -757,12 +792,20 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
-		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
-		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+		//JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
+		//glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		//JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
-		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
-		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
+		glm::vec3 pos = transform.GetWorldPosition();
+		glm::quat rot = transform.GetWorldRotation();
+
+		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
+		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
+
+		jph_rot.Normalized();
+
+		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -773,8 +816,13 @@ namespace SliceEngine
 
 		//glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
-		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
-		transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		//transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
+		//transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		
+		transform.transform = 
+			glm::translate(glm::mat4(1.0f), glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ())) *
+			glm::mat4_cast(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())) *
+			glm::scale(glm::mat4(1.0f), transform.GetWorldScale());
 
 	}
 
@@ -862,6 +910,7 @@ namespace SliceEngine
 		contactListener->clearBodiesInContact();
 	}
 
+	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& slice = reg.get<SliceEntity>(entity);
@@ -884,9 +933,10 @@ namespace SliceEngine
 			return;
 		}
 		colliderShape.shape = shape;
+
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		glm::quat rot = transform.rotation;
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
 		JPH::BodyCreationSettings bodySettings;
@@ -897,11 +947,15 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, slice.mLayer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, slice.mLayer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
 			}
 
 			//Set physics properties
@@ -924,8 +978,12 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, slice.mLayer);
+			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
 			//bodySettings.mFriction = 0.6f;
+			bodySettings.mRestitution = 0.0f;
+
 		}
 
 		//Set as sensor for triggers
@@ -957,7 +1015,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		// Remove body form physics world
@@ -971,20 +1028,59 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
-		//if (entity == static_cast<Entity>(6U));
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		GameObject check = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (check.GetTag() == "Player")
+		{
+			auto& rigidBody = reg.get<RigidBody>(entity);
+
+			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				JPH::MotionProperties* mp = body.GetMotionProperties();
+
+				JPH::RefConst<JPH::Shape> shape = body.GetShape();
+				JPH::MassProperties massProps = shape->GetMassProperties();
+
+				massProps.ScaleToMass(rigidBody.mass);
+				body.SetCollideKinematicVsNonDynamic(true);
+
+				//handle freeze position
+				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+				if (!rigidBody.freezePosition.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+				if (!rigidBody.freezePosition.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+				if (!rigidBody.freezePosition.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+				//handle freeze rotation
+				if (!rigidBody.freezeRotation.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::RotationX;
+				if (!rigidBody.freezeRotation.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::RotationY;
+				if (!rigidBody.freezeRotation.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+				mp->SetMassProperties(allowedDofs, massProps);
+				//mp->ScaleToMass(rigidBody.mass);
+				mp->SetLinearDamping(rigidBody.linearDamping);
+				mp->SetAngularDamping(rigidBody.angularDamping);
+			}
+
+		}
 
 		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
+
 		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		//SyncPhysicsToECS(transform, colliderShape);
-
-		//HandleRemovedContacts();
-
-		
+		//HandleRemovedContacts();	
 	}
 
 	void PhysicsSystem::StepWorld(float dt)
@@ -994,8 +1090,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::PostStepSync()
 	{
-		HandleRemovedContacts();
-
 		auto view = mRegistry->view<Transform, ColliderShape>();
 
 		// Safe, iterator-free iteration
@@ -1003,6 +1097,8 @@ namespace SliceEngine
 		{
 			SyncPhysicsToECS(t, c);
 		}
+
+		HandleRemovedContacts();
 	}
 
 	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)
@@ -1054,31 +1150,28 @@ namespace SliceEngine
 
 	}
 
-	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
-	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
-
-		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
-
-		return velocity;
-	}
-
-	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
-	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
-	}
-
 	void PhysicsSystem::SetCollisionMask(uint32_t layer, uint32_t mask)
 	{
+		if (layer == Layers::COLLISION_OFF) // cannot set collision mask for COLLISION_OFF layer
+			return;
+
 		objectLayerPairFilter->SetCollisionMask(layer, mask);
 	}
 
 	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
 	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 		auto& slice = mRegistry->get<SliceEntity>(entity);
+
+		//when component is disabled we dont change layer( Leave it as COLLISION_OFF layer)
+		if (!colliderShape.componentEnabled)
+		{
+			return; // might change it to set to COLLISION_OFF but that should be handled when disabling component
+		}
 
 		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 		{
@@ -1100,6 +1193,118 @@ namespace SliceEngine
 	{
 		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
 	}
+
+	glm::vec3 PhysicsSystem::GetPosition(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
+
+		return glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());
+	}
+
+	glm::quat PhysicsSystem::GetRotation(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::quat();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
+		return glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+	}
+
+	glm::vec3 PhysicsSystem::GetScale(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		const JPH::Shape* shape = colliderShape.shape.GetPtr();
+		if (const JPH::BoxShape* boxShape = dynamic_cast<const JPH::BoxShape*>(shape))
+		{
+			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			return glm::vec3(halfExtents.GetX() * 2.0f, halfExtents.GetY() * 2.0f, halfExtents.GetZ() * 2.0f);
+		}
+		else if (const JPH::SphereShape* sphereShape = dynamic_cast<const JPH::SphereShape*>(shape))
+		{
+			float radius = sphereShape->GetRadius();
+			return glm::vec3(radius * 2.0f); // Uniform scale for sphere
+		}
+		else if (const JPH::CapsuleShape* capsuleShape = dynamic_cast<const JPH::CapsuleShape*>(shape))
+		{
+			float radius = capsuleShape->GetRadius();
+			float height = capsuleShape->GetHalfHeightOfCylinder() * 2.0f;
+			return glm::vec3(radius * 2.0f, height, radius * 2.0f); // Assuming Y-axis is the height
+		}
+	}
+
+	int PhysicsSystem::GetCollisionSteps() const
+	{
+		return collisionSteps;
+	}
+
+	void PhysicsSystem::SetCollisionSteps(int steps)
+	{
+		collisionSteps = steps;
+	}
+
+
+	float PhysicsSystem::GetGravityFactor(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		return physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+	}
+
+	void PhysicsSystem::SetGravityFactor(Entity entity, float factor)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, factor);
+	}
+
+	void PhysicsSystem::OffGravity(Entity entity, bool condition)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		if (condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID,0.0f);
+		}
+		else if (!condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, 1.0f);
+		}
+	}
+
+	bool PhysicsSystem::IsGravityOff(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		 float factor = physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+		 return factor > 0.0f ? false : true;
+	}
+
+	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Vec3 vel = physicsSystem->GetBodyInterface().GetLinearVelocity(colliderShape.bodyID);
+
+		glm::vec3 velocity(vel.GetX(), vel.GetY(), vel.GetZ());
+
+		return velocity;
+	}
+
+	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
+	}
+
 
 
 

@@ -1,2 +1,5 @@
-fog.vert
-fog.frag
+{
+    "VertexShader": "fullScreen_Vert",
+    "FragmentShader": "fog_Frag",
+    "GeometryShader": ""
+}

@@ -23,15 +23,35 @@ namespace SliceEngine
 	public:
 		GUID() : mValue(0) {}
 		explicit GUID(uint64_t value) : mValue(value) {}
-		bool operator==(const GUID& other) const { return mValue == other.mValue; }
-		bool operator!=(const GUID& other) const { return mValue != other.mValue; }
+		//bool operator==(const GUID& other) const { return mValue == other.mValue; }
+		//bool operator!=(const GUID& other) const { return mValue != other.mValue; }
 		//bool operator<(const GUID& other) const { return mValue < other.mValue; }
 		//bool operator<=(const GUID& other) const { return mValue <= other.mValue; }
 		//bool operator>(const GUID& other) const { return mValue > other.mValue; }
 		//bool operator>=(const GUID& other) const { return mValue >= other.mValue; }
 		
 		// this shit is cool wtf 4 for the price of 1
-		bool operator<=>(const GUID& other) const { return mValue >= other.mValue; }
+		//bool operator<=>(const GUID& other) const = default;
+
+		friend inline bool operator==(const GUID& lhs, const GUID& rhs)
+		{
+			return lhs.GetGUID() == rhs.GetGUID();
+		}
+
+		friend inline bool operator!=(const GUID& lhs, const GUID& rhs)
+		{
+			return !(lhs == rhs);
+		}
+
+		friend inline bool operator<(const GUID& lhs, const GUID& rhs)
+		{
+			return lhs.GetGUID() < rhs.GetGUID();
+		}
+
+		friend inline bool operator>(const GUID& lhs, const GUID& rhs)
+		{
+			return !(lhs < rhs);
+		}
 
 		static GUID Generate()
 		{
@@ -58,7 +78,7 @@ namespace SliceEngine
 			return GUID(0);
 		}
 
-		std::string toString()
+		std::string toString() const
 		{
 			return std::to_string(this->mValue);
 		}
@@ -68,6 +88,8 @@ namespace SliceEngine
 	private:
 		uint64_t mValue;
 	};
+
+
 }
 
 

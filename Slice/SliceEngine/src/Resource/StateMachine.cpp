@@ -23,17 +23,38 @@ namespace SliceEngine
                 var.clear(); // Set to invalid/empty
             }
         }
+        void from_json(const nlohmann::json& j, Condition& c)
+        {
+            j.at("paramName").get_to(c.paramName);
+            j.at("comparisonOP").get_to(c.op);
+            if (j.contains("value")) {
+                from_json(j.at("value"), c.value);
+            }
+            else {
+                c.value = rttr::variant();
+            }
+        }
         void from_json(const nlohmann::json& j, Transition& t)
         {
+            j.at("sourceState").get_to(t.sourceState);
             j.at("targetState").get_to(t.targetState);
-            //j.at("condition").get_to(t.condition);
-            j.at("parameterName").get_to(t.parameterName);
-            j.at("comparisonOP").get_to(t.operation);
+            j.at("hasExitTime").get_to(t.hasExitTime);
+            j.at("exitTime").get_to(t.exitTime);
+            j.at("entryTime").get_to(t.entryTime);
 
-            const nlohmann::json& conditionJson = j.at("condition");
+            const nlohmann::json& conditionsArray = j.at("conditions");
 
-            // 2. Explicitly call your from_json function for rttr::variant
-            from_json(conditionJson, t.condition);
+            for (const auto& conditionJson : conditionsArray)
+            {
+                // 4. Create a temporary object
+                Condition tmpCon;
+
+                // 5. Explicitly call your from_json for Transition
+                from_json(conditionJson, tmpCon);
+
+                // 6. Add the deserialized object to your vector
+                t.conditions.push_back(tmpCon);
+            }
         }
 
         // --- from_json for State ---
@@ -41,10 +62,9 @@ namespace SliceEngine
         {
             j.at("stateName").get_to(s.stateName);
             j.at("currAnimIdx").get_to(s.curr_anim_idx);
-            j.at("hasExitTime").get_to(s.hasExitTime);
-            j.at("exitTime").get_to(s.exitTime);
-            j.at("entryTime").get_to(s.entryTime);
             j.at("isLoop").get_to(s.isLoop);
+            j.at("mNodePos").get_to(s.mNodePos);
+            j.at("fps").get_to(s.fps);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 

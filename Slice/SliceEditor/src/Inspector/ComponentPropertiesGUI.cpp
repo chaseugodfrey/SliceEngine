@@ -119,8 +119,7 @@ namespace SliceEditor
 	{
 		static uint64_t oldVal{};
 
-		bool changed = ImGui::DragScalar(id, ImGuiDataType_S64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
-
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -129,6 +128,26 @@ namespace SliceEditor
 			if (oldVal != val)
 			{
 				std::unique_ptr<ValueCommand<uint64_t>> command = std::make_unique<ValueCommand<uint64_t>>(val, oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+	bool DragUInt32Input(Registry& reg, const char* id, uint32_t& val, const char* format, uint32_t min, uint32_t max)
+	{
+		static uint32_t oldVal{};
+
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U32, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (oldVal != val)
+			{
+				std::unique_ptr<ValueCommand<uint32_t>> command = std::make_unique<ValueCommand<uint32_t>>(val, oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
 		}
@@ -152,7 +171,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func)
 	{
 		static std::string oldVal{};
 
@@ -172,8 +191,17 @@ namespace SliceEditor
 		{
 			if (changed)
 			{
-				std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
-				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				if(func != nullptr)
+				{
+					func(val);
+					std::unique_ptr<FunctionSetsValueCommand<std::string>> command = std::make_unique<FunctionSetsValueCommand<std::string>>(val, oldVal, func);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+				else
+				{
+					std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
 			}
 		}
 
@@ -188,6 +216,11 @@ namespace SliceEditor
 		changed = BoolInput(reg, id, val) || changed;
 
 		return changed;
+	}
+
+	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val)
+	{
+		return false;
 	}
 
 	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
@@ -220,7 +253,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, int min, int max)
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
@@ -230,15 +263,27 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width)
+	bool DragUInt32InputHeader(Registry& reg, const char* property_label, const char* id, uint32_t& val, const char* format, uint32_t min, uint32_t max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val, width) || changed;
+		changed = DragUInt32Input(reg, id, val, format, min, max) || changed;
 
 		return changed;
 	}
+
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		changed = StringInput(reg, id, val, width, func) || changed;
+
+		return changed;
+	}
+
+#pragma region Normal Script Functions
 
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val)
 	{
@@ -270,7 +315,7 @@ namespace SliceEditor
 		ImGui::SameLine(150.f);
 		static float oldVal{};
 
-		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -316,7 +361,7 @@ namespace SliceEditor
 		ImGui::SameLine(150.f);
 		static int oldVal{};
 
-		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format,ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -333,6 +378,93 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max)
+	{
+		
+		static glm::vec3 oldVal{};
+
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (glm::distance(oldVal, val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed |= ImGui::DragFloat((id + "_y"s).c_str(), &val.y, inc, min, max, format);
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (glm::distance(oldVal, val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed |= ImGui::DragFloat((id + "_z"s).c_str(), &val.z, inc, min, max, format);
+
+		if (ImGui::IsItemActivated())
+			oldVal = val;
+
+		if (ImGui::IsItemDeactivatedAfterEdit())
+		{
+			if (glm::distance(oldVal, val) > FLT_EPSILON)
+			{
+				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+			}
+		}
+
+		return changed;
+	}
+
+	//bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	//{
+	//	ImGui::Text(property_label);
+	//	ImGui::SameLine(150.f);
+	//	static SliceEngine::GameObject oldVal{};
+
+	//	val.GetName();
+
+	//	ImGui::BeginDisabled();
+	//	bool changed = ImGui::InputText(id, &val.GetName(),ImGuiInputTextFlags_ReadOnly);
+	//	ImGui::EndDisabled();
+
+	//	if (ImGui::IsItemActivated())
+	//		oldVal = val;
+
+	//	if (ImGui::IsItemDeactivatedAfterEdit())
+	//	{
+	//		if (oldVal != val)
+	//		{
+	//			std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
+	//			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+	//		}
+	//	}
+
+	//	return changed;
+	//}
+
+#pragma endregion
+
+#pragma region Array Script Functions
+
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format, float min, float max)
 	{
 		static std::string elementNo_String =  "Element ";
@@ -348,7 +480,7 @@ namespace SliceEditor
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
-				changed |= ImGui::DragFloat(newID.c_str(), &entry,0.1f,min,max,format, ImGuiSliderFlags_AlwaysClamp);
+				changed |= ImGui::DragFloat(newID.c_str(), &entry,0.1f,min,max,format);
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
@@ -362,17 +494,6 @@ namespace SliceEditor
 					}
 				}
 				i++;
-			}
-			ImGui::Dummy(ImVec2(0,0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
 			}
 			ImGui::TreePop();
 		}
@@ -395,7 +516,7 @@ namespace SliceEditor
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
-				changed |= ImGui::DragInt(newID.c_str(), &entry,1,min,max,format, ImGuiSliderFlags_AlwaysClamp);
+				changed |= ImGui::DragInt(newID.c_str(), &entry,1,min,max,format);
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
@@ -409,17 +530,6 @@ namespace SliceEditor
 					}
 				}
 				i++;
-			}
-			ImGui::Dummy(ImVec2(0,0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
 			}
 			ImGui::TreePop();
 		}
@@ -457,27 +567,16 @@ namespace SliceEditor
 				}
 				i++;
 			}
-			ImGui::Dummy(ImVec2(0, 0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
-			}
 			ImGui::TreePop();
 		}
 
 		return changed;
 	}
 	
-	bool StringListScriptHeader(Registry& reg, std::function<void(std::string, std::vector<std::string>)> func, const char* property_label, const char* id, std::vector<std::string>& list)
+	bool DragVec3ArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<glm::vec3>)> func, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format, float inc, float min, float max)
 	{
 		static std::string elementNo_String = "Element ";
-		static std::vector<std::string > oldList{};
+		static std::vector<glm::vec3> oldList{};
 		int i = 0;
 		bool changed = false;
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed))
@@ -489,7 +588,8 @@ namespace SliceEditor
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
-				changed |= ImGui::InputText(newID.c_str(), &entry);
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID+"_x"s).c_str(), &entry.x, inc, min, max, format);
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
@@ -498,28 +598,316 @@ namespace SliceEditor
 				{
 					if (oldList != list)
 					{
-						std::unique_ptr<ScriptFieldSetterCommand<std::vector<std::string>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(func, std::string(property_label), oldList, list);
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_y"s).c_str(), &entry.y, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					}
+				}
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_z"s).c_str(), &entry.z, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					if (oldList != list)
+					{
+						std::unique_ptr<ScriptFieldSetterCommand<std::vector<glm::vec3>>> command = std::make_unique<ScriptFieldSetterCommand<std::vector<glm::vec3>>>(func, std::string(property_label), oldList, list);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 					}
 				}
 				i++;
-			}
-			ImGui::Dummy(ImVec2(0, 0));
-			ImGui::SameLine(150.f);
-			if (ImGui::Button("+", ImVec2(30, 20)))
-			{
-				//Plus Here
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("-", ImVec2(30, 20)))
-			{
-				//Minus Here
 			}
 			ImGui::TreePop();
 		}
 
 		return changed;
 	}
+
+#pragma endregion
+
+#pragma region List Script Functions
+	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector< std::string>& list)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<std::string > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				changed |= ImGui::InputText(newID.c_str(), &entry);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					editFunc("Edit", std::string(property_label), list, entry, idx);
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, "", idx);
+
+				// record in history
+				/*if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						addFunc, std::string(property_label), "", "");
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+	
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<float > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc,"Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label),list, entry, idx);
+					changed = true;
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, 0.0f, idx);
+
+				// record in history
+				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format, int inc, int min, int max)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<int> oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				changed |= ImGui::DragInt(newID.c_str(), &entry, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					std::unique_ptr<ScriptListSetterCommand<int>> command = std::make_unique<ScriptListSetterCommand<int>>(editFunc, "Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+					changed = true;
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, 0, idx);
+
+				// record in history
+				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
+	bool DragVec3ListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> editFunc, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format, float inc, float min, float max)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<glm::vec3 > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_x"s).c_str(), &entry.x, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					std::unique_ptr<ScriptListSetterCommand<glm::vec3>> command = std::make_unique<ScriptListSetterCommand<glm::vec3>>(editFunc, "Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID+"_y"s).c_str(), &entry.y, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					std::unique_ptr<ScriptListSetterCommand<glm::vec3>> command = std::make_unique<ScriptListSetterCommand<glm::vec3>>(editFunc, "Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(50.f);
+				changed |= ImGui::DragFloat((newID + "_z"s).c_str(), &entry.z, inc, min, max, format);
+
+				if (ImGui::IsItemActivated())
+					oldList = list;
+
+				if (ImGui::IsItemDeactivatedAfterEdit())
+				{
+					std::unique_ptr<ScriptListSetterCommand<glm::vec3>> command = std::make_unique<ScriptListSetterCommand<glm::vec3>>(editFunc, "Edit", std::string(property_label), oldList, list);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+					changed = true;
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, glm::vec3(), idx);
+
+				// record in history
+				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
+#pragma endregion
 
 	bool DragColor3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& val)
 	{
@@ -675,11 +1063,20 @@ namespace SliceEditor
 				changed = (guid != newGUID);
 				if (changed)
 				{
+					if (!setFunc)
+					{
+						std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+						guid = newGUID;
+					}
 
-					std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
-					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					else
+					{
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
-					setFunc(newGUID);
+						setFunc(newGUID);
+					}
 				}
 			}
 
@@ -688,6 +1085,21 @@ namespace SliceEditor
 
 		return changed;
 
+	}
+
+	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
+	{
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(50.0f);
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
+
+		return changed;
 	}
 
 	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
@@ -734,6 +1146,66 @@ namespace SliceEditor
 		return changed;
 	}
 
+	template <>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	{
+		bool changed = false;
+		std::string filename{ "(empty)" };
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.0f);
+
+		auto& assetManager = reg.GetAssetManager();
+		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+
+		if (file.has_value())
+		{
+			filename = file.value();
+		}
+
+		ImGui::BeginDisabled();
+		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (handle.getGUID() != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(newGUID);
+
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>>(handle, handle, newHandle);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						handle = newHandle;
+					}
+
+					else
+						setFunc(newGUID);
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+
+	}
+
 }
 
-
+void SetBit(unsigned char& mask, unsigned char bit, bool enabled)
+{
+	if (enabled)
+		mask |= bit;
+	else
+		mask &= ~bit;
+}

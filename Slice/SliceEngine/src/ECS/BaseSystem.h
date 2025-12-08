@@ -71,6 +71,12 @@ namespace SliceEngine
 			auto view = reg.view<SystemTag, Required...>();
 			for (auto entity : view)
 			{
+				if (reg.any_of<SliceEntity>(entity))
+				{
+					auto& sliceEntity = reg.get<SliceEntity>(entity);
+					if (!sliceEntity.mActive)
+						continue;
+				}
 				EntityOnUpdate(reg, entity, dt);
 			}
 		}

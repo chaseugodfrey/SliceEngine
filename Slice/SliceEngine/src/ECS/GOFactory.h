@@ -148,6 +148,7 @@ namespace SliceEngine
 		}
 
 		GameObject CreateBlank(); // for deserializing
+		GameObject CreateBlanker(); // for prefab editing. doesn't add to mNameToEntity
 		GameObject CreateEO();
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
@@ -166,7 +167,30 @@ namespace SliceEngine
 		void EmplaceComponents(Entity entity, const rttr::variant& componentVariant);
 		std::string CreateName(std::string name);
 		void InitRootEntity();
+		void RemoveFromNameMap(Entity entity);
+		void AddToNameMap(Entity entity);
 
+		// THESE ARE FOR TESTING
+		// @GIDEON RMB TO DELETE OR ANYONE THAT READS THIS
+		inline std::string GetNameFromMap(Entity entity)
+		{
+			for (auto& [name, ent] : mNameToEntity)
+			{
+				if (ent == entity)
+				{
+					return name;
+				}
+			}
+
+			return "";
+		}
+		inline void PrintNameMap()
+		{
+			for(auto& [name, entity] : mNameToEntity)
+			{
+				SLICE_LOG_VALUES("NameMap Entry: " + name);
+			}
+		}
 		bool isDescendant(Entity target, Entity dest);
 		bool Unparent(Entity entity);
 		bool SetParent(Entity entity, Entity parentEntity = entt::null);
@@ -185,6 +209,10 @@ namespace SliceEngine
 		GameObject CreateGO_Capsule();
 		GameObject CreateGO_Cam();
 		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
+		GameObject CreateGO_Canvas();
+		GameObject CreateGO_Image();
+		GameObject CreateGO_Button();
+		GameObject CreateGO_Slider();
 
 		Registry mRegistry;
 
@@ -200,7 +228,7 @@ namespace SliceEngine
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
 		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
-		// I really dont like how this emplacing is being done imo
+		// I really dont like how this emplacing is being done imo(i agree)
 		std::unordered_map<rttr::type, ComponentEmplacer> mCESmartPtr;
 		std::unordered_map<rttr::type, ComponentEmplacer> mComponentEmplacer;
 

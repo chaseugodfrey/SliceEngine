@@ -127,7 +127,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
+				//SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
 				return Handle<T>();
 			}
 
@@ -213,9 +213,15 @@ namespace SliceEngine
 
 		void RegisterResourceAsset(const std::string& path);
 
-		void UpdateEntityResources();
+		//void UpdateEntityResources();	//this func is litearlly not called, also removed any usage of handle.filename - elton
 
 		void Shutdown();
+
+		GUID GetSkeletonGUIDFromModel(GUID modelGUID);
+
+		GUID GetAnimationGUIDFromModel(GUID modelGUID);
+
+		bool CheckResource(GUID guid);
 
 		std::optional<std::filesystem::path> GetResourcePath(std::string filename);
 		
@@ -398,7 +404,7 @@ namespace SliceEngine
 		ResourceManager* mManager;
 		detail::Instance* mInstance;
 		GUID mGUID;
-		std::string fileName;
+		//std::string fileName;
 	};
 
 }

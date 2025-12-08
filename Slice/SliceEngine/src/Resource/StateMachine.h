@@ -15,6 +15,7 @@ namespace SliceEngine
 {
 	namespace SliceEngineTypes
 	{
+
 		enum class ComparisonOp
 		{
 			Equal,
@@ -38,16 +39,31 @@ namespace SliceEngine
 			{ComparisonOp::IsFalse, "IsFalse"}
 			})
 
+		struct Condition
+		{
+			std::string paramName;
+			rttr::variant value;
+			ComparisonOp op;
+		};
+
 		struct Transition
 		{
+			int id;
+			std::string sourceState;
 			std::string targetState;
-			rttr::variant condition;
+
+			std::vector<Condition> conditions;
+			/*rttr::variant condition;
 			ComparisonOp operation;
-			std::string parameterName;
+			std::string parameterName;*/
+
+			bool hasExitTime{};
+			float exitTime = 1.0f;
+			float entryTime = 0.0f;
 
 			bool operator==(const Transition& other) const
 			{
-				return targetState == other.targetState && condition == other.condition;
+				return std::strcmp(sourceState.c_str(), other.sourceState.c_str()) == 0 && std::strcmp(targetState.c_str(), other.targetState.c_str());
 			}
 		};
 
@@ -55,15 +71,14 @@ namespace SliceEngine
 		{
 			std::string stateName;
 			unsigned int curr_anim_idx{};
-
-			bool hasExitTime{};
-			float exitTime = 1.0f;
-			float entryTime = 0.0f;
+			int fps{};
 			float animationTime{};
 
-			bool isLoop {false};
+			bool isLoop { false };
+			bool isFinish{ false };
 
 			std::vector<Transition> transitions;
+			Transition const* transitionUsed{ nullptr };
 
 			// node editor stuff
 

@@ -5,15 +5,15 @@ using System.Runtime.CompilerServices;
 
 namespace SliceEngine
 {
-    public class CoroutineManager
+    public class Coroutine
     {
-        public class Coroutine
-        {
-            public IEnumerator Enumerator;
-            public SliceBehaviour Owner;
-            public object CurrentYield = null;
-        }   
+        public IEnumerator Enumerator;
+        public SliceBehaviour Owner;
+        public object CurrentYield = null;
+    }
 
+    public class CoroutineManager
+    { 
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
 
@@ -94,11 +94,12 @@ namespace SliceEngine
                 if (!c.Owner.activeSelf)
                     continue;
 
-                // Handle WaitForSeconds
-                if (c.CurrentYield is WaitForSeconds wait)
+                if (c.CurrentYield is IYieldInstruction yi)
                 {
-                    if (!wait.Tick(dt))
-                        continue; // still waiting
+                    // Update if it needs deltaTime
+                    if (yi is WaitForSeconds wfs) wfs.Update(dt);
+
+                    if (!yi.IsDone()) continue; // still waiting
                 }
 
                 bool alive = c.Enumerator.MoveNext();
@@ -110,23 +111,116 @@ namespace SliceEngine
                     continue;
                 }
 
-                c.CurrentYield = c.Enumerator.Current;
+                // Store current yield instruction
+                if (c.Enumerator.Current is IYieldInstruction yieldInstr)
+                    c.CurrentYield = yieldInstr;
+                else
+                    c.CurrentYield = c.Enumerator.Current;
+            }
+        }
+
+        public static void OnEntityDestroy(uint owner)
+        {
+            EntityDestroyed(owner);
+        }
+
+        public static bool IsRunning(Coroutine coroutine)
+        {
+            return coroutines.Contains(coroutine) || newCoroutines.Contains(coroutine);
+        }
+
+        public static void EntityDestroyed(uint owner)
+        {
+            for (int i = coroutines.Count - 1; i >= 0; i--)
+            {
+                var c = coroutines[i];
+                if (c.Owner != null && c.Owner.gameObject.mID == owner)
+                {
+                    coroutines.RemoveAt(i);
+                }
             }
         }
     }
-    public class WaitForSeconds
+
+    public interface IYieldInstruction
     {
-        public float TimeRemaining { get; private set; }
+        bool IsDone();
+    }
+    public class WaitForSeconds : IYieldInstruction
+    {
+        private float timeRemaining;
 
         public WaitForSeconds(float seconds)
         {
-            TimeRemaining = seconds;
+            timeRemaining = seconds;
         }
 
-        public bool Tick(float dt)
+        public bool IsDone()
         {
-            TimeRemaining -= dt;
-            return TimeRemaining <= 0.0f;
+            return timeRemaining <= 0f;
+        }
+        public void Update(float dt)
+        {
+            timeRemaining -= dt;
+        }
+    }
+
+    public class WaitUntil : IYieldInstruction
+    {
+        private readonly Func<bool> predicate;
+
+        public WaitUntil(Func<bool> predicate)
+        {
+            this.predicate = predicate;
+        }
+
+        public bool IsDone()
+        {
+            return predicate();
+        }
+    }
+    public class WaitWhile : IYieldInstruction
+    {
+        private readonly Func<bool> predicate;
+
+        public WaitWhile(Func<bool> predicate)
+        {
+            this.predicate = predicate;
+        }
+
+        public bool IsDone()
+        {
+            return !predicate(); // complete when predicate is false
+        }
+    }
+
+    public class WaitForCoroutine : IYieldInstruction
+    {
+        private readonly Coroutine target;
+
+        public WaitForCoroutine(Coroutine coroutine)
+        {
+            target = coroutine;
+        }
+
+        public bool IsDone()
+        {
+            return !CoroutineManager.IsRunning(target);
+        }
+    }
+
+    public class WaitForEndOfFrame : IYieldInstruction
+    {
+        private bool hasWaited = false;
+
+        public bool IsDone()
+        {
+            if (!hasWaited)
+            {
+                hasWaited = true;
+                return false;
+            }
+            return true;
         }
     }
 }

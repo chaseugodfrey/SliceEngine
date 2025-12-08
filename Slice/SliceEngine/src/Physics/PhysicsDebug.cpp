@@ -34,7 +34,7 @@ namespace SliceEngine
 
         Logger::LogLevel level = MapJoltMessage(inFMT);
 
-        LogJolt("Jolt", inFMT, level, args);
+        LogJolt("Jolt Trace Log", inFMT, level, args);
 
         va_end(args);
     }

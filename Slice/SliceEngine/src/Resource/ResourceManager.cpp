@@ -127,28 +127,32 @@ namespace SliceEngine
 	/// 
 	/// nvm chase said manually update
 	/// </summary>
-	void ResourceManager::UpdateEntityResources()
-	{
-		auto& registry = Core::GetInstance()->GetRegistry();
-		auto entityView = registry.view<SliceEntity>();
-		for (auto entity : entityView)
-		{
-			// if it has renderer component
-			if (registry.any_of<Renderer>(entity))
-			{
-				auto& rend = registry.get<Renderer>(entity);
-				// get the GUID of the current file name
-				GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+	
+	//this func is litearlly not called - elton
+	//void ResourceManager::UpdateEntityResources()
+	//{
 
-				// check if its the same GUID as its set
-				if (currGUID != rend.modelHandle.mGUID)
-				{
-					// if its not the same then reload
-					rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
-				}
-			}
-		}
-	}
+
+	//	//auto& registry = Core::GetInstance()->GetRegistry();
+	//	//auto entityView = registry.view<SliceEntity>();
+	//	//for (auto entity : entityView)
+	//	//{
+	//	//	// if it has renderer component
+	//	//	if (registry.any_of<Renderer>(entity))
+	//	//	{
+	//	//		auto& rend = registry.get<Renderer>(entity);
+	//	//		// get the GUID of the current file name
+	//	//		GUID currGUID = mFileNameToGUID[rend.modelHandle.fileName];
+
+	//	//		// check if its the same GUID as its set
+	//	//		if (currGUID != rend.modelHandle.mGUID)
+	//	//		{
+	//	//			// if its not the same then reload
+	//	//			rend.modelHandle = get<SliceEngineTypes::Model>(rend.modelHandle.mGUID);
+	//	//		}
+	//	//	}
+	//	//}
+	//}
 
 	void ResourceManager::ReleaseResource(const GUID& guid)
 	{
@@ -187,6 +191,102 @@ namespace SliceEngine
 	
 		mInstances.clear();
 		dataToDestroy.clear();
+	}
+
+	GUID ResourceManager::GetSkeletonGUIDFromModel(GUID modelGUID)
+	{
+		std::string resourceStr = mGUIDToResource[modelGUID];
+		std::filesystem::path resourcePath(resourceStr);
+		resourcePath.replace_extension(".meta");
+
+		std::ifstream file(resourcePath);
+
+		if (!file.is_open())
+		{
+			SLICE_LOG_ERROR("Could not open meta file for model");
+			return (GUID)0;
+		}
+
+		nlohmann::json meta;
+		try
+		{
+			meta = nlohmann::json::parse(file);
+		}
+		catch (nlohmann::json::parse_error& e)
+		{
+			SLICE_LOG_ERROR("Invalid model meta file");
+			return (GUID)0;
+		}
+
+		std::string skeleMeta = meta["skeleMetaPath"].get<std::string>();
+		//std::filesystem::path skelePath(skeleMeta);
+
+		size_t lastSlash = skeleMeta.find_last_of('/');
+		size_t startPos = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
+		size_t dotPos = skeleMeta.find_last_of('.');
+		if (dotPos == std::string::npos || dotPos < startPos)
+		{
+			SLICE_LOG_ERROR("Invalid meta path for skeleton");
+			return (GUID)0;
+		}
+
+		size_t length = dotPos - startPos;
+
+		std::string GUIDstr = skeleMeta.substr(startPos, length);
+
+		return (GUID)std::stoull(GUIDstr);
+	}
+
+	GUID ResourceManager::GetAnimationGUIDFromModel(GUID modelGUID)
+	{
+		std::string resourceStr = mGUIDToResource[modelGUID];
+		std::filesystem::path resourcePath(resourceStr);
+		resourcePath.replace_extension(".meta");
+
+		std::ifstream file(resourcePath);
+
+		if (!file.is_open())
+		{
+			SLICE_LOG_ERROR("Could not open meta file for model");
+			return (GUID)0;
+		}
+
+		nlohmann::json meta;
+		try
+		{
+			meta = nlohmann::json::parse(file);
+		}
+		catch (nlohmann::json::parse_error& e)
+		{
+			SLICE_LOG_ERROR("Invalid model meta file");
+			return (GUID)0;
+		}
+
+		std::string animMeta = meta["animMetaPath"].get<std::string>();
+		//std::filesystem::path skelePath(skeleMeta);
+
+		size_t lastSlash = animMeta.find_last_of('/');
+		size_t startPos = (lastSlash == std::string::npos) ? 0 : lastSlash + 1;
+		size_t dotPos = animMeta.find_last_of('.');
+		if (dotPos == std::string::npos || dotPos < startPos)
+		{
+			SLICE_LOG_ERROR("Invalid meta path for skeleton");
+			return (GUID)0;
+		}
+
+		size_t length = dotPos - startPos;
+
+		std::string GUIDstr = animMeta.substr(startPos, length);
+
+		return (GUID)std::stoull(GUIDstr);
+	}
+
+	bool ResourceManager::CheckResource(GUID guid)
+	{
+		if (mGUIDToResource.find(guid) != mGUIDToResource.end())
+			return true;
+
+		return false;
 	}
 
 	std::optional<std::filesystem::path> ResourceManager::GetResourcePath(std::string filename)

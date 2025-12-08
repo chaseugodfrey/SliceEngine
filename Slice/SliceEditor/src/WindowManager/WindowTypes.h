@@ -26,6 +26,8 @@ DigiPen Institute of Technology is prohibited.
 #include <Navigation/NavigationWindow.h>
 #include <Configuration/PreferenceWindow.h>
 #include <Configuration/ProjectSettingsWindow.h>
+#include <Console/ConsoleWindow.h>
+#include <History/HistoryWindow.h>
 
 namespace SliceEditor
 {

@@ -85,13 +85,15 @@ namespace SliceEditor
 
 		std::optional<SliceEngine::Handle<Texture>> GetDefaultIconHandle(SelectionType);
 
-		void RebuildDirectory(DirectoryNode& node);
+		void RebuildDirectory();
 
 		void SetSelectedFolder(DirectoryNode& node);
 
 		void RenameFile(DirectoryNode& entry, char* newName);
 
 		void OpenFile(DirectoryNode& entry);
+
+		void EditFile(DirectoryNode& entry);
 
 		void DeleteNode(DirectoryNode& entry);
 
