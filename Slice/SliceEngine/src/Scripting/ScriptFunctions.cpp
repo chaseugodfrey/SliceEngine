@@ -241,6 +241,13 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region PARTICLE SYSTEM FUNCTIONS
+
+	static void ParticleSystem_ChangeValue()
+	{
+
+	}
+
 #pragma endregion
 
 #pragma region CONSOLE LOGGING FUNCTIONS
@@ -334,7 +341,7 @@ namespace SliceEngine
 
 #pragma endregion
 
-#pragma region ColliderShape FUNCTIONS
+#pragma region COLLIDERSHAPE FUNCTIONS
 	
 	static bool ColliderShape_IsEnabled(unsigned int entity)
 	{
