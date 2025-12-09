@@ -156,6 +156,8 @@ namespace SliceEditor
 		if (rawEvents.size() > 1)
 		{
 			RawFileEvent previousAction{};
+			
+			// TODO: Change all the events for file watcher to pull the correct meta file now instead of the one in resource folder
 
 			if (rawEvents.begin()->changeType == filewatch::Event::removed && rawEvents.at(1).changeType == filewatch::Event::added)
 			{
@@ -304,11 +306,11 @@ namespace SliceEditor
 				{
 					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
-					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton,false).string();
+					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton).string();
 
 					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
-					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, false).string();
+					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation).string();
 				}
 				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
@@ -346,19 +348,6 @@ namespace SliceEditor
 				CompileNavMeshAsset(static_cast<NavMeshData*>(metaData.get()));
 				break;
 			}
-
-
-			// should we check if the compiled asset worked?
-			// cause if not we should delete the meta file created
-			if (!std::filesystem::exists(metaData->resourcePath))
-			{
-				SLICE_LOG_ERROR("Unable to compile asset :" + metaData->assetName + " at " + metaData->assetPath);
-				// delete the meta file if it didn't compile properly
-				std::filesystem::remove(metaPath);
-
-				return "";
-			}
-
 			#pragma endregion
 
 			// register into resource manager
@@ -962,6 +951,7 @@ namespace SliceEditor
 
 			break;
 		}
+		// TODO: Handle recompiling for textures, models and other stuff
 		
 		}
 
