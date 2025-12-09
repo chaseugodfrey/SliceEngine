@@ -122,59 +122,25 @@ namespace SliceEditor
 		{
 			std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
-			uint64_t typeID = 0;
-			assetName = path.stem().string();
-			switch (type)
+			std::filesystem::path relativePath = std::filesystem::relative(path, "Assets");
+		/*	switch (type) // comment out for now
+		* // NOTE: No creating of new asset for skeleton or anim package anymore maybe
+		* // NOTE: We store the resource reference in the meta data
+		* // then the editor can retrieve it to show it in the content browser
 			{
-			case AssetType::Texture:
-				typeID = ResourceTypeIDs::TEXTURE;
-				break;
-			case AssetType::Model:
-				typeID = ResourceTypeIDs::MODEL;
-				break;
 			case AssetType::Skeleton:
-				typeID = ResourceTypeIDs::SKELETON;
 				assetName = path.stem().string() + "_skl";
+				relativePath.replace_extension("")
 				break;
 			case AssetType::Animation:
-				typeID = ResourceTypeIDs::ANIMATION;
 				assetName = path.stem().string() + "_animpkg";
 				break;
-			case AssetType::Audio:
-				typeID = ResourceTypeIDs::SOUND;
-				break;
-			case AssetType::Scene:
-				typeID = ResourceTypeIDs::SCENE;
-				break;
-			case AssetType::Shader:
-				typeID = ResourceTypeIDs::SHADER;
-				break;
-			case AssetType::VertShader:
-				typeID = ResourceTypeIDs::VERT_SHADER;
-				break;
-			case AssetType::GeomShader:
-				typeID = ResourceTypeIDs::GEOM_SHADER;
-				break;
-			case AssetType::FragShader:
-				typeID = ResourceTypeIDs::FRAG_SHADER;
-				break;
-			case AssetType::Prefab:
-				typeID = ResourceTypeIDs::PREFAB;
-				break;
-			case AssetType::Controller:
-				typeID = ResourceTypeIDs::CONTROLLER;
-				break;
-			case AssetType::NavMesh:
-				typeID = ResourceTypeIDs::NAVMESH;
-				break;
-			case AssetType::Material:
-				typeID = ResourceTypeIDs::MATERIAL;
-				break;
-			}
+			}*/
 
+			assetName = relativePath.generic_string();
 
-			
-			guid = SliceEngine::GUID::Generate(assetName, typeID);
+			// changed to generate a random GUID based on time of creation
+			guid = SliceEngine::GUID::Generate();
 			assetType = typeName;
 			assetPath = path.string();
 			resourcePath = mResourcesDirectory.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
@@ -182,7 +148,39 @@ namespace SliceEditor
 		}
 
 		virtual std::filesystem::path Serialize(const std::filesystem::path & ) = 0;
-		virtual void Deserialize(const std::filesystem::path & ) = 0;
+		virtual void Deserialize(const std::filesystem::path& desc_path)
+		{
+			std::ifstream inFile(desc_path);
+			if (!inFile.is_open())
+			{
+				return;
+			}
+
+			nlohmann::json metaData;
+			try
+			{
+				inFile >> metaData;
+			}
+			catch (nlohmann::json::parse_error& e)
+			{
+				return;
+			}
+
+			if (metaData.contains("guid"))
+				guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+
+			if (metaData.contains("assetName"))
+				assetName = metaData["assetName"].get<std::string>();
+
+			if (metaData.contains("assetType"))
+				assetType == metaData["assetType"].get<std::string>();
+
+			if (metaData.contains("assetPath"))
+				assetPath = metaData["assetPath"].get<std::string>();
+			
+			if (metaData.contains("resourcePath"))
+				resourcePath = metaData["resourcePath"].get<std::string>();
+		}
 	};
 
 	struct TextureData : public MetaData
@@ -366,9 +364,6 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-		}
 	};
 
 	struct AnimData : public MetaData
@@ -400,9 +395,6 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
 		}
 	};
 
@@ -439,9 +431,6 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-		}
 	};
 
 	struct AudioData : public MetaData
@@ -450,8 +439,6 @@ namespace SliceEditor
 
 		AudioStream stream{ AudioStream::CREATE_SAMPLE };
 		
-		
-
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 
@@ -464,8 +451,6 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 
 			metaJson["stream"] = stream;
-			
-
 
 			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 
@@ -476,12 +461,6 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-		}
-
-		
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-
 		}
 	};
 
@@ -515,9 +494,6 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-		}
 	};
 
 	struct ShaderData : public MetaData
@@ -545,9 +521,6 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-		}
 	};
 	struct VertShaderData : public MetaData
 	{
@@ -573,9 +546,6 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
 		}
 	};
 	struct GeomShaderData : public MetaData
@@ -603,9 +573,6 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-		}
 	};
 	struct FragShaderData : public MetaData
 	{
@@ -631,9 +598,6 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-		}
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
 		}
 	};
 	
@@ -745,8 +709,6 @@ namespace SliceEditor
 
 		StateMachineData() = default;
 		~StateMachineData() = default;
-
-
 
 		void to_json(nlohmann::json& j, const rttr::variant& var)
 		{
@@ -925,11 +887,6 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-
-		}
-
 		void SerializeAsset(const std::filesystem::path& desc_path)
 		{
 			nlohmann::json assetJson;
@@ -961,7 +918,6 @@ namespace SliceEditor
 				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
 			}
 		}
-
 
 		/// <summary>
 		/// For creating the default player controller while editor is still being fixed
@@ -1489,11 +1445,6 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
 		}
 
-
-		void Deserialize(const std::filesystem::path& desc_path) override
-		{
-
-		}
 	};
 }
 

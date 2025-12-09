@@ -29,10 +29,10 @@ namespace SliceEditor
 	{
 		//Sanity Checks for the Directories
 		if (!std::filesystem::exists(mAssetDirectory))
-		{
 			std::filesystem::create_directory(mAssetDirectory);
-		}
 
+		if (!std::filesystem::exists(mResourcesDirectory))
+			std::filesystem::create_directory(mResourcesDirectory);
 
 
 		//Searching Descriptor Folder and Assigning to "Assets"
@@ -51,17 +51,67 @@ namespace SliceEditor
 				continue;
 			}
 
-			std::string fileName = dirEntry.path().filename().stem().stem().string();
+			std::filesystem::path assetPath = dirEntry.path();
+			std::string extension = assetPath.extension().string();
 
-			if (mFilenameToGUID.find(fileName) == mFilenameToGUID.end())
+			// we dont check meta file until we find the actual asset
+			if (extension == ".meta")
+				continue;
+			// unsupported asset type
+			if (mSupportedAssetTypes.find(extension) == mSupportedAssetTypes.end())
+				continue;
+
+			std::filesystem::path metaPath = assetPath;
+			metaPath += ".meta";
+
+			if (!std::filesystem::exists(metaPath))
 			{
-				// this file does not have a meta/descriptor file
-				// make one ig?
-				CreateDescriptorFile(dirEntry.path());
+				SLICE_LOG_ERROR("Meta file missing for: " + assetPath.string() + ". Creating it now: ");
+				CreateDescriptorFile(assetPath, true);
 			}
+			else
+			{
+				// meta exist
+				// check if the resource exist, if not then we have to recompile the asset
+				std::unique_ptr<MetaData> metaData = CreateDefaultMeta(assetPath);
 
+				if (metaData)
+				{
+					metaData->Deserialize(metaPath);
 
+					std::filesystem::path resourcePath = metaData->resourcePath;
 
+					bool resourceMissing = !std::filesystem::exists(resourcePath);
+
+					bool assetIsNewer = false;
+					
+					// if resource is not missing
+					// check if the asset is newer than the resource, if it is then recompile it
+					if (!resourceMissing)
+					{
+						auto assetTime = std::filesystem::last_write_time(assetPath);
+						auto resourceTime = std::filesystem::last_write_time(resourcePath);
+						if (assetTime > resourceTime)
+						{
+							assetIsNewer = true;
+						}
+					}
+
+					// if its either missing or the asset is newer then recompile
+					if (resourceMissing || assetIsNewer)
+					{
+						SLICE_LOG_ERROR("Recompiling asset: " + assetPath.string());
+						RecompileAsset(metaData.get());
+					}
+
+					// register validated assets
+					mGUIDtoFilename[metaData->guid] = metaData->assetName;
+					mFilenameToGUID[metaData->assetName] = metaData->guid;
+
+					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+					resourceMgr->RegisterResourceAsset(metaPath.string());
+				}
+			}
 		}
 
 		mAssetFileWatcher = std::make_unique<filewatch::FileWatch<std::string>>(
@@ -451,56 +501,43 @@ namespace SliceEditor
 		std::unique_ptr<MetaData> metaData;
 
 		// I think can compile assets somewhere around here
-		uint64_t typeID = 0;
 		switch (assetType)
 		{
 		case AssetType::Texture:
 			metaData = std::make_unique<TextureData>();
-			typeID = ResourceTypeIDs::TEXTURE;
 			break;
 		case AssetType::Model:
 			metaData = std::make_unique<ModelData>();
-			typeID = ResourceTypeIDs::MODEL;
 			break;
 		case AssetType::Audio:
 			metaData = std::make_unique<AudioData>();
-			typeID = ResourceTypeIDs::SOUND;
 			break;
 		case AssetType::Scene:
 			metaData = std::make_unique<SceneData>();
-			typeID = ResourceTypeIDs::SCENE;
 			break;
 		case AssetType::Controller:
 			metaData = std::make_unique<StateMachineData>();
-			typeID = ResourceTypeIDs::CONTROLLER;
 			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
-			typeID = ResourceTypeIDs::SHADER;
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
-			typeID = ResourceTypeIDs::VERT_SHADER;
 			break;
 		case AssetType::GeomShader:
 			metaData = std::make_unique<GeomShaderData>();
-			typeID = ResourceTypeIDs::GEOM_SHADER;
 			break;
 		case AssetType::FragShader:
 			metaData = std::make_unique<FragShaderData>();
-			typeID = ResourceTypeIDs::FRAG_SHADER;
 			break;
 		case AssetType::Material:
-			typeID = ResourceTypeIDs::MATERIAL;
 			metaData = std::make_unique<MaterialData>();
 			break;
 		case AssetType::NavMesh:
-			typeID = ResourceTypeIDs::NAVMESH;
 			metaData = std::make_unique<NavMeshData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
-			typeID = ResourceTypeIDs::PREFAB;
 			break;
 		}
 
@@ -528,6 +565,7 @@ namespace SliceEditor
 
 	}
 	
+#pragma region Asset Compiling
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;
 		PROCESS_INFORMATION pi;
@@ -564,7 +602,6 @@ namespace SliceEditor
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
-
 	void AssetManager::CompileFBXAsset(std::filesystem::path const& desc_file)
 	{
 		STARTUPINFO si;
@@ -602,7 +639,6 @@ namespace SliceEditor
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
-
 	void AssetManager::CompileAudioAsset(AudioData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -616,7 +652,6 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
 		}
 	}
-
 	void AssetManager::CompileShaderAsset(ShaderData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -673,7 +708,6 @@ namespace SliceEditor
 		}
 
 	}
-
 	void AssetManager::CompileMaterialAsset(MaterialData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -688,7 +722,6 @@ namespace SliceEditor
 			//return;
 		}
 	}
-
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -703,7 +736,6 @@ namespace SliceEditor
 			//return;
 		}
 	}
-
 	void AssetManager::CompileNavMeshAsset(NavMeshData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -718,7 +750,6 @@ namespace SliceEditor
 			//return;
 		}
 	}
-
 	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -732,124 +763,8 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
 			//return;
 		}
-	}
-
-	void AssetManager::ScanResourceFolder()
-	{
-		for (auto& dirEntry : std::filesystem::recursive_directory_iterator(mResourcesDirectory))
-		{
-			if (dirEntry.is_regular_file())
-			{
-				std::filesystem::path filePath = dirEntry.path();
-				if (filePath.extension() == ".meta")
-				{
-					std::ifstream inFile(filePath);
-
-					try
-					{
-						nlohmann::json metaData;
-						inFile >> metaData;
-						std::string assetName = metaData["assetName"].get<std::string>();
-						uint64_t guid = metaData["guid"].get<uint64_t>();
-						std::string fileType = metaData["assetType"];
-						std::string assetPath = metaData["assetPath"].get<std::string>();
-						std::string resourcePath = metaData["resourcePath"].get<std::string>();
-
-						//// if its a shader file just delete that shit
-						//// cause we got no file watcher to check if a shader was modified
-						//// so we just delete them and recompile everytime its ran
-						//if (fileType == ".shader")
-						//{
-						//	inFile.close();
-						//	// and remove the meta file
-						//	std::filesystem::remove(filePath);
-						//
-						//	if (std::filesystem::exists(resourcePath))
-						//	{
-						//		std::filesystem::remove(resourcePath);
-						//	}
-						//
-						//	std::filesystem::path resourceFilePath = resourcePath;
-						//
-						//	resourceFilePath.replace_extension(".vert");
-						//
-						//	if (std::filesystem::exists(resourceFilePath))
-						//		std::filesystem::remove(resourceFilePath);
-						//	resourceFilePath.replace_extension(".frag");
-						//
-						//	if (std::filesystem::exists(resourceFilePath))
-						//		std::filesystem::remove(resourceFilePath);
-						//
-						//	//return;
-						//}
-						// now check both asset path and resource path
-						// if both exist then the asset is fine
-						if (!std::filesystem::exists(assetPath) || !std::filesystem::exists(resourcePath))
-						{
-							// if either of them dont exist
-							// then delete the meta and which ever doesn't exist
-		/*					if (std::filesystem::exists(assetPath))
-							{
-							// original asset shouldn't ever be removed oops
-								std::filesystem::remove(assetPath);
-							}*/
-
-							if (std::filesystem::exists(resourcePath))
-							{
-								std::filesystem::remove(resourcePath);
-							}
-
-							// close the ifstream before removing meta file
-							inFile.close();
-							// and remove the meta file
-							std::filesystem::remove(filePath);
-
-							continue;
-							// note: for shaders since it comes in a set of 3 files
-							// i dont rlly know how to clean that up
-						}
-					
-						// Check if the asset file was modified after meta file creation
-						std::filesystem::file_time_type assetTime = std::filesystem::last_write_time(assetPath);
-						std::filesystem::file_time_type resourceTime = std::filesystem::last_write_time(resourcePath);
-						
-						
-						// compare these two
-						if (resourceTime < assetTime)
-						{
-							// Resource file is older than asset file, so recompile the resource
-							// close the ifstream before removing meta file
-							inFile.close();
-							// and remove the meta file
-							std::filesystem::remove(filePath);
-							if (std::filesystem::exists(resourcePath))
-							{
-								std::filesystem::remove(resourcePath);
-							}
-
-							// idk about shaders
-
-							continue;
-						}
-						else
-						{
-							mGUIDtoFilename[(SliceEngine::GUID)guid] = assetName;
-							mFilenameToGUID[assetName] = (SliceEngine::GUID)guid;
-						}
-
-						//mDescriptorMap.insert_or_assign(assetName, guid);
-					}
-					catch (nlohmann::json::parse_error& e)
-					{
-						const char* errorMessageCStr = e.what();
-						SLICE_LOG_ERROR("Failed to parse .meta file: {}" + std::string(errorMessageCStr));
-					}
-				}
-			}
-		}
-	}
-
-	
+	}	
+#pragma endregion
 
 	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
 	{
