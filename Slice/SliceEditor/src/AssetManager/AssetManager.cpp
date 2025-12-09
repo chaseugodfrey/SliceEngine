@@ -101,7 +101,17 @@ namespace SliceEditor
 					if (resourceMissing || assetIsNewer)
 					{
 						SLICE_LOG_ERROR("Recompiling asset: " + assetPath.string());
-						RecompileAsset(metaData.get());
+						AssetType type = AssetType::Unsupported;
+						for (auto it : mAssetExtensions)
+						{
+							if (it.second == metaData->assetType)
+							{
+								type = it.first;
+								break;
+							}
+						}
+
+						CreateResource(metaData.get(), type);
 					}
 
 					// register validated assets
@@ -913,50 +923,6 @@ namespace SliceEditor
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
 		CreateResource(meta.get(), type);
-	}
-
-	void AssetManager::RecompileAsset(MetaData* metaData)
-	{
-		// get the asset type
-		AssetType type = AssetType::Unsupported;
-		for (auto it : mAssetExtensions)
-		{
-			if (it.second == metaData->assetType)
-			{
-				type = it.first;
-				break;
-			}
-		}
-
-		// if the meta data is modified, create resource modifies the resource file
-		// but we also have to reflect it in the asset manager for files such as material, controller, etc
-		// things that aren't imported resources.
-
-		// before calling create resource
-		// we need to update the file in asset folder since create resource copies it to resource
-		// for some like material/shader/etc
-
-		switch (type)
-		{
-		case AssetType::Material:
-		{
-			MaterialData* derived = dynamic_cast<MaterialData*>(metaData);
-			// recreate resource file at the file path
-			derived->SerializeAsset(metaData->assetPath);
-
-			break;
-		}
-		case AssetType::Controller:
-		{
-
-			break;
-		}
-		// TODO: Handle recompiling for textures, models and other stuff
-		
-		}
-
-		// update the meta file with the new meta data and resource file
-		CreateResource(metaData, type);
 	}
 
 	std::filesystem::path AssetManager::GetMetaDataFromFilename(std::string fileName)
