@@ -24,18 +24,26 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	//void WorldSpaceGraphicsSystem::Render(GLuint shader, bool withTex)
-	//{
-	//	mShader = shader;
-	//	mHasRenderTexture = withTex;
-	//	//ResetVisibleEntities();
+	// void WorldSpaceGraphicsSystem::Render(GLuint shader, bool withTex)
+	// {
+	// 	SetShaderAndWTexSettings(shader, withTex);
+	//
+	// 	//ResetVisibleEntities();
+	//
+	// 	auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
+	// 	for (auto entity : view)
+	// 	{
+	// 		if (!Core::GetInstance()->GetRegistry().get<Renderer>(entity).componentEnabled) continue;
+	//
+	// 		EntityDraw(entity);
+	// 	}
+	// }
 
-	//	auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
-	//	for (auto entity : view)
-	//	{
-	//		EntityDraw(entity);
-	//	}
-	//}
+	void WorldSpaceGraphicsSystem::SetShaderAndWTexSettings(GLuint shader, bool withTex)
+	{
+		mShader = shader;
+		mHasRenderTexture = withTex;
+	}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
 	{
@@ -100,89 +108,99 @@ namespace SliceEngine
 		//else
 		//	outerSpatial.push_back(entity);
 	}
-
-	//void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
-	//{
-	//	auto core = Core::GetInstance();
-	//	auto& rc = core->GetRegistry().get<Renderer>(entity);
+	
+	// void WorldSpaceGraphicsSystem::EntityDraw(const Entity& entity)
+	// {
+	// 	auto core = Core::GetInstance();
+	// 	auto& rc = core->GetRegistry().get<Renderer>(entity);
 	//
-	//	auto model = rc.modelHandle;
-	//	
-	//	if (!model.IsValid()) return;
+	// 	auto model = rc.modelHandle;		
+	// 	if (!model.IsValid()) return;
 	//
-	//	auto& mesh = model.get()->meshes[rc.meshOffset];
-	//	
-	//	/*model.meshes[rc.meshOffset];*/
-	//	glBindVertexArray(mesh.vao);
+	// 	// --TODO-- Cursed model Error Checking loading
+	// 	auto& mesh = model.get()->meshes[std::min(rc.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1))];
 	//
-	//	auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+	// 	/*model.meshes[rc.meshOffset];*/
+	// 	glBindVertexArray(mesh.vao);
 	//
-	//	GLint uniformLoc;
-	//	uniformLoc = glGetUniformLocation(mShader, "M");
-	//	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
-	//	if (mHasRenderTexture)
-	//	{
-	//		auto material = rc.materialHandle.get();//rm->get<SliceEngineTypes::Material>(rc.material).get();
+	// 	auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 	//
-	//		uniformLoc = glGetUniformLocation(mShader, "aGID");
-	//		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
-	//		uniformLoc = glGetUniformLocation(mShader, "uRoughness");
-	//		glUniform1f(uniformLoc, material->roughness);
-	//		uniformLoc = glGetUniformLocation(mShader, "uMetallic");
-	//		glUniform1f(uniformLoc, material->metallic);
-	//		uniformLoc = glGetUniformLocation(mShader, "uColor");
-	//		glUniform3f(uniformLoc, material->color.r, material->color.g, material->color.b);
+	// 	GLint uniformLoc;
+	// 	uniformLoc = glGetUniformLocation(mShader, "M");
+	// 	glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &transform.transform[0][0]);
+	// 	if (mHasRenderTexture)
+	// 	{
+	// 		auto material = rc.materialHandle.get();//rm->get<SliceEngineTypes::Material>(rc.material).get();
 	//
-	//		//auto rm = Core::GetInstance()->GetResourceManager();
-	//		//auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);
-	//		auto albedoTex = material->albedo;
+	// 		uniformLoc = glGetUniformLocation(mShader, "aGID");
+	// 		glUniform1ui(uniformLoc, static_cast<unsigned int>(entity));
+	// 		uniformLoc = glGetUniformLocation(mShader, "uRoughness");
+	// 		glUniform1f(uniformLoc, material->roughness);
+	// 		uniformLoc = glGetUniformLocation(mShader, "uMetallic");
+	// 		glUniform1f(uniformLoc, material->metallic);
+	// 		uniformLoc = glGetUniformLocation(mShader, "uColor");
+	// 		glUniform3f(uniformLoc, material->color.r, material->color.g, material->color.b);
 	//
-	//		//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
+	// 		//auto rm = Core::GetInstance()->GetResourceManager();
+	// 		//auto albedoTex = rm->get<SliceEngineTypes::Texture>(material->albedo);
+	// 		auto albedoTex = material->albedo;
 	//
-	//		glBindTextureUnit(0, albedoTex.get()->texture_id);
-	//	}
+	// 		//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 	//
-	//	//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
+	// 		// --TODO-- Cursed Texture exist check, Fix Resource Manager
+	// 		if (reinterpret_cast<void*>(albedoTex.get()) != (void*)0xdddddddddddddddd)
+	// 			glBindTextureUnit(0, albedoTex.get()->texture_id);
+	// 		else
+	// 			glBindTextureUnit(0, Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->texture_id);
+	// 	}
 	//
-	//	//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
+	// 	//glDrawElements(handle.get()->drawMode, handle.get()->drawCnt, GL_UNSIGNED_INT, nullptr);
 	//
-	//	/*
-	//	* mesh skinning
-	//	* NOTE: THIS IS TEMPORARY CODE TO SHOW FOR SUBMISSION,
-	//	* NEED TO FIGURE OUT A BETTER WAY TO DO THIS SPLIT
-	//	* 
-	//	* also only gona do this for deferred first just to test
-	//	* 
-	//	* ISSUES:
-	//	* BOTH SKIN AND STATIC MESH USE THE SAME SHADER(UNIFORM BRANCH IN SHADER CODE)
-	//	* EACH MESH SENDS THE ENTIRE SKELETON TRANSFORM TO THE GPU, WHICH MEANS UP TO 100 MAT4 PER MESH TO DRAW(ITS ALOT)
-	//	*/
-	//	uniformLoc = glGetUniformLocation(mShader, "skinned");
-	//	if (rc.skinned && !model.get()->is_static) {
-	//		glUniform1ui(uniformLoc, 1);
-	//		auto const& bone = core->GetRegistry().get<Bone>(entity);
-	//		Entity root_entity = bone.skeleton_root;
-	//		if (core->GetRegistry().any_of<Animator>(root_entity)) {
+	// 	//glDrawArrays(handle.get()->drawMode, 0, handle.get()->drawCnt);
 	//
-	//			auto const& animator = core->GetRegistry().get<Animator>(root_entity);
+	// 	/*
+	// 	* mesh skinning
+	// 	* NOTE: THIS IS TEMPORARY CODE TO SHOW FOR SUBMISSION,
+	// 	* NEED TO FIGURE OUT A BETTER WAY TO DO THIS SPLIT
+	// 	* 
+	// 	* also only gona do this for deferred first just to test
+	// 	* 
+	// 	* ISSUES:
+	// 	* BOTH SKIN AND STATIC MESH USE THE SAME SHADER(UNIFORM BRANCH IN SHADER CODE)
+	// 	* EACH MESH SENDS THE ENTIRE SKELETON TRANSFORM TO THE GPU, WHICH MEANS UP TO 100 MAT4 PER MESH TO DRAW(ITS ALOT)
+	// 	*/
+	// 	uniformLoc = glGetUniformLocation(mShader, "skinned");
+	// 	if (rc.skinned && !model.get()->is_static) {
+	// 		glUniform1ui(uniformLoc, 1);
+	// 		auto const& bone = core->GetRegistry().get<Bone>(entity);
+	// 		Entity root_entity = bone.skeleton_root;
+	// 		if (core->GetRegistry().any_of<Animator>(root_entity)) {
 	//
-	//			uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
-	//			glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
+	// 			auto const& animator = core->GetRegistry().get<Animator>(root_entity);
 	//
-	//			glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
-	//			uniformLoc = glGetUniformLocation(mShader, "inverse_root");
-	//			glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
-	//		}
-	//		else {
-	//		//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
-	//		}
-	//	}
-	//	else {
-	//		glUniform1ui(uniformLoc, 0);
-	//	}
+	// 			// only update if theres a anim pkg and skeleton
+	// 			if(animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_skeleton.IsValid())
+	// 			{
+	// 				uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
+	// 				glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 	//
-	//	glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-	//}
+	// 				glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+	// 				uniformLoc = glGetUniformLocation(mShader, "inverse_root");
+	// 				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+	// 			}
+	// 		}
+	// 		else {
+	// 		//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
+	// 		}
+	// 	}
+	// 	else {
+	// 		glUniform1ui(uniformLoc, 0);
+	// 	}
+	//
+	//
+	//
+	// 	glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+	// }
 
 	void WorldSpaceGraphicsSystem::Update(float dt)
 	{

@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include "Prefab.h"
 #include <Serializer/JSONSerializer.h>
+#include "Core/Core.h"
+#include "Systems/SceneSystem.h"
 
 namespace SliceEngine
 {
@@ -72,9 +74,6 @@ namespace SliceEngine
 	//Shader
 	std::unique_ptr<SliceEngineTypes::Shader> Type<SliceEngineTypes::Shader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		//unsigned int texture_id = SliceEngineTypes::Texture::LoadTexture(path);
-
-
 		return std::make_unique<SliceEngineTypes::Shader>( SliceEngineTypes::Shader::LoadShader(path));
 	}
 
@@ -84,6 +83,48 @@ namespace SliceEngine
 	}
 
 	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Vertex Shader
+	std::unique_ptr<SliceEngineTypes::VertShader> Type<SliceEngineTypes::VertShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::VertShader>( SliceEngineTypes::VertShader::LoadVertShader(path));
+	}
+
+	void Type<SliceEngineTypes::VertShader>::Destroy(SliceEngineTypes::VertShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyVertShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::VertShader>::Reload(SliceEngineTypes::VertShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Geometry Shader
+	std::unique_ptr<SliceEngineTypes::GeomShader> Type<SliceEngineTypes::GeomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::GeomShader>( SliceEngineTypes::GeomShader::LoadGeomShader(path));
+	}
+
+	void Type<SliceEngineTypes::GeomShader>::Destroy(SliceEngineTypes::GeomShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyGeomShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::GeomShader>::Reload(SliceEngineTypes::GeomShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+	// Fragment Shader
+	std::unique_ptr<SliceEngineTypes::FragShader> Type<SliceEngineTypes::FragShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::FragShader>( SliceEngineTypes::FragShader::LoadFragShader(path));
+	}
+
+	void Type<SliceEngineTypes::FragShader>::Destroy(SliceEngineTypes::FragShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFragShader();	//calls glDeleteShader
+	}
+
+	void Type<SliceEngineTypes::FragShader>::Reload(SliceEngineTypes::FragShader* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
 
@@ -209,6 +250,7 @@ namespace SliceEngine
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		auto scene = std::make_unique<SliceEngineTypes::Scene>(path);
+
 		return scene;
 	}
 
@@ -220,6 +262,46 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Scene>::Reload(SliceEngineTypes::Scene* resource, ResourceManager& mgr, const std::string& path)
 	{
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
+
+		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			SLICE_LOG_WARNING("Ignored Scene Hot-Reload because Engine is in Play Mode: " + path);
+			return;
+		}
+
+		std::filesystem::path reloadedPath(path);
+		std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
+
+		bool isCurrentScene = false;
+		try
+		{
+			if (std::filesystem::exists(reloadedPath) && !currentPath.empty())
+			{
+				isCurrentScene = std::filesystem::equivalent(reloadedPath, currentPath);
+			}
+		}
+		catch (...)
+		{
+			// Handle edge cases where paths might be invalid
+			isCurrentScene = (reloadedPath == currentPath);
+		}
+
+		if (isCurrentScene)
+		{
+			SLICE_LOG("Hot-Reloading Current Scene: " + path);
+
+			Core::GetInstance()->mFactory.ClearGameObjects();
+			Core::GetInstance()->mFactory.UpdateDestroyed(); // Force immediate cleanup
+
+			auto map = JSONSerializer::DeserializeScene(path);
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+		}
 	}
 
 	//Audio
@@ -227,7 +309,7 @@ namespace SliceEngine
 	{
 		auto audio = std::make_unique<SliceEngineTypes::Audio>();
 		
-		if (std::filesystem::exists(path))
+		if (std::filesystem::exists(path) && audio->GetSound() == nullptr)
 		{
 			audio->LoadAudioResource(path);
 		}
@@ -242,6 +324,11 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Audio>::Reload(SliceEngineTypes::Audio* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyAudio();
+
+		resource->LoadAudioResource(path);
+
+
 	}
 	
 	std::unique_ptr<SliceEngineTypes::Prefab> Type<SliceEngineTypes::Prefab>::Load(ResourceManager& resourceMgr, const std::string& path)

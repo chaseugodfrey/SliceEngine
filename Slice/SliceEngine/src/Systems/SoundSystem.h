@@ -30,9 +30,11 @@ namespace SliceEngine
 {
 
 	// for keeping track of entities that belong to sound system
-	struct SoundEntity {};
+	struct AudioSourceEntity {};
+	struct AudioListenerEntity {};
 
-	struct SoundSystem : BaseSystem<SoundEntity, AudioSource>
+
+	struct AudioSourceSystem : BaseSystem<AudioSourceEntity, AudioSource, Transform>
 	{
 		
 
@@ -85,6 +87,35 @@ namespace SliceEngine
 		 * @param entity The entity whose pause state was updated.
 		 */
 		void onPauseUpdated(entt::registry& reg, entt::entity);
+
+		private:
+		
+			std::unordered_map<entt::entity, float> m_lastPlayTimes;
+	};
+
+	struct AudioListenerSystem: BaseSystem<AudioListenerEntity, AudioListener, Transform>
+	{
+		public:
+
+		/**
+			* @brief Binds FMOD resources to all AudioListener components.
+			*
+			*/
+		void BindToAudioListener();
+
+		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
+		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
+	};
+
+	struct SoundSystem
+	{
+		AudioSourceSystem audioSource;
+		AudioListenerSystem audioListener;
+
+		void Init();
+
+		void Update(float dt);
 	};
 }
 

@@ -76,6 +76,13 @@ public:
 		mDispatcher.sink<Event>().connect<Candidate>(*instance);
 	}
 
+	template<typename Event, auto Candidate, typename Instance>
+	void Unsubscribe(Instance* instance)
+	{
+		mDispatcher.sink<Event>().disconnect<Candidate>(*instance);
+	}
+
+
 	template <typename Event>
 	void Publish(const Event& event)
 	{

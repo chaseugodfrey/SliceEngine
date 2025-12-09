@@ -14,11 +14,15 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "RecastNavMesh.h"
 #include <cstring>
+#include <filesystem>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
 #include "Core/Core.h"
+#include <Navigation/NavigationSystem.h>
+#include <Systems/SceneSystem.h>
+#include <ECS/ECSTypes.h>
 
 namespace SliceEditor
 {
@@ -32,13 +36,14 @@ namespace SliceEditor
 	void RecastNavMesh::Init()
 	{
 		memset(&config, 0, sizeof(config));
-		config.cs = 0.2f;
+		config.cs = 0.1f;
 		config.ch = 0.01f;
+		config.walkableSlopeAngle = 45.0f;
 		config.walkableHeight = (int)ceilf(2.0f / config.ch);
 		config.walkableClimb = (int)floorf(0.5f / config.ch);
 		config.walkableRadius = (int)ceilf(0.4f / config.cs);
 		config.maxEdgeLen = (int)(12.0f / config.cs);
-		config.maxSimplificationError = 1.3f;
+		config.maxSimplificationError = 1.1f;
 		config.minRegionArea = (int)rcSqr(8);
 		config.mergeRegionArea = (int)rcSqr(20);
 		config.maxVertsPerPoly = 6;
@@ -67,194 +72,13 @@ namespace SliceEditor
 
 		detailMesh = nullptr;
 
-		ReleaseDebugMesh();
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().ClearNavMesh();
+
 	}
 
 	rcConfig& RecastNavMesh::GetConfig()
 	{
 		return config;
-	}
-
-	void RecastNavMesh::ReleaseDebugMesh()
-	{
-		auto& dNavMesh = SliceEngine::Core::GetInstance()->debugNavMesh;
-		for (int i{}; i < 2; ++i)
-		{
-			if (dNavMesh[i].vao)
-			{
-				glDeleteVertexArrays(1, &dNavMesh[i].vao);
-				dNavMesh[i].vao = 0;
-			}
-			if (dNavMesh[i].vbo)
-			{
-				glDeleteBuffers(1, &dNavMesh[i].vbo);
-				dNavMesh[i].vbo = 0;
-			}
-			//if (dNavMesh[i].ebo)
-			//{
-			//	glDeleteBuffers(1, &dNavMesh[i].ebo);
-			//	dNavMesh[i].ebo = 0;
-			//}
-		}
-
-	}
-
-	void RecastNavMesh::LoadDebugMesh()
-	{
-		ReleaseDebugMesh();
-
-		auto tNavMesh = const_cast<const dtNavMesh*>(navMesh);
-
-		if (tNavMesh)
-		{
-			std::vector<float> vertices;
-			std::vector<float> verticesBoundaries;
-			//std::vector<unsigned short> indices;
-			for (int t{}; t < tNavMesh->getMaxTiles(); ++t)
-			{
-				const dtMeshTile* tile = tNavMesh->getTile(t);
-				if (!tile->header) continue;
-
-				//dtPolyRef  base = tNavMesh->getPolyRefBase(tile);
-				for (int i{}; i < tile->header->polyCount; ++i)
-				{
-					const dtPoly* p = &tile->polys[i];
-					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-						continue;
-					const dtPolyDetail* pd = &tile->detailMeshes[i];
-
-					// The Blue Floor
-					for (int j{}; j < pd->triCount; ++j)
-					{
-						const unsigned char* z = &tile->detailTris[(pd->triBase + j) * 4];
-						for (int k{}; k < 3; ++k)
-						{
-							if (z[k] < p->vertCount)
-							{
-								vertices.push_back(tile->verts[p->verts[z[k]] * 3]);
-								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 1]);
-								vertices.push_back(tile->verts[p->verts[z[k]] * 3 + 2]);
-							}			 
-							else		 
-							{			 
-								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 1]);
-								vertices.push_back(tile->detailVerts[(pd->vertBase + z[k] - p->vertCount) * 3 + 2]);
-							}
-						}
-					}
-					// The Dark Blue Boundaries
-					for (int j{}, nj{ static_cast<int>(p->vertCount) }; j < nj; ++j)
-					{
-						// if Inner
-						// else
-						if (p->neis[j] != 0)
-							continue;
-
-						const float* v0 = &tile->verts[p->verts[j] * 3];
-						const float* v1 = &tile->verts[p->verts[(j + 1) % nj] * 3];
-
-						for (int k{}; k < pd->triCount; ++k)
-						{
-							const unsigned char* d = &tile->detailTris[(pd->triBase + k) * 4];
-							const float* tv[3];
-							for (int m{}; m < 3; ++m)
-							{
-								if (d[m] < p->vertCount)
-									tv[m] = &tile->verts[p->verts[d[m]] * 3];
-								else
-									tv[m] = &tile->detailVerts[(pd->vertBase + (d[m] - p->vertCount)) * 3];
-							}
-							for (int m{}, n{ 2 }; m < 3; n = m++)
-							{
-								if ((dtGetDetailTriEdgeFlags(d[3], n) & DT_DETAIL_EDGE_BOUNDARY) == 0)
-									continue;
-								static const float thr = 0.01f * 0.01f;
-								if (distancePtLine2d(tv[n], v0, v1) < thr &&
-									distancePtLine2d(tv[m], v0, v1) < thr)
-								{
-									glm::vec2 dir(tv[m][0] - tv[n][0], tv[m][2] - tv[n][2]);
-									dir = glm::normalize(dir) * 0.03f;
-									std::swap(dir.x, dir.y);
-
-									verticesBoundaries.push_back(tv[n][0] - dir.x);
-									verticesBoundaries.push_back(tv[n][1] + 0.005f);
-									verticesBoundaries.push_back(tv[n][2] - dir.y);
-
-									verticesBoundaries.push_back(tv[n][0] + dir.x);
-									verticesBoundaries.push_back(tv[n][1] + 0.005f);
-									verticesBoundaries.push_back(tv[n][2] + dir.y);
-
-									verticesBoundaries.push_back(tv[m][0] + dir.x);
-									verticesBoundaries.push_back(tv[m][1] + 0.005f);
-									verticesBoundaries.push_back(tv[m][2] + dir.y);
-
-									verticesBoundaries.push_back(tv[m][0] + dir.x);
-									verticesBoundaries.push_back(tv[m][1] + 0.01f);
-									verticesBoundaries.push_back(tv[m][2] + dir.y);
-									
-									verticesBoundaries.push_back(tv[m][0] - dir.x);
-									verticesBoundaries.push_back(tv[m][1] + 0.01f);
-									verticesBoundaries.push_back(tv[m][2] - dir.y);
-									
-									verticesBoundaries.push_back(tv[n][0] + dir.x);
-									verticesBoundaries.push_back(tv[n][1] + 0.01f);
-									verticesBoundaries.push_back(tv[n][2] + dir.y);
-								}
-							}
-						}
-					}
-				}
-			}
-			// ********************************************* Debug mesh *********************************************
-			auto& dNavMesh = SliceEngine::Core::GetInstance()->debugNavMesh;
-			//vbo
-			glCreateBuffers(1, &dNavMesh[0].vbo);
-			glNamedBufferStorage(dNavMesh[0].vbo, vertices.size() * sizeof(float), vertices.data(), 0);
-
-			//ebo
-			//glCreateBuffers(1, &dNavMesh[0].ebo);
-			//glNamedBufferStorage(dNavMesh[0].ebo, indices.size() * sizeof(unsigned short), indices.data(), 0);
-
-			//vao
-			glCreateVertexArrays(1, &dNavMesh[0].vao);
-			glEnableVertexArrayAttrib(dNavMesh[0].vao, 0);
-			glVertexArrayAttribFormat(dNavMesh[0].vao, 0, 3, GL_FLOAT, false, 0);
-			//glVertexArrayElementBuffer(dNavMesh[0].vao, dNavMesh[0].ebo);
-
-			glVertexArrayVertexBuffer(dNavMesh[0].vao, 0, dNavMesh[0].vbo, 0, sizeof(float) * 3);
-			glVertexArrayAttribBinding(dNavMesh[0].vao, 0, 0);
-
-			dNavMesh[0].drawCnt = static_cast<uint32_t>(vertices.size() / 3);
-			// ********************************************* Boundaries *********************************************
-			glCreateBuffers(1, &dNavMesh[1].vbo);
-			glNamedBufferStorage(dNavMesh[1].vbo, verticesBoundaries.size() * sizeof(float), verticesBoundaries.data(), 0);
-
-			//vao
-			glCreateVertexArrays(1, &dNavMesh[1].vao);
-			glEnableVertexArrayAttrib(dNavMesh[1].vao, 0);
-			glVertexArrayAttribFormat(dNavMesh[1].vao, 0, 3, GL_FLOAT, false, 0);
-			//glVertexArrayElementBuffer(dNavMesh[0].vao, dNavMesh[0].ebo);
-
-			glVertexArrayVertexBuffer(dNavMesh[1].vao, 0, dNavMesh[1].vbo, 0, sizeof(float) * 3);
-			glVertexArrayAttribBinding(dNavMesh[1].vao, 0, 0);
-
-			dNavMesh[1].drawCnt = static_cast<uint32_t>(verticesBoundaries.size() / 3);
-		}
-	}
-
-	float RecastNavMesh::distancePtLine2d(const float* pt, const float* p, const float* q)
-	{
-		float pqx = q[0] - p[0];
-		float pqz = q[2] - p[2];
-		float dx = pt[0] - p[0];
-		float dz = pt[2] - p[2];
-		float d = pqx * pqx + pqz * pqz;
-		float t = pqx * dx + pqz * dz;
-		if (d != 0) t /= d;
-		dx = p[0] + t * pqx - pt[0];
-		dz = p[2] + t * pqz - pt[2];
-		return dx * dx + dz * dz;
 	}
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
@@ -362,7 +186,6 @@ namespace SliceEditor
 			return false;
 		}
 
-
 		//rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield);
 
 		contourSet = rcAllocContourSet();
@@ -381,7 +204,16 @@ namespace SliceEditor
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
-		std::ofstream objFile("Resources/navmesh_debug.obj");
+		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::filesystem::path path(debugPath);
+		if (!std::filesystem::exists(path.parent_path()))
+		{
+			std::filesystem::create_directories(path.parent_path());
+		}
+
+		std::ofstream objFile(debugPath);
+		//std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -400,12 +232,23 @@ namespace SliceEditor
 			}
 
 			objFile.close();
-			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+			std::cout << "NavMesh exported to " << debugPath << " (" << detailMesh->nverts
 				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+			/*std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;*/
 		}
 		else
 		{
-			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+			std::cout << "Failed to write " << debugPath << std::endl;
+			//std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+		}
+
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				polyMesh->flags[i] = 1;
+			}
 		}
 
 		// Fill dtNavMeshCreateParams
@@ -455,7 +298,11 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
-		LoadDebugMesh();
+		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
+
+		navMesh = nullptr;
+		navQuery = nullptr;
 
 		return true;
 	}
@@ -569,7 +416,16 @@ namespace SliceEditor
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
-		std::ofstream objFile("Resources/navmesh_debug.obj");
+		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::filesystem::path path(debugPath);
+		if (!std::filesystem::exists(path.parent_path()))
+		{
+			std::filesystem::create_directories(path.parent_path());
+		}
+
+		std::ofstream objFile(debugPath);
+		//std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -588,12 +444,23 @@ namespace SliceEditor
 			}
 
 			objFile.close();
-			std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+			std::cout << "NavMesh exported to " << debugPath << " (" << detailMesh->nverts
 				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
+			/*std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
+				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;*/
 		}
 		else
 		{
-			std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+			std::cout << "Failed to write " << debugPath << std::endl;
+			//std::cout << "Failed to write navmesh_debug.obj" << std::endl;
+		}
+
+		for (int i = 0; i < polyMesh->npolys; ++i)
+		{
+			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
+			{
+				polyMesh->flags[i] = 1;
+			}
 		}
 
 		dtNavMeshCreateParams params{};
@@ -623,6 +490,14 @@ namespace SliceEditor
 
 		// testing if can save into file, this is for detour to read
 		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
+		std::cout << "Detour file NavMesh exported to Resources/output_navmesh.bin\n";
+
+		if (polyMesh)
+		{
+			int polyCount = polyMesh->npolys;
+			std::cout << "NavMesh polygon count: " << polyCount << std::endl;
+		}
+
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
@@ -636,8 +511,16 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
-		LoadDebugMesh();
+		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
+		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
 
+		navMesh = nullptr;
+		navQuery = nullptr;
+
+		// After building the navmesh, add:
+		std::cout << "NavMesh bounds: ("
+			<< polyMesh->bmin[0] << ", " << polyMesh->bmin[1] << ", " << polyMesh->bmin[2] << ") to ("
+			<< polyMesh->bmax[0] << ", " << polyMesh->bmax[1] << ", " << polyMesh->bmax[2] << ")" << std::endl;
 		return true;
 	}
 

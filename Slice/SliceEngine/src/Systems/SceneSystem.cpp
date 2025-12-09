@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "Serializer/JSONSerializer.h"
+#include "Core/Core.h"
 #include "SceneSystem.h"
 
 namespace SliceEngine
@@ -19,6 +20,10 @@ namespace SliceEngine
 	void SceneSystem::Init()
 	{
 		//Will do all the loading of the resources based on the scene file
+		LoadScene(mDefaultScene);
+		mCurrentState = mNextState = SceneState::DEFAULT;
+
+		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
 
 	}
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
@@ -28,6 +33,7 @@ namespace SliceEngine
 		UnloadCurrentScene();
 	}
 
+	
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
 		//isSceneUnloaded = false;
@@ -40,20 +46,61 @@ namespace SliceEngine
 			return;
 		}
 
+		mCurrentSceneName = filePath.filename().stem().string();
+
 		mCurrentScene = filePath;
 
-		SLICE_LOG("Loading scene...");
+		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
-		auto map = JSONSerializer::DeserializeScene(filePath);
+		if (filePathGUID)
+		{
 
-		SLICE_LOG("Scene loaded successfully.");
+			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
 
-		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			std::filesystem::path metaFile = filePathGUID->GetFilePath();
 
-		OnSceneLoadedEvent event;
-		event.isSceneLoaded = true;
+			metaFile.replace_extension(".meta");
 
-		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+			//LoadNavMeshFromMeta(metaFile);
+
+			if (mCurrentScene.extension() == ".temp")
+			{
+				filePathToLoad.replace_extension(".temp");
+			}
+
+			SLICE_LOG("Loading scene...");
+
+			auto map = JSONSerializer::DeserializeScene(filePathToLoad);
+
+			SLICE_LOG("Scene loaded successfully.");
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+		}
+
+	}
+
+	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
+	{
+		std::ifstream meta(metaFile);
+
+		nlohmann::json metaData;
+
+		meta >> metaData;
+
+		meta.close();
+
+		std::filesystem::path navMeshFile(metaData["navMeshFile"].get<std::string>());
+
+		if (std::filesystem::exists(navMeshFile))
+		{
+			//Do sth idk
+		}
 	}
 
 	void SceneSystem::LoadNextScene()
@@ -74,7 +121,9 @@ namespace SliceEngine
 	{
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
-		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		std::filesystem::path CurrentSceneTemp = CurrentScene;
+
+		CurrentSceneTemp.replace_extension(".temp");
 
 
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
@@ -97,7 +146,7 @@ namespace SliceEngine
 		return mDefaultScene;
 	}
 
-	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to save scene from path: " + filePath.string());
 
@@ -126,12 +175,12 @@ namespace SliceEngine
 
 	void SceneSystem::SaveCurrentScene()
 	{
-		SaveScene(mCurrentScene);
+		OnSceneSave(mCurrentScene);
 	}
 
 	void SceneSystem::SaveNextScene()
 	{
-		SaveScene(mNextScene);
+		OnSceneSave(mNextScene);
 	}
 
 	void SceneSystem::UnloadCurrentScene()
@@ -158,7 +207,9 @@ namespace SliceEngine
 
 		std::filesystem::path CurrentScene = mCurrentScene;
 
-		std::filesystem::path CurrentSceneTemp = CurrentScene.replace_extension(".temp");
+		std::filesystem::path CurrentSceneTemp = CurrentScene;
+
+		CurrentSceneTemp.replace_extension(".temp");
 
 		if (std::filesystem::exists(CurrentSceneTemp))
 		{
@@ -177,10 +228,14 @@ namespace SliceEngine
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);*/
 	}
 
+	void SceneSystem::OnPlay(OnPlayEvent e)
+	{
+		Play();
+	}
+
 	void SceneSystem::Play()
 	{
 		mNextState = SceneState::PLAY_SCENE;
-		
 	}
 
 	void SceneSystem::Pause()

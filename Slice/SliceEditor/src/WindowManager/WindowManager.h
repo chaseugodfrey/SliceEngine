@@ -35,8 +35,12 @@ namespace SliceEditor
 		void DrawSaveSceneAsPopup();
 		void DrawNewScenePopup();
 
+		void DrawSavePopupModal();
+
 		bool projectSettingsPopupOpen{ false };
-		bool saveSceneAsPopupOpen{ false };
+		bool saveSceneAsPopup{ false };
+		bool saveScenePopupOpen{ false };
+		bool saveScenePopupClose{ false };
 		bool newScenePopupOpen{ false };
 		bool preferenceSettingsPopupOpen{ false };
 
@@ -58,7 +62,18 @@ namespace SliceEditor
 
 			return false;
 		}
-		
+
+		template <typename WindowType>
+		inline std::optional<WindowType*> GetWindow()
+		{
+			for (auto& window : list) {
+				if (auto result = dynamic_cast<WindowType*>(window.get())) {
+					return result;
+				}
+			}
+			return std::nullopt;
+		}
+
 		template <typename WindowType>
 		inline void AddWindow()
 		{
@@ -101,6 +116,8 @@ namespace SliceEditor
 		void RegisterInterface(const std::string& name, ICreateWindow* interfaceInstance);
 		void Render();
 
+		void OpenSaveScenePopup();
+		void CloseSaveScenePopup();
 	};
 }
 

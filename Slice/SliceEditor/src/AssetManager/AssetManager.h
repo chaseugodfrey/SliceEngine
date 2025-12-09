@@ -57,14 +57,19 @@ namespace SliceEditor
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
+		void CompileVertShaderAsset(VertShaderData* metaData);
+		void CompileGeomShaderAsset(GeomShaderData* metaData);
+		void CompileFragShaderAsset(FragShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileNavMeshAsset(NavMeshData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void RecompileAsset(MetaData* metaData);
+		std::filesystem::path GetMetaDataFromFilename(std::string guid);
 		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
@@ -86,12 +91,15 @@ namespace SliceEditor
 			{".mp3", {AssetType::Audio, "Audio"}},
 			{".ogg", {AssetType::Audio, "Audio"}},
 			{".scene", {AssetType::Scene, "Scene"}},
+			{".temp", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
+			{".vert", {AssetType::VertShader, "VertShader"}},
+			{".geom", {AssetType::GeomShader, "GeomShader"}},
+			{".frag", {AssetType::FragShader, "FragShader"}},
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
-			{".controller",{AssetType::Controller, "Controller"}}
-			//{".vert", AssetType::Shader},
-			//{".frag", AssetType::Shader}
+			{".controller",{AssetType::Controller, "Controller"}},
+			{".navmesh",{AssetType::NavMesh, "NavMesh"}}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
@@ -100,12 +108,16 @@ namespace SliceEditor
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
 			{AssetType::Shader, ".shader"},
+			{AssetType::VertShader, ".vert"},
+			{AssetType::GeomShader, ".geom"},
+			{AssetType::FragShader, ".frag"},
 			{AssetType::Audio, ".wav"},
 			{AssetType::Material, ".mat"},
 			{AssetType::Prefab, ".prefab"},
 			{AssetType::Skeleton, ".skl"},
 			{AssetType::Animation, ".animpkg"},
-			{AssetType::Controller, ".controller" }
+			{AssetType::Controller, ".controller" },
+			{AssetType::NavMesh, ".navmesh" }
 		};
 
 		std::unordered_map<AssetType, std::string> mDefaultNames =
@@ -132,8 +144,8 @@ namespace SliceEditor
 
 		void HandleAssetAdded(RawFileEvent& addEvent);
 		void HandleAssetRemoved(RawFileEvent& removeEvent);
-		void HandleAssetRenamed(std::vector<RawFileEvent>& events);
-		void HandleAssetModified(std::vector<RawFileEvent>& events);
+		void HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew);
+		void HandleAssetModified(RawFileEvent& event);
 		void HandleAssetMoved(std::vector<RawFileEvent>& events);
 		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector

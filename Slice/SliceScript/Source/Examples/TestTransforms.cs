@@ -24,7 +24,8 @@ namespace SliceEngine
            // t = GetComponent<Transform>();
            animator = GetComponent<Animator>();
 
-            Console.WriteLine("hehehehehtest time x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
+
+            SliceLog.Log("Rotation: x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
         }
 
         public override void OnUpdate(float dt)
@@ -120,5 +121,9 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_C) || Input.IsKeyDown(Keys.KEY_C)) t.Rotate(rotationSpeedFrame, new Vector3(0, 0, 1));
         }
 
+        public void LaunchParabola(Transform target, Vector3 start, Vector3 end, float height, float duration)
+        {
+            CoroutineManager.StartCoroutine(Utilities.ParabolaCoroutine(target, start, end, height, duration), this);
+        }
     }
 }

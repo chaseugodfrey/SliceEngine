@@ -31,7 +31,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-
+	#pragma region GLM Function Helpers
 	// Convert Euler angles (in degrees) to quaternion
 	glm::quat EulerToQuaternion(const glm::vec3& euler_degrees) {
 		glm::vec3 euler_radians = glm::radians(euler_degrees);
@@ -112,6 +112,7 @@ namespace SliceEditor
 
 		return new_transform;
 	}
+	#pragma endregion
 
 	void SceneViewWindow::UpdateCam()
 	{
@@ -124,6 +125,7 @@ namespace SliceEditor
 		SliceEngine::GameObject go = mRender->CreateCamera();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
+		camObj->camera.debugRenderToggles = SliceEngine::DEBUG_ALL_DEBUG;
 	}
 
 	void SceneViewWindow::Draw()
@@ -131,13 +133,23 @@ namespace SliceEditor
 		ImGui::Begin("Scene");
 
 		auto& io = ImGui::GetIO();
+		auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
 
 		// Draw Utility Bar
-
 		ImGui::BeginGroup();
-		ImGui::Text("Speed:");
+		if (ImGui::Button("Debug Options"))
+		{
+			ImGui::OpenPopup("Debug Lines");
+		}
+		float height = ImGui::GetItemRectSize().y;
+		DebugDrawTogglePopup();
 		ImGui::SameLine();
-		ImGui::Text("%.3f", mCameraSpeed);
+		std::stringstream ss;
+		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		ImGui::Button(ss.str().c_str()); //Speed Display
+		ImGui::PopItemFlag(); //End of Set Disabled
+		//Debug Drawing Settings:
 		ImGui::EndGroup();
 
 
@@ -168,12 +180,34 @@ namespace SliceEditor
 #pragma endregion
 
 		glm::vec3 forward{}, right{}, up{};
-		camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG | SliceEngine::RENDER_TAG::RENDER_BLOOM;
+		//camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
 
 		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
 
 		if (ImGui::IsWindowFocused())
 		{
+			if (ImGui::IsKeyDown(ImGuiKey_F))
+			{
+				auto& selectedEntities = mSelection->GetSelectedNodes();
+				if(!selectedEntities.empty())
+				{
+					auto& inspectedNode = *selectedEntities.begin();
+					if (inspectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(inspectedNode)->entity);
+
+						if (go.HasComponent<SliceEngine::Transform>())
+						{
+							auto targetTr = go.GetComponent<SliceEngine::Transform>();
+							
+							glm::vec3 camPos = targetTr.position + glm::vec3(-2.0f, 0.0f, 0.0f);
+
+							cam_tr.position = camPos;
+						}
+					}
+				}
+			}
+
 			if (io.KeyShift || ImGui::IsMouseDown(ImGuiMouseButton_Right))
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
@@ -272,7 +306,7 @@ namespace SliceEditor
 					cameraYaw -= mouse_diff.x * sensitivity;
 					cameraPitch -= mouse_diff.y * sensitivity;
 
-					//cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
+					cameraPitch = glm::clamp(cameraPitch, glm::radians(-89.0f), glm::radians(89.0f));
 
 					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
 					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -292,8 +326,7 @@ namespace SliceEditor
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
 
-
-		ImTextureID tex = reinterpret_cast<ImTextureID>(static_cast<intptr_t>(camObj->camera.textureID));
+		ImTextureID tex = static_cast<ImTextureID>(camObj->camera.textureID);;
 
 		// win as in the scene Window
 		ImVec2 winScreenTL{ pos.x, pos.y };
@@ -360,11 +393,12 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					EditorUtilities::GameObject_CreateModel(entt::null, recievedPayload, mRegistry.GetManager<HistoryManager>("History"));
+					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
 			ImGui::EndDragDropTarget();
 		}
+	#pragma endregion
 
 #pragma region ImGuizmos
 		// ======= IMGUIZMO =======
@@ -491,7 +525,7 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowHovered())
 		{
-			auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
+			
 
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
@@ -537,5 +571,36 @@ namespace SliceEditor
 
 		ImGui::End();
 
+	}
+
+	//Can put a version of this in ComponentPropertiesGUI
+	void SceneViewWindow::MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit)
+	{
+		bool checked = (mask & bit) != 0;
+
+		if (ImGui::MenuItem(label, nullptr, checked))
+		{
+			if (checked)
+				mask &= ~bit;
+			else
+				mask |= bit;
+		}
+	}
+
+	void SceneViewWindow::DebugDrawTogglePopup()
+	{
+		if (ImGui::BeginPopupContextItem("Debug Lines"))
+		{
+			auto& tag = camObj->camera.debugRenderToggles;
+
+			MenuToggleBit("Debug All", tag, SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG);
+			ImGui::Separator();
+			MenuToggleBit("Obj", tag, SliceEngine::RENDER_TAG::DEBUG_OBJ_TAG);
+			MenuToggleBit("Frustum", tag, SliceEngine::RENDER_TAG::DEBUG_FRUSTRUM_TAG);
+			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
+			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
+			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
+			ImGui::EndPopup();
+		}
 	}
 }

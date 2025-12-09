@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include "glm/ext.hpp"
 
 namespace SliceEngine
 {
@@ -47,7 +48,7 @@ namespace SliceEngine
 
 	void TransformSystem::UpdateTransforms()
 	{
-		UpdateSceneTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		UpdateWorldMatrix(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		UpdateEngineEntityTransforms();
 	}
 
@@ -63,18 +64,51 @@ namespace SliceEngine
 
 	}
 
-	void TransformSystem::UpdateSceneTransforms(entt::entity entity, const glm::mat4& parentWorld)
+	void TransformSystem::UpdateWorldMatrix(entt::entity entity, const glm::mat4& parentWorld)
 	{
-		auto& tr = mRegistry->get<Transform>(entity);
-		tr.transform = parentWorld * tr.transform_local;
+		auto tr = mRegistry->try_get<Transform>(entity);
+		//auto& tr = mRegistry->get<Transform>(entity);
+		if (tr)
+		{
+			tr->transform = parentWorld * tr->transform_local;
 		
-	    if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
-	        entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
-	        while (child != entt::null) 
+			if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
+				entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
+				while (child != entt::null) 
+				{
+					UpdateWorldMatrix(child, tr->transform);
+					child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+				}
+			}
+
+		}
+	}
+
+	void TransformSystem::PostStepSyncTransforms(entt::entity entity, const glm::mat4& parentWorld)
+	{
+		auto tr = mRegistry->try_get<Transform>(entity);
+		if (tr)
+		{
+			if (mRegistry->any_of<RigidBody>(entity))
 			{
-	            UpdateSceneTransforms(child, tr.transform);
-	            child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
-	        }
-	    }
+				tr->transform_local = glm::inverse(parentWorld) * tr->transform;
+				glm::vec3 skew; glm::vec4 proj;
+				glm::decompose(tr->transform_local, tr->scale, tr->rotation, tr->position, skew, proj);
+			}
+			else
+			{
+				tr->transform = parentWorld * tr->transform_local;
+			}
+
+			if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
+				entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
+				while (child != entt::null)
+				{
+					PostStepSyncTransforms(child, tr->transform);
+					child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+				}
+			}
+
+		}
 	}
 }

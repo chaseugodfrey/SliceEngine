@@ -29,11 +29,19 @@ namespace SliceEditor
 		SLICE_LOG("Initializing Content Browser Data.");
 		LoadDefaultIcons();
 		BuildTree();
+		EventManager::GetInstance()->Subscribe<RefreshContentBrowser, &ContentBrowserManager::RebuildDirectory>(this);
 	}
 
 	void ContentBrowserManager::Update()
 	{
-
+		if (!mDeleteList.empty())
+		{
+			for (auto node : mDeleteList)
+			{
+				DeleteNode(*node);
+			}
+			mDeleteList.clear();
+		}
 	}
 
 	void ContentBrowserManager::LoadDefaultIcons()
@@ -79,10 +87,10 @@ namespace SliceEditor
 		selectedFolder = &*rootNode;
 	}
 
-	void ContentBrowserManager::RebuildDirectory(DirectoryNode& node)
+	void ContentBrowserManager::RebuildDirectory()
 	{
-		ResetRootDirectory(node);
-		CreateDirectoryNode(node);
+		ResetRootDirectory(*rootNode);
+		CreateDirectoryNode(*rootNode);
 	}
 
 	void ContentBrowserManager::ResetRootDirectory(DirectoryNode& node)
@@ -174,16 +182,17 @@ namespace SliceEditor
 
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
-		
+		//Loading a Scene
 		if (entry.path.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
 			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
-
+		//Currently Open will Create a Prefab
 		else if (entry.path.extension() == ".prefab")
 		{
 			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
@@ -192,14 +201,14 @@ namespace SliceEditor
 				if (registry.GetAssetManager().mFilenameToGUID.find(stem) != registry.GetAssetManager().mFilenameToGUID.end())
 				{
 					SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
-					EditorUtilities::GameObject_CreatePrefab(entt::null, guid, registry.GetManager<HistoryManager>("History"));
+					EditorUtilities::GameObject_CreatePrefab(guid, entt::null, registry.GetManager<HistoryManager>("History"));
 				}
 				else
 				{
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
-			}
-		
+		}
+		//No functionality
 		else
 		{
 			SLICE_LOG("Open this file WIP!");
@@ -207,13 +216,28 @@ namespace SliceEditor
 		}
 	}
 
+	void ContentBrowserManager::EditFile(DirectoryNode& entry)
+	{
+		//Editing a Prefab
+		if (entry.path.extension() == ".prefab")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+		else if (entry.path.extension() == ".mat")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
+	}
+
 	void ContentBrowserManager::DeleteNode(DirectoryNode& entry)
 	{
-		SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
-		SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
+		//SLICE_LOG_VALUES("Within DeleteFile Filename: " + entry.fileName);
+		//SLICE_LOG_VALUES("Within DeleteFile Path: " + entry.path.string());
 		DirectoryNode& parent = *entry.parent;
-		SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
-		SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
+		//SLICE_LOG_VALUES("Entry Parent: " + (*entry.parent).fileName);
+		//SLICE_LOG_VALUES("Copied Entry Parent: " + parent.fileName);
 		std::string fileName = entry.fileName;
 		try
 		{

@@ -26,12 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include <unordered_map>
 #include <functional>
 #include <math.h>
-//#ifdef SLICE_INPUT_USE_GLM
-//
-//using Vec2d = glm::dvec2;
-//#else
-//struct Vec2d { double x{ 0.0 }; double y{ 0.0 }; };
-//#endif
+
 
 // create struct for GLFWwindow to avoid including GLFW in header
 struct GLFWwindow;
@@ -72,6 +67,9 @@ namespace SliceEngine
         inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game; }
         inline bool allowGameMouse() const { return enabled && mode == InputMode::Game; }
 
+        CursorState cursorState{ CursorState::DEFAULT };
+        void SetCursorState();
+
         // installation state for callbacks
         bool callbacksBound = false; // to prevent double-binding
 
@@ -86,10 +84,10 @@ namespace SliceEngine
         void UpdatePrevInput();
 
         // queue 
-        bool PollEvent(InputEvent& out);      // pops one event (false if empty)
-        bool PeekEvent(InputEvent& out) const; // copy front without popping (false if empty)
-        size_t EventsThisFrame() const { return changedQueue.size(); }
-        void ClearEvents();
+        size_t EventsThisFrame() const 
+        { 
+            return changedQueue.size(); 
+        }
 
         // bind/unbind callbacks explicitly (instead of always on)
         void BindCallbacksToWindow(GLFWwindow* window);
@@ -115,9 +113,14 @@ namespace SliceEngine
         bool IsMouseDown(MouseButtons button);
 
         // mouse position
-        glm::vec2 GetMousePosition() const { return currMousePos; }
-        double GetMouseX() const { return currMousePos.x; }
-        double GetMouseY() const { return currMousePos.y; }
+        glm::vec2 GetMousePosition() const;
+        double GetMouseX() const;
+        double GetMouseY() const;
+
+        // cursor states
+        void SetCursorState(CursorState state);
+        CursorState GetCursorState();
+        void ResetCursorState();
 
 #ifdef SLICE_INPUT_USE_GLM
         // this is used to interface with glm, why are we using this function? its so that we dont have to include glm in this header

@@ -66,17 +66,17 @@ namespace SliceEditor
 		ImGui::Checkbox("Auto-Scroll", &mManager.mAutoScroll);
 
 		ImGui::BeginChild("##Logger", ImVec2(0, 0), 0, ImGuiWindowFlags_HorizontalScrollbar);
-		for (int i = 0; i < Logger::savedLogs.size(); i++)
+		for (int i = 0; i < Logger::engineLogs.size(); i++)
 		{
 			std::stringstream ss;
 
-			ss << " [" << Logger::LogLevelToString(Logger::savedLogs[i].first) << "] ";
+			ss << " [" << Logger::LogLevelToString(Logger::engineLogs[i].first) << "] ";
 
-			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::savedLogs[i].first), ss.str().c_str());
+			ImGui::TextColored(mManager.LogLevelToImVec4(Logger::engineLogs[i].first), ss.str().c_str());
 
 			ImGui::SameLine();
 
-			ImGui::Text("%s", Logger::savedLogs[i].second.c_str());
+			ImGui::Text("%s", Logger::engineLogs[i].second.c_str());
 		}
 
 		if (mManager.mAutoScroll)
@@ -105,6 +105,8 @@ namespace SliceEditor
 			time = 0;
 			mManager.UpdateDebugStatistics();
 		}
+
+		ImGui::Text("FPS: %f", mManager.mCurrFPS);
 
 		DrawSystemTimeline();
 
@@ -145,7 +147,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemTimeline()
 	{
-		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 
 		ImGui::Text("System Timeline");
 		ImGui::BeginChild("Timeline", ImVec2(0, 30), ImGuiChildFlags_AutoResizeY);
@@ -214,7 +216,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemBreakdown()
 	{
-		const auto& systemPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 		ImGui::Text("System Statistics");
 		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
 		{
@@ -255,7 +257,7 @@ namespace SliceEditor
 		}
 		ImGui::EndChild();
 
-		ImGui::Text("Total Frame Time: %.4f", SliceEngine::FramerateManager::getInstance().GetFrameTime());
+		ImGui::Text("Total Frame Time: %.4f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetFrameTime());
 	}
 
 	//Move this function to Inspector in future/Keep it here but restructure.
@@ -329,6 +331,8 @@ namespace SliceEditor
 				{
 					auto parentGO = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 					ImGui::Text("Parent: %s", parentGO.GetName().c_str());
+					ImGui::SameLine();
+					ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 				}
 			}
 			else
@@ -340,6 +344,8 @@ namespace SliceEditor
 			{
 				auto leftSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 				ImGui::Text("Left: %s", leftSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
 			}
 			else
 			{
@@ -350,6 +356,8 @@ namespace SliceEditor
 			{
 				auto rightSibling = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 				ImGui::Text("Right: %s", rightSibling.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT]);
 			}
 			else
 			{
@@ -360,6 +368,8 @@ namespace SliceEditor
 			{
 				auto firstChild = SliceEngine::FactoryInstance.GetGOByEntity(sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 				ImGui::Text("First Child: %s", firstChild.GetName().c_str());
+				ImGui::SameLine();
+				ImGui::Text("ID: %d", sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN]);
 			}
 			else
 			{

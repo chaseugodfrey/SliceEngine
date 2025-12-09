@@ -284,6 +284,8 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+
+			name = "Cube";
 			return;
 		}
 
@@ -356,6 +358,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Sphere";
 			return;
 		}
 
@@ -471,6 +474,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Capsule";
 			return;
 		}
 
@@ -480,10 +484,10 @@ namespace SliceEngine
 			auto& mesh = meshes[0];
 			auto& vertices = mesh.vertices;	vertices.clear();
 			vertices.reserve(4);
-			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}});
-			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}});
-			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}});
-			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}});
+			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}});	//bot left
+			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}});	//bot right
+			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}});	//top left
+			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}});	//top right
 
 			auto& indices = mesh.indices;	indices.clear();
 			indices.reserve(6);
@@ -496,6 +500,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Quad";
 			return;
 		}
 
@@ -523,6 +528,7 @@ namespace SliceEngine
 			rootNode.mesh_ref.resize(1);
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
+			name = "Line";
 			return;
 		}
 
@@ -585,6 +591,7 @@ namespace SliceEngine
 			rootNode.mesh_ref[0] = 0;
 			rootNode.children.clear();
 
+			name = "Frustrum";
 			return;
 		}
 

@@ -25,7 +25,8 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		void UpdateTransforms();
 		void UpdateEngineEntityTransforms();
-		void UpdateSceneTransforms(entt::entity entity, const glm::mat4& parentWorld);
+		void UpdateWorldMatrix(entt::entity entity, const glm::mat4& parentWorld);
+		void PostStepSyncTransforms(entt::entity entity, const glm::mat4& parentWorld);
 	};
 }
 

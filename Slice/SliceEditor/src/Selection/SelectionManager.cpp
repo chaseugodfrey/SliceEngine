@@ -33,6 +33,7 @@ namespace SliceEditor
 		mSelectedEntities.clear();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
 		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &SelectionManager::DeleteSelectedObjects>(this);
+		EventManager::GetInstance()->Subscribe<CloneSelectedEntities, &SelectionManager::CloneSelectedObjects>(this);
 
 	}
 
@@ -57,7 +58,34 @@ namespace SliceEditor
 		node->isSelected = true;
 
 		if (node->type == SelectionType::ENTITY)
-			mSelectionType = node->type;
+		{
+			EntityNode* entNode = static_cast<EntityNode*>(node);
+			SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+		}
+		else if (node->type == SelectionType::PREFAB)
+		{
+			//Get the PrefabGUID for the event of changing Hierarchy and Inspector to Prefab Inspecting
+			DirectoryNode* dirNode = static_cast<DirectoryNode*>(node);
+			auto& assetManager = registry.GetAssetManager();
+			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID prefabGUID;
+			std::string fileName = dirNode->path.stem().stem().string();
+			//Search for the GUID in the map:
+			if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
+			{
+				prefabGUID = assetManager.mFilenameToGUID[fileName];
+			}
+			else
+			{
+				SLICE_LOG_CRITICAL("Prefab Inspected not in AssetManager!");
+				return;
+			}
+
+			PrefabInspectedEvent event(prefabGUID, true);
+			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+		}
+
+		mSelectionType = node->type;
 
 		if (!suppressHistory)
 		{
@@ -87,12 +115,23 @@ namespace SliceEditor
 		{
 			node->isSelected = true;
 			mSelectedNodes.insert(node);
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+			}
 		}
-
 		else
 		{
 			node->isSelected = false;
 			mSelectedNodes.erase(it);
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity);
+				if (go.HasComponent<SliceEngine::SelectedEntity>())
+					go.RemoveComponent<SliceEngine::SelectedEntity>();
+			}
 		}
 
 		if (!suppressHistory)
@@ -116,6 +155,10 @@ namespace SliceEditor
 			//if (!suppressHistory)
 			//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
 
+			auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
+			if (go.HasComponent<SliceEngine::SelectedEntity>())
+				go.RemoveComponent<SliceEngine::SelectedEntity>();
+			
 			mSelectedEntities.erase(it);
 		}
 
@@ -136,7 +179,14 @@ namespace SliceEditor
 		mSelectedNodes = selectedNodes;
 
 		for (auto& node : mSelectedNodes)
+		{
 			node->isSelected = true;
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+			}
+		}
 	}
 
 	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
@@ -158,7 +208,16 @@ namespace SliceEditor
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
 
 		for (auto& node : mSelectedNodes)
+		{
 			node->isSelected = false;
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode* entNode = static_cast<EntityNode*>(node);
+				auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity);
+				if (go.HasComponent<SliceEngine::SelectedEntity>())
+					go.RemoveComponent<SliceEngine::SelectedEntity>();
+			}
+		}
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
@@ -166,7 +225,6 @@ namespace SliceEditor
 
 	void SelectionManager::DeleteSelectedObjects()
 	{
-	
 		std::vector<entt::entity> deleteList;
 		for (auto* node : mSelectedNodes)
 		{
@@ -180,6 +238,18 @@ namespace SliceEditor
 		for(auto entity : deleteList)
 		{
 			EditorUtilities::GameObject_Destroy(entity);
+		}
+	}
+
+	void SelectionManager::CloneSelectedObjects()
+	{
+		for (auto* node : mSelectedNodes)
+		{
+			if (node->type == SelectionType::ENTITY)
+			{
+				EntityNode& entityNode = *static_cast<EntityNode*>(node);
+				EditorUtilities::GameObject_Clone(entityNode.entity);
+			}
 		}
 	}
 

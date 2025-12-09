@@ -112,6 +112,40 @@ struct OnTriggerExitEvent
 	Entity entity;
 	Entity other;
 };
+
+struct OnButtonClickEvent
+{
+	Entity entity;
+};
+struct OnButtonReleaseEvent
+{
+	Entity entity;
+};
+
+struct OnPrefabModifiedEvent
+{
+	OnPrefabModifiedEvent(SliceEngine::GUID g_uid) : guid(g_uid)
+	{
+
+	}
+	SliceEngine::GUID guid;
+};
+
+struct OnPrefabDeletedEvent
+{
+	SliceEngine::GUID guid;
+};
+
+struct OnPrefabSerializedEvent
+{
+
+};
+
+struct OnPlayEvent
+{
+
+};
+
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION

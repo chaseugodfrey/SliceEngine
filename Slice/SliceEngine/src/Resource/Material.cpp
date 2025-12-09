@@ -54,7 +54,13 @@ namespace SliceEngine
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = materialJson["roughness"].get<float>();
 			temp.metallic = materialJson["metallic"].get<float>();
-			glm::from_json(materialJson["color"], temp.color);
+
+			// cause color is a vec 3
+			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 3)
+			{
+				glm::from_json(materialJson["color"], temp.color);
+			}
+
 
 			return temp;
 		}

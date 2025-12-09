@@ -22,14 +22,10 @@ namespace SliceEngine
 		public:	
 
 			bool LoadAudioResource(std::string const&);
-			int GetCategory();
 			FMOD::Sound* GetSound();
-			bool GetDimension();
 			void DestroyAudio();
 		private:
-			int category;
 			FMOD::Sound* sound = nullptr;
-			bool is3D = true;
 		};
 	}
 }

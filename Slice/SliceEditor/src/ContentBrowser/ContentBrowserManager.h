@@ -51,6 +51,7 @@ namespace SliceEditor
 			"TxtIcon"
 		};
 
+
 		std::unordered_map<int, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture>> defaultIconMap;
 
 		void BuildTree();
@@ -72,6 +73,8 @@ namespace SliceEditor
 
 		std::optional<DroppedFile> mActiveDrop;
 
+		std::vector<DirectoryNode*> mDeleteList;
+
 		bool openRenameFile = false;
 		bool mHasDroppedAssets = false;
 
@@ -82,7 +85,7 @@ namespace SliceEditor
 
 		std::optional<SliceEngine::Handle<Texture>> GetDefaultIconHandle(SelectionType);
 
-		void RebuildDirectory(DirectoryNode& node);
+		void RebuildDirectory();
 
 		void SetSelectedFolder(DirectoryNode& node);
 
@@ -90,8 +93,10 @@ namespace SliceEditor
 
 		void OpenFile(DirectoryNode& entry);
 
+		void EditFile(DirectoryNode& entry);
+
 		void DeleteNode(DirectoryNode& entry);
-		
+
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 	};
 }

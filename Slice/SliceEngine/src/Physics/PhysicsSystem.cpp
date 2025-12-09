@@ -16,12 +16,27 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/EventManager.h"
 #include "../ECS/GOFactory.h"
 #include "../Core/ComponentModified.h"
+#include <glm/gtx/matrix_decompose.hpp>
+
 
 #define EPSILON 0.0001f
+#define GLM_ENABLE_EXPERIMENTAL
+
 
 namespace SliceEngine
 {
+	namespace helpers
+	{
+		glm::vec3 JPHtoglm(JPH::Vec3 vec)
+		{
+			return glm::vec3(vec.GetX(), vec.GetY(), vec.GetZ());
+		}
 
+		JPH::Vec3 glmtoJPH(glm::vec3 vec)
+		{
+			return JPH::Vec3(vec.x, vec.y, vec.z);
+		}
+	}
 
 	PhysicsSystem::~PhysicsSystem()
 	{
@@ -29,7 +44,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize(float fixedDt, size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize( size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
 	{
 		if (isInitialized)
 		{
@@ -45,8 +60,6 @@ namespace SliceEngine
 					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
 				}
 			}
-
-			collisionSteps = static_cast<int>(ceil(fixedDt / (1.0f / 60.f)));
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -66,7 +79,7 @@ namespace SliceEngine
 			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
-			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>();
+			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
 			objectLayerPairFilter = std::make_unique<ObjectLayerPairFilterImpl>();
 
 			physicsSystem = std::make_unique<JPH::PhysicsSystem>();
@@ -113,7 +126,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderAdd(const ColliderShapeAddedEvent& event)
 	{
-		std::cout << "LMOA OI ADDED Collider\n";
 		physicsSystem->OptimizeBroadPhase();
 	}
 
@@ -141,16 +153,18 @@ namespace SliceEngine
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
 		}
 
+		//Temp fix for gravity factor and motion quality
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
+		physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+		//Temp fix for mass properties
 
 		//Set physics properties
 		if (!rigidBody.isKinematic)
 		{
-			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, rigidBody.gravityFactor);
-			physicsSystem->GetBodyInterface().SetMotionQuality(colliderShape.bodyID, rigidBody.CollisionDetection);
 
-			physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
-			physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
 
 			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
 			if (lock.Succeeded())
@@ -221,6 +235,7 @@ namespace SliceEngine
 
 	}
 
+	// componeent enable check
 	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
 	{
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
@@ -229,37 +244,77 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
+		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+
+		if(colliderShape.shape == nullptr)
+			return;
+
+
 		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
+
+		if (colliderShape.componentEnabled) // if true set the layer so it can collide
+		{
+			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			{
+				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			}
+		}
+		else //else set to collision off layer
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+		}
+
+		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
+
+		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, true);
+		}
+		else if (!colliderShape.isTrigger && physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
+		{
+			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, false);
+		}
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
+			const JPH::Shape* shape = colliderShape.shape.GetPtr();
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(shape);
+			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(wrappedShape->GetInnerShape());
+
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
 
 			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
 			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
 															fabs(transform.scale.y),
 															fabs(transform.scale.z));
-
-			if (tempScale == halfExtents) // in case there is issue look here future me
+			//std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
+			//std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
+			if ((tempScale == halfExtents) && (colliderShape.offSet == colliderShape.prevOffSet)) // in case there is issue look here future me
 			{
 				return;
 			}
 
-			JPH::BoxShapeSettings settings(tempScale);
-			auto result = settings.Create();
+			JPH::BoxShapeSettings* settings = new JPH::BoxShapeSettings(tempScale);
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+																	colliderShape.offSet,
+																	JPH::Quat::sIdentity(),
+																	settings);
+
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled box: " + std::string(result.GetError()));
 				return;
 			}
+
+			colliderShape.prevOffSet = colliderShape.offSet;
 			colliderShape.shape = result.Get();
 			// Replace shape on body if it already exists
 			if (!colliderShape.bodyID.IsInvalid())
 			{
-
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
+				// end debug later delete
 				if (mRegistry->any_of<RigidBody>(event.entity))
 				{
 					auto& rb = mRegistry->get<RigidBody>(event.entity);
@@ -284,8 +339,10 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			//if we add sphereData
-			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(colliderShape.shape.GetPtr());
+			const JPH::Shape* shape = colliderShape.shape.GetPtr();
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(shape);
+			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(wrappedShape->GetInnerShape());
+
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
@@ -293,21 +350,25 @@ namespace SliceEngine
 			float tempScaleY = sphereData.radius * fabs(transform.scale.y);
 			float tempScaleZ = sphereData.radius * fabs(transform.scale.z);
 
-			if (tempScaleX == sphereRadius && tempScaleY == sphereRadius && tempScaleZ == sphereRadius)
+			if (tempScaleX == sphereRadius && tempScaleY == sphereRadius && tempScaleZ == sphereRadius && colliderShape.offSet == colliderShape.prevOffSet)
 			{
 				return;
 			}
 
 			float biggestScale = std::max({ fabs(transform.scale.x), fabs(transform.scale.y), fabs(transform.scale.z) });
 
-			JPH::SphereShapeSettings settings(sphereData.radius * fabs(biggestScale));
-			auto result = settings.Create();
+			JPH::SphereShapeSettings* settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+																		colliderShape.offSet,
+																		JPH::Quat::sIdentity(),
+																		settings);
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled Sphere: " + std::string(result.GetError()));
 				return;
 			}
-
+			colliderShape.prevOffSet = colliderShape.offSet;
 			colliderShape.shape = result.Get();
 			// Replace shape on body if it already exists
 			if (!colliderShape.bodyID.IsInvalid())
@@ -338,8 +399,10 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
-			//if we add sphereData
-			const JPH::CapsuleShape* capsuleShape = static_cast<const JPH::CapsuleShape*>(colliderShape.shape.GetPtr());
+			const JPH::Shape* shape = colliderShape.shape.GetPtr();
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(shape);
+			const JPH::CapsuleShape* capsuleShape = static_cast<const JPH::CapsuleShape*>(wrappedShape->GetInnerShape());
+
 			float capsuleRadius = capsuleShape->GetRadius();
 			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
 
@@ -348,21 +411,25 @@ namespace SliceEngine
 			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
 			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
 
-			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
+			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight && colliderShape.offSet == colliderShape.prevOffSet)
 			{
 				return;
 			}
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
-			JPH::CapsuleShapeSettings settings(tempScaleHeight,capsuleData.radius * fabs(biggestScaleRad));
-			auto result = settings.Create();
+			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight,capsuleData.radius * fabs(biggestScaleRad));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+																			colliderShape.offSet,
+																			JPH::Quat::sIdentity(),
+																			settings);
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled Capsule: " + std::string(result.GetError()));
 				return;
 			}
-
+			colliderShape.prevOffSet = colliderShape.offSet;
 			colliderShape.shape = result.Get();
 			// Replace shape on body if it already exists
 			if (!colliderShape.bodyID.IsInvalid())
@@ -392,21 +459,6 @@ namespace SliceEngine
 
 		}
 
-
-		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != colliderShape.layer)
-		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, colliderShape.layer);
-		}
-
-		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
-		{
-			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, true);
-		}
-		else if (!colliderShape.isTrigger && physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
-		{
-			physicsSystem->GetBodyInterface().SetIsSensor(colliderShape.bodyID, false);
-		}
-
 	}
 
 	void PhysicsSystem::OnRigidBodyModified(RigidBodyModifiedEvent& event)
@@ -419,6 +471,10 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
 		JPH::EMotionType motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
+
+		physicsSystem->GetBodyInterface().SetFriction(colliderShape.bodyID, rigidBody.friction);
+		physicsSystem->GetBodyInterface().SetRestitution(colliderShape.bodyID, rigidBody.restitution);
+
 		if (rigidBody.isKinematic && motionType != JPH::EMotionType::Kinematic)
 		{
 			physicsSystem->GetBodyInterface().SetMotionType(colliderShape.bodyID, JPH::EMotionType::Kinematic, JPH::EActivation::Activate);
@@ -487,23 +543,29 @@ namespace SliceEngine
 		{
 			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
 			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
-			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
-															fabs(transform.scale.y),
-															fabs(transform.scale.z));
+			JPH::Vec3 tempScale = boxData.scale * scl;
 
 			if (tempScale == halfExtents)
 				return;
 
-			JPH::Vec3 newHalf(
-				boxData.scale.GetX() * fabs(transform.scale.x),
-				boxData.scale.GetY() * fabs(transform.scale.y),
-				boxData.scale.GetZ() * fabs(transform.scale.z)
-			);
+			JPH::Vec3 newHalf(boxData.scale * scl);
 
-			JPH::BoxShapeSettings settings(newHalf);
-			auto result = settings.Create();
+			// ensure minimum size for each dimension
+			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
+			newHalf.SetX(JPH::max(newHalf.GetX(), minSize));
+			newHalf.SetY(JPH::max(newHalf.GetY(), minSize));
+			newHalf.SetZ(JPH::max(newHalf.GetZ(), minSize));
+
+			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				colliderShape.offSet,
+				JPH::Quat::sIdentity(),
+				settings);
+
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled box: " + std::string(result.GetError()));
@@ -543,19 +605,25 @@ namespace SliceEngine
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
-			float tempScaleX = sphereData.radius * fabs(transform.scale.x);
-			float tempScaleY = sphereData.radius * fabs(transform.scale.y);
-			float tempScaleZ = sphereData.radius * fabs(transform.scale.z);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+			float tempScaleX = sphereData.radius * fabs(scl.GetX());
+			float tempScaleY = sphereData.radius * fabs(scl.GetY());
+			float tempScaleZ = sphereData.radius * fabs(scl.GetZ());
 
 			if (tempScaleX == sphereRadius && tempScaleY == sphereRadius && tempScaleZ == sphereRadius)
 			{
 				return;
 			}
 
-			float biggestScale = std::max({ fabs(transform.scale.x), fabs(transform.scale.y), fabs(transform.scale.z) });
+			float biggestScale = std::max({ fabs(scl.GetX()), fabs(scl.GetY()), fabs(scl.GetZ()) });
 
-			JPH::SphereShapeSettings settings(sphereData.radius * fabs(biggestScale));
-			auto result = settings.Create();
+			JPH::SphereShapeSettings *settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				colliderShape.offSet,
+				JPH::Quat::sIdentity(),
+				settings);
+
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled Sphere: " + std::string(result.GetError()));
@@ -597,19 +665,26 @@ namespace SliceEngine
 			float capsuleHeight = capsuleShape->GetHalfHeightOfCylinder();
 
 			auto& capsuleData = std::get < ColliderShape::CapsuleData >(colliderShape.shapeData);
-			float tempScaleX = capsuleData.radius * fabs(transform.scale.x);
-			float tempScaleZ = capsuleData.radius * fabs(transform.scale.z);
-			float tempScaleHeight = capsuleData.height * fabs(transform.scale.y);
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+
+			float tempScaleX = capsuleData.radius * fabs(scl.GetX());
+			float tempScaleZ = capsuleData.radius * fabs(scl.GetZ());
+			float tempScaleHeight = capsuleData.height * fabs(scl.GetY());
 
 			if (tempScaleX == capsuleRadius && tempScaleZ == capsuleRadius && tempScaleHeight == capsuleHeight)
 			{
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
-			JPH::CapsuleShapeSettings settings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
-			auto result = settings.Create();
+			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				colliderShape.offSet,
+				JPH::Quat::sIdentity(),
+				settings);
+
+			auto result = newShape.Create();
 			if (result.HasError())
 			{
 				SLICE_LOG_ERROR("Failed to rebuild scaled Capsule: " + std::string(result.GetError()));
@@ -654,9 +729,13 @@ namespace SliceEngine
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
 			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings shapeSetting(boxData.scale);
+			JPH::BoxShapeSettings *shapeSetting = new JPH::BoxShapeSettings(boxData.scale);
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				collider.offSet,
+				JPH::Quat::sIdentity(),
+				shapeSetting);
 
-			auto result = shapeSetting.Create();
+			auto result = newShape.Create();
 
 			if (result.HasError())
 			{
@@ -669,9 +748,13 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
 			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
-			JPH::SphereShapeSettings shapeSetting(sphereData.radius);
+			JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				collider.offSet,
+				JPH::Quat::sIdentity(),
+				shapeSetting);
 
-			auto result = shapeSetting.Create();
+			auto result = newShape.Create();
 
 			if (result.HasError())
 			{
@@ -684,9 +767,13 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
 			const ColliderShape::CapsuleData& capsuleData = std::get<ColliderShape::CapsuleData>(collider.shapeData);
-			JPH::CapsuleShapeSettings shapeSetting(capsuleData.height, capsuleData.radius);
+			JPH::CapsuleShapeSettings *shapeSetting = new JPH::CapsuleShapeSettings(capsuleData.height, capsuleData.radius);
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				collider.offSet,
+				JPH::Quat::sIdentity(),
+				shapeSetting);
 
-			auto result = shapeSetting.Create();
+			auto result = newShape.Create();
 
 			if (result.HasError())
 			{
@@ -705,30 +792,35 @@ namespace SliceEngine
 
 	void PhysicsSystem::SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const
 	{
-		//auto motionType = physicsSystem->GetBodyInterface().GetMotionType(colliderShape.bodyID);
-		//if (motionType == JPH::EMotionType::Dynamic)
-		//	return; // skip, let physics handle dynamic motion
+		//JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
+		//glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		//JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
-		JPH::Vec3 pos(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
-		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+		glm::vec3 pos = transform.GetWorldPosition();
+		glm::quat rot = transform.GetWorldRotation();
 
+		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
+		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
 
-		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, pos, JPH::EActivation::DontActivate);
-		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, rotation, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
 	{
-
 
 		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
 		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
 
 		//glm::vec3 rot = QuatToVec3(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())); // glm store as w,x,y,z
 
-		transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
-		transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		//transform.position = glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());//i will create helper function for converservion of glm and jolt data types
+		//transform.rotation = glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+		
+		transform.transform = 
+			glm::translate(glm::mat4(1.0f), glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ())) *
+			glm::mat4_cast(glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ())) *
+			glm::scale(glm::mat4(1.0f), transform.GetWorldScale());
 
 	}
 
@@ -816,8 +908,10 @@ namespace SliceEngine
 		contactListener->clearBodiesInContact();
 	}
 
+	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& slice = reg.get<SliceEntity>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
@@ -837,9 +931,10 @@ namespace SliceEngine
 			return;
 		}
 		colliderShape.shape = shape;
+
 		//Convert transform data
 		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;//Vec3ToQuat(transform.rotation);
+		glm::quat rot = transform.rotation;
 		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
 
 		JPH::BodyCreationSettings bodySettings;
@@ -850,11 +945,15 @@ namespace SliceEngine
 			auto& rigidBody = reg.get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, colliderShape.layer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
 			}
 			else
 			{
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, colliderShape.layer);
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
 			}
 
 			//Set physics properties
@@ -877,8 +976,12 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, colliderShape.layer);
+			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
 			//bodySettings.mFriction = 0.6f;
+			bodySettings.mRestitution = 0.0f;
+
 		}
 
 		//Set as sensor for triggers
@@ -910,7 +1013,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		// Remove body form physics world
@@ -924,20 +1026,16 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-
-		//if (entity == static_cast<Entity>(6U));
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		UpdateShapeFromTransform(entity);
 
 		SyncECSToPhysics(transform, colliderShape);
+
 		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 		//SyncPhysicsToECS(transform, colliderShape);
-
-		//HandleRemovedContacts();
-
-		
+		//HandleRemovedContacts();	
 	}
 
 	void PhysicsSystem::StepWorld(float dt)
@@ -947,8 +1045,6 @@ namespace SliceEngine
 
 	void PhysicsSystem::PostStepSync()
 	{
-		HandleRemovedContacts();
-
 		auto view = mRegistry->view<Transform, ColliderShape>();
 
 		// Safe, iterator-free iteration
@@ -956,6 +1052,8 @@ namespace SliceEngine
 		{
 			SyncPhysicsToECS(t, c);
 		}
+
+		HandleRemovedContacts();
 	}
 
 	void PhysicsSystem::AddForceToEntity(Entity entity, const JPH::Vec3& force)
@@ -1007,6 +1105,145 @@ namespace SliceEngine
 
 	}
 
+	void PhysicsSystem::SetCollisionMask(uint32_t layer, uint32_t mask)
+	{
+		if (layer == Layers::COLLISION_OFF) // cannot set collision mask for COLLISION_OFF layer
+			return;
+
+		objectLayerPairFilter->SetCollisionMask(layer, mask);
+	}
+
+	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& slice = mRegistry->get<SliceEntity>(entity);
+
+		//when component is disabled we dont change layer( Leave it as COLLISION_OFF layer)
+		if (!colliderShape.componentEnabled)
+		{
+			return; // might change it to set to COLLISION_OFF but that should be handled when disabling component
+		}
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		}
+	}
+
+	void PhysicsSystem::SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer)
+	{
+		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(layer, bpLayer);
+	}
+
+	JPH::uint PhysicsSystem::GetNumBroadPhaseLayers()
+	{
+		return broadphaseLayerInterface->GetNumBroadPhaseLayers();
+	}
+
+	JPH::BroadPhaseLayer PhysicsSystem::GetBroadPhaseLayer(uint32_t layer)
+	{
+		return broadphaseLayerInterface->GetBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer));
+	}
+
+	glm::vec3 PhysicsSystem::GetPosition(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		JPH::Vec3 pos = physicsSystem->GetBodyInterface().GetPosition(colliderShape.bodyID);
+
+		return glm::vec3(pos.GetX(), pos.GetY(), pos.GetZ());
+	}
+
+	glm::quat PhysicsSystem::GetRotation(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::quat();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		JPH::Quat rotation = physicsSystem->GetBodyInterface().GetRotation(colliderShape.bodyID);
+		return glm::quat(rotation.GetW(), rotation.GetX(), rotation.GetY(), rotation.GetZ());
+	}
+
+	glm::vec3 PhysicsSystem::GetScale(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return glm::vec3();
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		const JPH::Shape* shape = colliderShape.shape.GetPtr();
+		if (const JPH::BoxShape* boxShape = dynamic_cast<const JPH::BoxShape*>(shape))
+		{
+			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
+			return glm::vec3(halfExtents.GetX() * 2.0f, halfExtents.GetY() * 2.0f, halfExtents.GetZ() * 2.0f);
+		}
+		else if (const JPH::SphereShape* sphereShape = dynamic_cast<const JPH::SphereShape*>(shape))
+		{
+			float radius = sphereShape->GetRadius();
+			return glm::vec3(radius * 2.0f); // Uniform scale for sphere
+		}
+		else if (const JPH::CapsuleShape* capsuleShape = dynamic_cast<const JPH::CapsuleShape*>(shape))
+		{
+			float radius = capsuleShape->GetRadius();
+			float height = capsuleShape->GetHalfHeightOfCylinder() * 2.0f;
+			return glm::vec3(radius * 2.0f, height, radius * 2.0f); // Assuming Y-axis is the height
+		}
+	}
+
+	int PhysicsSystem::GetCollisionSteps() const
+	{
+		return collisionSteps;
+	}
+
+	void PhysicsSystem::SetCollisionSteps(int steps)
+	{
+		collisionSteps = steps;
+	}
+
+
+	float PhysicsSystem::GetGravityFactor(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		return physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+	}
+
+	void PhysicsSystem::SetGravityFactor(Entity entity, float factor)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, factor);
+	}
+
+	void PhysicsSystem::OffGravity(Entity entity, bool condition)
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		if (condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID,0.0f);
+		}
+		else if (!condition)
+		{
+			physicsSystem->GetBodyInterface().SetGravityFactor(colliderShape.bodyID, 1.0f);
+		}
+	}
+
+	bool PhysicsSystem::IsGravityOff(Entity entity) const
+	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		 float factor = physicsSystem->GetBodyInterface().GetGravityFactor(colliderShape.bodyID);
+
+		 return factor > 0.0f ? false : true;
+	}
+
 	glm::vec3 PhysicsSystem::GetLinearVelocity(Entity entity)
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
@@ -1017,11 +1254,13 @@ namespace SliceEngine
 		return velocity;
 	}
 
-
 	void PhysicsSystem::SetLinearVelocity(Entity entity, JPH::Vec3 vel)
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
+
+
+
 
 }

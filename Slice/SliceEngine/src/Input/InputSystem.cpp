@@ -36,18 +36,6 @@ namespace SliceEngine
         {
             // update that particular key to pressed state
             input->UpdateKeyMap(key, KeyStates::PRESS);
-
-            //// commented out cus its spamming the console log and not allowing others to print
-            //const char* printable = glfwGetKeyName(key, scancode);
-
-            //if (printable && *printable)
-            //{
-            //    std::cout << "Pressed: " << printable << std::endl;
-            //}
-            //else
-            //{
-            //    std::cout << "Pressed: " << InputSystem::KeyNameFallback(key) << std::endl;
-            //}
         }
         else if (action == GLFW_RELEASE)
         {
@@ -58,7 +46,6 @@ namespace SliceEngine
     static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
         //change way i get input sys, call singleton instance of class from core.h/cpp
-        //auto& input = Core::GetInstance()->GetInputSystem();
         auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
 
         if (action == GLFW_PRESS)
@@ -90,7 +77,7 @@ namespace SliceEngine
     void InputSystem::Init(GLFWwindow* window)
     {
         windowRef = window;
-        // default: do not autobind; editor should exist without game input
+        // default -> do not autobind, editor should exist without game input
         // call BindCallbacksToWindow(window) when launching the game/player
         // callback binds were initially here but we separate them out to a different func so they're not auto-bound to the window
     }
@@ -98,31 +85,11 @@ namespace SliceEngine
     // update function to transition key states and reset scroll delta
     void InputSystem::Update()
     {
-
-
-
         // transition states only if enabled
         if (!enabled)
         {
             scrollDelta = 0.0f;
             return;
-        }
-
-        // transition key states, loop through all keys in map and update states
-        for (auto& [key, state] : keyMap)
-        {
-            if (state == KeyStates::PRESS) 
-                state = KeyStates::PRESSED;
-            else if (state == KeyStates::RELEASE) 
-                state = KeyStates::RELEASED;
-        }
-
-        for (auto& [button, state] : mouseMap)
-        {
-            if (state == KeyStates::PRESS) 
-                state = KeyStates::PRESSED;
-            else if (state == KeyStates::RELEASE) 
-                state = KeyStates::RELEASED;
         }
 
         scrollDelta = 0.0f; // reset each frame
@@ -211,7 +178,10 @@ namespace SliceEngine
     }
 
     // setter function to set input mode to whatever i want
-    void InputSystem::SetMode(InputMode m) { mode = m; }
+    void InputSystem::SetMode(InputMode m) 
+    { 
+        mode = m; 
+    }
 
     // call this function to set whether imgui is consuming keyboard/mouse input this frame
     void InputSystem::SetImGuiCapture(bool wantKeyboard, bool wantMouse)
@@ -227,40 +197,84 @@ namespace SliceEngine
 
 #pragma region KEY AND MOUSE CHECKS
 
-    bool InputSystem::IsKeyPressed(int key) 
+    bool InputSystem::IsKeyPressed(int key)
     {
         return keyMap[key] == PRESS || keyMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsKeyReleased(int key) 
+    bool InputSystem::IsKeyReleased(int key)
     {
         return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsKeyDown(int key) 
+    bool InputSystem::IsKeyDown(int key)
     {
 		return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
     }
 
-    bool InputSystem::IsMousePressed(MouseButtons b) 
+    bool InputSystem::IsMousePressed(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::PRESS || s == KeyStates::PRESSED);
+        int key = (int)b;
+        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
     }
 
-    bool InputSystem::IsMouseReleased(MouseButtons b) 
+    bool InputSystem::IsMouseReleased(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::RELEASE || s == KeyStates::RELEASED);
+        int key = (int)b;
+        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
-    bool InputSystem::IsMouseDown(MouseButtons b) 
+    bool InputSystem::IsMouseDown(MouseButtons b)  
     {
-        auto it = mouseMap.find((int)b);
-        const auto s = (it == mouseMap.end() ? KeyStates::NONE : it->second);
-        return allowGameMouse() && (s == KeyStates::PRESSED || s == KeyStates::HOLD);
+        int key = (int)b;
+        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
+    }
+
+    glm::vec2 InputSystem::GetMousePosition() const 
+    { 
+        return currMousePos; 
+    }
+
+    double InputSystem::GetMouseX() const 
+    { 
+        return currMousePos.x; 
+    }
+
+    double InputSystem::GetMouseY() const 
+    { 
+        return currMousePos.y; 
+    }
+
+    void InputSystem::SetCursorState()
+    {
+        auto window = Core::GetInstance()->GetWindow();
+        int mode{};
+        switch (cursorState)
+        {
+            case CursorState::DEFAULT: mode = GLFW_CURSOR_NORMAL; break;
+            case CursorState::HIDDEN: mode = GLFW_CURSOR_HIDDEN; break;
+            case CursorState::CONFINED: mode = GLFW_CURSOR_CAPTURED; break;
+            case CursorState::DISABLED: mode = GLFW_CURSOR_DISABLED; break;
+            default: mode = GLFW_CURSOR_NORMAL; break;
+        }
+
+        glfwSetInputMode(window, GLFW_CURSOR, mode);
+    }
+
+    void InputSystem::SetCursorState(CursorState state)
+    {
+        cursorState = state;
+        SetCursorState();
+    }
+
+    CursorState InputSystem::GetCursorState()
+    {
+        return cursorState;
+    }
+
+    void InputSystem::ResetCursorState()
+    {
+        SetCursorState(CursorState::DEFAULT);
     }
 
 #pragma endregion
@@ -269,20 +283,12 @@ namespace SliceEngine
 #pragma region callback updates
     void InputSystem::UpdateKeyMap(int key, KeyStates state)
     {
-  //      if (!enabled) return;
-  //      if (mode != InputMode::Game) return; // editor/imgui owns keyboard
-		//if (imguiWantsKeyboard) return;
-
         keyMap[key] = state; // update to immediate key state in map
         changedQueue.push({ true, key, state }); // record down the changed event in the queue
     }
 
     void InputSystem::UpdateMouseMap(int button, KeyStates state)
     {
-        if (!enabled) return;
-        if (mode != InputMode::Game) return; // editor/imgui owns mouse
-		if (imguiWantsMouse) return;
-
         mouseMap[button] = state;
         changedQueue.push({ false, button, state });
     }
@@ -297,30 +303,10 @@ namespace SliceEngine
         scrollDelta = (float)offset;
     }
 
-    //// event queue functions
-    //bool InputSystem::PollEvent(InputEvent& out)
-    //{
-    //    if (changedQueue.empty()) 
-    //        return false; // check if queue is empty, return false if it is
-    //    out = changedQueue.front(); // copy front
-    //    changedQueue.pop(); // pop front
-    //    std::cout << "EVENT POLLED: " << std::endl;
-    //    return true; // return true if an event was polled
-    //}
-
-    //bool InputSystem::PeekEvent(InputEvent& out) const
-    //{
-    //    if (changedQueue.empty()) return false;
-    //    out = changedQueue.front(); // copy front without popping
-    //    return true;
-    //}
-
-    //void InputSystem::ClearEvents()
-    //{
-    //    while (!changedQueue.empty()) changedQueue.pop(); // clear the queue
-    //}
 #pragma endregion
 
+
+#pragma region glm integration
 
     // func to convert keycode to string, for chars that are not printable, provide own fallback names
     const char* InputSystem::KeyNameFallback(int key)
@@ -421,4 +407,6 @@ namespace SliceEngine
         default: return "Unknown Key";
         }
     }
+#pragma endregion
+
 }

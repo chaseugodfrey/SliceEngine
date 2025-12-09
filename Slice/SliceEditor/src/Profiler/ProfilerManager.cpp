@@ -61,10 +61,12 @@ namespace SliceEditor
 	
 	void ProfilerManager::UpdateDebugStatistics()
 	{
+		mCurrFPS = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetCurrFPS();
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
-		const auto& sysPercentages = SliceEngine::FramerateManager::getInstance().GetSystemPercentages();
+		
+		const auto& sysPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 
-		for (const auto& [system, time] : SliceEngine::FramerateManager::getInstance().GetSysDurations())
+		for (const auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
 		{
 			ProfilerManager::DebugStats stats;
 

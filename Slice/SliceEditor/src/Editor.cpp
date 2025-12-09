@@ -35,8 +35,8 @@ namespace SliceEditor
 
 	void Editor::MasterKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
 		{
@@ -54,6 +54,25 @@ namespace SliceEditor
 	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
+		if (input->GetMode() == SliceEngine::InputMode::Game)
+		{
+			//ImGuiIO& io = ImGui::GetIO();
+			//if (io.WantCaptureMouse)
+			//{
+			//	return;
+			//}
+
+			if (action == GLFW_PRESS)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+				std::cout << "Mouse Button Pressed: " << std::endl;
+			}
+			else if (action == GLFW_RELEASE)
+			{
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+			}
+		}
 
 		// 2. Check if ImGui wants to capture the mouse
 		ImGuiIO& io = ImGui::GetIO();
@@ -62,15 +81,7 @@ namespace SliceEditor
 			return; // Stop processing, ImGui has it
 		}
 
-		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (action == GLFW_PRESS)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
-		}
+		
 	}
 
 	void Editor::Init()
@@ -86,48 +97,15 @@ namespace SliceEditor
 
 		engine.Init();
 
-		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, AssetType::Controller);
-
-		//SliceEngine::GameObject FloorTest = SliceEngine::Core::GetInstance()->mFactory.CreateGO("FloorQuad");
-		//FloorTest.AddComponent<SliceEngine::Renderer>();
-		//FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.mGUID = static_cast<SliceEngine::GUID>(SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
-		//FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Model>(FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.mGUID);
-		//FloorTest.GetComponent<SliceEngine::Transform>().rotation = SliceEngine::Vec3ToQuat(glm::vec3(-90.f, 0.f, 0.f));
-		//FloorTest.GetComponent<SliceEngine::Transform>().scale = glm::vec3(10.f, 10.f, 10.f); // Scale it up!
-
-		//auto &transform = FloorTest.GetComponent<SliceEngine::Transform>();
-
-		//// Recast Section Test
-		//// 
-		//// Build transformation matrix
-		//navMesh.Init();
-
-		//glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-		//	* glm::mat4_cast(transform.rotation)
-		//	* glm::scale(glm::mat4(1.0f), transform.scale);
-
-		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-		//if (FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.IsValid())
-		//{
-		//	auto model = FloorTest.GetComponent<SliceEngine::Renderer>().modelHandle.get();
-		//	
-		//	if (navMesh.BuildFromModel(*model, transformMatrix))  
-		//	{
-		//		SLICE_LOG_DEBUG("NAVMESH BUILT SUCESSFULLY");
-		//	}
-		//	else
-		//	{
-		//		SLICE_LOG_ERROR("NAVMESH NOT BUILT");
-		//	}
-
-		//}
-
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
 
 		// todo: calling this here first to put this when loading scene + 
 		// reminder to change scene root to a list in case we want to have multiple scenes
 		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
+
+		// default controller here pls
+		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
 
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		SLICE_LOG("Initializing Editor Systems.");
@@ -140,6 +118,14 @@ namespace SliceEditor
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 		inputs.isActive = true;
+
+
+		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
+		//NavmeshTest.AddComponent<SliceEngine::NavAgent>();
+		//NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
+		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
+
 		
 	}
 
@@ -183,8 +169,10 @@ namespace SliceEditor
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
+
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
+		ImNodes::DestroyContext();
 		ImGui::DestroyContext();
 	}
 
@@ -198,6 +186,7 @@ namespace SliceEditor
 		SLICE_LOG("Creating ImGui Context.");
 		SLICE_LOG_VALUES("ImGui Version: ", IMGUI_VERSION);
 		ImGui::CreateContext();
+		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -212,6 +201,13 @@ namespace SliceEditor
 		glfwSetKeyCallback(window, MasterKeyCallback);
 		glfwSetMouseButtonCallback(window, MasterMouseButtonCallback);
 		glfwSetDropCallback(window, Editor::DropCallback);
+
+		//glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)	//yoinked this sht from inputsys.cpp
+		//	{
+		//		ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+		//		//ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+		//		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(xpos, ypos);
+		//	});
 	}
 
 	void Editor::InitManagers()
@@ -253,7 +249,7 @@ namespace SliceEditor
 			}
 		}
 		auto manager = editor->registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		manager->RebuildDirectory(*manager->rootNode);
+		manager->RebuildDirectory();
 	}
 
 	void Editor::HandleDrop(const std::filesystem::path path)

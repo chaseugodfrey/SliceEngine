@@ -23,14 +23,19 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "ScriptObject.h"
+#include "../Audio/AudioManager.h"
+#include "../Configuration/AudioSettings.h"
+#include "../Input/ActionMapping.h"
+#include "Graphics/RenderManager.h"
 
 namespace SliceEngine
 {
-	std::string MonoToString(MonoString* monoStr)
+	std::string MonoToString(MonoString *monoStr)
 	{
 		if (!monoStr) return "";
 
-		char* utf8Str = mono_string_to_utf8(monoStr);
+		char *utf8Str = mono_string_to_utf8(monoStr);
 		if (!utf8Str) return "";
 
 		std::string result(utf8Str);
@@ -39,72 +44,202 @@ namespace SliceEngine
 		return result;
 	}
 
-	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
+	static std::unordered_map<MonoType *, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
 
 	// Define to make it easier to add internal function calls
-	#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
+#define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
+
+#pragma region DEBUGGING FUNCTIONS
+
+	static void Debug_Console(MonoArray* monoStrArray, MonoString* monoMsg, int level)
+	{
+
+		if (monoStrArray == nullptr)
+		{
+			SLICE_LOG_ERROR("Received null MonoArray (string[]) from C#.");
+			return;
+		}
+
+		uintptr_t length = mono_array_length(monoStrArray);
+
+		std::vector<std::string> callStack;
+
+		for (uintptr_t i = 0; i < length; ++i)
+		{
+			// Use MonoObject* or MonoString* to retrieve the string reference
+			// String is a reference type, so mono_array_get returns the object reference.
+			MonoString* monoStr = (MonoString*)mono_array_get(monoStrArray, MonoObject*, i);
+
+			callStack.push_back(MonoToString(monoStr));
+		}
+
+		Logger::ConsoleMessage consoleMsg{ std::move(callStack), MonoToString(monoMsg) };
+
+		SLICE_LOG_CONSOLE(level, std::move(consoleMsg));
+	}
+
+#pragma endregion
 
 #pragma region TRANSFORM FUNCTIONS
 
-	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
+	static void Transform_GetPosition(unsigned int entity, glm::vec3 *outPosition)
 	{
 		//SLICE_LOG("Getting position from C++ for entity: {}", entity);
 		// note if we add UI objects
 		// this might need to be modified to check which transform it has
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+
 		*outPosition = transform.position;
 	}
 
-	static void Transform_SetPosition(unsigned int entity, glm::vec3* position)
+	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
 	}
 
-	static void Transform_GetScale(unsigned int entity, glm::vec3* outScale)
+	static void Transform_GetScale(unsigned int entity, glm::vec3 *outScale)
 	{
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		*outScale = transform.scale;
 	}
-	
-	static void Transform_SetScale(unsigned int entity, glm::vec3* scale)
+
+	static void Transform_SetScale(unsigned int entity, glm::vec3 *scale)
 	{
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.scale = *scale;
 	}
 
-	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
+	static void Transform_GetRotation(unsigned int entity, glm::vec3 *outRotation)
 	{
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		glm::vec3 euler = SliceEngine::QuatToVec3(transform.rotation);
 		*outRotation = euler;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
-	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
+	static void Transform_SetRotation(unsigned int entity, glm::vec3 *rotation)
+	{
+		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		transform.eulerAnglesHint = *rotation;
+		// leaving blank for now cause i think i ahve to return as euler not quaternion
+	}
+
+	static void Transform_GetRotationQuat(unsigned int entity, glm::quat* outRotation)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
-		// leaving blank for now cause i think i ahve to return as euler not quaternion
+		*outRotation = transform.rotation; // REAL QUATERNION
+	}
+
+	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		transform.rotation = glm::normalize(*rotation);
+
+		// update Euler hint only for inspector UI
+		transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+	}
+
+
+	static Transform* GetTransformComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<Transform>())
+		{
+			return &go.GetComponent<Transform>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Transform component.", entity);
+		return nullptr;
 	}
 
 #pragma endregion
 
-	static bool IsKeyPressed(Keys keyCode)
+#pragma region INPUT & ACTIONMAPPING FUNCTIONS
+
+	static bool Input_IsKeyPressed(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyPressed(keyCode);
 	}
 
-	static bool IsKeyDown(Keys keyCode)
+	static bool Input_IsKeyDown(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
+	static bool Input_IsKeyReleased(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
+	}
+
+	static bool Input_IsMousePressed(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMousePressed(button);
+	}
+
+	static bool Input_IsMouseDown(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
+	}
+
+	static bool Input_IsMouseReleased(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseReleased(button);
+	}
+
+	static void Input_GetMousePosition(glm::vec2* outPosition)
+	{
+		*outPosition = Core::GetInstance()->GetInputSystem()->GetMousePosition();
+	}
+
+	static int Input_GetCursorState()
+	{
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+	}
+
+	static void Input_SetCursorState(int lockState)
+	{
+		Core::GetInstance()->GetInputSystem()->SetCursorState(static_cast<CursorState>(lockState));
+	}
+
+	// allow enabling/disabling action maps from c#
+	static void AM_EnableMap(MonoString* map, bool enable)
+	{
+		auto name = MonoToString(map);
+		GetActionMappingSystem().enableMap(name, enable);
+	}
+
+	// allow checking if action was performed this frame from c#
+	bool AM_PerformedThisFrame(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		return GetActionMappingSystem().PerformedThisFrame(mapName, actionName);
+	}
+
+	// get 1D value from action mapping
+	float AM_GetValue1D(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		return GetActionMappingSystem().GetValue1D(mapName, actionName);
+	}
+
+	// get 2D value from action mapping
+	glm::vec2 AM_GetValue2D(MonoString* map, MonoString* action)
+	{
+		auto mapName = MonoToString(map);
+		auto actionName = MonoToString(action);
+		auto value = GetActionMappingSystem().GetValue2D(mapName, actionName);
+		return glm::vec2(value.first, value.second);
+	}
+
+#pragma endregion
+
 #pragma region CONSOLE LOGGING FUNCTIONS
 
-	static void Log(MonoString* string)
+	static void Log(MonoString *string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_DEBUG(cStrName);
@@ -112,7 +247,7 @@ namespace SliceEngine
 		//mono_free(cStr);
 	}
 
-	static void LogWarn(MonoString* string)
+	static void LogWarn(MonoString *string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_WARNING(cStrName);
@@ -120,7 +255,7 @@ namespace SliceEngine
 		//mono_free(cStr);
 	}
 
-	static void LogError(MonoString* string)
+	static void LogError(MonoString *string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_ERROR(cStrName);
@@ -131,14 +266,14 @@ namespace SliceEngine
 
 #pragma region RIGIDBODY FUNCTIONS
 
-	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3* outPosition)
+	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3 *outPosition)
 	{
 		//SLICE_LOG("Getting velocity from C++ for entity: {}", entity);
 
 		*outPosition = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity((Entity)entity);
 	}
 
-	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3* position)
+	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3 *position)
 	{
 		//SLICE_LOG("Setting velocity from C++ for entity: {}", entity);
 
@@ -147,21 +282,23 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
 	}
 
-	static void RigidBody_AddForce(unsigned int entity, JPH::Vec3* force, int mode)
+	static void RigidBody_AddForce(unsigned int entity, glm::vec3 *force, int mode)
 	{
+		JPH::Vec3 f(force->x, force->y, force->z);
+
 		switch (mode)
 		{
 		case 0: // Force
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddForceToEntity((Entity)entity, f);
 			break;
 		case 1: // Impulse
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddImpulseToEntity((Entity)entity, f);
 			break;
 		case 2: // Velocity Change
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddVelocityChangeToEntity((Entity)entity, f);
 			break;
 		case 3: // Acceleration
-			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, *force);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().AddAccelerationToEntity((Entity)entity, f);
 			break;
 		default:
 			SLICE_LOG_ERROR("if u somehow made it come here i'll be dissapointed");
@@ -169,34 +306,299 @@ namespace SliceEngine
 		}
 	}
 
+	static float RigidBody_GetGravityFactor(unsigned int entity)
+	{	
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().GetGravityFactor((Entity)entity);
+	}
+
+	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+	}
+
+	static bool RigidBody_IsGravityOff(unsigned int entity)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().IsGravityOff((Entity)entity);
+	}
+
+	static void RigidBody_OffGravity(unsigned int entity, bool condition)
+	{
+		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+	}
+
+#pragma endregion
+
+#pragma region ColliderShape FUNCTIONS
+	
+	static bool ColliderShape_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<ColliderShape>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& collider = go.GetComponent<ColliderShape>();
+		return collider.componentEnabled;
+	}
+
+	static void ColliderShape_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<ColliderShape>())
+		{
+			Entity entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& collider)
+				{
+					collider.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+		}
+				
+	}
+
 #pragma endregion
 
 #pragma region AUDIO FUNCTIONS
+	static AudioSource* GetAudioComponent(unsigned int entity)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<AudioSource>())
+		{
+			return &go.GetComponent<AudioSource>();
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no AudioSource component.", entity);
+		return nullptr;
+	}
 
+	//Return a filepath
 	static MonoString* Audio_GetSoundName(unsigned int entity)
 	{
 		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
-		
-		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+
+		auto &audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
 
 		std::string test;
 
 		for (auto pair : Core::GetInstance()->GetResourceManager()->mFileNameToGUID)
 		{
-			if(audio.soundGUID == pair.second)
+			if (audio.soundGUID == pair.second)
 			{
 				test = pair.first;
 				break;
 			}
 		}
 
-		if(test == "")
+		if (test == "")
 		{
 			return nullptr;
 		}
 
 		return mono_string_new(mono_domain_get(), test.c_str());
+
+	}
+
+	static void Audio_Play(unsigned int entity)
+	{
+		auto* audioComp = GetAudioComponent(entity);
+		auto* transformComp = GetTransformComponent(entity);
 		
+		if (audioComp && !Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel))
+		{
+			
+			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
+		}
+	}
+
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
+	{
+		std::string key = MonoToString(string);
+		if (position == glm::vec3(0.f))
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
+
+		}
+		else
+		{
+			Core::GetInstance()->GetAudioSettings()->PlaySFX(key, position);
+		}
+	}
+
+	static void Audio_Stop(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			if (audioComp->channel)
+			{
+				Core::GetInstance()->GetAudioManager()->StopSound(audioComp->channel);
+				audioComp->channel = nullptr;
+			}
+		}
+	}
+
+	static bool Audio_IsPlaying(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			if (audioComp->channel)
+			{
+				return Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel);
+			}
+		}
+		return false;
+	}
+
+	static void Audio_SetPaused(unsigned int entity, bool paused)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			audioComp->isPaused = paused;
+			// SoundSystem::UpdateChannelFromComponent will sync this
+		}
+	}
+
+	static bool Audio_GetPaused(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->isPaused;
+		}
+		return false;
+	}
+
+	static void Audio_SetLoop(unsigned int entity, bool loop)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			audioComp->isLoop = loop;
+		}
+	}
+
+	static bool Audio_GetLoop(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->isLoop;
+		}
+		return false;
+	}
+
+	static void Audio_SetVolume(unsigned int entity, float volume)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			audioComp->currentVolume = volume;
+		}
+	}
+
+	static float Audio_GetVolume(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->currentVolume;
+		}
+		return 0.0f;
+	}
+
+	static void Audio_SetPitch(unsigned int entity, float pitch)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			audioComp->pitch = pitch;
+		}
+	}
+
+	static float Audio_GetPitch(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->pitch;
+		}
+		return 1.0f;
+	}
+
+	static void Audio_SetSpatialBlend(unsigned int entity, float blend)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			audioComp->spatialBlend = blend;
+		}
+	}
+
+	static float Audio_GetSpatialBlend(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity))
+		{
+			return audioComp->spatialBlend;
+		}
+		return 0.0f;
+	}
+
+	static void Audio_SetPan(unsigned int entity, float pan)
+	{
+		if (auto *audioComp = GetAudioComponent(entity)) audioComp->stereoPan = pan;
+	}
+
+	static float Audio_GetPan(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity)) return audioComp->stereoPan;
+		return 0.0f;
+	}
+
+	static void Audio_SetMute(unsigned int entity, bool mute)
+	{
+		if (auto *audioComp = GetAudioComponent(entity)) audioComp->isMute = mute;
+	}
+
+	static bool Audio_GetMute(unsigned int entity)
+	{
+		if (auto *audioComp = GetAudioComponent(entity)) return audioComp->isMute;
+		return false;
+	}
+
+	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			SLICE_LOG_ERROR("Entity does not have script attached");
+			return nullptr;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			return gScriptSystem->mEntityInstances[(Entity)entityID]->GetInstance();
+		}
+
+
+		return nullptr;
+	}
+
+	static bool HasScriptInstance(unsigned int entityID, MonoString *baseName)
+	{
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
+		{
+			//CM_CORE_ERROR("Entity does not have script attached");
+			return false;
+		}
+
+		std::string cStrName = MonoToString(baseName);
+		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		{
+			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+				return true;
+		}
+
+		return false;
 	}
 
 	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
@@ -214,10 +616,10 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region ENTITY FUNCTIONS
-	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType* componentType)
+	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType *componentType)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
-		MonoType* monoType = mono_reflection_type_get_type(componentType);
+		MonoType *monoType = mono_reflection_type_get_type(componentType);
 
 		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
 		{
@@ -230,15 +632,15 @@ namespace SliceEngine
 
 	}
 
-	static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
+	static MonoArray *Entity_FindEntitiesWithTag(MonoString *tag)
 	{
 		std::string cStrName = MonoToString(tag);
 
 		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
 
 
-		MonoDomain* domain = mono_domain_get();
-		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+		MonoDomain *domain = mono_domain_get();
+		MonoArray *monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
 
 		for (size_t i = 0; i < entityIDs.size(); ++i)
 		{
@@ -248,23 +650,37 @@ namespace SliceEngine
 		return monoArray;
 	}
 
-	static unsigned int CreateNewGameObject(MonoString* prefabName)
+	static unsigned int CreateNewGameObject(MonoString *prefabName)
 	{
 		std::string cStrName = MonoToString(prefabName);
 
-		auto& prefabSys = Core::GetInstance()->GetSystem<PrefabSystem>();
+		auto &prefabSys = Core::GetInstance()->GetSystem<PrefabSystem>();
 		auto rm = Core::GetInstance()->GetResourceManager();
 		auto it = rm->mFileNameToGUID.find(cStrName);
 		if (it != rm->mFileNameToGUID.end())
 		{
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
+			if(cStrName == "EnemyTest")
+			{
+				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+			}
 			return(unsigned int)newGO.GetEntity();
 		}
-			//mono_free(cStrName);
+		//mono_free(cStrName);
 
 		return entt::null;
 	}
-	static uint32_t Entity_FindEntityWithName(MonoString* name)
+
+	static unsigned int CloneGO(MonoString *GoName)
+	{
+		std::string cStrName = MonoToString(GoName);
+		auto GO = FactoryInstance.GetGOByName(cStrName);
+
+		auto newGO = FactoryInstance.CloneGO(GO);
+		return (unsigned int)newGO.GetEntity();
+	}
+
+	static uint32_t Entity_FindEntityWithName(MonoString *name)
 	{
 		std::string cStrName = MonoToString(name);
 		auto go = FactoryInstance.GetGOByName(cStrName);
@@ -279,10 +695,43 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString *Entity_GetTag(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());
+		}
+	}
+
+	static void Entity_SetTag(unsigned int entityID, MonoString *tag)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.HasComponent<SliceEntity>())
+		{
+			go.GetComponent<SliceEntity>().mTag = MonoToString(tag);
+		}
+	}
+
 	static void Destroy(unsigned int entity)
 	{
 		FactoryInstance.Destroy((Entity)entity);
 	}
+
+	static uint32_t Entity_FindEntityWithID(unsigned int entityID)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (go.IsValid())
+		{
+			return static_cast<uint32_t>(go.GetEntity());
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -300,7 +749,7 @@ namespace SliceEngine
 		}
 	}
 
-	static void SetBool(unsigned int entityID, MonoString* string, bool val)
+	static void SetBool(unsigned int entityID, MonoString *string, bool val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
@@ -312,7 +761,7 @@ namespace SliceEngine
 
 	}
 
-	static void SetInt(unsigned int entityID, MonoString* string, int val)
+	static void SetInt(unsigned int entityID, MonoString *string, int val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
@@ -323,7 +772,7 @@ namespace SliceEngine
 		}
 	}
 
-	static void SetFloat(unsigned int entityID, MonoString* string, float val)
+	static void SetFloat(unsigned int entityID, MonoString *string, float val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
@@ -334,7 +783,74 @@ namespace SliceEngine
 		}
 	}
 
+	static MonoString* GetCurrAnimName(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::string tmp;
+
+		if (GO.HasComponent<Animator>())
+		{
+			if (GO.GetComponent<Animator>().IsValid())
+				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
+		}
+
+		if(tmp == "")
+			return nullptr;
+
+		return mono_string_new(mono_domain_get(), tmp.c_str());
+	}
+
+	static bool IsCurrAnimFin(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.IsCurrAnimFin();
+		}
+
+		return false;
+	}
+
+	static float GetCurrAnimFPS(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
+		}
+
+		return false;
+	}
+
+	static float GetCurrAnimTime(unsigned int entityID)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			return GO.GetComponent<Animator>().current_time;
+		}
+
+		return 0.0f;
+	}
+
 #pragma endregion
+	
+#pragma region SCENE FUNCTIONS
+
+
+#pragma endregion
+
+#pragma region CAMERA FUNCTIONS
+
+	static void Camera_SetMainCamera(unsigned int entityID)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+#pragma endregion
+
+#pragma region COMPONENT REGISTRATION
 	template <typename T>
 	static void RegisterComponent()
 	{
@@ -344,7 +860,7 @@ namespace SliceEngine
 		// so that we can match the C# equivalent of the component
 		std::string modifiedTypename = std::format("SliceEngine.{}", structName);
 
-		MonoType* monoType = mono_reflection_type_from_name(modifiedTypename.data(), gScriptSystem->mCoreAssemblyImage);
+		MonoType *monoType = mono_reflection_type_from_name(modifiedTypename.data(), gScriptSystem->mCoreAssemblyImage);
 		if (!monoType)
 		{
 			SLICE_LOG_ERROR("Couldn't find component");
@@ -352,16 +868,77 @@ namespace SliceEngine
 			return;
 		}
 		// Old method of storing has component functions
-		 mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>();  };
+		mGameObjectHasComponentFuncs[monoType] = [](GameObject go) { return go.HasComponent<T>(); };
 	}
 
 #pragma region SCENE FUNCTIONS
 
 
 #pragma endregion
-		/// <summary>
-	/// Register the component. Clear the map before registering
-	/// </summary>
+
+#pragma region NAVIGATION FUNCTIONS
+
+
+	// Helper to get the agent component
+	static NavAgent *GetNavAgent(uint32_t entityID)
+	{
+		auto *core = SliceEngine::Core::GetInstance();
+
+		entt::registry &registry = core->GetRegistry();
+
+		entt::entity e = (entt::entity)entityID;
+		if (!registry.valid(e))
+		{
+			return nullptr;
+		}
+
+		return registry.try_get<NavAgent>(e);
+	}
+
+	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3 *target)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent)
+		{
+			agent->target = *target;
+			agent->hasNewTarget = true; 
+		}
+	}
+
+	static void NavAgent_Stop(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent)
+		{
+			agent->currentPath.clear();
+			agent->currentPathIndex = 0;
+			agent->hasNewTarget = false;
+		}
+	}
+
+	static float NavAgent_GetSpeed(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		return agent ? agent->speed : 0.0f;
+	}
+
+	static void NavAgent_SetSpeed(uint32_t entityID, float speed)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent) agent->speed = speed;
+	}
+
+	static bool NavAgent_HasPath(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		// Returns true if path is not empty
+		return agent && !agent->currentPath.empty();
+
+	}
+#pragma endregion
+	/// <summary>
+/// Register the component. Clear the map before registering
+/// </summary>
 	void ScriptFunctions::RegisterComponents()
 	{
 		// if we hotload and need to rerun the linking and reinit mono
@@ -369,9 +946,11 @@ namespace SliceEngine
 		mGameObjectHasComponentFuncs.clear();
 		//// Only these 2 for now
 		RegisterComponent<Transform>();
-		RegisterComponent< Animator>();
-		//RegisterComponent<Collider2D>();
-		//RegisterComponent<RigidBody>();
+		RegisterComponent<Animator>();
+		RegisterComponent<ColliderShape>();
+		RegisterComponent<RigidBody>();
+		RegisterComponent<NavAgent>();
+		RegisterComponent<AudioSource>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
@@ -384,12 +963,23 @@ namespace SliceEngine
 	/// </summary>
 	void ScriptFunctions::RegisterFunctions()
 	{
+		ADD_INTERNAL_CALL(Debug_Console);
+
+		//Camera
+		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
+		ADD_INTERNAL_CALL(GetScriptInstance);
+		ADD_INTERNAL_CALL(HasScriptInstance);
+		ADD_INTERNAL_CALL(Entity_GetTag);
+		ADD_INTERNAL_CALL(Entity_SetTag);
+		ADD_INTERNAL_CALL(CloneGO);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -397,11 +987,24 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
-		ADD_INTERNAL_CALL(Transform_SetRotation);		
+		ADD_INTERNAL_CALL(Transform_SetRotation);
+		ADD_INTERNAL_CALL(Transform_GetRotationQuat);
+		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
-		// Key input
-		ADD_INTERNAL_CALL(IsKeyPressed);
-		ADD_INTERNAL_CALL(IsKeyDown);
+		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
+		ADD_INTERNAL_CALL(Input_IsKeyPressed);
+		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(Input_IsKeyReleased);
+		ADD_INTERNAL_CALL(Input_IsMousePressed);
+		ADD_INTERNAL_CALL(Input_IsMouseDown);
+		ADD_INTERNAL_CALL(Input_IsMouseReleased);
+		ADD_INTERNAL_CALL(Input_GetCursorState);
+		ADD_INTERNAL_CALL(Input_SetCursorState);
+		ADD_INTERNAL_CALL(Input_GetMousePosition);
+		ADD_INTERNAL_CALL(AM_EnableMap);
+		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
+		ADD_INTERNAL_CALL(AM_GetValue2D);
+		ADD_INTERNAL_CALL(AM_GetValue1D);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
@@ -412,17 +1015,55 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_GetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_SetVelocity);
 		ADD_INTERNAL_CALL(RigidBody_AddForce);
+		ADD_INTERNAL_CALL(ColliderShape_IsEnabled);
+		ADD_INTERNAL_CALL(ColliderShape_SetEnabled);
+		ADD_INTERNAL_CALL(RigidBody_GetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
+		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
+		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+		ADD_INTERNAL_CALL(Audio_Play);
+		ADD_INTERNAL_CALL(Audio_PlaySFX);
+		ADD_INTERNAL_CALL(Audio_Stop);
+		ADD_INTERNAL_CALL(Audio_IsPlaying);
+		ADD_INTERNAL_CALL(Audio_SetPaused);
+		ADD_INTERNAL_CALL(Audio_GetPaused);
+		ADD_INTERNAL_CALL(Audio_SetLoop);
+		ADD_INTERNAL_CALL(Audio_GetLoop);
+		ADD_INTERNAL_CALL(Audio_SetVolume);
+		ADD_INTERNAL_CALL(Audio_GetVolume);
+		ADD_INTERNAL_CALL(Audio_SetPitch);
+		ADD_INTERNAL_CALL(Audio_GetPitch);
+		ADD_INTERNAL_CALL(Audio_SetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
+		ADD_INTERNAL_CALL(Audio_SetMute);
+		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_SetPan);
+		ADD_INTERNAL_CALL(Audio_GetPan);
 
 		// Animator
 		ADD_INTERNAL_CALL(ChangeAnim);
 		ADD_INTERNAL_CALL(SetBool);
 		ADD_INTERNAL_CALL(SetInt);
 		ADD_INTERNAL_CALL(SetFloat);
+		ADD_INTERNAL_CALL(GetCurrAnimName);
+		ADD_INTERNAL_CALL(IsCurrAnimFin);
+		ADD_INTERNAL_CALL(GetCurrAnimTime);
+		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+
+		// Navigation
+		ADD_INTERNAL_CALL(GetNavAgent);
+		ADD_INTERNAL_CALL(NavAgent_SetDestination);
+		ADD_INTERNAL_CALL(NavAgent_Stop);
+		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
+		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
+		ADD_INTERNAL_CALL(NavAgent_HasPath);
 
 	}
+
+#pragma endregion
 
 }

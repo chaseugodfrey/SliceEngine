@@ -23,7 +23,9 @@ namespace SliceEditor
 
 	class GameViewWindow : public EditorWindow
 	{
-
+		bool mRequestToFocus;
+		void OnPlay(OnPlayEvent e);
+		
 	public:
 
 		GameViewWindow(Registry& reg) : EditorWindow(reg) {};
