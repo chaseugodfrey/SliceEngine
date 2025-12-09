@@ -67,7 +67,7 @@ namespace SliceEditor
 			if (!std::filesystem::exists(metaPath))
 			{
 				SLICE_LOG_ERROR("Meta file missing for: " + assetPath.string() + ". Creating it now: ");
-				CreateDescriptorFile(assetPath, true);
+				CreateDescriptorFile(assetPath, false);
 			}
 			else
 			{
@@ -78,6 +78,35 @@ namespace SliceEditor
 				if (metaData)
 				{
 					metaData->Deserialize(metaPath);
+
+					if (metaData->assetType == "Model")
+					{
+						ModelData* modelData = static_cast<ModelData*>(metaData.get());
+						std::filesystem::path fbxRelativePath(metaData->assetName);
+						if (modelData->skeletonGUID.IsValid())
+						{
+							std::filesystem::path skelPath = fbxRelativePath;
+							// change the extension so like if player.mdl to player.skl
+							skelPath.replace_extension(".skl"); 
+
+							std::string skelName = skelPath.generic_string();
+
+							mGUIDtoFilename[modelData->skeletonGUID] = skelName;
+							mFilenameToGUID[skelName] = modelData->skeletonGUID;
+						}
+
+						if (modelData->animationGUID.IsValid())
+						{
+							std::filesystem::path skelPath = fbxRelativePath;
+							// change the extension so like if player.mdl to player.skl
+							skelPath.replace_extension(".animpkg");
+
+							std::string skelName = skelPath.generic_string();
+
+							mGUIDtoFilename[modelData->animationGUID] = skelName;
+							mFilenameToGUID[skelName] = modelData->animationGUID;
+						}
+					}
 
 					std::filesystem::path resourcePath = metaData->resourcePath;
 
@@ -111,15 +140,15 @@ namespace SliceEditor
 							}
 						}
 
-						CreateResource(metaData.get(), type);
+						CreateResource(metaData.get(), type, false);
 					}
 
 					// register validated assets
 					mGUIDtoFilename[metaData->guid] = metaData->assetName;
 					mFilenameToGUID[metaData->assetName] = metaData->guid;
 
-					auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-					resourceMgr->RegisterResourceAsset(metaPath.string());
+					//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+					//resourceMgr->RegisterResourceAsset(metaPath.string());
 				}
 			}
 		}
@@ -316,11 +345,11 @@ namespace SliceEditor
 				{
 					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
-					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton).string();
+					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
 
 					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
-					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation).string();
+					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
 				}
 				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
@@ -923,6 +952,58 @@ namespace SliceEditor
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
 		CreateResource(meta.get(), type);
+	}
+
+	void AssetManager::CreateAssetManifest()
+	{
+		nlohmann::json manifestJson;
+		manifestJson["assets"] = nlohmann::json::array();
+		for (const auto& [guid, filename] : mGUIDtoFilename)
+		{
+			std::filesystem::path sourcePath(filename);
+			std::string sourceExt = sourcePath.extension().string();
+
+			if (mSupportedAssetTypes.find(sourceExt) == mSupportedAssetTypes.end())
+			{
+				continue;
+			}
+
+			AssetType type = mSupportedAssetTypes.at(sourceExt).first;
+
+			// get the compiled asset extension
+			if (mAssetExtensions.find(type) == mAssetExtensions.end())
+			{
+				continue;
+			}
+
+			std::string compiledExt = mAssetExtensions.at(type);
+
+			// NOTE: i could just scan for every .meta file and build the manifest instead of relying on map
+			// but this doesnt need me to open up files, only iterate the map and construct strings from there
+			// so this might be cheaper?
+			// but I need to test how reliable it is
+
+			std::string resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + compiledExt;
+
+			nlohmann::json assetEntry;
+			assetEntry["guid"] = guid.GetGUID();
+			assetEntry["name"] = filename;
+			assetEntry["path"] = resourcePath;
+		}
+
+		// after constructing asset manifest, write to the file path
+		std::filesystem::path manifestPath = mResourcesDirectory / "AssetManifest.json";
+		std::ofstream outFile(manifestPath);
+		if (outFile.is_open())
+		{
+			outFile << manifestJson.dump(4); // 4 spaces for pretty printing
+			outFile.close();
+		}
+		else
+		{
+			SLICE_LOG_ERROR("knncb can't make manifest file");
+		}
+
 	}
 
 	std::filesystem::path AssetManager::GetMetaDataFromFilename(std::string fileName)

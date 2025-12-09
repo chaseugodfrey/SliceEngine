@@ -274,6 +274,9 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MODEL;
 
 		bool is_static{ false };
+		SliceEngine::GUID skeletonGUID;
+		SliceEngine::GUID animationGUID;
+
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 
@@ -331,6 +334,11 @@ namespace SliceEditor
 			is_static = metaData["static"].get<bool>();
 			skeleMetaPath = metaData["skeleMetaPath"].get<std::string>();
 			animMetaPath = metaData["animMetaPath"].get<std::string>();
+
+			if (metaData.contains("skeletonGUID"))
+				skeletonGUID = SliceEngine::GUID(metaData["skeletonGUID"].get<uint64_t>());
+			if (metaData.contains("animationGUID"))
+				animationGUID = SliceEngine::GUID(metaData["animationGUID"].get<uint64_t>());
 		}
 	};
 	
