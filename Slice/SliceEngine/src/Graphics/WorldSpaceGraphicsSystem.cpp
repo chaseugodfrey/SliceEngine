@@ -39,11 +39,11 @@ namespace SliceEngine
 	// 	}
 	// }
 
-	void WorldSpaceGraphicsSystem::SetShaderAndWTexSettings(GLuint shader, bool withTex)
-	{
-		mShader = shader;
-		mHasRenderTexture = withTex;
-	}
+	//void WorldSpaceGraphicsSystem::SetShaderAndWTexSettings(GLuint shader, bool withTex)
+	//{
+	//	mShader = shader;
+	//	mHasRenderTexture = withTex;
+	//}
 
 	void WorldSpaceGraphicsSystem::EntityOnEnter(entt::registry& reg, Entity entity)
 	{

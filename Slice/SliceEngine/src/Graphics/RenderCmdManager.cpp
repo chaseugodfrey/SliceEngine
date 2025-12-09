@@ -37,17 +37,18 @@ namespace SliceEngine
 
 			uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			uint64_t modelID = model.getGUID().GetGUID();
-			uint64_t meshOffset = rend.meshOffset;
-			//uint64_t isSkinNMeshStatic = 0; // --TODO-- Check w/ elton
-			//if (rend.skinned && !model.get()->is_static)
-			//	isSkinNMeshStatic = 1;
+			uint64_t meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1));
+			bool isSkinNMeshStatic = rend.skinned && !model.get()->is_static;
 
 			RenderCmdID key(RCK_MAXBITS, shaderID, modelID, meshOffset);
 
 			RenderBatch& batch = renderCmds[key];
 
 			if (batch.instances.empty())
+			{
 				batch.mdl = model;
+				batch.isSkin = static_cast<bool>(isSkinNMeshStatic);
+			}
 			
 			InstanceData data;
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
@@ -64,7 +65,10 @@ namespace SliceEngine
 				ShadowRenderCmdID sKey(modelID, meshOffset);
 				ShadowRenderBatch& sBatch = shadowRenderCmds[sKey];
 				if (sBatch.instances.empty())
+				{
 					sBatch.mdl = model;
+					sBatch.isSkin = static_cast<bool>(isSkinNMeshStatic); // --TODO-- Currently 0 support for shadows lol
+				}
 				sBatch.instances.emplace_back(ShadowInstanceData(data.mdlMtx, data.entityID));
 			}
 		}
@@ -105,7 +109,7 @@ namespace SliceEngine
 				GLint uniformLoc;
 				for (auto& i : batch.instances)
 				{
-					BasicDrawSettings(mShader, i.mdlMtx, id.meshOffset, i.entityID);
+					BasicDrawSettings(mShader, i.mdlMtx, batch.isSkin, i.entityID);
 
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
@@ -135,7 +139,7 @@ namespace SliceEngine
 				GLint uniformLoc;
 				for (auto& i : batch.instances)
 				{
-					BasicDrawSettings(mShader, i.mdlMtx, static_cast<unsigned int>(id.dat[RCK_MESH_OFFSET]), i.entityID);
+					BasicDrawSettings(mShader, i.mdlMtx, batch.isSkin, i.entityID);
 
 					uniformLoc = glGetUniformLocation(mShader, "aGID");
 					glUniform1ui(uniformLoc, static_cast<unsigned int>(i.entityID));
@@ -154,14 +158,29 @@ namespace SliceEngine
 		}
 	}
 
-	void RenderCmdManager::BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, unsigned int meshOffset, unsigned int entityID)
+	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, bool isForShadow)
+	{
+		auto core = Core::GetInstance();
+		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
+		auto& rend = core->GetRegistry().get<Renderer>(entity);
+		if (!rend.modelHandle.IsValid()) return;
+		auto meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(rend.modelHandle.get()->meshes.size() - 1));
+
+		auto& mesh = rend.modelHandle.get()->meshes[meshOffset];
+		glBindVertexArray(mesh.vao);
+
+		BasicDrawSettings(mShader, transform.transform, (rend.skinned && !rend.modelHandle.get()->is_static), static_cast<unsigned int>(entity));
+		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+	}
+
+	void RenderCmdManager::BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, bool isSkin, unsigned int entityID)
 	{
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader, "M");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mdlMtx[0][0]);
 
 		uniformLoc = glGetUniformLocation(mShader, "skinned");
-		if (meshOffset) {
+		if (isSkin && uniformLoc != -1) {
 			glUniform1ui(uniformLoc, 1);
 			auto core = Core::GetInstance();
 			auto const& bone = core->GetRegistry().get<Bone>(static_cast<Entity>(entityID));
@@ -169,20 +188,18 @@ namespace SliceEngine
 			if (core->GetRegistry().any_of<Animator>(root_entity)) {
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
+				if (animator.Handle_curr_anim_pkg.IsValid() && animator.Handle_skeleton.IsValid())
+				{
+					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
+					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 
-				uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
-				glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
-
-				glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
-				uniformLoc = glGetUniformLocation(mShader, "inverse_root");
-				glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+					glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+					uniformLoc = glGetUniformLocation(mShader, "inverse_root");
+					glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
+				}
 			}
-			else {
-				//	SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");
-			}
+			else {/*SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");*/ }
 		}
-		else {
-			glUniform1ui(uniformLoc, 0);
-		}
+		else { glUniform1ui(uniformLoc, 0); }
 	}
 }

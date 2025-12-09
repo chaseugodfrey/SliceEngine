@@ -10,10 +10,10 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <pch.h>
 #include "RenderManager.h"
-#define PI05F 1.57079632679f
 #include <glm/glm.hpp>
 #include <glm/common.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#define PI05F 1.57079632679f
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
 
@@ -330,27 +330,28 @@ namespace SliceEngine
 			LoadSettings(GPS_SHADOW);
 			RenderDirectionalShadowMaps(cam);
 
-			SetShader(S_DEFERRED);
-			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
-			else
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[GOUT_DIF], 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
-			LoadSettings(GPS_DEFAULT);
-			UpdateCamVP();
-			BindCameraDepth(cam);
-			ClearBuffer(BufferClearSetting::ALL);
-			renderQueue.UseDrawCalls(mCurrShader.second, false);
-
 			SetShader(S_SKYBOX);
-			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DIF]);
 			LoadSettings(GPS_SKYBOX);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			RenderSkybox();
 
+			SetShader(S_DEFERRED);
+			if(cam == mCurrentCamIDHover)
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+			else
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+			LoadSettings(GPS_DEFAULT);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
+			renderQueue.UseDrawCalls(mCurrShader.second, false);
+			//----------------------------------------------------------------
 			SetShader(S_SKYBOX_Light);
-			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			LoadSettings(GPS_SKYBOX_AMBIENT);
 			RenderSkyboxLighting();
 
@@ -542,16 +543,13 @@ namespace SliceEngine
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_BLOOM);
 
-			Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().SetShaderAndWTexSettings(mCurrShader.second, false);
-
 			auto view = Core::GetInstance()->GetRegistry().view<SelectedEntity>(); // renderEntity
 			for (auto entity : view)
 			{
 				auto entityGO = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
 				if (!entityGO.HasComponent<Renderer>() || !entityGO.HasComponent<Transform>())
 					continue;
-
-				Core::GetInstance()->GetSystem<WorldSpaceGraphicsSystem>().EntityDraw(entity);
+				renderQueue.SingleDraw(mCurrShader.second, entity, false);
 			}
 			// "Blur" Passes
 			SetShader(S_DEBUG_OUT_BLUR);

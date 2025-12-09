@@ -20,6 +20,7 @@ namespace SliceEngine
 		//	MRCK_SHADER_SET		= 0x0000'0000'0000'FFFF  // Use the unsigned char enum GPUSetting
 		//};
 #pragma region Normal Render Commands
+		// Splits ID by model & mesh offset, since that also just refers to the model
 		enum RenderCmdIDParts : unsigned char
 		{
 			RCK_SHADER = 0,
@@ -79,6 +80,7 @@ namespace SliceEngine
 			std::vector<InstanceData> instances;
 
 			Handle<SliceEngineTypes::Model> mdl;
+			bool isSkin;
 		};
 #pragma endregion
 #pragma region Shadow Render Commands
@@ -86,7 +88,6 @@ namespace SliceEngine
 		{
 			uint64_t model;
 			unsigned int meshOffset;
-			ShadowRenderCmdID(uint64_t mdl, unsigned int offset) : model(mdl), meshOffset(offset) {}
 
 			const bool operator<(const ShadowRenderCmdID& o) const
 			{
@@ -121,14 +122,15 @@ namespace SliceEngine
 			std::vector<ShadowInstanceData> instances;
 
 			Handle<SliceEngineTypes::Model> mdl;
+			bool isSkin;
 		};
 #pragma endregion
 	public:
 		void GatherDrawCalls();
 		void UseDrawCalls(GLuint mShader, bool isForShadows);
-
+		void SingleDraw(GLuint mShader, const Entity& entity, bool isForShadow);
 	private:
-		void BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, unsigned int meshOffset, unsigned int entityID);
+		void BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, bool isSkin, unsigned int entityID);
 
 		std::map<RenderCmdID, RenderBatch> renderCmds;
 		std::map<ShadowRenderCmdID, ShadowRenderBatch> shadowRenderCmds;

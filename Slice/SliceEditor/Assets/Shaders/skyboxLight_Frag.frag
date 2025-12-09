@@ -20,6 +20,6 @@ void main(void){
 	}
 	else
 	{
-		discard;
+		fFragColor = vec4(dif, 1.0);
 	}
 }
