@@ -24,8 +24,7 @@ namespace SliceEngine
 		{
 			RCK_SHADER = 0,
 			RCK_MODEL,
-			RCK_MESH_OFFSET,
-			RCK_IS_SKIN_AND_MESH_STATIC,
+			RCK_MESH_OFFSET,// --TODO-- Assumes things w/ offset = Skin (actl, dun need care i think?)
 			RCK_MAXBITS
 		};
 
@@ -87,8 +86,7 @@ namespace SliceEngine
 		{
 			uint64_t model;
 			unsigned int meshOffset;
-			bool isSkinAndStaticMesh;
-			ShadowRenderCmdID(uint64_t mdl, unsigned int offset, bool skinAndStatic) : model(mdl), meshOffset(offset), isSkinAndStaticMesh(skinAndStatic) {}
+			ShadowRenderCmdID(uint64_t mdl, unsigned int offset) : model(mdl), meshOffset(offset) {}
 
 			const bool operator<(const ShadowRenderCmdID& o) const
 			{
@@ -110,8 +108,6 @@ namespace SliceEngine
 					return false;
 				if (meshOffset != o.meshOffset)
 					return false;
-				if (isSkinAndStaticMesh != o.isSkinAndStaticMesh)
-					return false;
 				return true;
 			}
 		};
@@ -120,7 +116,6 @@ namespace SliceEngine
 			glm::mat4 mdlMtx;
 			unsigned int entityID;
 		};
-
 		struct ShadowRenderBatch
 		{
 			std::vector<ShadowInstanceData> instances;
@@ -131,6 +126,9 @@ namespace SliceEngine
 	public:
 		void GatherDrawCalls();
 		void UseDrawCalls(GLuint mShader, bool isForShadows);
+
+	private:
+		void BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, unsigned int meshOffset, unsigned int entityID);
 
 		std::map<RenderCmdID, RenderBatch> renderCmds;
 		std::map<ShadowRenderCmdID, ShadowRenderBatch> shadowRenderCmds;

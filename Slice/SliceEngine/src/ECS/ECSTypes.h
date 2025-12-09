@@ -123,6 +123,7 @@ namespace SliceEngine
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
 		bool skinned{ false };
+		bool castShadow{ true };
 
 		RTTR_ENABLE();
 	};
