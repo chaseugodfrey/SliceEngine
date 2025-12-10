@@ -243,9 +243,15 @@ namespace SliceEngine
 
 #pragma region PARTICLE SYSTEM FUNCTIONS
 
-	static void ParticleSystem_ChangeValue()
+	static void ParticleSystem_GetDuration(unsigned int entity, float* out)
 	{
-
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().duration;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+		return;
 	}
 
 #pragma endregion
@@ -1054,6 +1060,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(AM_PerformedThisFrame);
 		ADD_INTERNAL_CALL(AM_GetValue2D);
 		ADD_INTERNAL_CALL(AM_GetValue1D);
+
+		// Particle system
+		ADD_INTERNAL_CALL(ParticleSystem_GetDuration);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);

@@ -42,7 +42,13 @@ namespace SliceEngine
             }
         }
 
-        public bool isRepeating = false;
+        public bool isRepeating;
+        {
+            get
+            {
+                Functionalls
+            }
+        }
         public bool isLocalSpace = false;
 
         // Lifetime
