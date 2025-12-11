@@ -847,13 +847,14 @@ namespace SliceEditor
 	void AssetManager::CleanUpSceneTemp()
 	{
 		std::filesystem::path mAssetDirectoryFolder = mAssetDirectory;
-		mAssetDirectoryFolder /= "Default";
+		//mAssetDirectoryFolder /= "Default";
 
 		for (const auto& file : std::filesystem::directory_iterator(mAssetDirectoryFolder))
 		{
 			if (file.is_regular_file() && file.path().extension() == ".temp")
 			{
 				std::filesystem::remove(file);
+				break;
 			}
 		}
 
