@@ -62,14 +62,15 @@ namespace SliceEditor
 				continue;
 
 			std::filesystem::path metaPath = assetPath;
-			metaPath += ".meta";
+			metaPath.replace_extension(".meta");
+			//metaPath += ".meta";
 
 			if (!std::filesystem::exists(metaPath))
 			{
 				SLICE_LOG_ERROR("Meta file missing for: " + assetPath.string() + ". Creating it now: ");
 				CreateDescriptorFile(assetPath, false);
 			}
-			else
+
 			{
 				// meta exist
 				// check if the resource exist, if not then we have to recompile the asset
@@ -161,6 +162,7 @@ namespace SliceEditor
 			}
 		);
 		AddDefaultModelsToMap();
+		CreateAssetManifest();
 
 	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
@@ -327,9 +329,11 @@ namespace SliceEditor
 			
 			//UNUSED
 			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-			
+			std::filesystem::path metaPath = filePath;
+			metaPath.replace_extension(".meta");
+
 			// get the file path to the meta file
-			std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
+			metaData->Serialize(metaPath);
 			#pragma region Resource Compiling Section
 			// compile the asset here?? or before creating the meta file?
 			switch (assetType)
@@ -432,16 +436,16 @@ namespace SliceEditor
 		{
 			CompileFBXAsset(metaPath);
 			// after creating resource file
-			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
-			// Assets/Models/Player.fbx <-- asset path
-			std::filesystem::path target = metaData->assetPath;
-			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+			//std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			//// Assets/Models/Player.fbx <-- asset path
+			//std::filesystem::path target = metaData->assetPath;
+			//target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
 
-			std::string assetFullname = metaData->assetName + metaData->assetType;
+			//std::string assetFullname = metaData->assetName + metaData->assetType;
 
-			target = target / assetFullname;
+			//target = target / assetFullname;
 
-			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+			//std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
 
 			break;
 		}
@@ -449,16 +453,16 @@ namespace SliceEditor
 		{
 			CompileFBXAsset(metaPath);
 			// after creating resource file
-			std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
-			// Assets/Models/Player.fbx <-- asset path
-			std::filesystem::path target = metaData->assetPath;
-			target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+			//std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
+			//// Assets/Models/Player.fbx <-- asset path
+			//std::filesystem::path target = metaData->assetPath;
+			//target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
 
-			std::string assetFullname = metaData->assetName + metaData->assetType;
+			//std::string assetFullname = metaData->assetName + metaData->assetType;
 
-			target = target / assetFullname;
+			//target = target / assetFullname;
 
-			std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
+			//std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
 
 			//then add to the map pepeHand
 			// if static
@@ -989,6 +993,8 @@ namespace SliceEditor
 			assetEntry["guid"] = guid.GetGUID();
 			assetEntry["name"] = filename;
 			assetEntry["path"] = resourcePath;
+
+			manifestJson["assets"].push_back(assetEntry);
 		}
 
 		// after constructing asset manifest, write to the file path

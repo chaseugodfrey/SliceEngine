@@ -202,7 +202,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 
 			nlohmann::json metaJson;
 
@@ -224,14 +224,14 @@ namespace SliceEditor
 			metaJson["hasAlpha"] = hasAlpha;
 			metaJson["alpha_threshold"] = alpha_threshold;
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 
 		void Deserialize(const std::filesystem::path& desc_path) override
@@ -300,14 +300,14 @@ namespace SliceEditor
 			// specific properties to model goes here but we dh that yet
 			
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 		void Deserialize(const std::filesystem::path & desc_path) override
 		{
@@ -395,14 +395,14 @@ namespace SliceEditor
 			// specific properties to model goes here but we dh that yet
 
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 
@@ -418,7 +418,7 @@ namespace SliceEditor
 			// now set the resource path
 			// technically this is done in compiling of asset
 			// but scene has no compiling so we just set it here
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -430,14 +430,14 @@ namespace SliceEditor
 			metaJson["navMeshFile"] = navMeshFile;
 			metaJson["navMeshGUID"] = navMeshGUID.GetGUID();
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 
@@ -450,7 +450,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -460,15 +460,14 @@ namespace SliceEditor
 
 			metaJson["stream"] = stream;
 
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 
@@ -482,7 +481,7 @@ namespace SliceEditor
 			// technically this is done in compiling of asset
 			// but scene has no compiling so we just set it here
 
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -493,14 +492,14 @@ namespace SliceEditor
 
 			// specific properties to scene goes here but we dh that yet
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 
@@ -511,7 +510,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -520,14 +519,14 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties to shader goes here but we dh that yet
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 	struct VertShaderData : public MetaData
@@ -537,7 +536,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -546,14 +545,14 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties to shader goes here but we dh that yet
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 	struct GeomShaderData : public MetaData
@@ -563,7 +562,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -572,14 +571,14 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties to shader goes here but we dh that yet
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 	struct FragShaderData : public MetaData
@@ -589,7 +588,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -598,14 +597,14 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties to shader goes here but we dh that yet
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 	
@@ -622,7 +621,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -635,14 +634,14 @@ namespace SliceEditor
 			metaJson["metallic"] = metallic;
 			to_json(metaJson["color"], color);
 
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 		void Deserialize(const std::filesystem::path& desc_path) override
 		{
@@ -865,7 +864,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -1434,7 +1433,7 @@ namespace SliceEditor
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
-			resourcePath = desc_path.string() + "/" + std::to_string(guid.GetGUID()) + assetType;
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -1443,14 +1442,14 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties
 
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 
 	};

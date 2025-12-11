@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <cstdint>
 #include <functional>
 #include <random>
+#include <compare>
 #include <rttr/registration.h>
 
 namespace SliceEngine::Utils
@@ -42,7 +43,7 @@ namespace SliceEngine
 		explicit GUID(uint64_t value) : mValue(value) {}
 		
 		// this shit is cool wtf 4 for the price of 1
-		bool operator<=>(const GUID& other) const = default;
+		auto operator<=>(const GUID& other) const = default;
 
 		static GUID Generate()
 		{

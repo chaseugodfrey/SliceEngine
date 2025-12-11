@@ -93,7 +93,7 @@ namespace SliceEditor
 		// before engine's resource manager scans it to prevent broken meta files/resource files
 		inputs = std::make_unique<EditorInputs>(registry);
 
-		assetManager.ScanResourceFolder();
+		//assetManager.ScanResourceFolder();
 		assetManager.Init();
 
 		engine.Init();
