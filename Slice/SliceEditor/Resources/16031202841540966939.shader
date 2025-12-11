@@ -1,5 +1,5 @@
 {
-    "VertexShader": "fullScreen_Vert",
-    "FragmentShader": "bloomJoin_Frag",
+    "VertexShader": "Shaders/fullScreen_Vert.vert",
+    "FragmentShader": "Shaders/bloomJoin_Frag.frag",
     "GeometryShader": ""
 }

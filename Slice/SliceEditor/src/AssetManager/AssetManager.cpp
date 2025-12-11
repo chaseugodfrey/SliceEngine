@@ -689,7 +689,11 @@ namespace SliceEditor
 		std::filesystem::path filePath(metaData->assetPath);
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{

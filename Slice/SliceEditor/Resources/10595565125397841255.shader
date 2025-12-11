@@ -1,5 +1,5 @@
 {
-    "VertexShader": "fullScreen_Vert",
-    "FragmentShader": "vignette_Frag",
+    "VertexShader": "Shaders/fullScreen_Vert.vert",
+    "FragmentShader": "Shaders/vignette_Frag.frag",
     "GeometryShader": ""
 }

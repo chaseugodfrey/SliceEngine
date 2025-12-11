@@ -1,5 +1,5 @@
 {
-    "VertexShader": "fullScreen_Vert",
-    "FragmentShader": "fog_Frag",
+    "VertexShader": "Shaders/fullScreen_Vert.vert",
+    "FragmentShader": "Shaders/fog_Frag.frag",
     "GeometryShader": ""
 }

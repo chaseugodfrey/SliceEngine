@@ -1,5 +1,5 @@
 {
-    "VertexShader": "pointShadow_Vert",
-    "FragmentShader": "pointShadow_Frag",
-    "GeometryShader": "skyboxGeneration_Geom"
+    "VertexShader": "Shaders/pointShadow_Vert.vert",
+    "FragmentShader": "Shaders/pointShadow_Frag.frag",
+    "GeometryShader": "Shaders/skyboxGeneration_Geom.geom"
 }

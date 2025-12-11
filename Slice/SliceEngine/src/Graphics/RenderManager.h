@@ -147,7 +147,32 @@ namespace SliceEngine
 			S_COPY						
 		};
 
-		std::unordered_map<ShaderOpt, std::string> shaders;
+		std::unordered_map<ShaderOpt, std::string> ShaderPaths =
+		{
+			{ ShaderOpt::S_BASIC,           "Shaders/basic.shader" },
+			{ ShaderOpt::S_SHADOW,          "Shaders/shadow.shader" },
+			{ ShaderOpt::S_POINT_SHADOW,    "Shaders/pointShadow.shader" },
+			{ ShaderOpt::S_DEFERRED,        "Shaders/deferred.shader" },
+			{ ShaderOpt::S_SKYBOX,          "Shaders/skybox.shader" },
+			{ ShaderOpt::S_SKYBOX_Light,    "Shaders/skyboxLight.shader" },
+			{ ShaderOpt::S_LIGHTING,        "Shaders/lighting.shader" },
+			{ ShaderOpt::S_PARTICLES,       "Shaders/particles.shader" },
+			{ ShaderOpt::S_INSTANCED,       "Shaders/instanced.shader" },
+			{ ShaderOpt::S_DEBUG_LINE,      "Shaders/debugLine.shader" },
+			{ ShaderOpt::S_DEBUG_OUTLINE,   "Shaders/debugOutline.shader" },
+			{ ShaderOpt::S_DEBUG_OUT_BLUR,  "Shaders/debugOutlineBlur.shader" },
+			{ ShaderOpt::S_DEBUG_OUTLJOIN,  "Shaders/debugOutlineJoin.shader" },
+			{ ShaderOpt::S_FOG,             "Shaders/fog.shader" },
+			{ ShaderOpt::S_BLOOM_SPLIT,     "Shaders/bloomSplit.shader" },
+			{ ShaderOpt::S_DOWNSCALING,     "Shaders/downSample.shader" },
+			{ ShaderOpt::S_UPSCALING,       "Shaders/upSample.shader" },
+			{ ShaderOpt::S_BLOOM_JOIN,      "Shaders/bloomJoin.shader" },
+			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
+			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
+			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
+			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
+			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
+		};
 
 		enum GPU_OUT : unsigned char
 		{
@@ -204,7 +229,7 @@ namespace SliceEngine
 		unsigned int mIDHovered{};
 
 		Handle<SliceEngineTypes::Shader> shaderHandle;
-		std::pair<ShaderOpt, GLuint> mCurrShader;
+		std::pair<std::string, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
 		GLuint SkyboxMap{};
@@ -220,7 +245,7 @@ namespace SliceEngine
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
 		void ForceResetDefaultSettings();
-		void SetShader(ShaderOpt sh);
+		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);

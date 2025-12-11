@@ -1,5 +1,5 @@
 {
-    "VertexShader": "deferred_Vert",
-    "FragmentShader": "deferred_Frag",
+    "VertexShader": "Shaders/deferred_Vert.vert",
+    "FragmentShader": "Shaders/deferred_Frag.frag",
     "GeometryShader": ""
 }
