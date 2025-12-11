@@ -60,8 +60,11 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::QUAD_DEFAULT] = std::to_string(DefaultResourceIDs::QUAD_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT] = std::to_string(DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
-
+		
 		mGUIDToResource[(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT] = std::to_string(DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+	
+		// Default material
+		mGUIDToResource[(GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID] = std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID);
 	}
 
 	void ResourceManager::ReloadResource(const GUID& guid)
