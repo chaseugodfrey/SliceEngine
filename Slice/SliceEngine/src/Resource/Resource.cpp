@@ -142,7 +142,7 @@ namespace SliceEngine
 			switch (defaultID)
 			{
 			case Type<SliceEngineTypes::Material>::defaultResourceGUID:
-				t->LoadMaterial();
+				t->LoadDefault();
 				break;
 			default:
 				return nullptr;
@@ -150,12 +150,9 @@ namespace SliceEngine
 			}
 		}
 		else
-			t = SliceEngineTypes::Material::LoadMaterial(path);
+			return std::make_unique<SliceEngineTypes::Material>(SliceEngineTypes::Material::LoadMaterial(path));
 
 		return t;
-
-
-		return std::make_unique<SliceEngineTypes::Material>( SliceEngineTypes::Material::LoadMaterial(path));
 	}
 
 	void Type<SliceEngineTypes::Material>::Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr)
