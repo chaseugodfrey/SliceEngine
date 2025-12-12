@@ -11,15 +11,15 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 
 #include "Resource/ResourceManager.h"
-#include "Resource/Shader.h"
+//#include "Resource/Shader.h"
 #include "Resource/Material.h"
 #include "Resource/Model.h"
-#include "Resource/Texture.h"
+//#include "Resource/Texture.h"
 
 #include "WorldSpaceGraphicsSystem.h"
-#define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/euler_angles.hpp"
-#include "glm/gtc/type_ptr.hpp"
+//#define GLM_ENABLE_EXPERIMENTAL
+//#include "glm/gtx/euler_angles.hpp"
+//#include "glm/gtc/type_ptr.hpp"
 #include "../Core/Core.h"
 
 namespace SliceEngine
@@ -202,14 +202,14 @@ namespace SliceEngine
 	// 	glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 	// }
 
-	void WorldSpaceGraphicsSystem::Update(float dt)
-	{
-		//for (auto& i : spatialData)
-		//	i.clear();
-		//outerSpatial.clear();
-
-		BaseSystem::Update(dt);
-	}
+	//void WorldSpaceGraphicsSystem::Update(float dt)
+	//{
+	//	//for (auto& i : spatialData)
+	//	//	i.clear();
+	//	//outerSpatial.clear();
+	//
+	//	BaseSystem::Update(dt);
+	//}
 
 	//void WorldSpaceGraphicsSystem::FetchFrustrumCull(Entity camObj)
 	//{

@@ -104,7 +104,7 @@ namespace SliceEngine
 		struct InstanceData
 		{
 			glm::mat4 mtx;
-			glm::ivec4 mat;
+			//glm::ivec4 mat;
 		};
 
 #pragma region Enums
@@ -170,7 +170,7 @@ namespace SliceEngine
 			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SKYBOX				= 0b0000'0001,
 			GPS_SKYBOX_AMBIENT		= 0b0101'0011,
-			GPS_SHADOW				= 0b1000'0101,
+			GPS_SHADOW				= 0b1001'0101,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
 			GPS_DEBUG				= 0b1100'0110,

@@ -19,7 +19,26 @@
 
 namespace SliceEngine
 {
-
+	RenderCmdManager::RenderCmdManager()
+	{
+		glCreateBuffers(1, &mTextureVBO);
+		glNamedBufferStorage(mTextureVBO, mMaxInstance * sizeof(GLuint64), NULL, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mTextureVBO);
+		
+		glCreateBuffers(1, &mBasicVBO);
+		glNamedBufferStorage(mBasicVBO, mMaxInstance * sizeof(ShadowInstanceData), NULL, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mBasicVBO);
+		
+		glCreateBuffers(1, &mDefaultVBO);
+		glNamedBufferStorage(mDefaultVBO, mMaxInstance * sizeof(InstanceData), NULL, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mDefaultVBO);
+	}
+	RenderCmdManager::~RenderCmdManager()
+	{
+		glDeleteBuffers(1, &mTextureVBO);
+		glDeleteBuffers(1, &mBasicVBO);
+		glDeleteBuffers(1, &mDefaultVBO);
+	}
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -36,42 +55,27 @@ namespace SliceEngine
 			const auto& material = rend.materialHandle.get();
 
 			uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
-			uint64_t modelID = model.getGUID().GetGUID();
-			uint64_t meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1));
-			bool isSkinNMeshStatic = rend.skinned && !model.get()->is_static;
+			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
-			RenderCmdID key(RCK_MAXBITS, shaderID, modelID, meshOffset);
-
-			RenderBatch& batch = renderCmds[key];
-
-			if (batch.instances.empty())
-			{
-				batch.mdl = model;
-				batch.isSkin = static_cast<bool>(isSkinNMeshStatic);
-			}
+			RCK_Size key = MRCK_OPAQUE |
+				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
 			
 			InstanceData data;
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
 			data.color = glm::vec4(material->color, 1.f);
 			data.roughness = material->roughness;
 			data.metallic = material->metallic;
-			data.albedoTextureHandle = material->albedo.get()->texture_id; // -TODO- Get ARB HAndle
+			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
-
-			batch.instances.push_back(std::move(data));
 
 			if (rend.castShadow)
 			{
-				ShadowRenderCmdID sKey(modelID, meshOffset);
-				ShadowRenderBatch& sBatch = shadowRenderCmds[sKey];
-				if (sBatch.instances.empty())
-				{
-					sBatch.mdl = model;
-					sBatch.isSkin = static_cast<bool>(isSkinNMeshStatic); // --TODO-- Currently 0 support for shadows lol
-				}
-				sBatch.instances.emplace_back(ShadowInstanceData(data.mdlMtx, data.entityID));
+				shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 			}
+
+			renderCmds[key].push_back(std::move(data));
 		}
+	
 	}
 	void RenderCmdManager::UseDrawCalls(GLuint mShader, bool isForShadows)
 	{
@@ -82,7 +86,7 @@ namespace SliceEngine
 			// Two-Sided?
 
 		// Internal Sort:
-			// Opaque - By Model (no need by texutres if bindless)
+			// Opaque - By Model
 			// Translucent - By Dist -> then by model if possible
 
 		// SSBO Data
@@ -90,8 +94,6 @@ namespace SliceEngine
 			// Textures Samplers
 			// Texture to use
 			// Extra Data(?)l9
-		//uint64_t currentShader = 0;
-		//GLuint mShader = 0;
 
 		if (isForShadows)
 		{
@@ -100,18 +102,27 @@ namespace SliceEngine
 				const auto& id = i.first;
 				auto& batch = i.second;
 
-				if (batch.instances.empty())
+				if (batch.empty())
 					continue;
 
-				auto& mesh = batch.mdl.get()->meshes[id.meshOffset];
+				ModelBasic& mdlRef = modelReferences[id];
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
+				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
 				glBindVertexArray(mesh.vao);
 
-				GLint uniformLoc;
-				for (auto& i : batch.instances)
+				//if (mdlRef.isSkin)
 				{
-					BasicDrawSettings(mShader, i.mdlMtx, batch.isSkin, i.entityID);
-
-					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+					//for (auto& i : batch)
+					//{
+					//	SetModelSkinUniform(mShader, i.mdlMtx, true, i.entityID);
+					//
+					//}
+				}
+				//else
+				{
+					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
+					glNamedBufferSubData(mBasicVBO, 0, sizeof(ShadowInstanceData) * batch.size(), batch.data());
+					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
 				}
 			}
 		}
@@ -122,7 +133,7 @@ namespace SliceEngine
 				const auto& id = i.first;
 				auto& batch = i.second;
 
-				if (batch.instances.empty())
+				if (batch.empty())
 					continue;
 
 				// Change Shader // TODO - Currently all Deferred Shader
@@ -132,27 +143,27 @@ namespace SliceEngine
 				//	mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)currentShader).get()->s;
 				//	//glUseProgram(mShader);
 				//}
-				
-				auto& mesh = batch.mdl.get()->meshes[id.dat[RCK_MESH_OFFSET]];
+				RCK_ModelT mdlID = (id >> RCK_ModelOffset) & MRCK_EXTRACT_SHORT;
+				ModelBasic& mdlRef = modelReferences[mdlID];
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
+				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
 				glBindVertexArray(mesh.vao);
 
 				GLint uniformLoc;
-				for (auto& i : batch.instances)
+				if (mdlRef.isSkin)
 				{
-					BasicDrawSettings(mShader, i.mdlMtx, batch.isSkin, i.entityID);
-
-					uniformLoc = glGetUniformLocation(mShader, "aGID");
-					glUniform1ui(uniformLoc, static_cast<unsigned int>(i.entityID));
-					uniformLoc = glGetUniformLocation(mShader, "uRoughness");
-					glUniform1f(uniformLoc, i.roughness);
-					uniformLoc = glGetUniformLocation(mShader, "uMetallic");
-					glUniform1f(uniformLoc, i.metallic);
-					uniformLoc = glGetUniformLocation(mShader, "uColor");
-					glUniform3f(uniformLoc, i.color.r, i.color.g, i.color.b);
-
-					glBindTextureUnit(0, i.albedoTextureHandle);
-
-					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+					for (auto& i : batch)
+					{
+						SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
+						glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData), &i);
+						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+					}
+				}
+				else
+				{
+					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
+					glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData) * batch.size(), batch.data());
+					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
 				}
 			}
 		}
@@ -169,19 +180,37 @@ namespace SliceEngine
 		auto& mesh = rend.modelHandle.get()->meshes[meshOffset];
 		glBindVertexArray(mesh.vao);
 
-		BasicDrawSettings(mShader, transform.transform, (rend.skinned && !rend.modelHandle.get()->is_static), static_cast<unsigned int>(entity));
+		SetModelSkinUniform(mShader, (rend.skinned && !rend.modelHandle.get()->is_static), static_cast<unsigned int>(entity));
+		if (isForShadow)
+		{
+			ShadowInstanceData i;
+			i.entityID = static_cast<unsigned int>(entity);
+			i.mdlMtx = transform.transform;
+			glNamedBufferSubData(mBasicVBO, 0, sizeof(ShadowInstanceData), &i);
+		}
+		else
+		{
+			const auto& material = rend.materialHandle.get();
+
+			InstanceData data{};
+			data.mdlMtx = transform.transform;
+			data.color = glm::vec4(material->color, 1.f);
+			data.roughness = material->roughness;
+			data.metallic = material->metallic;
+			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			data.entityID = static_cast<unsigned int>(entity);
+			glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData), &data);
+		}
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 	}
 
-	void RenderCmdManager::BasicDrawSettings(GLuint mShader, glm::mat4& mdlMtx, bool isSkin, unsigned int entityID)
+	void RenderCmdManager::SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID)
 	{
 		GLint uniformLoc;
-		uniformLoc = glGetUniformLocation(mShader, "M");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &mdlMtx[0][0]);
-
 		uniformLoc = glGetUniformLocation(mShader, "skinned");
 		if (isSkin && uniformLoc != -1) {
 			glUniform1ui(uniformLoc, 1);
+
 			auto core = Core::GetInstance();
 			auto const& bone = core->GetRegistry().get<Bone>(static_cast<Entity>(entityID));
 			Entity root_entity = bone.skeleton_root;
@@ -202,4 +231,32 @@ namespace SliceEngine
 		}
 		else { glUniform1ui(uniformLoc, 0); }
 	}
+#pragma region Own Stored copy of data
+	RenderCmdManager::RCK_ModelT RenderCmdManager::GetModelDetails(uint64_t mdlID, unsigned char meshOffset, bool isSkin)
+	{
+		MdlFinder mdlFinder{ mdlID, meshOffset };
+
+		auto i = modelToIdx.find(mdlFinder);
+		if (i == modelToIdx.end())
+		{
+			modelToIdx[mdlFinder] = modelReferences.size();
+			modelReferences.emplace_back(ModelBasic(mdlID, meshOffset, isSkin));
+			i = modelToIdx.find(mdlFinder);
+		}
+		return i->second;
+	}
+	unsigned int RenderCmdManager::GetTextureDetails(GLuint64 bindlessID)
+	{
+		auto dat = textureLoaded.find(bindlessID);
+		if (dat == textureLoaded.end())
+		{
+			unsigned int texIDX = textureList.size();
+			textureLoaded.emplace(bindlessID, texIDX);
+			textureList.push_back(bindlessID);
+			glNamedBufferSubData(mTextureVBO, sizeof(GLuint64) * texIDX, sizeof(GLuint64), &bindlessID);
+			return texIDX;
+		}
+		return dat->second;
+	}
+#pragma endregion
 }

@@ -23,7 +23,7 @@ namespace SliceEngine
 	class ResourceManager;
 	struct WorldSpaceGraphicsSystem : BaseSystem<renderEntity, Transform, Renderer>
 	{
-		void Update(float dt) override;
+		//void Update(float dt) override;
 		//void Render(GLuint mShader, bool withTex);
 		//void SetShaderAndWTexSettings(GLuint Shader, bool withTex);
 

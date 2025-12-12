@@ -109,7 +109,7 @@ namespace SliceEngine
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mIVBO);
+		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mIVBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -361,12 +361,12 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 
-			SetShader(S_PARTICLES);
-			// Use Same FrameBufferSettings & Don't Clear Buffer
-			UpdateCamVP();
-			BindCameraDepth(cam);
-			LoadSettings(GPS_PARTICLES);
-			RenderAfterLighting(cam);
+			//SetShader(S_PARTICLES);
+			//// Use Same FrameBufferSettings & Don't Clear Buffer
+			//UpdateCamVP();
+			//BindCameraDepth(cam);
+			//LoadSettings(GPS_PARTICLES);
+			//RenderAfterLighting(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
