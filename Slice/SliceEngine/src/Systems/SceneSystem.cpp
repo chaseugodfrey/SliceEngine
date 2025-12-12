@@ -46,8 +46,9 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
 			return;
 		}*/
+		std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
 
-		mCurrentSceneName = filePath.filename().stem().string();
+		mCurrentSceneName = std::filesystem::relative(filePath, mAssetDirectory).generic_string();
 
 		mCurrentScene = filePath;
 

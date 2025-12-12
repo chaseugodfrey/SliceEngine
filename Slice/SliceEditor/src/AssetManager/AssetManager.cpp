@@ -417,8 +417,11 @@ namespace SliceEditor
 
 	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
 	{
+		// get the meta file path
+		std::filesystem::path metaPath = metaData->assetPath;
+		metaPath.replace_extension(".meta");
 
-		std::filesystem::path metaPath = metaData->Serialize(mResourcesDirectory);
+		metaData->Serialize(metaPath);
 
 		//mAssets[assetType].push_back(metaData->assetName);
 		// Update the descriptor map
@@ -677,7 +680,11 @@ namespace SliceEditor
 
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -707,7 +714,11 @@ namespace SliceEditor
 		std::filesystem::path filePath(metaData->assetPath);
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -721,7 +732,11 @@ namespace SliceEditor
 		std::filesystem::path filePath(metaData->assetPath);
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -735,7 +750,11 @@ namespace SliceEditor
 		std::filesystem::path filePath(metaData->assetPath);
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -750,7 +769,11 @@ namespace SliceEditor
 
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -764,7 +787,11 @@ namespace SliceEditor
 
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -778,7 +805,11 @@ namespace SliceEditor
 
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
@@ -792,7 +823,11 @@ namespace SliceEditor
 
 		try
 		{
-			std::filesystem::copy(filePath, metaData->resourcePath);
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
 		}
 		catch (std::filesystem::filesystem_error& e)
 		{
