@@ -47,7 +47,7 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
-		int collisionSteps{4};
+		int collisionSteps{2};
 
 	private:
 
