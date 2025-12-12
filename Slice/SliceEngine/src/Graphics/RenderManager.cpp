@@ -324,6 +324,8 @@ namespace SliceEngine
 			if (!camera.componentEnabled) continue;
 			mCurrFinalColAttachment = GOUT_FINAL;
 
+			renderQueue.SortTranslucent(cam);
+
 			CalculateVP(cam);
 			SetShader(S_SHADOW);
 			LinkFrameBufferSettings(FB_NIL, 0);
@@ -348,7 +350,7 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
-			renderQueue.UseDrawCalls(mCurrShader.second, false);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_OPAQUE);
 			//----------------------------------------------------------------
 			SetShader(S_SKYBOX_Light);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -539,7 +541,11 @@ namespace SliceEngine
 			SetShader(S_DEBUG_OUTLINE);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DEBUG_OUTLINE]);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
-			UpdateCamVP();
+			{
+				glm::mat4 PV = P * V;
+				GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
+			}
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_BLOOM);
 
@@ -549,7 +555,7 @@ namespace SliceEngine
 				auto entityGO = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
 				if (!entityGO.HasComponent<Renderer>() || !entityGO.HasComponent<Transform>())
 					continue;
-				renderQueue.SingleDraw(mCurrShader.second, entity, false);
+				renderQueue.SingleDraw(mCurrShader.second, entity, RenderCmdManager::DrawType::DRAW_MODELS);
 			}
 			// "Blur" Passes
 			SetShader(S_DEBUG_OUT_BLUR);
@@ -605,7 +611,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			renderQueue.UseDrawCalls(mCurrShader.second, true);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS);
 		}
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
@@ -628,7 +634,7 @@ namespace SliceEngine
 
 			SetDirectionalLightMtx(camT.GetWorldPosition(), transform.GetWorldPosition());
 
-			renderQueue.UseDrawCalls(mCurrShader.second, true);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS);
 		}
 	}
 	void RenderManager::RenderSkybox()

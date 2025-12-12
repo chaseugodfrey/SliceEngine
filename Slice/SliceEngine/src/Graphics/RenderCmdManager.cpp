@@ -77,7 +77,11 @@ namespace SliceEngine
 		}
 	
 	}
-	void RenderCmdManager::UseDrawCalls(GLuint mShader, bool isForShadows)
+	void RenderCmdManager::SortTranslucent(Entity camEntity)
+	{
+
+	}
+	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType)
 	{
 		// Tags I need
 			// Cast Shadows
@@ -95,8 +99,11 @@ namespace SliceEngine
 			// Texture to use
 			// Extra Data(?)l9
 
-		if (isForShadows)
+		switch (drawType)
 		{
+		case DrawType::DRAW_MODELS:
+		{
+
 			for (auto& i : shadowRenderCmds)
 			{
 				const auto& id = i.first;
@@ -125,8 +132,9 @@ namespace SliceEngine
 					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
 				}
 			}
+			break;
 		}
-		else
+		case DrawType::DRAW_OPAQUE:
 		{
 			for (auto& i : renderCmds)
 			{
@@ -166,10 +174,12 @@ namespace SliceEngine
 					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
 				}
 			}
+			break;
+		}
 		}
 	}
 
-	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, bool isForShadow)
+	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType)
 	{
 		auto core = Core::GetInstance();
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
@@ -181,14 +191,17 @@ namespace SliceEngine
 		glBindVertexArray(mesh.vao);
 
 		SetModelSkinUniform(mShader, (rend.skinned && !rend.modelHandle.get()->is_static), static_cast<unsigned int>(entity));
-		if (isForShadow)
+		switch (drawType)
+		{
+		case DrawType::DRAW_MODELS:
 		{
 			ShadowInstanceData i;
 			i.entityID = static_cast<unsigned int>(entity);
 			i.mdlMtx = transform.transform;
 			glNamedBufferSubData(mBasicVBO, 0, sizeof(ShadowInstanceData), &i);
+			break;
 		}
-		else
+		case DrawType::DRAW_OPAQUE:
 		{
 			const auto& material = rend.materialHandle.get();
 
@@ -200,6 +213,8 @@ namespace SliceEngine
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData), &data);
+			break;
+		}
 		}
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 	}

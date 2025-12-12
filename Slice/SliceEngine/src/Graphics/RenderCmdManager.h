@@ -87,11 +87,20 @@ namespace SliceEngine
 		};
 #pragma endregion
 	public:
+
+		enum class DrawType : unsigned char
+		{
+			DRAW_MODELS,
+			DRAW_OPAQUE,
+			DRAW_TRANSLUCENT
+		};
+
 		RenderCmdManager();
 		~RenderCmdManager();
 		void GatherDrawCalls();
-		void UseDrawCalls(GLuint mShader, bool isForShadows);
-		void SingleDraw(GLuint mShader, const Entity& entity, bool isForShadow);
+		void SortTranslucent(Entity camEntity);
+		void UseDrawCalls(GLuint mShader, DrawType drawType);
+		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType);
 	private:
 		RCK_ModelT GetModelDetails(uint64_t mdlID, unsigned char meshOffset, bool isSkin);
 		void SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID);
