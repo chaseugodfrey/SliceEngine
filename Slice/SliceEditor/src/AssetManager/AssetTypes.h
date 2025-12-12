@@ -363,14 +363,14 @@ namespace SliceEditor
 			// specific properties to model goes here but we dh that yet
 
 			// now create the meta file
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
 			{
 				outFile << metaJson.dump(4);
 				outFile.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 	};
 
