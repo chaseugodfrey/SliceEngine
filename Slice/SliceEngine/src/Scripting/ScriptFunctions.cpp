@@ -92,6 +92,13 @@ namespace SliceEngine
 		*outPosition = transform.position;
 	}
 
+	static void Transform_GetWorldPosition(unsigned int entity, glm::vec3* outPosition)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+
+		*outPosition = transform.GetWorldPosition();
+	}
+
 	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
@@ -131,6 +138,12 @@ namespace SliceEngine
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		*outRotation = transform.rotation; // REAL QUATERNION
+	}
+
+	static void Transform_GetWorldRotationQuat(unsigned int entity, glm::quat* outRotation)
+	{
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		*outRotation = transform.GetWorldRotation(); // REAL QUATERNION	
 	}
 
 	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
@@ -843,7 +856,10 @@ namespace SliceEngine
 #pragma endregion
 	
 #pragma region SCENE FUNCTIONS
-
+	static void QuitGame()
+	{
+		EventManager::GetInstance()->Publish<OnGameStopEvent>();
+	}
 
 #pragma endregion
 
@@ -856,7 +872,6 @@ namespace SliceEngine
 	}
 
 #pragma endregion
-
 
 #pragma region NAVIGATION FUNCTIONS
 
@@ -919,6 +934,19 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region SpriteRenderer FUNCTIONS
+	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			spriteRenderer.componentEnabled = enabled;
+		}
+	}
+
+#pragma endregion
 
 #pragma region UI FUNCTIONS
 
@@ -992,6 +1020,7 @@ namespace SliceEngine
 		RegisterComponent<NavAgent>();
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
+		RegisterComponent<SpriteRenderer>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
@@ -1005,6 +1034,7 @@ namespace SliceEngine
 	void ScriptFunctions::RegisterFunctions()
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
+		ADD_INTERNAL_CALL(QuitGame);
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
@@ -1021,15 +1051,18 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
+		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
+		ADD_INTERNAL_CALL(Transform_GetWorldPosition);
 		ADD_INTERNAL_CALL(Transform_SetPosition);
 		ADD_INTERNAL_CALL(Transform_GetScale);
 		ADD_INTERNAL_CALL(Transform_SetScale);
 		ADD_INTERNAL_CALL(Transform_GetRotation);
 		ADD_INTERNAL_CALL(Transform_SetRotation);
 		ADD_INTERNAL_CALL(Transform_GetRotationQuat);
+		ADD_INTERNAL_CALL(Transform_GetWorldRotationQuat);
 		ADD_INTERNAL_CALL(Transform_SetRotationQuat);
 
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva

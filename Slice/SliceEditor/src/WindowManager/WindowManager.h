@@ -37,12 +37,16 @@ namespace SliceEditor
 
 		void DrawSavePopupModal();
 
+		void QuitGameEvent(OnGameStopEvent e);
+
 		bool projectSettingsPopupOpen{ false };
 		bool saveSceneAsPopup{ false };
 		bool saveScenePopupOpen{ false };
 		bool saveScenePopupClose{ false };
 		bool newScenePopupOpen{ false };
 		bool preferenceSettingsPopupOpen{ false };
+		bool isPlaying{ false }; // --TODO-- Change Reading from Somewhere else(?)
+		bool isPaused{ false };
 
 	public:
 		

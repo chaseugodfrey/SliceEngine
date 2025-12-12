@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SliceEngine", "SliceEngine\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SliceScript", "SliceScript\SliceScript.csproj", "{4A610329-B616-7C1E-3F0B-76F5ABBF7222}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WeightOfTheSky", "WeightOfTheSky\WeightOfTheSky.vcxproj", "{5AB40D08-4682-010E-2F16-72341B83DD72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		EditorDebug|x64 = EditorDebug|x64
@@ -32,6 +34,12 @@ Global
 		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.EditorRelease|x64.Build.0 = EditorRelease|x64
 		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.WeightOfTheSky|x64.ActiveCfg = WeightOfTheSky|x64
 		{4A610329-B616-7C1E-3F0B-76F5ABBF7222}.WeightOfTheSky|x64.Build.0 = WeightOfTheSky|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.EditorDebug|x64.ActiveCfg = EditorDebug|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.EditorDebug|x64.Build.0 = EditorDebug|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.EditorRelease|x64.ActiveCfg = EditorRelease|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.EditorRelease|x64.Build.0 = EditorRelease|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.WeightOfTheSky|x64.ActiveCfg = WeightOfTheSky|x64
+		{5AB40D08-4682-010E-2F16-72341B83DD72}.WeightOfTheSky|x64.Build.0 = WeightOfTheSky|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

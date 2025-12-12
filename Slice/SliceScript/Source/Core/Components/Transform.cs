@@ -65,10 +65,29 @@ namespace SliceEngine
                 FunctionCalls.Transform_SetRotationQuat(gameObject.mID, ref rotationQuat);
             }
         }
+        public Vector3 WorldPosition
+        {
+            get
+            {
+                FunctionCalls.Transform_GetWorldPosition(gameObject.mID, out Vector3 worldPosition);
+                return worldPosition;
+            }
+        }
+        public Quaternion WorldRotationQuat
+        {
+            get
+            {
+                FunctionCalls.Transform_GetWorldRotationQuat(gameObject.mID, out Quaternion worldRotataionQuat);
+                return worldRotataionQuat;
+            }
+        }
 
         public Vector3 Right { get { return RotationQuat * Vector3.Right; } }
+        public Vector3 Left { get { return RotationQuat * Vector3.Left; } }
         public Vector3 Up { get { return RotationQuat * Vector3.Up; } }
+        public Vector3 Down { get { return RotationQuat * Vector3.Down; } }
         public Vector3 Forward { get { return RotationQuat * Vector3.Forward; } }
+        public Vector3 Backward { get { return RotationQuat * Vector3.Backward; } }
         public void Pitch(float degrees) => RotateLocalAxis(Vector3.Right, degrees);
         public void Yaw(float degrees) => RotateLocalAxis(Vector3.Up, degrees);
         public void Roll(float degrees) => RotateLocalAxis(Vector3.Forward, degrees);

@@ -174,6 +174,13 @@ namespace SliceEngine
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
 
+	rttr::registration::class_<RigidBody::FreezeOptions>("FreezeOptions")
+		.constructor<>()
+		.property("freezeX", &RigidBody::FreezeOptions::freezeX)
+		.property("freezeY", &RigidBody::FreezeOptions::freezeY)
+		.property("freezeZ", &RigidBody::FreezeOptions::freezeZ);
+
+
 	rttr::registration::class_<RigidBody>(typeid(RigidBody).name())
 		.constructor<>()
 		.property("isKinematic", &RigidBody::isKinematic)
@@ -183,7 +190,9 @@ namespace SliceEngine
 		.property("friction", &RigidBody::friction)
 		.property("restituition", &RigidBody::restitution)
 		.property("linearDamping", &RigidBody::linearDamping)
-		.property("angularDamping", &RigidBody::angularDamping);
+		.property("angularDamping", &RigidBody::angularDamping)
+		.property("freezePosition", &RigidBody::freezePosition)
+		.property("freezeRotation", &RigidBody::freezeRotation);
 
 	//Collider Shapes
 	rttr::registration::class_<ColliderShape::BoxData>("BoxData")
@@ -605,7 +614,7 @@ namespace SliceEngine
 	}
 
 	void Engine::SceneInit()
-	{
+ 	{
 		LoadProjectSettings();
 		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
