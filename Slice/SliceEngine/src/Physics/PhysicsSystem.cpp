@@ -1019,6 +1019,8 @@ namespace SliceEngine
 					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
 
 				bodySettings.mAllowedDOFs = allowedDofs;
+
+				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
 		}
 		else if (!isRigibody)
 		{
