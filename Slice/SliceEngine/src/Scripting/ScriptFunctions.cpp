@@ -249,9 +249,31 @@ namespace SliceEngine
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
 			*out = go.GetComponent<ParticleSystem>().duration;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);		
+	}
+
+	static void ParticleSystem_GetSpeed(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().speed;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);	
+	}
+
+	static void ParticleSystem_GetRepeating(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isRepeating;
+			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
-		return;
 	}
 
 #pragma endregion
@@ -1063,6 +1085,8 @@ namespace SliceEngine
 
 		// Particle system
 		ADD_INTERNAL_CALL(ParticleSystem_GetDuration);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeed);
+		
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);

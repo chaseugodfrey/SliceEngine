@@ -165,6 +165,16 @@ namespace SliceEngine
         internal extern static void ParticleSystem_GetDuration(uint entityID, out float duration);
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetDuration(uint entityID, ref float duration);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpeed(uint entityID, out float speed);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpeed(uint entityID, ref float speed);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRepeating(uint entityID, out bool repeating);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRepeating(uint entityID, ref bool repeating);
+
+
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Log(string msg);
