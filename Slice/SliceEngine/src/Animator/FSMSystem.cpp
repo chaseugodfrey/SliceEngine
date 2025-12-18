@@ -99,6 +99,27 @@ namespace SliceEngine
 				}
 			}
 		}
+
+		for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
+		{
+			for (const SliceEngineTypes::Condition& condition : transition.conditions)
+			{
+				if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
+				{
+					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
+
+					//bool check = currentParamValue.to_bool();
+
+					if (EvalCon(currentParamValue, condition.op, condition.value))
+					{
+						EFSM.nextState = transition.targetState;
+						EFSM.stateCon = true;
+						EFSM.anyState->transitionUsed = &transition;
+						break;
+					}
+				}
+			}
+		}
 	}
 	void FSMSystem::UpdateState(float &CTime,float dt)
 	{
@@ -115,16 +136,25 @@ namespace SliceEngine
 		EFSM.stateMap[EFSM.prevState].isFinish = false;
 
 		bool safeToChange = false;
-		if(EFSM.currState->transitionUsed->hasExitTime)
+
+		if(EFSM.currState->transitionUsed != nullptr)
 		{
-			// check exit time
-			if(EFSM.currState->transitionUsed->exitTime * EFSM.currState->animationTime <= CTime)
+			if (EFSM.currState->transitionUsed->hasExitTime)
 			{
-				EFSM.currState->isFinish = true;
+				// check exit time
+				if (EFSM.currState->transitionUsed->exitTime * EFSM.currState->animationTime <= CTime)
+				{
+					EFSM.currState->isFinish = true;
+					safeToChange = true;
+				}
+			}
+			else
+			{
 				safeToChange = true;
 			}
 		}
-		else
+
+		if(EFSM.anyState->transitionUsed != nullptr)
 		{
 			safeToChange = true;
 		}
@@ -148,6 +178,7 @@ namespace SliceEngine
 			CTime = 0.0f;
 			stateChanged = true;
 			EFSM.currState->transitionUsed = nullptr;
+			EFSM.anyState->transitionUsed = nullptr;
 		}
 	}
 
