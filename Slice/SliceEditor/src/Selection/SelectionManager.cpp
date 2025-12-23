@@ -69,7 +69,7 @@ namespace SliceEditor
 			auto& assetManager = registry.GetAssetManager();
 			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			SliceEngine::GUID prefabGUID;
-			std::string fileName = dirNode->path.stem().stem().string();
+			std::string fileName = dirNode->fullPath.stem().stem().string();
 			//Search for the GUID in the map:
 			if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
 			{

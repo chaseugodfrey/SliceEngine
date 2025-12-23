@@ -68,7 +68,7 @@ namespace SliceEditor
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
-		void RecompileAsset(MetaData* metaData);
+		void CreateAssetManifest();
 		std::filesystem::path GetMetaDataFromFilename(std::string guid);
 		
 
@@ -99,7 +99,9 @@ namespace SliceEditor
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
 			{".controller",{AssetType::Controller, "Controller"}},
-			{".navmesh",{AssetType::NavMesh, "NavMesh"}}
+			{".navmesh",{AssetType::NavMesh, "NavMesh"}},
+			{".skl", {AssetType::Skeleton, "Skeleton"}},
+			{".animpkg", {AssetType::Animation, "Animation"}}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
