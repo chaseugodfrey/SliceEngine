@@ -184,6 +184,7 @@ namespace SliceEditor
 
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
+		auto& assetMan = registry.GetAssetManager();
 		//Loading a Scene
 		if (entry.fullPath.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
@@ -199,7 +200,7 @@ namespace SliceEditor
 		{
 			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
-			std::string stem = entry.fullPath.stem().stem().string();
+			std::string stem = entry.relativePath.generic_string();
 				if (registry.GetAssetManager().mFilenameToGUID.find(stem) != registry.GetAssetManager().mFilenameToGUID.end())
 				{
 					SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
@@ -209,6 +210,22 @@ namespace SliceEditor
 				{
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
+		}
+		//Currently Open will Create a Model
+		else if (entry.fullPath.extension() == ".fbx")
+		{
+			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
+			std::string stem = entry.relativePath.generic_string();
+			if (assetMan.mFilenameToGUID.find(stem) != assetMan.mFilenameToGUID.end())
+			{
+				SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
+				EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
+			}
+			else
+			{
+				SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
+			}
 		}
 		//No functionality
 		else
