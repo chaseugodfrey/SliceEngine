@@ -1052,13 +1052,27 @@ namespace SliceEditor
 
 	}
 
+	void AssetManager::CreateModelGO(SliceEngine::GUID guid)
+	{
+		// get file name from the GUID
+		std::optional<std::string>  fileName = GetFilenameFromGUID(guid);
+		if (fileName.has_value())
+		{
+			std::filesystem::path metapath = GetMetaDataFromFilename(fileName.value());
+			ModelData modelData;
+			modelData.Deserialize(metapath);
+
+
+		}
+	}
+
 	std::filesystem::path AssetManager::GetMetaDataFromFilename(std::string fileName)
 	{
 		if (mFilenameToGUID.find(fileName) != mFilenameToGUID.end())
 		{
-			SliceEngine::GUID guid = mFilenameToGUID[fileName];
-			std::filesystem::path metaPath = mResourcesDirectory / std::to_string(guid.GetGUID());
-			metaPath += ".meta";
+			
+			std::filesystem::path metaPath = mAssetDirectory / fileName;
+			metaPath.replace_extension(".meta");
 
 			return metaPath;
 		}

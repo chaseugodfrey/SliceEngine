@@ -220,7 +220,8 @@ namespace SliceEditor
 			if (assetMan.mFilenameToGUID.find(stem) != assetMan.mFilenameToGUID.end())
 			{
 				SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
-				EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
+				assetMan.CreateModelGO(guid);
+				//EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
 			}
 			else
 			{

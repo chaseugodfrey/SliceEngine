@@ -780,14 +780,14 @@ namespace SliceEngine
 	}
 
 
-	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
+	GameObject GOFactory::CreateGO_Model(GUID skele_guid, GUID anim_guid, GUID model_guid) {
 		//Get the resource handle first
 		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
 		int skele_index = 0;
-		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null, entt::null, skele_index, model.is_static);
+		return CreateGO_ModelNode(model.rootNode, skele_guid, anim_guid, model_guid, entt::null, entt::null, skele_index, model.is_static);
 	}
 
-	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent, Entity root, int& index, bool is_static) {
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID skele_guid, GUID anim_guid, GUID model_guid, Entity parent, Entity root, int& index, bool is_static) {
 		auto go = CreateGO(node.name);
 		SetParent(go.GetEntity(), parent);
 
@@ -853,8 +853,9 @@ namespace SliceEngine
 				go.AddComponent<Animator>();
 				auto& animator = go.GetComponent<Animator>();
 
-				GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
-				GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
+				GUID skeletonGUID = skele_guid;
+				GUID animPkgGUID = anim_guid;
+				if (skeletonGUID != GUID::null)
 				animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
 				animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
 				animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
