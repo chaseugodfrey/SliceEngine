@@ -75,7 +75,7 @@ namespace SliceEditor
 
 					if (ImGui::BeginPopupContextWindow("menu_create"))
 					{
-						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->fullPath);
 
 						ImGui::EndPopup();
 					}
@@ -114,7 +114,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
 	{
-		if (node.path.empty())
+		if (node.fullPath.empty())
 		{
 			ImGui::Text("No Path Found!");
 			return;
@@ -199,7 +199,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
 	{
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{}
 
 		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
@@ -236,10 +236,14 @@ namespace SliceEditor
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto& assetMgr = mRegistry.GetAssetManager();
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
-		std::filesystem::path filePath = node.fileName;
-		std::string fileKey = filePath.stem().stem().string();
+		std::filesystem::path filePath = node.fullPath;
+		std::string fileKey = node.relativePath.generic_string();
 		std::string fileExt = filePath.extension().string();
 		bool canDrag = true;
+
+		/*Temp Debug Section*/
+		std::string fullPathStr = filePath.string();
+		std::string relativePathStr = node.relativePath.string();
 
 		if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
 		{
@@ -251,7 +255,7 @@ namespace SliceEditor
 			canDrag = false;
 		}
 
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{
 			if(!(node.type == SelectionType::PREFAB))
 			{
@@ -298,13 +302,13 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Re-compile File"))
 			{
 				//Get the metaData for this Asset:
-				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.path.stem().stem().string());
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.fullPath.stem().stem().string());
 
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
 
 				file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
-				file.filePath = node.path;
+				file.filePath = node.fullPath;
 				switch (file.assetType)
 				{
 				case AssetType::Texture:
