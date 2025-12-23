@@ -42,90 +42,12 @@ namespace SliceEngine
 
 	void AudioSettings::Serialize(const std::filesystem::path& desc_path)
 	{
-		nlohmann::json audioSettingsOutput;
-
-		nlohmann::json sfxArray = nlohmann::json::array();
-
-		for (const auto& [key, entry] : mSFXMap)
-		{
-
-			nlohmann::json entryJson;
-
-			to_json(entryJson, entry);
-
-			sfxArray.push_back(entryJson);
-		}
-
-		audioSettingsOutput["SFXEntries"] = sfxArray;
-
-		std::ofstream outFile(desc_path);
-		if (outFile.is_open())
-		{
-			outFile << audioSettingsOutput.dump(4);
-			outFile.close();
-			SLICE_LOG("AudioSettings saved to: " + desc_path.string());
-		}
-		else
-		{
-			SLICE_LOG_ERROR("Failed to open file for writing: " + desc_path.string());
-		}
 	}
 
 	void AudioSettings::Deserialize(const std::filesystem::path& desc_path)
 	{
 
-		std::ifstream inFile(desc_path);
-		nlohmann::json audioSettingsInput;
 
-		if (!inFile.is_open())
-		{
-			SLICE_LOG_WARNING("File not found for Deserialisation!");
-			return;
-		}
-		else
-		{
-			inFile >> audioSettingsInput;
-			inFile.close();
-		}
-
-		if (audioSettingsInput.contains("SFXEntries"))
-		{
-			mSFXMap.clear();
-
-			auto& entriesArray = audioSettingsInput["SFXEntries"];
-
-			if (entriesArray.is_array())
-			{
-				for (const auto& jsonEntry : entriesArray)
-				{
-
-					SFXEntry entryData;
-
-					from_json(jsonEntry, entryData);
-
-					CreateSoundGroup(entryData.key);
-
-					SFXEntry* mapEntry = GetSFXEntry(entryData.key);
-
-					if (mapEntry)
-					{
-						FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
-
-						*mapEntry = entryData;
-
-						mapEntry->soundGroup = currentSoundGroup;
-
-						if (mapEntry->soundGroup)
-						{
-							mapEntry->soundGroup->setVolume(mapEntry->volume);
-							mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
-						}
-					}
-				}
-
-			}
-
-		}
 
 	}
 
@@ -510,6 +432,95 @@ namespace SliceEngine
 
 
 		//entry->_lastPlayed = currentTime;
+	}
+
+	void AudioSettings::LoadSettings()
+	{
+		std::ifstream inFile(filepath);
+		nlohmann::json audioSettingsInput;
+
+		if (!inFile.is_open())
+		{
+			SLICE_LOG_WARNING("File not found for Deserialisation!");
+			SaveSettings();
+			return;
+		}
+		else
+		{
+			inFile >> audioSettingsInput;
+			inFile.close();
+		}
+
+		if (audioSettingsInput.contains("SFXEntries"))
+		{
+			mSFXMap.clear();
+
+			auto& entriesArray = audioSettingsInput["SFXEntries"];
+
+			if (entriesArray.is_array())
+			{
+				for (const auto& jsonEntry : entriesArray)
+				{
+
+					SFXEntry entryData;
+
+					from_json(jsonEntry, entryData);
+
+					CreateSoundGroup(entryData.key);
+
+					SFXEntry* mapEntry = GetSFXEntry(entryData.key);
+
+					if (mapEntry)
+					{
+						FMOD::SoundGroup* currentSoundGroup = mapEntry->soundGroup;
+
+						*mapEntry = entryData;
+
+						mapEntry->soundGroup = currentSoundGroup;
+
+						if (mapEntry->soundGroup)
+						{
+							mapEntry->soundGroup->setVolume(mapEntry->volume);
+							mapEntry->soundGroup->setMaxAudible(mapEntry->maxInstances);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	void AudioSettings::SaveSettings()
+	{
+
+		nlohmann::json audioSettingsOutput;
+
+		nlohmann::json sfxArray = nlohmann::json::array();
+
+		for (const auto& [key, entry] : mSFXMap)
+		{
+
+			nlohmann::json entryJson;
+
+			to_json(entryJson, entry);
+
+			sfxArray.push_back(entryJson);
+		}
+
+		audioSettingsOutput["SFXEntries"] = sfxArray;
+
+		std::ofstream outFile(filepath);
+
+		if (outFile.is_open())
+		{
+			outFile << audioSettingsOutput.dump(4);
+			outFile.close();
+			SLICE_LOG("AudioSettings saved to: " + filepath);
+		}
+
+		else
+		{
+			SLICE_LOG_ERROR("Failed to open file for writing: " + filepath);
+		}
 	}
 
 	void to_json(nlohmann::json& j, const SFXEntry& entry)

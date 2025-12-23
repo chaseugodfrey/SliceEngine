@@ -30,8 +30,6 @@ namespace SliceEngine
 	{
 		bool isRunning;
 
-		void LoadProjectSettings();
-
 	public:
 
 		// Gonna try to grp these tgt with the other systems in core.h

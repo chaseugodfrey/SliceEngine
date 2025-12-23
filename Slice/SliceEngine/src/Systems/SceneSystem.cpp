@@ -26,6 +26,7 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
 
 	}
+
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
@@ -33,7 +34,6 @@ namespace SliceEngine
 		UnloadCurrentScene();
 	}
 
-	
 	void SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
 		//isSceneUnloaded = false;

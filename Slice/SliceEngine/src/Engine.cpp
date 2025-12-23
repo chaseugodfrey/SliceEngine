@@ -615,8 +615,6 @@ namespace SliceEngine
 
 	void Engine::SceneInit()
  	{
-		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
@@ -830,80 +828,9 @@ namespace SliceEngine
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
 		mCanvas.Release();
 
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		Core::GetInstance()->GetAudioSettings()->Exit();
-		mAudioManager->Exit();
 
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Exit();
-
-		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
-	}
-
-	void Engine::LoadProjectSettings()
-	{
-		auto sScene = Core::GetInstance()->GetSceneSystem();
-		auto sResourceManager = Core::GetInstance()->GetResourceManager();
-
-		std::filesystem::path proj = "projectSettings.json";
-
-		ProjectSettings s;
-		if (!std::filesystem::exists(proj)) {
-			// Safe defaults if file missing
-			s.scenes = {};
-			s.startupScene.clear();
-		}
-
-		else
-		{
-			std::ifstream in(proj);
-			nlohmann::json j; in >> j;
-
-			if (j.contains("product") && j["product"].contains("name"))
-			{
-				s.productName = j["product"]["name"].get<std::string>();
-			}
-
-			if (j.contains("render")) 
-			{
-				s.width = j["render"].value("width", s.width);
-				s.height = j["render"].value("height", s.height);
-				s.vsync = j["render"].value("vsync", s.vsync);
-			}
-			if (j.contains("scenes"))
-			{
-				s.scenes = j["scenes"].get<std::vector<std::string>>();
-			}
-			s.startupScene = j.value("startupScene", s.startupScene);
-
-			// Fallback: if startupScene empty, use first scene
-			std::string sceneToLoad = !s.startupScene.empty()
-				? s.startupScene
-				: (s.scenes.empty() ? "" : s.scenes.front());
-
-			if (sceneToLoad.empty()) {
-				// Nothing to load�show blank/editor splash or exit gracefully
-				// log: "No scenes configured."
-			}
-
-			else
-			{
-				std::filesystem::path sceneFilePath(sceneToLoad);
-				
-				SLICE_LOG("Scene File Path" + sceneFilePath.string());
-				sScene->SetDefaultScenePath(sceneFilePath);
-
-				
-
-				//sScene->LoadScene(sceneToLoad); // for now by filepath
-				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
-
-
-			}
-		}
 	}
 
 }

@@ -15,12 +15,12 @@ DigiPen Institute of Technology is prohibited.
 #define AUDIO_SETTINGS_H
 
 #include <fmod.hpp>
-#include "ECS/ECSTypes.h"
-#include <vector>
-#include <unordered_map>
 #include <cmath>
 #include <stdlib.h> // For rand()
 #include <time.h>   // For srand()
+
+#include "ProjectSettings.h"
+#include "ECS/ECSTypes.h"
 
 namespace SliceEngine
 {
@@ -44,7 +44,7 @@ namespace SliceEngine
 	void to_json(nlohmann::json& j, const SFXEntry& entry);
 	void from_json(const nlohmann::json& j, SFXEntry& entry);
 
-	class AudioSettings
+	struct AudioSettings : public ProjectSettings
 	{
 		FMOD::System* mSystem = nullptr;
 
@@ -52,6 +52,9 @@ namespace SliceEngine
 
 		//std::vector<SFXEntry> mSfxMap;
 	public:
+
+		AudioSettings(std::string name) : ProjectSettings(name) {};
+
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
 		void Init();
 		void Exit();
@@ -72,6 +75,9 @@ namespace SliceEngine
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
 		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f));
 		void Release();
+
+		void LoadSettings() override;
+		void SaveSettings() override;
 	};
 }
 

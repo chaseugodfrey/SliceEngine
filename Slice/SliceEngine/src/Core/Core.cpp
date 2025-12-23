@@ -22,7 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Systems/LayerManager.h"
 #include "Navigation/NavigationSystem.h"
-#include "Configuration/AudioSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 
 namespace SliceEngine
 {
@@ -58,8 +58,7 @@ namespace SliceEngine
 		SliceEngine::GetActionMappingSystem().SetInputSystem(mInputPtr.get()); // set global action mapping system's input system pointer
 		mScenePtr = std::make_unique<SceneSystem>();
 
-		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
-		mAudioSettings = std::make_unique<AudioSettings>();
+		mProjectSettingsManager = std::make_unique<ProjectSettingsManager>();
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 		mFactory.RegisterComponent<Renderer>();
@@ -97,6 +96,8 @@ namespace SliceEngine
 		mWindowManager.CloseWindow();
 		UnbindSystems();
 		glfwTerminate();
+
+		mAudioManager->Exit();
 	}
 
 	void Core::UnbindSystems()
@@ -160,12 +161,9 @@ namespace SliceEngine
 	//	return mNavAgent.get();
 	//}
 
-	ProjectSettingsService* Core::GetProjectSettingsService()
+	ProjectSettingsManager* Core::GetProjectSettingsManager()
 	{
-		return mProjectSettingsService.get();
+		return mProjectSettingsManager.get();
 	}
-	AudioSettings* Core::GetAudioSettings()
-	{
-		return mAudioSettings.get();
-	}
+
 }

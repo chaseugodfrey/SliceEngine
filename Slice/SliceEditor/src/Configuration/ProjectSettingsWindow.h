@@ -2,6 +2,7 @@
 #define PROJECT_SETTINGS_WINDOW_H
 
 #include "WindowManager/EditorWindow.h"
+#include <Configuration/ProjectSettingsIncludes.h>
 
 namespace SliceEditor
 {
@@ -14,15 +15,16 @@ namespace SliceEditor
 
 	public:
 		std::string name;
+		SliceEngine::ProjectSettings& mSettings;
 
-		BaseSettingsDisplay(Registry& reg, std::string nm) : mRegistry(reg), name(nm) {};
+		BaseSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& settings, std::string nm) : mRegistry(reg), mSettings(settings), name(nm) {};
 		void DisplayHeader();
 		virtual void DisplaySettings() = 0;
 	};
 
 	struct AudioSettingsDisplay : BaseSettingsDisplay
 	{
-		AudioSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		AudioSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
 		void DisplaySettings() override;
 	};
 
@@ -30,13 +32,13 @@ namespace SliceEditor
 	{
 		ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
 
-		PhysicsSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		PhysicsSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
 		void DisplaySettings() override;
 	};
 
 	struct ProjectSettingsDisplay : BaseSettingsDisplay
 	{
-		ProjectSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
+		ProjectSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
 		void DisplaySettings() override;
 	};
 

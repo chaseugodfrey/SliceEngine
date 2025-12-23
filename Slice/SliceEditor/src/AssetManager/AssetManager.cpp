@@ -1217,21 +1217,6 @@ namespace SliceEditor
 				if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem())
 				{
 					sScene->SetDefaultScenePath(newFilePath);
-					auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
-					auto& s = gSettings->Edit(); 
-
-					for (auto& it : s.scenes)
-					{
-						std::filesystem::path scenePath(it);
-						if (scenePath.stem() == oldFilePath.stem())
-						{
-							it = newFilePath.string();
-						}
-					}
-
-					s.startupScene = newFilePath.string();
-
-					gSettings->Save();
 				}
 
 				std::filesystem::path mCurrentPath = sScene->GetCurrentScenePath();
