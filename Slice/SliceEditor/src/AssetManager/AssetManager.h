@@ -70,7 +70,7 @@ namespace SliceEditor
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void CreateAssetManifest();
 
-		void CreateModelGO(SliceEngine::GUID guid);
+		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
 		std::filesystem::path GetMetaDataFromFilename(std::string guid);
 		
 

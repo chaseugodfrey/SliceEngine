@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 #include <Systems/PrefabSystem.h>
 #include <algorithm>
+#include "Core/Registry.h"
 
 namespace SliceEditor
 {
@@ -1052,7 +1053,7 @@ namespace SliceEditor
 
 	}
 
-	void AssetManager::CreateModelGO(SliceEngine::GUID guid)
+	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)
 	{
 		// get file name from the GUID
 		std::optional<std::string>  fileName = GetFilenameFromGUID(guid);
@@ -1062,7 +1063,7 @@ namespace SliceEditor
 			ModelData modelData;
 			modelData.Deserialize(metapath);
 
-
+			EditorUtilities::GameObject_CreateModel(modelData.guid, modelData.skeletonGUID, modelData.animationGUID, entt::null, &hist);
 		}
 	}
 

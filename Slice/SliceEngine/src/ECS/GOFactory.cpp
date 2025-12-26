@@ -855,11 +855,14 @@ namespace SliceEngine
 
 				GUID skeletonGUID = skele_guid;
 				GUID animPkgGUID = anim_guid;
-				if (skeletonGUID != GUID::null)
-				animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
-				animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
-				animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+				if (skeletonGUID != GUID::null())
+					animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
+				if (animPkgGUID != GUID::null())
+				{
+					animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
+					animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
+				}
 				if (animator.Handle_stateMachine.IsValid())
 				{
 					animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
@@ -869,7 +872,7 @@ namespace SliceEngine
 		}
 
 		for (auto& child : node.children) {
-			CreateGO_ModelNode(child, model_guid, go.GetEntity(), root, ++index, is_static);
+			CreateGO_ModelNode(child, model_guid, skele_guid, anim_guid, go.GetEntity(), root, ++index, is_static);
 		}
 		//set node local tform here, since setparent does some calculations to decompose relative mtx
 		//infact, do it after recursion, so everything has default values
