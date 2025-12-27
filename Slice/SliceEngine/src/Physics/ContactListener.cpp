@@ -16,9 +16,9 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 		<< contactPoint.GetY() << ", " << contactPoint.GetZ() << ")" << std::endl;
 
 	// Also log body positions to compare
-	std::cout << "Body1 pos: (" << inBody1.GetPosition().GetX() << ", "
+	std::cout << "Body1 id: (" << inBody1.GetUserData() << ", "
 		<< inBody1.GetPosition().GetY() << ", " << inBody1.GetPosition().GetZ() << ")" << std::endl;
-	std::cout << "Body2 pos: (" << inBody2.GetPosition().GetX() << ", "
+	std::cout << "Body2 id: (" << inBody2.GetUserData() << ", "
 		<< inBody2.GetPosition().GetY() << ", " << inBody2.GetPosition().GetZ() << ")" << std::endl;
 
 

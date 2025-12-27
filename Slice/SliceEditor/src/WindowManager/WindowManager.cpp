@@ -69,6 +69,8 @@ namespace SliceEditor
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
 		AddWindow<ConsoleWindow>();
+
+		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &WindowManager::QuitGameEvent>(this);
 	}
 
 	void WindowManager::Update()
@@ -268,9 +270,6 @@ namespace SliceEditor
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
-
-        static bool isPlaying = false;
-		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -934,6 +933,13 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+	}
+
+	void WindowManager::QuitGameEvent(OnGameStopEvent e)
+	{
+		isPlaying = false;
+		isPaused = false;
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->Stop();
 	}
 
 	//void WindowManager::SetTheme_Microsoft()

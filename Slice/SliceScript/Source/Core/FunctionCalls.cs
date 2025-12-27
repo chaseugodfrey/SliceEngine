@@ -15,9 +15,15 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
+        
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void QuitGame();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_GetPosition(uint entityID, out Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldPosition(uint entityID, out Vector3 position);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetPosition(uint entityID, ref Vector3 position);
@@ -36,6 +42,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_GetRotationQuat(uint entityID, out Quaternion rotation);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Transform_GetWorldRotationQuat(uint entityID, out Quaternion rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
@@ -341,5 +350,8 @@ namespace SliceEngine
         internal extern static void Slider_SetValue(uint entityID, float value);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
     }
 }

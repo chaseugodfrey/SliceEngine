@@ -69,7 +69,11 @@
     <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
+    <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
+    <Compile Include="Source\Core\Enemy\Entity.cs" />
+    <Compile Include="Source\Core\Enemy\LevelDirector.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -81,6 +85,8 @@
     <Compile Include="Source\Core\Math\Vector4.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\Hitbox.cs" />
+    <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
@@ -94,8 +100,11 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
+    <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EnemyChase.cs" />
+    <Compile Include="Source\EnemySlime.cs" />
+    <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
@@ -107,6 +116,9 @@
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
+    <Compile Include="Source\GroundCheck.cs" />
+    <Compile Include="Source\MainMenuButtons.cs" />
+    <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
     <Compile Include="Source\Spawner.cs" />

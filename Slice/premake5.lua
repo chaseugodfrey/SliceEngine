@@ -1,5 +1,5 @@
 workspace "Slice"
-    configurations { "EditorDebug", "EditorRelease", "WeightOfTheSky" }
+    configurations { "EditorDebug", "EditorRelease"}
     architecture "x64"
     startproject "SliceEditor"
     flags { "MultiProcessorCompile" }
@@ -57,4 +57,3 @@ ThirdParty.DETOUR_TILE_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Deto
 include "SliceEngine/premake5.lua"
 include "SliceScript/premake5.lua"
 include "SliceEditor/premake5.lua"
---include "WeightOfTheSky/premake5.lua"

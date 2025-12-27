@@ -151,6 +151,11 @@ struct OnPlayEvent
 
 };
 
+struct OnGameStopEvent
+{
+
+};
+
 // lol this is stupid but whatever
 
 RTTR_REGISTRATION
