@@ -408,7 +408,7 @@ namespace SliceEngine
 	};
 	struct ParticleSystem
 	{
-		enum ValueType
+		enum ValueType : unsigned int
 		{
 			CONSTANT,
 			CURVE,
