@@ -31,7 +31,12 @@ namespace SliceEngine
 
             float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
 
-            transform.Position = Bootstrap.Player.transform.Position;
+            //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
+            //       So I did this null check(27/12/2025)
+            if (Bootstrap.Player != null)
+            {
+                transform.Position = Bootstrap.Player.transform.Position;
+            }
             //float deltaToApply = newPitch - pitch;
             //pitch = newPitch;
 
