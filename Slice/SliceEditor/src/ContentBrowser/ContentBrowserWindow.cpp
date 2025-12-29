@@ -455,14 +455,29 @@ namespace SliceEditor
 					auto* data = static_cast<ModelData*>(file.metaData.get());
 					if (data->is_static == false) //It has skele and anim
 					{
+						/*
+								std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+								skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+								data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+								data->skeletonGUID = skeleData->guid;
+
+								std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+								animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+								data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+								data->animationGUID = animData->guid;
+
+						*/
 						//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
 						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
 						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+						data->animationGUID = animData->guid;
+
 					}
 				}
 				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);

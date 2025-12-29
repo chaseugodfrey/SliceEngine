@@ -277,6 +277,9 @@ namespace SliceEditor
 		SliceEngine::GUID skeletonGUID;
 		SliceEngine::GUID animationGUID;
 
+		// instead of meta path, itll be path to the resourcec
+		// i kinda scared to rename cause removing it broke a bunch of shit for some reason
+		// and idk if we'll ever need the path to resouce
 		std::string skeleMetaPath{};
 		std::string animMetaPath{};
 
@@ -297,6 +300,8 @@ namespace SliceEditor
 			metaJson["skeleMetaPath"] = skeleMetaPath;
 			metaJson["animMetaPath"] = animMetaPath;
 
+			metaJson["skeletonGUID"] = skeletonGUID;
+			metaJson["animationGUID"] = animationGUID;
 			// specific properties to model goes here but we dh that yet
 			
 			// now create the meta file
