@@ -63,8 +63,8 @@ namespace SliceEditor
 				continue;
 
 			std::filesystem::path metaPath = assetPath;
-			metaPath.replace_extension(".meta");
-			//metaPath += ".meta";
+			//metaPath.replace_extension(".meta");
+			metaPath += ".meta";
 
 			if (!std::filesystem::exists(metaPath))
 			{
@@ -331,7 +331,8 @@ namespace SliceEditor
 			//UNUSED
 			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			std::filesystem::path metaPath = filePath;
-			metaPath.replace_extension(".meta");
+			//metaPath.replace_extension(".meta");
+			metaPath += ".meta";
 
 			// get the file path to the meta file
 			metaData->Serialize(metaPath);
@@ -422,7 +423,8 @@ namespace SliceEditor
 	{
 		// get the meta file path
 		std::filesystem::path metaPath = metaData->assetPath;
-		metaPath.replace_extension(".meta");
+		//metaPath.replace_extension(".meta");
+		metaPath += ".meta";
 
 		metaData->Serialize(metaPath);
 
@@ -1075,8 +1077,8 @@ namespace SliceEditor
 		{
 			
 			std::filesystem::path metaPath = mAssetDirectory / fileName;
-			metaPath.replace_extension(".meta");
-
+			//metaPath.replace_extension(".meta");
+			metaPath += ".meta";
 			return metaPath;
 		}
 		else
@@ -1171,7 +1173,7 @@ namespace SliceEditor
 		}
 
 		SliceEngine::GUID fileGUID;
-
+		// NOTE: meta file no longer in resource path
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto path = resourceMgr->GetResourcePath(removedFilePath.stem().string());
 
@@ -1182,7 +1184,8 @@ namespace SliceEditor
 				
 				std::filesystem::path metaFilePath = path.value();
 
-				metaFilePath.replace_extension(".meta");
+				//metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
 
 				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
@@ -1275,11 +1278,13 @@ namespace SliceEditor
 
 			//Find the resource meta file using the old file name
 			auto path = resourceMgr->GetResourcePath(oldFilePath.stem().string());
+			// NOTE: meta file no longer in resource path
+
 			if (path.has_value())
 			{
 				std::filesystem::path metaFilePath = path.value();
-				metaFilePath.replace_extension(".meta");
-
+				//metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
 				
 
 
@@ -1362,6 +1367,7 @@ namespace SliceEditor
 
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+		// NOTE: meta file no longer in resource path
 
 		if (path.has_value())
 		{
@@ -1369,7 +1375,8 @@ namespace SliceEditor
 			auto hashB = HashFile(path.value());
 
 			std::filesystem::path metaFilePath = path.value();
-			metaFilePath.replace_extension(".meta");
+			metaFilePath += ".meta";
+		//	metaFilePath.replace_extension(".meta");
 
 			std::string guidString = path.value().stem().string();
 			fileGUID = SliceEngine::GUID::FromString(guidString);
@@ -1428,10 +1435,12 @@ namespace SliceEditor
 		{
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			auto path = resourceMgr->GetResourcePath(fileName);
+			// NOTE: meta file no longer in resource path
 			if (path.has_value())
 			{
 				std::filesystem::path metaFilePath = path.value();
-				metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
+//metaFilePath.replace_extension(".meta");
 
 				if (std::filesystem::exists(metaFilePath))
 				{
