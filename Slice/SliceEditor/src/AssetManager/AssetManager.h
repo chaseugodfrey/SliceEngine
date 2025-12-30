@@ -53,6 +53,7 @@ namespace SliceEditor
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
 		void CreateAssetMaps();
+		std::vector<SliceEngine::GUID>* GetMapFromAssetType(std::string assetType);
 		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);

@@ -647,6 +647,35 @@ namespace SliceEditor
 		}
 	}
 
+	std::vector<SliceEngine::GUID>* AssetManager::GetMapFromAssetType(std::string assetType)
+	{
+		if (assetType == "Audio")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Audio];
+		}
+
+		if (assetType == "Model")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Model];
+		}
+
+
+		if (assetType == "Texture")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Texture];
+		}
+
+		if (assetType == "Material")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Material];
+		}
+
+		if (assetType == "Controller")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Controller];
+		}
+	}
+
 #pragma region Asset Compiling
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;
