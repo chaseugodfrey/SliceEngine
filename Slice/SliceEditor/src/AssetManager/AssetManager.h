@@ -29,6 +29,11 @@ namespace SliceEditor
 {
 	class MetaData;
 	
+	struct RawFileEvent
+	{
+		std::filesystem::path filePath;
+		filewatch::Event changeType;
+	};
 
 	class AssetManager
 	{
@@ -129,20 +134,15 @@ namespace SliceEditor
 			{AssetType::Material, "DefaultMaterial"},
 			{AssetType::Controller, "DefaultController"}
 		};
-			std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
+
+		
+		std::queue<RawFileEvent> mRawFileQueue;
+		std::mutex mEventQueueMutex;
+		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 	private:
 		
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
-
-		struct RawFileEvent
-		{
-			std::filesystem::path filePath;
-			filewatch::Event changeType;
-		};
-
-		std::queue<RawFileEvent> mRawFileQueue;
-		std::mutex mEventQueueMutex;
 
 		std::unique_ptr<filewatch::FileWatch<std::string>> mAssetFileWatcher;
 
