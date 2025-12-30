@@ -40,6 +40,7 @@ namespace SliceEngine
 		void SetMainGameCamera(Entity cam);
 		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		void GetCameraAxis(glm::mat3& camRot, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
@@ -104,7 +105,6 @@ namespace SliceEngine
 		struct InstanceData
 		{
 			glm::mat4 mtx;
-			//glm::ivec4 mat;
 		};
 
 #pragma region Enums
@@ -167,6 +167,7 @@ namespace SliceEngine
 
 			GPS_NONE				= 0x00,
 			GPS_DEFAULT				= 0b1001'0101,
+			GPS_TEST_TRANSLUCENT	= 0b1101'0111,
 			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SKYBOX				= 0b0000'0001,
 			GPS_SKYBOX_AMBIENT		= 0b0101'0011,

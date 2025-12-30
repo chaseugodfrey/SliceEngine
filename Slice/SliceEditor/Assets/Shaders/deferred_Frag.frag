@@ -36,7 +36,7 @@ layout(binding=2, std430) readonly buffer ssbo1
 void main(void){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
-	fFragColor = texture(textures[iDat[vInstance].textureID], vTex) * vec4(iDat[vInstance].color.rgb, 1.0);
+	fFragColor = texture(textures[iDat[vInstance].textureID], vTex) * vec4(iDat[vInstance].color.rgb, 0.5);
 	fGID = iDat[vInstance].entityID;
 	fMetalRoughData.xy = vec2(iDat[vInstance].roughness, iDat[vInstance].metallic);
 }

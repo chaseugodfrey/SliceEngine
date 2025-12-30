@@ -12,9 +12,11 @@ namespace SliceEngine
 {
 	class RenderCmdManager
 	{
-		using RCK_Size = uint64_t;
-		using RCK_ModelT = uint16_t;
-		const unsigned char RCK_ModelOffset = 38;// Each Hex +4
+		using RCK_Size = uint64_t;		// long long
+		using RCK_DepthT = uint32_t;	// int
+		using RCK_ModelT = uint16_t;	// short
+		const unsigned char RCK_ModelOffset = 40;
+		// Reminder: 1byte = 2 Hex = 8 Bits
 		enum RenderCmdKey : RCK_Size
 		{
 			// 4 outcomes - Opaque, Transcluscent, Additive, Subtractive
@@ -25,11 +27,9 @@ namespace SliceEngine
 			MRCK_TRANSLUCENCY	= 0xC000'0000'0000'0000,
 			// ------------------------ Normal ------------------
 			MRCK_SHADER			= 0x3FC0'0000'0000'0000, // 255 Shader IDs
-			MRCK_MODEL			= 0x003F'FFC0'0000'0000, // 65'535 Models
-			MRCK_SHADER_SET		= 0x0000'003F'C000'0000, // Use the unsigned char enum GPUSetting
-			// ------------------------ Extraction ------------------
-			MRCK_EXTRACT_SHORT	= 0x0000'0000'0000'FFFF,
-			MRCK_EXTRACT_CHAR	= 0x0000'0000'0000'00FF
+			MRCK_MODEL			= 0x003F'FF00'0000'0000, // 16'383 Models
+			MRCK_SHADER_SET		= 0x0000'00FF'0000'0000, // Use the unsigned char enum GPUSetting
+			MRCK_DEPTH_SORT		= 0x0000'0000'FFFF'FFFF
 		};
 #pragma region Instance Data
 		struct ShadowInstanceData
@@ -98,6 +98,7 @@ namespace SliceEngine
 		RenderCmdManager();
 		~RenderCmdManager();
 		void GatherDrawCalls();
+		void SetVP(glm::mat4& V, glm::mat4& P);
 		void SortTranslucent(Entity camEntity);
 		void UseDrawCalls(GLuint mShader, DrawType drawType);
 		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType);
@@ -107,11 +108,13 @@ namespace SliceEngine
 		unsigned int GetTextureDetails(GLuint64 bindlessID);
 
 		const int mMaxInstance = 255;
+		const float minDistTranslucent = -1.f;
 		GLuint mBasicVBO;
 		GLuint mDefaultVBO;
 		GLuint mTextureVBO;
+		glm::mat4 VP{};
 		std::map<RCK_Size, std::vector<InstanceData>> renderCmds;
-		std::vector<std::pair<RCK_Size,InstanceData>> translucentCmds;
+		std::vector<std::pair<RCK_Size,InstanceData>> translucentCmds; //single draw calls
 		std::map<RCK_ModelT, std::vector<ShadowInstanceData>> shadowRenderCmds;
 		std::vector<ModelBasic> modelReferences;
 		std::map<MdlFinder, RCK_ModelT> modelToIdx;

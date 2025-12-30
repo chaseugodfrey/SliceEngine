@@ -13,6 +13,7 @@
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "../Graphics/RenderManager.h" // --TODO-- Sus
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -43,6 +44,7 @@ namespace SliceEngine
 	{
 		renderCmds.clear();
 		shadowRenderCmds.clear();
+		translucentCmds.clear();
 
 		auto core = Core::GetInstance();
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
@@ -57,8 +59,9 @@ namespace SliceEngine
 			uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
-			RCK_Size key = MRCK_OPAQUE |
-				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+			RCK_Size key =  //MRCK_TRANSCLUCENT | 
+				MRCK_OPAQUE |
+				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			
 			InstanceData data;
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
@@ -73,13 +76,37 @@ namespace SliceEngine
 				shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 			}
 
-			renderCmds[key].push_back(std::move(data));
+			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+				translucentCmds.push_back(std::make_pair(key, data));
+			else
+				renderCmds[key].push_back(std::move(data));
 		}
 	
 	}
+	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
+	{
+		VP = P * V;
+	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
+		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
+		glm::vec3 camFront, camRight, camUp;
+		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
+		Core::GetInstance()->GetRenderManager()->GetCameraAxis(camRot, camFront, camRight, camUp);
 
+		// Calcluate depth
+		assert(sizeof(float) == 4);
+		for (auto& i : translucentCmds)
+		{
+			glm::vec3 dir = glm::vec3(i.second.mdlMtx[3]) - camT.GetWorldPosition();
+			float d = glm::dot(dir, camFront);
+			i.first = (i.first & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
+		}
+
+		// Sort, furthest is first
+		std::sort(translucentCmds.begin(), translucentCmds.end(), [](const std::pair<RCK_Size, InstanceData>& a, const std::pair<RCK_Size, InstanceData>& b) {
+			return std::bit_cast<float>(static_cast<uint32_t>(a.first & MRCK_DEPTH_SORT)) > std::bit_cast<float>(static_cast<uint32_t>(b.first & MRCK_DEPTH_SORT));
+		});
 	}
 	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType)
 	{
@@ -151,7 +178,7 @@ namespace SliceEngine
 				//	mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)currentShader).get()->s;
 				//	//glUseProgram(mShader);
 				//}
-				RCK_ModelT mdlID = (id >> RCK_ModelOffset) & MRCK_EXTRACT_SHORT;
+				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
 				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
@@ -172,6 +199,35 @@ namespace SliceEngine
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
 					glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData) * batch.size(), batch.data());
 					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
+				}
+			}
+			break;
+		}
+		case DrawType::DRAW_TRANSLUCENT:
+		{
+			GLuint currShader; // --TODO--
+			RCK_ModelT currMdlID = 0xFFFF;
+			for (auto& i : translucentCmds)
+			{
+				const auto& id = i.first;
+				auto& dat = i.second;
+
+				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
+				if (distanceFromCam > minDistTranslucent)
+				{
+					RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
+					if (mdlID != currMdlID)
+					{
+						currMdlID = mdlID;
+					}
+					ModelBasic& mdlRef = modelReferences[currMdlID];
+					auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
+					auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+					glBindVertexArray(mesh.vao);
+
+					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
+					glNamedBufferSubData(mDefaultVBO, 0, sizeof(InstanceData), &dat);
+					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
 			break;
@@ -254,7 +310,7 @@ namespace SliceEngine
 		auto i = modelToIdx.find(mdlFinder);
 		if (i == modelToIdx.end())
 		{
-			modelToIdx[mdlFinder] = modelReferences.size();
+			modelToIdx[mdlFinder] = static_cast<RCK_ModelT>(modelReferences.size());
 			modelReferences.emplace_back(ModelBasic(mdlID, meshOffset, isSkin));
 			i = modelToIdx.find(mdlFinder);
 		}
@@ -265,7 +321,7 @@ namespace SliceEngine
 		auto dat = textureLoaded.find(bindlessID);
 		if (dat == textureLoaded.end())
 		{
-			unsigned int texIDX = textureList.size();
+			unsigned int texIDX = static_cast<unsigned int>(textureList.size());
 			textureLoaded.emplace(bindlessID, texIDX);
 			textureList.push_back(bindlessID);
 			glNamedBufferSubData(mTextureVBO, sizeof(GLuint64) * texIDX, sizeof(GLuint64), &bindlessID);

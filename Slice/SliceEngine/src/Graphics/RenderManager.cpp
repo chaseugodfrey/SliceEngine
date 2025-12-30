@@ -109,7 +109,7 @@ namespace SliceEngine
 		mInstanceVtx.resize(mMaxInstance);
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mIVBO);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mIVBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -269,7 +269,7 @@ namespace SliceEngine
 	{
 		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
 		
-		auto& transform = newCam.GetComponent<Transform>();
+		//auto& transform = newCam.GetComponent<Transform>();
 		newCam.AddComponent<Camera>();
 		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
 
@@ -294,10 +294,15 @@ namespace SliceEngine
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
-		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
 		auto& camTrans = cam.GetComponent<Transform>();
 		glm::mat3 rot = glm::mat3_cast(camTrans.rotation);
 		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
+		GetCameraAxis(rot, forward, right, up);
+	}
+	void RenderManager::GetCameraAxis(glm::mat3& rot, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
+	{
+		glm::vec3 f{ 1.f, 0.f, 0.f }, u{ 0.f, 1.f, 0.f }, r{ 0.f,0.f,1.f };
+
 		forward = rot * f;
 		right = rot * r;
 		up = rot * u;
@@ -345,12 +350,14 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			else
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
-			LoadSettings(GPS_DEFAULT);
+			LoadSettings(GPS_TEST_TRANSLUCENT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_OPAQUE);
+			//renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_OPAQUE);
+			renderQueue.SortTranslucent(cam);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
 			//----------------------------------------------------------------
 			SetShader(S_SKYBOX_Light);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -453,7 +460,7 @@ namespace SliceEngine
 				auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 				glBindVertexArray(mdl.vao);
 
-				int num{}, offset{};
+				int num{};
 				for (auto entity : view)
 				{
 					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
@@ -487,15 +494,14 @@ namespace SliceEngine
 					num++;
 					if (num == mMaxInstance)
 					{
-						glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data() + offset);
+						glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data());
 						glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
-						offset += num;
 						num = 0;
 					}
 				}
 				if (num != 0)
 				{
-					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data() + offset);
+					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data());
 					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 				}
 			}
