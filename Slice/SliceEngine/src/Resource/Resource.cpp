@@ -131,7 +131,28 @@ namespace SliceEngine
 	//Material
 	std::unique_ptr<SliceEngineTypes::Material> Type<SliceEngineTypes::Material>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		return std::make_unique<SliceEngineTypes::Material>( SliceEngineTypes::Material::LoadMaterial(path));
+		auto t = std::make_unique<SliceEngineTypes::Material>();
+		std::filesystem::path file(path);
+
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case Type<SliceEngineTypes::Material>::defaultResourceGUID:
+				t->LoadDefault();
+				break;
+			default:
+				return nullptr;
+				break;
+			}
+		}
+		else
+			return std::make_unique<SliceEngineTypes::Material>(SliceEngineTypes::Material::LoadMaterial(path));
+
+		return t;
 	}
 
 	void Type<SliceEngineTypes::Material>::Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr)

@@ -16,20 +16,41 @@ namespace SliceEngine
 {
 	void ResourceManager::InitResourceManager()
 	{
-		// Read the resource folder to store file paths and guids
-		for(auto & dirEntry : std::filesystem::recursive_directory_iterator(mResourcesDirectory))
-		{
-			if (dirEntry.is_regular_file())
-			{
-				std::filesystem::path filePath = dirEntry.path();
-				if (filePath.extension() == ".meta")
-				{
-					RegisterResourceAsset(filePath.string());
-					/*std::string pathString = filePath.string();
-					RegisterFileAsset(pathString);*/
-				}
+		std::filesystem::path manifestPath = mResourcesDirectory / "AssetManifest.json";
 
+		std::ifstream inFile(manifestPath);
+		if (!inFile.is_open())
+		{
+			SLICE_LOG_ERROR("Asset manifest not found at " + manifestPath.string());
+		}
+		else
+		{
+			try
+			{
+				nlohmann::json manifest;
+				inFile >> manifest;
+				if (manifest.contains("assets") && manifest["assets"].is_array())
+				{
+					for (const auto& entry : manifest["assets"])
+					{
+						std::string assetName = entry["name"].get<std::string>();
+						uint64_t guidVal = entry["guid"].get<uint64_t>();
+						std::string resourcepath = entry["path"].get<std::string>();
+
+						GUID guid(guidVal);
+						mFileNameToGUID[assetName] = guid;
+						mGUIDToResource[guid] = resourcepath;
+					}
+
+					SLICE_LOG("Resource loaded: " + std::to_string(manifest["assets"].size()) + " assets from manifest");
+				}
 			}
+			catch (const nlohmann::json::parse_error& e)
+			{
+				SLICE_LOG_ERROR("Failed to parse asset manifest json file");
+			}
+
+			inFile.close();
 		}
 	
 		mGUIDToResource[(GUID)DefaultResourceIDs::CUBE_DEFAULT] = std::to_string(DefaultResourceIDs::CUBE_DEFAULT);
@@ -39,8 +60,11 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::QUAD_DEFAULT] = std::to_string(DefaultResourceIDs::QUAD_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT] = std::to_string(DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
-
+		
 		mGUIDToResource[(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT] = std::to_string(DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+	
+		// Default material
+		mGUIDToResource[(GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID] = std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID);
 	}
 
 	void ResourceManager::ReloadResource(const GUID& guid)

@@ -25,7 +25,10 @@ namespace SliceEngine
             //{
             playerT = gameObject.FindGameObjectWithName("RootNode").GetComponent<Transform>();
             //}
-            targetTransform = gameObject.FindGameObjectWithName(targetObject).GetComponent<Transform>();
+
+            //Hafiz: I'm not sure why this one is crashing the engine so I comment it out 29/12/2025
+            //targetTransform = gameObject.FindGameObjectWithName(targetObject).GetComponent<Transform>();
+
         }
 
         public override void OnUpdate(float dt)
