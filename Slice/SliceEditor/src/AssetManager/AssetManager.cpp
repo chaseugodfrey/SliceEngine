@@ -81,7 +81,7 @@ namespace SliceEditor
 				{
 					metaData->Deserialize(metaPath);
 
-					if (metaData->assetType == "Model")
+					if (metaData->assetType == ".mdl")
 					{
 						ModelData* modelData = static_cast<ModelData*>(metaData.get());
 						std::filesystem::path fbxRelativePath(metaData->assetName);
@@ -351,12 +351,14 @@ namespace SliceEditor
 					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
 					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+					data->skeletonGUID = skeleData->guid;
 
 					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
 					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+					data->animationGUID = animData->guid;
 				}
-				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
+				metaPath = data->Serialize(metaPath); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
 
 				break;
@@ -518,7 +520,7 @@ namespace SliceEditor
 			resourceMgr->RegisterResourceAsset(metaPath.string());
 		}
 
-		return metaPath;
+		return metaData->resourcePath;
 	}
 
 	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
