@@ -1146,60 +1146,97 @@ namespace SliceEditor
 		return changed;
 	}
 
-	template <>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
-	{
-		bool changed = false;
-		std::string filename{ "(empty)" };
+	//template <>
+	//bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	//{
+	//	bool changed = false;
+	//	auto& assetManager = reg.GetAssetManager();
+	//	auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
 
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
+	//	if (mapPtr != nullptr)
+	//	{
+	//		std::vector<std::string> mapNames;
+	//		mapNames.reserve(assetManager.GetMapFromAssetType(asset_type)->size()); //Not sure if i need this but just to be sure.
 
-		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+	//		int currentIndex = -1;
+	//		SliceEngine::GUID currentGUID = handle.getGUID();
 
-		if (file.has_value())
-		{
-			filename = file.value();
-		}
+	//		for (const auto& guid : *mapPtr)
+	//		{
+	//			if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+	//			{
+	//				SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+	//				continue;
+	//			}
 
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
+	//			if (guid == currentGUID)
+	//			{
+	//				currentIndex = (int)mapNames.size();
+	//			}
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
-			{
-				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+	//			mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+	//		}
 
-				// Check if guid is same, if is, then dont execute anything
-				changed = (handle.getGUID() != newGUID);
-				if (changed)
-				{
-					if (!setFunc)
-					{
-						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(newGUID);
+	//		//Fall-back
+	//		if (currentIndex < 0 && !mapNames.empty())
+	//			currentIndex = 0;
 
-						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>>(handle, handle, newHandle);
-						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+	//		int selectedIndex = currentIndex;
 
-						handle = newHandle;
-					}
+	//		if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+	//		{
+	//			const std::string& selectedName = mapNames[selectedIndex];
+	//			SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+	//			changed = (handle.getGUID() != newGUID);
+	//			if (changed)
+	//			{
+	//				if (!setFunc)
+	//				{
+	//					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+	//					auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(newGUID);
 
-					else
-						setFunc(newGUID);
-				}
-			}
+	//					std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>>(handle, handle, newHandle);
+	//					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
-			ImGui::EndDragDropTarget();
-		}
+	//					handle = newHandle;
+	//				}
 
-		return changed;
+	//				else
+	//					setFunc(newGUID);
+	//			}
+	//		}
 
-	}
+	//		if (ImGui::BeginDragDropTarget())
+	//		{
+	//			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+	//			{
+	//				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
 
+	//				// Check if guid is same, if is, then dont execute anything
+	//				changed = (handle.getGUID() != newGUID);
+	//				if (changed)
+	//				{
+	//					if (!setFunc)
+	//					{
+	//						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+	//						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(newGUID);
+
+	//						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>>(handle, handle, newHandle);
+	//						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+	//						handle = newHandle;
+	//					}
+
+	//					else
+	//						setFunc(newGUID);
+	//				}
+	//			}
+
+	//			ImGui::EndDragDropTarget();
+	//		}
+	//		return changed;
+	//	}
+	//}
 }
 
 void SetBit(unsigned char& mask, unsigned char bit, bool enabled)

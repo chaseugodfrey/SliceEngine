@@ -108,7 +108,7 @@ namespace SliceEngine
 		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
 		mTotalFrameTime =frameTime;
 
-		currFPS = (1.0f / frameTime) * 1000;
+		currFPS = (frameTime > 0.0f) ? (1000.0f / frameTime) : 0.0f;
 
 
 
