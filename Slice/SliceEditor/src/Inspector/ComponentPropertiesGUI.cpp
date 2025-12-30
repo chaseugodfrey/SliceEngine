@@ -1147,7 +1147,7 @@ namespace SliceEditor
 	}
 
 	template <>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
 	{
 		bool changed = false;
 		std::string filename{ "(empty)" };
@@ -1180,9 +1180,9 @@ namespace SliceEditor
 					if (!setFunc)
 					{
 						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(newGUID);
+						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(newGUID);
 
-						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>>(handle, handle, newHandle);
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>>(handle, handle, newHandle);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
 						handle = newHandle;
@@ -1197,9 +1197,7 @@ namespace SliceEditor
 		}
 
 		return changed;
-
 	}
-
 }
 
 void SetBit(unsigned char& mask, unsigned char bit, bool enabled)

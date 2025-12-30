@@ -164,6 +164,7 @@ namespace SliceEditor
 		);
 		AddDefaultModelsToMap();
 		CreateAssetManifest();
+		CreateAssetMaps();
 
 	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
@@ -601,10 +602,51 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
-
-
 	}
-	
+
+	void AssetManager::CreateAssetMaps()
+	{
+		//Clear the Map, Just create it again
+		mAssetTypeToGUIDs.clear();
+
+		//Create the supported drop-down types
+		mAssetTypeToGUIDs[AssetType::Audio] = {};
+		mAssetTypeToGUIDs[AssetType::Controller] = {};
+		mAssetTypeToGUIDs[AssetType::Material] = {};
+		mAssetTypeToGUIDs[AssetType::Model] = {};
+		mAssetTypeToGUIDs[AssetType::Texture] = {};
+
+		//Add the Default Values
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		
+		//Loop Through and Add the Respective GUIDs
+		for (const auto& [guid, filename] : mGUIDtoFilename)
+		{
+			std::filesystem::path sourcePath(filename);
+			std::string sourceExt = sourcePath.extension().string();
+
+			if (mSupportedAssetTypes.find(sourceExt) == mSupportedAssetTypes.end())
+			{
+				continue;
+			}
+
+			AssetType type = mSupportedAssetTypes.at(sourceExt).first;
+
+			if (mAssetTypeToGUIDs.find(type) == mAssetTypeToGUIDs.end())
+			{
+				continue;
+			}
+
+			mAssetTypeToGUIDs[type].push_back(guid);
+		}
+	}
+
 #pragma region Asset Compiling
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;

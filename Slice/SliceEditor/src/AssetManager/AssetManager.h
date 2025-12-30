@@ -52,6 +52,7 @@ namespace SliceEditor
 		std::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
+		void CreateAssetMaps();
 		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
@@ -78,7 +79,20 @@ namespace SliceEditor
 		//std::string TimeToString(std::filesystem::file_time_type ftime);
 
 		std::unordered_map <SliceEngine::GUID, std::string> mGUIDtoFilename; // Maps GUIDs to fileName
+
+		//Main Lookup Table
 		std::unordered_map<std::string, SliceEngine::GUID> mFilenameToGUID; // cause asset manager initializes first
+
+		//Sorted Lookup Table: By AssetType (for drop-down lists mostly)
+		std::unordered_map<AssetType, std::vector<SliceEngine::GUID>> mAssetTypeToGUIDs
+		{
+			{ AssetType::Audio, {} },
+			{ AssetType::Controller, {} },
+			{ AssetType::Material, {} },
+			{ AssetType::Model, {} },
+			{AssetType::Texture, {} }
+		};
+
 		std::unordered_map <std::string, std::pair<AssetType,std::string>> mSupportedAssetTypes = 
 		{
 			{".png",  {AssetType::Texture, "Texture"}},
