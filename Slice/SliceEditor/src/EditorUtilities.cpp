@@ -117,10 +117,10 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
-			auto go = factory.CreateGO_Model(guid);
+			auto go = factory.CreateGO_Model(skeleGUID, animGUID, guid);
 
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);

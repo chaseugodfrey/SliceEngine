@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 #include <Systems/PrefabSystem.h>
 #include <algorithm>
+#include "Core/Registry.h"
 
 namespace SliceEditor
 {
@@ -62,8 +63,8 @@ namespace SliceEditor
 				continue;
 
 			std::filesystem::path metaPath = assetPath;
-			metaPath.replace_extension(".meta");
-			//metaPath += ".meta";
+			//metaPath.replace_extension(".meta");
+			metaPath += ".meta";
 
 			if (!std::filesystem::exists(metaPath))
 			{
@@ -80,7 +81,7 @@ namespace SliceEditor
 				{
 					metaData->Deserialize(metaPath);
 
-					if (metaData->assetType == "Model")
+					if (metaData->assetType == ".mdl")
 					{
 						ModelData* modelData = static_cast<ModelData*>(metaData.get());
 						std::filesystem::path fbxRelativePath(metaData->assetName);
@@ -330,7 +331,8 @@ namespace SliceEditor
 			//UNUSED
 			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
 			std::filesystem::path metaPath = filePath;
-			metaPath.replace_extension(".meta");
+			//metaPath.replace_extension(".meta");
+			metaPath += ".meta";
 
 			// get the file path to the meta file
 			metaData->Serialize(metaPath);
@@ -350,12 +352,14 @@ namespace SliceEditor
 					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
 					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+					data->skeletonGUID = skeleData->guid;
 
 					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
 					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+					data->animationGUID = animData->guid;
 				}
-				metaPath = data->Serialize(mResourcesDirectory); //Re-serialise with the skele and anim dataPaths
+				metaPath = data->Serialize(metaPath); //Re-serialise with the skele and anim dataPaths
 				CompileFBXAsset(metaPath);
 
 				break;
@@ -419,7 +423,8 @@ namespace SliceEditor
 	{
 		// get the meta file path
 		std::filesystem::path metaPath = metaData->assetPath;
-		metaPath.replace_extension(".meta");
+		//metaPath.replace_extension(".meta");
+		metaPath += ".meta";
 
 		metaData->Serialize(metaPath);
 
@@ -517,7 +522,7 @@ namespace SliceEditor
 			resourceMgr->RegisterResourceAsset(metaPath.string());
 		}
 
-		return metaPath;
+		return metaData->resourcePath;
 	}
 
 	std::unique_ptr<MetaData> AssetManager::CreateDefaultMeta(const std::filesystem::path filePath)
@@ -1052,14 +1057,28 @@ namespace SliceEditor
 
 	}
 
+	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)
+	{
+		// get file name from the GUID
+		std::optional<std::string>  fileName = GetFilenameFromGUID(guid);
+		if (fileName.has_value())
+		{
+			std::filesystem::path metapath = GetMetaDataFromFilename(fileName.value());
+			ModelData modelData;
+			modelData.Deserialize(metapath);
+
+			EditorUtilities::GameObject_CreateModel(modelData.guid, modelData.skeletonGUID, modelData.animationGUID, entt::null, &hist);
+		}
+	}
+
 	std::filesystem::path AssetManager::GetMetaDataFromFilename(std::string fileName)
 	{
 		if (mFilenameToGUID.find(fileName) != mFilenameToGUID.end())
 		{
-			SliceEngine::GUID guid = mFilenameToGUID[fileName];
-			std::filesystem::path metaPath = mResourcesDirectory / std::to_string(guid.GetGUID());
+			
+			std::filesystem::path metaPath = mAssetDirectory / fileName;
+			//metaPath.replace_extension(".meta");
 			metaPath += ".meta";
-
 			return metaPath;
 		}
 		else
@@ -1154,7 +1173,7 @@ namespace SliceEditor
 		}
 
 		SliceEngine::GUID fileGUID;
-
+		// NOTE: meta file no longer in resource path
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto path = resourceMgr->GetResourcePath(removedFilePath.stem().string());
 
@@ -1165,7 +1184,8 @@ namespace SliceEditor
 				
 				std::filesystem::path metaFilePath = path.value();
 
-				metaFilePath.replace_extension(".meta");
+				//metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
 
 				fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
@@ -1258,11 +1278,13 @@ namespace SliceEditor
 
 			//Find the resource meta file using the old file name
 			auto path = resourceMgr->GetResourcePath(oldFilePath.stem().string());
+			// NOTE: meta file no longer in resource path
+
 			if (path.has_value())
 			{
 				std::filesystem::path metaFilePath = path.value();
-				metaFilePath.replace_extension(".meta");
-
+				//metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
 				
 
 
@@ -1345,6 +1367,7 @@ namespace SliceEditor
 
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+		// NOTE: meta file no longer in resource path
 
 		if (path.has_value())
 		{
@@ -1352,7 +1375,8 @@ namespace SliceEditor
 			auto hashB = HashFile(path.value());
 
 			std::filesystem::path metaFilePath = path.value();
-			metaFilePath.replace_extension(".meta");
+			metaFilePath += ".meta";
+		//	metaFilePath.replace_extension(".meta");
 
 			std::string guidString = path.value().stem().string();
 			fileGUID = SliceEngine::GUID::FromString(guidString);
@@ -1411,10 +1435,12 @@ namespace SliceEditor
 		{
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			auto path = resourceMgr->GetResourcePath(fileName);
+			// NOTE: meta file no longer in resource path
 			if (path.has_value())
 			{
 				std::filesystem::path metaFilePath = path.value();
-				metaFilePath.replace_extension(".meta");
+				metaFilePath += ".meta";
+//metaFilePath.replace_extension(".meta");
 
 				if (std::filesystem::exists(metaFilePath))
 				{
