@@ -178,22 +178,7 @@ namespace SliceEngine
 				massProps.ScaleToMass(rigidBody.mass);
 
 				//handle freeze position
-				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
-
-				if (!rigidBody.freezePosition.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-				if(!rigidBody.freezePosition.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-				if (!rigidBody.freezePosition.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-				//handle freeze rotation
-				if (!rigidBody.freezeRotation.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::RotationX;
-				if (!rigidBody.freezeRotation.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::RotationY;
-				if (!rigidBody.freezeRotation.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+				JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
 
 				mp->SetMassProperties(allowedDofs, massProps);
 				//mp->ScaleToMass(rigidBody.mass);
@@ -508,22 +493,7 @@ namespace SliceEngine
 			body.SetCollideKinematicVsNonDynamic(true);
 
 			//handle freeze position
-			JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
-
-			if (!rigidBody.freezePosition.freezeX)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-			if (!rigidBody.freezePosition.freezeY)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-			if (!rigidBody.freezePosition.freezeZ)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-			//handle freeze rotation
-			if (!rigidBody.freezeRotation.freezeX)
-				allowedDofs |= JPH::EAllowedDOFs::RotationX;
-			if (!rigidBody.freezeRotation.freezeY)
-				allowedDofs |= JPH::EAllowedDOFs::RotationY;
-			if (!rigidBody.freezeRotation.freezeZ)
-				allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+			JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
 
 			mp->SetMassProperties(allowedDofs, massProps);
 			//mp->ScaleToMass(rigidBody.mass);
@@ -934,6 +904,30 @@ namespace SliceEngine
 		contactListener->clearBodiesInContact();
 	}
 
+	JPH::EAllowedDOFs PhysicsSystem::AllowedDOFs(const RigidBody& rigidBody) const
+	{
+
+		//handle freeze position
+		JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+		if (!rigidBody.freezePosition.freezeX)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+		if (!rigidBody.freezePosition.freezeY)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+		if (!rigidBody.freezePosition.freezeZ)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+		//handle freeze rotation
+		if (!rigidBody.freezeRotation.freezeX)
+			allowedDofs |= JPH::EAllowedDOFs::RotationX;
+		if (!rigidBody.freezeRotation.freezeY)
+			allowedDofs |= JPH::EAllowedDOFs::RotationY;
+		if (!rigidBody.freezeRotation.freezeZ)
+			allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+		return allowedDofs;
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
@@ -1001,22 +995,8 @@ namespace SliceEngine
 			}
 
 				//handle freeze position
-				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+				JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
 
-				if (!rigidBody.freezePosition.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-				if (!rigidBody.freezePosition.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-				if (!rigidBody.freezePosition.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-				//handle freeze rotation
-				if (!rigidBody.freezeRotation.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::RotationX;
-				if (!rigidBody.freezeRotation.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::RotationY;
-				if (!rigidBody.freezeRotation.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
 
 				bodySettings.mAllowedDOFs = allowedDofs;
 

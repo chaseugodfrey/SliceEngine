@@ -69,12 +69,13 @@ namespace SliceEngine
 
 		void UpdateShapeFromTransform(Entity entity);
 
-		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
+		void SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const;
 
-		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
+		void SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const;
 
 		void HandleRemovedContacts();
 
+		JPH::EAllowedDOFs AllowedDOFs(const RigidBody& colliderShape) const;
 
 		//System required functions
 	public:

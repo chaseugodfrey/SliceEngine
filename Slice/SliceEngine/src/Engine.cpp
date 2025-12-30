@@ -756,6 +756,7 @@ namespace SliceEngine
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
+
 				frm->EndSystem("Physics");
 
 			}
