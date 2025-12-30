@@ -10,12 +10,14 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-
+            Console.WriteLine("Main menu is being pressed");
         }
 
         public override void OnButtonRelease()
         {
             AudioSource myAudio = gameObject.FindGameObjectWithName("MainMenu_Sfx").GetComponent<AudioSource>();
+
+            Console.WriteLine("Main menu is being released");
 
             if (isPlay > 0.5f)
             {
