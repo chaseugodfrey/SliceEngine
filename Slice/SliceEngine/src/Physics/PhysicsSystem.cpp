@@ -718,69 +718,28 @@ namespace SliceEngine
 
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
 	{
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData> shapeData = collider.shapeData;
+		sliceEngineVariantShape shapeData = collider.shapeData;
+
+		JPH::ShapeRefC shapeReference = nullptr;
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings *shapeSetting = new JPH::BoxShapeSettings(boxData.scale);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateBoxShape(collider);
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
-			JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateSphereShape(collider);
 		}
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
-			const ColliderShape::CapsuleData& capsuleData = std::get<ColliderShape::CapsuleData>(collider.shapeData);
-			JPH::CapsuleShapeSettings *shapeSetting = new JPH::CapsuleShapeSettings(capsuleData.height, capsuleData.radius);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Capsule Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateCapsuleShape(collider);
 		}
-
-		SLICE_LOG_ERROR("Unsupported Collider Shape");
-		return nullptr;
-
+		else
+		{ 
+			SLICE_LOG_ERROR("Unsupported Collider Shape");
+		}
+		
+		return shapeReference;
 
 	}
 
@@ -928,6 +887,66 @@ namespace SliceEngine
 		return allowedDofs;
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateBoxShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
+		JPH::BoxShapeSettings* shapeSetting = new JPH::BoxShapeSettings(boxData.scale);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
+		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateCapsuleShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::CapsuleData& capsuleData = std::get<ColliderShape::CapsuleData>(collider.shapeData);
+		JPH::CapsuleShapeSettings* shapeSetting = new JPH::CapsuleShapeSettings(capsuleData.height, capsuleData.radius);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Capsule Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
@@ -996,7 +1015,6 @@ namespace SliceEngine
 
 				//handle freeze position
 				JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
-
 
 				bodySettings.mAllowedDOFs = allowedDofs;
 
@@ -1247,7 +1265,6 @@ namespace SliceEngine
 	{
 		collisionSteps = steps;
 	}
-
 
 	float PhysicsSystem::GetGravityFactor(Entity entity) const
 	{

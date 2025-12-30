@@ -27,6 +27,7 @@ DigiPen Institute of Technology is prohibited.
 namespace 
 {
 	constexpr size_t TEN_MB = (10 * 1024 * 1024); //Jolt says 10mb is for typical usage;
+	
 }
 
 
@@ -34,6 +35,8 @@ namespace SliceEngine
 {
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
+
+	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData>;
 
 	class PhysicsSystem final: public BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
@@ -75,7 +78,13 @@ namespace SliceEngine
 
 		void HandleRemovedContacts();
 
-		JPH::EAllowedDOFs AllowedDOFs(const RigidBody& colliderShape) const;
+		JPH::EAllowedDOFs AllowedDOFs(const RigidBody& rigidBody) const;
+
+		JPH::ShapeRefC CreateBoxShape(const ColliderShape& collider) const;
+
+		JPH::ShapeRefC CreateSphereShape(const ColliderShape& collider) const;
+
+		JPH::ShapeRefC CreateCapsuleShape(const ColliderShape& collider) const;
 
 		//System required functions
 	public:
