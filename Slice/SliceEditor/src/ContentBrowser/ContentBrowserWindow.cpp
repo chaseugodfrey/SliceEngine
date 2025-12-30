@@ -470,17 +470,17 @@ namespace SliceEditor
 						//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
 						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
 						data->animationGUID = animData->guid;
 
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get());
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}

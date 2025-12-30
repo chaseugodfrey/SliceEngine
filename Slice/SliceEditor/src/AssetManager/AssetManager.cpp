@@ -69,7 +69,8 @@ namespace SliceEditor
 			if (!std::filesystem::exists(metaPath))
 			{
 				SLICE_LOG_ERROR("Meta file missing for: " + assetPath.string() + ". Creating it now: ");
-				CreateDescriptorFile(assetPath, false);
+				CreateResource(assetPath, nullptr, false);
+				//CreateDescriptorFile(assetPath, false);
 			}
 
 			{
@@ -103,17 +104,8 @@ namespace SliceEditor
 					if (resourceMissing || assetIsNewer)
 					{
 						SLICE_LOG_ERROR("Recompiling asset: " + assetPath.string());
-						AssetType type = AssetType::Unsupported;
-						for (auto it : mAssetExtensions)
-						{
-							if (it.second == metaData->assetType)
-							{
-								type = it.first;
-								break;
-							}
-						}
 
-						CreateResource(metaData.get(), type, false);
+						CreateResource(assetPath, metaData.get(), false);
 					}
 
 					// register validated assets
@@ -299,7 +291,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::string AssetManager::CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM)
+	std::filesystem::path AssetManager::CreateResource(const std::filesystem::path filePath, MetaData* metaData, bool AddToRM)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -312,117 +304,19 @@ namespace SliceEditor
 		}
 
 		AssetType assetType = it->second.first;
-		std::unique_ptr<MetaData> metaData;
-		metaData = CreateDefaultMeta(filePath);
+		std::unique_ptr<MetaData> tempMeta;
+		if (metaData == nullptr)
+		{
+			tempMeta = CreateDefaultMeta(filePath);
 
-
-		if (metaData)
-		{				
-			/*
-				meta file breakdown
-
-				assetName = file path name without extension
-				guid
-				asset type = compiled asset extension
-				asset path = original asset path in asset folder
-				resource path = path within the resource folder 
-			*/
-			
-			// used only for things that copies over its original asset type (i.e .scene/.shader/.vert/etc
-			
-			//UNUSED
-			//std::string tempPath = mResourcesDirectory.string() + "/" + std::to_string(metaData->guid.GetGUID()) + metaData->assetType;
-			std::filesystem::path metaPath = filePath;
-			//metaPath.replace_extension(".meta");
-			metaPath += ".meta";
-
-			// get the file path to the meta file
-			metaData->Serialize(metaPath);
-			#pragma region Resource Compiling Section
-			// compile the asset here?? or before creating the meta file?
-			switch (assetType)
-			{
-			case AssetType::Texture:
-				// This should create the texture asset into the resource folder
-				CompileTextureAsset(metaPath);
-				break;
-			case AssetType::Model:
-			{
-				auto* data = static_cast<ModelData*>(metaData.get());
-				if (data->is_static == false)
-				{
-					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
-					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
-					data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
-					data->skeletonGUID = skeleData->guid;
-
-					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
-					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
-					data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
-					data->animationGUID = animData->guid;
-				}
-				metaPath = data->Serialize(metaPath); //Re-serialise with the skele and anim dataPaths
-				CompileFBXAsset(metaPath);
-
-				break;
-			}
-			case AssetType::Audio:
-				// idk audio yet
-				CompileAudioAsset(static_cast<AudioData*>(metaData.get()));
-				break;
-				// prefab and scene is the same just copy it over
-			case AssetType::Prefab:
-			case AssetType::Scene:
-				CompileSceneAsset(static_cast<SceneData*>(metaData.get()));
-				break;
-			case AssetType::Controller:
-				CompileStateMachineAsset(static_cast<StateMachineData*>(metaData.get()));
-				break;
-			case AssetType::Shader:
-				CompileShaderAsset(static_cast<ShaderData*>(metaData.get()));
-				break;
-			case AssetType::VertShader:
-				CompileVertShaderAsset(static_cast<VertShaderData*>(metaData.get()));
-				break;
-			case AssetType::GeomShader:
-				CompileGeomShaderAsset(static_cast<GeomShaderData*>(metaData.get()));
-				break;
-			case AssetType::FragShader:
-				CompileFragShaderAsset(static_cast<FragShaderData*>(metaData.get()));
-				break;
-			case AssetType::Material:
-				CompileMaterialAsset(static_cast<MaterialData*>(metaData.get()));
-				break;
-			case AssetType::NavMesh:
-				CompileNavMeshAsset(static_cast<NavMeshData*>(metaData.get()));
-				break;
-			}
-			#pragma endregion
-
-			// register into resource manager
-			//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-			//resourceMgr->RegisterResourceAsset(metaData->guid, metaData->resourcePath);
-
-			//mAssets[assetType].push_back(metaData->assetName);
-
-			// Update the descriptor map
-			//mDescriptorMap[filePath.filename().string()] = metaData->guid.GetGUID();
-			mGUIDtoFilename[metaData->guid] = filePath.filename().stem().string();
-			mFilenameToGUID[metaData->assetName] = metaData->guid;
-
-			if (AddToRM)
-			{
-				auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-				resourceMgr->RegisterResourceAsset(metaPath.string());
-			}
-
-			return metaData->resourcePath;
+			metaData = tempMeta.get();
 		}
-		return "";
-	}
 
-	std::filesystem::path AssetManager::CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM)
-	{
+		if (!metaData)
+		{
+			SLICE_LOG_ERROR("Unable to create default meta ");
+			return std::filesystem::path("");
+		}
 		// get the meta file path
 		std::filesystem::path metaPath = metaData->assetPath;
 		//metaPath.replace_extension(".meta");
@@ -433,8 +327,6 @@ namespace SliceEditor
 		//mAssets[assetType].push_back(metaData->assetName);
 		// Update the descriptor map
 		//mDescriptorMap[metaData->assetName] = metaData->guid.GetGUID();
-		mGUIDtoFilename[metaData->guid] = metaData->assetName;
-		mFilenameToGUID[metaData->assetName] = metaData->guid;
 
 		switch (assetType)
 		{
@@ -443,47 +335,30 @@ namespace SliceEditor
 			CompileTextureAsset(metaPath);
 			break;
 		case AssetType::Skeleton:
-		{
 			CompileFBXAsset(metaPath);
-			// after creating resource file
-			//std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
-			//// Assets/Models/Player.fbx <-- asset path
-			//std::filesystem::path target = metaData->assetPath;
-			//target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
-
-			//std::string assetFullname = metaData->assetName + metaData->assetType;
-
-			//target = target / assetFullname;
-
-			//std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
-
 			break;
-		}
 		case AssetType::Animation:
-		{
 			CompileFBXAsset(metaPath);
-			// after creating resource file
-			//std::filesystem::path origin = metaData->resourcePath; // path to the compiled resource
-			//// Assets/Models/Player.fbx <-- asset path
-			//std::filesystem::path target = metaData->assetPath;
-			//target = target.parent_path(); // take Assets/Models/ <-- Assetpath folder
+			break;
+		case AssetType::Model:
+		{
+			auto* data = static_cast<ModelData*>(metaData);
+			if (data->is_static == false)
+			{
+				std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+				skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+				data->skeleMetaPath = CreateResource(skeleData->resourcePath, skeleData.get(), AddToRM).string();
+				data->skeletonGUID = skeleData->guid;
 
-			//std::string assetFullname = metaData->assetName + metaData->assetType;
-
-			//target = target / assetFullname;
-
-			//std::filesystem::copy(origin, target, std::filesystem::copy_options::overwrite_existing);
-
-			//then add to the map pepeHand
-			// if static
+				std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+				animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+				data->animMetaPath = CreateResource(animData->resourcePath, animData.get(), AddToRM).string();
+				data->animationGUID = animData->guid;
+			}
+			metaPath = data->Serialize(metaPath); //Re-serialise with the skele and anim dataPaths
+			CompileFBXAsset(metaPath);
 			break;
 		}
-
-		case AssetType::Model:
-			// Compile the model file and write into the resource folder
-			CompileFBXAsset(metaPath);
-
-			break;
 		case AssetType::Audio:
 			// idk audio yet
 			CompileAudioAsset(static_cast<AudioData*>(metaData));
@@ -516,6 +391,8 @@ namespace SliceEditor
 			break;
 		}
 
+		mGUIDtoFilename[metaData->guid] = metaData->assetName;
+		mFilenameToGUID[metaData->assetName] = metaData->guid;
 
 		// register into resource manager
 		if (AddToRM)
@@ -856,7 +733,7 @@ namespace SliceEditor
 		std::string path = SliceEngine::JSONSerializer::SerializePrefab(GO.GetEntity());
 		std::filesystem::path filePath(path);
 		// Create the descriptor
-		std::string resourcePath = CreateDescriptorFile(filePath, true);
+		std::string resourcePath = CreateResource(filePath, nullptr, true).string();//CreateDescriptorFile(filePath, true);
 		size_t count = resourcePath.find_last_of(".") - (resourcePath.find_last_of("/\\") + 1);
 		std::string guidStr = resourcePath.substr(resourcePath.find_last_of("/\\") + 1, count);
 		SliceEngine::GUID guid = (SliceEngine::GUID)std::stoull(guidStr);
@@ -1002,7 +879,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(meta.get(), type);
+		CreateResource(filePath, meta.get());
 	}
 
 	void AssetManager::CreateAssetManifest()
@@ -1124,7 +1001,7 @@ namespace SliceEditor
 		else
 		{
 			
-			CreateDescriptorFile(addEvent.filePath, true);
+			//CreateDescriptorFile(addEvent.filePath, true);
 
 			if (addEvent.filePath.extension() == ".navmesh")
 			{
@@ -1402,7 +1279,7 @@ namespace SliceEditor
 						//CreateResource(metaData, assetType);
 
 
-						CreateDescriptorFile(modifiedFilePath);
+						//CreateDescriptorFile(modifiedFilePath);
 						resourceMgr->ReloadResourceInPlace(fileGUID);
 
 						if (modifiedFilePath.extension() == ".prefab")
