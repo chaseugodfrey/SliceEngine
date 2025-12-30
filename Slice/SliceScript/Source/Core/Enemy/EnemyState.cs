@@ -8,6 +8,6 @@ namespace SliceEngine
 {
     public abstract class EnemyState
     {
-            
+        public abstract void MainBehaviour();
     }
 }
