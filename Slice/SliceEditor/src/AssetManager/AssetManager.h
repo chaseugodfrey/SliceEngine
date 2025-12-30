@@ -54,10 +54,10 @@ namespace SliceEditor
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
-		std::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
+		//::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
-		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
+		std::filesystem::path CreateResource(const std::filesystem::path filePath, MetaData* metaData = nullptr, bool AddToRM = true);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);

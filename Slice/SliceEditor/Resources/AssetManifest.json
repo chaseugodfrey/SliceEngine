@@ -11,6 +11,11 @@
             "path": "Resources/11905356294727255426.wav"
         },
         {
+            "guid": 16299611187758754559,
+            "name": "Models/Environment - Background Towers.skl",
+            "path": "Resources/16299611187758754559.skl"
+        },
+        {
             "guid": 9385656686377290189,
             "name": "Audio/A1.wav",
             "path": "Resources/9385656686377290189.wav"
@@ -81,6 +86,11 @@
             "path": "Resources/9481060356522622619.wav"
         },
         {
+            "guid": 10497383940214969221,
+            "name": "Models/Environment - Engine 1 (2).skl",
+            "path": "Resources/10497383940214969221.skl"
+        },
+        {
             "guid": 16821803797395721382,
             "name": "Audio/Golem_LeftStomp.wav",
             "path": "Resources/16821803797395721382.wav"
@@ -91,6 +101,16 @@
             "path": "Resources/15125514244222615558.wav"
         },
         {
+            "guid": 14800216528882930636,
+            "name": "player.skl",
+            "path": "Resources/14800216528882930636.skl"
+        },
+        {
+            "guid": 12706701987083786906,
+            "name": "Audio/SingleHit_Slime_1.wav",
+            "path": "Resources/12706701987083786906.wav"
+        },
+        {
             "guid": 9646178157620972647,
             "name": "Shaders/bloomSplit.shader",
             "path": "Resources/9646178157620972647.shader"
@@ -99,16 +119,6 @@
             "guid": 18190530176056244177,
             "name": "Audio/Golem_RightStomp.wav",
             "path": "Resources/18190530176056244177.wav"
-        },
-        {
-            "guid": 9534765895006219630,
-            "name": "Models/Enemy_Basic_Static.animpkg",
-            "path": "Resources/9534765895006219630.animpkg"
-        },
-        {
-            "guid": 12706701987083786906,
-            "name": "Audio/SingleHit_Slime_1.wav",
-            "path": "Resources/12706701987083786906.wav"
         },
         {
             "guid": 17410170969615213344,
@@ -131,9 +141,19 @@
             "path": "Resources/15444100828152761678.wav"
         },
         {
+            "guid": 12851780098822055758,
+            "name": "Models/Environment - Engine 1 (2).animpkg",
+            "path": "Resources/12851780098822055758.animpkg"
+        },
+        {
             "guid": 9563528329987127914,
             "name": "Audio/MultiHit_Slime.wav",
             "path": "Resources/9563528329987127914.wav"
+        },
+        {
+            "guid": 14464725476257600466,
+            "name": "Models/Enemy_Basic.skl",
+            "path": "Resources/14464725476257600466.skl"
         },
         {
             "guid": 11156190097549625378,
@@ -151,21 +171,6 @@
             "path": "Resources/15950455196030294385.wav"
         },
         {
-            "guid": 16032732054234455058,
-            "name": "Audio/UI Click.wav",
-            "path": "Resources/16032732054234455058.wav"
-        },
-        {
-            "guid": 13656167422205326723,
-            "name": "Audio/UI_Hover 2.wav",
-            "path": "Resources/13656167422205326723.wav"
-        },
-        {
-            "guid": 17952348962363857338,
-            "name": "Models/Environment - Engine 1 (2).skl",
-            "path": "Resources/17952348962363857338.skl"
-        },
-        {
             "guid": 13040836348932714561,
             "name": "Material/Player_Sword_m.mat",
             "path": "Resources/13040836348932714561.mat"
@@ -176,19 +181,19 @@
             "path": "Resources/12482959374751952982.mdl"
         },
         {
-            "guid": 16232374346011822739,
-            "name": "Models/Enemy_Basic.skl",
-            "path": "Resources/16232374346011822739.skl"
-        },
-        {
             "guid": 12677140902537432131,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/12677140902537432131.mat"
         },
         {
-            "guid": 17539827152099452576,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17539827152099452576.skl"
+            "guid": 16032732054234455058,
+            "name": "Audio/UI Click.wav",
+            "path": "Resources/16032732054234455058.wav"
+        },
+        {
+            "guid": 13656167422205326723,
+            "name": "Audio/UI_Hover 2.wav",
+            "path": "Resources/13656167422205326723.wav"
         },
         {
             "guid": 11244779837703292568,
@@ -226,11 +231,6 @@
             "path": "Resources/10105107416661838055.dds"
         },
         {
-            "guid": 11305035379764101537,
-            "name": "Models/EnemySlimeOuter.skl",
-            "path": "Resources/11305035379764101537.skl"
-        },
-        {
             "guid": 15309186703193371093,
             "name": "Editor/SceneIcon.png",
             "path": "Resources/15309186703193371093.dds"
@@ -239,6 +239,11 @@
             "guid": 10125292758465881867,
             "name": "Frieren.jpg",
             "path": "Resources/10125292758465881867.dds"
+        },
+        {
+            "guid": 14919455020680615893,
+            "name": "Models/Crystal_Combined.animpkg",
+            "path": "Resources/14919455020680615893.animpkg"
         },
         {
             "guid": 15447311348271389327,
@@ -276,11 +281,6 @@
             "path": "Resources/18050817905394877928.mat"
         },
         {
-            "guid": 9889415562377562535,
-            "name": "player.skl",
-            "path": "Resources/9889415562377562535.skl"
-        },
-        {
             "guid": 14807671980735793301,
             "name": "Shaders/skybox_Frag.frag",
             "path": "Resources/14807671980735793301.frag"
@@ -296,39 +296,44 @@
             "path": "Resources/14157977649337136183.mat"
         },
         {
-            "guid": 10180747523173334695,
-            "name": "Models/Crystal_Combined.animpkg",
-            "path": "Resources/10180747523173334695.animpkg"
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
         },
         {
-            "guid": 12395894120876228877,
+            "guid": 16670911289530868217,
+            "name": "Models/EnemySlimeOuter.skl",
+            "path": "Resources/16670911289530868217.skl"
+        },
+        {
+            "guid": 12809859308489517481,
+            "name": "Shaders/lighting_Frag.frag",
+            "path": "Resources/12809859308489517481.frag"
+        },
+        {
+            "guid": 14018566679936275834,
             "name": "Models/EnemySlimeOuter.animpkg",
-            "path": "Resources/12395894120876228877.animpkg"
+            "path": "Resources/14018566679936275834.animpkg"
         },
         {
-            "guid": 12454261737808460005,
+            "guid": 10150479252312340859,
             "name": "Models/Enemy_Basic.animpkg",
-            "path": "Resources/12454261737808460005.animpkg"
+            "path": "Resources/10150479252312340859.animpkg"
         },
         {
-            "guid": 14131574598548108669,
+            "guid": 16108474294497114739,
             "name": "Models/Enemy_Basic_Static.skl",
-            "path": "Resources/14131574598548108669.skl"
+            "path": "Resources/16108474294497114739.skl"
         },
         {
-            "guid": 15691008697022830856,
-            "name": "Models/Environment - Engine 1 (2).animpkg",
-            "path": "Resources/15691008697022830856.animpkg"
+            "guid": 15124670150845613275,
+            "name": "Models/Enemy_Basic_Static.animpkg",
+            "path": "Resources/15124670150845613275.animpkg"
         },
         {
-            "guid": 11453433117259236108,
-            "name": "Models/Environment - Background Towers.skl",
-            "path": "Resources/11453433117259236108.skl"
-        },
-        {
-            "guid": 11515828792157506101,
+            "guid": 15957646670980265013,
             "name": "Models/Environment - Background Towers.animpkg",
-            "path": "Resources/11515828792157506101.animpkg"
+            "path": "Resources/15957646670980265013.animpkg"
         },
         {
             "guid": 12564346940466692185,
@@ -341,14 +346,14 @@
             "path": "Resources/15944834739893347014.navmesh"
         },
         {
-            "guid": 15487111792211399093,
+            "guid": 10277001610364450097,
             "name": "player.animpkg",
-            "path": "Resources/15487111792211399093.animpkg"
+            "path": "Resources/10277001610364450097.animpkg"
         },
         {
-            "guid": 13575692588181679004,
+            "guid": 10128043101700684016,
             "name": "player.fbx",
-            "path": "Resources/13575692588181679004.mdl"
+            "path": "Resources/10128043101700684016.mdl"
         },
         {
             "guid": 15512966748982858088,
@@ -504,11 +509,6 @@
             "guid": 17094478662332462709,
             "name": "Shaders/lighting.shader",
             "path": "Resources/17094478662332462709.shader"
-        },
-        {
-            "guid": 12809859308489517481,
-            "name": "Shaders/lighting_Frag.frag",
-            "path": "Resources/12809859308489517481.frag"
         },
         {
             "guid": 11522299978281830406,
