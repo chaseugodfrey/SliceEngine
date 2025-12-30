@@ -35,6 +35,7 @@ namespace SliceEngine
 			//takes in a shader resource file that links to shader files
 			//and compile
 			static Material LoadMaterial(std::string const&);
+			void LoadDefault();
 			void DestroyMaterial();
 
 		};
