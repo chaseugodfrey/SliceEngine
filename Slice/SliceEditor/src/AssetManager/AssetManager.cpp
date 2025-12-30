@@ -165,11 +165,6 @@ namespace SliceEditor
 		SLICE_LOG("Asset Manager Initialized");
 	}
 
-	void AssetManager::UpdateFolder()
-	{
-		//SliceEditor::FileWatcherLogic::UpdateFolder(*this);
-	}
-
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
 	{
 		auto guid = path.stem();
@@ -922,33 +917,6 @@ namespace SliceEditor
 			return "";
 		}
 	}
-
-	//void AssetManager::HandleAssetAdded(RawFileEvent& addEvent)
-	//{
-
-	//}
-
-	void AssetManager::HandleAssetRemoved(RawFileEvent& removeEvent)
-	{
-		
-	}
-
-	void AssetManager::HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew)
-	{
-		
-	}
-
-	//Recompile the asset if it has been modified
-	void AssetManager::HandleAssetModified(RawFileEvent& event)
-	{
-		
-	}
-
-	void AssetManager::HandleAssetMoved(std::vector<RawFileEvent>& events)
-	{
-		
-	}
-
 	
 
 	std::optional<std::string> AssetManager::GetFilenameFromGUID(SliceEngine::GUID guid)

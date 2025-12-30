@@ -42,7 +42,6 @@ namespace SliceEditor
 		~AssetManager() = default;
 
 		void Init();
-		void UpdateFolder();
 
 		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
@@ -161,12 +160,6 @@ namespace SliceEditor
 
 		std::unique_ptr<filewatch::FileWatch<std::string>> mAssetFileWatcher;
 
-		void HandleAssetAdded(RawFileEvent& addEvent);
-		void HandleAssetRemoved(RawFileEvent& removeEvent);
-		void HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew);
-		void HandleAssetModified(RawFileEvent& event);
-		void HandleAssetMoved(std::vector<RawFileEvent>& events);
-		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 
