@@ -81,7 +81,9 @@ namespace SliceEngine
             );
         }
 
-        // Modifies the quaternion in-place
+        /// <summary>
+        /// Modifies the quaternion in-place
+        /// </summary>
         public Quaternion Normalize()
         {
             float mag = (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
@@ -95,8 +97,10 @@ namespace SliceEngine
             return this;
         }
 
-        // Does not modify the quaternion, returns a new normalized quat
-        public Quaternion Normalized()
+        /// <summary>
+        /// Does not modify the quaternion, returns a new normalized quat
+        /// </summary>
+        public Quaternion CloneNormalized()
         {
             float mag = (float)Math.Sqrt(X * X + Y * Y + Z * Z + W * W);
             if (mag > 0f)
