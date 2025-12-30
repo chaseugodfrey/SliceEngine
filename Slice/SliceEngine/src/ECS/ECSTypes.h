@@ -387,7 +387,6 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
@@ -406,11 +405,10 @@ namespace SliceEngine
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
 		GLuint textureID{};
-
 	};
 	struct ParticleSystem
 	{
-		enum ValueType
+		enum ValueType : unsigned int
 		{
 			CONSTANT,
 			CURVE,
@@ -531,7 +529,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 		Handle<SliceEngineTypes::Mesh> meshHandle;
 
-		// ------- Internal ----------
+		// Internal
 		std::vector<Particle> particles{};
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -544,6 +542,8 @@ namespace SliceEngine
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Timeline
