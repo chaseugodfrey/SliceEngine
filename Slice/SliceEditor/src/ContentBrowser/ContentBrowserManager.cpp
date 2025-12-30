@@ -78,8 +78,9 @@ namespace SliceEditor
 		SLICE_LOG("Building Content Browser Tree.");
 		rootNode = std::make_unique<DirectoryNode>();
 		//std::string dir = ASSET_DIR;
-		rootNode->path = std::filesystem::path("../SliceEditor/Assets");
-		std::cout << rootNode->path.string() << std::endl;
+		rootNode->fullPath = std::filesystem::path("../SliceEditor/Assets");
+		rootNode->relativePath = rootNode->fullPath;
+		std::cout << rootNode->fullPath.string() << std::endl;
 		//rootNode->path = std::filesystem::path(ASSET_DIR);
 		rootNode->fileName = "Assets";
 		rootNode->isDirectory = true;
@@ -106,12 +107,12 @@ namespace SliceEditor
 
 	void ContentBrowserManager::CreateDirectoryNode(DirectoryNode& node)
 	{
-		if (node.path.has_extension())
+		if (node.fullPath.has_extension())
 		{
 			return;
 		}
 
-		for (const auto& entry : std::filesystem::directory_iterator(node.path))
+		for (const auto& entry : std::filesystem::directory_iterator(node.fullPath))
 		{
 			const auto extension = entry.path().extension().string();
 			if (extension == ".meta")
@@ -122,7 +123,8 @@ namespace SliceEditor
 			DirectoryNode child;
 			child.fileName = entry.path().filename().string();
 
-			child.path = entry.path();
+			child.fullPath = entry.path();
+			child.relativePath = std::filesystem::relative(child.fullPath, rootNode->fullPath);
 			child.parent = &node;
 			child.isDirectory = entry.is_directory();
 
@@ -148,24 +150,24 @@ namespace SliceEditor
 	void ContentBrowserManager::RenameFile(DirectoryNode& entry, char* newName)
 	{
 		std::filesystem::path extension;
-		std::filesystem::path newPath = entry.path.parent_path() / newName;
+		std::filesystem::path newPath = entry.fullPath.parent_path() / newName;
 		DirectoryNode& parent = *entry.parent;
-		if (entry.path.has_extension())
+		if (entry.fullPath.has_extension())
 		{
-			extension = entry.path.extension();
+			extension = entry.fullPath.extension();
 		}
 		newPath += extension;
 		//std::filesystem::directory_entry actualEntry = std::filesystem::directory_entry(entry.path);
 		try
 		{
-			std::filesystem::rename(entry.path, newPath);
+			std::filesystem::rename(entry.fullPath, newPath);
 
 			//Resetting the Key in the Map
 			auto key = parent.children.extract(entry.fileName);
 			if (!key.empty())
 			{
 				entry.fileName = newName;
-				entry.path = newPath;
+				entry.fullPath = newPath;
 
 				key.key() = newName;
 				parent.children.insert(std::move(key));
@@ -182,22 +184,23 @@ namespace SliceEditor
 
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
+		auto& assetMan = registry.GetAssetManager();
 		//Loading a Scene
-		if (entry.path.extension() == ".scene")
+		if (entry.fullPath.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
-			EditorUtilities::Scene_Load(entry.path, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_Load(entry.fullPath, *registry.GetManager<SelectionManager>("Selection"));
 			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
 		}
 		//Currently Open will Create a Prefab
-		else if (entry.path.extension() == ".prefab")
+		else if (entry.fullPath.extension() == ".prefab")
 		{
 			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
-			std::string stem = entry.path.stem().stem().string();
+			std::string stem = entry.relativePath.generic_string();
 				if (registry.GetAssetManager().mFilenameToGUID.find(stem) != registry.GetAssetManager().mFilenameToGUID.end())
 				{
 					SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
@@ -207,6 +210,24 @@ namespace SliceEditor
 				{
 					SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
 				}
+		}
+		//Currently Open will Create a Model
+		else if (entry.fullPath.extension() == ".fbx")
+		{
+			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
+			std::string stem = entry.relativePath.generic_string();
+			if (assetMan.mFilenameToGUID.find(stem) != assetMan.mFilenameToGUID.end())
+			{
+				SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
+				assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"));
+				
+				//EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
+			}
+			else
+			{
+				SLICE_LOG("GUID NOT FOUND FOR PREFAB CREATION");
+			}
 		}
 		//No functionality
 		else
@@ -219,11 +240,11 @@ namespace SliceEditor
 	void ContentBrowserManager::EditFile(DirectoryNode& entry)
 	{
 		//Editing a Prefab
-		if (entry.path.extension() == ".prefab")
+		if (entry.fullPath.extension() == ".prefab")
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
-		else if (entry.path.extension() == ".mat")
+		else if (entry.fullPath.extension() == ".mat")
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
@@ -241,7 +262,7 @@ namespace SliceEditor
 		std::string fileName = entry.fileName;
 		try
 		{
-			if (std::filesystem::remove_all(entry.path))
+			if (std::filesystem::remove_all(entry.fullPath))
 			{
 				SLICE_LOG("Deleted File: " + entry.fileName);
 			}

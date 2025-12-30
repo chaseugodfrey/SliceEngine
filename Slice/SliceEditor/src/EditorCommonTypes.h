@@ -162,7 +162,8 @@ namespace SliceEditor
 	struct DirectoryNode : SelectionNode //Content Browser
 	{
 		std::string fileName;
-		std::filesystem::path path;
+		std::filesystem::path fullPath;
+		std::filesystem::path relativePath;
 		DirectoryNode* parent = nullptr;
 		std::map<std::string, DirectoryNode> children;
 		bool isDirectory = false;
