@@ -235,7 +235,7 @@ namespace SliceEngine
 			return;
 
 
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
+		sliceEngineVariantShape shapeData = colliderShape.shapeData;
 
 		if (colliderShape.componentEnabled && slice.mActive) // if true set the layer so it can collide
 		{
@@ -531,7 +531,7 @@ namespace SliceEngine
 	{
 		auto& transform = mRegistry->get<Transform>(entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
+		sliceEngineVariantShape shapeData = colliderShape.shapeData;
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
