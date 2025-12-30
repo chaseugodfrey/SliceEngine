@@ -75,6 +75,8 @@ namespace SliceEngine
 
 		void HandleRemovedContacts();
 
+
+		//System required functions
 	public:
 
 		PhysicsSystem() = default;
@@ -98,13 +100,14 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
-		glm::vec3 GetLinearVelocity(Entity entity);
-
-		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
-
 		void StepWorld(float dt);
 
 		void PostStepSync();
+
+		void PreStepSync();
+
+		//Helps me with seperation of interface and implementation
+	public:
 
 		void AddForceToEntity(Entity entity, const JPH::Vec3& force);
 
@@ -143,6 +146,10 @@ namespace SliceEngine
 		void OffGravity(Entity entity, bool condition);
 
 		bool IsGravityOff(Entity entity) const;
+
+		glm::vec3 GetLinearVelocity(Entity entity);
+
+		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
 	};
 }
 

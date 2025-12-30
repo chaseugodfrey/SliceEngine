@@ -1074,16 +1074,25 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-		auto& transform = reg.get<Transform>(entity);
-		auto& colliderShape = reg.get<ColliderShape>(entity);
+		//auto& transform = reg.get<Transform>(entity);
+		//auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		UpdateShapeFromTransform(entity);
+		//SyncECSToPhysics(transform, colliderShape);
 
-		SyncECSToPhysics(transform, colliderShape);
+		////physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+		////SyncPhysicsToECS(transform, colliderShape);
+		////HandleRemovedContacts();	
+	}
 
-		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
-		//SyncPhysicsToECS(transform, colliderShape);
-		//HandleRemovedContacts();	
+	void PhysicsSystem::PreStepSync()
+	{
+		auto view = mRegistry->view<Transform, ColliderShape>();
+		// Safe, iterator-free iteration
+		for (auto [e, t, c] : view.each())
+		{
+			UpdateShapeFromTransform(e);
+			SyncECSToPhysics(t, c);
+		}
 	}
 
 	void PhysicsSystem::StepWorld(float dt)
