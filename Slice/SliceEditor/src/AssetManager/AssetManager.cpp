@@ -158,6 +158,7 @@ namespace SliceEditor
 		);
 		AddDefaultModelsToMap();
 		CreateAssetManifest();
+		CreateAssetMaps();
 
 	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
@@ -480,10 +481,80 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
-
-
 	}
-	
+
+	void AssetManager::CreateAssetMaps()
+	{
+		//Clear the Map, Just create it again
+		mAssetTypeToGUIDs.clear();
+
+		//Create the supported drop-down types
+		mAssetTypeToGUIDs[AssetType::Audio] = {};
+		mAssetTypeToGUIDs[AssetType::Controller] = {};
+		mAssetTypeToGUIDs[AssetType::Material] = {};
+		mAssetTypeToGUIDs[AssetType::Model] = {};
+		mAssetTypeToGUIDs[AssetType::Texture] = {};
+
+		//Add the Default Values
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		
+		//Loop Through and Add the Respective GUIDs
+		for (const auto& [guid, filename] : mGUIDtoFilename)
+		{
+			std::filesystem::path sourcePath(filename);
+			std::string sourceExt = sourcePath.extension().string();
+
+			if (mSupportedAssetTypes.find(sourceExt) == mSupportedAssetTypes.end())
+			{
+				continue;
+			}
+
+			AssetType type = mSupportedAssetTypes.at(sourceExt).first;
+
+			if (mAssetTypeToGUIDs.find(type) == mAssetTypeToGUIDs.end())
+			{
+				continue;
+			}
+
+			mAssetTypeToGUIDs[type].push_back(guid);
+		}
+	}
+
+	std::vector<SliceEngine::GUID>* AssetManager::GetMapFromAssetType(std::string assetType)
+	{
+		if (assetType == "Audio")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Audio];
+		}
+
+		if (assetType == "Model")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Model];
+		}
+
+
+		if (assetType == "Texture")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Texture];
+		}
+
+		if (assetType == "Material")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Material];
+		}
+
+		if (assetType == "Controller")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Controller];
+		}
+	}
+
 #pragma region Asset Compiling
 	void AssetManager::CompileTextureAsset(std::filesystem::path const& desc_file) {
 		STARTUPINFO si;
@@ -921,6 +992,9 @@ namespace SliceEditor
 			manifestJson["assets"].push_back(assetEntry);
 		}
 
+		//Add Defaults to Manifest
+		AddDefaultsToManifest(manifestJson);
+
 		// after constructing asset manifest, write to the file path
 		std::filesystem::path manifestPath = mResourcesDirectory / "AssetManifest.json";
 		std::ofstream outFile(manifestPath);
@@ -934,6 +1008,51 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("knncb can't make manifest file");
 		}
 
+	}
+
+	void AssetManager::AddDefaultsToManifest(nlohmann::json& manifestJSON)
+	{
+		nlohmann::json assetEntry;
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT;
+		assetEntry["name"] = "Cube";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT;
+		assetEntry["name"] = "Sphere";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT;
+		assetEntry["name"] = "Low Poly Sphere";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT;
+		assetEntry["name"] = "Capsule";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT;
+		assetEntry["name"] = "Line";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT;
+		assetEntry["name"] = "Quad";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT;
+		assetEntry["name"] = "Frustrum";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+		assetEntry["name"] = "Color Deaded";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
 	}
 
 	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)

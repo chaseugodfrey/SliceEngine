@@ -115,7 +115,7 @@ namespace SliceEditor
 	// }
 	//
 
-	template <typename T>
+	/*template <typename T>
 	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
 	{
 		bool changed = false;
@@ -167,16 +167,13 @@ namespace SliceEditor
 
 		return changed;
 
-	}
-
-	template <>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);
+	}*/
 
 	template <typename Enum>
 	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
 	{
 		bool changed = false;
-		
+
 		if (!property_label.empty())
 		{
 			ImGui::Text(property_label.c_str());
@@ -199,7 +196,7 @@ namespace SliceEditor
 
 						std::unique_ptr<ValueCommand<Enum>> command = std::make_unique<ValueCommand<Enum>>(newVal, oldVal, newVal);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
-						
+
 						idx = i;
 						selected = static_cast<Enum>(i);
 						changed = true;
@@ -211,6 +208,146 @@ namespace SliceEditor
 		}
 		return changed;
 	}
+
+	template <typename T>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
+	{
+		bool changed = false;
+		auto& assetManager = reg.GetAssetManager();
+		auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
+
+		if (mapPtr != nullptr)
+		{
+			std::vector<std::string> mapNames;
+			mapNames.reserve(assetManager.GetMapFromAssetType(asset_type)->size()); //Not sure if i need this but just to be sure.
+
+			int currentIndex = -1;
+			SliceEngine::GUID currentGUID = handle.getGUID();
+
+			for (const auto& guid : *mapPtr)
+			{
+				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+				{
+					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+					continue;
+				}
+
+				if (guid == currentGUID)
+				{
+					currentIndex = (int)mapNames.size();
+				}
+
+				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+			}
+
+			//Fall-back (Should Display Nothing)
+			if (currentIndex < 0)
+			{
+				std::string guidString = currentGUID.toString();
+				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
+				{
+					//?????? wtf is this
+					SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+				}
+				else
+				{
+					SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
+				}
+				ImGui::Text("Missing GUID: ");
+				ImGui::SameLine(150.0f);
+				ImGui::BeginDisabled();
+				ImGui::InputText("##Missing GUID:", &guidString);
+				ImGui::EndDisabled();
+			}
+
+			else
+			{
+				int selectedIndex = currentIndex;
+
+				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+				{
+					const std::string& selectedName = mapNames[selectedIndex];
+					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+					changed = (handle.getGUID() != newGUID);
+					if (changed)
+					{
+						if (!setFunc)
+						{
+							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+							auto newHandle = rm->get<T>(newGUID);
+
+							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
+							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+							handle = newHandle;
+						}
+
+						else
+						{
+							setFunc(newGUID);
+						}
+					}
+				}
+			}
+		}
+		
+		//No Drag-Drop for some reason
+		else
+		{
+				std::string filename{ "(empty)" };
+
+				ImGui::Text(property_label);
+				ImGui::SameLine(150.0f);
+
+				auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+
+				if (file.has_value())
+				{
+					filename = file.value();
+				}
+
+
+				ImGui::BeginDisabled();
+				ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+				ImGui::EndDisabled();
+		}
+		
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (handle.getGUID() != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						handle = newHandle;
+					}
+
+					else
+						setFunc(newGUID);
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+	}
+	
+	/*template <>
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc);*/
+
+	
 }
 
 void SetBit(unsigned char& mask, unsigned char bit, bool enabled);
