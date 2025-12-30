@@ -49,10 +49,10 @@ namespace SliceEditor
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
 		void ScanResourceFolder();
-		std::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
+		//::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
-		std::filesystem::path CreateResource(MetaData* metaData, AssetType assetType, bool AddToRM = true);
+		std::filesystem::path CreateResource(const std::filesystem::path filePath, MetaData* metaData = nullptr, bool AddToRM = true);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
@@ -68,7 +68,9 @@ namespace SliceEditor
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
-		void RecompileAsset(MetaData* metaData);
+		void CreateAssetManifest();
+
+		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
 		std::filesystem::path GetMetaDataFromFilename(std::string guid);
 		
 
@@ -99,7 +101,9 @@ namespace SliceEditor
 			{".mat", {AssetType::Material, "Material"}},
 			{".prefab", {AssetType::Prefab, "Prefab"}},
 			{".controller",{AssetType::Controller, "Controller"}},
-			{".navmesh",{AssetType::NavMesh, "NavMesh"}}
+			{".navmesh",{AssetType::NavMesh, "NavMesh"}},
+			{".skl", {AssetType::Skeleton, "Skeleton"}},
+			{".animpkg", {AssetType::Animation, "Animation"}}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =

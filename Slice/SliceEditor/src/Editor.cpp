@@ -93,7 +93,7 @@ namespace SliceEditor
 		// before engine's resource manager scans it to prevent broken meta files/resource files
 		inputs = std::make_unique<EditorInputs>(registry);
 
-		assetManager.ScanResourceFolder();
+		//assetManager.ScanResourceFolder();
 		assetManager.Init();
 
 		engine.Init();
@@ -250,7 +250,7 @@ namespace SliceEditor
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
 		auto manager = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto target = manager->selectedFolder->path / path.filename();
+		auto target = manager->selectedFolder->fullPath/path.filename();
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
