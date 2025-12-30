@@ -81,35 +81,6 @@ namespace SliceEditor
 				{
 					metaData->Deserialize(metaPath);
 
-					if (metaData->assetType == ".mdl")
-					{
-						ModelData* modelData = static_cast<ModelData*>(metaData.get());
-						std::filesystem::path fbxRelativePath(metaData->assetName);
-						if (modelData->skeletonGUID.IsValid())
-						{
-							std::filesystem::path skelPath = fbxRelativePath;
-							// change the extension so like if player.mdl to player.skl
-							skelPath.replace_extension(".skl"); 
-
-							std::string skelName = skelPath.generic_string();
-
-							mGUIDtoFilename[modelData->skeletonGUID] = skelName;
-							mFilenameToGUID[skelName] = modelData->skeletonGUID;
-						}
-
-						if (modelData->animationGUID.IsValid())
-						{
-							std::filesystem::path skelPath = fbxRelativePath;
-							// change the extension so like if player.mdl to player.skl
-							skelPath.replace_extension(".animpkg");
-
-							std::string skelName = skelPath.generic_string();
-
-							mGUIDtoFilename[modelData->animationGUID] = skelName;
-							mFilenameToGUID[skelName] = modelData->animationGUID;
-						}
-					}
-
 					std::filesystem::path resourcePath = metaData->resourcePath;
 
 					bool resourceMissing = !std::filesystem::exists(resourcePath);
@@ -148,6 +119,37 @@ namespace SliceEditor
 					// register validated assets
 					mGUIDtoFilename[metaData->guid] = metaData->assetName;
 					mFilenameToGUID[metaData->assetName] = metaData->guid;
+
+					if (metaData->assetType == ".mdl")
+					{
+						ModelData* modelData = static_cast<ModelData*>(metaData.get());
+						std::filesystem::path fbxRelativePath(metaData->assetName);
+						if (modelData->skeletonGUID.IsValid())
+						{
+							std::filesystem::path skelPath = fbxRelativePath;
+							// change the extension so like if player.mdl to player.skl
+							skelPath.replace_extension(".skl");
+
+							std::string skelName = skelPath.generic_string();
+
+							mGUIDtoFilename[modelData->skeletonGUID] = skelName;
+							mFilenameToGUID[skelName] = modelData->skeletonGUID;
+						}
+
+						if (modelData->animationGUID.IsValid())
+						{
+							std::filesystem::path skelPath = fbxRelativePath;
+							// change the extension so like if player.mdl to player.skl
+							skelPath.replace_extension(".animpkg");
+
+							std::string skelName = skelPath.generic_string();
+
+							mGUIDtoFilename[modelData->animationGUID] = skelName;
+							mFilenameToGUID[skelName] = modelData->animationGUID;
+						}
+					}
+
+
 
 					//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 					//resourceMgr->RegisterResourceAsset(metaPath.string());
