@@ -16,7 +16,7 @@
         },
         {
             "AudioClips": [
-                15337392844329067775
+                15444100828152761678
             ],
             "isSpatial": false,
             "key": "Jump",
@@ -30,8 +30,8 @@
         },
         {
             "AudioClips": [
-                16042428810407618742,
-                16042427710895990531
+                12706701987083786906,
+                15950455196030294385
             ],
             "isSpatial": false,
             "key": "Hit_Slime.Single",
@@ -45,7 +45,7 @@
         },
         {
             "AudioClips": [
-                11686433219281641557
+                9385656686377290189
             ],
             "isSpatial": false,
             "key": "A1",
@@ -59,7 +59,7 @@
         },
         {
             "AudioClips": [
-                11686429920746756924
+                9886919587323407782
             ],
             "isSpatial": false,
             "key": "A2",
@@ -73,7 +73,7 @@
         },
         {
             "AudioClips": [
-                16222866699601130096
+                16799538569288340419
             ],
             "isSpatial": false,
             "key": "Plunge",
@@ -87,21 +87,7 @@
         },
         {
             "AudioClips": [
-                17167979987087721462
-            ],
-            "isSpatial": false,
-            "key": "DoubleJump",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 0.699999988079071,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                13758193088605000286
+                15125514244222615558
             ],
             "isSpatial": false,
             "key": "Land",
@@ -115,7 +101,21 @@
         },
         {
             "AudioClips": [
-                13660320874099635487
+                12356409060795031376
+            ],
+            "isSpatial": false,
+            "key": "DoubleJump",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                13612963309126088302
             ],
             "isSpatial": false,
             "key": "Dash",
@@ -129,7 +129,7 @@
         },
         {
             "AudioClips": [
-                16735499102845449463
+                9481060356522622619
             ],
             "isSpatial": false,
             "key": "Death",
@@ -143,7 +143,7 @@
         },
         {
             "AudioClips": [
-                12280243463308685690
+                10633741978937811452
             ],
             "isSpatial": true,
             "key": "Golem_Stop",
@@ -157,7 +157,7 @@
         },
         {
             "AudioClips": [
-                17460899159601829869
+                18190530176056244177
             ],
             "isSpatial": true,
             "key": "Golem_RightStomp",
@@ -171,7 +171,7 @@
         },
         {
             "AudioClips": [
-                17417268538154140064
+                16821803797395721382
             ],
             "isSpatial": true,
             "key": "Golem_PreStop",
@@ -185,7 +185,7 @@
         },
         {
             "AudioClips": [
-                13180144252831457142
+                17410170969615213344
             ],
             "isSpatial": true,
             "key": "Golem_Stand",
@@ -199,21 +199,7 @@
         },
         {
             "AudioClips": [
-                12425916931137010818
-            ],
-            "isSpatial": false,
-            "key": "Hit_Slime.Multi",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 0.20000000298023224,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                17417268538154140064
+                16821803797395721382
             ],
             "isSpatial": true,
             "key": "Golem_LeftStomp",
@@ -223,6 +209,20 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.30000001192092896,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                9563528329987127914
+            ],
+            "isSpatial": false,
+            "key": "Hit_Slime.Multi",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.20000000298023224,
             "volumeRollOff": 0
         }
     ]
