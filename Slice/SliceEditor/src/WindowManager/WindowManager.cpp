@@ -69,6 +69,8 @@ namespace SliceEditor
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
 		AddWindow<ConsoleWindow>();
+
+		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &WindowManager::QuitGameEvent>(this);
 	}
 
 	void WindowManager::Update()
@@ -130,30 +132,6 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Save Scene"))
 			{
-				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE || SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
-				{
-					std::filesystem::path currentScenePath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
-
-					//Check if the current scene set is already a temp scene
-					if (currentScenePath.extension() == ".temp")
-					{
-						std::filesystem::path originalScenePath = currentScenePath;
-						originalScenePath.replace_extension(".scene");
-
-						//Set to scene path and remove temp file
-						if (std::filesystem::exists(originalScenePath))
-						{
-							
-							SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
-							std::filesystem::remove(currentScenePath);
-						}
-
-					}
-					
-				}
-
-				//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-				EditorUtilities::Scene_Save();
 				EventManager::GetInstance()->Publish<OnSceneSaveEvent>();
 			}
 
@@ -292,9 +270,6 @@ namespace SliceEditor
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
-
-        static bool isPlaying = false;
-		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -958,6 +933,13 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+	}
+
+	void WindowManager::QuitGameEvent(OnGameStopEvent e)
+	{
+		isPlaying = false;
+		isPaused = false;
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->Stop();
 	}
 
 	//void WindowManager::SetTheme_Microsoft()

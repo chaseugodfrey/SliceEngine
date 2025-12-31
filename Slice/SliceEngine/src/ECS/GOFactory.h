@@ -208,10 +208,11 @@ namespace SliceEngine
 		GameObject CreateGO_Sphere();
 		GameObject CreateGO_Capsule();
 		GameObject CreateGO_Cam();
-		GameObject CreateGO_Model(GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
+		GameObject CreateGO_Model(GUID skele_guid = GUID::null(), GUID anim_guid = GUID::null(), GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 		GameObject CreateGO_Canvas();
 		GameObject CreateGO_Image();
 		GameObject CreateGO_Button();
+		GameObject CreateGO_Slider();
 
 		Registry mRegistry;
 
@@ -222,7 +223,7 @@ namespace SliceEngine
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
 	private:
-		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_node, Entity parent, Entity root, int& index, bool is_static);
+		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID skele_guid, GUID anim_guid, GUID model_node, Entity parent, Entity root, int& index, bool is_static);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		

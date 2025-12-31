@@ -120,32 +120,60 @@ namespace SliceEngine
 			FB_FINAL,		// 1 Out
 			FB_TOTAL		// NO BIND
 		};
-		enum ShaderOpt : uint64_t
+		enum ShaderOpt
 		{
-			S_BASIC			= 18310719961107313904,
-			S_SHADOW		= 15542823559299526962,
-			S_POINT_SHADOW	= 16403285895328080424,
-			S_DEFERRED		= 9461939409271178249,
-			S_SKYBOX		= 10501127717050996268,
-			S_SKYBOX_Light	= 17607102209555945808,
-			S_LIGHTING		= 17353385404596894578,
-			S_PARTICLES		= 15022037422749583333,
-			S_INSTANCED		= 17697828682138082227,
-			S_DEBUG_LINE	= 13567802095736790143,
-			S_DEBUG_OUTLINE	= 14803493076226864661,
-			S_DEBUG_OUT_BLUR= 18058044400034443400,
-			S_DEBUG_OUTLJOIN= 14813507912196224841,
-			S_FOG			= 10740115564374233650,
-			S_BLOOM_SPLIT	= 12702531725689492235,
-			S_DOWNSCALING	= 9611694325200796232,
-			S_UPSCALING		= 17037775471000192005,
-			S_BLOOM_JOIN	= 11454882705531309873,
-			S_VIGNETTE		= 15557538937295862472,
-			S_SKY_IRRADIANCE= 12553626097981143487,
-			S_SKY_GENERATE	= 10651205271784078762,
-			S_FINAL			= 9302529766740298710,
-			S_COPY			= 9478454777993022509
+			S_BASIC						,
+			S_SHADOW				,
+			S_POINT_SHADOW	,
+			S_DEFERRED				,
+			S_SKYBOX					,
+			S_SKYBOX_Light		,
+			S_LIGHTING				,
+			S_PARTICLES				,
+			S_INSTANCED			,
+			S_DEBUG_LINE			,
+			S_DEBUG_OUTLINE	,
+			S_DEBUG_OUT_BLUR,
+			S_DEBUG_OUTLJOIN,
+			S_FOG							,
+			S_BLOOM_SPLIT		,
+			S_DOWNSCALING		,
+			S_UPSCALING			,
+			S_BLOOM_JOIN		,
+			S_VIGNETTE				,
+			S_SKY_IRRADIANCE	,
+			S_SKY_GENERATE		,
+			S_FINAL						,
+			S_COPY						
 		};
+
+		std::unordered_map<ShaderOpt, std::string> ShaderPaths =
+		{
+			{ ShaderOpt::S_BASIC,           "Shaders/basic.shader" },
+			{ ShaderOpt::S_SHADOW,          "Shaders/shadow.shader" },
+			{ ShaderOpt::S_POINT_SHADOW,    "Shaders/pointShadow.shader" },
+			{ ShaderOpt::S_DEFERRED,        "Shaders/deferred.shader" },
+			{ ShaderOpt::S_SKYBOX,          "Shaders/skybox.shader" },
+			{ ShaderOpt::S_SKYBOX_Light,    "Shaders/skyboxLight.shader" },
+			{ ShaderOpt::S_LIGHTING,        "Shaders/lighting.shader" },
+			{ ShaderOpt::S_PARTICLES,       "Shaders/particles.shader" },
+			{ ShaderOpt::S_INSTANCED,       "Shaders/instanced.shader" },
+			{ ShaderOpt::S_DEBUG_LINE,      "Shaders/debugLine.shader" },
+			{ ShaderOpt::S_DEBUG_OUTLINE,   "Shaders/debugOutline.shader" },
+			{ ShaderOpt::S_DEBUG_OUT_BLUR,  "Shaders/debugOutlineBlur.shader" },
+			{ ShaderOpt::S_DEBUG_OUTLJOIN,  "Shaders/debugOutlineJoin.shader" },
+			{ ShaderOpt::S_FOG,             "Shaders/fog.shader" },
+			{ ShaderOpt::S_BLOOM_SPLIT,     "Shaders/bloomSplit.shader" },
+			{ ShaderOpt::S_DOWNSCALING,     "Shaders/downSample.shader" },
+			{ ShaderOpt::S_UPSCALING,       "Shaders/upSample.shader" },
+			{ ShaderOpt::S_BLOOM_JOIN,      "Shaders/bloomJoin.shader" },
+			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
+			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
+			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
+			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
+			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
+		};
+
 		enum GPU_OUT : unsigned char
 		{
 			GOUT_DIF = 0,
@@ -203,7 +231,7 @@ namespace SliceEngine
 		unsigned int mIDHovered{};
 
 		Handle<SliceEngineTypes::Shader> shaderHandle;
-		std::pair<ShaderOpt, GLuint> mCurrShader;
+		std::pair<std::string, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
 		RenderCmdManager renderQueue;
@@ -220,7 +248,7 @@ namespace SliceEngine
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
 		void ForceResetDefaultSettings();
-		void SetShader(ShaderOpt sh);
+		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);

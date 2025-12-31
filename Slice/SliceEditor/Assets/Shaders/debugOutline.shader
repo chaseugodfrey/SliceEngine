@@ -1,5 +1,6 @@
 {
-    "VertexShader": "debugOutline_Vert",
-    "FragmentShader": "debugOutline_Frag",
+
+    "VertexShader": "Shaders/debugOutline_Vert.vert",
+    "FragmentShader": "Shaders/debugOutline_Frag.frag",
     "GeometryShader": ""
 }

@@ -388,7 +388,6 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
@@ -407,11 +406,10 @@ namespace SliceEngine
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
 		GLuint textureID{};
-
 	};
 	struct ParticleSystem
 	{
-		enum ValueType
+		enum ValueType : unsigned int
 		{
 			CONSTANT,
 			CURVE,
@@ -532,7 +530,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 		Handle<SliceEngineTypes::Mesh> meshHandle;
 
-		// ------- Internal ----------
+		// Internal
 		std::vector<Particle> particles{};
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -545,6 +543,8 @@ namespace SliceEngine
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Timeline
@@ -719,6 +719,38 @@ namespace SliceEngine
 		};
 		//Entity target_graphic;	//if the entity that gets modified by transition not the same
 		//im gona move the click stuff to script only
+	};
+
+	struct Slider {
+		RTTR_ENABLE();
+	public:
+		//the direction the handle will move along(no diagonal sliders)
+		enum Axis : unsigned char {
+			X_Axis,
+			Y_Axis
+		} axis{ X_Axis };
+		
+		//whehter the value moves in the positive or negative axis
+		enum Direction : unsigned char {
+			Positive,
+			Negative
+		} direction{ Positive };
+
+
+		/*
+		* There entities are always children of the slider
+		* and their positions will always be relative to it
+		*/
+		Entity handle{ entt::null };	//basically the slider knob
+		Entity fill{ entt::null };		//basically the "filled" portion of a slider, gets stretched depending on val
+
+		//sets the value, positions the handle and fill, and calls c# callback
+		void SetValue(float, Entity self);
+		float GetValue() const;	//not actually sure if this func is needed
+
+		bool componentEnabled{ true };
+		//for now only allow a normalized value - 0 to 1
+		float value{ 0 };
 	};
 
 	// Not a component but a base data obj for nav mesh

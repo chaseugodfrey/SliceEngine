@@ -127,7 +127,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
+				//SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
 				return Handle<T>();
 			}
 

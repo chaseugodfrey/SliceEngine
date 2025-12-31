@@ -28,7 +28,7 @@ namespace SliceEngine
         }
 
         public static Vector3 Zero = new Vector3(0.0f);
-
+        public static Vector3 One = new Vector3(1.0f);
         public static Vector3 operator -(Vector3 v1, Vector3 v2)
         {
             return new Vector3(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
@@ -284,9 +284,12 @@ namespace SliceEngine
             }
         }
 
+        public static readonly Vector3 Left = new Vector3(1f, 0f, 0f);
         public static readonly Vector3 Right = new Vector3(-1f, 0f, 0f);
         public static readonly Vector3 Up = new Vector3(0f, 1f, 0f);
+        public static readonly Vector3 Down = new Vector3(0f, -1f, 0f);
         public static readonly Vector3 Forward = new Vector3(0f, 0f, 1f);
+        public static readonly Vector3 Backward = new Vector3(0f, 0f, -1f);
         public static Vector3 RotateTowards(Vector3 from, Vector3 to, float maxDegreesDelta)
         {
             // Step 1: Compute the angle between them

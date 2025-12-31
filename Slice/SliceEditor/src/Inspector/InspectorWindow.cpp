@@ -28,6 +28,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include <Systems/LayerManager.h>
 #include <WindowManager/WindowManager.h>
+#include <Systems/PrefabSystem.h>
 
 namespace SliceEditor
 {
@@ -190,6 +191,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
 			//glm::vec3 rgb;
 			//rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
 			//DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
@@ -198,30 +200,11 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
-			ImGui::Text("Image");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(sprite.textureHandle.GetGUID());
-			std::string textureFileName;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle];
-			}
-			else //Its a default model
-			{
-				textureFileName = texture_guid_string;
-			}
-			ImGui::InputText("##Image", &textureFileName, ImGuiInputTextFlags_ReadOnly);
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Image"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					sprite.textureHandle = recievedPayload;
-					// update the handle after
-				}
-			}
+			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.1f", 0.f, 1.f);
 
+			SliceEngine::GUID tex_guid = sprite.textureHandle;
+			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+			sprite.textureHandle = tex_guid;
 
 			ImGui::TreePop();
 		}
@@ -234,6 +217,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
 			static std::vector<std::string> canvas_types{ "Overlay" };
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
@@ -253,6 +237,7 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::Button>(entity, false);
 
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
 			static std::vector<std::string> transitions{ "Color, Sprite" };
 			ComboHeader<SliceEngine::Button::Transition>(mRegistry, "Button Transitions", "##btntransitions", button.transition, transitions);
@@ -296,6 +281,29 @@ namespace SliceEditor
 				}
 			}
 				break;
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySlider(entt::entity entity) {
+		if (ImGui::TreeNodeEx("Slider", mBaseFlags))
+		{
+			auto& slider = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Slider>(entity);
+
+			DisplayComponentHeader<SliceEngine::Slider>(entity, false);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", slider.componentEnabled);
+
+			static std::vector<std::string> axis_enums{ "X Axis", "Y Axis" };
+			static std::vector<std::string> direction_enums{ "Positive", "Negative" };
+			ComboHeader<SliceEngine::Slider::Axis>(mRegistry, "Axis", "##slideraxis", slider.axis, axis_enums);
+			ComboHeader<SliceEngine::Slider::Direction>(mRegistry, "Direction", "##sliderdirection", slider.direction, direction_enums);
+
+			float new_val = slider.GetValue();
+			if (SliderFloatInputHeader(mRegistry, "Value", "##sliderVal", new_val, "%.1f", 0.0, 1.0)) {
+				slider.SetValue(new_val, entity);
 			}
 
 			ImGui::TreePop();
@@ -379,7 +387,7 @@ namespace SliceEditor
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 
 			ImGui::TreePop();
 		}
@@ -472,9 +480,9 @@ namespace SliceEditor
 
 						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
-						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
+						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping, "%.3f", 0.0f, FLT_MAX);
 
-						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
+						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping, "%.3f", 0.0f, FLT_MAX);
 
 						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1f, FLT_MAX);
 
@@ -962,13 +970,20 @@ namespace SliceEditor
 					//ImGui::Text("Dont Drag a Controller in Here\nunless ur debugging the crash that \nhappens when you drop a controller!");
 					if (HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"))
 					{
-
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
 					}
 				}
 				//Controller has been set, should be changable
 				else
 				{
-					HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller"); //For changing
+					if(HandleDragDropInputHeader(mRegistry, "Controller: ", "##controller", animator.Handle_stateMachine, "Controller")) //For changing
+					{
+						animator.stateMachine.EFSM.stateMap.clear();
+						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
+						animator.stateMachine.InitState(animator.curr_anim_pkg);
+					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);
 
@@ -1445,6 +1460,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Slider>(entity))
+			{
+				DisplaySlider(node->entity);
+				ImGui::Separator();
+			}
+
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Camera>(entity))
 			{
 				DisplayCamera(node->entity);
@@ -1543,11 +1564,11 @@ namespace SliceEditor
 		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
 		//if (metapath.has_value())
-		mat.DeserializeAsset(node->path);
+		mat.DeserializeAsset(node->fullPath);
 
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		//std::string mat_file_name{};
@@ -1579,17 +1600,17 @@ namespace SliceEditor
 
 		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 	}
 

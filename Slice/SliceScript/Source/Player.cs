@@ -182,9 +182,10 @@ namespace SliceEngine
             // Up (Spacebar)
             if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
             {
-         
+                // idk why this shit kinda buggy when i jump 2 times
+                // is i fail maths or maths fail me
                 if(jumpCounter < 2)
-               { 
+                { 
                     if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
                         String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
@@ -198,10 +199,15 @@ namespace SliceEngine
                         {
                             AudioSettings.PlaySFX("Jump");
                         }
-                        else if(jumpCounter > 1)
+                        else if(jumpCounter == 1)
                         {
                             //Put it as more than once cause idk why when its == 1 the jump and the double jump plays at the same time
-                            AudioSettings.PlaySFX("DoubleJump");
+                            if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                                String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+                            {
+                                animator.SetBool("AirDashStart", true);
+                            }
+                                AudioSettings.PlaySFX("DoubleJump");
                         }
                         jumpCounter++;
                         
@@ -211,7 +217,8 @@ namespace SliceEngine
 
             if(!grounded)
             {
-                if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0)
+                if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                    String.Compare(animator.GetCurrAnimName(), "AirDashStart") == 0)
                 {
                     animator.SetBool("Plunge", true);
                 }

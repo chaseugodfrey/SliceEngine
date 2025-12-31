@@ -261,7 +261,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -376,6 +377,17 @@ namespace SliceEngine
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
+			if (rootGO.HasComponent<Slider>()) {	//handle and fill entity remapping for slider
+				auto entityView = registry.view<Slider>();
+				for (auto entity : entityView) {
+					auto& slider = registry.get<Slider>(entity);
+
+					slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+				}
+			}
+
+
 			return rootEntity;
 		}
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
@@ -445,7 +457,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -586,7 +599,8 @@ namespace SliceEngine
 						JPH::Vec3,
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
-						ColliderShape::CapsuleData
+						ColliderShape::CapsuleData,
+						RigidBody::FreezeOptions
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -648,7 +662,8 @@ namespace SliceEngine
 							JPH::Vec3,
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
-							ColliderShape::CapsuleData
+							ColliderShape::CapsuleData,
+							RigidBody::FreezeOptions
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -760,7 +775,8 @@ namespace SliceEngine
 								JPH::Vec3,
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
-								ColliderShape::CapsuleData
+								ColliderShape::CapsuleData,
+								RigidBody::FreezeOptions
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
@@ -809,6 +825,14 @@ namespace SliceEngine
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
+			//remap for slider
+			auto sliderView = registry.view<Slider>();
+			for (auto entity : sliderView) {
+				auto& slider = registry.get<Slider>(entity);
+
+				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
+				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
+			}
 			// Using scene graph map to fix scenegraph component is done in another function in scene system.
 
 			return sceneGraphMap;

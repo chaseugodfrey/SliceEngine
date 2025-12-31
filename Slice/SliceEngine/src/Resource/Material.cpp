@@ -65,6 +65,15 @@ namespace SliceEngine
 			return temp;
 		}
 
+		void Material::LoadDefault()
+		 {
+			albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+			albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
+			roughness = 0.6f;
+			metallic = 0.f;
+			color = glm::vec3(1.f, 1.f, 1.f);
+		 }
+
 		void Material::DestroyMaterial() {
 			albedo.Release();
 		}

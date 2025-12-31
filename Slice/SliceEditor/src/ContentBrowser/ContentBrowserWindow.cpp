@@ -75,7 +75,7 @@ namespace SliceEditor
 
 					if (ImGui::BeginPopupContextWindow("menu_create"))
 					{
-						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->fullPath);
 
 						ImGui::EndPopup();
 					}
@@ -114,7 +114,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
 	{
-		if (node.path.empty())
+		if (node.fullPath.empty())
 		{
 			ImGui::Text("No Path Found!");
 			return;
@@ -199,7 +199,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
 	{
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{}
 
 		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
@@ -236,10 +236,14 @@ namespace SliceEditor
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto& assetMgr = mRegistry.GetAssetManager();
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
-		std::filesystem::path filePath = node.fileName;
-		std::string fileKey = filePath.stem().stem().string();
+		std::filesystem::path filePath = node.fullPath;
+		std::string fileKey = node.relativePath.generic_string();
 		std::string fileExt = filePath.extension().string();
 		bool canDrag = true;
+
+		/*Temp Debug Section*/
+		std::string fullPathStr = filePath.string();
+		std::string relativePathStr = node.relativePath.string();
 
 		if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
 		{
@@ -251,7 +255,7 @@ namespace SliceEditor
 			canDrag = false;
 		}
 
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{
 			if(!(node.type == SelectionType::PREFAB))
 			{
@@ -298,13 +302,13 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Re-compile File"))
 			{
 				//Get the metaData for this Asset:
-				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.path.stem().stem().string());
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.fullPath.stem().stem().string());
 
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
 
 				file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
-				file.filePath = node.path;
+				file.filePath = node.fullPath;
 				switch (file.assetType)
 				{
 				case AssetType::Texture:
@@ -451,17 +455,32 @@ namespace SliceEditor
 					auto* data = static_cast<ModelData*>(file.metaData.get());
 					if (data->is_static == false) //It has skele and anim
 					{
+						/*
+								std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+								skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+								data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+								data->skeletonGUID = skeleData->guid;
+
+								std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+								animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+								data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+								data->animationGUID = animData->guid;
+
+						*/
 						//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						data->animationGUID = animData->guid;
+
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get());
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -504,7 +523,7 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		static std::vector<std::string> compressionFormatNames{ "RGB_BC1" , "RGBA_BC3" };
+		static std::vector<std::string> compressionFormatNames{ "BC1", "BC2" , "BC3", "BC4", "BC4s", "BC5", "BC5s", "BC6", "BC6s", "BC7"};
 		Label("Compression Format: ");
 		if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
 		{
