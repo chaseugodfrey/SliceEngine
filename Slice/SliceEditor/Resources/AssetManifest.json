@@ -11,11 +11,6 @@
             "path": "Resources/11905356294727255426.wav"
         },
         {
-            "guid": 16299611187758754559,
-            "name": "Models/Environment - Background Towers.skl",
-            "path": "Resources/16299611187758754559.skl"
-        },
-        {
             "guid": 9385656686377290189,
             "name": "Audio/A1.wav",
             "path": "Resources/9385656686377290189.wav"
@@ -29,11 +24,6 @@
             "guid": 9886919587323407782,
             "name": "Audio/A2.wav",
             "path": "Resources/9886919587323407782.wav"
-        },
-        {
-            "guid": 14822667976738189942,
-            "name": "Models/Environment - Background Towers.fbx",
-            "path": "Resources/14822667976738189942.mdl"
         },
         {
             "guid": 15126957848519795762,
@@ -86,11 +76,6 @@
             "path": "Resources/9481060356522622619.wav"
         },
         {
-            "guid": 10497383940214969221,
-            "name": "Models/Environment - Engine 1 (2).skl",
-            "path": "Resources/10497383940214969221.skl"
-        },
-        {
             "guid": 16821803797395721382,
             "name": "Audio/Golem_LeftStomp.wav",
             "path": "Resources/16821803797395721382.wav"
@@ -99,11 +84,6 @@
             "guid": 15125514244222615558,
             "name": "Audio/Land.wav",
             "path": "Resources/15125514244222615558.wav"
-        },
-        {
-            "guid": 14800216528882930636,
-            "name": "player.skl",
-            "path": "Resources/14800216528882930636.skl"
         },
         {
             "guid": 12706701987083786906,
@@ -136,14 +116,14 @@
             "path": "Resources/10633741978937811452.wav"
         },
         {
+            "guid": 13081919372508986706,
+            "name": "Models/Environment_Background_Towers.animpkg",
+            "path": "Resources/13081919372508986706.animpkg"
+        },
+        {
             "guid": 15444100828152761678,
             "name": "Audio/Jump.wav",
             "path": "Resources/15444100828152761678.wav"
-        },
-        {
-            "guid": 12851780098822055758,
-            "name": "Models/Environment - Engine 1 (2).animpkg",
-            "path": "Resources/12851780098822055758.animpkg"
         },
         {
             "guid": 9563528329987127914,
@@ -169,6 +149,11 @@
             "guid": 15950455196030294385,
             "name": "Audio/SingleHit_Slime_2.wav",
             "path": "Resources/15950455196030294385.wav"
+        },
+        {
+            "guid": 15929760521589022267,
+            "name": "Models/Environment_Engine_1.animpkg",
+            "path": "Resources/15929760521589022267.animpkg"
         },
         {
             "guid": 13040836348932714561,
@@ -326,19 +311,29 @@
             "path": "Resources/16108474294497114739.skl"
         },
         {
+            "guid": 10686127836384741111,
+            "name": "Models/Environment_Background_Towers.skl",
+            "path": "Resources/10686127836384741111.skl"
+        },
+        {
+            "guid": 15459697471143272539,
+            "name": "Models/Environment_Background_Towers.fbx",
+            "path": "Resources/15459697471143272539.mdl"
+        },
+        {
             "guid": 15124670150845613275,
             "name": "Models/Enemy_Basic_Static.animpkg",
             "path": "Resources/15124670150845613275.animpkg"
         },
         {
-            "guid": 15957646670980265013,
-            "name": "Models/Environment - Background Towers.animpkg",
-            "path": "Resources/15957646670980265013.animpkg"
+            "guid": 11867019872904042606,
+            "name": "Models/Environment_Engine_1.fbx",
+            "path": "Resources/11867019872904042606.mdl"
         },
         {
-            "guid": 12564346940466692185,
-            "name": "Models/Environment - Engine 1 (2).fbx",
-            "path": "Resources/12564346940466692185.mdl"
+            "guid": 13600119349505210101,
+            "name": "Models/Environment_Engine_1.skl",
+            "path": "Resources/13600119349505210101.skl"
         },
         {
             "guid": 15944834739893347014,
@@ -346,14 +341,19 @@
             "path": "Resources/15944834739893347014.navmesh"
         },
         {
-            "guid": 10277001610364450097,
-            "name": "player.animpkg",
-            "path": "Resources/10277001610364450097.animpkg"
-        },
-        {
             "guid": 10128043101700684016,
             "name": "player.fbx",
             "path": "Resources/10128043101700684016.mdl"
+        },
+        {
+            "guid": 14800216528882930636,
+            "name": "player.skl",
+            "path": "Resources/14800216528882930636.skl"
+        },
+        {
+            "guid": 10277001610364450097,
+            "name": "player.animpkg",
+            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 15512966748982858088,
@@ -664,6 +664,46 @@
             "guid": 12204963044621912467,
             "name": "Textures/HEALTH.png",
             "path": "Resources/12204963044621912467.dds"
+        },
+        {
+            "guid": 4412061832024819835,
+            "name": "Cube",
+            "path": "NIL"
+        },
+        {
+            "guid": 18229435044585338891,
+            "name": "Sphere",
+            "path": "NIL"
+        },
+        {
+            "guid": 15944074647628756543,
+            "name": "Low Poly Sphere",
+            "path": "NIL"
+        },
+        {
+            "guid": 12802300298583430329,
+            "name": "Capsule",
+            "path": "NIL"
+        },
+        {
+            "guid": 11645823214468727188,
+            "name": "Line",
+            "path": "NIL"
+        },
+        {
+            "guid": 4651861510357422797,
+            "name": "Quad",
+            "path": "NIL"
+        },
+        {
+            "guid": 5509659706693030482,
+            "name": "Frustrum",
+            "path": "NIL"
+        },
+        {
+            "guid": 11697903386653029786,
+            "name": "Color Deaded",
+            "path": "NIL"
         }
     ]
 }

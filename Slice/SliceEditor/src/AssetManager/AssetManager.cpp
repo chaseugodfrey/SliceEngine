@@ -792,6 +792,7 @@ namespace SliceEditor
 	}	
 #pragma endregion
 
+	//Creates the Prefab Asset
 	void AssetManager::CreatePrefab(SliceEngine::GameObject GO)
 	{
 

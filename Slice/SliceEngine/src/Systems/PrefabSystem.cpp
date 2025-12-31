@@ -86,6 +86,7 @@ namespace SliceEngine
 		// if it has then update the instances createdw ith it
 	}
 
+	//Creates a Prefab Game Object
 	GameObject PrefabSystem::CreatePrefab(const GUID& prefabGUID, bool isEditor)
 	{
 		//		mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)12204516898033894501);
