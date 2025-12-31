@@ -402,11 +402,9 @@ namespace SliceEditor
                         {
                             metaData->Deserialize(metaFilePath);
 
-                            // 3. Re-compile the resource. Set AddToRM (3rd param) to TRUE 
-                            // This updates mGUIDToResource in the ResourceManager
+                            
                             am.CreateResource(modifiedFilePath, metaData.get(), true);
 
-                            // 4. Update the live instance in memory
                             if (resourceMgr->CheckResource(fileGUID))
                             {
                             
