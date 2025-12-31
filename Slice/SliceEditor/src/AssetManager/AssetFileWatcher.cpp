@@ -187,7 +187,7 @@ namespace SliceEditor
                 }
             }
         }
-
+        am.CreateAssetMaps();
         AssetFileChangedEvent processEvent = { true };
         EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
     
@@ -236,6 +236,8 @@ namespace SliceEditor
                 SLICE_LOG_ERROR("Failed to remove resource: " + std::string(e.what()));
             }
         }
+
+        am.CreateAssetMaps();
 	}
 
 	void AssetFileWatcher::HandleAssetRenamed(AssetManager& am, RawFileEvent& renamedOld, RawFileEvent& renamedNew)
@@ -313,6 +315,7 @@ namespace SliceEditor
 
                     std::filesystem::rename(metaFilePath, newMetaPath);
 
+                    am.CreateAssetMaps();
                     AssetFileChangedEvent processEvent = { true };
                     EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
                 }
