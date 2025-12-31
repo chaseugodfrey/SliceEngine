@@ -36,11 +36,6 @@
             "path": "Resources/12356409060795031376.wav"
         },
         {
-            "guid": 14822667976738189942,
-            "name": "Models/Environment - Background Towers.fbx",
-            "path": "Resources/14822667976738189942.mdl"
-        },
-        {
             "guid": 15126957848519795762,
             "name": "Material/aaaaaaa.mat",
             "path": "Resources/15126957848519795762.mat"
@@ -59,6 +54,11 @@
             "guid": 10758859206681109730,
             "name": "Audio/BGM_MainMenu_Mix1.wav",
             "path": "Resources/10758859206681109730.wav"
+        },
+        {
+            "guid": 10277001610364450097,
+            "name": "player.animpkg",
+            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 16866709739411514970,
@@ -84,6 +84,11 @@
             "guid": 14800216528882930636,
             "name": "player.skl",
             "path": "Resources/14800216528882930636.skl"
+        },
+        {
+            "guid": 18329491173128811221,
+            "name": "Models/Environment_Engine_1.animpkg",
+            "path": "Resources/18329491173128811221.animpkg"
         },
         {
             "guid": 12706701987083786906,
@@ -141,11 +146,6 @@
             "path": "Resources/16799538569288340419.wav"
         },
         {
-            "guid": 11117834761691247966,
-            "name": "Models/Environment - Background Towers.skl",
-            "path": "Resources/11117834761691247966.skl"
-        },
-        {
             "guid": 15950455196030294385,
             "name": "Audio/SingleHit_Slime_2.wav",
             "path": "Resources/15950455196030294385.wav"
@@ -176,11 +176,6 @@
             "path": "Resources/13656167422205326723.wav"
         },
         {
-            "guid": 17400027402418617163,
-            "name": "Audio/wow.wav",
-            "path": "Resources/17400027402418617163.wav"
-        },
-        {
             "guid": 12601623693778157633,
             "name": "Default/NewScene.scene",
             "path": "Resources/12601623693778157633.scene"
@@ -201,11 +196,6 @@
             "path": "Resources/14398956356898289746.dds"
         },
         {
-            "guid": 10213250213231946188,
-            "name": "Models/Environment - Background Towers.animpkg",
-            "path": "Resources/10213250213231946188.animpkg"
-        },
-        {
             "guid": 18400379806743012927,
             "name": "Editor/FolderIcon.png",
             "path": "Resources/18400379806743012927.dds"
@@ -224,11 +214,6 @@
             "guid": 10125292758465881867,
             "name": "Frieren.jpg",
             "path": "Resources/10125292758465881867.dds"
-        },
-        {
-            "guid": 16427558769998827620,
-            "name": "Models/Environment - Engine 1 (2).skl",
-            "path": "Resources/16427558769998827620.skl"
         },
         {
             "guid": 14919455020680615893,
@@ -271,6 +256,11 @@
             "path": "Resources/18050817905394877928.mat"
         },
         {
+            "guid": 16267972103362409246,
+            "name": "Models/Environment_Background_Towers.animpkg",
+            "path": "Resources/16267972103362409246.animpkg"
+        },
+        {
             "guid": 14807671980735793301,
             "name": "Shaders/skybox_Frag.frag",
             "path": "Resources/14807671980735793301.frag"
@@ -306,11 +296,6 @@
             "path": "Resources/14018566679936275834.animpkg"
         },
         {
-            "guid": 13361298868623288670,
-            "name": "Models/Environment - Engine 1 (2).animpkg",
-            "path": "Resources/13361298868623288670.animpkg"
-        },
-        {
             "guid": 10150479252312340859,
             "name": "Models/Enemy_Basic.animpkg",
             "path": "Resources/10150479252312340859.animpkg"
@@ -321,14 +306,34 @@
             "path": "Resources/16108474294497114739.skl"
         },
         {
+            "guid": 15459697471143272539,
+            "name": "Models/Environment_Background_Towers.fbx",
+            "path": "Resources/15459697471143272539.mdl"
+        },
+        {
             "guid": 15124670150845613275,
             "name": "Models/Enemy_Basic_Static.animpkg",
             "path": "Resources/15124670150845613275.animpkg"
         },
         {
-            "guid": 12564346940466692185,
-            "name": "Models/Environment - Engine 1 (2).fbx",
-            "path": "Resources/12564346940466692185.mdl"
+            "guid": 17683481588848644045,
+            "name": "Models/Environment_Background_Towers.skl",
+            "path": "Resources/17683481588848644045.skl"
+        },
+        {
+            "guid": 11867019872904042606,
+            "name": "Models/Environment_Engine_1.fbx",
+            "path": "Resources/11867019872904042606.mdl"
+        },
+        {
+            "guid": 9726771096704510860,
+            "name": "Shaders/debugOutline.shader",
+            "path": "Resources/9726771096704510860.shader"
+        },
+        {
+            "guid": 10212446774121703514,
+            "name": "Models/Environment_Engine_1.skl",
+            "path": "Resources/10212446774121703514.skl"
         },
         {
             "guid": 15944834739893347014,
@@ -339,11 +344,6 @@
             "guid": 10128043101700684016,
             "name": "player.fbx",
             "path": "Resources/10128043101700684016.mdl"
-        },
-        {
-            "guid": 10277001610364450097,
-            "name": "player.animpkg",
-            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 15512966748982858088,
@@ -399,11 +399,6 @@
             "guid": 15753721967437039897,
             "name": "Shaders/debugLine_Vert.vert",
             "path": "Resources/15753721967437039897.vert"
-        },
-        {
-            "guid": 9726771096704510860,
-            "name": "Shaders/debugOutline.shader",
-            "path": "Resources/9726771096704510860.shader"
         },
         {
             "guid": 9855612107491711827,
@@ -659,6 +654,46 @@
             "guid": 12204963044621912467,
             "name": "Textures/HEALTH.png",
             "path": "Resources/12204963044621912467.dds"
+        },
+        {
+            "guid": 4412061832024819835,
+            "name": "Cube",
+            "path": "NIL"
+        },
+        {
+            "guid": 18229435044585338891,
+            "name": "Sphere",
+            "path": "NIL"
+        },
+        {
+            "guid": 15944074647628756543,
+            "name": "Low Poly Sphere",
+            "path": "NIL"
+        },
+        {
+            "guid": 12802300298583430329,
+            "name": "Capsule",
+            "path": "NIL"
+        },
+        {
+            "guid": 11645823214468727188,
+            "name": "Line",
+            "path": "NIL"
+        },
+        {
+            "guid": 4651861510357422797,
+            "name": "Quad",
+            "path": "NIL"
+        },
+        {
+            "guid": 5509659706693030482,
+            "name": "Frustrum",
+            "path": "NIL"
+        },
+        {
+            "guid": 11697903386653029786,
+            "name": "Color Deaded",
+            "path": "NIL"
         }
     ]
 }

@@ -265,7 +265,8 @@ namespace SliceEditor
 
             // Accessing the map from AssetManager
             auto it = am.mSupportedAssetTypes.find(extension);
-            if (it != am.mSupportedAssetTypes.end()) {
+            if (it != am.mSupportedAssetTypes.end()) 
+            {
                 parentDirectory = it->second.second;
             }
 
@@ -355,23 +356,27 @@ namespace SliceEditor
             return;
         }
 
+        std::string parentDirectory;
+        std::string extension = modifiedFilePath.extension().string();
+
+        // Accessing the map from AssetManager
+        auto it = am.mSupportedAssetTypes.find(extension);
+        if (it != am.mSupportedAssetTypes.end()) 
+        {
+            parentDirectory = it->second.second;
+        }
+
         SliceEngine::GUID fileGUID;
 
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-        auto path = resourceMgr->GetResourcePath(modifiedFilePath.stem().string());
+        std::string assetPath = parentDirectory + "/" + modifiedFilePath.filename().string();
+        auto path = resourceMgr->GetResourcePath(assetPath);
         // NOTE: meta file no longer in resource path
 
         if (path.has_value())
         {
             auto hashA = HashFile(modifiedFilePath);
             auto hashB = HashFile(path.value());
-
-            std::filesystem::path metaFilePath = path.value();
-            metaFilePath += ".meta";
-            //	metaFilePath.replace_extension(".meta");
-
-            std::string guidString = path.value().stem().string();
-            fileGUID = SliceEngine::GUID::FromString(guidString);
 
             if (hashA && hashB)
             {
@@ -387,19 +392,35 @@ namespace SliceEditor
                     {
 
 
-                        std::filesystem::remove(path.value());
+                        std::string guidString = path.value().stem().string();
+                        fileGUID = SliceEngine::GUID::FromString(guidString);
 
-                        //CreateResource(metaData, assetType);
+                        std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(assetPath);
+                        std::unique_ptr<MetaData> metaData = am.CreateDefaultMeta(modifiedFilePath);
 
-
-                        //am.CreateDescriptorFile(modifiedFilePath);
-                        //resourceMgr->ReloadResourceInPlace(fileGUID);
-
-                        /*if (modifiedFilePath.extension() == ".prefab")
+                        if (metaData)
                         {
-                            EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
-                        }*/
-                        //SLICE_LOG("Modified event at " + events.begin()->filePath.string());
+                            metaData->Deserialize(metaFilePath);
+
+                            // 3. Re-compile the resource. Set AddToRM (3rd param) to TRUE 
+                            // This updates mGUIDToResource in the ResourceManager
+                            am.CreateResource(modifiedFilePath, metaData.get(), true);
+
+                            // 4. Update the live instance in memory
+                            /*if (resourceMgr->CheckResource(fileGUID))
+                            {
+                            
+                                resourceMgr->ReloadResourceInPlace(fileGUID);
+
+                            }*/
+
+                            if (modifiedFilePath.extension() == ".prefab")
+                            {
+                                EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
+                            }
+
+                            SLICE_LOG("Modified and Hot-Reloaded: " + assetPath);
+                        }
 
 
 
