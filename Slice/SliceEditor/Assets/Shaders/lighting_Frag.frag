@@ -1,5 +1,5 @@
 #version 460 core
-
+//lighting_Frag
 struct Light{
 	vec3 position;
 	vec3 direction;
