@@ -872,6 +872,9 @@ namespace SliceEditor
 			manifestJson["assets"].push_back(assetEntry);
 		}
 
+		//Add Defaults to Manifest
+		AddDefaultsToManifest(manifestJson);
+
 		// after constructing asset manifest, write to the file path
 		std::filesystem::path manifestPath = mResourcesDirectory / "AssetManifest.json";
 		std::ofstream outFile(manifestPath);
@@ -885,6 +888,51 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("knncb can't make manifest file");
 		}
 
+	}
+
+	void AssetManager::AddDefaultsToManifest(nlohmann::json& manifestJSON)
+	{
+		nlohmann::json assetEntry;
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT;
+		assetEntry["name"] = "Cube";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT;
+		assetEntry["name"] = "Sphere";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT;
+		assetEntry["name"] = "Low Poly Sphere";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT;
+		assetEntry["name"] = "Capsule";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT;
+		assetEntry["name"] = "Line";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT;
+		assetEntry["name"] = "Quad";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT;
+		assetEntry["name"] = "Frustrum";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+		assetEntry["name"] = "Color Deaded";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
 	}
 
 	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)

@@ -75,6 +75,7 @@ namespace SliceEditor
 		void CleanUpSceneTemp();
 		void CreateDefaultAsset(std::filesystem::path& folderPath, AssetType type);
 		void CreateAssetManifest();
+		void AddDefaultsToManifest(nlohmann::json& manifestJSON);
 
 		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
 		std::filesystem::path GetMetaDataFromFilename(std::string guid);

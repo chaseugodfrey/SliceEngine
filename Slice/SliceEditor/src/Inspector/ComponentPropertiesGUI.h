@@ -240,16 +240,89 @@ namespace SliceEditor
 				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
 			}
 
-			//Fall-back
-			if (currentIndex < 0 && !mapNames.empty())
-				currentIndex = 0;
-
-			int selectedIndex = currentIndex;
-
-			if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+			//Fall-back (Should Display Nothing)
+			if (currentIndex < 0)
 			{
-				const std::string& selectedName = mapNames[selectedIndex];
-				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+				std::string guidString = currentGUID.toString();
+				std::string errorText;
+				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
+				{
+					//?????? wtf is this
+					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+					errorText = "GUID not found in AssetManager";
+				}
+				else
+				{
+					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
+					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
+				}
+				ImGui::Text(errorText.c_str());
+				ImGui::Text("Missing GUID: ");
+				ImGui::SameLine(150.0f);
+				ImGui::BeginDisabled();
+				ImGui::InputText("##Missing GUID:", &guidString);
+				ImGui::EndDisabled();
+			}
+
+			else
+			{
+				int selectedIndex = currentIndex;
+
+				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+				{
+					const std::string& selectedName = mapNames[selectedIndex];
+					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+					changed = (handle.getGUID() != newGUID);
+					if (changed)
+					{
+						if (!setFunc)
+						{
+							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+							auto newHandle = rm->get<T>(newGUID);
+
+							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
+							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+							handle = newHandle;
+						}
+
+						else
+						{
+							setFunc(newGUID);
+						}
+					}
+				}
+			}
+		}
+		
+		//No Drag-Drop for some reason
+		else
+		{
+				std::string filename{ "(empty)" };
+
+				ImGui::Text(property_label);
+				ImGui::SameLine(150.0f);
+
+				auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+
+				if (file.has_value())
+				{
+					filename = file.value();
+				}
+
+
+				ImGui::BeginDisabled();
+				ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+				ImGui::EndDisabled();
+		}
+		
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
 				changed = (handle.getGUID() != newGUID);
 				if (changed)
 				{
@@ -269,36 +342,10 @@ namespace SliceEditor
 				}
 			}
 
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
-				{
-					SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
-
-					// Check if guid is same, if is, then dont execute anything
-					changed = (handle.getGUID() != newGUID);
-					if (changed)
-					{
-						if (!setFunc)
-						{
-							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-							auto newHandle = rm->get<T>(newGUID);
-
-							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-							handle = newHandle;
-						}
-
-						else
-							setFunc(newGUID);
-					}
-				}
-
-				ImGui::EndDragDropTarget();
-			}
-			return changed;
+			ImGui::EndDragDropTarget();
 		}
+
+		return changed;
 	}
 	
 	/*template <>
