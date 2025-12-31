@@ -203,6 +203,12 @@ namespace SliceEditor
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
+		void GameObject_Unprefab(entt::entity entity)
+		{
+			SliceEngine::GameObject GO  = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(entity, GO.GetComponent<SliceEngine::Prefab>().prefabGUID, true);
+		}
+
 		void GameObject_Clone(entt::entity entity)
 		{
 			SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(entity);

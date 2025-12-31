@@ -1433,6 +1433,15 @@ namespace SliceEditor
 			}
 		}
 
+		else
+		{
+			if (ImGui::Button("Remove Prefab Component"))
+			{
+				EditorUtilities::GameObject_Unprefab(node->entity);
+				node->isPrefab = false;
+			}
+		}
+
 		DisplayEntityData(node->entity);
 
 		//Loop through registered components and display them if they exist on the selected entity
