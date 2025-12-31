@@ -8,11 +8,12 @@ struct BasicInstanceData
 	uvec4 mat;
 };
 
+uniform mat4 uPV; // Shadow Transform Matrix
 layout(binding=1, std430) readonly buffer ssbo1
 {
 	BasicInstanceData iDat[];
 };
 
 void main(void){
-	gl_Position = iDat[gl_InstanceID].mdlMtx * vec4(aPos, 1.0f);
+	gl_Position = uPV * iDat[gl_InstanceID].mdlMtx * vec4(aPos, 1.0f);
 }

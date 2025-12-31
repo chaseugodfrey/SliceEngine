@@ -49,6 +49,7 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		
+		bool toOpaque = true;
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
@@ -59,9 +60,12 @@ namespace SliceEngine
 			uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
-			RCK_Size key =  //MRCK_TRANSCLUCENT | 
-				MRCK_OPAQUE |
-				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			if (toOpaque)
+				key = key | MRCK_OPAQUE;
+			else
+				key = key | MRCK_TRANSCLUCENT;
+			toOpaque = !toOpaque;
 			
 			InstanceData data;
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;

@@ -42,7 +42,10 @@ namespace SliceEngine
 	RenderManager::~RenderManager()
 	{
 		glDeleteFramebuffers(FB_TOTAL, mFBO);
-		glDeleteBuffers(1, &mIVBO);
+		if(mIVBO != 0)
+			glDeleteBuffers(1, &mIVBO);
+		if(mShadowUBO != 0)
+			glDeleteBuffers(1, &mShadowUBO);
 
 		glDeleteTextures(GOUT_TOTAL, mColAttachment);
 		for (auto i : mBloomMips)
@@ -110,6 +113,10 @@ namespace SliceEngine
 		glCreateBuffers(1, &mIVBO);
 		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mIVBO);
+
+		glCreateBuffers(1, &mShadowUBO);
+		glNamedBufferStorage(mShadowUBO, mNumCascadeShadow * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, mShadowUBO);
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -307,6 +314,48 @@ namespace SliceEngine
 		right = rot * r;
 		up = rot * u;
 	}
+	
+	glm::mat4 RenderManager::DirLightMatCalc(const glm::mat4& proj, const glm::mat4& view, const glm::vec3 lightDir)
+	{
+		const auto inv = glm::inverse(proj * view);
+		std::vector<glm::vec4> coners;
+		coners.reserve(8);
+		for (unsigned int x = 0; x < 2; ++x)
+			for (unsigned int y = 0; y < 2; ++y)
+				for (unsigned int z = 0; z < 2; ++z)
+				{
+					const glm::vec4 pt = inv * glm::vec4(2.f * static_cast<float>(x) - 1.f, 2.f * static_cast<float>(y) - 1.f, 2.f * static_cast<float>(z) - 1.f, 1.f);
+					coners.emplace_back(pt / pt.w);
+				}
+		glm::vec3 center{};
+		for (auto& v : coners)
+			center += glm::vec3(v);
+		center /= 8.f;
+		const glm::mat4 lightView = glm::lookAt(center, center + lightDir, glm::vec3(0.f, 1.f, 0.f));
+
+		float minX{ std::numeric_limits<float>::max() }, minY{ std::numeric_limits<float>::max() }, minZ{ std::numeric_limits<float>::max() };
+		float maxX{ std::numeric_limits<float>::lowest() }, maxY{ std::numeric_limits<float>::lowest() }, maxZ{ std::numeric_limits<float>::lowest() };
+		for (const auto& v : coners)
+		{
+			const auto trf = lightView * v;
+			minX = std::min(minX, trf.x);
+			maxX = std::max(maxX, trf.x);
+			minY = std::min(minY, trf.y);
+			maxY = std::max(maxY, trf.y);
+			minZ = std::min(minZ, trf.z);
+			maxZ = std::max(maxZ, trf.z);
+		}
+		if (minZ < 0)
+			minZ *= mLightZDist;
+		else
+			minZ /= mLightZDist;
+		if (maxZ < 0)
+			maxZ /= mLightZDist;
+		else
+			maxZ *= mLightZDist;
+
+		return glm::ortho(minX, maxX, minY, maxY, minZ, maxZ) * lightView;
+	}
 #pragma endregion
 
 #pragma region Render
@@ -350,14 +399,12 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			else
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
-			LoadSettings(GPS_TEST_TRANSLUCENT);
+			LoadSettings(GPS_DEFAULT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
-			//renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_OPAQUE);
-			renderQueue.SortTranslucent(cam);
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_OPAQUE);
 			//----------------------------------------------------------------
 			SetShader(S_SKYBOX_Light);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -369,6 +416,17 @@ namespace SliceEngine
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			RenderLighting(cam);
+			//----------------------------------------------------------------
+			SetShader(S_DEFERRED);
+			if (cam == mCurrentCamIDHover)
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
+			else
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
+			renderQueue.SortTranslucent(cam);
+			LoadSettings(GPS_TEST_TRANSLUCENT);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
 
 			//SetShader(S_PARTICLES);
 			//// Use Same FrameBufferSettings & Don't Clear Buffer
@@ -549,7 +607,7 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			{
 				glm::mat4 PV = P * V;
-				GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
+				GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uPV");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
 			}
 			BindCameraDepth(cam); // for the viewPort call
@@ -605,8 +663,9 @@ namespace SliceEngine
 			const auto& wPos = transform.GetWorldPosition();
 			SetUniformVec3(uniformLoc, wPos);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-			glUniform1f(uniformLoc, mPointLightFar);
-			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, mPointLightFar);
+			float ptLightFar = CalcPointLightFar(transform.GetWorldScale(), light.intensity);
+			glUniform1f(uniformLoc, ptLightFar);
+			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, ptLightFar);
 			std::stringstream ss{};
 			for (size_t i{}; i < 6; ++i)
 			{
@@ -626,6 +685,8 @@ namespace SliceEngine
 		glViewport(0, 0, shadowDim, shadowDim);
 
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
 		for (auto entity : view)
@@ -633,13 +694,38 @@ namespace SliceEngine
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (!light.componentEnabled) continue;
 			if (light.type != Light::LightType::Light_Directional) continue;
+			// -----
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			glm::vec3 lightDir = glm::normalize(-transform.GetWorldPosition());
 
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthTex, 0);
+			std::vector<glm::mat4> lightSpaceMtx;
+			for (int i = 0; i < mNumCascadeShadow; ++i)
+			{
+				float near{}, far{};
+				if(i == 0)
+				{
+					near = camera.near;
+					far = camera.far / shadowCascadeLevels[0];
+				}
+				else if (i == mNumCascadeShadow - 1)
+				{
+					near = camera.far / shadowCascadeLevels[i - 1];
+					far = camera.far;
+				}
+				else
+				{
+					near = camera.far / shadowCascadeLevels[i - 1];
+					far = camera.far / shadowCascadeLevels[i];
+				}
+				const auto camProj = glm::perspective(glm::radians(camera.pov), ar, near, far);
+				lightSpaceMtx.push_back(DirLightMatCalc(camProj, V, lightDir));
+			}
+			glBindBuffer(GL_UNIFORM_BUFFER, mShadowUBO);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthMaps, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
-
-			SetDirectionalLightMtx(camT.GetWorldPosition(), transform.GetWorldPosition());
-
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS);
 		}
 	}
@@ -668,6 +754,7 @@ namespace SliceEngine
 		glBindTextureUnit(3, mColAttachment[GOUT_ROUGH_METAL]);
 
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
@@ -694,10 +781,20 @@ namespace SliceEngine
 
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
 				SetUniformVec3(uniformLoc, -lightT.GetWorldPosition());
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+				glUniform1f(uniformLoc, camera.far);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
+				glUniform1i(uniformLoc, mNumCascadeShadow);
+				std::stringstream ss{};
+				for (int i = 0; i < mNumCascadeShadow - 1; ++i)
+				{
+					ss.str("");
+					ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+					uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+					glUniform1f(uniformLoc, camera.far/shadowCascadeLevels[i]);
+				}
 
-				SetDirectionalLightMtx(camT.GetWorldPosition(), lightT.GetWorldPosition());
-
-				glBindTextureUnit(4, light.depthTex);
+				glBindTextureUnit(4, light.depthMaps);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
@@ -708,18 +805,19 @@ namespace SliceEngine
 			}
 			case Light::LightType::Light_Point:
 			{
-				if(glm::distance(camT.GetWorldPosition(), lightT.GetWorldPosition()) > mPointLightFar * 0.5f)
+				float ptLightFar = CalcPointLightFar(lightT.GetWorldScale(), light.intensity);
+				if(glm::distance(camT.GetWorldPosition(), lightT.GetWorldPosition()) > ptLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
 				else
 					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
 				M = glm::translate(M, lightT.GetWorldPosition());
-				M = glm::scale(M, glm::vec3(mPointLightFar, mPointLightFar, mPointLightFar));
+				M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-				glUniform1f(uniformLoc, mPointLightFar);
+				glUniform1f(uniformLoc, ptLightFar);
 
 				glBindTextureUnit(5, light.shadowCubeMap);
 
@@ -945,26 +1043,14 @@ namespace SliceEngine
 		SLICE_LOG_WARNING(ss.str());
 		return false;
 	}
+	float RenderManager::CalcPointLightFar(const glm::vec3& scale, const float lightIntensity)
+	{
+		float maxS = fmaxf(scale.x, fmaxf(scale.y, scale.z));
+		return fmaxf(maxS * log10f(lightIntensity), 1.f) * mPointLightFar;
+	}
 #pragma endregion
 
 #pragma region Linking
-	void RenderManager::SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos)
-	{
-		glm::vec3 dir = glm::normalize(-lightPos);
-
-		float sDim = 40.f;
-		camPos -= sDim * dir;
-
-		glm::mat4 lightP = glm::ortho(-sDim, sDim, -sDim, sDim, 0.f, 4.f * sDim);
-		glm::mat4 lightV = glm::lookAt(
-			camPos,
-			camPos + dir,
-			glm::vec3(1.f, 0.f, 0.f));
-		lightP = lightP * lightV;
-
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightMtx");
-		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &lightP[0][0]);
-	}
 	// Binds Framebuffer and Links any internal Output textures
 	void RenderManager::LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...)
 	{

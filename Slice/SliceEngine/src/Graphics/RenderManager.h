@@ -41,6 +41,7 @@ namespace SliceEngine
 		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 		void GetCameraAxis(glm::mat3& camRot, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		glm::mat4 DirLightMatCalc(const glm::mat4& proj, const glm::mat4& view, const glm::vec3 lightDir);
 
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
@@ -65,6 +66,7 @@ namespace SliceEngine
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
+		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		//void LinkTransformInstancing(GUID guid);
 		
 		// Colors
@@ -77,12 +79,15 @@ namespace SliceEngine
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
+		const float mLightZDist = 50.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
+		const int mNumCascadeShadow = 5;
+		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -188,6 +193,7 @@ namespace SliceEngine
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mIVBO{};
+		GLuint mShadowUBO;
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
 		GLuint pboIdx[2]{};
@@ -210,7 +216,6 @@ namespace SliceEngine
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
 
-		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
