@@ -407,12 +407,12 @@ namespace SliceEditor
                             am.CreateResource(modifiedFilePath, metaData.get(), true);
 
                             // 4. Update the live instance in memory
-                            /*if (resourceMgr->CheckResource(fileGUID))
+                            if (resourceMgr->CheckResource(fileGUID))
                             {
                             
                                 resourceMgr->ReloadResourceInPlace(fileGUID);
 
-                            }*/
+                            }
 
                             if (modifiedFilePath.extension() == ".prefab")
                             {
