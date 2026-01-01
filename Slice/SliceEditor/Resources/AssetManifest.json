@@ -1,26 +1,6 @@
 {
     "assets": [
         {
-            "guid": 17898945804402129271,
-            "name": "[00] Player/PlayerOld.skl",
-            "path": "Resources/17898945804402129271.skl"
-        },
-        {
-            "guid": 15021947035957259762,
-            "name": "Default/NewScene.temp",
-            "path": "Resources/15021947035957259762.scene"
-        },
-        {
-            "guid": 11757213494713380377,
-            "name": "Shaders/shadow.shader",
-            "path": "Resources/11757213494713380377.shader"
-        },
-        {
-            "guid": 11905356294727255426,
-            "name": "Audio/3DAudioTest.wav",
-            "path": "Resources/11905356294727255426.wav"
-        },
-        {
             "guid": 9385656686377290189,
             "name": "Audio/A1.wav",
             "path": "Resources/9385656686377290189.wav"
@@ -36,29 +16,14 @@
             "path": "Resources/9886919587323407782.wav"
         },
         {
-            "guid": 14822667976738189942,
-            "name": "Models/Environment - Background Towers.fbx",
-            "path": "Resources/14822667976738189942.mdl"
-        },
-        {
-            "guid": 15126957848519795762,
-            "name": "Material/aaaaaaa.mat",
-            "path": "Resources/15126957848519795762.mat"
-        },
-        {
-            "guid": 17313277275196544424,
-            "name": "Prefabs/Prefab_Parent.prefab",
-            "path": "Resources/17313277275196544424.prefab"
-        },
-        {
-            "guid": 13612963309126088302,
-            "name": "Audio/Dash.wav",
-            "path": "Resources/13612963309126088302.wav"
-        },
-        {
             "guid": 18152500388378077030,
             "name": "Audio/WeightOfTheSky_Draft_Loop.wav",
             "path": "Resources/18152500388378077030.wav"
+        },
+        {
+            "guid": 17943067432173391513,
+            "name": "Audio/A3.wav",
+            "path": "Resources/17943067432173391513.wav"
         },
         {
             "guid": 12233641357369687249,
@@ -71,29 +36,44 @@
             "path": "Resources/12356409060795031376.wav"
         },
         {
-            "guid": 17943067432173391513,
-            "name": "Audio/A3.wav",
-            "path": "Resources/17943067432173391513.wav"
+            "guid": 15126957848519795762,
+            "name": "Material/aaaaaaa.mat",
+            "path": "Resources/15126957848519795762.mat"
         },
         {
-            "guid": 11944477452832270171,
-            "name": "Audio/Run.wav",
-            "path": "Resources/11944477452832270171.wav"
+            "guid": 13612963309126088302,
+            "name": "Audio/Dash.wav",
+            "path": "Resources/13612963309126088302.wav"
         },
         {
-            "guid": 10758859206681109730,
-            "name": "Audio/BGM_MainMenu_Mix1.wav",
-            "path": "Resources/10758859206681109730.wav"
-        },
-        {
-            "guid": 13227447673177674378,
-            "name": "Models/Environment - Engine 1 (2).animpkg",
-            "path": "Resources/13227447673177674378.animpkg"
+            "guid": 10277001610364450097,
+            "name": "player.animpkg",
+            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
+        },
+        {
+            "guid": 11993684851040886857,
+            "name": "Models/Enemy_Basic.fbx",
+            "path": "Resources/11993684851040886857.mdl"
+        },
+        {
+            "guid": 11766461363590934609,
+            "name": "Audio/BGM_MainMenu_Mix1.wav",
+            "path": "Resources/11766461363590934609.wav"
+        },
+        {
+            "guid": 14435538203294963994,
+            "name": "Material/Player_m.mat",
+            "path": "Resources/14435538203294963994.mat"
+        },
+        {
+            "guid": 17930551229058938371,
+            "name": "Material/EnemySlime_Eye_m.mat",
+            "path": "Resources/17930551229058938371.mat"
         },
         {
             "guid": 9481060356522622619,
@@ -109,6 +89,16 @@
             "guid": 15125514244222615558,
             "name": "Audio/Land.wav",
             "path": "Resources/15125514244222615558.wav"
+        },
+        {
+            "guid": 14800216528882930636,
+            "name": "player.skl",
+            "path": "Resources/14800216528882930636.skl"
+        },
+        {
+            "guid": 18329491173128811221,
+            "name": "Models/Environment_Engine_1.animpkg",
+            "path": "Resources/18329491173128811221.animpkg"
         },
         {
             "guid": 12706701987083786906,
@@ -166,6 +156,11 @@
             "path": "Resources/16799538569288340419.wav"
         },
         {
+            "guid": 11944477452832270171,
+            "name": "Audio/Run.wav",
+            "path": "Resources/11944477452832270171.wav"
+        },
+        {
             "guid": 15950455196030294385,
             "name": "Audio/SingleHit_Slime_2.wav",
             "path": "Resources/15950455196030294385.wav"
@@ -181,11 +176,6 @@
             "path": "Resources/12482959374751952982.mdl"
         },
         {
-            "guid": 12794208391430335618,
-            "name": "[00] Player/Player.fbx",
-            "path": "Resources/12794208391430335618.mdl"
-        },
-        {
             "guid": 12677140902537432131,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/12677140902537432131.mat"
@@ -199,16 +189,6 @@
             "guid": 13656167422205326723,
             "name": "Audio/UI_Hover 2.wav",
             "path": "Resources/13656167422205326723.wav"
-        },
-        {
-            "guid": 10435747324170015196,
-            "name": "Models/Environment - Background Towers.skl",
-            "path": "Resources/10435747324170015196.skl"
-        },
-        {
-            "guid": 11244779837703292568,
-            "name": "BGM_MidAutumn.wav",
-            "path": "Resources/11244779837703292568.wav"
         },
         {
             "guid": 12601623693778157633,
@@ -251,11 +231,6 @@
             "path": "Resources/10125292758465881867.dds"
         },
         {
-            "guid": 12880727785841801909,
-            "name": "Models/Environment - Engine 1 (2).skl",
-            "path": "Resources/12880727785841801909.skl"
-        },
-        {
             "guid": 14919455020680615893,
             "name": "Models/Crystal_Combined.animpkg",
             "path": "Resources/14919455020680615893.animpkg"
@@ -264,21 +239,6 @@
             "guid": 15447311348271389327,
             "name": "Material/default.mat",
             "path": "Resources/15447311348271389327.mat"
-        },
-        {
-            "guid": 11993684851040886857,
-            "name": "Models/Enemy_Basic.fbx",
-            "path": "Resources/11993684851040886857.mdl"
-        },
-        {
-            "guid": 14435538203294963994,
-            "name": "Material/Player_m.mat",
-            "path": "Resources/14435538203294963994.mat"
-        },
-        {
-            "guid": 17930551229058938371,
-            "name": "Material/EnemySlime_Eye_m.mat",
-            "path": "Resources/17930551229058938371.mat"
         },
         {
             "guid": 10365400057864474275,
@@ -294,6 +254,11 @@
             "guid": 18050817905394877928,
             "name": "Material/Player_Armour_m.mat",
             "path": "Resources/18050817905394877928.mat"
+        },
+        {
+            "guid": 16267972103362409246,
+            "name": "Models/Environment_Background_Towers.animpkg",
+            "path": "Resources/16267972103362409246.animpkg"
         },
         {
             "guid": 14807671980735793301,
@@ -331,11 +296,6 @@
             "path": "Resources/14018566679936275834.animpkg"
         },
         {
-            "guid": 17572647935097086416,
-            "name": "Prefabs/MainMenu_Prefab.prefab",
-            "path": "Resources/17572647935097086416.prefab"
-        },
-        {
             "guid": 10150479252312340859,
             "name": "Models/Enemy_Basic.animpkg",
             "path": "Resources/10150479252312340859.animpkg"
@@ -346,19 +306,34 @@
             "path": "Resources/16108474294497114739.skl"
         },
         {
+            "guid": 15459697471143272539,
+            "name": "Models/Environment_Background_Towers.fbx",
+            "path": "Resources/15459697471143272539.mdl"
+        },
+        {
             "guid": 15124670150845613275,
             "name": "Models/Enemy_Basic_Static.animpkg",
             "path": "Resources/15124670150845613275.animpkg"
         },
         {
-            "guid": 14540646926108840814,
-            "name": "Models/Environment - Background Towers.animpkg",
-            "path": "Resources/14540646926108840814.animpkg"
+            "guid": 17683481588848644045,
+            "name": "Models/Environment_Background_Towers.skl",
+            "path": "Resources/17683481588848644045.skl"
         },
         {
-            "guid": 12564346940466692185,
-            "name": "Models/Environment - Engine 1 (2).fbx",
-            "path": "Resources/12564346940466692185.mdl"
+            "guid": 11867019872904042606,
+            "name": "Models/Environment_Engine_1.fbx",
+            "path": "Resources/11867019872904042606.mdl"
+        },
+        {
+            "guid": 9726771096704510860,
+            "name": "Shaders/debugOutline.shader",
+            "path": "Resources/9726771096704510860.shader"
+        },
+        {
+            "guid": 10212446774121703514,
+            "name": "Models/Environment_Engine_1.skl",
+            "path": "Resources/10212446774121703514.skl"
         },
         {
             "guid": 15944834739893347014,
@@ -369,111 +344,6 @@
             "guid": 10128043101700684016,
             "name": "player.fbx",
             "path": "Resources/10128043101700684016.mdl"
-        },
-        {
-            "guid": 14800216528882930636,
-            "name": "player.skl",
-            "path": "Resources/14800216528882930636.skl"
-        },
-        {
-            "guid": 10277001610364450097,
-            "name": "player.animpkg",
-            "path": "Resources/10277001610364450097.animpkg"
-        },
-        {
-            "guid": 10854551339705790774,
-            "name": "[04] Environment/DefaultMaterial.mat",
-            "path": "Resources/10854551339705790774.mat"
-        },
-        {
-            "guid": 16188252959531465547,
-            "name": "Prefabs/Arena Collider Part.prefab",
-            "path": "Resources/16188252959531465547.prefab"
-        },
-        {
-            "guid": 9911898511109175898,
-            "name": "Prefabs/Bootstrap.prefab",
-            "path": "Resources/9911898511109175898.prefab"
-        },
-        {
-            "guid": 15102565627578577104,
-            "name": "Prefabs/EnemySlime.prefab",
-            "path": "Resources/15102565627578577104.prefab"
-        },
-        {
-            "guid": 13269073587537076570,
-            "name": "Prefabs/EnemySpawner.prefab",
-            "path": "Resources/13269073587537076570.prefab"
-        },
-        {
-            "guid": 17372928666018152619,
-            "name": "Prefabs/EnemyTest.prefab",
-            "path": "Resources/17372928666018152619.prefab"
-        },
-        {
-            "guid": 13689267693165920660,
-            "name": "Prefabs/HUD Canvas.prefab",
-            "path": "Resources/13689267693165920660.prefab"
-        },
-        {
-            "guid": 11923730312665857025,
-            "name": "Prefabs/Golem.prefab",
-            "path": "Resources/11923730312665857025.prefab"
-        },
-        {
-            "guid": 10062359558228054639,
-            "name": "Shaders/deferred_Vert.vert",
-            "path": "Resources/10062359558228054639.vert"
-        },
-        {
-            "guid": 16719948259139700223,
-            "name": "Prefabs/Level Director.prefab",
-            "path": "Resources/16719948259139700223.prefab"
-        },
-        {
-            "guid": 14315290921715176776,
-            "name": "Prefabs/lightTheSecondPrefabTest.prefab",
-            "path": "Resources/14315290921715176776.prefab"
-        },
-        {
-            "guid": 14745377294777889587,
-            "name": "[04] Environment/Environment - Engine 1.skl",
-            "path": "Resources/14745377294777889587.skl"
-        },
-        {
-            "guid": 17084868993414741854,
-            "name": "Prefabs/lightTheSecondPrefabTest_1.prefab",
-            "path": "Resources/17084868993414741854.prefab"
-        },
-        {
-            "guid": 14831564391505708929,
-            "name": "Shaders/shadow_Vert.vert",
-            "path": "Resources/14831564391505708929.vert"
-        },
-        {
-            "guid": 17663924634471452131,
-            "name": "Shaders/instanced_Frag.frag",
-            "path": "Resources/17663924634471452131.frag"
-        },
-        {
-            "guid": 14171454392846718263,
-            "name": "Prefabs/Player.prefab",
-            "path": "Resources/14171454392846718263.prefab"
-        },
-        {
-            "guid": 11749211095255410314,
-            "name": "Prefabs/RootNode.prefab",
-            "path": "Resources/11749211095255410314.prefab"
-        },
-        {
-            "guid": 16623696165479466212,
-            "name": "Prefabs/RootNode_1.prefab",
-            "path": "Resources/16623696165479466212.prefab"
-        },
-        {
-            "guid": 17716027878404322278,
-            "name": "Prefabs/TestPrefab.prefab",
-            "path": "Resources/17716027878404322278.prefab"
         },
         {
             "guid": 15512966748982858088,
@@ -494,11 +364,6 @@
             "guid": 14545510956482838483,
             "name": "Shaders/basic_Vert.vert",
             "path": "Resources/14545510956482838483.vert"
-        },
-        {
-            "guid": 11120635210456674113,
-            "name": "[04] Environment/Environment P1.fbx",
-            "path": "Resources/11120635210456674113.mdl"
         },
         {
             "guid": 17321930780113260035,
@@ -536,11 +401,6 @@
             "path": "Resources/15753721967437039897.vert"
         },
         {
-            "guid": 9726771096704510860,
-            "name": "Shaders/debugOutline.shader",
-            "path": "Resources/9726771096704510860.shader"
-        },
-        {
             "guid": 9855612107491711827,
             "name": "Shaders/debugOutlineBlur.shader",
             "path": "Resources/9855612107491711827.shader"
@@ -549,11 +409,6 @@
             "guid": 12789214786925158306,
             "name": "Shaders/debugOutlineBlur_Frag.frag",
             "path": "Resources/12789214786925158306.frag"
-        },
-        {
-            "guid": 11883039691503936432,
-            "name": "[00] Player/PlayerOld.fbx",
-            "path": "Resources/11883039691503936432.mdl"
         },
         {
             "guid": 12588768242097366775,
@@ -579,6 +434,11 @@
             "guid": 15474413715780147068,
             "name": "Shaders/deferred_Frag.frag",
             "path": "Resources/15474413715780147068.frag"
+        },
+        {
+            "guid": 10062359558228054639,
+            "name": "Shaders/deferred_Vert.vert",
+            "path": "Resources/10062359558228054639.vert"
         },
         {
             "guid": 17082663247688680890,
@@ -614,6 +474,16 @@
             "guid": 14127415488162852360,
             "name": "Shaders/instanced.shader",
             "path": "Resources/14127415488162852360.shader"
+        },
+        {
+            "guid": 14831564391505708929,
+            "name": "Shaders/shadow_Vert.vert",
+            "path": "Resources/14831564391505708929.vert"
+        },
+        {
+            "guid": 17663924634471452131,
+            "name": "Shaders/instanced_Frag.frag",
+            "path": "Resources/17663924634471452131.frag"
         },
         {
             "guid": 10892483757537912140,
@@ -669,6 +539,11 @@
             "guid": 17277350264361459137,
             "name": "Shaders/pointShadow_Vert.vert",
             "path": "Resources/17277350264361459137.vert"
+        },
+        {
+            "guid": 11757213494713380377,
+            "name": "Shaders/shadow.shader",
+            "path": "Resources/11757213494713380377.shader"
         },
         {
             "guid": 13612175786548516864,
@@ -751,11 +626,6 @@
             "path": "Resources/10967887547612015157.frag"
         },
         {
-            "guid": 13323150830195262976,
-            "name": "[04] Environment/Environment - Engine 1.animpkg",
-            "path": "Resources/13323150830195262976.animpkg"
-        },
-        {
             "guid": 12853812666711946483,
             "name": "Shaders/vignette.shader",
             "path": "Resources/12853812666711946483.shader"
@@ -771,11 +641,6 @@
             "path": "Resources/16945299331025220395.dds"
         },
         {
-            "guid": 9434495412143096926,
-            "name": "[97] Scenes/M4 Level 1.scene",
-            "path": "Resources/9434495412143096926.scene"
-        },
-        {
             "guid": 12836516999346286443,
             "name": "Textures/CharacterTest.png",
             "path": "Resources/12836516999346286443.dds"
@@ -789,156 +654,6 @@
             "guid": 12204963044621912467,
             "name": "Textures/HEALTH.png",
             "path": "Resources/12204963044621912467.dds"
-        },
-        {
-            "guid": 17911237990349162648,
-            "name": "[00] Player/DefaultMaterial.mat",
-            "path": "Resources/17911237990349162648.mat"
-        },
-        {
-            "guid": 9776906413334577460,
-            "name": "[00] Player/Game Over 2.png",
-            "path": "Resources/9776906413334577460.dds"
-        },
-        {
-            "guid": 18291013744030930576,
-            "name": "[00] Player/Game Title.png",
-            "path": "Resources/18291013744030930576.dds"
-        },
-        {
-            "guid": 14364512455762360917,
-            "name": "[00] Player/Player.skl",
-            "path": "Resources/14364512455762360917.skl"
-        },
-        {
-            "guid": 12328687973304934435,
-            "name": "[00] Player/Player.animpkg",
-            "path": "Resources/12328687973304934435.animpkg"
-        },
-        {
-            "guid": 15661035939030487039,
-            "name": "[00] Player/PlayerOld.animpkg",
-            "path": "Resources/15661035939030487039.animpkg"
-        },
-        {
-            "guid": 11340535292100352557,
-            "name": "[00] Player/Quit Btn.png",
-            "path": "Resources/11340535292100352557.dds"
-        },
-        {
-            "guid": 13181010849527277318,
-            "name": "[00] Player/Start Btn.png",
-            "path": "Resources/13181010849527277318.dds"
-        },
-        {
-            "guid": 16212077843386850831,
-            "name": "[00] Player/Victory 2.png",
-            "path": "Resources/16212077843386850831.dds"
-        },
-        {
-            "guid": 16145576743291712706,
-            "name": "[00] Player/Vignette Overlay.png",
-            "path": "Resources/16145576743291712706.dds"
-        },
-        {
-            "guid": 14302278861943918002,
-            "name": "[04] Environment/Environment - Background Towers.skl",
-            "path": "Resources/14302278861943918002.skl"
-        },
-        {
-            "guid": 17637598258295321374,
-            "name": "[04] Environment/Environment - Background Towers.animpkg",
-            "path": "Resources/17637598258295321374.animpkg"
-        },
-        {
-            "guid": 16407371492654787952,
-            "name": "[04] Environment/Environment - Background Towers.fbx",
-            "path": "Resources/16407371492654787952.mdl"
-        },
-        {
-            "guid": 14905820527263420039,
-            "name": "[04] Environment/Environment - Barriers.skl",
-            "path": "Resources/14905820527263420039.skl"
-        },
-        {
-            "guid": 17353780954099234683,
-            "name": "[04] Environment/Environment - Barriers.animpkg",
-            "path": "Resources/17353780954099234683.animpkg"
-        },
-        {
-            "guid": 18206747671020075405,
-            "name": "[04] Environment/Environment - Barriers.fbx",
-            "path": "Resources/18206747671020075405.mdl"
-        },
-        {
-            "guid": 14714426288489843894,
-            "name": "[04] Environment/Environment - Engine 1.fbx",
-            "path": "Resources/14714426288489843894.mdl"
-        },
-        {
-            "guid": 15193182076706753237,
-            "name": "[04] Environment/Environment - Engine 2.skl",
-            "path": "Resources/15193182076706753237.skl"
-        },
-        {
-            "guid": 9617571586928240479,
-            "name": "[04] Environment/Environment - Engine 2.animpkg",
-            "path": "Resources/9617571586928240479.animpkg"
-        },
-        {
-            "guid": 16919969523549722113,
-            "name": "[04] Environment/Environment - Engine 2.fbx",
-            "path": "Resources/16919969523549722113.mdl"
-        },
-        {
-            "guid": 10629698832144165053,
-            "name": "[04] Environment/Environment - Towers P6.skl",
-            "path": "Resources/10629698832144165053.skl"
-        },
-        {
-            "guid": 13652526192046526922,
-            "name": "[04] Environment/Environment - Towers P6.animpkg",
-            "path": "Resources/13652526192046526922.animpkg"
-        },
-        {
-            "guid": 14047504880819703697,
-            "name": "[04] Environment/Environment - Towers P6.fbx",
-            "path": "Resources/14047504880819703697.mdl"
-        },
-        {
-            "guid": 13255444594557976293,
-            "name": "[04] Environment/Environment P1.skl",
-            "path": "Resources/13255444594557976293.skl"
-        },
-        {
-            "guid": 15954026214391853977,
-            "name": "[04] Environment/Environment P1.animpkg",
-            "path": "Resources/15954026214391853977.animpkg"
-        },
-        {
-            "guid": 10574476429991294840,
-            "name": "[04] Environment/Environment.skl",
-            "path": "Resources/10574476429991294840.skl"
-        },
-        {
-            "guid": 11777886298381764976,
-            "name": "[04] Environment/Environment.animpkg",
-            "path": "Resources/11777886298381764976.animpkg"
-        },
-        {
-            "guid": 12575912214179968652,
-            "name": "[04] Environment/Environment.fbx",
-            "path": "Resources/12575912214179968652.mdl"
-        },
-        {
-            "guid": 12506155832162104621,
-            "name": "[04] Environment/Full Environment.prefab",
-            "path": "Resources/12506155832162104621.prefab"
-        },
-        {
-            "guid": 18234082389260200757,
-            "name": "[97] Scenes/M4 Level 1.temp",
-            "path": "Resources/18234082389260200757.scene"
         },
         {
             "guid": 4412061832024819835,

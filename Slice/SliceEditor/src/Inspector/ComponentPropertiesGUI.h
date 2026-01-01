@@ -244,15 +244,19 @@ namespace SliceEditor
 			if (currentIndex < 0)
 			{
 				std::string guidString = currentGUID.toString();
+				std::string errorText;
 				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
 				{
 					//?????? wtf is this
-					SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+					errorText = "GUID not found in AssetManager";
 				}
 				else
 				{
-					SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
+					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
+					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
 				}
+				ImGui::Text(errorText.c_str());
 				ImGui::Text("Missing GUID: ");
 				ImGui::SameLine(150.0f);
 				ImGui::BeginDisabled();

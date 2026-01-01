@@ -29,6 +29,11 @@ namespace SliceEditor
 {
 	class MetaData;
 	
+	struct RawFileEvent
+	{
+		std::filesystem::path filePath;
+		filewatch::Event changeType;
+	};
 
 	class AssetManager
 	{
@@ -37,7 +42,6 @@ namespace SliceEditor
 		~AssetManager() = default;
 
 		void Init();
-		void UpdateFolder();
 
 		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
@@ -145,29 +149,18 @@ namespace SliceEditor
 			{AssetType::Material, "DefaultMaterial"},
 			{AssetType::Controller, "DefaultController"}
 		};
-			std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
+
+		
+		std::queue<RawFileEvent> mRawFileQueue;
+		std::mutex mEventQueueMutex;
+		std::filesystem::path mAssetDirectory = std::filesystem::path("../SliceEditor/Assets");
 	private:
 		
 		// TODO: Change this to be configurable
 		std::filesystem::path mResourcesDirectory = std::filesystem::path("Resources");
 
-		struct RawFileEvent
-		{
-			std::filesystem::path filePath;
-			filewatch::Event changeType;
-		};
-
-		std::queue<RawFileEvent> mRawFileQueue;
-		std::mutex mEventQueueMutex;
-
 		std::unique_ptr<filewatch::FileWatch<std::string>> mAssetFileWatcher;
 
-		void HandleAssetAdded(RawFileEvent& addEvent);
-		void HandleAssetRemoved(RawFileEvent& removeEvent);
-		void HandleAssetRenamed(RawFileEvent& renamedOld, RawFileEvent& renamedNew);
-		void HandleAssetModified(RawFileEvent& event);
-		void HandleAssetMoved(std::vector<RawFileEvent>& events);
-		std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
 		// Gives editor a vector of all asset files by name for displaying in inspector
 		//std::unordered_map<AssetType, std::vector<std::string>> mAssets; 
 

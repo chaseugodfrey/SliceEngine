@@ -1036,22 +1036,103 @@ namespace SliceEditor
 	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& guid, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
 	{
 		bool changed = false;
-		std::string filename{ "(empty)" };
-
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
-
 		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(guid);
+		auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
 
-		if (file.has_value())
+		if (mapPtr != nullptr)
 		{
-			filename = file.value();
-		}
+			std::vector<std::string> mapNames;
+			mapNames.reserve(assetManager.GetMapFromAssetType(asset_type)->size()); //Not sure if i need this but just to be sure.
 
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
+			int currentIndex = -1;
+			SliceEngine::GUID currentGUID = guid;
+
+			for (const auto& guid : *mapPtr)
+			{
+				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+				{
+					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+					continue;
+				}
+
+				if (guid == currentGUID)
+				{
+					currentIndex = (int)mapNames.size();
+				}
+
+				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+			}
+
+			//Fall-back (Should Display Nothing)
+			if (currentIndex < 0)
+			{
+				std::string guidString = currentGUID.toString();
+				std::string errorText;
+				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
+				{
+					//?????? wtf is this
+					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+					errorText = "GUID not found in AssetManager";
+				}
+				else
+				{
+					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
+					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
+				}
+				ImGui::Text(errorText.c_str());
+				ImGui::Text("Missing GUID: ");
+				ImGui::SameLine(150.0f);
+				ImGui::BeginDisabled();
+				ImGui::InputText("##Missing GUID:", &guidString);
+				ImGui::EndDisabled();
+			}
+
+			else
+			{
+				int selectedIndex = currentIndex;
+
+				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+				{
+					const std::string& selectedName = mapNames[selectedIndex];
+					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+					changed = (guid != newGUID);
+					if (changed)
+					{
+						if (!setFunc)
+						{
+							std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+							guid = newGUID;
+						}
+
+						else
+						{
+							std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
+							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+							setFunc(newGUID);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			std::string filename{ "(empty)" };
+			ImGui::Text(property_label);
+			ImGui::SameLine(150.0f);
+
+			auto file = assetManager.GetFilenameFromGUID(guid);
+
+			if (file.has_value())
+			{
+				filename = file.value();
+			}
+
+			ImGui::BeginDisabled();
+			ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+			ImGui::EndDisabled();
+			}
 
 		if (ImGui::BeginDragDropTarget())
 		{
