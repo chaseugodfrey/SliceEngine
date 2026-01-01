@@ -14,6 +14,7 @@
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h" // --TODO-- Sus
+#include "Systems/PrefabSystem.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -45,9 +46,11 @@ namespace SliceEngine
 		renderCmds.clear();
 		shadowRenderCmds.clear();
 		translucentCmds.clear();
+		prefabRenderCmds.clear();
+		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEntity>); // renderEntity // visibleEntity
 		
 		bool toOpaque = true;
 		for (auto entity : view)
@@ -57,7 +60,7 @@ namespace SliceEngine
 			if (!model.IsValid()) return;
 			const auto& material = rend.materialHandle.get();
 
-			uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
+			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
 			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
@@ -85,7 +88,33 @@ namespace SliceEngine
 			else
 				renderCmds[key].push_back(std::move(data));
 		}
-	
+		
+		auto prefabView = Core::GetInstance()->GetRegistry().view<renderEntity, PrefabEntity>();
+		prefabView.each([&](auto entity)
+			{
+				auto& rend = core->GetRegistry().get<Renderer>(entity);
+				auto model = rend.modelHandle;
+				if (!model.IsValid()) return;
+				const auto& material = rend.materialHandle.get();
+
+				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
+
+				RCK_Size key = MRCK_OPAQUE | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+
+				InstanceData data;
+				data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
+				data.color = glm::vec4(material->color, 1.f);
+				data.roughness = material->roughness;
+				data.metallic = material->metallic;
+				data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				data.entityID = static_cast<unsigned int>(entity);
+
+				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+					prefabTranslucentCmds.push_back(std::make_pair(key, data));
+				else
+					prefabRenderCmds[key].push_back(std::move(data));
+
+			});
 	}
 	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
 	{
@@ -111,6 +140,18 @@ namespace SliceEngine
 		std::sort(translucentCmds.begin(), translucentCmds.end(), [](const std::pair<RCK_Size, InstanceData>& a, const std::pair<RCK_Size, InstanceData>& b) {
 			return std::bit_cast<float>(static_cast<uint32_t>(a.first & MRCK_DEPTH_SORT)) > std::bit_cast<float>(static_cast<uint32_t>(b.first & MRCK_DEPTH_SORT));
 		});
+
+		// Prefabs sorting too
+		for (auto& i : prefabTranslucentCmds)
+		{
+			glm::vec3 dir = glm::vec3(i.second.mdlMtx[3]) - camT.GetWorldPosition();
+			float d = glm::dot(dir, camFront);
+			i.first = (i.first & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
+		}
+		std::sort(prefabTranslucentCmds.begin(), prefabTranslucentCmds.end(), [](const std::pair<RCK_Size, InstanceData>& a, const std::pair<RCK_Size, InstanceData>& b) {
+			return std::bit_cast<float>(static_cast<uint32_t>(a.first & MRCK_DEPTH_SORT)) > std::bit_cast<float>(static_cast<uint32_t>(b.first & MRCK_DEPTH_SORT));
+			});
+
 	}
 	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType)
 	{
@@ -166,8 +207,17 @@ namespace SliceEngine
 			break;
 		}
 		case DrawType::DRAW_OPAQUE:
+		case DrawType::DRAW_PREFAB_OPAQUE:
 		{
-			for (auto& i : renderCmds)
+			std::map<RCK_Size, std::vector<InstanceData>>* cmds = nullptr;
+
+			if (drawType == DrawType::DRAW_OPAQUE)
+				cmds = &renderCmds;
+			else if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
+				cmds = &prefabRenderCmds;
+			else
+				break;
+			for (auto& i : *cmds)
 			{
 				const auto& id = i.first;
 				auto& batch = i.second;
@@ -208,10 +258,20 @@ namespace SliceEngine
 			break;
 		}
 		case DrawType::DRAW_TRANSLUCENT:
+		case DrawType::DRAW_PREFAB_TRANSLUCENT:
 		{
 			GLuint currShader; // --TODO--
 			RCK_ModelT currMdlID = 0xFFFF;
-			for (auto& i : translucentCmds)
+
+			std::vector<std::pair<RCK_Size, InstanceData>>* cmds = nullptr;
+			if (drawType == DrawType::DRAW_OPAQUE)
+				cmds = &translucentCmds;
+			else if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
+				cmds = &prefabTranslucentCmds;
+			else
+				break;
+
+			for (auto& i : *cmds)
 			{
 				const auto& id = i.first;
 				auto& dat = i.second;

@@ -34,6 +34,8 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	struct PrefabCameraEntity {};
+
 #pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
@@ -371,7 +373,7 @@ namespace SliceEngine
 		LoadSettings(GPS_SHADOW);
 		RenderPointShadowMaps();
 
-		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<PrefabCameraEntity>);
 		for (auto cam : cams)
 		{
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -421,8 +423,7 @@ namespace SliceEngine
 			if (cam == mCurrentCamIDHover)
 				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
 			else
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);			renderQueue.SortTranslucent(cam);
-			renderQueue.SortTranslucent(cam);
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
 			LoadSettings(GPS_TEST_TRANSLUCENT);
 			UpdateCamVP();
 			BindCameraDepth(cam);
@@ -452,6 +453,62 @@ namespace SliceEngine
 			RenderGammaCorrection(cam);
 		}
 		
+		auto prefabCam = Core::GetInstance()->GetRegistry().view<PrefabCameraEntity>();
+		for (auto cam : prefabCam)
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+			if (!camera.componentEnabled) continue;
+			mCurrFinalColAttachment = GOUT_FINAL;
+
+			renderQueue.SortTranslucent(cam);
+			CalculateVP(cam);
+
+			SetShader(ShaderPaths[S_SKYBOX]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_DIF]);
+			LoadSettings(GPS_SKYBOX);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+			RenderSkybox();
+
+			SetShader(ShaderPaths[S_DEFERRED]);
+			if (cam == mCurrentCamIDHover)
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+			else
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+			LoadSettings(GPS_DEFAULT);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_PREFAB_OPAQUE);
+
+			SetShader(ShaderPaths[S_SKYBOX_Light]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LoadSettings(GPS_SKYBOX_AMBIENT);
+			RenderSkyboxLighting();
+
+			SetShader(ShaderPaths[S_DEFERRED]);
+			if (cam == mCurrentCamIDHover)
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
+			else
+				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
+			LoadSettings(GPS_TEST_TRANSLUCENT);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT);
+
+			camera.debugRenderToggles = camera.debugRenderToggles | DEBUG_GRID_TAG | DEBUG_OBJ_TAG & ~(DEBUG_NAVMESH_TAG | DEBUG_FRUSTRUM_TAG);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
+			{
+				LoadSettings(GPS_DEBUG);
+				RenderDebug(cam);
+			}
+
+			LoadSettings(GPS_DEFAULT);
+			RenderGammaCorrection(cam);
+		}
+
 		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FB_TOTAL, 0);
 		std::swap(pboIdx[0], pboIdx[1]);

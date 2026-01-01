@@ -92,7 +92,9 @@ namespace SliceEngine
 		{
 			DRAW_MODELS,
 			DRAW_OPAQUE,
-			DRAW_TRANSLUCENT
+			DRAW_TRANSLUCENT,
+			DRAW_PREFAB_OPAQUE,
+			DRAW_PREFAB_TRANSLUCENT
 		};
 
 		RenderCmdManager();
@@ -115,6 +117,8 @@ namespace SliceEngine
 		glm::mat4 VP{};
 		std::map<RCK_Size, std::vector<InstanceData>> renderCmds;
 		std::vector<std::pair<RCK_Size,InstanceData>> translucentCmds; //single draw calls
+		std::map<RCK_Size, std::vector<InstanceData>> prefabRenderCmds;
+		std::vector<std::pair<RCK_Size,InstanceData>> prefabTranslucentCmds;
 		std::map<RCK_ModelT, std::vector<ShadowInstanceData>> shadowRenderCmds;
 		std::vector<ModelBasic> modelReferences;
 		std::map<MdlFinder, RCK_ModelT> modelToIdx;
