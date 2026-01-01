@@ -187,7 +187,7 @@ namespace SliceEditor
                 }
             }
         }
-
+        am.CreateAssetMaps();
         AssetFileChangedEvent processEvent = { true };
         EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
     
@@ -236,6 +236,8 @@ namespace SliceEditor
                 SLICE_LOG_ERROR("Failed to remove resource: " + std::string(e.what()));
             }
         }
+
+        am.CreateAssetMaps();
 	}
 
 	void AssetFileWatcher::HandleAssetRenamed(AssetManager& am, RawFileEvent& renamedOld, RawFileEvent& renamedNew)
@@ -313,6 +315,7 @@ namespace SliceEditor
 
                     std::filesystem::rename(metaFilePath, newMetaPath);
 
+                    am.CreateAssetMaps();
                     AssetFileChangedEvent processEvent = { true };
                     EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
                 }
@@ -443,45 +446,66 @@ namespace SliceEditor
 
         if (fileName == events.at(1).filePath.stem().string())
         {
+            std::string oldParentDirectory = events.begin()->filePath.parent_path().filename().string();
+
+            // Accessing the map from AssetManager
+            
+
             auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-            auto path = resourceMgr->GetResourcePath(fileName);
+            std::string oldAssetName = oldParentDirectory + "/" + events.begin()->filePath.filename().string();
+            auto path = resourceMgr->GetResourcePath(oldAssetName);
             // NOTE: meta file no longer in resource path
             if (path.has_value())
             {
-                std::filesystem::path metaFilePath = path.value();
-                metaFilePath += ".meta";
+                std::filesystem::path oldMetaPath = am.GetMetaDataFromFilename(oldAssetName);
                 //metaFilePath.replace_extension(".meta");
 
-                if (std::filesystem::exists(metaFilePath))
+                if (std::filesystem::exists(oldMetaPath))
                 {
                     try
                     {
+                        std::filesystem::path newAssetPath;
+                        for (auto const& ev : events)
+                        {
+                            if (ev.changeType == filewatch::Event::added)
+                            {
+                                newAssetPath = ev.filePath;
+                                break;
+                            }
+                        }
 
-                        std::ifstream inFile(metaFilePath);
+                        if (newAssetPath.empty()) return;
+
+                        std::string newParentDirectory = newAssetPath.parent_path().filename().string();
+                        
+                        std::filesystem::path newMetaPath = newAssetPath;
+                        newMetaPath += ".meta";
+
+                        
+                        std::filesystem::rename(oldMetaPath, newMetaPath);
+
+                        std::ifstream inFile(newMetaPath);
                         nlohmann::json metaJson;
                         inFile >> metaJson;
                         inFile.close();
 
-                        std::filesystem::path newAssetPath = "";
-                        std::string oldPath = metaJson["assetPath"].get<std::string>();
-
-                        for (auto it : events)
-                        {
-                            if (it.changeType == filewatch::Event::added)
-                            {
-                                newAssetPath = it.filePath;
-                                break;
-
-                            }
-                        }
-
-                        //std::filesystem::path newAssetPath = events.at(3).filePath;
+                        std::string newAssetNameStr = newParentDirectory + "/" + newAssetPath.filename().string();
+                        metaJson["assetName"] = newAssetNameStr;
                         metaJson["assetPath"] = newAssetPath.string();
 
 
-                        std::ofstream outFile(metaFilePath);
+                        std::ofstream outFile(newMetaPath);
                         outFile << metaJson.dump(4); // 4 spaces for pretty printing
                         outFile.close();
+
+                        SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
+
+                        am.mGUIDtoFilename[fileGUID] = newAssetNameStr;
+                        am.mFilenameToGUID.erase(oldAssetName);
+                        am.mFilenameToGUID.insert({ newAssetNameStr, fileGUID });
+
+                        resourceMgr->mFileNameToGUID.erase(oldAssetName);
+                        resourceMgr->mFileNameToGUID.insert({ newAssetNameStr, fileGUID });
 
                         SLICE_LOG("Updated meta file for moved asset: " + fileName);
 
