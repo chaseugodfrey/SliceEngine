@@ -37,6 +37,7 @@ namespace SliceEngine
 		void RegenerateSkybox();
 		// Camera related functions
 		GameObject CreateCamera();
+		GameObject CreatePrefabCam();
 		void SetMainGameCamera(Entity cam);
 		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);

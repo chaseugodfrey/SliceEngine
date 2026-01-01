@@ -284,6 +284,17 @@ namespace SliceEngine
 
 		return newCam;
 	}
+	GameObject RenderManager::CreatePrefabCam()
+	{
+		GameObject newCam = Core::GetInstance()->mFactory.CreateEO();
+		
+		//auto& transform = newCam.GetComponent<Transform>();
+		newCam.AddComponent<Camera>();
+		newCam.AddComponent<PrefabCameraEntity>();
+		//newCam.GetComponent<Camera>().renderTag = DEBUG_OBJ_TAG | DEBUG_GRID_TAG;
+
+		return newCam;
+	}
 	// MAYDO: has issue when deleting the cam game object, causing the mainCam to become Empty
 	void RenderManager::SetMainGameCamera(Entity cam)
 	{
@@ -498,7 +509,7 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT);
 
-			camera.debugRenderToggles = camera.debugRenderToggles | DEBUG_GRID_TAG | DEBUG_OBJ_TAG & ~(DEBUG_NAVMESH_TAG | DEBUG_FRUSTRUM_TAG);
+			camera.debugRenderToggles = camera.debugRenderToggles | DEBUG_GRID_TAG & ~(DEBUG_NAVMESH_TAG | DEBUG_FRUSTRUM_TAG);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);

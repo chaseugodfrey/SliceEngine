@@ -122,10 +122,9 @@ namespace SliceEditor
 	void PrefabViewWindow::Init()
 	{
 		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();
-		SliceEngine::GameObject go = mRender->CreateCamera();
+		SliceEngine::GameObject go = mRender->CreatePrefabCam();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		go.AddComponent<PrefabCameraEntity>();;
 	}
 
 	void PrefabViewWindow::Draw()
