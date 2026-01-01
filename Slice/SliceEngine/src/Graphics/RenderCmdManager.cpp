@@ -66,9 +66,9 @@ namespace SliceEngine
 			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			if (toOpaque)
 				key = key | MRCK_OPAQUE;
-			else
-				key = key | MRCK_TRANSCLUCENT;
-			toOpaque = !toOpaque;
+			//else
+			//	key = key | MRCK_TRANSCLUCENT;
+			//toOpaque = !toOpaque;
 			
 			InstanceData data;
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
