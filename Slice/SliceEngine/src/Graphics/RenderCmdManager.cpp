@@ -50,7 +50,7 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEntity>); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(/*entt::exclude<PrefabEntity>*/); // renderEntity // visibleEntity
 		
 		bool toOpaque = true;
 		for (auto entity : view)
@@ -89,7 +89,7 @@ namespace SliceEngine
 				renderCmds[key].push_back(std::move(data));
 		}
 		
-		auto prefabView = Core::GetInstance()->GetRegistry().view<renderEntity, PrefabEntity>();
+		auto prefabView = Core::GetInstance()->GetRegistry().view<renderEntity, PrefabEditingEntity>();
 		prefabView.each([&](auto entity)
 			{
 				auto& rend = core->GetRegistry().get<Renderer>(entity);
