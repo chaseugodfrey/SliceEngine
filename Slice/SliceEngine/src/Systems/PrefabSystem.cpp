@@ -114,11 +114,11 @@ namespace SliceEngine
 			mPrefabMap[prefabGUID].insert(GO.GetEntity());
 		}
 
-		//if (isEditor)
-		//{
-		// do this in DeserializePrefab instead
-		//	mRegistry->emplace<PrefabEditingEntity>(prefabEntity);
-		//}
+		if (isEditor)
+		{
+		 //do this in DeserializePrefab instead
+			mRegistry->emplace_or_replace<PrefabEditingEntity>(prefabEntity);
+		}
 
 		GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
@@ -131,7 +131,7 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabChild(childEntity, prefabGUID);
+				UpdatePrefabChild(childEntity, prefabGUID, isEditor);
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
@@ -161,7 +161,7 @@ namespace SliceEngine
 
 		if (isEditor)
 		{
-			mRegistry->emplace<PrefabEditingEntity>(entity);
+			mRegistry->emplace_or_replace<PrefabEditingEntity>(entity);
 		}
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];

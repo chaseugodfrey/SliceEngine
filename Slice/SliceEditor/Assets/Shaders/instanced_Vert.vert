@@ -5,10 +5,9 @@ layout (location=0) in vec3	aVertexPosition;
 struct InstanceData
 {
 	mat4 mdlMtx;
-	ivec4 mat;
 };
 
-layout(binding=2, std430) readonly buffer ssbo1
+layout(binding=3, std430) readonly buffer ssbo1
 {
 	InstanceData iDat[];
 };

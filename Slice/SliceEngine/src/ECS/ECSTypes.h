@@ -196,6 +196,7 @@ namespace SliceEngine
 		unsigned char renderTag{};
 		bool componentEnabled{ true };
 		bool skinned{ false };
+		bool castShadow{ true };
 
 		RTTR_ENABLE();
 	};
@@ -230,7 +231,7 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthTex{};
+		GLuint depthMaps{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 

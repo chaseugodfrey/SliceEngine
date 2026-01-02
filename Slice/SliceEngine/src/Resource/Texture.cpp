@@ -133,6 +133,8 @@ namespace SliceEngine {
                     }
 
             t->texture_id = TextureName;
+            t->bindless_id = glGetTextureHandleARB(TextureName);
+            glMakeTextureHandleResidentARB(t->bindless_id);
         }
 
         Texture Texture::LoadColorTexture(float r, float g, float b, float a)
@@ -146,10 +148,13 @@ namespace SliceEngine {
             glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTextureParameteri(texture_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTextureParameteri(texture_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            return { texture_id };
+            bindless_id = glGetTextureHandleARB(texture_id);
+            glMakeTextureHandleResidentARB(bindless_id);
+            return { texture_id, bindless_id };
         }
 
         void Texture::DestroyTexture() {
+            glMakeTextureHandleNonResidentARB(bindless_id);
             glDeleteTextures(1, &texture_id);
             return;
         }

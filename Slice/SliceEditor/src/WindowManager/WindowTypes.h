@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Hierarchy/HierarchyWindow.h>
 #include <Inspector/InspectorWindow.h>
 #include <SceneView/SceneViewWindow.h>
+#include <SceneView/PrefabViewWindow.h>
 #include <GameView/GameViewWindow.h>
 #include <Animator/AnimatorWindow.h>
 #include <Animation/AnimationWindow.h>
