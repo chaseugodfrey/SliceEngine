@@ -201,14 +201,8 @@ namespace SliceEditor
             return;
         }
 
-        std::string parentDirectory;
-        std::string extension = removedFilePath.extension().string();
-
-        // Accessing the map from AssetManager
-        auto it = am.mSupportedAssetTypes.find(extension);
-        if (it != am.mSupportedAssetTypes.end()) {
-            parentDirectory = it->second.second; 
-        }
+        std::string parentDirectory = removedFilePath.parent_path().filename().string();
+        
 
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
         std::string assetPath = parentDirectory + "/" + removedFilePath.filename().string();
@@ -359,15 +353,8 @@ namespace SliceEditor
             return;
         }
 
-        std::string parentDirectory;
-        std::string extension = modifiedFilePath.extension().string();
-
-        // Accessing the map from AssetManager
-        auto it = am.mSupportedAssetTypes.find(extension);
-        if (it != am.mSupportedAssetTypes.end()) 
-        {
-            parentDirectory = it->second.second;
-        }
+        std::string parentDirectory = modifiedFilePath.parent_path().filename().string();
+        
 
         SliceEngine::GUID fileGUID;
 
