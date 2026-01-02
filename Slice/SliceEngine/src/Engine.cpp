@@ -634,6 +634,7 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
+		auto& prefabSys = core->GetSystem<PrefabSystem>();
 
 		static bool isPlaying = false;
 
@@ -740,6 +741,7 @@ namespace SliceEngine
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
+		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)

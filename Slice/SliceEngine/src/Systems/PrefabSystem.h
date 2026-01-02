@@ -61,6 +61,8 @@ namespace SliceEngine
 		void AddToPrefab(Entity entity, Entity rootNode);
 
 		bool IsNewGO(Entity entity, unsigned int prefabID);
+
+		void UpdateBasePrefabs();
 	};
 }
 

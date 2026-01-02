@@ -4,6 +4,7 @@
 #include "Serializer/JSONSerializer.h"
 #include "Scripting/ScriptSystem.h"
 #include "../Physics/PhysicsSystem.h"
+#include "TransformSystem.h"
 
 namespace SliceEngine
 {
@@ -335,6 +336,17 @@ namespace SliceEngine
 	void PrefabSystem::OnPrefabSerialized(const OnPrefabSerializedEvent& event)
 	{
 
+	}
+
+	void PrefabSystem::UpdateBasePrefabs()
+	{
+		auto& transformSys = Core::GetInstance()->GetSystem<TransformSystem>();
+		// update all the base entities
+		// their root is the base entity as only the base gets added to the map
+		for (auto& [guid, entity] : mPrefabBaseEntities)
+		{
+			transformSys.UpdateWorldMatrix(entity, glm::mat4(1.0f));
+		}
 	}
 
 	/// <summary>
