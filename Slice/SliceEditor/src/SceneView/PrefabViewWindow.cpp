@@ -132,7 +132,7 @@ namespace SliceEditor
 		ImGui::Begin("PrefabView");
 
 		auto& io = ImGui::GetIO();
-		auto mSelection = mRegistry.GetManager<SelectionManager>("PrefabSelection");
+		auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
 
 #pragma region IO Calculation
 
