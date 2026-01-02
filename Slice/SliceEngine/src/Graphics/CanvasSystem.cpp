@@ -19,8 +19,8 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine {
 
 	namespace {
-		constexpr uint64_t sprite_shader = 15255338910698563845;
-		constexpr uint64_t ui_sprite_eid = 12042508891644566013;
+		constexpr uint64_t sprite_shader = 11505317983061001815;
+		constexpr uint64_t ui_sprite_eid = 13043535478215287923;
 		constexpr uint64_t ui_font = 0;
 		constexpr uint64_t ui_font_eid = 0;
 	}
