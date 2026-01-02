@@ -42,9 +42,12 @@ namespace SliceEngine
 		
 		void Init();
 
+		// Immediate load scene functions
+		bool LoadScene(std::filesystem::path const filePath);	// overload
+		bool LoadScene(GUID const guid);						// overload
+		bool LoadScene(SliceEngineTypes::Scene const* scene);	// definitive load scene function
+
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
-		void LoadScene(std::filesystem::path const filePath);
-		void LoadScene(uint32_t const index);
 		void LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
 		void WriteTempFile();
