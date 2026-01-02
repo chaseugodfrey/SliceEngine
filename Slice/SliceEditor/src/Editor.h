@@ -21,6 +21,7 @@ struct GLFWwindow;
 #include "Engine.h"
 #include "Core/Registry.h"
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/AssetFileWatcher.h"
 #include "EditorInputs.h"
 #include <Navigation/RecastNavmesh.h>
 
