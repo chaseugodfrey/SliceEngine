@@ -95,6 +95,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
+            Console.WriteLine("Level Director Ini called");
             enemySpawners.Clear();
             SetUpSpawnLocations();
             SpawnSpawners();
@@ -190,7 +191,7 @@ namespace SliceEngine
                         {
                             Console.WriteLine("THERE IS A SLIME COMPONENT BUT LETS SEE IF IT CRASHESSs");
                             SliceLog.Console("Enemy Slime component found");
-                            just.As<EnemySlime>().SetUp();
+                            just.As<EnemyBase>().SetUp();
                             OnSpawn(just);
                         }
                         else

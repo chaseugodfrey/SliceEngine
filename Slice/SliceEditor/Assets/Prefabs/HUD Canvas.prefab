@@ -27,10 +27,10 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 81,
+                "entity_id": 87,
                 "neighbours": [
                     4294967295,
-                    82,
+                    88,
                     4294967295,
                     4294967295
                 ]
@@ -44,7 +44,7 @@
                     },
                     "healthSliderName": {
                         "Type": "std::string",
-                        "Value": ""
+                        "Value": "Health Slider"
                     },
                     "victoryName": {
                         "Type": "std::string",
@@ -105,12 +105,12 @@
                 "width": 2000
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 82,
+                "entity_id": 88,
                 "neighbours": [
-                    81,
+                    87,
                     4294967295,
                     4294967295,
-                    83
+                    89
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -177,11 +177,11 @@
                 "width": 400
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 83,
+                "entity_id": 89,
                 "neighbours": [
-                    81,
-                    84,
-                    82,
+                    87,
+                    90,
+                    88,
                     4294967295
                 ]
             },
@@ -257,12 +257,12 @@
                 "width": 100
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 84,
+                "entity_id": 90,
                 "neighbours": [
-                    83,
+                    89,
                     4294967295,
                     4294967295,
-                    85
+                    91
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -329,11 +329,11 @@
                 "width": 50
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 85,
+                "entity_id": 91,
                 "neighbours": [
-                    83,
+                    89,
                     4294967295,
-                    84,
+                    90,
                     4294967295
                 ]
             },

@@ -19,7 +19,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
-
+            Console.WriteLine("CameraCont Ini called");
         }
         public override void OnUpdate(float dt)
         {

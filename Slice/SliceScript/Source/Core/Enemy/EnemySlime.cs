@@ -7,23 +7,21 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class EnemySlime : Entity
+    public class EnemySlime : EnemyBase
     {
-        Transform enemyT;
-        //GameObject player;
-        Transform playerT = null;
 
-        public bool active = false;
+
+//      public bool active = false;
         public bool stunned = false;
 
         public float horKnockback = 1f;
         public float vertKnockback = 1f;
 
-        public float attackRange = 1f;
+        public float attackTriggerRange = 1f;
         public float attackCheckRange = 1f;
         public float attackWindUpTiming = 1f;
         //public float flickerTiming = 1f;
-        private bool attacking = false;
+        public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
         private enum state 
@@ -31,24 +29,22 @@ namespace SliceEngine
 
         private state currentState = state.Chase;
 
-        private RigidBody rb;
 
-        public override void OnCreate()
-        {
-            enemyT = GetComponent<Transform>();
-            rb = GetComponent<RigidBody>();
-        }
+
+
 
         //Function called when you want the enemy to be active
-        public void SetUp()
-        {   active = true;  playerT = Bootstrap.Player.transform; }
 
-        public void Reset()
-        {   active = false; }
+        public override void SetUp()
+        { base.SetUp(); this.ChangeState(new EnemySlimeChaseState(this.movementSpeed, this.attackTriggerRange));}
+
+        //public void Reset()
+        //{   active = false; }
 
         public override void OnUpdate(float dt)
         {
-            DoActionBasedOnState(dt);
+            base.OnUpdate(dt);
+            //DoActionBasedOnState(dt);
 
             //if (Input.IsKeyDown(Keys.KEY_B))
             //{
@@ -78,11 +74,9 @@ namespace SliceEngine
                     {
                         Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-
-
                         enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
 
-                        if (direction_diff.Magnitude() <= attackRange)
+                        if (direction_diff.Magnitude() <= attackTriggerRange)
                         {
                             currentState = state.Attack;
                             //attack state
@@ -100,6 +94,11 @@ namespace SliceEngine
 
                     break;
             } 
+        }
+
+        public void Attack()
+        {
+            StartCoroutine(AttackCoroutine());
         }
 
         IEnumerator AttackCoroutine()
@@ -124,7 +123,7 @@ namespace SliceEngine
 
             attacking = false;
 
-            currentState = state.Chase;
+            ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
             yield break;
         }
@@ -142,6 +141,7 @@ namespace SliceEngine
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
+            // This override is just to insert a debug
             Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
@@ -157,16 +157,11 @@ namespace SliceEngine
             SliceLog.Console("ENEMY IS BEING HIT");
         }
 
-        private bool isDead = false;
-
-        public override void OnDeath()
-        {
-            if (!isDead)
-            {
-                isDead = true;
-                this.gameObject.Destroy();
-            }
-        }
+        
+        //public override void OnDeath()
+        //{
+            
+        //}
 
     }
 }

@@ -68,6 +68,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
+            Console.WriteLine("Player Ini called");
             camera = Bootstrap.CameraController;
             if (camera == null)
             {
