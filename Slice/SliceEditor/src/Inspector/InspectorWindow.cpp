@@ -1429,7 +1429,7 @@ namespace SliceEditor
 			{
 				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
 				mRegistry.GetAssetManager().CreatePrefab(go);
-				node->isPrefab = true;
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, true);
 			}
 		}
 
@@ -1438,7 +1438,7 @@ namespace SliceEditor
 			if (ImGui::Button("Remove Prefab Component"))
 			{
 				EditorUtilities::GameObject_Unprefab(node->entity);
-				node->isPrefab = false;
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
 			}
 		}
 
