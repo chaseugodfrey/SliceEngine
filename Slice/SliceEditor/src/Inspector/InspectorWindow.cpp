@@ -105,7 +105,23 @@ namespace SliceEditor
 		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
+			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
 			ImGui::Text("Is Prefab");
+			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			{
+				if(ImGui::BeginTooltip())
+				{
+					ImGui::Text("Prefab GUID: ");
+					ImGui::SameLine(150.f);
+					std::string prefabGUID = prefabComponent.prefabGUID.toString();
+					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
+					ImGui::Text(prefabGUID.c_str());
+					ImGui::Text("Prefab Handle GUID: ");
+					ImGui::SameLine(150.f);
+					ImGui::Text(prefabHandle.c_str());
+					ImGui::EndTooltip();
+				}
+			}
 		}
 
 		std::function<void(std::string name)> funcTag = [&](std::string name)
@@ -387,7 +403,7 @@ namespace SliceEditor
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 
 			ImGui::TreePop();
 		}
@@ -1409,11 +1425,20 @@ namespace SliceEditor
 	{
 		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
 		{
-			if (ImGui::Button("Prefab Create"))
+			if (ImGui::Button("Create New Prefab"))
 			{
 				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
 				mRegistry.GetAssetManager().CreatePrefab(go);
-				node->isPrefab = true;
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, true);
+			}
+		}
+
+		else
+		{
+			if (ImGui::Button("Remove Prefab Component"))
+			{
+				EditorUtilities::GameObject_Unprefab(node->entity);
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
 			}
 		}
 

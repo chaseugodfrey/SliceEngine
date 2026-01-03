@@ -111,7 +111,7 @@ namespace SliceEngine
 
 	}
 
-	void AudioSettings::ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips)
+	void AudioSettings::ChangeAudioClip(const std::string& key, GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips)
 	{
 
 		if (oldSoundGUID == newSoundGUID)
@@ -120,13 +120,19 @@ namespace SliceEngine
 			return;
 		}
 
+		SFXEntry* entry = GetSFXEntry(key);
+		if (!entry || !entry->soundGroup)
+		{
+			SLICE_LOG_ERROR("ChangeAudioClip: SoundGroup for key '%s' not found.", key.c_str());
+			return;
+		}
 
-		auto resourceManager = Core::GetInstance()->GetResourceManager();
+		/*auto resourceManager = Core::GetInstance()->GetResourceManager();
 		auto oldAudioHandle = resourceManager->get<SliceEngineTypes::Audio>(oldSoundGUID).get();
 
 		FMOD::SoundGroup* soundGroup = nullptr;
 
-		oldAudioHandle->GetSound()->getSoundGroup(&soundGroup);
+		oldAudioHandle->GetSound()->getSoundGroup(&soundGroup);*/
 
 		bool guidReplaced = false;
 		for (auto& clipGUID : audioClips)
@@ -145,7 +151,7 @@ namespace SliceEngine
 			return;
 		}
 
-
+		auto resourceManager = Core::GetInstance()->GetResourceManager();
 		auto newAudioHandle = resourceManager->get<SliceEngineTypes::Audio>(newSoundGUID);
 
 		if (!newAudioHandle.IsValid())
@@ -162,7 +168,7 @@ namespace SliceEngine
 			return;
 		}
 
-		newSound->setSoundGroup(soundGroup);
+		newSound->setSoundGroup(entry->soundGroup);
 		
 
 	}

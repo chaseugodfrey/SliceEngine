@@ -40,6 +40,10 @@ namespace SliceEditor
 
 		void OnSceneSave(OnSceneSaveEvent);
 
+		//Node Settings
+		void SetNodeAsPrefab(EntityNode* entity, bool isPrefab);
+
+
 		void CreateEntityNodes();
 		void CreatePrefabNodes();
 		void OnSceneChange(const OnSceneLoadedEvent& event);

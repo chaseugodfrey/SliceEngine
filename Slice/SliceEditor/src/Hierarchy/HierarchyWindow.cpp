@@ -188,6 +188,19 @@ namespace SliceEditor
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
+
+		//Get the parent entity node
+		if (sessionManager->GetPrefabNodes().find(parentEntity) == sessionManager->GetPrefabNodes().end())
+		{
+			SLICE_LOG_WARNING("This should not trigger!");
+			return;
+		}
+		
+		if (sessionManager->GetPrefabNodes()[parentEntity]->isSelected)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+		}
+		
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		if (ImGui::TreeNodeEx(parentName.c_str(), treeNodeFlags))
 		{
@@ -283,7 +296,7 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+					//EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
 

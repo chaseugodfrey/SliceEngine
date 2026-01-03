@@ -302,7 +302,7 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Re-compile File"))
 			{
 				//Get the metaData for this Asset:
-				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.fullPath.stem().stem().string());
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.relativePath.generic_string());
 
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
@@ -455,17 +455,32 @@ namespace SliceEditor
 					auto* data = static_cast<ModelData*>(file.metaData.get());
 					if (data->is_static == false) //It has skele and anim
 					{
+						/*
+								std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+								skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+								data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+								data->skeletonGUID = skeleData->guid;
+
+								std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+								animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+								data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+								data->animationGUID = animData->guid;
+
+						*/
 						//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						data->animationGUID = animData->guid;
+
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get());
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -623,7 +638,7 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 		Label("Is Static: ");
-		ImGui::Checkbox("##Has_Alpha", &data->is_static);
+		ImGui::Checkbox("##Is_Static", &data->is_static);
 	}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)

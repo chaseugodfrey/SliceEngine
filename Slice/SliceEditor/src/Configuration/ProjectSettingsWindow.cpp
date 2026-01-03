@@ -1,9 +1,10 @@
 ﻿#include "pch.h"
 #include "ProjectSettingsWindow.h"
 #include "Core/Registry.h"
+#include "Configuration/ProjectSettings.h"
+#include "Configuration/AudioSettings.h"
 #include "Inspector/ComponentPropertiesGUI.h"
 
-#include <Configuration/ProjectSettingsManager.h>
 #include <Core/Core.h>
 #include <Physics/PhysicsSystem.h>
 #include <Audio/AudioManager.h>
@@ -13,11 +14,9 @@ namespace SliceEditor
 {
 	void ProjectSettingsWindow::Init()
 	{
-		using namespace SliceEngine;
-		auto mProjectManager = Core::GetInstance()->GetProjectSettingsManager();
-		
-		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, *mProjectManager->GetSettings<AudioSettings>(), "Audio"));
-		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, *mProjectManager->GetSettings<PhysicsSettings>(), "Physics"));
+		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, "Audio"));
+		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, "Physics"));
+		mSettingsList.push_back(std::make_unique<ProjectSettingsDisplay>(mRegistry, "Project"));
 	}
 
 	void ProjectSettingsWindow::Draw()
@@ -27,7 +26,7 @@ namespace SliceEditor
 		bool isOpen;
 		if (ImGui::Begin("Project Settings Window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
 
 			ImVec2 left_size = ImVec2(window_size.x * 0.1f, window_size.y);
 			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Borders))
@@ -46,16 +45,15 @@ namespace SliceEditor
 			//
 			//
 
-			auto& mCurrentWindow = mSettingsList[(size_t)mCurrentSettingsIndex];
+			auto& mCurrentSettings = mSettingsList[(size_t)mCurrentSettingsIndex];
 
 			ImGui::SameLine();
 
 
 			ImVec2 right_size = ImVec2(window_size.x * 0.9f, window_size.y);
 			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_Borders);
-			mCurrentWindow->DisplayHeader();
-			mCurrentWindow->DisplaySettings();
-			mCurrentWindow->mSettings.CheckDirty();
+			mCurrentSettings->DisplayHeader();
+			mCurrentSettings->DisplaySettings();
 			ImGui::EndChild();
 		}
 
@@ -65,7 +63,6 @@ namespace SliceEditor
 		ImGui::End();
 
 	}
-
 	void BaseSettingsDisplay::DisplayHeader()
 	{
 		ImGui::PushFont(NULL, ImGui::GetFontSize() * 1.25f);
@@ -75,8 +72,15 @@ namespace SliceEditor
 
 	void AudioSettingsDisplay::DisplaySettings()
 	{
+		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
-		auto& audioSettings = static_cast<SliceEngine::AudioSettings&>(mSettings);
+		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
+
+		if (!audioSettings)
+		{
+			return;
+		}
+
 		bool hasChanged = false;
 
 		// Master Volume
@@ -96,7 +100,7 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("list", ImGuiTreeNodeFlags_Framed))
 		{
 
-			for (auto& [key, entry] : audioSettings.mSFXMap)
+			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
 				std::string name = key;
 				int int_buffer{};
@@ -115,7 +119,7 @@ namespace SliceEditor
 						if (name != key)
 						{
 							// set new name
-							audioSettings.ReplaceExistingEntry(key, name);
+							audioSettings->ReplaceExistingEntry(key, name);
 							hasChanged = true;
 
 						}
@@ -126,14 +130,14 @@ namespace SliceEditor
 					if (DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + key).c_str(), current_volume, "%.3f", 0.f, 1.0f))
 					{
 						//Not sure if i should add a check but imma just write
-						audioSettings.SetSoundGroupVolume(key, current_volume);
+						audioSettings->SetSoundGroupVolume(key, current_volume);
 						hasChanged = true;
 					}
 					if (DragIntInputHeader(mRegistry, "Max Instances", ("##maxInstances_" + key).c_str(), current_max_instances, "%d", -1, 64))
 					{
-						if (current_max_instances != audioSettings.GetMaxInstances(key))
+						if (current_max_instances != audioSettings->GetMaxInstances(key))
 						{
-							audioSettings.SetMaxInstances(key, current_max_instances);
+							audioSettings->SetMaxInstances(key, current_max_instances);
 							hasChanged = true;
 						}
 					}
@@ -199,7 +203,7 @@ namespace SliceEditor
 						std::function<void(SliceEngine::GUID)> setFunc = [&](SliceEngine::GUID guid)
 							{
 								//Take out key from parameter
-								audioSettings.ChangeAudioClip(oldClip, guid, entry.AudioClips);
+								audioSettings->ChangeAudioClip(key, oldClip, guid, entry.AudioClips);
 								hasChanged = true;
 							};
 						//std::string audioClipLabel = "Audio Clips_" + std::to_string(std::distance(entry.AudioClips.begin(),entry.AudioClips.size()));
@@ -212,7 +216,7 @@ namespace SliceEditor
 					if (ImGui::Button("+"))
 					{
 						
-						audioSettings.AddAudioClip(entry.soundGroup, SliceEngine::GUID(10155432597037438324), entry.AudioClips);
+						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(10155432597037438324), entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
@@ -221,7 +225,7 @@ namespace SliceEditor
 						if (!entry.AudioClips.empty())
 						{
 							
-							audioSettings.RemoveAudioClip(entry.AudioClips);
+							audioSettings->RemoveAudioClip(entry.AudioClips);
 							hasChanged = true;
 
 						}
@@ -235,17 +239,22 @@ namespace SliceEditor
 
 		if (ImGui::Button("+"))
 		{
-			size_t nextIndex = audioSettings.mSFXMap.size() + 1;
+			size_t nextIndex = audioSettings->mSFXMap.size() + 1;
 			std::string keyName = "New_Group_" + std::to_string(nextIndex);
 
-			audioSettings.CreateSoundGroup(keyName);
+			audioSettings->CreateSoundGroup(keyName);
 			hasChanged = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("-"))
 		{
-			audioSettings.RemoveSoundGroup();
+			audioSettings->RemoveSoundGroup();
 			hasChanged = true;
+		}
+
+		if (hasChanged)
+		{
+			audioSettings->Serialize(AUDIO_SETTINGS_PATH);
 		}
 
 		ImGui::EndChild();

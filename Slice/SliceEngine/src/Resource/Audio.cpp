@@ -25,18 +25,48 @@ namespace SliceEngine
 		bool Audio::LoadAudioResource(std::string const& file)
 		{
 			auto mAudioManager = Core::GetInstance()->GetAudioManager();
-
+			auto resourceMgr = Core::GetInstance()->GetResourceManager();
 			FMOD::System* mSoundSystem = mAudioManager->GetSoundSystem();
 
 			std::filesystem::path filePath(file);
 
-			std::filesystem::path metaPath = filePath.replace_extension(".meta");
+			std::string guidStr = filePath.stem().string();
+			SliceEngine::GUID audioGUID = GUID::FromString(guidStr);
+
+			std::filesystem::path metaPath;
+			bool found = false;
+
+			for (auto [key, value] : resourceMgr->mFileNameToGUID)
+			{
+				if (value == audioGUID)
+				{
+					std::filesystem::path assetBase = "../SliceEditor/Assets";
+					metaPath = assetBase / (key + ".meta");
+					found = true;
+					break;
+				}
+			}
+
+			if (!found || !std::filesystem::exists(metaPath))
+			{
+				SLICE_LOG_ERROR("Audio meta file not found at: " + metaPath.string());
+				return false;
+			}
 
 			std::ifstream metaFile(metaPath);
 
 			nlohmann::json metaData;
 
-			metaFile >> metaData;
+			try
+			{
+				// Parsing will now succeed because metaPath is valid
+				metaFile >> metaData;
+			}
+			catch (const nlohmann::json::parse_error& e)
+			{
+				SLICE_LOG_ERROR("JSON Error in " + metaPath.string() + ": " + e.what());
+				return false;
+			}
 
 			metaFile.close();
 

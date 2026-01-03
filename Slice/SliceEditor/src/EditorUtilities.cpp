@@ -117,10 +117,10 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
-			auto go = factory.CreateGO_Model(guid);
+			auto go = factory.CreateGO_Model(skeleGUID, animGUID, guid);
 
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
@@ -201,6 +201,12 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
+		}
+
+		void GameObject_Unprefab(entt::entity entity)
+		{
+			SliceEngine::GameObject GO  = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(entity, GO.GetComponent<SliceEngine::Prefab>().prefabGUID, true);
 		}
 
 		void GameObject_Clone(entt::entity entity)
