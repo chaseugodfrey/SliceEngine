@@ -131,6 +131,36 @@ namespace SliceEditor
 			}).detach();
 	}
 
+	void SessionManager::SetNodeAsPrefab(EntityNode* node, bool isPrefab)
+	{
+		node->isPrefab = isPrefab;
+		SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
+
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+
+			auto childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				//Need to find the EntityNode in the editor's map
+				if (mEntityNodes.find(childEntity) == mEntityNodes.end())
+				{
+					SLICE_LOG_WARNING("De-sync of mEntityNodes!");
+					return;
+				}
+				auto childEntityNode = mEntityNodes[childEntity].get();
+				
+				SetNodeAsPrefab(childEntityNode, isPrefab);
+				//Get SceneGraph component and update
+				auto childGO = SliceEngine::FactoryInstance.GetGOByEntity(childEntity);
+				auto& childSceneGraph = childGO.GetComponent<SliceEngine::SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+		}
+	}
+
 	void SessionManager::CreateEntityNodes()
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();

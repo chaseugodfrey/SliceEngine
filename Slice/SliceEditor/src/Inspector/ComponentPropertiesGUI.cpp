@@ -1060,7 +1060,11 @@ namespace SliceEditor
 					currentIndex = (int)mapNames.size();
 				}
 
-				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+				//Manipulate to the filename
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::string fileNameString = relativePath.filename().string();
+
+				mapNames.push_back(fileNameString);
 			}
 
 			//Fall-back (Should Display Nothing)
