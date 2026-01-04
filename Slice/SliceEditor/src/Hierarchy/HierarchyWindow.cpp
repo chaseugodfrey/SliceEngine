@@ -177,7 +177,7 @@ namespace SliceEditor
 	void HierarchyWindow::DrawPrefabNode()
 	{
 		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-		Entity parentEntity = sessionManager->GetPrefabInspected();
+		Entity parentEntity = sessionManager->GetPrefabEntityInspected();
 		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
 		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
 		auto treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
@@ -339,7 +339,7 @@ namespace SliceEditor
 				{
 					if(sessionManager->IsPrefabInspected())
 					{
-						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected(), sessionManager->IsPrefabInspected());
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabEntityInspected(), sessionManager->IsPrefabInspected());
 					}
 					else
 					{
