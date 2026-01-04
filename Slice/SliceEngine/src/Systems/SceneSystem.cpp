@@ -34,23 +34,23 @@ namespace SliceEngine
 		UnloadCurrentScene();
 	}
 
-	void SceneSystem::LoadScene(GUID const guid)
+	bool SceneSystem::LoadScene(GUID const guid)
 	{
 		auto resourceManager = Core::GetInstance()->GetResourceManager();
 		auto scene = resourceManager->get<SliceEngineTypes::Scene>(guid);
 
-		if (scene.IsValid())
-		{
-
-		}
+		if (!scene.IsValid())
+			return false;
+		
+		return LoadScene(scene->GetFilePath());
 	}
 
-	void SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
+	bool SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
 	{
-
+		return LoadScene(scene->GetFilePath());
 	}
 
-	void SceneSystem::LoadScene(std::filesystem::path const filePath)
+	bool SceneSystem::LoadScene(std::filesystem::path const filePath)
 	{
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
@@ -81,23 +81,11 @@ namespace SliceEngine
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
 
 			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
-		}
-		else
-		{
-			
-			return;
+
+			return true;
 		}
 
-	}
-
-	bool SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
-	{
-		if (!scene)
-		{
-			SLICE_LOG_ERROR("Scene not found. Loading Default Scene.");
-		}
-
-
+		return false;
 	}
 
 	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)

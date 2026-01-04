@@ -34,7 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Systems/SceneSystem.h"
-#include "Configuration/ProjectSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
@@ -44,6 +44,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
+
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
 {
@@ -593,7 +594,12 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
 
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
+		Core::GetInstance()->GetProjectSettingsManager()->Init();
+
+		// =========================== TESTING AREA ===========================
+		// 
 		//mRender->CreateCamera();
 
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
@@ -604,13 +610,11 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Init();
+		//auto mNetwork = Core::GetInstance()->GetNetwork();
+		//mNetwork->Init();
 
-		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
-		//NetworkingThread::printAddr();
-		//TestPlaySFX();
 
+		// ====================================================================
 	}
 
 	void Engine::SceneInit()
@@ -621,11 +625,11 @@ namespace SliceEngine
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
-		auto sTransform = core->GetSystem<TransformSystem>();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
