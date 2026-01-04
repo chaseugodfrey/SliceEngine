@@ -131,6 +131,7 @@ namespace SliceEngine
 		{
 			//do this in DeserializePrefab instead
 			mRegistry->emplace_or_replace<PrefabEditingEntity>(prefabEntity);
+			mNextPrefabID[prefabGUID] = GO.GetComponent<Prefab>().prefabID;
 		}
 
 		if (!GO.HasComponent<Prefab>())
@@ -140,7 +141,6 @@ namespace SliceEngine
 		//
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
-		mNextPrefabID[prefabGUID] = GO.GetComponent<Prefab>().prefabID;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
@@ -176,10 +176,7 @@ namespace SliceEngine
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 
 		// get the biggest id to start from
-		if (GO.GetComponent<Prefab>().prefabID > mNextPrefabID[guid])
-		{
-			mNextPrefabID[guid] = GO.GetComponent<Prefab>().prefabID;
-		}
+
 		//if (!isEditor)
 		//{
 		// only the root entity should get added to the map
@@ -189,6 +186,11 @@ namespace SliceEngine
 		if (isEditor)
 		{
 			mRegistry->emplace_or_replace<PrefabEditingEntity>(entity);
+
+			if (GO.GetComponent<Prefab>().prefabID > mNextPrefabID[guid])
+			{
+				mNextPrefabID[guid] = GO.GetComponent<Prefab>().prefabID;
+			}
 		}
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
@@ -213,8 +215,10 @@ namespace SliceEngine
 	void PrefabSystem::OnPrefabModified(const OnPrefabModifiedEvent& event)
 	{
 		// get all the entities in the prefab that was modified
+
+		// i realise i dont need the vector anymore ill remove it next time
 		std::vector<Entity> prefabEntities;
-		std::unordered_map<unsigned int, Entity> originalPrefabIDToEntityMap;
+		std::map<unsigned int, Entity> originalPrefabIDToEntityMap;
 
 		prefabEntities.push_back(event.entity);
 		GameObject GO = FactoryInstance.GetGOByEntity(event.entity);
@@ -238,8 +242,9 @@ namespace SliceEngine
 
 		for (auto entity : mPrefabMap[event.guid])
 		{
+			// i realise i dont need the vector anymore ill remove it next time
 			std::vector<Entity> prefabInstanceEntities;
-			std::unordered_map<unsigned int, Entity> instancePrefabIDToEntityMap;
+			std::map<unsigned int, Entity> instancePrefabIDToEntityMap;
 
 			// get all the entities and the children entities of an instance of the prefab
 			GameObject GOInstance = FactoryInstance.GetGOByEntity(entity);
@@ -275,20 +280,37 @@ namespace SliceEngine
 					// if the instance doesnt have that prefab id means its a new one
 					if (!instancePrefabIDToEntityMap.contains(prefabID))
 					{
+						// get the entity 
+						GameObject MissingGO = FactoryInstance.GetGOByEntity(entity);
+						// get the parent and siblings
+						Entity parentEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::UP];
+
+						//Entity left sibling 
+						Entity leftEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::LEFT];
+
+						//Entity right sibling
+						Entity rightEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::RIGHT];
+
+						// now we need to manually insert in the new GO
+
+					}
+					// it already exist, so just update the components
+					else
+					{
 
 					}
 				}
 			}
 			
-			for (size_t index = 0; index < prefabEntities.size(); ++index)
-			{
+			//for (size_t index = 0; index < prefabEntities.size(); ++index)
+			//{
 
-			}
+			//}
 		}
 
 	}
 
-	void PrefabSystem::GetEntityFromPrefab(std::vector<Entity>& prefabEntities, std::unordered_map<unsigned int, Entity>& prefabToEntity, Entity entity)
+	void PrefabSystem::GetEntityFromPrefab(std::vector<Entity>& prefabEntities, std::map<unsigned int, Entity>& prefabToEntity, Entity entity)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
 		prefabEntities.push_back(entity);
@@ -318,6 +340,60 @@ namespace SliceEngine
 	
 	void PrefabSystem::OnPrefabSerialized(const OnPrefabSerializedEvent& event)
 	{
+		GameObject GO = FactoryInstance.GetGOByEntity(event.entity);
+
+		if (GO.HasComponent<Prefab>())
+		{
+			// if it hasnt been assigned a  prefab ID yet, then assign it one
+			if (GO.GetComponent<Prefab>().prefabID == UINT_MAX)
+			{
+				mNextPrefabID[event.guid]++;
+				unsigned int nextPrefabID = mNextPrefabID[event.guid];
+				GO.GetComponent<Prefab>().prefabID = nextPrefabID;
+			}
+		}
+
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				AssignPrefabID(event.guid, childEntity);
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+	}
+
+	void PrefabSystem::AssignPrefabID(GUID guid, Entity entity)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+
+		if (GO.HasComponent<Prefab>())
+		{
+			// if it hasnt been assigned a  prefab ID yet, then assign it one
+			if (GO.GetComponent<Prefab>().prefabID == UINT_MAX)
+			{
+				mNextPrefabID[guid]++;
+				unsigned int nextPrefabID = mNextPrefabID[guid];
+				GO.GetComponent<Prefab>().prefabID = nextPrefabID;
+			}
+		}
+
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				AssignPrefabID(guid, childEntity);
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
 
 	}
 
@@ -470,7 +546,7 @@ namespace SliceEngine
 			GO.AddComponent<Prefab>();
 			GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
 			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
-			GO.GetComponent<Prefab>().prefabID = prefabID;
+			GO.GetComponent<Prefab>().prefabID = UINT_MAX;
 			GO.AddComponent<PrefabEditingEntity>();
 		}
 	}

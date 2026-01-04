@@ -1730,8 +1730,9 @@ namespace SliceEditor
 			//Publish the engine events:
 			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
 			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
+
 			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
-			//EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
 
 			////Serialise the Prefab
 			SliceEngine::JSONSerializer::SerializePrefab(mSession->GetPrefabEntityInspected());
