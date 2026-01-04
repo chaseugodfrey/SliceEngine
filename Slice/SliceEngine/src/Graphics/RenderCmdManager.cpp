@@ -50,7 +50,7 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<PrefabEditingEntity>); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		
 		bool toOpaque = true;
 		for (auto entity : view)
@@ -59,6 +59,14 @@ namespace SliceEngine
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
 			const auto& material = rend.materialHandle.get();
+
+			auto* rcmds = &renderCmds;
+			auto* rtcmds = &translucentCmds;
+			if (Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity))
+			{
+				rcmds = &prefabRenderCmds;
+				rtcmds = &prefabTranslucentCmds;
+			}
 
 			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
@@ -84,37 +92,10 @@ namespace SliceEngine
 			}
 
 			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-				translucentCmds.push_back(std::make_pair(key, data));
+				(*rtcmds).push_back(std::make_pair(key, data));
 			else
-				renderCmds[key].push_back(std::move(data));
+				(*rcmds)[key].push_back(std::move(data));
 		}
-		
-		auto prefabView = Core::GetInstance()->GetRegistry().view<renderEntity, PrefabEditingEntity>();
-		prefabView.each([&](auto entity)
-			{
-				auto& rend = core->GetRegistry().get<Renderer>(entity);
-				auto model = rend.modelHandle;
-				if (!model.IsValid()) return;
-				const auto& material = rend.materialHandle.get();
-
-				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
-
-				RCK_Size key = MRCK_OPAQUE | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
-
-				InstanceData data;
-				data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
-				data.color = glm::vec4(material->color, 1.f);
-				data.roughness = material->roughness;
-				data.metallic = material->metallic;
-				data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
-				data.entityID = static_cast<unsigned int>(entity);
-
-				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-					prefabTranslucentCmds.push_back(std::make_pair(key, data));
-				else
-					prefabRenderCmds[key].push_back(std::move(data));
-
-			});
 	}
 	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
 	{
