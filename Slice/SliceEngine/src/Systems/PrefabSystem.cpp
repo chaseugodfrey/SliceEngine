@@ -54,8 +54,12 @@ namespace SliceEngine
 		// cause if we're loading a new scene, this cehcks that
 		else
 		{
-			// add it to prefab map
-			mPrefabMap[prefab.prefabGUID].insert(entity);
+			// only add the root entity of the prefab
+			if (prefab.prefabID == 0)
+			{
+				// add it to prefab map
+				mPrefabMap[prefab.prefabGUID].insert(entity);
+			}
 		}
 	}
 
@@ -69,6 +73,21 @@ namespace SliceEngine
 		//		break;
 		//	}
 		//}
+
+		if (mPrefabEditable.second != entt::null || mPrefabEditable.first != GUID::null())
+		{
+			// if there is already a prefab being editable
+			// then destroy it before opening a new one
+			if (mPrefabEditable.second == entity)
+			{
+				GameObject GO = FactoryInstance.GetGOByEntity(mPrefabEditable.second);
+				FactoryInstance.Destroy(GO);
+				//GO.Destroy(); // destroy it
+				mPrefabEditable.first = GUID::null();
+				mPrefabEditable.second = entt::null;
+			}
+		}
+
 
 		auto& prefab = reg.get<Prefab>(entity);
 
@@ -112,7 +131,8 @@ namespace SliceEngine
 				// then destroy it before opening a new one
 
 				GameObject GO = FactoryInstance.GetGOByEntity(mPrefabEditable.second);
-				GO.Destroy(); // destroy it
+				FactoryInstance.Destroy(GO);
+				//GO.Destroy(); // destroy it
 				mPrefabEditable.first = GUID::null();
 				mPrefabEditable.second = entt::null;
 			}
@@ -228,6 +248,10 @@ namespace SliceEngine
 
 		prefabEntities.push_back(event.entity);
 		GameObject GO = FactoryInstance.GetGOByEntity(event.entity);
+		if (GO.HasComponent<Prefab>())
+		{
+			originalPrefabIDToEntityMap[GO.GetComponent<Prefab>().prefabID] = event.entity;
+		}
 
 		if (GO.HasComponent<SceneGraph>())
 		{
@@ -301,7 +325,67 @@ namespace SliceEngine
 				// it already exist, so just update the components
 				else
 				{
+					JPH::BodyID dummyBodyID{};
+					bool JoltBodyIDfound = false;
 
+					GameObject instanceGO = FactoryInstance.GetGOByEntity(instancePrefabIDToEntityMap[prefabID]);
+
+					// clone the components from the original prefab entity to the instance
+					for (auto& [id, cloner] : FactoryInstance.mComponentCloners)
+					{
+						// idk if theres a btr way to do this
+						// but these are some components we don't want to copy over from prefabs into instances
+						if (id == entt::type_id<Prefab>().hash() ||
+							id == entt::type_id<SliceEntity>().hash() ||
+							id == entt::type_id<Transform>().hash() ||
+							id == entt::type_id<Bone>().hash())
+							continue;
+
+						if (id == entt::type_id<ColliderShape>().hash())
+						{
+							// need to store the body id first
+							if (instanceGO.HasComponent<ColliderShape>())
+							{
+								auto& physicsBody = instanceGO.GetComponent<ColliderShape>();
+								dummyBodyID = physicsBody.bodyID;
+								JoltBodyIDfound = true;
+							}
+						}
+
+						cloner(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
+					}
+					for (auto& cloner : FactoryInstance.mComponentCloners)
+					{
+						cloner.second(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
+					}
+
+					//GameObject testGO = FactoryInstance.GetGOByEntity(instancePrefabIDToEntityMap[prefabID]);
+					//if (testGO.HasComponent<Script>())
+					//{
+					//	// just to test
+					//	auto& scriptComp = testGO.GetComponent<Script>();
+					//	std::string scriptName = scriptComp.scriptName;
+					//}
+
+					// now we need to update any handles or smth idk
+					FactoryInstance.VisitComponents(instancePrefabIDToEntityMap[prefabID], [&](rttr::type type, rttr::variant& component)
+					{
+							std::string componentName = component.get_type().get_name().to_string();
+							componentName = type.get_name().to_string();
+
+							if (type == rttr::type::get<Script>())
+							{
+								gScriptSystem->UpdateScriptVariables(instancePrefabIDToEntityMap[prefabID]);
+							}
+							else if (JoltBodyIDfound && type == rttr::type::get<ColliderShape>())
+							{
+								auto& colliderShape = instanceGO.GetComponent<ColliderShape>();
+								auto& transform = instanceGO.GetComponent<Transform>();
+
+								colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
+								colliderShape.bodyID = dummyBodyID;
+							}
+					});
 				}
 			}
 			

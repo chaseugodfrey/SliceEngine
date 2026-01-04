@@ -222,12 +222,13 @@ namespace SliceEngine
 		// but like editor needs it 
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
 
+		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
+
 	private:
 		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID skele_guid, GUID anim_guid, GUID model_node, Entity parent, Entity root, int& index, bool is_static);
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		
-		std::unordered_map<entt::id_type, ComponentCloner> mComponentCloners;
 		// I really dont like how this emplacing is being done imo(i agree)
 		std::unordered_map<rttr::type, ComponentEmplacer> mCESmartPtr;
 		std::unordered_map<rttr::type, ComponentEmplacer> mComponentEmplacer;
