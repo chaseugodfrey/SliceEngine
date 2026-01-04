@@ -63,7 +63,7 @@ namespace SliceEditor
 		AddWindow<ProfilerWindow>("Profiler");
 		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
-		AddWindow<PrefabViewWindow>();
+		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
