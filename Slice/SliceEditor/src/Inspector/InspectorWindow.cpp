@@ -1734,7 +1734,7 @@ namespace SliceEditor
 			//EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
 
 			////Serialise the Prefab
-			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabEntityInspected());
+			SliceEngine::JSONSerializer::SerializePrefab(mSession->GetPrefabEntityInspected());
 
 			//historyManager->ClearFromCheckpoint();
 

@@ -34,7 +34,7 @@ namespace SliceEngine
 
 		std::pair<GUID, Entity> mPrefabEditable{ GUID::null(), ::entt::null };
 
-		std::unordered_map<GUID, std::vector<unsigned int>> mPrefabIDs;
+		std::unordered_map<GUID, unsigned int> mNextPrefabID;
 
 	public:
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;

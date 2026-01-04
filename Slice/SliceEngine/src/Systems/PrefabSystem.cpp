@@ -133,9 +133,14 @@ namespace SliceEngine
 			mRegistry->emplace_or_replace<PrefabEditingEntity>(prefabEntity);
 		}
 
-		GO.AddComponent<Prefab>();
+		if (!GO.HasComponent<Prefab>())
+		{
+			GO.AddComponent<Prefab>();
+		}
+		//
 		GO.GetComponent<Prefab>().prefabGUID = prefabGUID;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		mNextPrefabID[prefabGUID] = GO.GetComponent<Prefab>().prefabID;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
 		{
@@ -166,10 +171,15 @@ namespace SliceEngine
 	{
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
-		GO.AddComponent<Prefab>();
+		//GO.AddComponent<Prefab>();
 		GO.GetComponent<Prefab>().prefabGUID = guid;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 
+		// get the biggest id to start from
+		if (GO.GetComponent<Prefab>().prefabID > mNextPrefabID[guid])
+		{
+			mNextPrefabID[guid] = GO.GetComponent<Prefab>().prefabID;
+		}
 		//if (!isEditor)
 		//{
 		// only the root entity should get added to the map
@@ -453,12 +463,14 @@ namespace SliceEngine
 
 		if (rootGO.HasComponent<Prefab>())
 		{
+			mNextPrefabID[rootGO.GetComponent<Prefab>().prefabGUID]++;
+			unsigned int prefabID = mNextPrefabID[rootGO.GetComponent<Prefab>().prefabGUID];
 			// same as the root GO
 			GameObject GO = FactoryInstance.GetGOByEntity(entity);
 			GO.AddComponent<Prefab>();
 			GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
 			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
-
+			GO.GetComponent<Prefab>().prefabID = prefabID;
 			GO.AddComponent<PrefabEditingEntity>();
 		}
 	}
