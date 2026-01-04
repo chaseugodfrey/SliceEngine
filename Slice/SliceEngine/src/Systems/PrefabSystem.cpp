@@ -18,7 +18,7 @@ namespace SliceEngine
 
 		// idk cause if I add a prefab component when a new prefab is made, it enters here straight
 		// so this check is to stop that??
-		if (prefab.prefabGUID == (GUID)0)
+		if (prefab.prefabGUID == (GUID)0 || prefab.prefabGUID == GUID::null())
 		{
 			return;
 		}
@@ -55,14 +55,14 @@ namespace SliceEngine
 
 	void PrefabSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-		for (auto& [guid, ent] : mPrefabBaseEntities)
-		{
-			if (ent == entity)
-			{
-				mPrefabBaseEntities.erase(guid);
-				break;
-			}
-		}
+		//for (auto& [guid, ent] : mPrefabBaseEntities)
+		//{
+		//	if (ent == entity)
+		//	{
+		//		mPrefabBaseEntities.erase(guid);
+		//		break;
+		//	}
+		//}
 
 		auto& prefab = reg.get<Prefab>(entity);
 
@@ -94,11 +94,23 @@ namespace SliceEngine
 
 		if (isEditor)
 		{
-			if (mPrefabBaseEntities.find(prefabGUID) != mPrefabBaseEntities.end())
+			/*if (mPrefabBaseEntities.find(prefabGUID) != mPrefabBaseEntities.end())
 			{
 				GameObject GO = FactoryInstance.GetGOByEntity(mPrefabBaseEntities[prefabGUID]);
 				return GO;
+			}*/
+
+			if (mPrefabEditable.second != entt::null || mPrefabEditable.first != GUID::null())
+			{
+				// if there is already a prefab being editable
+				// then destroy it before opening a new one
+
+				GameObject GO = FactoryInstance.GetGOByEntity(mPrefabEditable.second);
+				GO.Destroy(); // destroy it
+				mPrefabEditable.first = GUID::null();
+				mPrefabEditable.second = entt::null;
 			}
+
 		}
 
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(prefabGUID);
@@ -117,7 +129,7 @@ namespace SliceEngine
 
 		if (isEditor)
 		{
-		 //do this in DeserializePrefab instead
+			//do this in DeserializePrefab instead
 			mRegistry->emplace_or_replace<PrefabEditingEntity>(prefabEntity);
 		}
 
@@ -141,7 +153,10 @@ namespace SliceEngine
 		// if its editor, then store the root entity
 		if (isEditor)
 		{
-			mPrefabBaseEntities[prefabGUID] = GO.GetEntity();
+			//mPrefabBaseEntities[prefabGUID] = GO.GetEntity();
+
+			mPrefabEditable.first = prefabGUID;
+			mPrefabEditable.second = prefabEntity;
 		}
 
 		return GO;
@@ -186,6 +201,24 @@ namespace SliceEngine
 
 	void PrefabSystem::OnPrefabModified(const OnPrefabModifiedEvent& event)
 	{
+		GUID prefabGUID = GUID::null();
+		// get the GUID of the prefab modified
+		//for (auto& [guid, ent] : mPrefabBaseEntities)
+		//{
+		//	if (ent == event.entity)
+		//	{
+		//		prefabGUID = guid;
+		//	}
+		//}
+
+		if (prefabGUID == GUID::null())
+		{
+			SLICE_LOG_ERROR("Invalid prefab modified. Prefab base entity does not exist");
+			return;
+		}
+
+
+
 		for (auto& [guid, vec] : mPrefabMap)
 		{
 			if (guid == event.guid)
@@ -310,27 +343,6 @@ namespace SliceEngine
 
 	void PrefabSystem::OnPrefabDeleted(const OnPrefabDeletedEvent& event)
 	{
-		for (auto& [guid, vec] : mPrefabMap)
-		{
-			if (guid == event.guid)
-			{
-				// iterate through the entities that are made from this prefab
-				// and remove the prefab component from them
-				for (auto entity : vec)
-				{
-					// idk yet tbh
-					auto GO = FactoryInstance.GetGOByEntity(entity);
-					if (GO.HasComponent<Prefab>())
-					{
-						GO.RemoveComponent<Prefab>();
-					}
-				}
-
-				// then erase this prefab from the map
-				mPrefabMap.erase(event.guid);
-				break;
-			}
-		}
 
 	}
 	
@@ -341,13 +353,20 @@ namespace SliceEngine
 
 	void PrefabSystem::UpdateBasePrefabs()
 	{
+		if (mPrefabEditable.first == GUID::null() || mPrefabEditable.second == entt::null)
+			return;
+
 		auto& transformSys = Core::GetInstance()->GetSystem<TransformSystem>();
 		// update all the base entities
 		// their root is the base entity as only the base gets added to the map
-		for (auto& [guid, entity] : mPrefabBaseEntities)
+	/*	for (auto& [guid, entity] : mPrefabBaseEntities)
 		{
 			transformSys.UpdateWorldMatrix(entity, glm::mat4(1.0f));
-		}
+		}*/
+		
+		transformSys.UpdateWorldMatrix(mPrefabEditable.second, glm::mat4(1.0f));
+
+
 	}
 
 	/// <summary>
@@ -363,7 +382,7 @@ namespace SliceEngine
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
-		GO.GetComponent<Prefab>().prefabID = prefabID;
+		//GO.GetComponent<Prefab>().prefabID = prefabID;
 		prefabID++;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
@@ -387,7 +406,7 @@ namespace SliceEngine
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
-		GO.GetComponent<Prefab>().prefabID = prefabID;
+		//GO.GetComponent<Prefab>().prefabID = prefabID;
 		prefabID++;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
@@ -403,34 +422,6 @@ namespace SliceEngine
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
-
-	}
-
-	void PrefabSystem::UnmakePrefab(Entity entity)
-	{
-		//Get Prefab Component
-		GameObject GO = FactoryInstance.GetGOByEntity(entity);
-
-		//Should always have
-		if (GO.HasComponent<SceneGraph>())
-		{
-			auto& sceneGraph = GO.GetComponent<SceneGraph>();
-			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-			while (childEntity != entt::null)
-			{
-				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UnmakePrefabChild(childEntity);
-
-				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
-				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
-			}
-		}
-
-		//Remove from mPrefabMap instance
-	}
-
-	void PrefabSystem::UnmakePrefabChild(Entity entity)
-	{
 
 	}
 
@@ -450,7 +441,7 @@ namespace SliceEngine
 			GO.GetComponent<Prefab>().prefabHandle = prefab;
 			GO.GetComponent<Prefab>().prefabGUID = guid;
 			mPrefabMap[guid].insert(entity);
-			mPrefabIDs[guid].push_back(GO.GetComponent<Prefab>().prefabID);
+			//mPrefabIDs[guid].push_back(GO.GetComponent<Prefab>().prefabID);
 			// add the children as well
 			if (GO.HasComponent<SceneGraph>())
 			{
