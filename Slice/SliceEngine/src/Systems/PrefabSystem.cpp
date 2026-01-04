@@ -338,7 +338,8 @@ namespace SliceEngine
 						if (id == entt::type_id<Prefab>().hash() ||
 							id == entt::type_id<SliceEntity>().hash() ||
 							id == entt::type_id<Transform>().hash() ||
-							id == entt::type_id<Bone>().hash())
+							id == entt::type_id<Bone>().hash() ||
+							id == entt::type_id<SceneGraph>().hash())
 							continue;
 
 						if (id == entt::type_id<ColliderShape>().hash())
@@ -353,10 +354,6 @@ namespace SliceEngine
 						}
 
 						cloner(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
-					}
-					for (auto& cloner : FactoryInstance.mComponentCloners)
-					{
-						cloner.second(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
 					}
 
 					//GameObject testGO = FactoryInstance.GetGOByEntity(instancePrefabIDToEntityMap[prefabID]);
