@@ -24,10 +24,11 @@ namespace SliceEngine
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
-        private enum state 
-        {Chase,  Attack, Stunned};
 
-        private state currentState = state.Chase;
+        //private enum state 
+        //{Chase,  Attack, Stunned};
+
+        //private state currentState = state.Chase;
 
 
 
@@ -36,7 +37,7 @@ namespace SliceEngine
         //Function called when you want the enemy to be active
 
         public override void SetUp()
-        { base.SetUp(); this.ChangeState(new EnemySlimeChaseState(this.movementSpeed, this.attackTriggerRange));}
+        { base.SetUp(); this.ChangeState(new EnemySlimeChaseState(this));}
 
         //public void Reset()
         //{   active = false; }
@@ -67,33 +68,33 @@ namespace SliceEngine
 
         private void DoActionBasedOnState(float deltaTime)
         {
-            switch (currentState) 
-            {
-                case state.Chase:
-                    if (active && playerT != null && !stunned)
-                    {
-                        Vector3 direction_diff = playerT.Position - enemyT.Position;
+            //switch (currentState) 
+            //{
+            //    case state.Chase:
+            //        if (active && playerT != null && !stunned)
+            //        {
+            //            Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-                        enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
+            //            enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
 
-                        if (direction_diff.Magnitude() <= attackTriggerRange)
-                        {
-                            currentState = state.Attack;
-                            //attack state
-                        }
+            //            if (direction_diff.Magnitude() <= attackTriggerRange)
+            //            {
+            //                currentState = state.Attack;
+            //                //attack state
+            //            }
 
-                    }
-                    break;
-                case state.Attack:
-                    if (!attacking)
-                    {
-                        StartCoroutine(AttackCoroutine());
-                    }
-                    break;
-                case state.Stunned:
+            //        }
+            //        break;
+            //    case state.Attack:
+            //        if (!attacking)
+            //        {
+            //            StartCoroutine(AttackCoroutine());
+            //        }
+            //        break;
+            //    case state.Stunned:
 
-                    break;
-            } 
+            //        break;
+            //} 
         }
 
         public void Attack()
@@ -123,7 +124,7 @@ namespace SliceEngine
 
             attacking = false;
 
-            ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
+            //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
             yield break;
         }

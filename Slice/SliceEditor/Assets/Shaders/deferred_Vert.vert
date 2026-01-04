@@ -18,8 +18,8 @@ struct InstanceData
 	vec4 color;
 	float roughness;
 	float metallic;
-	unsigned int entityID;
-	unsigned int textureID; 
+	uint entityID;
+	uint textureID; 
 };
 
 layout(binding=2, std430) readonly buffer ssbo1

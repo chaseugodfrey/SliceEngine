@@ -16,7 +16,6 @@ namespace SliceEngine
 
         public void ChangeState(EnemyState newState)
         {
-            newState.SetUp(this);
             state = newState;
         }
 

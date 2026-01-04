@@ -8,29 +8,40 @@ using static SliceEngine.Cursor;
 
 namespace SliceEngine
 {
-    //--- Chase State (Default)--- 
-    public class EnemySlimeChaseState: EnemyState
-    {
-        private float _movementSpeed;
-        private float _attackTriggerRange;
+    /// <summary>
+    /// Intended action. Will chase the target .
+    /// </summary>
 
-        public EnemySlimeChaseState(float movementSpeedInput, float attackTriggerInput)
+    //--- Base Slime State ---
+    public class EnemySlimeState : EnemyState
+    {
+        protected EnemySlime enemyOwner;
+        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; }
+        public override void DoEnemyAction(float dt) {}
+        public override void DoEnemyActionFixed() {}
+        public override void OnCollide() {}
+        public override void OnDamaged() {}
+        public override void OnLanding() {}
+        public override void ReachTargetAction() {}
+    }
+
+    //--- Chase State (Default)--- 
+    public class EnemySlimeChaseState: EnemySlimeState
+    {
+        public EnemySlimeChaseState(EnemySlime owner) : base(owner)
         {
-            _movementSpeed = movementSpeedInput;
-            _attackTriggerRange = attackTriggerInput;
         }
 
         public override void DoEnemyAction(float dt)
         {
+            base.DoEnemyAction(dt);
             Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
 
+            enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
-
-            enemyOwner.enemyT.Position += direction_diff.Normalize() * _movementSpeed * dt;
-
-            if (direction_diff.Magnitude() <= _attackTriggerRange)
+            if (direction_diff.Magnitude() <= enemyOwner.attackTriggerRange)
             {
-                enemyOwner.ChangeState(new EnemySlimeAttackState());
+                enemyOwner.ChangeState(new EnemySlimeAttackState(enemyOwner));
                 //attack state
             }
         }
@@ -52,19 +63,28 @@ namespace SliceEngine
     }
 
     //--- Attack State ---
-    public class EnemySlimeAttackState : EnemyState
+    public class EnemySlimeAttackState : EnemySlimeState
     {
-
-        public EnemySlimeAttackState()
-        {
-        }
+        public EnemySlimeAttackState(EnemySlime owner) : base(owner) {}
 
         public override void DoEnemyAction(float dt)
         {
+            base.DoEnemyAction(dt);
+            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+
+
             if (!enemyOwner.As<EnemySlime>().attacking)
             {
-                enemyOwner.As<EnemySlime>().Attack();
+                if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
+                {
+                    enemyOwner.As<EnemySlime>().Attack();
+                }
+                else
+                {
+                    enemyOwner.ChangeState(new EnemySlimeChaseState(enemyOwner));
+                }
             }
+            
         }
         
 
@@ -76,6 +96,34 @@ namespace SliceEngine
 
         public override void OnLanding()
         { }
+
+        public override void OnCollide()
+        { }
+
+        public override void OnDamaged()
+        { }
+    }
+
+
+    //--- Stunned State ---
+    public class EnemySlimeStunState : EnemySlimeState
+    {
+        public EnemySlimeStunState(EnemySlime owner) : base(owner) { }
+
+        public override void DoEnemyAction(float dt)
+        { }
+
+
+        public override void DoEnemyActionFixed()
+        { }
+
+        public override void ReachTargetAction()
+        { }
+
+        public override void OnLanding()
+        {
+            // Exit state
+        }
 
         public override void OnCollide()
         { }

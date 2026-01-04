@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace SliceEngine
@@ -15,6 +16,10 @@ namespace SliceEngine
         //public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         //public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         //static bool testingShit = false;
+
+        // ====== EZE"S INPUT TO TEST ENEMIES ===========
+        public bool debug = false;
+
 
         public GameObject playerModel;
 
@@ -68,6 +73,10 @@ namespace SliceEngine
 
         public void Initialize()
         {
+            if (debug)
+            {
+                return ;
+            }
             Console.WriteLine("Player Ini called");
             camera = Bootstrap.CameraController;
             if (camera == null)
@@ -77,6 +86,10 @@ namespace SliceEngine
         }
         public override void OnCreate()
         {
+            if (debug)
+            {
+                return;
+            }
             Console.WriteLine("Test");
             playerModel = gameObject.FindGameObjectWithName("RootNode");
             animator = playerModel?.GetComponent<Animator>();
@@ -94,6 +107,11 @@ namespace SliceEngine
         
         public override void OnUpdate(float dt)
         {
+            if (debug)
+            {
+                return;
+            }
+
             GroundCheck();
             if (canInput) HandleInput();
             if (canMove) HandleMovement();
