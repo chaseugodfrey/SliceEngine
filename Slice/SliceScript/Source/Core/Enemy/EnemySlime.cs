@@ -18,7 +18,7 @@ namespace SliceEngine
         public float vertKnockback = 1f;
 
         public float attackTriggerRange = 1f;
-        public float attackCheckRange = 1f;
+        public float attackDamageRange = 1f;
         public float attackWindUpTiming = 1f;
         //public float flickerTiming = 1f;
         public bool attacking { get; private set; } = false;
@@ -37,32 +37,40 @@ namespace SliceEngine
         //Function called when you want the enemy to be active
 
         public override void SetUp()
-        { base.SetUp(); this.ChangeState(new EnemySlimeChaseState(this));}
+        {
+            base.SetUp(); 
+            Console.WriteLine("Slime setup called");
+            this.ChangeState(new EnemySlimeChaseState(this));
+        }
 
         //public void Reset()
         //{   active = false; }
 
         public override void OnUpdate(float dt)
         {
+            if (Input.IsKeyDown(Keys.KEY_P))
+            {
+                Console.WriteLine("PPPPressed"); SetUp();
+            }
             base.OnUpdate(dt);
             //DoActionBasedOnState(dt);
 
-            //if (Input.IsKeyDown(Keys.KEY_B))
-            //{
-            //    SetUp();
-            //}
+                //if (Input.IsKeyDown(Keys.KEY_B))
+                //{
+                //    SetUp();
+                //}
 
-            //if (player.Has<Player>())
-            //{
-            //    PlayerController playerComp = player.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
+                //if (player.Has<Player>())
+                //{
+                //    PlayerController playerComp = player.As<PlayerController>();
+                //    SliceLog.Log(playerComp.direction.ToString());
+                //}
 
-            //if (playerT.gameObject.Has<PlayerController>())
-            //{
-            //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
+                //if (playerT.gameObject.Has<PlayerController>())
+                //{
+                //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
+                //    SliceLog.Log(playerComp.direction.ToString());
+                //}
 
         }
 
@@ -104,6 +112,7 @@ namespace SliceEngine
 
         IEnumerator AttackCoroutine()
         {
+            Console.WriteLine("Attacking");
             attacking = true;
 
             yield return new WaitForSeconds(attackWindUpTiming);
@@ -112,7 +121,7 @@ namespace SliceEngine
 
             Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-            if (direction_diff.Magnitude() <= attackCheckRange)
+            if (direction_diff.Magnitude() <= attackDamageRange)
             {
                 Bootstrap.Player.TakeDamage(damage);
                 //Make player take damage( waiting for rayan and jiale to do their thing)

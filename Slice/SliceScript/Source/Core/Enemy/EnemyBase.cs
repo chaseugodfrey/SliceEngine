@@ -53,7 +53,13 @@ namespace SliceEngine
 
         #region Creation and Set Up
         public virtual void SetUp()
-        { active = true; playerT = Bootstrap.Player.transform; }
+        {
+            Console.WriteLine("Base Setup Called");
+            //REMEMBER TO REMOVE THIS 
+            enemyT = GetComponent<Transform>();
+            rb = GetComponent<RigidBody>();
+            //
+            active = true; playerT = Bootstrap.Player.transform; }
 
         public virtual void Reset()
         { active = false; state = null; }

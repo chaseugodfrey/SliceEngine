@@ -16,7 +16,7 @@ namespace SliceEngine
     public class EnemySlimeState : EnemyState
     {
         protected EnemySlime enemyOwner;
-        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; }
+        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; Console.WriteLine("Slime chase state created"); }
         public override void DoEnemyAction(float dt) {}
         public override void DoEnemyActionFixed() {}
         public override void OnCollide() {}
@@ -30,11 +30,13 @@ namespace SliceEngine
     {
         public EnemySlimeChaseState(EnemySlime owner) : base(owner)
         {
+            
         }
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
+
             Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
@@ -77,6 +79,7 @@ namespace SliceEngine
             {
                 if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
                 {
+
                     enemyOwner.As<EnemySlime>().Attack();
                 }
                 else
