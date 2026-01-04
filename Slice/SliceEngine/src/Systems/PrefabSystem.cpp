@@ -170,10 +170,11 @@ namespace SliceEngine
 		GO.GetComponent<Prefab>().prefabGUID = guid;
 		GO.GetComponent<Prefab>().prefabHandle = prefab;
 
-		if (!isEditor)
-		{
-			mPrefabMap[guid].insert(GO.GetEntity());
-		}
+		//if (!isEditor)
+		//{
+		// only the root entity should get added to the map
+		//	mPrefabMap[guid].insert(GO.GetEntity());
+		//}
 
 		if (isEditor)
 		{
@@ -201,142 +202,101 @@ namespace SliceEngine
 
 	void PrefabSystem::OnPrefabModified(const OnPrefabModifiedEvent& event)
 	{
-		GUID prefabGUID = GUID::null();
-		// get the GUID of the prefab modified
-		//for (auto& [guid, ent] : mPrefabBaseEntities)
-		//{
-		//	if (ent == event.entity)
-		//	{
-		//		prefabGUID = guid;
-		//	}
-		//}
+		// get all the entities in the prefab that was modified
+		std::vector<Entity> prefabEntities;
+		std::unordered_map<unsigned int, Entity> originalPrefabIDToEntityMap;
 
-		if (prefabGUID == GUID::null())
+		prefabEntities.push_back(event.entity);
+		GameObject GO = FactoryInstance.GetGOByEntity(event.entity);
+
+		if (GO.HasComponent<SceneGraph>())
 		{
-			SLICE_LOG_ERROR("Invalid prefab modified. Prefab base entity does not exist");
-			return;
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				GetEntityFromPrefab(prefabEntities, originalPrefabIDToEntityMap, childGO.GetEntity());
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
 		}
 
+		// the prefab doesn't exist in the perfab map
+		if (!mPrefabMap.contains(event.guid))
+			return;
 
-
-		for (auto& [guid, vec] : mPrefabMap)
+		for (auto entity : mPrefabMap[event.guid])
 		{
-			if (guid == event.guid)
+			std::vector<Entity> prefabInstanceEntities;
+			std::unordered_map<unsigned int, Entity> instancePrefabIDToEntityMap;
+
+			// get all the entities and the children entities of an instance of the prefab
+			GameObject GOInstance = FactoryInstance.GetGOByEntity(entity);
+			if (GOInstance.HasComponent<Prefab>())
 			{
-				// get a handle to the prefab so we can load data from it
-				Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(event.guid);
-				std::string name = prefab.get()->filePath;
-				//Assets/GameObject_1.prefab
-				std::unordered_map<unsigned int, std::vector<rttr::variant>> prefabComponents = JSONSerializer::DeserializePrefabComponents(prefab.get()->filePath);
+				instancePrefabIDToEntityMap[GOInstance.GetComponent<Prefab>().prefabID] = entity;
+			}
 
-				// iterate through the entities that are made from this prefab
-				for (auto entity : vec)
+			prefabInstanceEntities.push_back(entity);
+			if (GOInstance.HasComponent<SceneGraph>())
+			{
+				auto& sceneGraph = GOInstance.GetComponent<SceneGraph>();
+				Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+				while (childEntity != entt::null)
 				{
-					GameObject GO = FactoryInstance.GetGOByEntity(entity);
+					GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+					GetEntityFromPrefab(prefabInstanceEntities, instancePrefabIDToEntityMap, childGO.GetEntity());
+					auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+					childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+				}
+			}
 
-					auto& prefabComponent = GO.GetComponent<Prefab>();
-					bool prefabIDFound = false;
-					JPH::BodyID dummyBodyID{};
-					bool JoltBodyIDfound = false;
-					// Note: maybe check if the component data is the same? before replacing
-					// also need to check if a component was deleted from the prefab then it should reflect
-					// and also maybe not all components should be replaced? like transform should be left alone
-					// get the prefab and it's data
-					for (auto& [prefabID, compVar] :prefabComponents)
+			// now that we have both the vector of entities from the prefab
+			// and the vector of entities from the instance
+			// and maps of prefab id to entity
+			// we can compare the two and update it
+
+			// first handle new game objects
+			if (prefabEntities.size() > prefabInstanceEntities.size())
+			{
+				for (auto& [prefabID, entity] : originalPrefabIDToEntityMap)
+				{
+					// if the instance doesnt have that prefab id means its a new one
+					if (!instancePrefabIDToEntityMap.contains(prefabID))
 					{
-						// if this GO has the same prefabID 
-						// cause each obj of a prefab has a unique ID
-						// since we need to know a relationship to which prefab obj is to which game object
-						// when theres more than 1 object in a prefab
-						if (prefabComponent.prefabID == prefabID)
-						{
-							prefabIDFound = true;
-							// then emplace teh components of that entity
-							for (auto& comp : compVar)
-							{
-								rttr::type type = comp.get_type();
-								if (type.is_wrapper())
-								{
-									type = type.get_wrapped_type();
-								}
 
-								if (type.get_raw_type() == rttr::type::get<ColliderShape>())
-								{
-									// just to prevent jolt bodyID issues
-									auto& colliderShape = GO.GetComponent<ColliderShape>();
-									dummyBodyID = colliderShape.bodyID;
-									JoltBodyIDfound = true;
-								}
-
-								FactoryInstance.EmplaceComponents(entity, comp);
-
-
-								std::string typeName = type.get_name().to_string();
-
-								// reload all the handles here idfk how else to do it tbh
-								// emplacing components will replace handles 
-								// the other way is to retrieve specific variables only
-								if (type.get_raw_type() == rttr::type::get<Renderer>())
-								{
-									auto& renderer = GO.GetComponent<Renderer>();
-									renderer.materialHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Material>(renderer.materialHandle.getGUID());
-									renderer.modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(renderer.modelHandle.getGUID());
-								}
-								else if (type.get_raw_type() == rttr::type::get<Script>())
-								{
-									gScriptSystem->UpdateScriptVariables(entity);
-									//auto& script = GO.GetComponent<Script>();
-									////Script scriptComp = comp.get_value<Script>();
-									//for(auto & [fieldName, fieldValue] : script.scriptableFieldMap)
-									//{
-									//	SLICE_LOG_DEBUG(fieldName);
-									//	// set the field value to the component's field map
-									//	//
-									//	//script.scriptableFieldMap[fieldName] = fieldValue;
-									//}
-								}
-								else if (comp.is_type<Animator>())
-								{
-									
-									auto& animator = GO.GetComponent<Animator>();
-									animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
-									if (!animator.Handle_stateMachine.IsValid())
-										animator.Handle_stateMachine = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
-									animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
-									animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
-
-									if (animator.Handle_stateMachine.IsValid())
-									{
-										animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-										animator.stateMachine.InitState();
-									}
-
-									if (animator.IsValid())
-									{
-										animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
-										animator.stateMachine.InitState(animator.curr_anim_pkg);
-									}
-								}
-								else if (JoltBodyIDfound && type.get_raw_type() == rttr::type::get<ColliderShape>())
-								{
-									auto& colliderShape = GO.GetComponent<ColliderShape>();
-									auto& transform = GO.GetComponent<Transform>();
-
-									colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
-									colliderShape.bodyID = dummyBodyID;
-
-								}
-							}
-						}
-						//FactoryInstance.EmplaceComponents(entity, compVar);
-					}
-
-					// 
-					if (prefabIDFound == false)
-					{
-						// this 
 					}
 				}
+			}
+			
+			for (size_t index = 0; index < prefabEntities.size(); ++index)
+			{
+
+			}
+		}
+
+	}
+
+	void PrefabSystem::GetEntityFromPrefab(std::vector<Entity>& prefabEntities, std::unordered_map<unsigned int, Entity>& prefabToEntity, Entity entity)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		prefabEntities.push_back(entity);
+		if (GO.HasComponent<Prefab>())
+		{
+			prefabToEntity[GO.GetComponent<Prefab>().prefabID] = entity;
+		}
+
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				GetEntityFromPrefab(prefabEntities, prefabToEntity, childGO.GetEntity());
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
 	}
@@ -382,7 +342,7 @@ namespace SliceEngine
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
-		//GO.GetComponent<Prefab>().prefabID = prefabID;
+		GO.GetComponent<Prefab>().prefabID = prefabID;
 		prefabID++;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
@@ -406,7 +366,7 @@ namespace SliceEngine
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
-		//GO.GetComponent<Prefab>().prefabID = prefabID;
+		GO.GetComponent<Prefab>().prefabID = prefabID;
 		prefabID++;
 		// add the children as well
 		if (GO.HasComponent<SceneGraph>())
@@ -463,7 +423,8 @@ namespace SliceEngine
 			//Prefab GUID
 			GUID prefabGUID = GO.GetComponent<Prefab>().prefabGUID;
 			//Remove entity from the set
-			mPrefabMap[guid].erase(entity);
+			if (mPrefabMap[guid].contains(entity))
+				mPrefabMap[guid].erase(entity);
 
 			//Remove Recursively
 			if (GO.HasComponent<SceneGraph>())
