@@ -47,6 +47,7 @@ namespace SliceEngine
 		void GetEntityFromPrefab(std::vector<Entity>& prefabEntities, std::map<unsigned int, Entity>& prefabToEntity, Entity entity);
 		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
 		void OnPrefabSerialized(const OnPrefabSerializedEvent& event);
+		void AssignPrefabID(GUID guid, Entity entity);
 		/// <summary>
 		/// Add a prefab component to the entity after turning it into a prefab
 		/// </summary>
