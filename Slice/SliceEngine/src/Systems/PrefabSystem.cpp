@@ -23,6 +23,12 @@ namespace SliceEngine
 			return;
 		}
 
+		// being opened to edit not to create an instance of
+		if (GO.HasComponent<PrefabEditingEntity>())
+		{
+			return;
+		}
+
 		// if the resource does not exist anymore
 		if (!Core::GetInstance()->GetResourceManager()->CheckResource(prefab.prefabGUID))
 		{
@@ -273,32 +279,29 @@ namespace SliceEngine
 			// we can compare the two and update it
 
 			// first handle new game objects
-			if (prefabEntities.size() > prefabInstanceEntities.size())
+			for (auto& [prefabID, entity] : originalPrefabIDToEntityMap)
 			{
-				for (auto& [prefabID, entity] : originalPrefabIDToEntityMap)
+				// if the instance doesnt have that prefab id means its a new one
+				if (!instancePrefabIDToEntityMap.contains(prefabID))
 				{
-					// if the instance doesnt have that prefab id means its a new one
-					if (!instancePrefabIDToEntityMap.contains(prefabID))
-					{
-						// get the entity 
-						GameObject MissingGO = FactoryInstance.GetGOByEntity(entity);
-						// get the parent and siblings
-						Entity parentEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::UP];
+					// get the entity 
+					GameObject MissingGO = FactoryInstance.GetGOByEntity(entity);
+					// get the parent and siblings
+					Entity parentEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::UP];
 
-						//Entity left sibling 
-						Entity leftEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::LEFT];
+					//Entity left sibling 
+					Entity leftEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::LEFT];
 
-						//Entity right sibling
-						Entity rightEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::RIGHT];
+					//Entity right sibling
+					Entity rightEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::RIGHT];
 
-						// now we need to manually insert in the new GO
+					// now we need to manually insert in the new GO
 
-					}
-					// it already exist, so just update the components
-					else
-					{
+				}
+				// it already exist, so just update the components
+				else
+				{
 
-					}
 				}
 			}
 			
