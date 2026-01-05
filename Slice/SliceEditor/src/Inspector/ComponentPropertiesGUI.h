@@ -236,8 +236,11 @@ namespace SliceEditor
 				{
 					currentIndex = (int)mapNames.size();
 				}
+				//Gotta manipulate the names somehow, make it the stem?
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::string fileNameString = relativePath.filename().string();
 
-				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+				mapNames.push_back(fileNameString);
 			}
 
 			//Fall-back (Should Display Nothing)

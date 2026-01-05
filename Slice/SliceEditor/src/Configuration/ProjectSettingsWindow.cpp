@@ -203,7 +203,7 @@ namespace SliceEditor
 						std::function<void(SliceEngine::GUID)> setFunc = [&](SliceEngine::GUID guid)
 							{
 								//Take out key from parameter
-								audioSettings->ChangeAudioClip(oldClip, guid, entry.AudioClips);
+								audioSettings->ChangeAudioClip(key, oldClip, guid, entry.AudioClips);
 								hasChanged = true;
 							};
 						//std::string audioClipLabel = "Audio Clips_" + std::to_string(std::distance(entry.AudioClips.begin(),entry.AudioClips.size()));

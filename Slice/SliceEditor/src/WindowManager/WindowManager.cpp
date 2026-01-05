@@ -63,6 +63,7 @@ namespace SliceEditor
 		AddWindow<ProfilerWindow>("Profiler");
 		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
+		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
@@ -198,6 +199,11 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Scene"))
 			{
 				AddWindow<SceneViewWindow>();
+			}
+
+			if (ImGui::MenuItem("Prefab View"))
+			{
+				AddWindow<PrefabViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
