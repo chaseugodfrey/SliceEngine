@@ -173,11 +173,20 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 
 		Animator& animator = reg.get<Animator>(entity);
+
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+
+		auto rscMgr = core->GetResourceManager();
+
+		GUID defCtrl = rscMgr->mFileNameToGUID["Default/DefaultController.controller"];
+
+		//animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
+		/*animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skl);
+		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animpkg);*/
 
 		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 		if(!animator.Handle_stateMachine.IsValid())
-			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 
@@ -193,5 +202,26 @@ namespace SliceEngine
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 		}
 
+	}
+	GUID AnimatorSystem::GetMdlGUID(entt::registry& reg, entt::entity entity, SceneGraph& scene_graph)
+	{
+		auto child_entity = scene_graph.neighbours[SceneGraph::DOWN];
+
+		while (child_entity != entt::null)
+		{
+			auto& child_scene_graph = reg.get<SceneGraph>(child_entity);
+			auto rend = reg.try_get<Renderer>(child_entity);
+
+			if (rend)
+			{
+				std::string name = FactoryInstance.GetGOByEntity(child_entity).GetName();
+				return rend->modelHandle.getGUID();
+			}
+
+			GetMdlGUID(reg, child_entity, child_scene_graph);
+
+			child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+		}
+		
 	}
 }

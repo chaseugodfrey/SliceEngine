@@ -49,10 +49,13 @@ namespace SliceEngine
 			if (EFSM.stateMap.size() == 0)
 			{
 				EFSM.currState = nullptr;
+				EFSM.anyState = nullptr;
 			}
 			else
 			{
 				EFSM.currState = &EFSM.stateMap[EFSM.entryState];
+				if (EFSM.stateMap.contains("AnyState"))
+					EFSM.anyState = &EFSM.stateMap["AnyState"];
 			}
 
 			EFSM.stateCon = false;
@@ -61,6 +64,8 @@ namespace SliceEngine
 	void FSMSystem::InitState()
 	{
 		EFSM.currState = &EFSM.stateMap[EFSM.entryState];
+		if (EFSM.stateMap.contains("AnyState"))
+			EFSM.anyState = &EFSM.stateMap["AnyState"];
 		EFSM.stateCon = false;
 	}
 	void FSMSystem::CheckStates()
@@ -100,22 +105,25 @@ namespace SliceEngine
 			}
 		}
 
-		for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
+		if(EFSM.anyState)
 		{
-			for (const SliceEngineTypes::Condition& condition : transition.conditions)
+			for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
 			{
-				if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
+				for (const SliceEngineTypes::Condition& condition : transition.conditions)
 				{
-					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
-
-					//bool check = currentParamValue.to_bool();
-
-					if (EvalCon(currentParamValue, condition.op, condition.value))
+					if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
 					{
-						EFSM.nextState = transition.targetState;
-						EFSM.stateCon = true;
-						EFSM.anyState->transitionUsed = &transition;
-						break;
+						const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
+
+						//bool check = currentParamValue.to_bool();
+
+						if (EvalCon(currentParamValue, condition.op, condition.value))
+						{
+							EFSM.nextState = transition.targetState;
+							EFSM.stateCon = true;
+							EFSM.anyState->transitionUsed = &transition;
+							break;
+						}
 					}
 				}
 			}
@@ -154,9 +162,12 @@ namespace SliceEngine
 			}
 		}
 
-		if(EFSM.anyState->transitionUsed != nullptr)
+		if(EFSM.anyState)
 		{
-			safeToChange = true;
+			if (EFSM.anyState->transitionUsed != nullptr)
+			{
+				safeToChange = true;
+			}
 		}
 
 		if(safeToChange)
@@ -178,7 +189,8 @@ namespace SliceEngine
 			CTime = 0.0f;
 			stateChanged = true;
 			EFSM.currState->transitionUsed = nullptr;
-			EFSM.anyState->transitionUsed = nullptr;
+			if(EFSM.anyState)
+				EFSM.anyState->transitionUsed = nullptr;
 		}
 	}
 
