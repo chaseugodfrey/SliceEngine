@@ -884,6 +884,15 @@ namespace SliceEngine
 		return go;
 	}
 
+	void GOFactory::DebugPrint()
+	{
+		auto entityView = mRegistry.view<SliceEntity>();
+		for (auto entity : entityView)
+		{
+			std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
+		}
+	}
+
 	void GOFactory::TestLoop()
 	{
 		auto entityView = mRegistry.view<SliceEntity>();
