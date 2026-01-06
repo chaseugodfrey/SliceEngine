@@ -170,9 +170,20 @@ namespace SliceEditor
 
 			while (child_entity != entt::null)
 			{
-				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph,false);
-				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				//auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+				//DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+				//child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				if (engine_reg.any_of<SliceEngine::SceneGraph>(child_entity))
+				{
+					auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+					DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+					child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				}
+				else
+				{
+					std::cout << "Unable to get scene graph of: " << int(child_entity) << std::endl;
+					break;
+				}
 			}
 
 			ImGui::TreePop();

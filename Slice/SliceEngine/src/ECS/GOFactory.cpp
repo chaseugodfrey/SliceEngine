@@ -344,7 +344,7 @@ namespace SliceEngine
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
 		//Check if there's even a need to update the parent.
-		if (prev_parent_entity == parentEntity)
+		if (prev_parent_entity == parentEntity && prev_parent_entity != entt::null)
 		{
 			SLICE_LOG_WARNING("Parenting to self. Does nothing.");
 			return false;
