@@ -77,7 +77,7 @@ namespace SliceEngine
 				while (child != entt::null)
 				{
 					UpdateWorldMatrix(child, tr->transform);
-					child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+					//child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 					if (mRegistry->any_of<SceneGraph>(child))
 						child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 					else
