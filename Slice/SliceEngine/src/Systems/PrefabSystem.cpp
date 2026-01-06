@@ -506,6 +506,8 @@ namespace SliceEngine
 			GO.AddComponent<Prefab>();
 			GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
 			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
+
+			GO.AddComponent<PrefabEditingEntity>();
 		}
 	}
 

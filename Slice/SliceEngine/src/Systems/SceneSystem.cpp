@@ -61,7 +61,7 @@ namespace SliceEngine
 			SLICE_LOG("Scene loaded successfully.");
 
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
-
+			Core::GetInstance()->mFactory.DebugPrint();
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;
 
@@ -95,6 +95,7 @@ namespace SliceEngine
 			SLICE_LOG("Scene loaded successfully.");
 
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			Core::GetInstance()->mFactory.DebugPrint();
 
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;
