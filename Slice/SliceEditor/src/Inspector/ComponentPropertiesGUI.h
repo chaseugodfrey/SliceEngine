@@ -228,7 +228,7 @@ namespace SliceEditor
 			{
 				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
 				{
-					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+					SLICE_LOG_ERROR("This is not supposed to happen, some map de-sync!");
 					continue;
 				}
 
@@ -243,31 +243,57 @@ namespace SliceEditor
 				mapNames.push_back(fileNameString);
 			}
 
-			//Fall-back (Should Display Nothing)
-			if (currentIndex < 0)
+			//Push a blank at the end for fallback
+			//mapNames.push_back(" ");
+
+			int selectedIndex = currentIndex;
+
+			std::string guidString = currentGUID.toString();
+			std::string errorText;
+			if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
 			{
-				std::string guidString = currentGUID.toString();
-				std::string errorText;
-				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
-				{
-					//?????? wtf is this
-					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
-					errorText = "GUID not found in AssetManager";
-				}
-				else
-				{
-					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
-					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
-				}
-				ImGui::Text(errorText.c_str());
-				ImGui::Text("Missing GUID: ");
+				//?????? wtf is this
+				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+				errorText = "GUID not found in AssetManager";
+				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
+			}
+			else
+			{
+				ImGui::Text(property_label);
 				ImGui::SameLine(150.0f);
-				ImGui::BeginDisabled();
-				ImGui::InputText("##Missing GUID:", &guidString);
-				ImGui::EndDisabled();
 			}
 
-			else
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames))
+			{
+				const std::string& selectedName = mapNames[selectedIndex];
+				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+				changed = (handle.getGUID() != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						handle = newHandle;
+					}
+
+					else
+					{
+						setFunc(newGUID);
+					}
+				}
+			}
+			//}
+
+			/*else
 			{
 				int selectedIndex = currentIndex;
 
@@ -295,7 +321,7 @@ namespace SliceEditor
 						}
 					}
 				}
-			}
+			}*/
 		}
 		
 		//No Drag-Drop for some reason
