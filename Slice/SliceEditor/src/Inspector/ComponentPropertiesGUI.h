@@ -42,7 +42,7 @@ namespace SliceEditor
 	
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec);
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec);
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min = 0.0f, float max = 0.0f);
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 

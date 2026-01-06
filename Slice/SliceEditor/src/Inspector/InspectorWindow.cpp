@@ -554,7 +554,7 @@ namespace SliceEditor
 					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
 					{
 						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
-						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData, 0.0, FLT_MAX))
 						{
 							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
 						}

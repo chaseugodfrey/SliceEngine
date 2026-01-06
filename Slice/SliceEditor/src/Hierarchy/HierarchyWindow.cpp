@@ -66,6 +66,11 @@ namespace SliceEditor
 		//Temporary Change
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
+		if (mSession.GetHierarchyEntityIDs())
+		{ 
+			name = std::to_string(entt::to_integral(entity)) + std::string(" ") + SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		}
+
 		ImVec2 invisButtonSize = ImVec2(ImGui::GetContentRegionAvail().x, 2);
 		
 		if (invisButtonSize.x <= 0)
