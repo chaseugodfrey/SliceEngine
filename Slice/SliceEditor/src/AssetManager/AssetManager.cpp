@@ -232,6 +232,11 @@ namespace SliceEditor
 				{
 					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+					if (data->skeletonGUID.IsValid())
+					{
+						skeleData->guid = data->skeletonGUID;
+						skeleData->resourcePath = data->skeleMetaPath;
+					}
 					data->skeleMetaPath = CreateResource(skeleData->resourcePath, skeleData.get(), AddToRM).string();
 					data->skeletonGUID = skeleData->guid;
 				}
@@ -240,6 +245,11 @@ namespace SliceEditor
 				{
 					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+					if (data->animationGUID.IsValid())
+					{
+						animData->guid = data->animationGUID;
+						animData->resourcePath = data->animMetaPath;
+					}
 					data->animMetaPath = CreateResource(animData->resourcePath, animData.get(), AddToRM).string();
 					data->animationGUID = animData->guid;
 				}
