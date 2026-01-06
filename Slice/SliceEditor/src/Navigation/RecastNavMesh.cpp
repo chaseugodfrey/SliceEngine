@@ -332,7 +332,10 @@ namespace SliceEditor
 
 			// Optional: Lift obstacles slightly (e.g., 0.1f) if you still see merging issues
 			// if (i > 0) baseTransform = glm::translate(baseTransform, glm::vec3(0.0f, 0.1f, 0.0f));
-
+			if (i > 0)
+			{
+				baseTransform = glm::translate(baseTransform, glm::vec3(0.0f, 0.2f, 0.0f));
+			}
 			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
 
 			// --- RESTORED: Save index count ---
