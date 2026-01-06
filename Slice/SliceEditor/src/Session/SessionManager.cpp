@@ -234,6 +234,7 @@ namespace SliceEditor
 		{
 			//Create the Prefab Instance
 			mPrefabRootEntity = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(event.prefabGUID, true).GetEntity();
+			mInspectedPrefabGUID = event.prefabGUID;
 			//Clear the look-up table just incase
 			mPrefabNodes.clear();
 			//Build the mPrefabNodes lookup table
@@ -245,11 +246,16 @@ namespace SliceEditor
 			//Delete the Root Entity from GOFactory
 			//SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
 			
+			//Delete the Root Entity and its children mwahahahaa
+			EditorUtilities::GameObject_Destroy(mPrefabRootEntity);
+
 			//Clear Session Manager Variables
 			mPrefabRootEntity = entt::null;
+			mInspectedPrefabGUID = SliceEngine::GUID::null();
 			mPrefabNodes.clear();
 
 			registry.GetManager<SelectionManager>("Selection")->ClearSelection();
+
 		}
 	}
 
@@ -289,9 +295,14 @@ namespace SliceEditor
 		return mPrefabInspected;
 	}
 
-	Entity SessionManager::GetPrefabInspected()
+	Entity SessionManager::GetPrefabEntityInspected()
 	{
 		return mPrefabRootEntity;
+	}
+
+	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
+	{
+		return mInspectedPrefabGUID;
 	}
 
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()
