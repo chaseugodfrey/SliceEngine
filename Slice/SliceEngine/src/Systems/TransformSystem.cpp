@@ -74,10 +74,17 @@ namespace SliceEngine
 		
 			if (auto scene_graph = mRegistry->try_get<SceneGraph>(entity)) {
 				entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
-				while (child != entt::null) 
+				while (child != entt::null)
 				{
 					UpdateWorldMatrix(child, tr->transform);
 					child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+					if (mRegistry->any_of<SceneGraph>(child))
+						child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
+					else
+					{
+						std::cout << "Unable to get scene graph of child : " << int(child) << std::endl;
+						break;
+					}
 				}
 			}
 
