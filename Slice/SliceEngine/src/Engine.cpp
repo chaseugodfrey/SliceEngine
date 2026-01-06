@@ -616,8 +616,8 @@ namespace SliceEngine
 	void Engine::SceneInit()
  	{
 		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
+		Core::GetInstance()->GetAudioSettings()->Init();
 	}
 
 	void Engine::Update()
@@ -663,6 +663,7 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					sButton.InitSystem();
+					FactoryInstance.CreateGO("AudioManager");
 					isPlaying = true;
 				}
 
@@ -692,6 +693,8 @@ namespace SliceEngine
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
 				sAudio->StopAllSound();
+				Core::GetInstance()->GetAudioSettings()->DeleteAM();
+				
 				sScene->ReloadScene();
 				isPlaying = false;
 

@@ -54,6 +54,7 @@ namespace SliceEngine
 	public:
 		std::unordered_map<std::string, SFXEntry> mSFXMap;
 		void Init();
+		void DeleteAM();
 		void Exit();
 		void Serialize(const std::filesystem::path& desc_path);
 		void Deserialize(const std::filesystem::path& desc_path);

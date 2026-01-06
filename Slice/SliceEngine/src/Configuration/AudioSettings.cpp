@@ -29,10 +29,18 @@ namespace SliceEngine
 
 		srand((unsigned int)time(NULL)); // Initialize random seed
 
-
-		SLICE_LOG("Current file path " + std::filesystem::current_path().string());
+		//SLICE_LOG("Current file path " + std::filesystem::current_path().string());
 		Deserialize(AUDIO_SETTINGS_PATH);
 	}
+
+	void AudioSettings::DeleteAM()
+	{
+		auto audioManager = FactoryInstance.GetGOByName("AudioManager");
+
+		FactoryInstance.Destroy(audioManager);
+	}
+
+
 
 	void AudioSettings::Exit()
 	{
