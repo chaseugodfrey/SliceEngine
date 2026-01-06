@@ -3240,7 +3240,7 @@
                     0,
                     7,
                     63,
-                    1048579
+                    5
                 ]
             },
             "struct SliceEngine::Script": {
@@ -3327,7 +3327,7 @@
                 "neighbours": [
                     0,
                     4,
-                    1048579,
+                    6,
                     4294967295
                 ]
             },
@@ -3409,64 +3409,6 @@
                 "rotation": [
                     0.7071067094802856,
                     -0.7071068286895752,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Ground": {
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        100.0,
-                        -0.20000000298023224,
-                        100.0
-                    ]
-                },
-                "componentEnabled": true,
-                "isTrigger": false,
-                "offSet": [
-                    0.0,
-                    0.20000000298023224,
-                    0.0
-                ]
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
-                "neighbours": [
-                    0,
-                    4294967295,
-                    6,
-                    5
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Ground",
-                "mTag": "Ground"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
                     0.0,
                     0.0
                 ],
