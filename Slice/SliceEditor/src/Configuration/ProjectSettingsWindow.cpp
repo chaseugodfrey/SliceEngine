@@ -99,6 +99,7 @@ namespace SliceEditor
 		ImGui::BeginChild("##sfx_list", ImVec2(), ImGuiChildFlags_Borders, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		if (ImGui::TreeNodeEx("list", ImGuiTreeNodeFlags_Framed))
 		{
+			std::string groupToDelete = "";
 
 			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
@@ -114,6 +115,13 @@ namespace SliceEditor
 				{
 					
 					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), name));
+
+					ImGui::SameLine();
+					if (ImGui::Button(("Remove Entry " + key).c_str()))
+					{
+						groupToDelete = key;
+					}
+
 					if (ImGui::IsItemDeactivatedAfterEdit())
 					{
 						if (name != key)
@@ -232,6 +240,15 @@ namespace SliceEditor
 					}
 					ImGui::TreePop();
 				}
+			}
+
+			if (!groupToDelete.empty())
+			{
+				// Assuming you have or will add a RemoveSoundGroup overload that takes a key.
+				// If this function doesn't exist in AudioSettings, you will need to add it 
+				// or use: audioSettings->mSFXMap.erase(groupToDelete);
+				audioSettings->mSFXMap.erase(groupToDelete);
+				hasChanged = true;
 			}
 
 			ImGui::TreePop();

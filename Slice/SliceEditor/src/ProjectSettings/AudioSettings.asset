@@ -87,20 +87,6 @@
         },
         {
             "AudioClips": [
-                12356409060795031376
-            ],
-            "isSpatial": false,
-            "key": "DoubleJump",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 0.699999988079071,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
                 15125514244222615558
             ],
             "isSpatial": false,
@@ -111,6 +97,20 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                12356409060795031376
+            ],
+            "isSpatial": false,
+            "key": "DoubleJump",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
             "volumeRollOff": 0
         },
         {
@@ -199,6 +199,20 @@
         },
         {
             "AudioClips": [
+                16821803797395721382
+            ],
+            "isSpatial": true,
+            "key": "Golem_LeftStomp",
+            "maxDistance": 60.0,
+            "maxInstances": -1,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.30000001192092896,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
                 9563528329987127914
             ],
             "isSpatial": false,
@@ -212,17 +226,15 @@
             "volumeRollOff": 0
         },
         {
-            "AudioClips": [
-                16821803797395721382
-            ],
-            "isSpatial": true,
-            "key": "Golem_LeftStomp",
-            "maxDistance": 60.0,
-            "maxInstances": -1,
+            "AudioClips": [],
+            "isSpatial": false,
+            "key": "New_Group_17",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 0.30000001192092896,
+            "volume": 1.0,
             "volumeRollOff": 0
         }
     ]

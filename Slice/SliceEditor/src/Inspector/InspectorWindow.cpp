@@ -357,8 +357,8 @@ namespace SliceEditor
 						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
 						SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
 						//To add volume rolloff dropdown
-						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance, "%.1f", 0.0f, as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance, "%.1f", as.minDistance, 1000.0f);
 					}
 						
 
