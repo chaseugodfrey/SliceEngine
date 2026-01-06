@@ -63,12 +63,15 @@ namespace SliceEditor
 		AddWindow<ProfilerWindow>("Profiler");
 		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
+		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
 		AddWindow<ConsoleWindow>();
+
+		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &WindowManager::QuitGameEvent>(this);
 	}
 
 	void WindowManager::Update()
@@ -198,6 +201,11 @@ namespace SliceEditor
 				AddWindow<SceneViewWindow>();
 			}
 
+			if (ImGui::MenuItem("Prefab View"))
+			{
+				AddWindow<PrefabViewWindow>();
+			}
+
 			if (ImGui::MenuItem("Profiler"))
 			{
 				AddWindow<ProfilerWindow>("Profiler");
@@ -217,6 +225,22 @@ namespace SliceEditor
 		}
 
 		//auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+
+		if (ImGui::BeginMenu("Debug"))
+		{
+			if (ImGui::BeginMenu("Hierachy"))
+			{
+
+				if(ImGui::MenuItem("Show Entity IDs"))
+				{
+					EditorUtilities::Hierarchy_ToggleEntityID(registry);
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
@@ -268,9 +292,6 @@ namespace SliceEditor
         ImGuiIO& io = ImGui::GetIO();
 		auto inputs = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputs->SetImGuiCapture(io.WantCaptureKeyboard, io.WantCaptureMouse);
-
-        static bool isPlaying = false;
-		static bool isPaused = false;
 
 		if(!isPlaying)
 		{
@@ -933,6 +954,26 @@ namespace SliceEditor
 			}
 
 			ImGui::EndPopup();
+		}
+	}
+
+	void WindowManager::QuitGameEvent(OnGameStopEvent e)
+	{
+		isPlaying = false;
+		isPaused = false;
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->Stop();
+	}
+
+	void WindowManager::MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit)
+	{
+		bool checked = (mask & bit) != 0;
+
+		if (ImGui::MenuItem(label, nullptr, checked))
+		{
+			if (checked)
+				mask &= ~bit;
+			else
+				mask |= bit;
 		}
 	}
 

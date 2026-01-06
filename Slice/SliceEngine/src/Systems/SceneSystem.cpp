@@ -38,6 +38,7 @@ namespace SliceEngine
 	{
 		//isSceneUnloaded = false;
 
+		SLICE_LOG(std::filesystem::current_path().string());
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
 		/*if (!std::filesystem::exists(filePath))
@@ -45,10 +46,29 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
 			return;
 		}*/
+		std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
 
-		mCurrentSceneName = filePath.filename().stem().string();
+		mCurrentSceneName = std::filesystem::relative(filePath, mAssetDirectory).generic_string();
 
 		mCurrentScene = filePath;
+
+		if (filePath.extension() == ".temp")
+		{
+			SLICE_LOG("Loading scene...");
+
+			auto map = JSONSerializer::DeserializeScene(filePath);
+
+			SLICE_LOG("Scene loaded successfully.");
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			Core::GetInstance()->mFactory.DebugPrint();
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+			return;
+		}
 
 		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
@@ -75,6 +95,7 @@ namespace SliceEngine
 			SLICE_LOG("Scene loaded successfully.");
 
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			Core::GetInstance()->mFactory.DebugPrint();
 
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;

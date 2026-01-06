@@ -196,6 +196,7 @@ namespace SliceEngine
 		unsigned char renderTag{};
 		bool componentEnabled{ true };
 		bool skinned{ false };
+		bool castShadow{ true };
 
 		RTTR_ENABLE();
 	};
@@ -230,7 +231,7 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthTex{};
+		GLuint depthMaps{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 
@@ -387,7 +388,6 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
@@ -406,11 +406,10 @@ namespace SliceEngine
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
 		GLuint textureID{};
-
 	};
 	struct ParticleSystem
 	{
-		enum ValueType
+		enum ValueType : unsigned int
 		{
 			CONSTANT,
 			CURVE,
@@ -531,7 +530,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 		Handle<SliceEngineTypes::Mesh> meshHandle;
 
-		// ------- Internal ----------
+		// Internal
 		std::vector<Particle> particles{};
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -544,6 +543,8 @@ namespace SliceEngine
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Timeline

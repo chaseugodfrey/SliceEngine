@@ -142,14 +142,11 @@ namespace SliceEditor
 			// mouse position should always be relative to top left, so that it is consistent with the glfwgetcursorpos
 			// also removing the worldspace offset thingy for now
 			//ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x + worldSpaceOffsetX, worldSpaceDim.y - ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
+			
+			static ImVec2 lastWorldSpaceMouse;
 			ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x, ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
 
 			auto* input = SliceEngine::Core::GetInstance()->GetInputSystem();
-
-			if (ImGui::IsWindowHovered())
-			{
-				input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
-			}
 
 			static SliceEngine::CursorState game_cursor_state;
 			static bool onFocus{ false };
@@ -176,6 +173,13 @@ namespace SliceEditor
 						ImGui::SetWindowFocus(NULL);
 						isFocused = false;
 					}
+
+					input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
+					if (fabs(worldSpaceMouse.x - lastWorldSpaceMouse.x) < 100.f && fabs(worldSpaceMouse.y - lastWorldSpaceMouse.y) < 100.f)
+						input->SetMouseDelta(lastWorldSpaceMouse.x - worldSpaceMouse.x,lastWorldSpaceMouse.y - worldSpaceMouse.y);
+					else
+						input->SetMouseDelta(0.0, 0.0);
+					lastWorldSpaceMouse = worldSpaceMouse;
 				}
 
 				onFocus = false;
@@ -192,6 +196,10 @@ namespace SliceEditor
 			ImGui::SetCursorScreenPos(middle_pos);
 			ImGui::Text(msg.c_str());
 		}
+
+		position = ImGui::GetWindowPos();
+		size = ImGui::GetWindowSize();
+		center = { position.x + size.x / 2.0f, position.y + size.y / 2.0f };
 
 		ImGui::End();
 	}

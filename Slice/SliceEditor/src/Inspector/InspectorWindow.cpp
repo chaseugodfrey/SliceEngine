@@ -105,7 +105,23 @@ namespace SliceEditor
 		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
+			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
 			ImGui::Text("Is Prefab");
+			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			{
+				if(ImGui::BeginTooltip())
+				{
+					ImGui::Text("Prefab GUID: ");
+					ImGui::SameLine(150.f);
+					std::string prefabGUID = prefabComponent.prefabGUID.toString();
+					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
+					ImGui::Text(prefabGUID.c_str());
+					ImGui::Text("Prefab Handle GUID: ");
+					ImGui::SameLine(150.f);
+					ImGui::Text(prefabHandle.c_str());
+					ImGui::EndTooltip();
+				}
+			}
 		}
 
 		std::function<void(std::string name)> funcTag = [&](std::string name)
@@ -200,30 +216,11 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
-			ImGui::Text("Image");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			std::string texture_guid_string = std::to_string(sprite.textureHandle.GetGUID());
-			std::string textureFileName;
-			if (mRegistry.GetAssetManager().mGUIDtoFilename.find(sprite.textureHandle) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			{
-				textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[sprite.textureHandle];
-			}
-			else //Its a default model
-			{
-				textureFileName = texture_guid_string;
-			}
-			ImGui::InputText("##Image", &textureFileName, ImGuiInputTextFlags_ReadOnly);
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Image"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					sprite.textureHandle = recievedPayload;
-					// update the handle after
-				}
-			}
+			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.1f", 0.f, 1.f);
 
+			SliceEngine::GUID tex_guid = sprite.textureHandle;
+			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+			sprite.textureHandle = tex_guid;
 
 			ImGui::TreePop();
 		}
@@ -406,7 +403,7 @@ namespace SliceEditor
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 
 			ImGui::TreePop();
 		}
@@ -499,9 +496,9 @@ namespace SliceEditor
 
 						BoolInputHeader(mRegistry, "Is Kinematic?", "##isKinematic", rb.isKinematic);
 
-						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping);
+						DragFloatInputHeader(mRegistry, "Linear Damping", "##linearDamp", rb.linearDamping, "%.3f", 0.0f, FLT_MAX);
 
-						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping);
+						DragFloatInputHeader(mRegistry, "Angular Damping", "##angularDamp", rb.angularDamping, "%.3f", 0.0f, FLT_MAX);
 
 						DragFloatInputHeader(mRegistry, "Friction", "##friction", rb.friction, "%.3f", 0.1f, FLT_MAX);
 
@@ -557,7 +554,7 @@ namespace SliceEditor
 					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
 					{
 						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
-						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData, 0.0, FLT_MAX))
 						{
 							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
 						}
@@ -1428,11 +1425,20 @@ namespace SliceEditor
 	{
 		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
 		{
-			if (ImGui::Button("Prefab Create"))
+			if (ImGui::Button("Create New Prefab"))
 			{
 				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
 				mRegistry.GetAssetManager().CreatePrefab(go);
-				node->isPrefab = true;
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, true);
+			}
+		}
+
+		else
+		{
+			if (ImGui::Button("Remove Prefab Component"))
+			{
+				EditorUtilities::GameObject_Unprefab(node->entity);
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
 			}
 		}
 
@@ -1583,11 +1589,11 @@ namespace SliceEditor
 		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
 		//if (metapath.has_value())
-		mat.DeserializeAsset(node->path);
+		mat.DeserializeAsset(node->fullPath);
 
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		//std::string mat_file_name{};
@@ -1619,17 +1625,17 @@ namespace SliceEditor
 
 		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
-			mat.SerializeAsset(node->path);
+			mat.SerializeAsset(node->fullPath);
 		}
 	}
 
@@ -1719,14 +1725,23 @@ namespace SliceEditor
 		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
-			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-			//Serialise the Prefab
-			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
+			auto mSession = mRegistry.GetManager<SessionManager>("Session");
 
-			historyManager->ClearFromCheckpoint();
-			PrefabInspectedEvent event;
-			event.prefabBeingInspected = false;
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			//Publish the engine events:
+			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
+			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
+
+			////Serialise the Prefab
+			//SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabEntityInspected());
+
+			//historyManager->ClearFromCheckpoint();
+
+			//For editor handling (only enable if we close the prefab viewer on Saving
+			//PrefabInspectedEvent event;
+			//event.prefabBeingInspected = false;
+			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			return;
 		}
 		ImGui::SameLine();

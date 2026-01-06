@@ -69,7 +69,7 @@ namespace SliceEditor
 			auto& assetManager = registry.GetAssetManager();
 			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			SliceEngine::GUID prefabGUID;
-			std::string fileName = dirNode->path.stem().stem().string();
+			std::string fileName = std::filesystem::relative(dirNode->fullPath.lexically_normal(), registry.GetAssetManager().mAssetDirectory.lexically_normal()).generic_string();
 			//Search for the GUID in the map:
 			if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
 			{
@@ -102,8 +102,16 @@ namespace SliceEditor
 	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
 	{
 		auto session = registry.GetManager<SessionManager>("Session");
-		auto& node = session->GetEntityNodes().at(entity);
-		SelectSingle(node.get(), suppressHistory);
+		if (session->IsPrefabInspected())
+		{
+			auto& node = session->GetPrefabNodes().at(entity);
+			SelectSingle(node.get(), suppressHistory);
+		}
+		else
+		{
+			auto& node = session->GetEntityNodes().at(entity);
+			SelectSingle(node.get(), suppressHistory);
+		}
 	}
 
 	void SelectionManager::SelectSingleAdd(SelectionNode* node, bool suppressHistory)

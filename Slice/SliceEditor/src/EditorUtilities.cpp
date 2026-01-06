@@ -2,6 +2,7 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <Session/SessionManager.h>
 #include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Systems/PrefabSystem.h>
@@ -117,10 +118,10 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
-			auto go = factory.CreateGO_Model(guid);
+			auto go = factory.CreateGO_Model(skeleGUID, animGUID, guid);
 
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
@@ -201,6 +202,12 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent, HistoryManager* history)
 		{
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
+		}
+
+		void GameObject_Unprefab(entt::entity entity)
+		{
+			SliceEngine::GameObject GO  = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(entity, GO.GetComponent<SliceEngine::Prefab>().prefabGUID, true);
 		}
 
 		void GameObject_Clone(entt::entity entity)
@@ -323,6 +330,13 @@ namespace SliceEditor
 			contentBrowserManager.RebuildDirectory();
 		}
 
+		void Hierarchy_ToggleEntityID(Registry& registry)
+		{
+			auto mSession = registry.GetManager<SessionManager>("Session");
+
+			mSession->ToggleHierarchyEntityIDs();
+		}
+
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
 		{
 			if (ImGui::BeginMenu("Create"))
@@ -405,10 +419,11 @@ namespace SliceEditor
 					EditorUtilities::GameObject_CreateCanvas(entt::null, history);
 				}
 
-				if (ImGui::MenuItem("Text"))
-				{
-					//next tri
-				}
+				//Hidden Till it Works
+				//if (ImGui::MenuItem("Text"))
+				//{
+				//	//next tri
+				//}
 
 				if (ImGui::MenuItem("Image"))
 				{

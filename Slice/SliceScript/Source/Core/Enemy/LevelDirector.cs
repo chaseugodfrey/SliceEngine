@@ -16,8 +16,11 @@ namespace SliceEngine
         public float randomRadius       = 1f;
         private Dictionary<uint, EnemySlime> enemyList = new Dictionary<uint, EnemySlime>();
         public Dictionary<uint, EnemySlime> EnemyList => enemyList;
+        public int enemiesKilled = 0;
 
-        private bool spawning = true;
+        public List<int> enemiesToKill = new List<int>();
+
+        private bool spawning = false;
 
         private int currentStage = 0;
 
@@ -26,7 +29,45 @@ namespace SliceEngine
             ClearSpawner();
             firstSpawn = true;
             currentStage++;
-            SpawnSpawners();
+            if (currentStage >= enemiesToKill.Count)
+            {
+                Win();
+            }
+            else
+            {
+                SpawnSpawners();
+            }
+
+        }
+
+        private void ProgressCheck()
+        {
+            //Check if they need to increase the stage
+            if (enemiesKilled >= enemiesToKill[currentStage])
+            {
+                IncreaseStage();
+            }
+        }
+
+        public void StartGame()
+        {
+            //Begin Game
+            spawning = true;
+            Cursor.state = Cursor.STATE.DISABLED;
+            Bootstrap.HUDManager.SetHealth(1f);
+        }
+
+        public void Win()
+        {
+            //End game through winning
+
+            spawning = false;
+            Bootstrap.HUDManager.GameWinScreen();
+        }
+        public void Lose()
+        {
+            //End game through losing
+            Bootstrap.HUDManager.GameLoseScreen();
         }
 
         public string spawnTags = "Spawn Location";
@@ -114,12 +155,19 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             if (spawning)
-            { SpawnSpawnerEnemies(); }
+            { 
+                SpawnSpawnerEnemies();
+                ProgressCheck();
+            }
 
+
+
+            /*
             if (Input.IsKeyDown(Keys.KEY_0))
             {
                 IncreaseStage();
             }
+            */
         }
 
         private void SpawnSpawnerEnemies()
@@ -143,6 +191,7 @@ namespace SliceEngine
                             Console.WriteLine("THERE IS A SLIME COMPONENT BUT LETS SEE IF IT CRASHESSs");
                             SliceLog.Console("Enemy Slime component found");
                             just.As<EnemySlime>().SetUp();
+                            OnSpawn(just);
                         }
                         else
                         {
@@ -159,11 +208,11 @@ namespace SliceEngine
         {
             internalTimer += Time.deltaTime;
 
-            //if (firstSpawn == true)
-            //{
-            //    firstSpawn = false;
-            //    return true;
-            //}
+            if (firstSpawn == true)
+            {
+                firstSpawn = false;
+                return true;
+            }
 
             if (internalTimer >= waitBetweenSpawns)
             {
@@ -172,6 +221,7 @@ namespace SliceEngine
             }
             return false;
         }
+
         public void OnSpawn(GameObject spawnedObject)
         {
             enemyList.Add(spawnedObject.mID, spawnedObject.As<EnemySlime>());

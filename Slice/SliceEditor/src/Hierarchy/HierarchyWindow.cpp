@@ -66,6 +66,11 @@ namespace SliceEditor
 		//Temporary Change
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
+		if (mSession.GetHierarchyEntityIDs())
+		{ 
+			name = std::to_string(entt::to_integral(entity)) + std::string(" ") + SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		}
+
 		ImVec2 invisButtonSize = ImVec2(ImGui::GetContentRegionAvail().x, 2);
 		
 		if (invisButtonSize.x <= 0)
@@ -165,9 +170,20 @@ namespace SliceEditor
 
 			while (child_entity != entt::null)
 			{
-				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph,false);
-				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				//auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+				//DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+				//child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				if (engine_reg.any_of<SliceEngine::SceneGraph>(child_entity))
+				{
+					auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+					DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+					child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				}
+				else
+				{
+					std::cout << "Unable to get scene graph of: " << int(child_entity) << std::endl;
+					break;
+				}
 			}
 
 			ImGui::TreePop();
@@ -177,7 +193,7 @@ namespace SliceEditor
 	void HierarchyWindow::DrawPrefabNode()
 	{
 		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-		Entity parentEntity = sessionManager->GetPrefabInspected();
+		Entity parentEntity = sessionManager->GetPrefabEntityInspected();
 		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
 		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
 		auto treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
@@ -188,6 +204,19 @@ namespace SliceEditor
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
+
+		//Get the parent entity node
+		if (sessionManager->GetPrefabNodes().find(parentEntity) == sessionManager->GetPrefabNodes().end())
+		{
+			SLICE_LOG_WARNING("This should not trigger!");
+			return;
+		}
+		
+		if (sessionManager->GetPrefabNodes()[parentEntity]->isSelected)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+		}
+		
 		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		if (ImGui::TreeNodeEx(parentName.c_str(), treeNodeFlags))
 		{
@@ -283,7 +312,7 @@ namespace SliceEditor
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+					//EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
 				}
 			}
 
@@ -326,7 +355,7 @@ namespace SliceEditor
 				{
 					if(sessionManager->IsPrefabInspected())
 					{
-						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected(), sessionManager->IsPrefabInspected());
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabEntityInspected(), sessionManager->IsPrefabInspected());
 					}
 					else
 					{

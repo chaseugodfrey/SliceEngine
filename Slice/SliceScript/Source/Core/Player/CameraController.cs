@@ -19,23 +19,28 @@ namespace SliceEngine
 
         public void Initialize()
         {
+
         }
         public override void OnUpdate(float dt)
         {
-            Vector2 mousePos = Input.GetMousePosition();
+            Vector2 mouseDelta = Input.GetMouseDelta();
 
-            Vector2 delta = mousePos - lastMousePos;
-            lastMousePos = mousePos;
-
-            float yawDelta = -delta.x * sensitivity.x * dt;
-            float pitchDelta = -delta.y * sensitivity.y * dt;
+            float yawDelta = mouseDelta.x * sensitivity.x * dt;
+            float pitchDelta = mouseDelta.y * sensitivity.y * dt;
             transform.Rotate(yawDelta, Vector3.Up, true);
 
-            float newPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
-            float deltaToApply = newPitch - pitch;
-            pitch = newPitch;
+            float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
 
-            transform.Rotate(deltaToApply, Vector3.Right); 
+            //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
+            //       So I did this null check(27/12/2025)
+            if (Bootstrap.Player != null)
+            {
+                transform.Position = Bootstrap.Player.transform.Position;
+            }
+            //float deltaToApply = newPitch - pitch;
+            //pitch = newPitch;
+
+            transform.Rotate(clampedPitch, Vector3.Right);
 
             //Vector2 mousePos = Input.GetMousePosition();
             //Console.WriteLine("Mouse Position: X=" + mousePos.x + " Y=" + mousePos.y);

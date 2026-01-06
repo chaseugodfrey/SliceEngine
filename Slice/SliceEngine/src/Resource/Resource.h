@@ -58,7 +58,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Shader>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
+		constexpr static inline uint64_t defaultResourceGUID = 0;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Shader> Load(ResourceManager& resourceMgr, const std::string& path);

@@ -61,7 +61,7 @@ namespace SliceEngine
 		void RemoveSoundGroup();
 		void AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips);
 		void RemoveAudioClip(std::vector<GUID>& audioClips);
-		void ChangeAudioClip(GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips);
+		void ChangeAudioClip(const std::string& key, GUID oldSoundGUID, GUID newSoundGUID, std::vector<GUID>& audioClips);
 		FMOD::SoundGroup* GetSoundGroup(const std::string& key);
 		SFXEntry* GetSFXEntry(const std::string& key);
 		void SetSoundGroupVolume(const std::string& key, float volume);

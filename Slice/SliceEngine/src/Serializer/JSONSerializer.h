@@ -182,6 +182,13 @@ namespace SliceEngine
 			output[name][typeName][propName]["height"] = data.height;
 		}
 
+		template<>
+		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const RigidBody::FreezeOptions& data, const Entity& entity)
+		{
+			output[name][typeName][propName] = { data.freezeX, data.freezeY, data.freezeZ };
+		}
+
 		// For glm::vec4
 		template<>
 		inline void Serialize<glm::vec4>(json& output, const std::string& name, const std::string_view& typeName,
@@ -445,6 +452,24 @@ namespace SliceEngine
 			}
 			return false;
 		}
+
+		template<>
+		inline bool TryDeserializeType<RigidBody::FreezeOptions>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<RigidBody::FreezeOptions>()) {
+				RigidBody::FreezeOptions data;
+				if (value.is_array() && value.size() == 3) {
+					data.freezeX = value[0];
+					data.freezeY = value[1];
+					data.freezeZ = value[2];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
 		template <typename... Types>
 		void DeserializeProp(rttr::variant& componentInstance, rttr::property& prop,
 			const json& value, const std::string& propName, const std::string& componentName,
@@ -455,7 +480,6 @@ namespace SliceEngine
 			//	return;
 			//}
 			bool handled = (TryDeserializeType<Types>(componentInstance, prop, value, propName, componentName, entity) || ...);
-
 			if (!handled)
 			{
 				rttr::type propType = prop.get_type();

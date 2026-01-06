@@ -17,6 +17,8 @@ namespace SliceEngine
         public static PlayerController Player { get; private set; }
         public static LevelDirector LevelDirector { get; private set; }
         
+        public static HUD_Manager HUDManager { get; private set; }
+
         public override void OnAwake()
         {
             // Finding references to each script
@@ -30,16 +32,24 @@ namespace SliceEngine
             if (Player != null) Console.WriteLine("Player found");
             else Console.WriteLine("Player not found");
 
-            arr = gameObject.FindGameObjectsWithTag("Level Director"); 
+            arr = gameObject.FindGameObjectsWithTag("Level Director");
             LevelDirector = arr[0].As<LevelDirector>();
             if (LevelDirector != null) Console.WriteLine("Level Director found");
             else Console.WriteLine("Level Director not found");
+
+
+            arr = gameObject.FindGameObjectsWithTag("HUD");
+            HUDManager = arr[0].As<HUD_Manager>();
+            if (HUDManager != null) Console.WriteLine("HUD Manager found");
+            else Console.WriteLine("HUD Manager not found");
+
 
             Console.WriteLine("Jiale called");
 
             // Calling initialize on each script
             if (CameraController != null) CameraController.Initialize();
             if (Player != null) Player.Initialize();
+            if (HUDManager != null) HUDManager.Initialize();
             if (LevelDirector != null) LevelDirector.Initialize();
         }
     }

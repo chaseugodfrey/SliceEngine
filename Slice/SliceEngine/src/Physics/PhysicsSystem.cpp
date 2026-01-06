@@ -802,6 +802,8 @@ namespace SliceEngine
 		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
 		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
 
+		jph_rot.Normalized();
+
 		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
 		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
 	}
@@ -1028,6 +1030,49 @@ namespace SliceEngine
 	{
 		auto& transform = reg.get<Transform>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		GameObject check = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (check.GetTag() == "Player")
+		{
+			auto& rigidBody = reg.get<RigidBody>(entity);
+
+			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+			if (lock.Succeeded())
+			{
+				JPH::Body& body = lock.GetBody();
+				JPH::MotionProperties* mp = body.GetMotionProperties();
+
+				JPH::RefConst<JPH::Shape> shape = body.GetShape();
+				JPH::MassProperties massProps = shape->GetMassProperties();
+
+				massProps.ScaleToMass(rigidBody.mass);
+				body.SetCollideKinematicVsNonDynamic(true);
+
+				//handle freeze position
+				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+				if (!rigidBody.freezePosition.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+				if (!rigidBody.freezePosition.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+				if (!rigidBody.freezePosition.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+				//handle freeze rotation
+				if (!rigidBody.freezeRotation.freezeX)
+					allowedDofs |= JPH::EAllowedDOFs::RotationX;
+				if (!rigidBody.freezeRotation.freezeY)
+					allowedDofs |= JPH::EAllowedDOFs::RotationY;
+				if (!rigidBody.freezeRotation.freezeZ)
+					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+				mp->SetMassProperties(allowedDofs, massProps);
+				//mp->ScaleToMass(rigidBody.mass);
+				mp->SetLinearDamping(rigidBody.linearDamping);
+				mp->SetAngularDamping(rigidBody.angularDamping);
+			}
+
+		}
 
 		UpdateShapeFromTransform(entity);
 

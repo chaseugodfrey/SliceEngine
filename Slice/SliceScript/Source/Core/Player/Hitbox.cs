@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace SliceEngine
         {
             if (Bootstrap.LevelDirector.EnemyList.TryGetValue(other, out EnemySlime slime))
             {
+                //Console.WriteLine();
                 enemiesInRange.Add(slime);
             }
         }
