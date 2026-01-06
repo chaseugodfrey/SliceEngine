@@ -126,7 +126,7 @@ namespace SliceEditor
 
 		auto& assetManager = reg.GetAssetManager();
 		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
-		
+
 		if (file.has_value())
 		{
 			filename = file.value();
@@ -169,24 +169,33 @@ namespace SliceEditor
 
 	}*/
 
-	template <typename Enum>
-	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
+	template<typename Enum>
+	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
 	{
+		static char buffer[256];
+		static std::string searchPrompt;
 		bool changed = false;
-
-		if (!property_label.empty())
-		{
-			ImGui::Text(property_label.c_str());
-			ImGui::SameLine(150.f);
-		}
-
-		ImGui::SetNextItemWidth(150.0f);
-
 		int idx = static_cast<int>(selected);
+
 		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
 		{
+			
+			if (searchBar)
+			{
+				std::string newID = std::string(id) + "searchBar";
+				if (ImGui::InputText(newID.c_str(), buffer, IM_ARRAYSIZE(buffer)))
+				{
+					searchPrompt = buffer;
+				}
+				ImGui::Separator();
+			}
 			for (int i = 0; i < container.size(); ++i)
 			{
+				if (!searchPrompt.empty() && container[i].find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
+
 				if (ImGui::Selectable(container[i].c_str()))
 				{
 					if (i != idx)
@@ -206,6 +215,28 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
+		else
+		{
+			buffer[0] = '\0';
+			searchPrompt.clear();
+		}
+		return changed;
+	}
+
+	template <typename Enum>
+	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	{
+		bool changed = false;
+
+		if (!property_label.empty())
+		{
+			ImGui::Text(property_label.c_str());
+			ImGui::SameLine(150.f);
+		}
+
+		ImGui::SetNextItemWidth(150.0f);
+
+		ComboInput(reg , id, selected, container,searchBar);
 		return changed;
 	}
 
@@ -267,7 +298,7 @@ namespace SliceEditor
 				ImGui::SameLine(150.0f);
 			}
 
-			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames))
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
 			{
 				const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
