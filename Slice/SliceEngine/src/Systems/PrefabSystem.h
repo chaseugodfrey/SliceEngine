@@ -64,8 +64,8 @@ namespace SliceEngine
 		bool IsNewGO(Entity entity, unsigned int prefabID);
 
 		void UpdateBasePrefabs();
-		std::string CheckPrefabEntityName(GUID prefabGUID, std::string name, Entity newEntity);
-		void CheckPrefabChildrenName(Entity entity, std::string name, int& count, Entity newEntity);
+		std::unordered_set<std::string> CheckPrefabEntityName(GUID prefabGUID, Entity newEntity);
+		void CheckPrefabChildrenName(Entity entity, Entity newEntity, std::unordered_set<std::string>& names);
 	};
 }
 
