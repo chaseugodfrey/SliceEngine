@@ -44,7 +44,7 @@ namespace SliceEngine
 		void UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor = false);
 		void InitEvent();
 		void OnPrefabModified(const OnPrefabModifiedEvent& event);
-		void GetEntityFromPrefab(std::vector<Entity>& prefabEntities, std::map<unsigned int, Entity>& prefabToEntity, Entity entity);
+		void GetEntityFromPrefab(std::map<unsigned int, Entity>& prefabToEntity, Entity entity);
 		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
 		void OnPrefabSerialized(const OnPrefabSerializedEvent& event);
 		void AssignPrefabID(GUID guid, Entity entity);
