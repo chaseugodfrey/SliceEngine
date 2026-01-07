@@ -13,8 +13,8 @@ namespace SliceEngine
 		// TODO: When an entity comes into the system
 		// check if the prefab it references exists/is modified
 		// if not then unprefab it (remove prefab component)
-		GameObject GO = FactoryInstance.GetGOByEntity(entity);
-		Prefab& prefab = GO.GetComponent<Prefab>();
+		//GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Prefab& prefab = mRegistry->get<Prefab>(entity);
 
 		// idk cause if I add a prefab component when a new prefab is made, it enters here straight
 		// so this check is to stop that??
@@ -24,7 +24,7 @@ namespace SliceEngine
 		}
 
 		// being opened to edit not to create an instance of
-		if (GO.HasComponent<PrefabEditingEntity>())
+		if (mRegistry->any_of<PrefabEditingEntity>(entity))
 		{
 			return;
 		}
@@ -43,7 +43,7 @@ namespace SliceEngine
 					if (*iter == entity)
 					{
 						// only remove if its already inside
-						GO.RemoveComponent<Prefab>();
+						mRegistry->remove<Prefab>(entity);
 						vec.erase(iter);
 						break;
 					}
@@ -301,6 +301,7 @@ namespace SliceEngine
 			// and the vector of entities from the instance
 			// and maps of prefab id to entity
 			// we can compare the two and update it
+			std::vector<Entity> newEntities;
 
 			// first handle new game objects
 			for (auto& [prefabID, entity] : originalPrefabIDToEntityMap)
@@ -309,18 +310,23 @@ namespace SliceEngine
 				if (!instancePrefabIDToEntityMap.contains(prefabID))
 				{
 					// get the entity 
-					GameObject MissingGO = FactoryInstance.GetGOByEntity(entity);
-					// get the parent and siblings
-					Entity parentEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::UP];
+					GameObject missingGO = FactoryInstance.GetGOByEntity(entity);
+										
+					GameObject newGO = FactoryInstance.CloneGO(missingGO);
+					
+					// set back the entity ID
+					newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)newGO.GetEntity();
+					// get the previous left neighbour and set the right to null 
+					Entity leftEntity = newGO.GetComponent<SceneGraph>().neighbours[SceneGraph::LEFT];
+					if (leftEntity != entt::null)
+						mRegistry->get<SceneGraph>(leftEntity).neighbours[SceneGraph::RIGHT] = entt::null;
 
-					//Entity left sibling 
-					Entity leftEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::LEFT];
-
-					//Entity right sibling
-					Entity rightEntity = MissingGO.GetComponent<SceneGraph>().neighbours[SceneGraph::RIGHT];
-
-					// now we need to manually insert in the new GO
-
+					newGO.GetComponent<SceneGraph>().neighbours = missingGO.GetComponent<SceneGraph>().neighbours;
+					// Createa all the new game objects first
+					// settle the parenting and sibling standardisation after creating them all
+					instancePrefabIDToEntityMap[newGO.GetComponent<Prefab>().prefabID] = newGO.GetEntity();
+					newEntities.push_back(newGO.GetEntity());
+				
 				}
 				// it already exist, so just update the components
 				else
@@ -386,10 +392,54 @@ namespace SliceEngine
 				}
 			}
 			
-			//for (size_t index = 0; index < prefabEntities.size(); ++index)
-			//{
+			for (auto entity : newEntities)
+			{
+				auto& sceneGraphComponent = mRegistry->get<SceneGraph>(entity);
+				auto& prefabComponent = mRegistry->get<Prefab>(entity);
 
-			//}
+				// now we need to fix scene graph component
+				// first parent
+				Entity parentEntity = sceneGraphComponent.neighbours[SceneGraph::UP];
+				// now get the prefabID of it
+				unsigned int parentPrefabID = mRegistry->get<Prefab>(parentEntity).prefabID;
+				sceneGraphComponent.neighbours[SceneGraph::UP] = instancePrefabIDToEntityMap[parentPrefabID];
+
+				// then now we need to update the parent's one maybe
+				// but the parent only needs to be updated if this entity is the direct child
+				// meaning it has no left children
+				// so ig we can do left sibling first
+				Entity leftEntity = sceneGraphComponent.neighbours[SceneGraph::LEFT];
+				if (leftEntity == entt::null)
+				{
+					// if theres no left sibling, then we need to update the parent
+					auto& sceneGraphParent = mRegistry->get<SceneGraph>(instancePrefabIDToEntityMap[parentPrefabID]);
+					sceneGraphParent.neighbours[SceneGraph::DOWN] = entity;
+				}
+				else
+				{
+					// set the left to point to the new entity
+					// set the new entity to point to the left
+					// cause the current neighbours are all wrong atm
+
+					// if there is then we have to update the left sibling to point to this one
+					unsigned int leftPrefabID = mRegistry->get<Prefab>(leftEntity).prefabID;
+					auto& sceneGraphLeft = mRegistry->get<SceneGraph>(instancePrefabIDToEntityMap[leftPrefabID]);
+					sceneGraphLeft.neighbours[SceneGraph::RIGHT] = entity;
+
+					sceneGraphComponent.neighbours[SceneGraph::LEFT] = instancePrefabIDToEntityMap[leftPrefabID];
+				}
+
+				Entity rightEntity = sceneGraphComponent.neighbours[SceneGraph::RIGHT];
+
+				if (rightEntity != entt::null)
+				{
+					unsigned int rightPrefabID = mRegistry->get<Prefab>(rightEntity).prefabID;
+					auto& sceneGraphRight = mRegistry->get<SceneGraph>(instancePrefabIDToEntityMap[rightPrefabID]);
+					sceneGraphRight.neighbours[SceneGraph::LEFT] = entity;
+
+					sceneGraphComponent.neighbours[SceneGraph::RIGHT] = instancePrefabIDToEntityMap[rightPrefabID];
+				}
+			}
 		}
 
 	}
