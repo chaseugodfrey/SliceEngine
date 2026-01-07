@@ -858,7 +858,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(filePath, meta.get());
+		CreateResource(filePath, meta.get(), true);
 	}
 
 	void AssetManager::CreateAssetManifest()
