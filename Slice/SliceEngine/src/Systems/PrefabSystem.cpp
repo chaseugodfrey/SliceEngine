@@ -440,6 +440,33 @@ namespace SliceEngine
 					sceneGraphComponent.neighbours[SceneGraph::RIGHT] = instancePrefabIDToEntityMap[rightPrefabID];
 				}
 			}
+			
+			// if this works copilot is amazing
+
+			// Check for any changes in hierarchy??
+			std::unordered_map<unsigned int, std::array<unsigned int, 4>> prefabIDToSceneGraphMap;
+
+			// ty co pilot
+			for (auto& [prefabID, entity] : originalPrefabIDToEntityMap)
+			{
+				auto& sceneGraphComp = mRegistry->get<SceneGraph>(entity);
+				prefabIDToSceneGraphMap[prefabID] = {
+					sceneGraphComp.neighbours[SceneGraph::UP] != entt::null ? mRegistry->get<Prefab>(sceneGraphComp.neighbours[SceneGraph::UP]).prefabID : UINT_MAX,
+					sceneGraphComp.neighbours[SceneGraph::DOWN] != entt::null ? mRegistry->get<Prefab>(sceneGraphComp.neighbours[SceneGraph::DOWN]).prefabID : UINT_MAX,
+					sceneGraphComp.neighbours[SceneGraph::LEFT] != entt::null ? mRegistry->get<Prefab>(sceneGraphComp.neighbours[SceneGraph::LEFT]).prefabID : UINT_MAX,
+					sceneGraphComp.neighbours[SceneGraph::RIGHT] != entt::null ? mRegistry->get<Prefab>(sceneGraphComp.neighbours[SceneGraph::RIGHT]).prefabID : UINT_MAX
+				};
+			}
+
+			for (auto& [prefabID, entity] : instancePrefabIDToEntityMap)
+			{
+				auto& sceneGraphComp = mRegistry->get<SceneGraph>(entity);
+				auto& originalSceneGraph = prefabIDToSceneGraphMap[prefabID];
+				sceneGraphComp.neighbours[SceneGraph::UP] = originalSceneGraph[SceneGraph::UP] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::UP]] : entt::null;
+				sceneGraphComp.neighbours[SceneGraph::DOWN] = originalSceneGraph[SceneGraph::DOWN] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::DOWN]] : entt::null;
+				sceneGraphComp.neighbours[SceneGraph::LEFT] = originalSceneGraph[SceneGraph::LEFT] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::LEFT]] : entt::null;
+				sceneGraphComp.neighbours[SceneGraph::RIGHT] = originalSceneGraph[SceneGraph::RIGHT] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::RIGHT]] : entt::null;
+			}
 		}
 
 	}
