@@ -923,7 +923,6 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
@@ -938,31 +937,21 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
-								if (data.GetEntity() == Entity(0))
-								{
-									ImGui::Text("Blank GO");
-								}
-								else
-								{
-									ImGui::Text(data.GetName().c_str());
-								}
-								/*if (data.GetName().empty())
-								{
-									ImGui::Text("Blank GO");
-								}
-								else
-								{
-									ImGui::Text(data.GetName().c_str());
-								}*/
+
+								
 								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
+								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
