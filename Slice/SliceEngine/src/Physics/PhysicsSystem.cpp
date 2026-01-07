@@ -1316,6 +1316,12 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
+	bool PhysicsSystem::PSystemRayCast()
+	{
+		physicsSystem->GetNarrowPhaseQuery().CastRay();
+		return true;
+	}
+
 
 
 

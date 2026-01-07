@@ -160,6 +160,8 @@ namespace SliceEngine
 		glm::vec3 GetLinearVelocity(Entity entity);
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
+
+		bool PSystemRayCast();
 	};
 }
 
