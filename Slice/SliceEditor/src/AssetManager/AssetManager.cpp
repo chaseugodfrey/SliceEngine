@@ -203,6 +203,15 @@ namespace SliceEditor
 		//metaPath.replace_extension(".meta");
 		metaPath += ".meta";
 
+		// check if a file already exist
+		if (std::filesystem::exists(metaPath))
+		{
+			AssetExistEvent assetEvent(metaData->assetName);
+			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
+			SLICE_LOG_ERROR("Trying to import asset that already exist :" + metaData->assetName);
+			return std::filesystem::path("");
+		}
+
 		metaData->Serialize(metaPath);
 
 		//mAssets[assetType].push_back(metaData->assetName);
