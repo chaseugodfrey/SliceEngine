@@ -21,6 +21,7 @@ namespace SliceEditor
 		SliceEngine::GUID mInspectedPrefabGUID;
 
 		bool mPrefabInspected;
+		bool mShowHierarchyEntityIDs;
 
 		std::unique_ptr<AnimatorData> mAnimatorData;
 
@@ -57,6 +58,8 @@ namespace SliceEditor
 		bool IsPrefabInspected();
 		Entity GetPrefabEntityInspected();
 		SliceEngine::GUID GetPrefabGUIDInspected();
+		void ToggleHierarchyEntityIDs();
+		bool GetHierarchyEntityIDs();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetPrefabNodes();
 

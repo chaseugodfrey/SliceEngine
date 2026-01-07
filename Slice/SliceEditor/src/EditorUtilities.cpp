@@ -2,6 +2,7 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <Session/SessionManager.h>
 #include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Systems/PrefabSystem.h>
@@ -327,6 +328,13 @@ namespace SliceEditor
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
 		{
 			contentBrowserManager.RebuildDirectory();
+		}
+
+		void Hierarchy_ToggleEntityID(Registry& registry)
+		{
+			auto mSession = registry.GetManager<SessionManager>("Session");
+
+			mSession->ToggleHierarchyEntityIDs();
 		}
 
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)
