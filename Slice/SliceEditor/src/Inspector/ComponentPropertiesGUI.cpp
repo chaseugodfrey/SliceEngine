@@ -434,6 +434,48 @@ namespace SliceEditor
 		return changed;
 	}
 
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	{
+		static SliceEngine::GameObject oldVal{};
+
+		bool changed = false;
+
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+
+		ImGui::BeginDisabled();
+		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
+		{
+			std::string empty = " ";
+			ImGui::InputText(id, &empty);
+		}
+		else
+		{
+			
+			std::string goName = val.GetName();
+			ImGui::InputText(id, &goName);
+		}
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				oldVal = val;
+				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+				val = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
+
+				std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+				changed = true;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+	}
 	//bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
 	//{
 	//	ImGui::Text(property_label);

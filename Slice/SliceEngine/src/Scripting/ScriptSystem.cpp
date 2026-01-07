@@ -775,6 +775,11 @@ namespace SliceEngine
                     glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
+                else if (it.second.mType == ScriptFieldType::GameObject)
+                {
+                    GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
             }
         }
     }
