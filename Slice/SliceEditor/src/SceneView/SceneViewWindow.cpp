@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include "WindowManager/WindowManager.h"
 #include "History/HistoryManager.h"
 
@@ -123,9 +124,12 @@ namespace SliceEditor
 	{
 		auto mRender = SliceEngine::Core::GetInstance()->GetRenderManager();
 		SliceEngine::GameObject go = mRender->CreateCamera();
+		SliceEngine::GameObject prefabCamGO = mRender->CreatePrefabCam();
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
+		auto& prefabCam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(prefabCamGO.GetEntity());
 		camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
 		camObj->camera.debugRenderToggles = SliceEngine::DEBUG_ALL_DEBUG;
+		prefabCamObj = std::make_unique<SceneCamera>(prefabCamGO.GetEntity(), prefabCamGO, prefabCam);
 	}
 
 	void SceneViewWindow::Draw()
@@ -134,16 +138,20 @@ namespace SliceEditor
 
 		auto& io = ImGui::GetIO();
 		auto mSelection = mRegistry.GetManager<SelectionManager>("Selection");
+		auto mSession = mRegistry.GetManager<SessionManager>("Session");
 
 		// Draw Utility Bar
 		ImGui::BeginGroup();
-		if (ImGui::Button("Debug Options"))
+		if(!mSession->IsPrefabInspected())
 		{
-			ImGui::OpenPopup("Debug Lines");
+			if (ImGui::Button("Debug Options"))
+			{
+				ImGui::OpenPopup("Debug Lines");
+			}
+			float height = ImGui::GetItemRectSize().y;
+			DebugDrawTogglePopup();
+			ImGui::SameLine();
 		}
-		float height = ImGui::GetItemRectSize().y;
-		DebugDrawTogglePopup();
-		ImGui::SameLine();
 		std::stringstream ss;
 		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
@@ -158,7 +166,11 @@ namespace SliceEditor
 		auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
-		auto& cam_tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);
+		auto* cam_tr = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);
+		if (mSession->IsPrefabInspected())
+		{
+			cam_tr = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(prefabCamObj->entity);
+		}
 
 		ImVec2 window_pos = ImGui::GetWindowPos();
 		ImVec2 window_size = ImGui::GetWindowSize(); // I actually dk what this is, I'm guessing the Whole region available for my scene to draw??
@@ -182,7 +194,14 @@ namespace SliceEditor
 		glm::vec3 forward{}, right{}, up{};
 		//camObj->camera.renderTag = SliceEngine::RENDER_TAG::DEBUG_ALL_DEBUG;
 
-		SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
+		if (!mSession->IsPrefabInspected())
+		{
+			SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(camObj->gameobject, forward, right, up);
+		}
+		else
+		{
+			SliceEngine::Core::GetInstance()->GetRenderManager()->GetCameraAxis(prefabCamObj->gameobject, forward, right, up);
+		}
 
 		if (ImGui::IsWindowFocused())
 		{
@@ -192,7 +211,7 @@ namespace SliceEditor
 				if(!selectedEntities.empty())
 				{
 					auto& inspectedNode = *selectedEntities.begin();
-					if (inspectedNode->type == SelectionType::ENTITY)
+					if (inspectedNode->type == SelectionType::ENTITY || inspectedNode->type == SelectionType::PREFAB_ENTITY)
 					{
 						SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(inspectedNode)->entity);
 
@@ -202,7 +221,7 @@ namespace SliceEditor
 							
 							glm::vec3 camPos = targetTr.position + glm::vec3(-2.0f, 0.0f, 0.0f);
 
-							cam_tr.position = camPos;
+							cam_tr->position = camPos;
 						}
 					}
 				}
@@ -212,32 +231,32 @@ namespace SliceEditor
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_W))
 				{
-					cam_tr.position += forward * mCameraSpeed;
+					cam_tr->position += forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_S))
 				{
-					cam_tr.position -= forward * mCameraSpeed;
+					cam_tr->position -= forward * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_A))
 				{
-					cam_tr.position -= right * mCameraSpeed;
+					cam_tr->position -= right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_D))
 				{
-					cam_tr.position += right * mCameraSpeed;
+					cam_tr->position += right * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_Q))
 				{
-					cam_tr.position -= up * mCameraSpeed;
+					cam_tr->position -= up * mCameraSpeed;
 				}
 
 				if (ImGui::IsKeyDown(ImGuiKey_E))
 				{
-					cam_tr.position += up * mCameraSpeed;
+					cam_tr->position += up * mCameraSpeed;
 				}
 
 				//Camera Speed Change
@@ -283,8 +302,8 @@ namespace SliceEditor
 			{
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					//init_rot.x = cam_tr.rotation.y;
-					//init_rot.y = cam_tr.rotation.z;
+					//init_rot.x = cam_tr->rotation.y;
+					//init_rot.y = cam_tr->rotation.z;
 					lastMousePos = ImGui::GetMousePos();
 					isRotating = true;
 				}
@@ -311,7 +330,7 @@ namespace SliceEditor
 					glm::quat yawRotation = glm::angleAxis(cameraYaw, glm::vec3(0.0f, 1.0f, 0.0f));
 					glm::quat pitchRotation = glm::angleAxis(cameraPitch, glm::vec3(0.0f, 0.0f, 1.0f));
 
-					cam_tr.rotation = yawRotation * pitchRotation;
+					cam_tr->rotation = yawRotation * pitchRotation;
 
 					lastMousePos = currMouse;
 				}
@@ -325,8 +344,15 @@ namespace SliceEditor
 		// Btw for rotation
 		//camera.rotation.y -= (newMousePos.x - mousePos.x);
 		//camera.rotation.z = std::clamp(camera.rotation.z - (newMousePos.y - mousePos.y), -89.f, 89.f);
-
-		ImTextureID tex = static_cast<ImTextureID>(camObj->camera.textureID);;
+		ImTextureID tex;
+		if(!mSession->IsPrefabInspected())
+		{
+			 tex = static_cast<ImTextureID>(camObj->camera.textureID);
+		}
+		else
+		{
+			tex = static_cast<ImTextureID>(prefabCamObj->camera.textureID);
+		}
 
 		// win as in the scene Window
 		ImVec2 winScreenTL{ pos.x, pos.y };
@@ -335,7 +361,15 @@ namespace SliceEditor
 		ImVec2 winScreenDim = totalWinScreenDim;
 		float winScreenAR = winScreenDim.x / winScreenDim.y;
 		// worldSpace as in what the camera renders (i'm going to change this val when I crop out parts of the image when streching the height)
-		ImVec2 worldSpaceDim{ static_cast<float>(camObj->camera.width) , static_cast<float>(camObj->camera.height) };
+		ImVec2 worldSpaceDim;
+		if(!mSession->IsPrefabInspected())
+		{
+			worldSpaceDim = ImVec2{static_cast<float>(camObj->camera.width),static_cast<float>(camObj->camera.height)};
+		}
+		else
+		{
+			worldSpaceDim = ImVec2{static_cast<float>(prefabCamObj->camera.width),static_cast<float>(prefabCamObj->camera.height)};
+		}
 		float worldSpaceAR = worldSpaceDim.x / worldSpaceDim.y;
 		float worldSpaceOffsetX{ 0.f };
 
@@ -409,7 +443,7 @@ namespace SliceEditor
 
 		auto& set = mRegistry.GetManager<SelectionManager>("Selection")->GetSelectedNodes();
 
-		if (!set.empty() && set.begin().operator*()->type == SelectionType::ENTITY)
+		if (!set.empty() && (set.begin().operator*()->type == SelectionType::ENTITY || set.begin().operator*()->type == SelectionType::PREFAB_ENTITY))
 		{
 			// get entities & transform components
 			auto entity = static_cast<EntityNode*>(*set.begin())->entity;
@@ -418,9 +452,19 @@ namespace SliceEditor
 			auto parentEntity = sceneGraph.neighbours[sceneGraph.UP];
 
 			// get cam view & perspective
-			glm::mat4 V = glm::lookAt(cam_tr.position, cam_tr.position + forward, up);
-			glm::mat4 P = glm::perspective(
-				glm::radians(camObj->camera.pov), worldSpaceDim.x / worldSpaceDim.y, camObj->camera.near, camObj->camera.far);
+			glm::mat4 V = glm::lookAt(cam_tr->position, cam_tr->position + forward, up);
+			glm::mat4 P;
+
+			if(!mSession->IsPrefabInspected())
+			{
+				P = glm::perspective(
+					glm::radians(camObj->camera.pov), worldSpaceDim.x / worldSpaceDim.y, camObj->camera.near, camObj->camera.far);
+			}
+			else
+			{
+				P = glm::perspective(
+					glm::radians(prefabCamObj->camera.pov), worldSpaceDim.x / worldSpaceDim.y, prefabCamObj->camera.near, prefabCamObj->camera.far);
+			}
 
 
 			// set gizmo limits to window
@@ -530,7 +574,14 @@ namespace SliceEditor
 			if (!ImGuizmo::IsOver() || !ImGuizmo::IsUsingAny())
 			{
 				auto renderer = SliceEngine::Core::GetInstance()->GetRenderManager();
-				renderer->SelectCamIDPick(camObj->entity);
+				if(!mSession->IsPrefabInspected())
+				{
+					renderer->SelectCamIDPick(camObj->entity);
+				}
+				else
+				{
+					renderer->SelectCamIDPick(prefabCamObj->entity);
+				}
 				unsigned int entt_id = renderer->ObjectPick(static_cast<int>(worldSpaceMouse.x), static_cast<int>(worldSpaceMouse.y));
 				/*
 				std::cout << std::setprecision(5) << std::setw(5) 

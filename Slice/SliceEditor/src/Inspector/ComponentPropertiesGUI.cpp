@@ -1060,7 +1060,11 @@ namespace SliceEditor
 					currentIndex = (int)mapNames.size();
 				}
 
-				mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+				//Manipulate to the filename
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::string fileNameString = relativePath.filename().string();
+
+				mapNames.push_back(fileNameString);
 			}
 
 			//Fall-back (Should Display Nothing)
@@ -1183,21 +1187,21 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f",min,max) || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f",min,max) || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f",min,max) || changed;
 
 		return changed;
 	}

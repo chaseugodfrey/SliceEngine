@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Resource.h"
+#include "RenderCmdManager.h"
 
 namespace SliceEngine
 {
@@ -36,9 +37,12 @@ namespace SliceEngine
 		void RegenerateSkybox();
 		// Camera related functions
 		GameObject CreateCamera();
+		GameObject CreatePrefabCam();
 		void SetMainGameCamera(Entity cam);
 		std::optional<Entity>& GetGameCamera();
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		void GetCameraAxis(glm::mat3& camRot, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
+		glm::mat4 DirLightMatCalc(const glm::mat4& proj, const glm::mat4& view, const glm::vec3 lightDir);
 
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
@@ -47,7 +51,6 @@ namespace SliceEngine
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
 		void BindCameraDepth(Entity cam);
-		void GatherDrawCalls();
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
@@ -64,6 +67,7 @@ namespace SliceEngine
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
 		bool UniformExists(const char* str, GLint& ref);
+		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		//void LinkTransformInstancing(GUID guid);
 		
 		// Colors
@@ -76,12 +80,15 @@ namespace SliceEngine
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
+		const float mLightZDist = 50.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
+		const int mNumCascadeShadow = 5;
+		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -104,14 +111,8 @@ namespace SliceEngine
 		struct InstanceData
 		{
 			glm::mat4 mtx;
-			glm::ivec4 mat;
 		};
-		struct RenderCmd
-		{
-			Handle<SliceEngineTypes::Model> mdl;
-			Handle<SliceEngineTypes::Material> mat;
-			glm::mat4 mtx;
-		};
+
 #pragma region Enums
 		enum FBOType : unsigned char
 		{
@@ -200,10 +201,11 @@ namespace SliceEngine
 
 			GPS_NONE				= 0x00,
 			GPS_DEFAULT				= 0b1001'0101,
+			GPS_TEST_TRANSLUCENT	= 0b1101'0111,
 			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SKYBOX				= 0b0000'0001,
 			GPS_SKYBOX_AMBIENT		= 0b0101'0011,
-			GPS_SHADOW				= 0b1000'0101,
+			GPS_SHADOW				= 0b1001'0101,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
 			GPS_DEBUG				= 0b1100'0110,
@@ -220,6 +222,7 @@ namespace SliceEngine
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mIVBO{};
+		GLuint mShadowUBO;
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
 		GLuint pboIdx[2]{};
@@ -232,15 +235,16 @@ namespace SliceEngine
 		std::pair<std::string, GLuint> mCurrShader;
 		std::vector<InstanceData> mInstanceVtx;
 
+		RenderCmdManager renderQueue;
+
 		GLuint SkyboxMap{};
 		GLuint SkyboxIrradianceMap{};
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
-		glm::mat4 V, P;
+		glm::mat4 V, P;// Camera's
 
-		void SetDirectionalLightMtx(glm::vec3 camPos, glm::vec3 lightPos);
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);

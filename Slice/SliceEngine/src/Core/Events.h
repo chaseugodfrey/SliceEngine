@@ -135,21 +135,32 @@ struct OnSliderValueEvent
 
 struct OnPrefabModifiedEvent
 {
-	OnPrefabModifiedEvent(SliceEngine::GUID g_uid) : guid(g_uid)
+	OnPrefabModifiedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
 	{
 
 	}
+	Entity entity;
 	SliceEngine::GUID guid;
 };
 
 struct OnPrefabDeletedEvent
 {
+	OnPrefabDeletedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
+	{
+
+	}
+	Entity entity;
 	SliceEngine::GUID guid;
 };
 
 struct OnPrefabSerializedEvent
 {
+	OnPrefabSerializedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
+	{
 
+	}
+	Entity entity;
+	SliceEngine::GUID guid;
 };
 
 struct OnPlayEvent

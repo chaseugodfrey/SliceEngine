@@ -1,5 +1,5 @@
 {
     "VertexShader": "Shaders/shadow_Vert.vert",
     "FragmentShader": "Shaders/shadow_Frag.frag",
-    "GeometryShader": ""
+    "GeometryShader": "Shaders/shadow_Geom.geom"
 }

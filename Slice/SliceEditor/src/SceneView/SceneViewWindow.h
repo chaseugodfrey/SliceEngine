@@ -47,6 +47,7 @@ namespace SliceEditor
 		ImGuizmo::MODE mGuizmoMode{ ImGuizmo::MODE::LOCAL };
 
 		std::unique_ptr<SceneCamera> camObj;
+		std::unique_ptr<SceneCamera> prefabCamObj;
 		void UpdateCam();
 
 	public:

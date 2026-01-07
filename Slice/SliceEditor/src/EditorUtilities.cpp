@@ -2,6 +2,7 @@
 #include "EditorUtilities.h"
 #include <History/HistoryManager.h>
 #include <Selection/SelectionManager.h>
+#include <Session/SessionManager.h>
 #include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Systems/PrefabSystem.h>
@@ -203,6 +204,12 @@ namespace SliceEditor
 			return SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(guid);
 		}
 
+		void GameObject_Unprefab(entt::entity entity)
+		{
+			SliceEngine::GameObject GO  = SliceEngine::FactoryInstance.GetGOByEntity(entity);
+			SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().UpdatePrefabComponent(entity, GO.GetComponent<SliceEngine::Prefab>().prefabGUID, true);
+		}
+
 		void GameObject_Clone(entt::entity entity)
 		{
 			SliceEngine::GameObject go = SliceEngine::FactoryInstance.GetGOByEntity(entity);
@@ -321,6 +328,13 @@ namespace SliceEditor
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager)
 		{
 			contentBrowserManager.RebuildDirectory();
+		}
+
+		void Hierarchy_ToggleEntityID(Registry& registry)
+		{
+			auto mSession = registry.GetManager<SessionManager>("Session");
+
+			mSession->ToggleHierarchyEntityIDs();
 		}
 
 		void MenuList_CreateFiles(Registry& reg,std::filesystem::path descPath)

@@ -110,7 +110,23 @@ namespace SliceEditor
 		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
+			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
 			ImGui::Text("Is Prefab");
+			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			{
+				if(ImGui::BeginTooltip())
+				{
+					ImGui::Text("Prefab GUID: ");
+					ImGui::SameLine(150.f);
+					std::string prefabGUID = prefabComponent.prefabGUID.toString();
+					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
+					ImGui::Text(prefabGUID.c_str());
+					ImGui::Text("Prefab Handle GUID: ");
+					ImGui::SameLine(150.f);
+					ImGui::Text(prefabHandle.c_str());
+					ImGui::EndTooltip();
+				}
+			}
 		}
 
 		std::function<void(std::string name)> funcTag = [&](std::string name)
@@ -543,7 +559,7 @@ namespace SliceEditor
 					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
 					{
 						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
-						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData, 0.0, FLT_MAX))
 						{
 							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
 						}
@@ -1415,11 +1431,20 @@ namespace SliceEditor
 	{
 		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
 		{
-			if (ImGui::Button("Prefab Create"))
+			if (ImGui::Button("Create New Prefab"))
 			{
 				SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
 				mRegistry.GetAssetManager().CreatePrefab(go);
-				node->isPrefab = true;
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, true);
+			}
+		}
+
+		else
+		{
+			if (ImGui::Button("Remove Prefab Component"))
+			{
+				EditorUtilities::GameObject_Unprefab(node->entity);
+				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
 			}
 		}
 
@@ -1706,14 +1731,23 @@ namespace SliceEditor
 		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
-			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-			//Serialise the Prefab
-			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
+			auto mSession = mRegistry.GetManager<SessionManager>("Session");
 
-			historyManager->ClearFromCheckpoint();
-			PrefabInspectedEvent event;
-			event.prefabBeingInspected = false;
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			//Publish the engine events:
+			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
+			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
+
+			////Serialise the Prefab
+			//SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabEntityInspected());
+
+			//historyManager->ClearFromCheckpoint();
+
+			//For editor handling (only enable if we close the prefab viewer on Saving
+			//PrefabInspectedEvent event;
+			//event.prefabBeingInspected = false;
+			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			return;
 		}
 		ImGui::SameLine();

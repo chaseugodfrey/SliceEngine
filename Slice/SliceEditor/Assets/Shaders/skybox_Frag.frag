@@ -1,5 +1,5 @@
 #version 460 core
-
+//skybox_Frag
 layout (location=0) in vec3 vTexCoord;
 
 layout (location=0)	out vec4 fFragColor;

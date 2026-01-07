@@ -302,7 +302,7 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Re-compile File"))
 			{
 				//Get the metaData for this Asset:
-				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.fullPath.stem().stem().string());
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.relativePath.generic_string());
 
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
@@ -638,7 +638,7 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 		Label("Is Static: ");
-		ImGui::Checkbox("##Has_Alpha", &data->is_static);
+		ImGui::Checkbox("##Is_Static", &data->is_static);
 	}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)

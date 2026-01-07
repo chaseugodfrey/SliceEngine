@@ -18,6 +18,7 @@ namespace SliceEditor
 	void SessionManager::Init()
 	{
 		mPrefabInspected = false;
+		mShowHierarchyEntityIDs = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -131,6 +132,36 @@ namespace SliceEditor
 			}).detach();
 	}
 
+	void SessionManager::SetNodeAsPrefab(EntityNode* node, bool isPrefab)
+	{
+		node->isPrefab = isPrefab;
+		SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
+
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+
+			auto childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				//Need to find the EntityNode in the editor's map
+				if (mEntityNodes.find(childEntity) == mEntityNodes.end())
+				{
+					SLICE_LOG_WARNING("De-sync of mEntityNodes!");
+					return;
+				}
+				auto childEntityNode = mEntityNodes[childEntity].get();
+				
+				SetNodeAsPrefab(childEntityNode, isPrefab);
+				//Get SceneGraph component and update
+				auto childGO = SliceEngine::FactoryInstance.GetGOByEntity(childEntity);
+				auto& childSceneGraph = childGO.GetComponent<SliceEngine::SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+		}
+	}
+
 	void SessionManager::CreateEntityNodes()
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
@@ -204,6 +235,7 @@ namespace SliceEditor
 		{
 			//Create the Prefab Instance
 			mPrefabRootEntity = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(event.prefabGUID, true).GetEntity();
+			mInspectedPrefabGUID = event.prefabGUID;
 			//Clear the look-up table just incase
 			mPrefabNodes.clear();
 			//Build the mPrefabNodes lookup table
@@ -215,11 +247,16 @@ namespace SliceEditor
 			//Delete the Root Entity from GOFactory
 			//SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
 			
+			//Delete the Root Entity and its children mwahahahaa
+			EditorUtilities::GameObject_Destroy(mPrefabRootEntity);
+
 			//Clear Session Manager Variables
 			mPrefabRootEntity = entt::null;
+			mInspectedPrefabGUID = SliceEngine::GUID::null();
 			mPrefabNodes.clear();
 
 			registry.GetManager<SelectionManager>("Selection")->ClearSelection();
+
 		}
 	}
 
@@ -259,9 +296,24 @@ namespace SliceEditor
 		return mPrefabInspected;
 	}
 
-	Entity SessionManager::GetPrefabInspected()
+	Entity SessionManager::GetPrefabEntityInspected()
 	{
 		return mPrefabRootEntity;
+	}
+
+	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
+	{
+		return mInspectedPrefabGUID;
+	}
+
+	void SessionManager::ToggleHierarchyEntityIDs()
+	{
+		mShowHierarchyEntityIDs = !mShowHierarchyEntityIDs;
+	}
+
+	bool SessionManager::GetHierarchyEntityIDs()
+	{
+		return mShowHierarchyEntityIDs;
 	}
 
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()

@@ -1,5 +1,5 @@
 #version 460 core
-
+//bloomSplit_Frag
 layout (location=0) in vec2 vTexCoord;
 
 layout (location=0)	out vec3	fFragColor; // location 0 is default GL_BACK_LEFT color buffer

@@ -30,6 +30,7 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID = SliceEngine::GUID::null(), SliceEngine::GUID animGUID = SliceEngine::GUID::null(), entt::entity parent = entt::null, HistoryManager* history = nullptr);
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 
+		void GameObject_Unprefab(entt::entity entity);
 		void GameObject_Clone(entt::entity entity);
 		void GameObject_Destroy(entt::entity target, HistoryManager* history = nullptr);
 		void GameObject_Parent(entt::entity child, entt::entity parent = entt::null, HistoryManager* history = nullptr);
@@ -40,6 +41,7 @@ namespace SliceEditor
 		void Scene_Save();
 		void Scene_CleanTempFiles(Registry& registry);
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
+		void Hierarchy_ToggleEntityID(Registry& registry);
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);

@@ -221,9 +221,11 @@ namespace SliceEngine
 		// ngl idk if these maps should be public or private
 		// but like editor needs it 
 		std::unordered_map<entt::id_type, std::string> mComponentNames;
+		void DebugPrint();
 
 	private:
 		GameObject CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID skele_guid, GUID anim_guid, GUID model_node, Entity parent, Entity root, int& index, bool is_static);
+
 
 		std::unordered_map<std::string, Entity> mNameToEntity;
 		std::unordered_map<Entity, GameObject> mEntityToGO;		

@@ -52,6 +52,24 @@ namespace SliceEngine
 
 		mCurrentScene = filePath;
 
+		if (filePath.extension() == ".temp")
+		{
+			SLICE_LOG("Loading scene...");
+
+			auto map = JSONSerializer::DeserializeScene(filePath);
+
+			SLICE_LOG("Scene loaded successfully.");
+
+			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			Core::GetInstance()->mFactory.DebugPrint();
+			OnSceneLoadedEvent event;
+			event.isSceneLoaded = true;
+
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+			return;
+		}
+
 		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
 		if (filePathGUID)
@@ -77,6 +95,7 @@ namespace SliceEngine
 			SLICE_LOG("Scene loaded successfully.");
 
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
+			Core::GetInstance()->mFactory.DebugPrint();
 
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;

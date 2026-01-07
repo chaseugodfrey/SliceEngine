@@ -1,5 +1,5 @@
 #version 460 core
-
+//lighting_Frag
 struct Light{
 	vec3 position;
 	vec3 direction;
@@ -14,26 +14,35 @@ const float PI = 3.14159265358979323846;
 const float EPSILON = 0.000001;
 // -TODO- Temporary material values
 const float ambient = 0.01;
+const float biasModifier = 0.5f;
 const int isDirectional = 0;
 const int isPoint 		= 1;
 const int isSpot 		= 2;
 
-uniform mat4 uLightMtx; // Shadow Transform Matrix
+uniform mat4 V;
 uniform Light uLight;
 uniform float uFarPlane;
 uniform vec3 uCamPos;
+
+layout (std140, binding = 0) uniform lightSpaceBlock
+{
+	mat4 lightSpaceMtx[16];
+};
+uniform float cascadePlaneDist[16];
+uniform int cascadeCnt;
 
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
 layout (binding = 3) uniform sampler2D 	uRoughMetalTex;
-layout (binding = 4) uniform sampler2D 	uShadowTex;			// Only for shadow mapping (spot / directional light)
+layout (binding = 4) uniform sampler2DArray uShadowTex;			// Only for shadow mapping (spot / directional light)
 layout (binding = 5) uniform samplerCube 	uShadowCubeMap; // Only for shadow mapping (point light)
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
-float getShadowMulti(vec3 n, vec3 l, vec3 projCoords);
+float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
+vec3 GetRandDir(vec3 seed);
 
 /***************************************************
 * Out: fFragColor (Addictive)
@@ -50,18 +59,34 @@ void main(void){
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
 		nom = normalize(nom);
-		vec4 vLightPos = uLightMtx * vec4(wPos, 1.0f);
-		vec3 projCoords = vLightPos.xyz / vLightPos.w;
-		projCoords = projCoords * 0.5f + 0.5f;
-
 		vec3 v = normalize(uCamPos - wPos);
 
 		if(uLight.type == isDirectional)
 		{
+			vec4 fragViewSpace = V * vec4(wPos, 1.0f);
+			float depthVal = abs(fragViewSpace.z);
+			int layer = -1;
+			for(int i = 0; i < cascadeCnt; ++i)
+			{
+				if(depthVal < cascadePlaneDist[i])
+				{
+					layer = i;
+					break;
+				}
+			}
+			if(layer == -1)
+			{
+				layer = cascadeCnt - 1;
+			}
+
+			vec4 vLightPos = lightSpaceMtx[layer] * vec4(wPos, 1.0f);
+			vec3 projCoords = vLightPos.xyz / vLightPos.w;
+			projCoords = projCoords * 0.5f + 0.5f;
+
 			vec3 ambient = dif.rgb * ambient; // if blocked by shadow
 
 			vec3 l = normalize(-uLight.direction);// Surface to Light
-			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords);
+			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
 			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
 			fFragColor = vec4(ambient, 1.0f);
 		}
@@ -129,16 +154,27 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 	return (diffuseBRDF + specBPDF) * lightCol * nDotL;
 }
 
-float getShadowMulti(vec3 n, vec3 l, vec3 projCoords)
+float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
 {
+	if(projCoords.z > 1.0)
+        return 0.0;
+
 	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	if(layer == cascadeCnt - 1)
+	{
+		bias *= 1 / (uFarPlane * biasModifier);
+	}
+	else
+	{
+		bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
+	}
 	float shadow = 0.0;
-	vec2 texelSize = 1.0 / textureSize(uShadowTex, 0);
+	vec2 texelSize = 1.0 / vec2(textureSize(uShadowTex, 0));
 	for(int x = -1; x <= 1; ++x)
 	{
 		for(int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = texture(uShadowTex, projCoords.xy + vec2(x,y) * texelSize).r;
+			float pcfDepth = texture(uShadowTex, vec3(projCoords.xy + vec2(x,y) * texelSize, layer)).r;
 			shadow += projCoords.z - bias > pcfDepth ? 1.0 : 0.0;
 		}
 	}
@@ -166,12 +202,29 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 	
 	int samples = 20;
 	float shadow = 0.0;
+
+	vec3 noise = GetRandDir(vec3(gl_FragCoord.xy, 0.0));
+
 	for(int i = 0; i < samples; ++i)
 	{
-		float closestDepth = texture(uShadowCubeMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
+
+		float closestDepth = texture(uShadowCubeMap, fragToLight + offset * diskRadius).r;
 		closestDepth *= uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
 	}
 	return shadow /= float(samples);
+}
+
+vec3 GetRandDir(vec3 seed)
+{
+	float j = 4096.0 * sin(dot(seed, vec3(17.0, 59.4, 15.0)));
+	vec3 r;
+	r.z = fract(512.0 * j);
+	j *= .125;
+	r.x = fract(512.0 * j);
+	j *= .125;
+	r.y = fract(512.0 * j);
+	return r - 0.5;
 }
