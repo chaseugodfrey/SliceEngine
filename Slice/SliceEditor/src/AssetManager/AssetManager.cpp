@@ -105,7 +105,7 @@ namespace SliceEditor
 					{
 						SLICE_LOG_ERROR("Recompiling asset: " + assetPath.string());
 
-						CreateResource(assetPath, metaData.get(), false);
+						CreateResource(assetPath, metaData.get(), false, true);
 					}
 
 					// register validated assets
@@ -172,7 +172,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::filesystem::path AssetManager::CreateResource(const std::filesystem::path filePath, MetaData* metaData, bool AddToRM)
+	std::filesystem::path AssetManager::CreateResource(const std::filesystem::path filePath, MetaData* metaData, bool AddToRM, bool recompile)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -204,7 +204,7 @@ namespace SliceEditor
 		metaPath += ".meta";
 
 		// check if a file already exist
-		if (std::filesystem::exists(metaPath))
+		if (std::filesystem::exists(metaPath) && !recompile)
 		{
 			AssetExistEvent assetEvent(metaData->assetName);
 			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
