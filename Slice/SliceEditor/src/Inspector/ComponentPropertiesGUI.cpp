@@ -451,7 +451,8 @@ namespace SliceEditor
 		}
 		else
 		{
-			std::string goName = val.GetName();
+			
+			std::string goName = "val.GetName()";
 			ImGui::InputText(id, &goName);
 		}
 		ImGui::EndDisabled();
