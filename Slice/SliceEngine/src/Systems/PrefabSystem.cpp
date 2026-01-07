@@ -731,7 +731,15 @@ namespace SliceEngine
 			GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
 			GO.GetComponent<Prefab>().prefabID = UINT_MAX;
 			GO.AddComponent<PrefabEditingEntity>();
+
+			FactoryInstance.RemoveFromNameMap(GO.GetName());
+			std::string currName = GO.GetComponent<SliceEntity>().mName;
+			GO.GetComponent<SliceEntity>().mName = CheckPrefabEntityName(rootGO.GetComponent<Prefab>().prefabGUID, currName);
+
 		}
+
+
+
 	}
 
 	bool PrefabSystem::IsNewGO(Entity entity, unsigned int prefabID)
