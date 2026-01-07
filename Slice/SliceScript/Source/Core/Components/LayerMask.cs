@@ -4,16 +4,16 @@ namespace SliceEngine
 {
     public struct LayerMask
     {
-        public int value;
+        public uint value; // the actual mask value
 
-        public static implicit operator LayerMask(int value)
+        public static implicit operator LayerMask(uint value)
         {
             LayerMask mask = new LayerMask();
             mask.value = value;
             return mask;
         }
 
-        public static implicit operator int(LayerMask mask)
+        public static implicit operator uint(LayerMask mask)
         {
             return mask.value;
         }
