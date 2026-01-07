@@ -549,7 +549,7 @@ namespace SliceEngine
 
 	}
 
-	std::string PrefabSystem::CheckPrefabEntityName(GUID prefabGUID, std::string name)
+	std::string PrefabSystem::CheckPrefabEntityName(GUID prefabGUID, std::string name, Entity newEntity)
 	{
 		if (mPrefabEditable.first != prefabGUID)
 			return "";
@@ -557,7 +557,8 @@ namespace SliceEngine
 		int count = 0;
 
 		GameObject prefabGO = FactoryInstance.GetGOByEntity(mPrefabEditable.second);
-		if (name == prefabGO.GetName())
+
+		if (name == prefabGO.GetName() && newEntity != mPrefabEditable.second)
 			count++;
 
 		if (prefabGO.HasComponent<SceneGraph>())
@@ -567,20 +568,20 @@ namespace SliceEngine
 			while (child != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(child);
-				CheckPrefabChildrenName(childGO.GetEntity(), name, count);
+				CheckPrefabChildrenName(childGO.GetEntity(), name, count, newEntity);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				child = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
 		
-		return std::string(name + "_" + std::to_string(count));
+		return count == 0 ? name : std::string(name + "_" + std::to_string(count));
 	}
 
-	void PrefabSystem::CheckPrefabChildrenName(Entity entity, std::string name, int& count)
+	void PrefabSystem::CheckPrefabChildrenName(Entity entity, std::string name, int& count, Entity newEntity)
 	{
 		GameObject prefabGO = FactoryInstance.GetGOByEntity(entity);
-		if (name == prefabGO.GetName())
+		if (name == prefabGO.GetName() && entity != newEntity)
 			count++;
 
 		if (prefabGO.HasComponent<SceneGraph>())
@@ -590,7 +591,7 @@ namespace SliceEngine
 			while (child != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(child);
-				CheckPrefabChildrenName(childGO.GetEntity(), name, count);
+				CheckPrefabChildrenName(childGO.GetEntity(), name, count, newEntity);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				child = childSceneGraph.neighbours[SceneGraph::RIGHT];
@@ -734,8 +735,11 @@ namespace SliceEngine
 
 			FactoryInstance.RemoveFromNameMap(GO.GetName());
 			std::string currName = GO.GetComponent<SliceEntity>().mName;
-			GO.GetComponent<SliceEntity>().mName = CheckPrefabEntityName(rootGO.GetComponent<Prefab>().prefabGUID, currName);
+			GO.GetComponent<SliceEntity>().mName = CheckPrefabEntityName(rootGO.GetComponent<Prefab>().prefabGUID, currName, entity);
 
+			// idk ill just run this twice just incase it sets a name that already exist
+			currName = GO.GetComponent<SliceEntity>().mName;
+			GO.GetComponent<SliceEntity>().mName = CheckPrefabEntityName(rootGO.GetComponent<Prefab>().prefabGUID, currName, entity);
 		}
 
 
