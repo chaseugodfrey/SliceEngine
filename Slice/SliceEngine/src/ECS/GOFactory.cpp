@@ -287,6 +287,16 @@ namespace SliceEngine
 
 	}
 
+	void GOFactory::RemoveFromNameMap(std::string name)
+	{
+		if (mNameToEntity.find(name) == mNameToEntity.end())
+		{
+			return;
+		}
+
+		mNameToEntity.erase(name);
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)

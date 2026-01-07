@@ -549,6 +549,55 @@ namespace SliceEngine
 
 	}
 
+	std::string PrefabSystem::CheckPrefabEntityName(GUID prefabGUID, std::string name)
+	{
+		if (mPrefabEditable.first != prefabGUID)
+			return "";
+
+		int count = 0;
+
+		GameObject prefabGO = FactoryInstance.GetGOByEntity(mPrefabEditable.second);
+		if (name == prefabGO.GetName())
+			count++;
+
+		if (prefabGO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = prefabGO.GetComponent<SceneGraph>();
+			Entity child = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (child != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(child);
+				CheckPrefabChildrenName(childGO.GetEntity(), name, count);
+
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				child = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+		
+		return std::string(name + "_" + std::to_string(count));
+	}
+
+	void PrefabSystem::CheckPrefabChildrenName(Entity entity, std::string name, int& count)
+	{
+		GameObject prefabGO = FactoryInstance.GetGOByEntity(entity);
+		if (name == prefabGO.GetName())
+			count++;
+
+		if (prefabGO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = prefabGO.GetComponent<SceneGraph>();
+			Entity child = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (child != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(child);
+				CheckPrefabChildrenName(childGO.GetEntity(), name, count);
+
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				child = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+	}
+
 	/// <summary>
 	/// Only ever called when making an object into a prefab for the first time
 	/// Prefab IDs are just gonna be an incremental int value for each object in the prefab

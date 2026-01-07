@@ -169,6 +169,7 @@ namespace SliceEngine
 		void InitRootEntity();
 		void RemoveFromNameMap(Entity entity);
 		void AddToNameMap(Entity entity);
+		void RemoveFromNameMap(std::string name);
 
 		// THESE ARE FOR TESTING
 		// @GIDEON RMB TO DELETE OR ANYONE THAT READS THIS
