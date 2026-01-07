@@ -1,0 +1,14 @@
+#IN
+float roughness = 0;
+float metallic = 0;
+
+#CODE
+return texCol * color;
+// Implicit in func, returns col, roughness, metallic // since all out the same
+
+//vec4 var = Add(vPos, vTex)
+
+//Out.color = var;
+// See Func, search from func list to inject (how to tell)
+
+// Can handle how to WRITE the code part later, for now just copy

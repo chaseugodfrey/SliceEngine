@@ -2,14 +2,18 @@
 
 layout (location=0) in vec3	aVertexPosition;
 
-struct InstanceData
+struct BasicIDat
 {
 	mat4 mdlMtx;
+	uint entityID;
+	uint textureID; 
+	uint colRG;
+	uint colBA;
 };
 
-layout(binding=3, std430) readonly buffer ssbo1
+layout(binding=1, std430) readonly buffer ssbo1
 {
-	InstanceData iDat[];
+	BasicIDat iDat[];
 };
 
 uniform mat4 V; // View transform matrix

@@ -44,8 +44,6 @@ namespace SliceEngine
 	RenderManager::~RenderManager()
 	{
 		glDeleteFramebuffers(FB_TOTAL, mFBO);
-		if(mIVBO != 0)
-			glDeleteBuffers(1, &mIVBO);
 		if(mShadowUBO != 0)
 			glDeleteBuffers(1, &mShadowUBO);
 
@@ -111,11 +109,6 @@ namespace SliceEngine
 	}
 	void RenderManager::CreateInstancingParams()
 	{
-		mInstanceVtx.resize(mMaxInstance);
-		glCreateBuffers(1, &mIVBO);
-		glNamedBufferStorage(mIVBO, mMaxInstance * sizeof(InstanceData), mInstanceVtx.data(), GL_DYNAMIC_STORAGE_BIT);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, mIVBO);
-
 		glCreateBuffers(1, &mShadowUBO);
 		glNamedBufferStorage(mShadowUBO, mNumCascadeShadow * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, mShadowUBO);
@@ -409,13 +402,13 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			RenderSkybox();
 
-			SetShader(ShaderPaths[S_DEFERRED]);
+			//SetShader(ShaderPaths[S_DEFERRED]);
 			if(cam == mCurrentCamIDHover)
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			else
 				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
 			LoadSettings(GPS_DEFAULT);
-			UpdateCamVP();
+			//UpdateCamVP();
 			BindCameraDepth(cam);
 			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
@@ -432,22 +425,15 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 			//----------------------------------------------------------------
-			SetShader(ShaderPaths[S_DEFERRED]);
+			//SetShader(ShaderPaths[S_DEFERRED]);
 			if (cam == mCurrentCamIDHover)
 				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
 			else
 				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
 			LoadSettings(GPS_TEST_TRANSLUCENT);
-			UpdateCamVP();
+			//UpdateCamVP();
 			BindCameraDepth(cam);
 			renderQueue.UseDrawCalls(mCurrShader.second, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
-
-			//SetShader(S_PARTICLES);
-			//// Use Same FrameBufferSettings & Don't Clear Buffer
-			//UpdateCamVP();
-			//BindCameraDepth(cam);
-			//LoadSettings(GPS_PARTICLES);
-			//RenderAfterLighting(cam);
 			
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
@@ -496,13 +482,14 @@ namespace SliceEngine
 				auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 				auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(entity);
 
-				mInstanceVtx[count].mtx = transform.transform *
+				renderQueue.mBasicIMtx[count].mdlMtx = transform.transform *
 					glm::rotate(glm::mat4(1.0f), -PI05F, glm::vec3(0.f, 1.f, 0.f)) *
 					glm::inverse(glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far)) *
 					glm::scale(glm::mat4(1.0f), glm::vec3(2.f));
-				++count;
+				if (++count > renderQueue.mMaxInstance)
+					break;
 			}
-			glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * count, mInstanceVtx.data());
+			glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat) * count, renderQueue.mBasicIMtx.data());
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
 		}
 		
@@ -551,34 +538,34 @@ namespace SliceEngine
 						if (i != 0)
 							continue;
 						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(),shape.offSet.GetY(),shape.offSet.GetZ())), glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
+						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(),shape.offSet.GetY(),shape.offSet.GetZ())), glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
 					{
 						if (i != 1)
 							continue;
 						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(sphereData.radius * 2.f));
+						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(sphereData.radius * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
 					{
 						if (i != 2)
 							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
-						mInstanceVtx[num].mtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
+						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
 					}
 
 					num++;
-					if (num == mMaxInstance)
+					if (num == renderQueue.mMaxInstance)
 					{
-						glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data());
+						glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat) * num, renderQueue.mBasicIMtx.data());
 						glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 						num = 0;
 					}
 				}
 				if (num != 0)
 				{
-					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * num, mInstanceVtx.data());
+					glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat)* num, renderQueue.mBasicIMtx.data());
 					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, num);
 				}
 			}
@@ -852,42 +839,6 @@ namespace SliceEngine
 				break;
 			}
 			}
-		}
-	}
-	void RenderManager::RenderAfterLighting(Entity cam)
-	{
-		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get()->meshes[0];
-		glBindVertexArray(mdl.vao);
-		int cnt{};
-		GLuint lastTexID{};
-		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
-		{
-			if (ptx.textureID == 0)
-				ptx.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)(DefaultResourceIDs::COLOR_DEADED_DEFAULT))->texture_id;
-			if (ptx.textureID != lastTexID)
-			{
-				if (cnt)
-				{
-					glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
-					glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
-				}
-				cnt = 0;
-				lastTexID = ptx.textureID;
-				glBindTextureUnit(0, lastTexID);
-			}
-			mInstanceVtx[cnt].mtx = ptx.transform;
-			++cnt;
-			if (cnt == mMaxInstance)
-			{
-				glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
-				glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
-				cnt = 0;
-			}
-		}
-		if (cnt)
-		{
-			glNamedBufferSubData(mIVBO, 0, sizeof(InstanceData) * cnt, mInstanceVtx.data());
-			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, cnt);
 		}
 	}
 	void RenderManager::RenderFog(Entity cam)
@@ -1209,7 +1160,6 @@ namespace SliceEngine
 	// Changes Shader if not current
 	void RenderManager::SetShader(std::string sh)
 	{
-
 		if (sh != mCurrShader.first)
 		{
 			shaderHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>(sh);

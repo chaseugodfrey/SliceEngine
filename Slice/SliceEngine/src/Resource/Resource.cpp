@@ -85,6 +85,24 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	// Custom Shader
+	std::unique_ptr<SliceEngineTypes::CustomShader> Type<SliceEngineTypes::CustomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::CustomShader>(SliceEngineTypes::CustomShader::LoadCShader(path));
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyCShader();	//calls glDeleteProgram
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyCShader();	//calls glDeleteProgram
+		resource->LoadCShader(path); // --TODO-- in case I store the val somewhere else
+	}
+
 	// Vertex Shader
 	std::unique_ptr<SliceEngineTypes::VertShader> Type<SliceEngineTypes::VertShader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{

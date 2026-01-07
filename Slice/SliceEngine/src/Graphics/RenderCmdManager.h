@@ -32,25 +32,26 @@ namespace SliceEngine
 			MRCK_DEPTH_SORT		= 0x0000'0000'FFFF'FFFF
 		};
 #pragma region Instance Data
-		struct ShadowInstanceData
+	public:
+		struct BasicIDat
 		{
 			glm::mat4 mdlMtx;
-			//---
-			unsigned int entityID;
-			unsigned int padding0;
-			unsigned int padding1;
-			unsigned int padding2;
+			uint32_t entityID;
+			uint32_t texID;
+			uint32_t colRG;
+			uint32_t colBA;
 		};
-		struct InstanceData
+	private:
+		struct RenderCmd
 		{
-			glm::mat4 mdlMtx;
-			//---
-			glm::vec4 color;
-			//---
-			float roughness;
-			float metallic;
-			unsigned int entityID;
-			unsigned int texID;
+			std::vector<BasicIDat> base;
+			std::vector<glm::uvec4> ext;
+		};
+		struct TranslucentCmd
+		{
+			RCK_Size id;
+			BasicIDat base;
+			std::vector<glm::uvec4> ext;
 		};
 #pragma endregion
 #pragma region Model Details
@@ -104,22 +105,29 @@ namespace SliceEngine
 		void SortTranslucent(Entity camEntity);
 		void UseDrawCalls(GLuint mShader, DrawType drawType);
 		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType);
+
+		const int mMaxInstance = 255;
+		GLuint mIVBO{};
+		std::vector<BasicIDat> mBasicIMtx;// For Outsider use only
 	private:
 		RCK_ModelT GetModelDetails(uint64_t mdlID, unsigned char meshOffset, bool isSkin);
 		void SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID);
 		unsigned int GetTextureDetails(GLuint64 bindlessID);
+		void SetColor(BasicIDat& dat, const glm::vec4& color);
+		void SetAlpha(BasicIDat& dat, float alpha);
 
-		const int mMaxInstance = 255;
 		const float minDistTranslucent = -1.f;
-		GLuint mBasicVBO;
-		GLuint mDefaultVBO;
-		GLuint mTextureVBO;
+		const int mEVBOSafetyMult = 2;
+		GLuint mEVBO{};
+		GLuint mTextureVBO{};
 		glm::mat4 VP{};
-		std::map<RCK_Size, std::vector<InstanceData>> renderCmds;
-		std::vector<std::pair<RCK_Size,InstanceData>> translucentCmds; //single draw calls
-		std::map<RCK_Size, std::vector<InstanceData>> prefabRenderCmds;
-		std::vector<std::pair<RCK_Size,InstanceData>> prefabTranslucentCmds;
-		std::map<RCK_ModelT, std::vector<ShadowInstanceData>> shadowRenderCmds;
+
+
+		std::map<RCK_Size, RenderCmd> renderCmds;
+		std::vector<TranslucentCmd> translucentCmds; //single draw calls
+		std::map<RCK_Size, RenderCmd> prefabRenderCmds;
+		std::vector<TranslucentCmd> prefabTranslucentCmds;
+		std::map<RCK_ModelT, std::vector<BasicIDat>> shadowRenderCmds;
 		std::vector<ModelBasic> modelReferences;
 		std::map<MdlFinder, RCK_ModelT> modelToIdx;
 		std::vector<GLuint64> textureList;
