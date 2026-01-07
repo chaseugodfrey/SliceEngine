@@ -942,7 +942,7 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
-								if (data.GetName().empty())
+								if (data.GetEntity() == Entity(0))
 								{
 									ImGui::Text("Blank GO");
 								}
@@ -950,6 +950,14 @@ namespace SliceEditor
 								{
 									ImGui::Text(data.GetName().c_str());
 								}
+								/*if (data.GetName().empty())
+								{
+									ImGui::Text("Blank GO");
+								}
+								else
+								{
+									ImGui::Text(data.GetName().c_str());
+								}*/
 								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
 									{
 										sp->SetFieldValue(name, val);
