@@ -39,7 +39,7 @@ namespace SliceEngine
 		{
 			// use the latest bit to be removed
 			bit = removedBits.back();
-			layerBit = 1 << bit;
+			layerBit = 1u << bit;
 
 			collisionMask[name] = layerBit;
 			indexToLayerName[currentBit] = name;

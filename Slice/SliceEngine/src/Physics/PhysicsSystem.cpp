@@ -1318,7 +1318,7 @@ namespace SliceEngine
 
 	bool PhysicsSystem::PSystemRayCast()
 	{
-		physicsSystem->GetNarrowPhaseQuery().CastRay();
+		//physicsSystem->GetNarrowPhaseQuery().CastRay();
 		return true;
 	}
 

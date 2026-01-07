@@ -19,20 +19,20 @@ namespace SliceEngine
         }
         public int GetMask(string layerName)
         {
-            //return the maskvalue check returns -1 if invalid
-            return -1;
+            //return the mask 0 if invalid
+            return FunctionCalls.LayerMask_GetMask(layerName);
         }
 
         public string LayerToName(int layer)
         {
-            //return the layer name check returns null if invalid
-            return null;
+            //return the layer index check returns -1 if invalid
+            return FunctionCalls.LayerMask_LayerToName(layer);
         }
         
         public int NameTolayer(string layerName)
         {
             //return the layer index check returns -1 if invalid
-            return -1;
+            return FunctionCalls.LayerMask_NameToLayer(layerName);
         }
 
 
