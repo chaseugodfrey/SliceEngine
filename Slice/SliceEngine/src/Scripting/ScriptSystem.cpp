@@ -998,7 +998,7 @@ namespace SliceEngine
         *outElementClass = nullptr;
 
         std::string fullTypeName = mono_type_get_name(type);
-        MonoTypeEnum enumType = (MonoTypeEnum)mono_type_get_type(type);
+        
 
 
         std::string listPrefix = "System.Collections.Generic.List<";
@@ -1062,8 +1062,8 @@ namespace SliceEngine
 
         MonoArrayType* arrayType = mono_type_get_array_type(type);
         mono_bool isStruct = mono_type_is_struct(type);
-        //(enumType == MONO_TYPE_ARRAY || enumType == MONO_TYPE_SZARRAY)
-        if (arrayType && !isStruct)
+        MonoTypeEnum enumType = (MonoTypeEnum)mono_type_get_type(type);
+        if ((enumType == MONO_TYPE_ARRAY || enumType == MONO_TYPE_SZARRAY) && !isStruct)
         {
             MonoClass* elementClass = arrayType->eklass;
             SLICE_LOG_DEBUG(mono_class_get_name(elementClass));
