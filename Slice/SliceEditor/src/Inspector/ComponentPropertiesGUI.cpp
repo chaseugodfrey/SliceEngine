@@ -444,7 +444,7 @@ namespace SliceEditor
 		ImGui::SameLine(150.f);
 
 		ImGui::BeginDisabled();
-		if (val.GetEntity() == Entity(0))
+		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
 		{
 			std::string empty = " ";
 			ImGui::InputText(id, &empty);
@@ -452,7 +452,7 @@ namespace SliceEditor
 		else
 		{
 			
-			std::string goName = "val.GetName()";
+			std::string goName = val.GetName();
 			ImGui::InputText(id, &goName);
 		}
 		ImGui::EndDisabled();

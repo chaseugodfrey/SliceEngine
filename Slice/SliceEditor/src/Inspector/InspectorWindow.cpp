@@ -1747,7 +1747,6 @@ namespace SliceEditor
 			//PrefabInspectedEvent event;
 			//event.prefabBeingInspected = false;
 			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
-			return;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))

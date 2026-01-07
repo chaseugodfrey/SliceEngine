@@ -9,13 +9,14 @@ namespace SliceEngine
     public class EditorTest : SliceBehaviour
     {
         public bool boolTest = false;
-        public GameObject GO;
+        public GameObject GOtest;
+        public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
 
-            int i = 0;
+            GOtest = FindGameObjectWithName("Cube");
 
-            //SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
+            SliceLog.Log("X: " + vec3test.x + " Y: "+ vec3test.y + " Z: " + vec3test.z);
         }
     }
 }
