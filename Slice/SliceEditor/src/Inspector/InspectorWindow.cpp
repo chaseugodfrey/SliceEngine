@@ -554,7 +554,7 @@ namespace SliceEditor
 					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
 					{
 						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
-						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData, 0.0, FLT_MAX))
 						{
 							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
 						}
@@ -1725,14 +1725,23 @@ namespace SliceEditor
 		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
-			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-			//Serialise the Prefab
-			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
+			auto mSession = mRegistry.GetManager<SessionManager>("Session");
 
-			historyManager->ClearFromCheckpoint();
-			PrefabInspectedEvent event;
-			event.prefabBeingInspected = false;
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			//Publish the engine events:
+			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
+			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
+
+			////Serialise the Prefab
+			//SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabEntityInspected());
+
+			//historyManager->ClearFromCheckpoint();
+
+			//For editor handling (only enable if we close the prefab viewer on Saving
+			//PrefabInspectedEvent event;
+			//event.prefabBeingInspected = false;
+			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 			return;
 		}
 		ImGui::SameLine();

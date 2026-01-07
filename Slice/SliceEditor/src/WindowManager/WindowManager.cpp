@@ -63,7 +63,7 @@ namespace SliceEditor
 		AddWindow<ProfilerWindow>("Profiler");
 		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
-		AddWindow<PrefabViewWindow>();
+		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();
 		AddWindow<HierarchyWindow>();
 		AddWindow<InspectorWindow>();
@@ -225,6 +225,22 @@ namespace SliceEditor
 		}
 
 		//auto& factory = SliceEngine::Core::GetInstance()->mFactory;
+
+		if (ImGui::BeginMenu("Debug"))
+		{
+			if (ImGui::BeginMenu("Hierachy"))
+			{
+
+				if(ImGui::MenuItem("Show Entity IDs"))
+				{
+					EditorUtilities::Hierarchy_ToggleEntityID(registry);
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenu();
+		}
 
 		if (ImGui::BeginMenu("GameObject"))
 		{
@@ -946,6 +962,19 @@ namespace SliceEditor
 		isPlaying = false;
 		isPaused = false;
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->Stop();
+	}
+
+	void WindowManager::MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit)
+	{
+		bool checked = (mask & bit) != 0;
+
+		if (ImGui::MenuItem(label, nullptr, checked))
+		{
+			if (checked)
+				mask &= ~bit;
+			else
+				mask |= bit;
+		}
 	}
 
 	//void WindowManager::SetTheme_Microsoft()
