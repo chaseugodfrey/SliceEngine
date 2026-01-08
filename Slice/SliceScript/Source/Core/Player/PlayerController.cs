@@ -586,6 +586,7 @@ namespace SliceEngine
             Console.WriteLine("Player Taking Damage. Current Health: ");
             Console.WriteLine(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+            Console.WriteLine("Health Set");
         }
 
         private bool isDead = false;

@@ -133,7 +133,10 @@ namespace SliceEngine
 
             // flicker off
 
+            Console.WriteLine("Turning attacking Off");
             attacking = false;
+
+            Console.WriteLine("attackign is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
