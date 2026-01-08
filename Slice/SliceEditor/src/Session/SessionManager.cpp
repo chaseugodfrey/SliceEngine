@@ -18,6 +18,7 @@ namespace SliceEditor
 	void SessionManager::Init()
 	{
 		mPrefabInspected = false;
+		mShowHierarchyEntityIDs = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -303,6 +304,16 @@ namespace SliceEditor
 	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
 	{
 		return mInspectedPrefabGUID;
+	}
+
+	void SessionManager::ToggleHierarchyEntityIDs()
+	{
+		mShowHierarchyEntityIDs = !mShowHierarchyEntityIDs;
+	}
+
+	bool SessionManager::GetHierarchyEntityIDs()
+	{
+		return mShowHierarchyEntityIDs;
 	}
 
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()
