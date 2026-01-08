@@ -95,6 +95,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
+            return;
             enemySpawners.Clear();
             SetUpSpawnLocations();
             SpawnSpawners();

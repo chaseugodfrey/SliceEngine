@@ -27,6 +27,7 @@ namespace SliceEngine
                 Console.WriteLine("Player grounded");
                 Bootstrap.Player.OnGrounded();
                 grounded = true;
+                Console.WriteLine("Grounded set to true");
             }
         }
         public override void OnTriggerExit(uint other)
@@ -35,6 +36,7 @@ namespace SliceEngine
             {
                 Console.WriteLine("Player off ground");
                 grounded = false;
+                Console.WriteLine("Grounded set to false");
             }
         }
         private bool IsGround(uint id)

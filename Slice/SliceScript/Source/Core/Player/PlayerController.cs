@@ -32,6 +32,9 @@ namespace SliceEngine
         private bool grounded, groundCheckLocked;
         private int jumpCounter = 0;
         private Vector3 input;
+        private float verticalVelocity = 0f;
+        public float gravity = -30f;
+        public float terminalVelocity = -50f;
 
         // =============== Attack variables =============== 
         public float attackResetTime = 1f;
@@ -141,6 +144,60 @@ namespace SliceEngine
             Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
             camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
             camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+
+            Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+            if (isDashing) return;
+
+            if (grounded)
+            {
+                // Reset vertical velocity when grounded
+                if (verticalVelocity < 0f)
+                    verticalVelocity = 0f;
+            }
+            else
+            {
+                // Apply gravity
+                verticalVelocity += gravity * Time.deltaTime;
+
+                // Optional terminal velocity clamp
+                if (verticalVelocity < terminalVelocity)
+                    verticalVelocity = terminalVelocity;
+            }
+
+            // Handle regular movement
+            Vector3 horizontalMovement = moveDir * moveSpeed;
+
+            if (moveDir.LengthSquared() > 0.01f)
+            {
+                playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
+            }
+
+            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+            {
+                if (!isDashing) StartCoroutine(Dash(moveDir));
+            }
+
+            transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
+
+            //Console.WriteLine(animator.GetCurrAnimName());
+        }
+        private void HandlePhysicsMovement()
+        {
+            Transform camTransform;
+
+            if (camera == null)
+            {
+                return;
+            }
+            else
+            {
+                camTransform = camera.transform;
+            }
+
+            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+            camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+            camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
 
             if (isDashing) return;
@@ -220,7 +277,7 @@ namespace SliceEngine
             // Can only be grounded if initial delay is over
             if (!groundCheckLocked)
             {
-                grounded = groundCheck.Grounded;
+                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
                 if (grounded)
                 {
                     jumpCounter = 0;
