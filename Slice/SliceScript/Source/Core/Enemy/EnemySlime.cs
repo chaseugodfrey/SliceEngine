@@ -116,13 +116,15 @@ namespace SliceEngine
             attacking = true;
 
             yield return new WaitForSeconds(attackWindUpTiming);
-
+            Console.WriteLine("Timing returned");
             // flicker on
 
             Vector3 direction_diff = playerT.Position - enemyT.Position;
 
+            Console.WriteLine("Checking");
             if (direction_diff.Magnitude() <= attackDamageRange)
             {
+                Console.WriteLine("Damage is through");
                 Bootstrap.Player.TakeDamage(damage);
                 //Make player take damage( waiting for rayan and jiale to do their thing)
             }
