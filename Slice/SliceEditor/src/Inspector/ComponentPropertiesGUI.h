@@ -73,6 +73,8 @@ namespace SliceEditor
 
 	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
 
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val);
+
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int min = 0, int max = 0);
@@ -126,7 +128,7 @@ namespace SliceEditor
 
 		auto& assetManager = reg.GetAssetManager();
 		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
-		
+
 		if (file.has_value())
 		{
 			filename = file.value();
@@ -169,24 +171,33 @@ namespace SliceEditor
 
 	}*/
 
-	template <typename Enum>
-	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container)
+	template<typename Enum>
+	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
 	{
+		static char buffer[256];
+		static std::string searchPrompt;
 		bool changed = false;
-
-		if (!property_label.empty())
-		{
-			ImGui::Text(property_label.c_str());
-			ImGui::SameLine(150.f);
-		}
-
-		ImGui::SetNextItemWidth(150.0f);
-
 		int idx = static_cast<int>(selected);
+
 		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
 		{
+			
+			if (searchBar)
+			{
+				std::string newID = std::string(id) + "searchBar";
+				if (ImGui::InputText(newID.c_str(), buffer, IM_ARRAYSIZE(buffer)))
+				{
+					searchPrompt = buffer;
+				}
+				ImGui::Separator();
+			}
 			for (int i = 0; i < container.size(); ++i)
 			{
+				if (!searchPrompt.empty() && container[i].find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
+
 				if (ImGui::Selectable(container[i].c_str()))
 				{
 					if (i != idx)
@@ -206,6 +217,28 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
+		else
+		{
+			buffer[0] = '\0';
+			searchPrompt.clear();
+		}
+		return changed;
+	}
+
+	template <typename Enum>
+	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	{
+		bool changed = false;
+
+		if (!property_label.empty())
+		{
+			ImGui::Text(property_label.c_str());
+			ImGui::SameLine(150.f);
+		}
+
+		ImGui::SetNextItemWidth(150.0f);
+
+		ComboInput(reg , id, selected, container,searchBar);
 		return changed;
 	}
 
@@ -228,7 +261,7 @@ namespace SliceEditor
 			{
 				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
 				{
-					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+					SLICE_LOG_ERROR("This is not supposed to happen, some map de-sync!");
 					continue;
 				}
 
@@ -243,31 +276,57 @@ namespace SliceEditor
 				mapNames.push_back(fileNameString);
 			}
 
-			//Fall-back (Should Display Nothing)
-			if (currentIndex < 0)
+			//Push a blank at the end for fallback
+			//mapNames.push_back(" ");
+
+			int selectedIndex = currentIndex;
+
+			std::string guidString = currentGUID.toString();
+			std::string errorText;
+			if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
 			{
-				std::string guidString = currentGUID.toString();
-				std::string errorText;
-				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
-				{
-					//?????? wtf is this
-					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
-					errorText = "GUID not found in AssetManager";
-				}
-				else
-				{
-					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
-					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
-				}
-				ImGui::Text(errorText.c_str());
-				ImGui::Text("Missing GUID: ");
+				//?????? wtf is this
+				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+				errorText = "GUID not found in AssetManager";
+				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
+			}
+			else
+			{
+				ImGui::Text(property_label);
 				ImGui::SameLine(150.0f);
-				ImGui::BeginDisabled();
-				ImGui::InputText("##Missing GUID:", &guidString);
-				ImGui::EndDisabled();
 			}
 
-			else
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
+			{
+				const std::string& selectedName = mapNames[selectedIndex];
+				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+				changed = (handle.getGUID() != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+
+						std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						handle = newHandle;
+					}
+
+					else
+					{
+						setFunc(newGUID);
+					}
+				}
+			}
+			//}
+
+			/*else
 			{
 				int selectedIndex = currentIndex;
 
@@ -295,7 +354,7 @@ namespace SliceEditor
 						}
 					}
 				}
-			}
+			}*/
 		}
 		
 		//No Drag-Drop for some reason

@@ -157,6 +157,16 @@ struct OnPrefabSerializedEvent
 	SliceEngine::GUID guid;
 };
 
+struct AssetExistEvent
+{
+	AssetExistEvent(std::string name) : assetName(name)
+	{
+
+	}
+
+	std::string assetName;
+};
+
 struct OnPlayEvent
 {
 
