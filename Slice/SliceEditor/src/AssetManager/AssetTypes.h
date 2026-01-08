@@ -649,7 +649,7 @@ namespace SliceEditor
 		//GUID normalMap;
 		float roughness = 0.0f;
 		float metallic = 0.0f;
-		glm::vec3 color{ 1.0f };
+		glm::vec4 color{ 1.0f };
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{

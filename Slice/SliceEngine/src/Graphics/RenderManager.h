@@ -59,13 +59,13 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting();
 		void RenderLighting(Entity cam);
-		void RenderAfterLighting(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam);
 		void RenderVignette(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
+		void ForceSetCustomShader(const std::string& sh, GLuint s);
 		bool UniformExists(const char* str, GLint& ref);
 		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		//void LinkTransformInstancing(GUID guid);

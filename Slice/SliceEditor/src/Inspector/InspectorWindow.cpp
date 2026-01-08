@@ -1633,7 +1633,7 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 		}
 
-		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
 			mat.SerializeAsset(node->fullPath);
 		}

@@ -29,7 +29,7 @@ namespace SliceEngine
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.roughness = 0.6f;
 			temp.metallic = 0.f;
-			temp.color = glm::vec3(1.f, 1.f, 1.f);
+			temp.color = glm::vec4(1.f);
 
 			// filepath to material.mat in resource folder
 			std::ifstream file(filepath);
@@ -55,8 +55,8 @@ namespace SliceEngine
 			temp.roughness = materialJson["roughness"].get<float>();
 			temp.metallic = materialJson["metallic"].get<float>();
 
-			// cause color is a vec 3
-			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 3)
+			// cause color is a vec 4
+			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4)
 			{
 				glm::from_json(materialJson["color"], temp.color);
 			}
@@ -71,7 +71,7 @@ namespace SliceEngine
 			albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
 			roughness = 0.6f;
 			metallic = 0.f;
-			color = glm::vec3(1.f, 1.f, 1.f);
+			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
 		 }
 
 		void Material::DestroyMaterial() {

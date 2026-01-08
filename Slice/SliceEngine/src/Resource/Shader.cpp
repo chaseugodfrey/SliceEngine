@@ -214,6 +214,8 @@ namespace SliceEngine
 					line.pop_back();
 				if (line == std::string{ "#CODE" })
 					break;
+				if (line == std::string{ "" })
+					continue;
 				if (readingIn)
 				{
 					ShaderParams inParam{};
@@ -257,8 +259,6 @@ namespace SliceEngine
 			fragShaderFile.read(&fragShaderSource[0], fragShaderSource.size());
 			fragShaderFile.close();
 
-			// main dats have 4 bytes, but like, still check just in case etc
-
 			std::string fragStart{
 R"(#version 460 core
 // Custom Shader
@@ -280,8 +280,8 @@ struct BasicIDat
 	mat4 mdlMtx;
 	uint entityID;
 	uint textureID; 
-	uint colRG;
-	uint colBA;
+	uint tex2ID;
+	uint col;
 };
 
 layout(binding=0, std430) readonly buffer ssbo0
@@ -298,28 +298,45 @@ layout(binding=2, std430) readonly buffer ssbo2
 {
 	uvec4 eDat[];
 };
-
-vec4 CustomCalcs(vec4 texCol, vec4 color)
-{)"};
+)"};
+			std::string fragNumExtraElems{};
+			{
+				std::stringstream ss;
+				ss << "\nint numElem = " << dataIn.size() << ";\n";
+				fragNumExtraElems = ss.str();
+			}
+			fragNumExtraElems += std::string{
+R"(
+uint ExtractUint(int num)
+{
+	uint mainID = (vInstance * numElem + num) / 4;
+	uint subID = (vInstance * numElem + num) % 4;
+	return eDat[mainID][subID];
+}
+float ExtractFloat(int num)
+{
+	uint mainID = (vInstance * numElem + num) / 4;
+	uint subID = (vInstance * numElem + num) % 4;
+	return uintBitsToFloat(eDat[mainID][subID]);
+}
+)"};
 			std::string fragEnd{
 R"(
-}
 void main(void){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
-	vec4 color = {
- float((iDat[vInstance].colRG >> 16) & 0xFFFF) / float(0xFFFF),
- float(iDat[vInstance].colRG & 0xFFFF) / float(0xFFFF),
- float((iDat[vInstance].colBA >> 16) & 0xFFFF) / float(0xFFFF),
- float(iDat[vInstance].colBA & 0xFFFF) / float(0xFFFF)};
+	vec4 color = vec4(
+ float(iDat[vInstance].col >> 24 & 0xFF),
+ float(iDat[vInstance].col >> 16 & 0xFF),
+ float(iDat[vInstance].col >> 8 & 0xFF),
+ float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
-	fFragColor = CustomCalcs(texture(textures[iDat[vInstance].textureID], vTex), color);
+	fFragColor = TexColorC(texture(textures[iDat[vInstance].textureID], vTex), color);
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughData.xy = vec2(1.f,1.f); //vec2(iDat[vInstance].roughness, iDat[vInstance].metallic);
+	fMetalRoughData.xy = RoughMet();
 })"};
 
-			fragStart += fragShaderSource;
-			fragStart += fragEnd;
+			fragStart += fragNumExtraElems + fragShaderSource + fragEnd;
 			GLchar const* frag_shader_code[] = { fragStart.c_str() };
 
 			int success;

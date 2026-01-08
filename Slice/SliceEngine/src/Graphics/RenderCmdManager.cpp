@@ -62,13 +62,12 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
 		
-		bool toOpaque = true;
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
-			const auto& material = rend.materialHandle.get();
+			const auto material = rend.materialHandle.get();
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
@@ -82,19 +81,19 @@ namespace SliceEngine
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
 			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
-			if (toOpaque)
-				key = key | MRCK_OPAQUE;
-			//else
-			//	key = key | MRCK_TRANSCLUCENT;
-			//toOpaque = !toOpaque;
-			
 			BasicIDat data;
+			if (material->color.a > 0.999f)
+			{
+				key = key | MRCK_OPAQUE;
+				SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
+			}
+			else
+			{
+				key = key | MRCK_TRANSCLUCENT;
+				SetColor(data, material->color);
+			}
+			
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
-			SetColor(data, glm::vec4(material->color, 1.f));
-			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-				SetAlpha(data, 0.5f);
-			//data.roughness = material->roughness;
-			//data.metallic = material->metallic;
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 
@@ -104,12 +103,12 @@ namespace SliceEngine
 			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 			{
 				TranslucentCmd tc{ key, data };
+				tc.ext.push_back(glm::uvec4(std::bit_cast<uint32_t>(material->roughness), std::bit_cast<uint32_t>(material->metallic), 0, 0));
 				(*rtcmds).emplace_back(tc);
 			}
 			else
 			{
-				SetAlpha(data, 1.f);
-				(*rcmds)[key].base.push_back(std::move(data));
+				AppendRenderCmd((*rcmds)[key], data, material);
 			}
 		}
 	
@@ -125,21 +124,20 @@ namespace SliceEngine
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
 			SetColor(data, ptx.colour);
-			//data.roughness = 0.f;
-			//data.metallic = 1.f;
 			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
 			data.entityID = 0;
 
 			//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
-			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-			{
-				TranslucentCmd tc{ key, data };
-				translucentCmds.emplace_back(tc);
-			}
-			else
+			//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+			//{
+			//	TranslucentCmd tc{ key, data };
+			//	translucentCmds.emplace_back(tc);
+			//}
+			//else
 			{
 				SetAlpha(data, 1.f);
+				// --TODO--
 				renderCmds[key].base.push_back(std::move(data));
 			}
 
@@ -238,18 +236,16 @@ namespace SliceEngine
 		case DrawType::DRAW_OPAQUE:
 		case DrawType::DRAW_PREFAB_OPAQUE:
 		{
-			std::map<RCK_Size, RenderCmd>* cmds = nullptr;
+			auto* cmds = &renderCmds;
+			if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
+				cmds = &prefabRenderCmds;
 
 			auto shdrHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
-			glUseProgram(shdrHandle.get()->s);
+			mShader = shdrHandle.get()->s;
+			glUseProgram(mShader);
+			Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 			Core::GetInstance()->GetRenderManager()->UpdateCamVP();
 
-			if (drawType == DrawType::DRAW_OPAQUE)
-				cmds = &renderCmds;
-			else if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
-				cmds = &prefabRenderCmds;
-			else
-				break;
 			for (auto& i : *cmds)
 			{
 				const auto& id = i.first;
@@ -274,10 +270,11 @@ namespace SliceEngine
 				GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
-					for (auto& i : batch.base)
+					for (size_t i{}; i < batch.base.size(); ++i)
 					{
-						SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
-						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &i);
+						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
+						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
+						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &batch.ext[i]);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
@@ -285,6 +282,7 @@ namespace SliceEngine
 				{
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * batch.base.size(), batch.base.data());
+					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * batch.ext.size(), batch.ext.data());
 					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.base.size());
 				}
 			}
@@ -293,16 +291,17 @@ namespace SliceEngine
 		case DrawType::DRAW_TRANSLUCENT:
 		case DrawType::DRAW_PREFAB_TRANSLUCENT:
 		{
-			GLuint currShader; // --TODO--
+			auto shdrHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
+			mShader = shdrHandle.get()->s; // --TODO--
+			glUseProgram(mShader);
+			Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+			Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+
 			RCK_ModelT currMdlID = 0xFFFF;
 
-			std::vector<TranslucentCmd>* cmds = nullptr;
-			if (drawType == DrawType::DRAW_TRANSLUCENT)
-				cmds = &translucentCmds;
-			else if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
+			auto* cmds = &translucentCmds;
+			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
 				cmds = &prefabTranslucentCmds;
-			else
-				break;
 
 			for (auto& i : *cmds)
 			{
@@ -324,6 +323,7 @@ namespace SliceEngine
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &dat);
+					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &i.ext);
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
@@ -360,12 +360,13 @@ namespace SliceEngine
 
 			BasicIDat data{};
 			data.mdlMtx = transform.transform;
-			SetColor(data, glm::vec4(material->color, 1.f));
-			//data.roughness = material->roughness;
-			//data.metallic = material->metallic;
+			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
+			glm::uvec4 ext{ std::bit_cast<uint32_t>(material->roughness), std::bit_cast<uint32_t>(material->metallic), 0, 0 };
+
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
+			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &ext);
 			break;
 		}
 		}
@@ -426,14 +427,33 @@ namespace SliceEngine
 		}
 		return dat->second;
 	}
+	void RenderCmdManager::AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat)
+	{
+		auto num = rc.base.size();
+		rc.base.push_back(std::move(dat));
+
+
+		int mainID = num * 2 / 4;
+		int subID = num * 2 % 4;
+		if (rc.ext.size() < mainID + 1)
+			rc.ext.push_back(glm::uvec4{});
+		rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->roughness);
+		if (++subID > 4)
+		{
+			rc.ext.push_back(glm::uvec4{});
+			subID = 0;
+			++mainID;
+		}
+		rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->metallic);
+	}
 	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color)
 	{
-		dat.colRG = static_cast<uint32_t>(color.r * 0xFFFF) << 16 | static_cast<uint32_t>(color.g * 0xFFFF);
-		dat.colBA = static_cast<uint32_t>(color.b * 0xFFFF) << 16 | static_cast<uint32_t>(color.a * 0xFFFF);
+		dat.col = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
+				  static_cast<uint32_t>(color.b * 0xFF) << 8 | static_cast<uint32_t>(color.a * 0xFF);
 	}
 	void RenderCmdManager::SetAlpha(BasicIDat& dat, float alpha)
 	{
-		dat.colBA = (dat.colBA & 0xFFFF0000) | static_cast<uint32_t>(alpha * 0xFFFF);
+		dat.col = (dat.col & 0xFFFF'FF00) | static_cast<uint32_t>(alpha * 0xFF);
 	}
 #pragma endregion
 }

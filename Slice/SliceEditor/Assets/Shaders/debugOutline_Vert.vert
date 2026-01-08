@@ -7,8 +7,8 @@ struct BasicIDat
 	mat4 mdlMtx;
 	uint entityID;
 	uint textureID; 
-	uint colRG;
-	uint colBA;
+	uint tex2ID;
+	uint col;
 };
 uniform mat4 uPV; // Shadow Transform Matrix
 layout(binding=1, std430) readonly buffer ssbo1

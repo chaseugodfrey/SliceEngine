@@ -1157,6 +1157,11 @@ namespace SliceEngine
 		glDepthFunc(GL_LESS);
 		mCurrGPUSetting = GPS_DEFAULT;
 	}
+	void RenderManager::ForceSetCustomShader(const std::string& sh, GLuint s)
+	{
+		mCurrShader.first = sh;
+		mCurrShader.second = s;
+	}
 	// Changes Shader if not current
 	void RenderManager::SetShader(std::string sh)
 	{

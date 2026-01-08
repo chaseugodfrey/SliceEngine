@@ -3,7 +3,16 @@ float roughness = 0;
 float metallic = 0;
 
 #CODE
-return texCol * color;
+vec4 TexColorC(vec4 texCol, vec4 color)
+{
+    return texCol * color;
+}
+vec2 RoughMet()
+{
+    return vec2(ExtractFloat(0), ExtractFloat(1));
+}
+
+
 // Implicit in func, returns col, roughness, metallic // since all out the same
 
 //vec4 var = Add(vPos, vTex)

@@ -38,8 +38,8 @@ namespace SliceEngine
 			glm::mat4 mdlMtx;
 			uint32_t entityID;
 			uint32_t texID;
-			uint32_t colRG;
-			uint32_t colBA;
+			uint32_t tex2ID;
+			uint32_t col;
 		};
 	private:
 		struct RenderCmd
@@ -113,6 +113,8 @@ namespace SliceEngine
 		RCK_ModelT GetModelDetails(uint64_t mdlID, unsigned char meshOffset, bool isSkin);
 		void SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID);
 		unsigned int GetTextureDetails(GLuint64 bindlessID);
+
+		void AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat);
 		void SetColor(BasicIDat& dat, const glm::vec4& color);
 		void SetAlpha(BasicIDat& dat, float alpha);
 
