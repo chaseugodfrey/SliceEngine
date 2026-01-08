@@ -17,13 +17,14 @@ DigiPen Institute of Technology is prohibited.
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
 #include <DetourCommon.h>
+#include <DetourCrowd.h>
 
 namespace SliceEngine
 {
     namespace NavMeshUtilities
     {
         float distancePtLine2d(const float* pt, const float* p, const float* q);
-
+        dtCrowd *InitCrowd(dtNavMesh *navMesh);
         std::optional<NavMeshObj> LoadNavMesh(const std::string &filePath);
         NavMeshDebugObj CreateDebugMesh(NavMeshObj const& navMeshObj);
 

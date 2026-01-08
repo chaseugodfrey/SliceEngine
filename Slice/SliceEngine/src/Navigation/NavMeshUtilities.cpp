@@ -30,6 +30,22 @@ namespace SliceEngine
 		return dx * dx + dz * dz;
 	}
 
+	dtCrowd *NavMeshUtilities::InitCrowd(dtNavMesh *navMesh)
+	{
+		dtCrowd *crowd = dtAllocCrowd();
+		if (!crowd) return nullptr;
+
+		// Max Agents: 50, Max Radius: 2.0f (may need to edit to cover agent size)
+		if (!crowd->init(50, 2.0f, navMesh))
+		{
+			dtFreeCrowd(crowd);
+			return nullptr;
+		}
+
+		// tune obstacle avoidance here if needed
+		return crowd;
+	}
+
 	std::optional<NavMeshObj> NavMeshUtilities::LoadNavMesh(const std::string &filePath)
     {
         dtNavMesh *navMesh;
@@ -61,11 +77,12 @@ namespace SliceEngine
         }
 
         navQuery = dtAllocNavMeshQuery();
-        navQuery->init(navMesh, 2048);
+        navQuery->init(navMesh, 2048); 
+		dtCrowd *crowd = InitCrowd(navMesh);
 
 		std::cout << "NavMesh loaded successfully!" << std::endl;
 
-        return { NavMeshObj{navMesh, navQuery} };
+        return { NavMeshObj{navMesh, navQuery, crowd} };
     }
 
     bool NavMeshUtilities::FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath)

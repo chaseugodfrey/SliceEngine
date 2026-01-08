@@ -25,7 +25,13 @@ namespace SliceEngine
 	{
 		if (navMeshInstance.has_value())
 		{
-			NavMeshObj &obj = navMeshInstance.value();
+			NavMeshObj &obj = navMeshInstance.value(); 
+			
+			if (obj.navMeshCrowd)
+			{
+				//dtFreeCrowd(obj.navMeshCrowd);
+				//obj.navMeshCrowd = nullptr;
+			}
 
 			if (obj.navMeshQuery)
 			{
@@ -126,6 +132,10 @@ namespace SliceEngine
 
 		if (!agent.componentEnabled)
 			return;
+
+		//detourCrowd stuff
+
+
 
 		if (agent.hasNewTarget)
 		{

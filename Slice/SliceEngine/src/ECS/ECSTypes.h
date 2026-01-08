@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Skeleton.h"
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
+#include <DetourCrowd.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -758,6 +759,7 @@ namespace SliceEngine
 	{
 		dtNavMesh* navMesh;
 		dtNavMeshQuery* navMeshQuery;
+		dtCrowd *navMeshCrowd;
 	};
 
 	struct NavMeshDebugObj

@@ -59,7 +59,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -87,7 +87,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -239,6 +239,24 @@
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourCrowd.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourLocalBoundary.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathCorridor.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathQueue.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourProximityGrid.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

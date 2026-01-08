@@ -7,7 +7,7 @@ project "SliceEngine"
     targetdir ("")
     -- objdir ("bin-int/%{cfg.buildcfg}")
 
-    files { "src/**","thirdparty/recast/Detour/Source/**.cpp" }
+    files { "src/**","thirdparty/recast/Detour/Source/**.cpp","thirdparty/recast/Detour/DetourCrowd/Source/**.cpp"}
 
     includedirs {
         "src",
@@ -21,6 +21,7 @@ project "SliceEngine"
         "thirdparty/fmod/include",
         "thirdparty/nlohmann/include",
         ThirdParty.DETOUR_INC,
+        ThirdParty.DETOUR_CROWD_INC,
         ThirdParty.RTTR_INC,
         ThirdParty.MONO_INC
     }
@@ -58,6 +59,10 @@ project "SliceEngine"
 
     pchheader "pch.h"
     pchsource "src/pch.cpp"
+
+    filter { "files:thirdparty/**.cpp" }
+        flags { "NoPCH" }
+    filter {}
 
     buildoptions { "/bigobj" }
 
