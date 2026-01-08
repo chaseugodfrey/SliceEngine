@@ -59,10 +59,18 @@ namespace SliceEngine
 			navMeshDebugInfo.reset();
 		}
 
+		if (activePathDebugInfo.has_value())
+		{
+			auto &data = activePathDebugInfo.value().data;
+			if (data[0].vao) glDeleteVertexArrays(1, &data[0].vao);
+			if (data[0].vbo) glDeleteBuffers(1, &data[0].vbo);
+			activePathDebugInfo.reset();
+		}
+
 		navMeshInstance.reset();
 	}
 
-	void NavigationSystem::LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e)
+	void NavigationSystem::LoadNavMeshOnSceneLoad(OnSceneLoadedEvent &e)
 	{
 		if (e.isSceneLoaded)
 		{
@@ -79,7 +87,7 @@ namespace SliceEngine
 
 	void NavigationSystem::LoadNavMeshFromFile()
 	{
-		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh("Resources/output_navmesh.bin");
+		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh("Resources/output_navmesh.bin");
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
@@ -87,12 +95,12 @@ namespace SliceEngine
 		}
 	}
 
-	std::optional<NavMeshObj>& NavigationSystem::GetNavMeshObj()
+	std::optional<NavMeshObj> &NavigationSystem::GetNavMeshObj()
 	{
 		return navMeshInstance;
 	}
 
-	std::optional<NavMeshDebugObj>& NavigationSystem::GetNavMeshDebugData()
+	std::optional<NavMeshDebugObj> &NavigationSystem::GetNavMeshDebugData()
 	{
 		return navMeshDebugInfo;
 	}
@@ -105,14 +113,14 @@ namespace SliceEngine
 	}
 	void NavigationSystem::EntityOnUpdate(entt::registry &reg, entt::entity entity, float dt)
 	{
-		
+
 		if (!navMeshInstance)
 		{
 			SLICE_LOG("No Nav Mesh Data detected.");
 			return;
 		}
 
-		auto& navMeshObj = navMeshInstance.value();
+		auto &navMeshObj = navMeshInstance.value();
 		auto &agent = reg.get<NavAgent>(entity);
 		auto &transform = reg.get<Transform>(entity);
 
@@ -132,6 +140,18 @@ namespace SliceEngine
 			{
 				agent.hasNewTarget = false;
 				agent.currentPathIndex = 0;
+
+				// Clear old path
+				if (activePathDebugInfo.has_value())
+				{
+					auto &data = activePathDebugInfo.value().data;
+					if (data[0].vao) glDeleteVertexArrays(1, &data[0].vao);
+					if (data[0].vbo) glDeleteBuffers(1, &data[0].vbo);
+					activePathDebugInfo.reset();
+				}
+				// Create new path debug
+				activePathDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugPathMesh(agent.currentPath));
+				// -----------------------------------------
 			}
 		}
 

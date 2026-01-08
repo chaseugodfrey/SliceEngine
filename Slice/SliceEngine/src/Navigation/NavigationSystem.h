@@ -16,6 +16,8 @@ namespace SliceEngine
         std::optional<NavMeshObj> navMeshInstance;
         std::optional<NavMeshDebugObj> navMeshDebugInfo;
 
+        std::optional<NavMeshDebugObj> activePathDebugInfo;
+
     public:
         void Init();
         //void Update(float dt);
