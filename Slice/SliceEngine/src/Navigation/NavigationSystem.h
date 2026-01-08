@@ -20,7 +20,7 @@ namespace SliceEngine
 
     public:
         void Init();
-        //void Update(float dt);
+        void Update(float dt);
         void Unbind() override;
 
         void ClearNavMesh();

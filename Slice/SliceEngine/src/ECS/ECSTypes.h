@@ -784,6 +784,7 @@ namespace SliceEngine
 
 		float speed = 2.0f;
 		bool hasNewTarget = false;
+		int crowdAgentID = -1;
 	};
 }
 

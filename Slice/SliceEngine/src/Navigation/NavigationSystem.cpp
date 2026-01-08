@@ -10,10 +10,13 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &NavigationSystem::LoadNavMeshOnSceneLoad>(this);
 	}
 
-	//void NavigationSystem::Update(float dt)
-	//{
-
-	//}
+	void NavigationSystem::Update(float dt)
+	{
+		if (navMeshInstance.has_value() && navMeshInstance->navMeshCrowd)
+		{
+			navMeshInstance->navMeshCrowd->update(dt, nullptr);
+		}
+	}
 
 	void NavigationSystem::Unbind()
 	{
@@ -29,8 +32,8 @@ namespace SliceEngine
 			
 			if (obj.navMeshCrowd)
 			{
-				//dtFreeCrowd(obj.navMeshCrowd);
-				//obj.navMeshCrowd = nullptr;
+				dtFreeCrowd(obj.navMeshCrowd);
+				obj.navMeshCrowd = nullptr;
 			}
 
 			if (obj.navMeshQuery)
@@ -134,8 +137,53 @@ namespace SliceEngine
 			return;
 
 		//detourCrowd stuff
+		if (agent.crowdAgentID == -1)
+		{
+			dtCrowdAgentParams ap;
+			memset(&ap, 0, sizeof(ap));
+			ap.radius = 1.0f; // Agent Radius (Physics size)
+			ap.height = 2.0f;
+			ap.maxAcceleration = 8.0f;
+			ap.maxSpeed = agent.speed;
+			ap.collisionQueryRange = ap.radius * 12.0f;
+			ap.pathOptimizationRange = ap.radius * 30.0f;
 
+			ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS |
+				DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE;
+			ap.obstacleAvoidanceType = 3;
+			ap.separationWeight = 2.0f;
 
+			float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
+			agent.crowdAgentID = navMeshObj.navMeshCrowd->addAgent(pos, &ap);
+		}
+		if (agent.hasNewTarget && agent.crowdAgentID != -1)
+		{
+			float targetPos[3] = { agent.target.x, agent.target.y, agent.target.z };
+			float extents[3] = { 2.0f, 4.0f, 2.0f };
+			dtPolyRef targetRef;
+			float targetPosOnMesh[3];
+			dtQueryFilter filter;
+
+			// Find nearest polygon to target
+			navMeshObj.navMeshQuery->findNearestPoly(targetPos, extents, &filter, &targetRef, targetPosOnMesh);
+
+			if (targetRef)
+			{
+				// Tell Crowd Agent to move there
+				navMeshObj.navMeshCrowd->requestMoveTarget(agent.crowdAgentID, targetRef, targetPosOnMesh);
+				agent.hasNewTarget = false;
+			}
+		}
+		if (agent.crowdAgentID != -1)
+		{
+			const dtCrowdAgent *ag = navMeshObj.navMeshCrowd->getAgent(agent.crowdAgentID);
+			if (ag && ag->active)
+			{
+				transform.position.x = ag->npos[0];
+				transform.position.y = ag->npos[1];
+				transform.position.z = ag->npos[2];
+			}
+		}
 
 		if (agent.hasNewTarget)
 		{
