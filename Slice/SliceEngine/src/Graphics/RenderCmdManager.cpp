@@ -265,7 +265,11 @@ namespace SliceEngine
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+				auto& test = mdl.get()->meshes;
+				int meshOffset = mdlRef.meshOffset;
+				if (mdlRef.meshOffset >= mdl.get()->meshes.size())
+					meshOffset = 0;
+				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
 
 				GLint uniformLoc;

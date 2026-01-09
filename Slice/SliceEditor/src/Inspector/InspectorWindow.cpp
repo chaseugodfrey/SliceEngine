@@ -554,7 +554,7 @@ namespace SliceEditor
 					if (std::holds_alternative<SliceEngine::ColliderShape::BoxData>(col.shapeData))
 					{
 						glm::vec3 glm3boxData = JPHtoGLM(std::get<SliceEngine::ColliderShape::BoxData>(col.shapeData).scale);
-						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData))
+						if (DragVec3InputHeader(mRegistry, "Scale", "##boxScale3D", glm3boxData, 0.0, FLT_MAX))
 						{
 							col.SetBoxData(SliceEngine::ColliderShape::BoxData(GLMtoJPH(glm3boxData)));
 						}
@@ -923,7 +923,6 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
@@ -938,15 +937,21 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
+
+								
 								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
+								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
@@ -1725,15 +1730,24 @@ namespace SliceEditor
 		auto historyManager = mRegistry.GetManager<HistoryManager>("History");
 		if (ImGui::Button("Save Prefab"))
 		{
-			auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-			//Serialise the Prefab
-			SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabInspected());
+			auto mSession = mRegistry.GetManager<SessionManager>("Session");
 
-			historyManager->ClearFromCheckpoint();
-			PrefabInspectedEvent event;
-			event.prefabBeingInspected = false;
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
-			return;
+			//Publish the engine events:
+			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
+			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
+
+			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
+
+			////Serialise the Prefab
+			SliceEngine::JSONSerializer::SerializePrefab(mSession->GetPrefabEntityInspected());
+
+			//historyManager->ClearFromCheckpoint();
+
+			//For editor handling (only enable if we close the prefab viewer on Saving
+			//PrefabInspectedEvent event;
+			//event.prefabBeingInspected = false;
+			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))

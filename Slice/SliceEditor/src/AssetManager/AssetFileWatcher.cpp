@@ -393,7 +393,7 @@ namespace SliceEditor
                             metaData->Deserialize(metaFilePath);
 
                             
-                            am.CreateResource(modifiedFilePath, metaData.get(), true);
+                            am.CreateResource(modifiedFilePath, metaData.get(), true, true);
 
                             if (resourceMgr->CheckResource(fileGUID))
                             {
@@ -402,10 +402,11 @@ namespace SliceEditor
 
                             }
 
-                            if (modifiedFilePath.extension() == ".prefab")
+                            //Should be moved 
+                            /*if (modifiedFilePath.extension() == ".prefab")
                             {
                                 EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(fileGUID);
-                            }
+                            }*/
 
                             SLICE_LOG("Modified and Hot-Reloaded: " + assetPath);
                         }

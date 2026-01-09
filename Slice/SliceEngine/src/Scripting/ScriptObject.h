@@ -17,7 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #ifndef SCRIPT_OBJECT_H
 #define SCRIPT_OBJECT_H
 #include "../ECS/ECSTypes.h"
+#include "../ECS/GameObject.h"
 #include <mono/metadata/threads.h>
+#include "../Core/Core.h"
 #include "ScriptSystem.h"
 namespace SliceEngine
 {
@@ -331,6 +333,41 @@ namespace SliceEngine
 			//return fieldBuffer;
 
 		}
+
+		//template <>
+		//GameObject GetFieldValue<GameObject>(const std::string& name)
+		//{
+		//	const auto& fields = mScriptClass->mFields;
+		//	if (fields.count(name) == 0)
+		//	{
+		//		return GameObject(); // Return an invalid/null GameObject
+		//	}
+
+		//	const ScriptField& field = fields.at(name);
+
+		//	// 1. Retrieve the pointer to the C# object (MonoObject*)
+		//	MonoObject* instance = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+		//	// 2. Handle null references in C#
+		//	if (instance == nullptr)
+		//	{
+		//		return GameObject();
+		//	}
+
+		//	// 3. Get the 'mID' field from the C# GameObject class
+		//	// Optimization: You should cache this MonoClassField* in your ScriptSystem
+		//	MonoClass* gameObjectClass = mono_object_get_class(instance);
+		//	MonoClassField* idField = mono_class_get_field_from_name(gameObjectClass, "mID");
+
+		//	// 4. Extract the uint32_t value from the mID field
+		//	uint32_t entityID = 0;
+		//	mono_field_get_value(instance, idField, &entityID);
+
+		//	// 5. Construct and return the C++ GameObject wrapper
+		//	// Note: Since ScriptObject doesn't store the Registry, 
+		//	// you must use your global gScriptSystem to access the current registry.
+		//	return GameObject(*gScriptSystem->mRegistry, (Entity)(entityID));
+		//}
 
 #pragma region For Arrays
 		template<typename T>
@@ -819,6 +856,38 @@ namespace SliceEngine
 				mono_field_set_value(mMonoInstance, field.mClassField, monoStr);
 			}
 		}
+
+		//template <>
+		//void SetFieldValue<GameObject>(const std::string& name, GameObject val)
+		//{
+		//	const auto& fields = mScriptClass->mFields;
+		//	if (fields.count(name) == 0) return;
+
+		//	const ScriptField& field = fields.at(name);
+
+		//	// 1. Get the MonoClass for the C# GameObject
+		//	// Note: You should ideally cache this MonoClass* in your ScriptSystem to avoid lookups
+		//	MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+
+		//	if (!gameObjectClass) return;
+
+		//	// 2. Create a new managed instance of the C# GameObject
+		//	MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
+
+		//	// 3. Initialize the object (Calls the constructor)
+		//	// We can call the constructor that takes a uint ID
+		//	void* args[1];
+		//	uint32_t entityID = (uint32_t)val.GetEntity();
+		//	args[0] = &entityID;
+
+		//	// Find the constructor: GameObject(uint id)
+		//	MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+		//	mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+		//	// 4. Set the field in your ScriptObject to this new C# object reference
+		//	// Since it's a reference type, we pass the pointer to the MonoObject itself
+		//	mono_field_set_value(mMonoInstance, field.mClassField, managedInstance);
+		//}
 
 		MonoObject* GetListObject(const std::string& name);
 

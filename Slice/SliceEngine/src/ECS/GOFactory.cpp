@@ -287,6 +287,16 @@ namespace SliceEngine
 
 	}
 
+	void GOFactory::RemoveFromNameMap(std::string name)
+	{
+		if (mNameToEntity.find(name) == mNameToEntity.end())
+		{
+			return;
+		}
+
+		mNameToEntity.erase(name);
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)
@@ -340,9 +350,15 @@ namespace SliceEngine
 			return false;
 		}
 
+
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
-
+		//Check if there's even a need to update the parent.
+		if (prev_parent_entity == parentEntity && prev_parent_entity != entt::null)
+		{
+			SLICE_LOG_WARNING("Parenting to self. Does nothing.");
+			return false;
+		}
 		// if the base entity has a parent, then we want to unattach it from its current chain
 		if (prev_parent_entity != entt::null)
 		{
@@ -884,6 +900,15 @@ namespace SliceEngine
 		return go;
 	}
 
+	void GOFactory::DebugPrint()
+	{
+		auto entityView = mRegistry.view<SliceEntity>();
+		for (auto entity : entityView)
+		{
+			std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
+		}
+	}
+
 	void GOFactory::TestLoop()
 	{
 		auto entityView = mRegistry.view<SliceEntity>();
@@ -996,6 +1021,13 @@ namespace SliceEngine
 			std::string oldName = it->second.GetName();
 			//it->second.SetName(CreateName(newName)); changing name should be done in GO
 			// update the name to entity map
+
+			// if the old name wasnt in the map, means this entity's name doesnt belong in the map
+			if (mRegistry.any_of<PrefabEditingEntity>(entity))
+			{
+				return;
+			}
+
 			mNameToEntity.erase(oldName);
 			mNameToEntity.insert(std::make_pair(newName, entity));
 		}

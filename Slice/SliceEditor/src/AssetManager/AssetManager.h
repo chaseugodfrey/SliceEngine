@@ -58,7 +58,7 @@ namespace SliceEditor
 		void AddDefaultModelsToMap();
 		void CreateAssetMaps();
 		std::vector<SliceEngine::GUID>* GetMapFromAssetType(std::string assetType);
-		std::filesystem::path CreateResource(const std::filesystem::path filePath, MetaData* metaData = nullptr, bool AddToRM = true);
+		std::filesystem::path CreateResource(const std::filesystem::path filePath, MetaData* metaData = nullptr, bool AddToRM = true, bool recompile = false);
 		void CompileTextureAsset(std::filesystem::path const& desc_file);
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);

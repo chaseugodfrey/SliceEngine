@@ -182,16 +182,16 @@ namespace SliceEditor
 				}
 			}
 
-			if (mManager.openRenameFile)
-			{
-				mManager.openRenameFile = !mManager.openRenameFile;
-				ImGui::OpenPopup("##RenameFile");
-			}
+			//if (mManager.openRenameFile)
+			//{
+			//	//mManager.openRenameFile = !mManager.openRenameFile;
+			//	ImGui::OpenPopup("##RenameFile");
+			//}
 
-			if (selectedEntry != nullptr)
-			{
-				RenameFilePopup(*selectedEntry);
-			}
+			//if (selectedEntry != nullptr)
+			//{
+			//	RenameFilePopup(*selectedEntry);
+			//}
 
 			ImGui::EndTable();
 		}
@@ -297,6 +297,7 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Rename File"))
 			{
 				mManager.openRenameFile = true;
+				ImGui::CloseCurrentPopup();
 			}
 
 			if (ImGui::MenuItem("Re-compile File"))
@@ -346,6 +347,14 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 
+		if (mManager.openRenameFile)
+		{
+			ImGui::OpenPopup("##RenameFile");
+			mManager.openRenameFile = !mManager.openRenameFile;
+		}
+
+		RenameFilePopup(node);
+
 		ImGui::Text("%s", node.fileName.c_str());
 	}
 
@@ -362,7 +371,8 @@ namespace SliceEditor
 		{
 			if (ImGui::IsWindowAppearing()) //First-time copying the name of the file for ImGui to register it
 			{
-				std::snprintf(newName, sizeof(newName), "%s", entry.fileName.c_str());
+				std::string oldFileName = entry.relativePath.stem().stem().string();
+				std::snprintf(newName, sizeof(newName), "%s", oldFileName.c_str());
 				/*std::memset(newName, 0, sizeof(newName));
 				std::strncpy(newName, entry.fileName.c_str(), sizeof(newName) - 1);
 				newName[sizeof(newName) - 1] = '\0';*/

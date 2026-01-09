@@ -174,7 +174,6 @@ namespace SliceEditor
 			}
 
 
-			//actualEntry = std::filesystem::directory_entry(newPath);
 		}
 		catch (const std::exception& e)
 		{
