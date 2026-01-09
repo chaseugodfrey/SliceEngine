@@ -298,7 +298,9 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
-		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
+		dtCrowd *crowd = SliceEngine::NavMeshUtilities::InitCrowd(navMesh);
+
+		SliceEngine::NavMeshObj obj{ navMesh, navQuery,crowd };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
 
 		navMesh = nullptr;
@@ -567,7 +569,9 @@ namespace SliceEditor
 		navQuery = dtAllocNavMeshQuery();
 		navQuery->init(navMesh, 2048);
 
-		SliceEngine::NavMeshObj obj{ navMesh, navQuery };
+		dtCrowd *crowd = SliceEngine::NavMeshUtilities::InitCrowd(navMesh);
+
+		SliceEngine::NavMeshObj obj{ navMesh, navQuery,crowd };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
 
 		navMesh = nullptr;

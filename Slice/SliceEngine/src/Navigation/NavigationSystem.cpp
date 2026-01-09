@@ -16,6 +16,7 @@ namespace SliceEngine
 		{
 			navMeshInstance->navMeshCrowd->update(dt, nullptr);
 		}
+		BaseSystem::Update(dt);
 	}
 
 	void NavigationSystem::Unbind()

@@ -78,11 +78,11 @@ namespace SliceEngine
 
         navQuery = dtAllocNavMeshQuery();
         navQuery->init(navMesh, 2048); 
-		//dtCrowd *crowd = InitCrowd(navMesh);
+		dtCrowd *crowd = InitCrowd(navMesh);
 
 		std::cout << "NavMesh loaded successfully!" << std::endl;
 
-        return { NavMeshObj{navMesh, navQuery/*, crowd*/}};
+        return { NavMeshObj{navMesh, navQuery, crowd}};
     }
 
     bool NavMeshUtilities::FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath)
