@@ -19,12 +19,12 @@ namespace SliceEngine
 	
 	void SceneSystem::Init()
 	{
-		//Will do all the loading of the resources based on the scene file
-		LoadScene(mDefaultScene);
+		if (!LoadScene(mCurrentScene))
+			LoadDefaultScene();
+
 		mCurrentState = mNextState = SceneState::DEFAULT;
 
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
-
 	}
 
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
@@ -32,6 +32,7 @@ namespace SliceEngine
 		mSceneQueue.push(filePath);
 		mNextScene = filePath;
 		UnloadCurrentScene();
+		
 	}
 
 	bool SceneSystem::LoadScene(GUID const guid)
@@ -48,6 +49,12 @@ namespace SliceEngine
 	bool SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
 	{
 		return LoadScene(scene->GetFilePath());
+	}
+
+	void SceneSystem::LoadDefaultScene()
+	{
+		//Core::GetInstance()->mFactory.BuildSceneGraph();
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
 	}
 
 	bool SceneSystem::LoadScene(std::filesystem::path const filePath)
@@ -154,16 +161,6 @@ namespace SliceEngine
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
 	{
 		mCurrentScene = filePath;
-	}
-
-	void SceneSystem::SetDefaultScenePath(std::filesystem::path const& filePath)
-	{
-		mDefaultScene = filePath;
-	}
-
-	std::filesystem::path SceneSystem::GetDefaultScenePath()
-	{
-		return mDefaultScene;
 	}
 
 	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
@@ -289,6 +286,9 @@ namespace SliceEngine
 
 	std::string SceneSystem::GetCurrentSceneName()
 	{
+		if (mCurrentScene.empty())
+			return "New Scene";
+
 		return mCurrentScene.stem().string();
 	}
 }

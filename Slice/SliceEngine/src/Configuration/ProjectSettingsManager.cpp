@@ -8,14 +8,10 @@ namespace SliceEngine
 		mSettingsList.push_back(std::make_unique<AudioSettings>("AudioSettings"));
 		mSettingsList.push_back(std::make_unique<PhysicsSettings>("PhysicsSettings"));
 
-		Load();
-	}
-
-	void ProjectSettingsManager::Load()
-	{
 		for (auto& setting : mSettingsList)
 		{
-			setting->LoadSettings();
+			setting->Init();
+			setting->LoadFromFile();
 		}
 	}
 
@@ -29,6 +25,11 @@ namespace SliceEngine
 
 	void ProjectSettingsManager::Exit()
 	{
+		for (auto& setting : mSettingsList)
+		{
+			setting->Exit();
+		}
+
 		mSettingsList.clear();
 	}
 	

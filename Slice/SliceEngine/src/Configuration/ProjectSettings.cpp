@@ -13,6 +13,28 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	void ProjectSettings::LoadFromFile()
+	{
+		std::ifstream inFile(filepath);
+		nlohmann::json settings;
+
+		if (!inFile.is_open())
+		{
+			SLICE_LOG_WARNING(filepath + ".asset file not found. Creating default asset file.");
+			inFile.close();
+			SaveSettings();
+			return;
+		}
+
+		else
+		{
+			inFile >> settings;
+			inFile.close();
+			LoadSettings(settings);
+		}
+
+	}
+
 	void ProjectSettings::CheckDirty()
 	{
 		if (isDirty)

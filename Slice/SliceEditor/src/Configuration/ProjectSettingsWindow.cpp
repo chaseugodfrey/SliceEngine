@@ -6,6 +6,7 @@
 #include "Inspector/ComponentPropertiesGUI.h"
 
 #include <Core/Core.h>
+#include <Configuration/ProjectSettingsManager.h>
 #include <Physics/PhysicsSystem.h>
 #include <Audio/AudioManager.h>
 #include <Systems/LayerManager.h>
@@ -14,9 +15,10 @@ namespace SliceEditor
 {
 	void ProjectSettingsWindow::Init()
 	{
-		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, "Audio"));
-		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, "Physics"));
-		mSettingsList.push_back(std::make_unique<ProjectSettingsDisplay>(mRegistry, "Project"));
+		auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::AudioSettings>(), "Audio"));
+		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::PhysicsSettings>(), "Physics"));
+		//mSettingsList.push_back(std::make_unique<ProjectSettingsDisplay>(mRegistry, "Project"));
 	}
 
 	void ProjectSettingsWindow::Draw()
@@ -26,7 +28,7 @@ namespace SliceEditor
 		bool isOpen;
 		if (ImGui::Begin("Project Settings Window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+			//auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
 
 			ImVec2 left_size = ImVec2(window_size.x * 0.1f, window_size.y);
 			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Borders))
@@ -72,7 +74,7 @@ namespace SliceEditor
 
 	void AudioSettingsDisplay::DisplaySettings()
 	{
-		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
+		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsManager()->GetSettings<SliceEngine::AudioSettings>();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
 		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
 
@@ -254,7 +256,7 @@ namespace SliceEditor
 
 		if (hasChanged)
 		{
-			audioSettings->Serialize(AUDIO_SETTINGS_PATH);
+			audioSettings->SaveSettings();
 		}
 
 		ImGui::EndChild();

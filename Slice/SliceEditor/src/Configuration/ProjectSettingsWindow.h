@@ -14,7 +14,7 @@ namespace SliceEditor
 		Registry& mRegistry;
 
 	public:
-		std::string name;
+		std::string const name;
 		SliceEngine::ProjectSettings& mSettings;
 
 		BaseSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& settings, std::string nm) : mRegistry(reg), mSettings(settings), name(nm) {};
@@ -49,14 +49,13 @@ namespace SliceEditor
 			AUDIO,
 			PHYSICS,
 			PROJECT
-		} mCurrentSettingsIndex;
+		} mCurrentSettingsIndex{};
 
 		std::vector<std::unique_ptr<BaseSettingsDisplay>> mSettingsList{};
 
-
 	public:
 		
-		ProjectSettingsWindow(Registry& reg) : EditorWindow(reg), mCurrentSettingsIndex(SettingsType::AUDIO) { };
+		ProjectSettingsWindow(Registry& reg) : EditorWindow(reg) { };
 		~ProjectSettingsWindow() = default;
 		void Init() override;
 		void Draw() override final;

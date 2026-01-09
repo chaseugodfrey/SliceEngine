@@ -531,7 +531,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		//EnableMemoryLeakChecking(92083);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -597,6 +597,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
 		Core::GetInstance()->GetProjectSettingsManager()->Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
 
 		// =========================== TESTING AREA ===========================
 		// 
@@ -615,11 +616,6 @@ namespace SliceEngine
 
 
 		// ====================================================================
-	}
-
-	void Engine::SceneInit()
- 	{
-		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
 	void Engine::Update()

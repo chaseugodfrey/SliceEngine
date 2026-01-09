@@ -6,8 +6,13 @@ namespace SliceEngine
 	struct PhysicsSettings : public ProjectSettings
 	{
 		PhysicsSettings(std::string name) : ProjectSettings(name) {};
-		void LoadSettings() override;
+		~PhysicsSettings() = default;
+
+		void Init() override;
+		void Exit() override;
+		void LoadSettings(nlohmann::json) override;
 		void SaveSettings() override;
+		void ApplySettings() override;
 	};
 }
 

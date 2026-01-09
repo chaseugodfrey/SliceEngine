@@ -20,10 +20,13 @@ namespace SliceEngine
 		std::string filepath;
 		
 		ProjectSettings(std::string name) : isDirty(false), filepath("ProjectSettings/" + name + ".asset") {};
-		~ProjectSettings() = default;
+		virtual ~ProjectSettings() = default;
 
-		virtual void LoadSettings() = 0;
+		void LoadFromFile();
+		virtual void Init() = 0;
+		virtual void LoadSettings(nlohmann::json) = 0;
 		virtual void SaveSettings() = 0;
+		virtual void Exit() = 0;
 
 		// per-frame update for dirty checking
 		// only call in editor mode

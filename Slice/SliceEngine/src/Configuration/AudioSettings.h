@@ -48,18 +48,17 @@ namespace SliceEngine
 	{
 		FMOD::System* mSystem = nullptr;
 
-		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
-
-		//std::vector<SFXEntry> mSfxMap;
 	public:
 
-		AudioSettings(std::string name) : ProjectSettings(name) {};
+		std::unordered_map<std::string, SFXEntry> mSFXMap{};
 
-		std::unordered_map<std::string, SFXEntry> mSFXMap;
-		void Init();
-		void Exit();
-		void Serialize(const std::filesystem::path& desc_path);
-		void Deserialize(const std::filesystem::path& desc_path);
+		AudioSettings(std::string name) : ProjectSettings(name) {};
+		~AudioSettings() = default;
+		void Init() override;
+		void Exit() override;
+		void LoadSettings(nlohmann::json) override;
+		void SaveSettings() override;
+
 		void CreateSoundGroup(const std::string& key);
 		void RemoveSoundGroup();
 		void AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips);
@@ -76,8 +75,7 @@ namespace SliceEngine
 		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f));
 		void Release();
 
-		void LoadSettings() override;
-		void SaveSettings() override;
+
 	};
 }
 

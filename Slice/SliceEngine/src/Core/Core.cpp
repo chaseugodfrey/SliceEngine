@@ -57,8 +57,8 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		SliceEngine::GetActionMappingSystem().SetInputSystem(mInputPtr.get()); // set global action mapping system's input system pointer
 		mScenePtr = std::make_unique<SceneSystem>();
-
 		mProjectSettingsManager = std::make_unique<ProjectSettingsManager>();
+
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 		mFactory.RegisterComponent<Renderer>();
@@ -94,6 +94,7 @@ namespace SliceEngine
 		mFactory.FactoryShutdown();
 		mResource->Shutdown();
 		mWindowManager.CloseWindow();
+		mProjectSettingsManager->Exit();
 		UnbindSystems();
 		glfwTerminate();
 
