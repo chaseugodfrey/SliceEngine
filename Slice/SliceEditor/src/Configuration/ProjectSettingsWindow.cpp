@@ -227,8 +227,6 @@ namespace SliceEditor
 
 					if (ImGui::Button("+"))
 					{
-						
-						
 						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}

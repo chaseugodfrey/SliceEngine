@@ -614,63 +614,32 @@ namespace SliceEditor
 		{
 			DisplayComponentHeader<SliceEngine::Script>(entity);
 
+			auto& scriptMap = SliceEngine::gScriptSystem->mEntityClasses;
 			std::string script_name = script.scriptName;
-			if (script_name.empty())
-				script_name = "(Empty)";
+			std::vector<std::string> scriptList{};
+			static int selectedIndex = 0;
 
-			// Script Name
-
-			ImGui::Text("Script Class: ");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
-
-			ImGui::Separator();
+			for (auto& [key, value] : scriptMap)
+			{
+				scriptList.push_back(value->mClassName);
+			}
 
 			if (script.scriptName.empty())
 			{
-				if (ImGui::Button("Add Script"))
-				{
-					ImGui::OpenPopup("script_list_popup");
-				}
+				script_name = "Empty";
+				scriptList.push_back("Empty");
+				selectedIndex = scriptList.size() - 1;
+			}
 
-				if (ImGui::BeginPopupContextItem("script_list_popup"))
-				{					
-					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-
-					std::vector<const char*> script_list{};
-
-					static int list_index = 1;
-
-					for (auto& [key, value] : script_map)
-					{
-						script_list.push_back(value->mClassName.c_str());
-					}
-
-					//std::string selected_script_class{};
-
-					if (ImGui::BeginListBox("##script_list"))
-					{
-						for (size_t i = 0; i < script_list.size(); i++)
-						{
-							if (ImGui::Selectable(script_list[i]))
-							{
-								script.scriptName = "SliceEngine.";
-								script.scriptName += script_list[i];
-								ImGui::CloseCurrentPopup();
-							}
-						}
-
-						ImGui::EndListBox();
-					}
-
-					ImGui::EndPopup();
-				}
+			if (ComboHeader<int>(mRegistry, "Script Class:", "##scriptClassID", selectedIndex, scriptList, true))
+			{
+				script.scriptName = "SliceEngine.";
+				script.scriptName += scriptList[selectedIndex];
 			}
 
 			// Script Variables
 
-			else
+			if(!script.scriptName.empty())
 			{
 				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
 
