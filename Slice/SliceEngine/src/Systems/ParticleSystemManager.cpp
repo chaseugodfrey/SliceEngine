@@ -24,13 +24,13 @@ namespace SliceEngine
 	void ParticleSystemManager::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& ps = reg.get<ParticleSystem>(entity);
-		ps.parentTransform = mRegistry->try_get<Transform>(entity);	
+		ps.parentTransform = mRegistry->try_get<Transform>(entity);
 		InitializeSystem(ps);
 	}
 	void ParticleSystemManager::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
-	{
-
+	{		
 		auto& ps = reg.get<ParticleSystem>(entity);
+		ps.parentTransform = mRegistry->try_get<Transform>(entity);
 		if (ps.expired || (!ps.isActive))
 		{
 			if (ps.destroyOnExpire)
