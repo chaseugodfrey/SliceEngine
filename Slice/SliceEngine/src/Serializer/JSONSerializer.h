@@ -213,11 +213,21 @@ namespace SliceEngine
 			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
+		// For GameObject
+		/*template <>
+		inline void Serialize<GameObject>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const GameObject& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = value.GetEntity();
+		}*/
+
 		// For ScriptableFieldMap
 		template<>
 		inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
 		{
+
+
 			for (const auto& [k, v] : value)
 			{
 				output[name][typeName][propName][k] = VariantToJson(v);
@@ -357,6 +367,29 @@ namespace SliceEngine
 			}
 			prop.set_value(componentInstance, arr);
 		}
+
+		//// For GameObject
+		//template <>
+		//inline void Deserialize<GameObject>(rttr::variant& componentInstance, rttr::property& prop,
+		//	const GameObject& value, const std::string& propName, const std::string& componentName,
+		//	const Entity& entity)
+		//{
+		//	std::array<Entity, 4> arr;
+		//	for (size_t i = 0; i < arr.size(); ++i)
+		//	{
+		//		auto v = value[i];
+
+		//		if (v == entt::null)
+		//		{
+		//			arr[i] = entt::null;
+		//		}
+		//		else
+		//		{
+		//			arr[i] = v;
+		//		}
+		//	}
+		//	prop.set_value(componentInstance, arr);
+		//}
 
 		// Handle
 		template <typename T>
@@ -623,6 +656,31 @@ namespace SliceEngine
 		SLICE_LOG_DEBUG(msg);
 
 	}
+
+	//GameObject
+	// From Json doesnt work because mRegistry should not be accessible in this file
+	inline void from_json(const json& j, GameObject& go)
+	{
+		if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				go = GameObject();
+			}
+			else
+			{
+				uint32_t id = static_cast<uint32_t>(std::stoul(s));
+				Entity e = static_cast<Entity>(id);
+				go = GameObject(RegistryInstance, e);
+			}
+		}
+	}
+
+	inline void to_json(json& j, const GameObject& go)
+	{
+		j = go.GetEntity();
+	}
 }
 
 namespace glm
@@ -760,6 +818,11 @@ namespace rttr
 			if (typeName == "std::vector<int>")
 			{
 				return rttr::variant(valueJson.get<std::vector<int>>());
+			}
+			if (typeName == "classSliceEngine::GameObject")
+			{
+				uint32_t oldID = valueJson.get<uint32_t>();
+				return rttr::variant(SliceEngine::GameObject(SliceEngine::RegistryInstance, static_cast<Entity>(oldID)));
 			}
 
 			return rttr::variant(valueJson.get<std::string>());

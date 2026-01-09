@@ -130,6 +130,8 @@ namespace SliceEngine
 
 		void UnsubscribeToEvents();
 
+		void RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph);
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
