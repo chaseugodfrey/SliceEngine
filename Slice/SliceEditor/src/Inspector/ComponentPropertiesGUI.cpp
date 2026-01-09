@@ -1109,59 +1109,52 @@ namespace SliceEditor
 				mapNames.push_back(fileNameString);
 			}
 
-			//Fall-back (Should Display Nothing)
-			if (currentIndex < 0)
-			{
-				std::string guidString = currentGUID.toString();
-				std::string errorText;
-				if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
-				{
-					//?????? wtf is this
-					//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
-					errorText = "GUID not found in AssetManager";
-				}
-				else
-				{
-					//SLICE_LOG_CRITICAL("Apparently its this file: " + assetManager.mGUIDtoFilename[currentGUID]);
-					errorText = "GUID Found, is " + assetManager.mGUIDtoFilename[currentGUID] + " . Likely Map Mismatch.";
-				}
-				ImGui::Text(errorText.c_str());
-				ImGui::Text("Missing GUID: ");
-				ImGui::SameLine(150.0f);
-				ImGui::BeginDisabled();
-				ImGui::InputText("##Missing GUID:", &guidString);
-				ImGui::EndDisabled();
-			}
+			int selectedIndex = currentIndex;
 
+			std::string guidString = currentGUID.toString();
+			std::string errorText;
+			if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
+			{
+				//?????? wtf is this
+				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+				errorText = "GUID not found in AssetManager";
+				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
+			}
 			else
 			{
-				int selectedIndex = currentIndex;
+				ImGui::Text(property_label);
+				ImGui::SameLine(150.0f);
+			}
 
-				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
+			{
+				const std::string& selectedName = mapNames[selectedIndex];
+				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+				changed = (guid != newGUID);
+				if (changed)
 				{
-					const std::string& selectedName = mapNames[selectedIndex];
-					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-					changed = (guid != newGUID);
-					if (changed)
+					if (!setFunc)
 					{
-						if (!setFunc)
-						{
-							std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-							guid = newGUID;
-						}
+						std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+						guid = newGUID;
+					}
 
-						else
-						{
-							std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					else
+					{
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
-							setFunc(newGUID);
-						}
+						setFunc(newGUID);
 					}
 				}
 			}
 		}
+		//No Drag-Drop for some reason
 		else
 		{
 			std::string filename{ "(empty)" };
@@ -1211,7 +1204,6 @@ namespace SliceEditor
 		}
 
 		return changed;
-
 	}
 
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)

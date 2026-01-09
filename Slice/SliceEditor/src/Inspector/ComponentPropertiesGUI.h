@@ -238,7 +238,7 @@ namespace SliceEditor
 
 		ImGui::SetNextItemWidth(150.0f);
 
-		ComboInput(reg , id, selected, container,searchBar);
+		changed = ComboInput(reg , id, selected, container,searchBar);
 		return changed;
 	}
 
@@ -324,37 +324,6 @@ namespace SliceEditor
 					}
 				}
 			}
-			//}
-
-			/*else
-			{
-				int selectedIndex = currentIndex;
-
-				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
-				{
-					const std::string& selectedName = mapNames[selectedIndex];
-					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-					changed = (handle.getGUID() != newGUID);
-					if (changed)
-					{
-						if (!setFunc)
-						{
-							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-							auto newHandle = rm->get<T>(newGUID);
-
-							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-							handle = newHandle;
-						}
-
-						else
-						{
-							setFunc(newGUID);
-						}
-					}
-				}
-			}*/
 		}
 		
 		//No Drag-Drop for some reason
@@ -400,7 +369,14 @@ namespace SliceEditor
 					}
 
 					else
+					{
+						/*auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::Handle<T>>>(handle, newHandle, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+
 						setFunc(newGUID);
+					}
 				}
 			}
 
