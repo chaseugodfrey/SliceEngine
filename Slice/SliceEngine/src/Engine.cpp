@@ -625,6 +625,7 @@ namespace SliceEngine
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -691,7 +692,8 @@ namespace SliceEngine
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
 				sAudio->StopAllSound();
-				Core::GetInstance()->GetAudioSettings()->DeleteAM();
+				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+				audioSettings->DeleteAM();
 				
 				sScene->ReloadScene();
 				isPlaying = false;
