@@ -107,8 +107,8 @@ namespace SliceEngine
 
         SubscribeToEvents();
 
-        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::onEnabled>(this);
-        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::onDisabled>(this);
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::OnEnabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -547,8 +547,8 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
-        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::onEnabled>(this);
-        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::onDisabled>(this);
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
 
 
         mEntityInstances.clear();
@@ -891,7 +891,7 @@ namespace SliceEngine
         //UpdateScriptComponent(entity);
     }
 
-    void ScriptSystem::onEnabled(entt::registry& reg, entt::entity entity)
+    void ScriptSystem::OnEnabled(entt::registry& reg, entt::entity entity)
     {
         if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
         {
@@ -900,12 +900,13 @@ namespace SliceEngine
                 if (entt == entity)
                 {
                     // invoke onEnabled
+                    instance->InvokeOnEnabled();
                 }
             }
         }
     }
 
-    void ScriptSystem::onDisabled(entt::registry& reg, entt::entity entity)
+    void ScriptSystem::OnDisabled(entt::registry& reg, entt::entity entity)
     {
         if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
         {
@@ -913,7 +914,8 @@ namespace SliceEngine
             {
                 if (entt == entity)
                 {
-                    // invoke onEnabled
+                    // invoke onDisabled
+                    instance->InvokeOnDisabled();
                 }
             }
         }

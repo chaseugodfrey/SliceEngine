@@ -126,6 +126,8 @@ namespace SliceEngine
 		MonoMethod* mOnUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
 		MonoMethod* mOnEntityDestroy = nullptr;
+		MonoMethod* mOnEntityEnabled = nullptr;
+		MonoMethod* mOnEntityDisabled = nullptr;
 
 		// Standard object functions
 		MonoMethod* mOnCollideEnter = nullptr;
@@ -254,6 +256,16 @@ namespace SliceEngine
 		/// Call when a mouse is hovering the collider box of an object
 		/// </summary>
 		void InvokeOnMouseHover();
+
+		/// <summary>
+		/// Call when the entity is enabled again
+		/// </summary>
+		void InvokeOnEnabled();
+
+		/// <summary>
+		/// Call when the entity is disabled
+		/// </summary>
+		void InvokeOnDisabled();
 
 		/// <summary>
 		/// Call when entering a state
