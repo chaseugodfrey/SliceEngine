@@ -393,7 +393,7 @@ namespace SliceEditor
                             metaData->Deserialize(metaFilePath);
 
                             
-                            am.CreateResource(modifiedFilePath, metaData.get(), true);
+                            am.CreateResource(modifiedFilePath, metaData.get(), true, true);
 
                             if (resourceMgr->CheckResource(fileGUID))
                             {

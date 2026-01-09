@@ -775,6 +775,11 @@ namespace SliceEngine
                     glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
+                else if (it.second.mType == ScriptFieldType::GameObject)
+                {
+                    GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
             }
         }
     }
@@ -931,10 +936,31 @@ namespace SliceEngine
                         {
                             MonoType* type = mono_field_get_type(field);
 
+                            std::string fieldTypeStr = mono_type_get_name(type);
+
                             MonoClass* elementClass = nullptr;
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
 
+                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);
+                            if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
+                            {
+                                SLICE_LOG(fieldTypeStr + "is an array!");
+                            }
+
+                            if (mono_type_get_array_type(type)&& !(e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY || e == MONO_TYPE_GENERICINST))
+                            {
+                                SLICE_LOG_CRITICAL("This type " + fieldTypeStr + " in " + className +  " is considered an array type.");
+
+                                if (!mono_type_is_struct(type))
+                                {
+                                    SLICE_LOG_VALUES("However, it is not a struct");
+                                }
+                                else
+                                {
+                                    SLICE_LOG_VALUES("It is a struct");
+                                }
+                            }
                             rttr::variant var;
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
@@ -977,6 +1003,8 @@ namespace SliceEngine
         *outElementClass = nullptr;
 
         std::string fullTypeName = mono_type_get_name(type);
+        
+
 
         std::string listPrefix = "System.Collections.Generic.List<";
 
@@ -1039,9 +1067,11 @@ namespace SliceEngine
 
         MonoArrayType* arrayType = mono_type_get_array_type(type);
         mono_bool isStruct = mono_type_is_struct(type);
-        if (arrayType && !isStruct)
+        MonoTypeEnum enumType = (MonoTypeEnum)mono_type_get_type(type);
+        if ((enumType == MONO_TYPE_ARRAY || enumType == MONO_TYPE_SZARRAY) && !isStruct)
         {
             MonoClass* elementClass = arrayType->eklass;
+            SLICE_LOG_DEBUG(mono_class_get_name(elementClass));
             *outElementClass = elementClass;
 
             MonoType* elementType = mono_class_get_type(elementClass);

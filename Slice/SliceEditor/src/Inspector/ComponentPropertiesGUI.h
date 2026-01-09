@@ -73,6 +73,8 @@ namespace SliceEditor
 
 	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
 
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val);
+
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int min = 0, int max = 0);
