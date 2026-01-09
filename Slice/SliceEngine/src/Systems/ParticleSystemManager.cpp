@@ -170,7 +170,7 @@ namespace SliceEngine
 
 				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 						
-				prp.transform = transformMatrix;				
+				prp.transform = transformMatrix;		
 				prp.textureID = ps.GetTextureID();
 				prp.colour = ps.colour;
 
