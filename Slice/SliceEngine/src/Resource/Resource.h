@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include "Skeleton.h"
 #include "StateMachine.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -220,6 +221,17 @@ namespace SliceEngine
 		static void Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr);
 
 		static void Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Font_Data>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::Font_Data> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr);
+
+		//static void Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path);
 	};
 }
 
