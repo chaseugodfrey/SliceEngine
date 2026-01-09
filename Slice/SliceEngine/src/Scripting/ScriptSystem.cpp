@@ -106,6 +106,9 @@ namespace SliceEngine
         SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
+
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::onEnabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::onDisabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -544,6 +547,10 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::onEnabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::onDisabled>(this);
+
+
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -882,6 +889,34 @@ namespace SliceEngine
         // so I update after every onUpdate call for any thing script related
         // Editor calls it when anything is modified in the inspector as well
         //UpdateScriptComponent(entity);
+    }
+
+    void ScriptSystem::onEnabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onEnabled
+                }
+            }
+        }
+    }
+
+    void ScriptSystem::onDisabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onEnabled
+                }
+            }
+        }
     }
 
     void ScriptSystem::LoadEntityClasses()
