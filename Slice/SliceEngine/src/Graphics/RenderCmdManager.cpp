@@ -119,10 +119,13 @@ namespace SliceEngine
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
 			auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-		
-			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
 
-			RCK_Size key = MRCK_OPAQUE | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
+			// --TODO-- Currently hard set particles shader
+			uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader").get()->s);
+			RCK_Size key = MRCK_OPAQUE |
+				(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
+				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
