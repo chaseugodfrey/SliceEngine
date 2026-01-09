@@ -63,6 +63,7 @@ namespace SliceEditor
 		void CompileFBXAsset(std::filesystem::path const& desc_file);
 		void CompileAudioAsset(AudioData* metaData);
 		void CompileShaderAsset(ShaderData* metaData);
+		void CompileCustomShaderAsset(CustomShaderData* metaData);
 		void CompileVertShaderAsset(VertShaderData* metaData);
 		void CompileGeomShaderAsset(GeomShaderData* metaData);
 		void CompileFragShaderAsset(FragShaderData* metaData);
@@ -115,6 +116,7 @@ namespace SliceEditor
 			{".scene", {AssetType::Scene, "Scene"}},
 			{".temp", {AssetType::Scene, "Scene"}},
 			{".shader", {AssetType::Shader, "Shader"}},
+			{".cshader", {AssetType::CustomShader, "CustomShader"}},
 			{".vert", {AssetType::VertShader, "VertShader"}},
 			{".geom", {AssetType::GeomShader, "GeomShader"}},
 			{".frag", {AssetType::FragShader, "FragShader"}},
@@ -132,6 +134,7 @@ namespace SliceEditor
 			{AssetType::Model, ".mdl"},
 			{AssetType::Scene, ".scene"},
 			{AssetType::Shader, ".shader"},
+			{AssetType::CustomShader, ".cshader"},
 			{AssetType::VertShader, ".vert"},
 			{AssetType::GeomShader, ".geom"},
 			{AssetType::FragShader, ".frag"},

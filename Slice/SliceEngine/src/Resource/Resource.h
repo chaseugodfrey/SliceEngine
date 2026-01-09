@@ -70,6 +70,20 @@ namespace SliceEngine
 	};
 
 	template <>
+	struct Type<SliceEngineTypes::CustomShader>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::CustomShader> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path);
+
+	};
+
+	template <>
 	struct Type<SliceEngineTypes::VertShader>
 	{
 		constexpr static inline uint64_t defaultResourceGUID = 0;

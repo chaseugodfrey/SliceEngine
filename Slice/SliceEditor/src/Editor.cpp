@@ -87,34 +87,26 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
-		EnableMemoryLeakChecking(-1);
+		//EnableMemoryLeakChecking(-1);
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
-		inputs = std::make_unique<EditorInputs>(registry);
 
-		//assetManager.ScanResourceFolder();
 		assetManager.Init();
 
+		// Engine Core
 		engine.Init();
-
+		inputs = std::make_unique<EditorInputs>(registry);
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
-
-		// todo: calling this here first to put this when loading scene + 
-		// reminder to change scene root to a list in case we want to have multiple scenes
-		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
-
-		// default controller here pls
-		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
-
+		
+		// Editor Core
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
 		InitWindowManager();
 
-		engine.SceneInit();
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
@@ -136,7 +128,7 @@ namespace SliceEditor
 		{
 			registry.Update();
 			inputs->Update();
-			AssetFileWatcher::UpdateFolder(assetManager);
+			//AssetFileWatcher::UpdateFolder(assetManager);
 			engine.Update();
 			Render();
 			engine.EndFrame();

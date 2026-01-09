@@ -28,7 +28,6 @@ namespace SliceEditor
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
-		OpenPreferences();
 	}
 
 	void SessionManager::Update()
@@ -45,64 +44,6 @@ namespace SliceEditor
 		}
 	}
 
-	void SessionManager::OpenPreferences()
-	{
-		std::string filepath = "preferences.json";
-		std::ifstream preferencesFile{ filepath };
-
-		if (preferencesFile.fail())
-		{
-			CreateDefaultPreferenceFile();
-			preferencesFile.open(filepath);
-		}
-
-		mPreferences = std::make_unique<Preferences>();
-
-		nlohmann::json preferencesJson;
-		preferencesFile >> preferencesJson; // here aloy
-		std::string theme = preferencesJson["Theme"].get<std::string>();
-		mPreferences->Theme = EditorUtilities::GetThemeTypeFromString(theme);
-
-		preferencesFile.close();
-
-		SetPreferences();
-	}
-
-	void SessionManager::SetPreferences()
-	{
-		EditorUtilities::SetTheme(mPreferences->Theme);
-	}
-
-	void SessionManager::CreateDefaultPreferenceFile()
-	{
-		std::string filepath = "preferences.json";
-		std::ofstream preferencesFile{ filepath };
-		nlohmann::json preferences;
-
-		preferences["Theme"] = EditorThemes[0];
-
-		preferencesFile << preferences.dump();
-		preferencesFile.close();
-	}
-
-	void SessionManager::SavePreferences()
-	{
-		std::string filepath = "preferences.json";
-		std::ofstream preferencesFile{ filepath };
-		nlohmann::json preferences;
-
-		preferences["Theme"] = EditorThemes[mPreferences->Theme];
-
-		preferencesFile << preferences.dump();
-		preferencesFile.close();
-
-		SetPreferences();
-	}
-
-	Preferences& SessionManager::GetPreferences()
-	{
-		return *mPreferences.get();
-	}
 
 	void SessionManager::OnSceneSave(OnSceneSaveEvent e)
 	{

@@ -25,7 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Systems/PrefabSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
-#include "../Configuration/AudioSettings.h"
+#include "../Configuration/ProjectSettingsManager.h"
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
 
@@ -925,12 +925,11 @@ namespace SliceEngine
 		std::string key = MonoToString(string);
 		if (position == glm::vec3(0.f))
 		{
-			Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
-
+			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
 		}
 		else
 		{
-			Core::GetInstance()->GetAudioSettings()->PlaySFX(key, position);
+			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
 		}
 	}
 

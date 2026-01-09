@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ContentBrowser/ContentBrowserManager.h"
 #include "Profiler/ProfilerManager.h"
 #include "WindowManager/WindowManager.h"
+#include "Configuration/PreferenceManager.h"
 
 namespace SliceEditor
 {
@@ -32,6 +33,7 @@ namespace SliceEditor
 		CreateManager<ContentBrowserManager>("ContentBrowser");
 		CreateManager<ProfilerManager>("Profiler");
 		CreateManager<WindowManager>("Windows");
+		CreateManager<PreferenceManager>("Preferences");
 
 		auto mSelection = GetManager<SelectionManager>("Selection");
 
