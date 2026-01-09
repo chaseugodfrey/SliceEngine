@@ -105,7 +105,7 @@ namespace SliceEditor
 					{
 						SLICE_LOG_ERROR("Recompiling asset: " + assetPath.string());
 
-						CreateResource(assetPath, metaData.get(), false);
+						CreateResource(assetPath, metaData.get(), false, true);
 					}
 
 					// register validated assets
@@ -172,7 +172,7 @@ namespace SliceEditor
 		return SliceEngine::GUID::FromString(guid.string());
 	}
 
-	std::filesystem::path AssetManager::CreateResource(const std::filesystem::path filePath, MetaData* metaData, bool AddToRM)
+	std::filesystem::path AssetManager::CreateResource(const std::filesystem::path filePath, MetaData* metaData, bool AddToRM, bool recompile)
 	{
 		//Find out the type of asset:
 		std::string ext = filePath.extension().string();
@@ -203,6 +203,15 @@ namespace SliceEditor
 		//metaPath.replace_extension(".meta");
 		metaPath += ".meta";
 
+		// check if a file already exist
+		if (std::filesystem::exists(metaPath) && !recompile)
+		{
+			AssetExistEvent assetEvent(metaData->assetName);
+			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
+			SLICE_LOG_ERROR("Trying to import asset that already exist :" + metaData->assetName);
+			return std::filesystem::path("");
+		}
+
 		metaData->Serialize(metaPath);
 
 		//mAssets[assetType].push_back(metaData->assetName);
@@ -226,15 +235,33 @@ namespace SliceEditor
 			auto* data = static_cast<ModelData*>(metaData);
 			if (data->is_static == false)
 			{
-				std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
-				skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
-				data->skeleMetaPath = CreateResource(skeleData->resourcePath, skeleData.get(), AddToRM).string();
-				data->skeletonGUID = skeleData->guid;
+				// skele meta path is just path to resource now
+				// if the resource doesnt exist then we have to create it again
+				if (!std::filesystem::exists(data->skeleMetaPath))
+				{
+					std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+					skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+					if (data->skeletonGUID.IsValid())
+					{
+						skeleData->guid = data->skeletonGUID;
+						skeleData->resourcePath = data->skeleMetaPath;
+					}
+					data->skeleMetaPath = CreateResource(skeleData->resourcePath, skeleData.get(), AddToRM).string();
+					data->skeletonGUID = skeleData->guid;
+				}
 
-				std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
-				animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
-				data->animMetaPath = CreateResource(animData->resourcePath, animData.get(), AddToRM).string();
-				data->animationGUID = animData->guid;
+				if (!std::filesystem::exists(data->animMetaPath))
+				{
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+					if (data->animationGUID.IsValid())
+					{
+						animData->guid = data->animationGUID;
+						animData->resourcePath = data->animMetaPath;
+					}
+					data->animMetaPath = CreateResource(animData->resourcePath, animData.get(), AddToRM).string();
+					data->animationGUID = animData->guid;
+				}
 			}
 			metaPath = data->Serialize(metaPath); //Re-serialise with the skele and anim dataPaths
 			CompileFBXAsset(metaPath);
@@ -831,7 +858,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(filePath, meta.get());
+		CreateResource(filePath, meta.get(), true);
 	}
 
 	void AssetManager::CreateAssetManifest()

@@ -41,6 +41,7 @@ namespace SliceEditor
 		void Scene_Save();
 		void Scene_CleanTempFiles(Registry& registry);
 		void ContentBrowser_Refresh(ContentBrowserManager& contentBrowserManager);
+		void Hierarchy_ToggleEntityID(Registry& registry);
 
 		// Global Popup
 		void MenuList_CreateFiles(Registry& reg, std::filesystem::path descPath);

@@ -118,6 +118,15 @@ namespace SliceEngine
 			return mEntity < other.mEntity; 
 		}
 
+		GameObject& operator=(const GameObject& other)  
+		{
+			if(this != &other)
+			{
+				mEntity = other.mEntity;
+			}
+			return *this;
+		}
+
 		void SetName(std::string name);
 
 		std::string GetName();
