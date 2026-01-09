@@ -200,18 +200,17 @@ namespace SliceEngine
 
 		try
 		{
-			
 			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
-			float newRoughness = materialJson["roughness"].get<float>();
-			float newMetallic = materialJson["metallic"].get<float>();
+			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
+
 			glm::from_json(materialJson["color"], materialToReload->color);
+			materialToReload->floatDat.clear();
+			materialToReload->uintDat.clear();
+			materialToReload->intDat.clear();
+			materialToReload->boolDat.clear();
 
-			
-			materialToReload->roughness = newRoughness;
-			materialToReload->metallic = newMetallic;
-
-			
 			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
+			GUID oldShaderGUID = materialToReload->shader.getGUID();
 
 			
 			if (oldAlbedoGUID != newAlbedoGUID)
@@ -221,6 +220,38 @@ namespace SliceEngine
 			else
 			{
 				// The texture is the same. DO NOTHING to the handle.
+			}
+			if (newShaderGUID != oldShaderGUID)
+			{
+				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
+				for (auto& i : materialToReload->shader.get()->dataIn)
+				{
+					if (i.isFloating)
+					{
+						if (i.numBytes == 4)
+							materialToReload->floatDat.push_back(std::bit_cast<float>(i.baseData));
+					}
+					else
+					{
+						if (i.numBytes == 4)
+						{
+							if (i.isUnsigned)
+								materialToReload->uintDat.push_back(i.baseData);
+							else
+								materialToReload->intDat.push_back(static_cast<int>(i.baseData));
+						}
+						else if (i.numBytes == 1)
+							materialToReload->boolDat.push_back(static_cast<bool>(i.baseData));
+					}
+				}
+
+			}
+			else
+			{
+				materialJson["floats"].get_to(materialToReload->floatDat);
+				materialJson["ints"].get_to(materialToReload->intDat);
+				materialJson["uints"].get_to(materialToReload->uintDat);
+				materialJson["bools"].get_to(materialToReload->boolDat);
 			}
 		}
 		catch (nlohmann::json::exception& e)

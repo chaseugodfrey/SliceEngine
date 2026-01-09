@@ -27,11 +27,14 @@ namespace SliceEngine
 		class Material {
 		public:
 			Handle<Texture> albedo;
-			Handle<CustomShader> shdr;
+			Handle<CustomShader> shader;
 
 			glm::vec4 color;
-			float roughness;
-			float metallic;
+			std::vector<float> floatDat;
+			std::vector<int> intDat;
+			std::vector<uint32_t> uintDat;
+			std::vector<bool> boolDat;
+
 
 			//takes in a shader resource file that links to shader files
 			//and compile

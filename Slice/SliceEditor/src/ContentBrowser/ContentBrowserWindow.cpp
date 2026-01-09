@@ -651,17 +651,17 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		Label("Roughness: ");
-		if (ImGui::DragFloat("##Roughness", &data->roughness, 0.1f, 0.0f, 1.0f, "%.1f"))
-		{
-			data->roughness = std::clamp(data->roughness, 0.0f, 1.0f);
-		}
+		//Label("Roughness: ");
+		//if (ImGui::DragFloat("##Roughness", &data->roughness, 0.1f, 0.0f, 1.0f, "%.1f"))
+		//{
+		//	data->roughness = std::clamp(data->roughness, 0.0f, 1.0f);
+		//}
 
-		Label("Metallic: ");
-		if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
-		{
-			data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
-		}
+		//Label("Metallic: ");
+		//if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
+		//{
+		//	data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
+		//}
 	}
 
 	void ContentBrowserWindow::DisplayAudioData(AudioData* data)

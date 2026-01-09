@@ -1594,6 +1594,11 @@ namespace SliceEditor
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
 			mat.SerializeAsset(node->fullPath);
+		}		
+		
+		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		//std::string mat_file_name{};
@@ -1623,20 +1628,15 @@ namespace SliceEditor
 		//	ImGui::EndDragDropTarget();
 		//}
 
-		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 
-		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
-
-		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 	}
 
 	void InspectorWindow::DisplayState(StateNode* node)

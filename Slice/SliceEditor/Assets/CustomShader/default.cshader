@@ -9,15 +9,5 @@ vec4 TexColorC(vec4 texCol, vec4 color)
 }
 vec2 RoughMet()
 {
-    return vec2(ExtractFloat(0), ExtractFloat(1));
+    return vec2(roughness, metallic);
 }
-
-
-// Implicit in func, returns col, roughness, metallic // since all out the same
-
-//vec4 var = Add(vPos, vTex)
-
-//Out.color = var;
-// See Func, search from func list to inject (how to tell)
-
-// Can handle how to WRITE the code part later, for now just copy

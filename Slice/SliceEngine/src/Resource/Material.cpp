@@ -27,8 +27,7 @@ namespace SliceEngine
 			// figure out default textures
 			temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.roughness = 0.6f;
-			temp.metallic = 0.f;
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			temp.color = glm::vec4(1.f);
 
 			// filepath to material.mat in resource folder
@@ -52,15 +51,16 @@ namespace SliceEngine
 			// shouldn't need a [0]. Need check how the material file is created
 			temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.roughness = materialJson["roughness"].get<float>();
-			temp.metallic = materialJson["metallic"].get<float>();
+			temp.shader.mGUID = (GUID)materialJson["shader"].get<uint64_t>();
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<CustomShader>(temp.shader.mGUID);
 
-			// cause color is a vec 4
-			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4)
-			{
+			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);
-			}
 
+			materialJson["floats"].get_to(temp.floatDat);
+			materialJson["ints"].get_to(temp.intDat);
+			materialJson["uints"].get_to(temp.uintDat);
+			materialJson["bools"].get_to(temp.boolDat);
 
 			return temp;
 		}
@@ -69,9 +69,28 @@ namespace SliceEngine
 		 {
 			albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
-			roughness = 0.6f;
-			metallic = 0.f;
+			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+			for (auto& i : shader.get()->dataIn)
+			{
+				if (i.isFloating)
+				{
+					if (i.numBytes == 4)
+						floatDat.push_back(std::bit_cast<float>(i.baseData));
+				}
+				else
+				{
+					if (i.numBytes == 4)
+					{
+						if (i.isUnsigned)
+							uintDat.push_back(i.baseData);
+						else
+							intDat.push_back(static_cast<int>(i.baseData));
+					}
+					else if (i.numBytes == 1)
+						boolDat.push_back(static_cast<bool>(i.baseData));
+				}
+			}
 		 }
 
 		void Material::DestroyMaterial() {

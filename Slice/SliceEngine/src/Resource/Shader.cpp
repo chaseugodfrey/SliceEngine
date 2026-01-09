@@ -320,6 +320,31 @@ float ExtractFloat(int num)
 	return uintBitsToFloat(eDat[mainID][subID]);
 }
 )"};
+			{
+				std::stringstream ss;
+				for (int i = 0; i < dataIn.size(); ++i)
+				{
+					if (dataIn[i].isFloating)
+					{
+						if (dataIn[i].numBytes == 4)
+							ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
+					}
+					else
+					{
+						if (dataIn[i].numBytes == 4)
+						{
+							if (dataIn[i].isUnsigned)
+								ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
+							else
+								ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
+						}
+						else if (dataIn[i].numBytes == 1)
+							ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
+					}
+				}
+				fragNumExtraElems += ss.str();
+			}
+			
 			std::string fragEnd{
 R"(
 void main(void){

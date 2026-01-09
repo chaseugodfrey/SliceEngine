@@ -646,10 +646,13 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
 
 		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
+		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
-		float roughness = 0.0f;
-		float metallic = 0.0f;
 		glm::vec4 color{ 1.0f };
+		std::vector<float> floatDat;
+		std::vector<int> intDat;
+		std::vector<uint32_t> uintDat;
+		std::vector<bool> boolDat;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -661,11 +664,6 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
-			// specific properties to shader goes here but we dh that yet
-			metaJson["albedo"] = albedo.GetGUID();
-			metaJson["roughness"] = roughness;
-			metaJson["metallic"] = metallic;
-			to_json(metaJson["color"], color);
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -692,12 +690,6 @@ namespace SliceEditor
 			assetPath = metaJson["assetPath"];
 			resourcePath = metaJson["resourcePath"];
 
-			// properties
-			roughness = metaJson["roughness"].get<float>();
-			metallic = metaJson["metallic"].get<float>();
-			from_json(metaJson["color"], color);
-			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
-
 			inFile.close();
 		}
 
@@ -712,10 +704,13 @@ namespace SliceEditor
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
 			// properties
-			roughness = metaJson["roughness"].get<float>();
-			metallic = metaJson["metallic"].get<float>();
-			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
+			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
+			metaJson["floats"].get_to(floatDat);
+			metaJson["ints"].get_to(intDat);
+			metaJson["uints"].get_to(uintDat);
+			metaJson["bools"].get_to(boolDat);
+			from_json(metaJson["color"], color);
 
 			inFile.close();
 		}
@@ -725,9 +720,12 @@ namespace SliceEditor
 			nlohmann::json metaJson;
 			// specific properties to shader goes here but we dh that yet
 			metaJson["albedo"] = albedo.GetGUID();
-			metaJson["roughness"] = roughness;
-			metaJson["metallic"] = metallic;
+			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
+			metaJson["floats"] = floatDat;
+			metaJson["ints"] = intDat;
+			metaJson["uints"] = uintDat;
+			metaJson["bools"] = boolDat;
 
 			std::ofstream output(desc_path);
 

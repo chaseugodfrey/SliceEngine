@@ -80,7 +80,10 @@ namespace SliceEngine
 			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
-			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
+
+
+			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
 			if (material->color.a > 0.999f)
 			{
@@ -103,7 +106,7 @@ namespace SliceEngine
 			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 			{
 				TranslucentCmd tc{ key, data };
-				tc.ext.push_back(glm::uvec4(std::bit_cast<uint32_t>(material->roughness), std::bit_cast<uint32_t>(material->metallic), 0, 0));
+				SingleExtAppend(tc.ext, material);
 				(*rtcmds).emplace_back(tc);
 			}
 			else
@@ -112,7 +115,7 @@ namespace SliceEngine
 			}
 		}
 	
-		// Gather Particles
+		// Gather Particles --TODO-- Gather shader for particles too
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
 			auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
@@ -200,9 +203,9 @@ namespace SliceEngine
 
 		switch (drawType)
 		{
+		// Only used for shadows, so dun need change shader
 		case DrawType::DRAW_MODELS:
 		{
-
 			for (auto& i : shadowRenderCmds)
 			{
 				const auto& id = i.first;
@@ -233,18 +236,13 @@ namespace SliceEngine
 			}
 			break;
 		}
+		// Used for main game
 		case DrawType::DRAW_OPAQUE:
 		case DrawType::DRAW_PREFAB_OPAQUE:
 		{
 			auto* cmds = &renderCmds;
 			if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
 				cmds = &prefabRenderCmds;
-
-			auto shdrHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
-			mShader = shdrHandle.get()->s;
-			glUseProgram(mShader);
-			Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
-			Core::GetInstance()->GetRenderManager()->UpdateCamVP();
 
 			for (auto& i : *cmds)
 			{
@@ -254,13 +252,16 @@ namespace SliceEngine
 				if (batch.base.empty())
 					continue;
 
-				// Change Shader // TODO - Currently all Deferred Shader
-				//if (currentShader != id.dat[RCK_SHADER])
-				//{
-				//	currentShader = id.dat[RCK_SHADER];
-				//	mShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Shader>((GUID)currentShader).get()->s;
-				//	//glUseProgram(mShader);
-				//}
+				// Change Shader
+				auto temp = static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset);
+				auto thisShader = shaderList.at(temp);
+				if (thisShader != mShader)
+				{
+					mShader = thisShader;
+					glUseProgram(mShader);
+					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+				}
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
@@ -291,12 +292,6 @@ namespace SliceEngine
 		case DrawType::DRAW_TRANSLUCENT:
 		case DrawType::DRAW_PREFAB_TRANSLUCENT:
 		{
-			auto shdrHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
-			mShader = shdrHandle.get()->s; // --TODO--
-			glUseProgram(mShader);
-			Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
-			Core::GetInstance()->GetRenderManager()->UpdateCamVP();
-
 			RCK_ModelT currMdlID = 0xFFFF;
 
 			auto* cmds = &translucentCmds;
@@ -307,6 +302,16 @@ namespace SliceEngine
 			{
 				const auto& id = i.id;
 				auto& dat = i.base;
+
+				// Change Shader
+				auto thisShader = shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset));
+				if (thisShader != mShader)
+				{
+					mShader = thisShader;
+					glUseProgram(mShader);
+					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+				}
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
@@ -361,7 +366,8 @@ namespace SliceEngine
 			BasicIDat data{};
 			data.mdlMtx = transform.transform;
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
-			glm::uvec4 ext{ std::bit_cast<uint32_t>(material->roughness), std::bit_cast<uint32_t>(material->metallic), 0, 0 };
+			std::vector<glm::uvec4> ext;
+			SingleExtAppend(ext, material);
 
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
@@ -427,24 +433,95 @@ namespace SliceEngine
 		}
 		return dat->second;
 	}
+	uint8_t RenderCmdManager::GetShaderDetails(GLuint64 cShader)
+	{
+		auto dat = shaderLoaded.find(cShader);
+		if (dat == shaderLoaded.end())
+		{
+			uint8_t shadIDX = static_cast<uint8_t>(shaderList.size());
+			shaderLoaded.emplace(cShader, shadIDX);
+			shaderList.push_back(cShader);
+			return shadIDX;
+		}
+		return dat->second;
+	}
+	void RenderCmdManager::SingleExtAppend(std::vector<glm::uvec4>& cmd, const SliceEngineTypes::Material* mat)
+	{
+		if (cmd.empty())
+			cmd.push_back(glm::uvec4{});
+		auto numVar = mat->shader.get()->dataIn.size();
+
+		int mainID{}, subID{};
+		size_t numFloats{}, numUints{}, numInts{}, numBools{};
+
+		for (auto i : mat->shader.get()->dataIn)
+		{
+			if (i.isFloating)
+			{
+				if (i.numBytes == 4)
+					cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+			}
+			else
+			{
+				if (i.numBytes == 4)
+				{
+					if (i.isUnsigned)
+						cmd[mainID][subID] = mat->uintDat[numUints++];
+					else
+						cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				}
+				else if (i.numBytes == 1)
+					cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			}
+
+			if (++subID > 4)
+			{
+				cmd.push_back(glm::uvec4{});
+				subID = 0;
+				++mainID;
+			}
+		}
+	}
 	void RenderCmdManager::AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat)
 	{
 		auto num = rc.base.size();
 		rc.base.push_back(std::move(dat));
 
+		auto numVar = mat->shader.get()->dataIn.size();
 
-		int mainID = num * 2 / 4;
-		int subID = num * 2 % 4;
+		int mainID = num * numVar / 4;
+		int subID = num * numVar % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
-		rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->roughness);
-		if (++subID > 4)
+		size_t numFloats{}, numUints{}, numInts{}, numBools{};
+
+		for (auto i : mat->shader.get()->dataIn)
 		{
-			rc.ext.push_back(glm::uvec4{});
-			subID = 0;
-			++mainID;
+			if (i.isFloating)
+			{
+				if (i.numBytes == 4)
+					rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+			}
+			else
+			{
+				if (i.numBytes == 4)
+				{
+					if (i.isUnsigned)
+						rc.ext[mainID][subID] = mat->uintDat[numUints++];
+					else
+						rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				}
+				else if (i.numBytes == 1)
+					rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			}
+
+			if (++subID > 4)
+			{
+				rc.ext.push_back(glm::uvec4{});
+				subID = 0;
+				++mainID;
+			}
 		}
-		rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->metallic);
 	}
 	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color)
 	{

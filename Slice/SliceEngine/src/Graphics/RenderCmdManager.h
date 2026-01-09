@@ -16,6 +16,7 @@ namespace SliceEngine
 		using RCK_DepthT = uint32_t;	// int
 		using RCK_ModelT = uint16_t;	// short
 		const unsigned char RCK_ModelOffset = 40;
+		const unsigned char RCK_ShaderOffset = 54;
 		// Reminder: 1byte = 2 Hex = 8 Bits
 		enum RenderCmdKey : RCK_Size
 		{
@@ -113,7 +114,9 @@ namespace SliceEngine
 		RCK_ModelT GetModelDetails(uint64_t mdlID, unsigned char meshOffset, bool isSkin);
 		void SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID);
 		unsigned int GetTextureDetails(GLuint64 bindlessID);
+		uint8_t GetShaderDetails(GLuint64 cShader);
 
+		void SingleExtAppend(std::vector<glm::uvec4>& cmd, const SliceEngineTypes::Material* mat);
 		void AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat);
 		void SetColor(BasicIDat& dat, const glm::vec4& color);
 		void SetAlpha(BasicIDat& dat, float alpha);
@@ -132,6 +135,8 @@ namespace SliceEngine
 		std::map<RCK_ModelT, std::vector<BasicIDat>> shadowRenderCmds;
 		std::vector<ModelBasic> modelReferences;
 		std::map<MdlFinder, RCK_ModelT> modelToIdx;
+		std::vector<GLuint64> shaderList; // List of actual shader GL Numbers
+		std::map<GLuint64, uint8_t> shaderLoaded; // access the loc of the shader from here
 		std::vector<GLuint64> textureList;
 		std::map<GLuint64, unsigned int> textureLoaded;
 	};
