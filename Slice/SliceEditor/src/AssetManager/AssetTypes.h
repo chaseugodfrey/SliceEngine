@@ -35,6 +35,7 @@ namespace SliceEditor
 		VertShader,
 		GeomShader,
 		FragShader,
+		CustomShader,
 		Material,
 		Prefab,
 		Controller,
@@ -93,6 +94,7 @@ namespace SliceEditor
 		constexpr uint64_t VERT_SHADER = SliceEngine::FNVHash::fnv1a("VertShader");
 		constexpr uint64_t GEOM_SHADER = SliceEngine::FNVHash::fnv1a("GeomShader");
 		constexpr uint64_t FRAG_SHADER = SliceEngine::FNVHash::fnv1a("FragShader");
+		constexpr uint64_t CUSTOM_SHADER = SliceEngine::FNVHash::fnv1a("CustomShader");
 		constexpr uint64_t MATERIAL = SliceEngine::FNVHash::fnv1a("Material");
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SKELETON = SliceEngine::FNVHash::fnv1a("Skeleton");
@@ -534,6 +536,32 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path);
 		}
 	};
+	struct CustomShaderData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CUSTOM_SHADER;
+		
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties to shader goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+	};
 	struct VertShaderData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::VERT_SHADER;
@@ -618,10 +646,13 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
 
 		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
+		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
-		float roughness = 0.0f;
-		float metallic = 0.0f;
-		glm::vec3 color{ 1.0f };
+		glm::vec4 color{ 1.0f };
+		std::vector<float> floatDat;
+		std::vector<int> intDat;
+		std::vector<uint32_t> uintDat;
+		std::vector<bool> boolDat;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -633,11 +664,6 @@ namespace SliceEditor
 			metaJson["assetType"] = assetType;
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
-			// specific properties to shader goes here but we dh that yet
-			metaJson["albedo"] = albedo.GetGUID();
-			metaJson["roughness"] = roughness;
-			metaJson["metallic"] = metallic;
-			to_json(metaJson["color"], color);
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -664,12 +690,6 @@ namespace SliceEditor
 			assetPath = metaJson["assetPath"];
 			resourcePath = metaJson["resourcePath"];
 
-			// properties
-			roughness = metaJson["roughness"].get<float>();
-			metallic = metaJson["metallic"].get<float>();
-			from_json(metaJson["color"], color);
-			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
-
 			inFile.close();
 		}
 
@@ -684,10 +704,13 @@ namespace SliceEditor
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
 			// properties
-			roughness = metaJson["roughness"].get<float>();
-			metallic = metaJson["metallic"].get<float>();
-			from_json(metaJson["color"], color);
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
+			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
+			metaJson["floats"].get_to(floatDat);
+			metaJson["ints"].get_to(intDat);
+			metaJson["uints"].get_to(uintDat);
+			metaJson["bools"].get_to(boolDat);
+			from_json(metaJson["color"], color);
 
 			inFile.close();
 		}
@@ -697,9 +720,12 @@ namespace SliceEditor
 			nlohmann::json metaJson;
 			// specific properties to shader goes here but we dh that yet
 			metaJson["albedo"] = albedo.GetGUID();
-			metaJson["roughness"] = roughness;
-			metaJson["metallic"] = metallic;
+			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
+			metaJson["floats"] = floatDat;
+			metaJson["ints"] = intDat;
+			metaJson["uints"] = uintDat;
+			metaJson["bools"] = boolDat;
 
 			std::ofstream output(desc_path);
 
