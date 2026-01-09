@@ -15,12 +15,12 @@ DigiPen Institute of Technology is prohibited.
 #define AUDIO_SETTINGS_H
 
 #include <fmod.hpp>
-#include "ECS/ECSTypes.h"
-#include <vector>
-#include <unordered_map>
 #include <cmath>
 #include <stdlib.h> // For rand()
 #include <time.h>   // For srand()
+
+#include "ProjectSettings.h"
+#include "ECS/ECSTypes.h"
 
 namespace SliceEngine
 {
@@ -44,20 +44,23 @@ namespace SliceEngine
 	void to_json(nlohmann::json& j, const SFXEntry& entry);
 	void from_json(const nlohmann::json& j, SFXEntry& entry);
 
-	class AudioSettings
+	struct AudioSettings : public ProjectSettings
 	{
 		FMOD::System* mSystem = nullptr;
 
-		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
-
-		//std::vector<SFXEntry> mSfxMap;
 	public:
-		std::unordered_map<std::string, SFXEntry> mSFXMap;
-		void Init();
+		
+	
+		std::unordered_map<std::string, SFXEntry> mSFXMap{};
+	
+		AudioSettings(std::string name) : ProjectSettings(name) {};
+		~AudioSettings() = default;
+		void Init() override;
+		void Exit() override;
 		void DeleteAM();
-		void Exit();
-		void Serialize(const std::filesystem::path& desc_path);
-		void Deserialize(const std::filesystem::path& desc_path);
+		void LoadSettings(nlohmann::json) override;
+		void SaveSettings() override;
+
 		void CreateSoundGroup(const std::string& key);
 		void RemoveSoundGroup();
 		void AddAudioClip(FMOD::SoundGroup* soundGroup, GUID soundGUID, std::vector<GUID>& audioClips);
@@ -73,6 +76,8 @@ namespace SliceEngine
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
 		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f));
 		void Release();
+
+
 	};
 }
 

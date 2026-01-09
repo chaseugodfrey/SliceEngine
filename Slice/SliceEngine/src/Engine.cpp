@@ -34,7 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Systems/SceneSystem.h"
-#include "Configuration/ProjectSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
@@ -44,6 +44,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
+
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
 {
@@ -530,7 +531,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		//EnableMemoryLeakChecking(92083);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -593,7 +594,13 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
 
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
+		Core::GetInstance()->GetProjectSettingsManager()->Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
+
+		// =========================== TESTING AREA ===========================
+		// 
 		//mRender->CreateCamera();
 
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
@@ -604,30 +611,21 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Init();
+		//auto mNetwork = Core::GetInstance()->GetNetwork();
+		//mNetwork->Init();
 
-		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
-		//NetworkingThread::printAddr();
-		//TestPlaySFX();
 
 	}
 
-	void Engine::SceneInit()
- 	{
-		LoadProjectSettings();
-		Core::GetInstance()->GetSceneSystem()->Init();
-		Core::GetInstance()->GetAudioSettings()->Init();
-	}
 
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
-		auto sTransform = core->GetSystem<TransformSystem>();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
@@ -835,80 +833,9 @@ namespace SliceEngine
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
 		mCanvas.Release();
 
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		Core::GetInstance()->GetAudioSettings()->Exit();
-		mAudioManager->Exit();
 
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Exit();
-
-		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
-	}
-
-	void Engine::LoadProjectSettings()
-	{
-		auto sScene = Core::GetInstance()->GetSceneSystem();
-		auto sResourceManager = Core::GetInstance()->GetResourceManager();
-
-		std::filesystem::path proj = "projectSettings.json";
-
-		ProjectSettings s;
-		if (!std::filesystem::exists(proj)) {
-			// Safe defaults if file missing
-			s.scenes = {};
-			s.startupScene.clear();
-		}
-
-		else
-		{
-			std::ifstream in(proj);
-			nlohmann::json j; in >> j;
-
-			if (j.contains("product") && j["product"].contains("name"))
-			{
-				s.productName = j["product"]["name"].get<std::string>();
-			}
-
-			if (j.contains("render")) 
-			{
-				s.width = j["render"].value("width", s.width);
-				s.height = j["render"].value("height", s.height);
-				s.vsync = j["render"].value("vsync", s.vsync);
-			}
-			if (j.contains("scenes"))
-			{
-				s.scenes = j["scenes"].get<std::vector<std::string>>();
-			}
-			s.startupScene = j.value("startupScene", s.startupScene);
-
-			// Fallback: if startupScene empty, use first scene
-			std::string sceneToLoad = !s.startupScene.empty()
-				? s.startupScene
-				: (s.scenes.empty() ? "" : s.scenes.front());
-
-			if (sceneToLoad.empty()) {
-				// Nothing to load�show blank/editor splash or exit gracefully
-				// log: "No scenes configured."
-			}
-
-			else
-			{
-				std::filesystem::path sceneFilePath(sceneToLoad);
-				
-				SLICE_LOG("Scene File Path" + sceneFilePath.string());
-				sScene->SetDefaultScenePath(sceneFilePath);
-
-				
-
-				//sScene->LoadScene(sceneToLoad); // for now by filepath
-				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
-
-
-			}
-		}
 	}
 
 }

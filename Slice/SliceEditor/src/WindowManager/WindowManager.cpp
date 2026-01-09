@@ -203,7 +203,7 @@ namespace SliceEditor
 
 			if (ImGui::MenuItem("Prefab View"))
 			{
-				AddWindow<PrefabViewWindow>();
+				//AddWindow<PrefabViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))

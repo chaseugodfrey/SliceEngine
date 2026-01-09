@@ -19,69 +19,79 @@ namespace SliceEngine
 	
 	void SceneSystem::Init()
 	{
-		//Will do all the loading of the resources based on the scene file
-		LoadScene(mDefaultScene);
+		if (!LoadScene(mCurrentScene))
+			LoadDefaultScene();
+
 		mCurrentState = mNextState = SceneState::DEFAULT;
 
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
-
 	}
+
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
 		mNextScene = filePath;
 		UnloadCurrentScene();
+		
 	}
 
-	
-	void SceneSystem::LoadScene(std::filesystem::path const filePath)
+	bool SceneSystem::LoadScene(GUID const guid)
 	{
-		//isSceneUnloaded = false;
+		auto resourceManager = Core::GetInstance()->GetResourceManager();
+		auto scene = resourceManager->get<SliceEngineTypes::Scene>(guid);
 
-		SLICE_LOG(std::filesystem::current_path().string());
+		if (!scene.IsValid())
+			return false;
+		
+		return LoadScene(scene->GetFilePath());
+	}
+
+	bool SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
+	{
+		return LoadScene(scene->GetFilePath());
+	}
+
+	void SceneSystem::LoadDefaultScene()
+	{
+		//Core::GetInstance()->mFactory.BuildSceneGraph();
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
+	}
+
+	bool SceneSystem::LoadScene(std::filesystem::path const filePath)
+	{
 		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
 
-		/*if (!std::filesystem::exists(filePath))
-		{
-			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
-			return;
-		}*/
 		std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
 
 		mCurrentSceneName = std::filesystem::relative(filePath, mAssetDirectory).generic_string();
 
 		mCurrentScene = filePath;
 
-		if (filePath.extension() == ".temp")
-		{
-			SLICE_LOG("Loading scene...");
+		// auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(filePath.stem().string()).get();
+		// if (filePath.extension() == ".temp")
+		// {
+		// 	SLICE_LOG("Loading scene...");
 
-			auto map = JSONSerializer::DeserializeScene(filePath);
+		// 	auto map = JSONSerializer::DeserializeScene(filePath);
 
-			SLICE_LOG("Scene loaded successfully.");
+		// 	SLICE_LOG("Scene loaded successfully.");
 
-			Core::GetInstance()->mFactory.BuildSceneGraph(map);
-			Core::GetInstance()->mFactory.DebugPrint();
-			OnSceneLoadedEvent event;
-			event.isSceneLoaded = true;
+		// 	Core::GetInstance()->mFactory.BuildSceneGraph(map);
+		// 	Core::GetInstance()->mFactory.DebugPrint();
+		// 	OnSceneLoadedEvent event;
+		// 	event.isSceneLoaded = true;
 
-			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+		// 	EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
-			return;
-		}
+		// 	return;
+		// }
 
 		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
 
 		if (filePathGUID)
 		{
-
+			
 			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
-
-			std::filesystem::path metaFile = filePathGUID->GetFilePath();
-
-			metaFile.replace_extension(".meta");
-
-			//LoadNavMeshFromMeta(metaFile);
 
 			if (mCurrentScene.extension() == ".temp")
 			{
@@ -97,18 +107,12 @@ namespace SliceEngine
 			Core::GetInstance()->mFactory.BuildSceneGraph(map);
 			Core::GetInstance()->mFactory.DebugPrint();
 
-			OnSceneLoadedEvent event;
-			event.isSceneLoaded = true;
+			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
 
-			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
-
-		}
-		else
-		{
-			SLICE_LOG_ERROR("Scene not found");
-			return;
+			return true;
 		}
 
+		return false;
 	}
 
 	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
@@ -151,25 +155,12 @@ namespace SliceEngine
 
 		CurrentSceneTemp.replace_extension(".temp");
 
-
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
-
-		
 	}
 
 	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
 	{
 		mCurrentScene = filePath;
-	}
-
-	void SceneSystem::SetDefaultScenePath(std::filesystem::path const& filePath)
-	{
-		mDefaultScene = filePath;
-	}
-
-	std::filesystem::path SceneSystem::GetDefaultScenePath()
-	{
-		return mDefaultScene;
 	}
 
 	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
@@ -295,6 +286,9 @@ namespace SliceEngine
 
 	std::string SceneSystem::GetCurrentSceneName()
 	{
+		if (mCurrentScene.empty())
+			return "New Scene";
+
 		return mCurrentScene.stem().string();
 	}
 }

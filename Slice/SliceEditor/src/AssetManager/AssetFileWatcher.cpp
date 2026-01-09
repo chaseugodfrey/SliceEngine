@@ -241,20 +241,20 @@ namespace SliceEditor
 
         if (oldFilePath.parent_path() == newFilePath.parent_path() && oldFilePath.extension() == newFilePath.extension())
         {
-            if (oldFilePath.extension() == ".scene")
-            {
-                auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem()) {
-                    sScene->SetDefaultScenePath(newFilePath);
-                    auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
-                    auto& s = gSettings->Edit();
-                    for (auto& it : s.scenes) {
-                        if (std::filesystem::path(it).stem() == oldFilePath.stem()) it = newFilePath.string();
-                    }
-                    s.startupScene = newFilePath.string();
-                    gSettings->Save();
-                }
-            }
+            //if (oldFilePath.extension() == ".scene")
+            //{
+            //    auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+            //    if (oldFilePath.stem() == sScene->GetDefaultScenePath().stem()) {
+            //        sScene->SetDefaultScenePath(newFilePath);
+            //        auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+            //        auto& s = gSettings->Edit();
+            //        for (auto& it : s.scenes) {
+            //            if (std::filesystem::path(it).stem() == oldFilePath.stem()) it = newFilePath.string();
+            //        }
+            //        s.startupScene = newFilePath.string();
+            //        gSettings->Save();
+            //    }
+            //}
 
             std::string parentDirectory;
             std::string extension = oldFilePath.extension().string();
