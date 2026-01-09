@@ -4,6 +4,7 @@
 #include "ECS/GameObject.h"
 #include "Resource/Prefab.h"
 #include "Resource/ResourceManager.h"
+#include <entt.hpp>
 
 namespace SliceEngine
 {
@@ -29,9 +30,11 @@ namespace SliceEngine
 		//std::map<Handle<SliceEngineTypes::Prefab>, Entity, PrefabComparator> mPrefabToEntity;
 		// when a prefab is modified, send an event to the prefab system
 		// itll check which entities is made from the prefab
-		std::unordered_map<GUID, Entity> mPrefabBaseEntities;
+		//std::unordered_map<GUID, Entity> mPrefabBaseEntities;
 
-		std::unordered_map<GUID, std::vector<unsigned int>> mPrefabIDs;
+		std::pair<GUID, Entity> mPrefabEditable{ GUID::null(), ::entt::null };
+
+		std::unordered_map<GUID, unsigned int> mNextPrefabID;
 
 	public:
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
@@ -41,17 +44,16 @@ namespace SliceEngine
 		void UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor = false);
 		void InitEvent();
 		void OnPrefabModified(const OnPrefabModifiedEvent& event);
+		void GetEntityFromPrefab(std::map<unsigned int, Entity>& prefabToEntity, Entity entity);
 		void OnPrefabDeleted(const OnPrefabDeletedEvent& event);
 		void OnPrefabSerialized(const OnPrefabSerializedEvent& event);
+		void AssignPrefabID(GUID guid, Entity entity);
 		/// <summary>
 		/// Add a prefab component to the entity after turning it into a prefab
 		/// </summary>
 		/// <param name="entity"></param>
 		void MakePrefab(Entity entity);
 		void MakePrefabChild(Entity entity, unsigned int& prefabID);
-
-		void UnmakePrefab(Entity entity);
-		void UnmakePrefabChild(Entity entity);
 
 		void UpdatePrefabComponent(Entity entity, GUID guid, bool toRemove = false);
 
@@ -62,6 +64,8 @@ namespace SliceEngine
 		bool IsNewGO(Entity entity, unsigned int prefabID);
 
 		void UpdateBasePrefabs();
+		std::unordered_set<std::string> CheckPrefabEntityName(GUID prefabGUID, Entity newEntity);
+		void CheckPrefabChildrenName(Entity entity, Entity newEntity, std::unordered_set<std::string>& names);
 	};
 }
 

@@ -289,6 +289,16 @@ namespace SliceEngine
 
 	}
 
+	void GOFactory::RemoveFromNameMap(std::string name)
+	{
+		if (mNameToEntity.find(name) == mNameToEntity.end())
+		{
+			return;
+		}
+
+		mNameToEntity.erase(name);
+	}
+
 	bool GOFactory::isDescendant(Entity target, Entity dest)
 	{
 		if(dest == entt::null)
@@ -1013,6 +1023,13 @@ namespace SliceEngine
 			std::string oldName = it->second.GetName();
 			//it->second.SetName(CreateName(newName)); changing name should be done in GO
 			// update the name to entity map
+
+			// if the old name wasnt in the map, means this entity's name doesnt belong in the map
+			if (mRegistry.any_of<PrefabEditingEntity>(entity))
+			{
+				return;
+			}
+
 			mNameToEntity.erase(oldName);
 			mNameToEntity.insert(std::make_pair(newName, entity));
 		}

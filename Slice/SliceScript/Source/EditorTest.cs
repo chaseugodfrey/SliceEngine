@@ -9,29 +9,14 @@ namespace SliceEngine
     public class EditorTest : SliceBehaviour
     {
         public bool boolTest = false;
-        public int intTest = 2;
-        public float floatTest =  5.0f;
-        public string testString = "Test";
-        public int[] intArray = {1,3};
-        public float[] floatArray = {1.0f,2.0f};
-        public string[] stringArray = { "Test1", "Test2", "Test3" };
-        public Vector3[] vec3list = { new Vector3(), new Vector3()};
-        public List<float> floatList = new List<float>{ 0.5f,2.0f };
-        public List<int> intList = new List<int>{ 7,8 };
-        public List<string> stringList = new List<string>{"Test","Test2"};
-        //public List<Vector3> vec3List = new List<Vector3>{};
-        //public Vector3 vec3;
+        public GameObject GOtest;
+        public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
 
-            int i = 0;
+            GOtest = FindGameObjectWithName("Cube");
 
-            //SliceLog.Log("X: " + vec3.x + " Y: "+ vec3.y + " Z: " + vec3.z);
-            foreach (string var in stringList)
-            {
-                SliceLog.Console("String List Element " + i + ": " +  var);
-                i++;
-            }
+            SliceLog.Log("X: " + vec3test.x + " Y: "+ vec3test.y + " Z: " + vec3test.z);
         }
     }
 }

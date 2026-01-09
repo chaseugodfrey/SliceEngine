@@ -929,7 +929,6 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
@@ -944,15 +943,21 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
-
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								SliceEngine::GameObject data = scriptRef->GetFieldValue<SliceEngine::GameObject>(it.second.mName);
+
+								
 								std::function<void(std::string, SliceEngine::GameObject)> func = [sp = scriptRef](std::string name, SliceEngine::GameObject val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
+								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
@@ -1736,11 +1741,12 @@ namespace SliceEditor
 			//Publish the engine events:
 			OnPrefabModifiedEvent modifiedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
 			OnPrefabSerializedEvent serializedEvent(mSession->GetPrefabEntityInspected(), mSession->GetPrefabGUIDInspected());
-			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
 			EventManager::GetInstance()->Publish<OnPrefabSerializedEvent>(serializedEvent);
 
+			EventManager::GetInstance()->Publish<OnPrefabModifiedEvent>(modifiedEvent);
+
 			////Serialise the Prefab
-			//SliceEngine::JSONSerializer::SerializePrefab(sessionManager->GetPrefabEntityInspected());
+			SliceEngine::JSONSerializer::SerializePrefab(mSession->GetPrefabEntityInspected());
 
 			//historyManager->ClearFromCheckpoint();
 
@@ -1748,7 +1754,6 @@ namespace SliceEditor
 			//PrefabInspectedEvent event;
 			//event.prefabBeingInspected = false;
 			//EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
-			return;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Cancel"))
