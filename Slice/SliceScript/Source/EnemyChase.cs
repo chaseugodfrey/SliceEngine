@@ -18,6 +18,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
+            FunctionCalls.Log("EnemyChase: OnCreate called! Script is active.");
             // 1. Get our own Transform
             enemyT = GetComponent<Transform>();
 
