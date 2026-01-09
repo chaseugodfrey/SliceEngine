@@ -60,6 +60,7 @@ namespace SliceEngine
                 {
                     if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
                     {
+                        FunctionCalls.Log("EnemyChase: Moving towards target.");
                         NavAgent agent = GetComponent<NavAgent>();
                         agent.SetDestination(targetTransform.Position);
                     }

@@ -759,7 +759,7 @@ namespace SliceEngine
 	{
 		dtNavMesh* navMesh;
 		dtNavMeshQuery* navMeshQuery;
-		//dtCrowd *navMeshCrowd;
+		dtCrowd *navMeshCrowd;
 	};
 
 	struct NavMeshDebugObj

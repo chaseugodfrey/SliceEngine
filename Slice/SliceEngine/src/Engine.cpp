@@ -791,7 +791,7 @@ namespace SliceEngine
 			frm->EndSystem("UI Interaction");
 
 			frm->StartSystem("Navigation System");
-			//sNav.Update(static_cast<float>(frm->getDeltaTime()));
+			sNav.Update(static_cast<float>(frm->getDeltaTime()));
 			frm->EndSystem("Navigation System");
 		}
 
