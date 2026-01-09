@@ -223,10 +223,13 @@ namespace SliceEditor
 						ImGui::PopID();
 					}
 
+					ImGui::SameLine();
+
 					if (ImGui::Button("+"))
 					{
 						
-						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(10155432597037438324), entry.AudioClips);
+						
+						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
