@@ -357,8 +357,8 @@ namespace SliceEditor
 						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
 						SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
 						//To add volume rolloff dropdown
-						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance, "%.1f", 0.0f, as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance, "%.1f", as.minDistance, 1000.0f);
 					}
 						
 
@@ -1599,6 +1599,11 @@ namespace SliceEditor
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
 			mat.SerializeAsset(node->fullPath);
+		}		
+		
+		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		//std::string mat_file_name{};
@@ -1628,20 +1633,15 @@ namespace SliceEditor
 		//	ImGui::EndDragDropTarget();
 		//}
 
-		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 
-		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
-
-		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 	}
 
 	void InspectorWindow::DisplayState(StateNode* node)

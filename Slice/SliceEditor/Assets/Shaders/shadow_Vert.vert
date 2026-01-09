@@ -2,15 +2,18 @@
 
 layout (location=0) in vec3 aPos;
 
-struct BasicInstanceData
+struct BasicIDat
 {
 	mat4 mdlMtx;
-	uvec4 mat;
+	uint entityID;
+	uint textureID; 
+	uint tex2ID;
+	uint col;
 };
 
 layout(binding=1, std430) readonly buffer ssbo1
 {
-	BasicInstanceData iDat[];
+	BasicIDat iDat[];
 };
 
 void main(void){

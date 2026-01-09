@@ -117,7 +117,10 @@
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\AudioSettings.h" />
+    <ClInclude Include="src\Configuration\PhysicsSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
+    <ClInclude Include="src\Configuration\ProjectSettingsIncludes.h" />
+    <ClInclude Include="src\Configuration\ProjectSettingsManager.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\ComponentModified.h" />
     <ClInclude Include="src\Core\Core.h" />
@@ -185,7 +188,9 @@
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\AudioSettings.cpp" />
+    <ClCompile Include="src\Configuration\PhysicsSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
+    <ClCompile Include="src\Configuration\ProjectSettingsManager.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />

@@ -282,6 +282,9 @@ namespace SliceEditor
 		case AssetType::Shader:
 			CompileShaderAsset(static_cast<ShaderData*>(metaData));
 			break;
+		case AssetType::CustomShader:
+			CompileCustomShaderAsset(static_cast<CustomShaderData*>(metaData));
+			break;
 		case AssetType::VertShader:
 			CompileVertShaderAsset(static_cast<VertShaderData*>(metaData));
 			break;
@@ -347,6 +350,9 @@ namespace SliceEditor
 			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
+			break;
+		case AssetType::CustomShader:
+			metaData = std::make_unique<CustomShaderData>();
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
@@ -570,6 +576,23 @@ namespace SliceEditor
 			//return;
 		}
 
+	}
+	void AssetManager::CompileCustomShaderAsset(CustomShaderData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
 	}
 	void AssetManager::CompileVertShaderAsset(VertShaderData* metaData)
 	{

@@ -30,7 +30,7 @@ namespace SliceEngine
 	class AudioManager;
 	class FramerateManager;
 	class InputSystem;
-	class ProjectSettingsService;
+	class ProjectSettingsManager;
 	class AudioSettings;
 	class SceneSystem;
 	class PhysicsSystem;
@@ -103,9 +103,7 @@ namespace SliceEngine
 
 		GLFWwindow* GetWindow();
 
-		ProjectSettingsService* GetProjectSettingsService();
-
-		AudioSettings* GetAudioSettings();
+		ProjectSettingsManager* GetProjectSettingsManager();
 
 		void UnbindSystems();
 
@@ -135,8 +133,8 @@ namespace SliceEngine
 		std::unique_ptr<LayerManager> mLayerManager;
 		
 		std::unique_ptr<NetworkSystem> mNetwork;
-		std::unique_ptr<ProjectSettingsService> mProjectSettingsService;
-		std::unique_ptr<AudioSettings> mAudioSettings;
+		std::unique_ptr<ProjectSettingsManager> mProjectSettingsManager;
+		//std::unique_ptr<AudioSettings> mAudioSettings;
 	};
 
 #define CoreInstance Core::GetInstance()

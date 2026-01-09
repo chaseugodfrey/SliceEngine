@@ -42,14 +42,17 @@ namespace SliceEngine
 		
 		void Init();
 
+		// Immediate load scene functions
+		bool LoadScene(std::filesystem::path const filePath);	// overload
+		bool LoadScene(GUID const guid);						// overload
+		bool LoadScene(SliceEngineTypes::Scene const* scene);	// definitive load scene function
+		void LoadDefaultScene();
+
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
-		void LoadScene(std::filesystem::path const filePath);
-		void LoadScene(uint32_t const index);
 		void LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
 		void WriteTempFile();
 		void SetCurrentScenePath(std::filesystem::path const& filePath);
-		void SetDefaultScenePath(std::filesystem::path const& filePath);
 		
 		void OnSceneSave(std::filesystem::path const filePath);
 		void SaveCurrentScene();
@@ -65,7 +68,6 @@ namespace SliceEngine
 		bool CheckQueueEmpty();
 
 		std::filesystem::path GetCurrentScenePath();
-		std::filesystem::path GetDefaultScenePath();
 		std::string GetCurrentSceneName();
 		bool isSceneUnloaded{};
 
@@ -75,7 +77,6 @@ namespace SliceEngine
 		std::queue<std::filesystem::path> mSceneQueue;
 		std::filesystem::path mCurrentScene{};
 		std::filesystem::path mNextScene{};
-		std::filesystem::path mDefaultScene{};
 		
 		std::string mCurrentSceneName{};
 	};

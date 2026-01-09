@@ -12,19 +12,18 @@ layout (location=1) out vec3 vNom;
 layout (location=2) out vec2 vTex;
 layout (location=3) out flat uint vInstance;
 
-struct InstanceData
+struct BasicIDat
 {
 	mat4 mdlMtx;
-	vec4 color;
-	float roughness;
-	float metallic;
-	unsigned int entityID;
-	unsigned int textureID; 
+	uint entityID;
+	uint textureID; 
+	uint tex2ID;
+	uint col;
 };
 
-layout(binding=2, std430) readonly buffer ssbo1
+layout(binding=1, std430) readonly buffer ssbo1
 {
-	InstanceData iDat[];
+	BasicIDat iDat[];
 };
 
 uniform uint aGID;
