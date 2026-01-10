@@ -97,6 +97,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
+		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
 
@@ -389,7 +390,8 @@ namespace SliceEngine
 		.property("shapeArc", &ParticleSystem::shapeArc)
 		.property("shapeType", &ParticleSystem::shapeType)
 		.property("axis", &ParticleSystem::axis)
-		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("spawnPosValueType", &ParticleSystem::posValueType)
+		.property("spawnPos", &ParticleSystem::spawnPos)
 		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
 		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
 		.property("velocity", &ParticleSystem::velocity)
@@ -409,6 +411,10 @@ namespace SliceEngine
 		.property("oldestIndex", &ParticleSystem::oldestIndex)
 		.property("particles", &ParticleSystem::particles)
 
+
+
+		.property("textureGUID", &ParticleSystem::textureGUID)
+
 		.property("bursts", &ParticleSystem::bursts);
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
@@ -418,6 +424,18 @@ namespace SliceEngine
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
 		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<std::vector<ParticleSystem::Burst>>("BurstVector");
+
+	rttr::registration::class_<Particle>(typeid(Particle).name())
+		.constructor<>()
+		.property("particles", &ParticleSystem::particles)
+		(
+			rttr::metadata("Serialize", false)
+		);
+
+
+	rttr::registration::class_<std::vector<Particle>>("vector<Particle>");
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
@@ -634,6 +652,7 @@ namespace SliceEngine
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 		static bool isPlaying = false;
 
@@ -691,6 +710,7 @@ namespace SliceEngine
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
+				sParticleSystemManager.ResetManager();
 				sAudio->StopAllSound();
 				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 				audioSettings->DeleteAM();
@@ -805,9 +825,11 @@ namespace SliceEngine
 		frm->EndSystem("Canvas");
 
 		frm->StartSystem("Particle System");
-		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
 		frm->EndSystem("Particle System");
-
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();

@@ -441,9 +441,26 @@ namespace SliceEngine
 		glm::quat rotation{};
 		glm::quat minRandomRotation{};
 		glm::quat maxRandomRotation{};
-		glm::vec3 eulerHint{};					// unimplemented
-		glm::vec3 minEulerHint{};				// unimplemented
-		glm::vec3 maxEulerHint{};				// unimplemented
+
+		inline float WrapAngle(float deg)
+		{
+			while (deg > 180.f) deg -= 360.f;
+			while (deg < -180.f) deg += 360.f;
+			return deg;
+		}
+
+		inline glm::vec3 WrapEuler(glm::vec3 e)
+		{
+			return {
+				WrapAngle(e.x),
+				WrapAngle(e.y),
+				WrapAngle(e.z)
+			};
+		}
+
+		glm::vec3 eulerHint = glm::degrees(glm::eulerAngles(rotation));
+		glm::vec3 minEulerHint = glm::degrees(glm::eulerAngles(minRandomRotation));
+		glm::vec3 maxEulerHint = glm::degrees(glm::eulerAngles(maxRandomRotation));
 		
 		inline void Set1DRotation(float val)
 		{
@@ -462,7 +479,7 @@ namespace SliceEngine
 		glm::vec3 maxRandomScale{ 1.0f };
 
 		bool destroyOnExpire{ false };
-		uint64_t maxParticles{ 1000 };            // pool size. default 200
+		uint64_t maxParticles{ 200 };            // pool size. default 200
 
 		float gForce{0.0f};
 
@@ -496,11 +513,12 @@ namespace SliceEngine
 
 		float coneAngle{};
 		float shapeRadius{};					
-		float shapeArc{};						
+		float shapeArc{};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
-		// Initial Position
-		bool hasRandomSpawnPos{ false };        // can be calculated - can be internal
+
+		ValueType posValueType{ CONSTANT };
+		glm::vec3 spawnPos{};					// offset from component owner position
 		glm::vec3 minRandomSpawnPos{};
 		glm::vec3 maxRandomSpawnPos{};
 
@@ -512,17 +530,19 @@ namespace SliceEngine
 		bool colorOverLifetime{ false };			// to add
 		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		//bool hasRandomVelocity{ false };			// can remove
 		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
 		glm::vec3 minRandomVelocity{ 1.0f };
 		glm::vec3 maxRandomVelocity{ 1.0f };
 
-		//bool fadeOverLifetime{ false };				// can remove
 		bool hasCollision{ false };
 
 		// Renderer
-		GLuint textureID;							// change to guid
+		GLuint GetTextureID() const
+		{
+			return textureGUID.GetGUID();
+		}
+
 		enum RenderMode
 		{
 			BILLBOARD,

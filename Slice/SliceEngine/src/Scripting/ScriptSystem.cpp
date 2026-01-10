@@ -678,6 +678,9 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
+                            //case ScriptFieldType::GameObject:
+                            //    scriptRef->AddListFieldValue<std::string>(it.second.mName, static_cast<std::string>(item.get_value<GameObject>().GetName()));
+                            //    break;
                             }
                         }
                     }
@@ -737,6 +740,11 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{                         
+                        //    std::vector<GameObject> var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {

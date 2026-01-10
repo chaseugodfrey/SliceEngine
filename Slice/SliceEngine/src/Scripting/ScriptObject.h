@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/metadata/threads.h>
 #include "../Core/Core.h"
 #include "ScriptSystem.h"
+#include "Core/Core.h"
 namespace SliceEngine
 {
 	//class ScriptSystem; // Forward-declare the class
@@ -409,6 +410,27 @@ namespace SliceEngine
 			for (uintptr_t i = 0; i < length; ++i)
 			{
 				result[i] = mono_array_get(monoArray, T, i);
+			}
+
+			return result;
+		}
+
+		template<>
+		std::vector<GameObject> GetArrayFieldValue(const std::string& name)
+		{
+			std::vector<GameObject> result;
+
+			std::vector<std::string> ids = GetArrayFieldValue<std::string>(name);
+
+			for (const auto& id : ids)
+			{
+				if (id.empty())
+				{
+					result.emplace_back();
+					continue;
+				}
+
+				//FactoryInstance.GetGOByEntity(static_cast<uint64_t>())
 			}
 
 			return result;
