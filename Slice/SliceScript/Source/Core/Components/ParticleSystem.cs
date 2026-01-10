@@ -288,8 +288,8 @@ namespace SliceEngine
         public Vector3 minRandomSpawnPos = Vector3.Zero;
         public Vector3 maxRandomSpawnPos = Vector3.Zero;
 
-        // Color
-        public ValueType colorValueType = ValueType.CONSTANT;
+        // Colour
+        public ValueType colourValueType = ValueType.CONSTANT;
         public Vector4 Colour
         {
             get
@@ -303,23 +303,23 @@ namespace SliceEngine
             }
         }
 
-        public bool ColorOverLifetime
+        public bool ColourOverLifetime
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetColorOverLifetime(gameObject.mID, out bool value);
+                FunctionCalls.ParticleSystem_GetColourOverLifetime(gameObject.mID, out bool value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetColorOverLifetime(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetColourOverLifetime(gameObject.mID, ref value);
             }
         }
 
         public Vector4 minRandomColour = new Vector4(0, 0, 0, 1);
         public Vector4 maxRandomColour = new Vector4(0, 0, 0, 1);
 
-        public Dictionary<float, Vector4> colorLifeTimeMap = new Dictionary<float, Vector4>();
+        public Dictionary<float, Vector4> colourLifeTimeMap = new Dictionary<float, Vector4>();
 
         // Velocity
         public ValueType velocityValueType = ValueType.CONSTANT;

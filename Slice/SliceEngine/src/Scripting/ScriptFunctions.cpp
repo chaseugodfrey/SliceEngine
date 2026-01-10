@@ -649,23 +649,23 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
-	static void ParticleSystem_GetColorOverLifetime(unsigned int entity, bool* out)
+	static void ParticleSystem_GetColourOverLifetime(unsigned int entity, bool* out)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			*out = go.GetComponent<ParticleSystem>().colorOverLifetime;
+			*out = go.GetComponent<ParticleSystem>().colourOverLifetime;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
-	static void ParticleSystem_SetColorOverLifetime(unsigned int entity, bool* value)
+	static void ParticleSystem_SetColourOverLifetime(unsigned int entity, bool* value)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			go.GetComponent<ParticleSystem>().colorOverLifetime = *value;
+			go.GetComponent<ParticleSystem>().colourOverLifetime = *value;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -1639,8 +1639,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_GetColour);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColour);
 
-		ADD_INTERNAL_CALL(ParticleSystem_GetColorOverLifetime);
-		ADD_INTERNAL_CALL(ParticleSystem_SetColorOverLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetVelocity);
 		ADD_INTERNAL_CALL(ParticleSystem_SetVelocity);

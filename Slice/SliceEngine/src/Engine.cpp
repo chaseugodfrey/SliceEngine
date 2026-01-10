@@ -398,11 +398,11 @@ namespace SliceEngine
 		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
 		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
 
-		.property("colorValueType", &ParticleSystem::colorValueType)
+		.property("colorValueType", &ParticleSystem::colourValueType)
 		.property("colour", &ParticleSystem::colour)
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
-		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
+		.property("colorOverLifetime", &ParticleSystem::colourOverLifetime)
 
 		.property("gForce", &ParticleSystem::gForce)
 		.property("hasCollision", &ParticleSystem::hasCollision)

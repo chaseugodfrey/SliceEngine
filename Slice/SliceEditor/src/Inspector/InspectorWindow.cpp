@@ -1150,13 +1150,12 @@ namespace SliceEditor
 						break;
 					}
 				}
-
 				else
 				{
 					switch (ps.initialRotationType)
 					{
 					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-						DragFloatInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation.x, "&.1f", 0.f, 360.f);
+						DragRotationInputHeader(mRegistry, "Rotation", "##r", ps.rotation, ps.eulerHint);
 						break;
 					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
 						DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation.x, "&.1f", 0.f, 360.f);
@@ -1171,10 +1170,8 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
 				//ComboHeader< SliceEngine::ParticleSystem::ValueType>(mRegistry, "", "##lifetime_valuetype", ps.initialLifetimeType, value_type_names);
 
-				// Start Color
-				// To do : Add Value Type Enum
-
-				switch (ps.colorValueType)
+				// Start Colour			
+				switch (ps.colourValueType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
 					DragColor4InputHeader(mRegistry, "Start Colour", "##colorStart", ps.colour);
@@ -1184,12 +1181,16 @@ namespace SliceEditor
 					DragColor4InputHeader(mRegistry, "Max Colour", "##colorMaxStart", ps.maxRandomColour);
 					break;
 				default:
+					DragColor4InputHeader(mRegistry, "Min Colour", "##colorMinStart", ps.minRandomColour);
+					DragColor4InputHeader(mRegistry, "Max Colour", "##colorMaxStart", ps.maxRandomColour);
 					break;
 				}
-
 				ImGui::SameLine();
+				ButtonValueTypePopup(ps.colourValueType, "colour");
 
-				ButtonValueTypePopup(ps.colorValueType, "color");
+				// Colour Over Lifetime
+				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
+
 
 				// Gravity
 				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);

@@ -391,7 +391,13 @@ namespace SliceEngine
 	struct Particle
 	{
 		bool active{ false };
+		float maxAge{};
 		float age{};             // how long this particle has been alive
+
+		inline float normalizedLifetime() const
+		{
+			return (age / maxAge);
+		}
 		
 		glm::vec3 finalPosition{};	// including parent transform position if localspace
 		glm::vec3 position{};
@@ -429,13 +435,14 @@ namespace SliceEngine
 		float lifetime{};
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
-		// Rotation
 
+		// Rotation
 		bool isInitialRotation3D{ false };
 		ValueType initialRotationType{ CONSTANT };
 		glm::quat rotation{};
 		glm::quat minRandomRotation{};
 		glm::quat maxRandomRotation{};
+
 
 		inline float WrapAngle(float deg)
 		{
@@ -518,12 +525,12 @@ namespace SliceEngine
 		glm::vec3 maxRandomSpawnPos{};
 
 		// Color
-		ValueType colorValueType{ CONSTANT };
+		ValueType colourValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
-		bool colorOverLifetime{ false };			// to add
-		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
+		bool colourOverLifetime{ false };
+		std::map<float, glm::vec4> colorLifeTimeMap;
 
 		ValueType velocityValueType{ CONSTANT };
 		glm::vec3 velocity{ 1.0f };
@@ -554,6 +561,7 @@ namespace SliceEngine
 		std::vector<Particle> particles{};
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
+		std::vector<ParticleRenderPart> renderData;
 
 		// Main Particle Storage Poooool
 

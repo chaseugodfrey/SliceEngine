@@ -240,9 +240,9 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetColour(uint entityID, ref Vector4 colour);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetColorOverLifetime(uint entityID, out bool colourOverTime);
+        internal extern static void ParticleSystem_GetColourOverLifetime(uint entityID, out bool colourOverTime);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetColorOverLifetime(uint entityID, ref bool colourOverTime);
+        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverTime);
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetVelocity(uint entityID, out Vector3 velocity);
         [MethodImpl(MethodImplOptions.InternalCall)]

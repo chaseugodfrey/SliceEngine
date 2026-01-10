@@ -149,6 +149,7 @@ namespace SliceEngine
 			}
 
 		}
+		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
 	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
 	{
