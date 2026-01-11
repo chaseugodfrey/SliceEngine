@@ -86,22 +86,22 @@
                 ],
                 "colourOverLifetime": true,
                 "colourOverLifetimeEnd": [
-                    0.0,
-                    0.0,
-                    0.0,
+                    1.0,
+                    1.0,
+                    1.0,
                     1.0
                 ],
                 "coneArc": 0.0,
                 "coneRadius": 0.0,
                 "destroyOnExpire": false,
-                "duration": 5.0,
-                "emissionRate": 7.0,
-                "gForce": 0.8999999761581421,
+                "duration": 8.100000381469727,
+                "emissionRate": 50.0,
+                "gForce": 3.299999952316284,
                 "hasCollision": false,
                 "initialLifetimeType": "",
                 "initialRotationType": "",
                 "isLocalSpace": false,
-                "isRepeating": false,
+                "isRepeating": true,
                 "lifetime": 7.0,
                 "materialGUID": "",
                 "maxParticleLifetime": 0.0,
@@ -134,9 +134,9 @@
                 ],
                 "minRandomRotation": 0.0,
                 "minRandomScale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.5,
+                    0.5,
+                    0.5
                 ],
                 "minRandomSpawnPos": [
                     0.0,
@@ -144,7 +144,7 @@
                     0.0
                 ],
                 "minRandomSpeed": 0.0,
-                "rotation": 0.0,
+                "rotation": 5.0,
                 "scale": [
                     1.0,
                     1.0,
@@ -399,9 +399,9 @@
                 "bursts": [],
                 "colorValueType": "",
                 "colour": [
-                    0.8480392098426819,
-                    0.43233367800712585,
-                    0.43233367800712585,
+                    0.0,
+                    0.9705884456634521,
+                    1.0,
                     1.0
                 ],
                 "colourOverLifetime": false,
