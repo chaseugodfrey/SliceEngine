@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "NavigationSystem.h"
 #include "../Core/Core.h"
-
+#include "Physics/PhysicsSystem.h"
 namespace SliceEngine
 {
 
@@ -160,7 +160,7 @@ namespace SliceEngine
 		if (agent.hasNewTarget && agent.crowdAgentID != -1)
 		{
 			float targetPos[3] = { agent.target.x, agent.target.y, agent.target.z };
-			float extents[3] = { 2.0f, 4.0f, 2.0f };
+			float extents[3] = { 10.0f, 10.0f, 10.0f };
 			dtPolyRef targetRef;
 			float targetPosOnMesh[3];
 			dtQueryFilter filter;
@@ -170,19 +170,72 @@ namespace SliceEngine
 
 			if (targetRef)
 			{
+				//SLICE_LOG("Target Poly Found! Requesting move.");
 				// Tell Crowd Agent to move there
 				navMeshObj.navMeshCrowd->requestMoveTarget(agent.crowdAgentID, targetRef, targetPosOnMesh);
 				agent.hasNewTarget = false;
 			}
+			else
+			{
+				SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
+			}
 		}
 		if (agent.crowdAgentID != -1)
 		{
+			// 1. UPDATE PARAMS FIRST
+			// Ensure C# changes (speed) propagate immediately.
+			dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+			if (editableAg)
+			{
+				if (agent.speed <= 0.0f) agent.speed = 5.0f; // Safety
+				editableAg->params.maxSpeed = agent.speed;
+				editableAg->params.maxAcceleration = 20.0f; // High accel
+				// Ensure separation is enabled
+				editableAg->params.updateFlags |= DT_CROWD_SEPARATION;
+			}
+
+			// 2. READ STATE
 			const dtCrowdAgent *ag = navMeshObj.navMeshCrowd->getAgent(agent.crowdAgentID);
 			if (ag && ag->active)
 			{
-				transform.position.x = ag->npos[0];
-				transform.position.y = ag->npos[1];
-				transform.position.z = ag->npos[2];
+				glm::vec3 desiredVel(ag->vel[0], ag->vel[1], ag->vel[2]);
+
+				// DEBUG: Print State and Velocity
+				// State 0: Invalid, 1: Walking, 2: Offmesh
+				// SLICE_LOG("Agent ID: {}, State: {}, Vel: ({}, {}, {}), SpeedParam: {}", 
+				//    agent.crowdAgentID, (int)ag->state, desiredVel.x, desiredVel.y, desiredVel.z, ag->params.maxSpeed);
+
+				auto rb = reg.try_get<RigidBody>(entity);
+				if (rb)
+				{
+					// 3. APPLY PHYSICS
+					auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
+					glm::vec3 currentPhysicsVel = physicsSys.GetLinearVelocity(entity);
+
+					JPH::Vec3 newVelocity(
+						desiredVel.x,
+						currentPhysicsVel.y,
+						desiredVel.z
+					);
+
+					// Force wake up the body just in case
+					// physicsSys.ActivateBody(entity); // Use if available
+					physicsSys.SetLinearVelocity(entity, newVelocity);
+
+					// 4. SYNC BACK
+					float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
+					if (editableAg)
+					{
+						memcpy(editableAg->npos, pos, sizeof(float) * 3);
+					}
+				}
+				else
+				{
+					// Fallback for non-physics objects
+					transform.position.x = ag->npos[0];
+					transform.position.y = ag->npos[1];
+					transform.position.z = ag->npos[2];
+				}
 			}
 			//}
 

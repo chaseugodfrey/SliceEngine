@@ -36,7 +36,7 @@ namespace SliceEngine
 		if (!crowd) return nullptr;
 
 		// Max Agents: 50, Max Radius: 2.0f (may need to edit to cover agent size)
-		if (!crowd->init(50, 2.0f, navMesh))
+		if (!crowd->init(50, 5.0f, navMesh))
 		{
 			dtFreeCrowd(crowd);
 			return nullptr;
