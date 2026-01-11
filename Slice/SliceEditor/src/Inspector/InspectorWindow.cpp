@@ -1059,11 +1059,11 @@ namespace SliceEditor
 			{
 				value_type = SliceEngine::ParticleSystem::ValueType::CONSTANT;
 			}
-
-			if (ImGui::Selectable("Curve"))
-			{
-				value_type = SliceEngine::ParticleSystem::ValueType::CURVE;
-			}
+		
+			//if (ImGui::Selectable("Curve"))
+			//{
+			//	value_type = SliceEngine::ParticleSystem::ValueType::CURVE;
+			//}
 
 			if (ImGui::Selectable("Random from 2 Constants"))
 			{
@@ -1100,6 +1100,8 @@ namespace SliceEditor
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
 					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.1f", 0.0f);
 					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.1f", 0.0f);
+					break;
+				default:
 					break;
 				}
 				ImGui::SameLine();
@@ -1184,8 +1186,6 @@ namespace SliceEditor
 					DragColor4InputHeader(mRegistry, "Max Colour", "##colorMaxStart", ps.maxRandomColour);
 					break;
 				default:
-					DragColor4InputHeader(mRegistry, "Min Colour", "##colorMinStart", ps.minRandomColour);
-					DragColor4InputHeader(mRegistry, "Max Colour", "##colorMaxStart", ps.maxRandomColour);
 					break;
 				}
 				ImGui::SameLine();

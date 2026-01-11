@@ -72,6 +72,13 @@ namespace SliceEngine
 		{
 			std::cerr << "Allocation failed!" << std::endl;
 		}
+
+		// Temp example having specific points of the curve to have certain colours
+		if (ps.colourOverLifetime)
+		{			
+			ps.colourLifeTimeMap[0.0f] = ps.colour;
+			ps.colourLifeTimeMap[1.0f] = ps.colourOverLifetimeEnd;
+		}
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
@@ -219,19 +226,38 @@ namespace SliceEngine
 		ps.systemTimer = dt;
 
 		for (ParticleSystem::Burst& b : ps.bursts)
-		{
+		{ 
 			b.triggered = false;
 		}
 	}
+
+	// Ensuring that min is always smaller than max during std_uniform_distribution 
+	// operations to prevent UDB
 	void ParticleSystemManager::ValidateParticleSystem(ParticleSystem& ps)
 	{
-		//Validate Colour
+		// Validate Scale
+		Utilities::FixMinMax(ps.minRandomScale.x, ps.maxRandomScale.x);
+		Utilities::FixMinMax(ps.minRandomScale.y, ps.maxRandomScale.y);
+		Utilities::FixMinMax(ps.minRandomScale.z, ps.maxRandomScale.z);
+
+		// Validate Lifetime
+		Utilities::FixMinMax(ps.minParticleLifetime, ps.maxParticleLifetime);
+
+		// Validate Rotation
+		Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
+
+		// Validate Start Position Offset
+		Utilities::FixMinMax(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
+		Utilities::FixMinMax(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y);
+		Utilities::FixMinMax(ps.minRandomSpawnPos.z, ps.maxRandomSpawnPos.z);
+
+		// Validate Colour
 		Utilities::FixMinMax(ps.minRandomColour.r, ps.maxRandomColour.r);
 		Utilities::FixMinMax(ps.minRandomColour.g, ps.maxRandomColour.g);
 		Utilities::FixMinMax(ps.minRandomColour.b, ps.maxRandomColour.b);
 		Utilities::FixMinMax(ps.minRandomColour.a, ps.maxRandomColour.a);
 
-		//Validate Speed
+		// Validate Speed
 		Utilities::FixMinMax(ps.minRandomSpeed, ps.maxRandomSpeed);
 	}
 #pragma endregion
@@ -270,7 +296,7 @@ namespace SliceEngine
 	void ParticleSystemManager::InitializeLifetime(Particle& p, ParticleSystem& ps)
 	{
 		p.age = 0.0f;
-		if (ps.colourOverLifetime)
+		if (ps.initialLifetimeType == ParticleSystem::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> randAge(ps.minParticleLifetime, ps.maxParticleLifetime);
 			p.maxAge = randAge(gen);
@@ -388,12 +414,8 @@ namespace SliceEngine
 		{
 			p.colour = ps.colour;
 		}
-
-		if (ps.colourOverLifetime)
-		{
-			// Temp
-			ps.colourLifeTimeMap[1.0f] = ps.colourOverLifetimeEnd;
-		}
+		// May need to remove in future
+		ps.colourLifeTimeMap[0.0f] = ps.colour;
 	}
 
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)

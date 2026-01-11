@@ -15,8 +15,6 @@ namespace SliceEngine
         public Transform parentTransform = null;
 
         // System Settings
-
-        private float _duration;
         public float Duration
         {
             get

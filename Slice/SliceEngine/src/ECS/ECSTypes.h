@@ -399,7 +399,7 @@ namespace SliceEngine
 
 		inline float normalizedLifetime() const
 		{
-			return (age / maxAge);
+			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
 		}
 		
 		glm::vec3 finalPosition{};	// including parent transform position if localspace
@@ -420,7 +420,6 @@ namespace SliceEngine
 		enum ValueType : unsigned int
 		{
 			CONSTANT,
-			CURVE,
 			TWO_CONSTANTS
 		};
 
@@ -501,7 +500,7 @@ namespace SliceEngine
 		float minParticleLifetime{};
 		float maxParticleLifetime{};
 
-		// Start Rotation
+		// Start Rotation (1-D spins to reduce workload for a cosmetic system, referencing Unity3D)
 		ValueType initialRotationType{ CONSTANT };
 		float rotation{};
 		float minRandomRotation{};
@@ -527,7 +526,7 @@ namespace SliceEngine
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
-		std::map<float, glm::vec4> colourLifeTimeMap;				
+		std::map<float, glm::vec4> colourLifeTimeMap;
 		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
 
 		bool hasCollision{ false };
