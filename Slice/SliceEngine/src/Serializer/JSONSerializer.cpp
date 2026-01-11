@@ -263,7 +263,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -459,7 +461,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -602,6 +606,8 @@ namespace SliceEngine
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
 						RigidBody::FreezeOptions,
+						std::vector<ParticleSystem::Burst>,
+						std::vector<Particle>,
 						GameObject
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
@@ -666,6 +672,8 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							RigidBody::FreezeOptions,
+							std::vector<ParticleSystem::Burst>,							
+							std::vector<Particle>,
 							GameObject
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
@@ -779,7 +787,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 

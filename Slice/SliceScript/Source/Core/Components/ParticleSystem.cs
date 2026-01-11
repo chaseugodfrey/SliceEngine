@@ -15,8 +15,6 @@ namespace SliceEngine
         public Transform parentTransform = null;
 
         // System Settings
-
-        private float _duration;
         public float Duration
         {
             get
@@ -229,66 +227,68 @@ namespace SliceEngine
             }
         }
 
-        public float ConeAngle
+        public float ConeArc
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetConeAngle(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetConeArc(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetConeAngle(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetConeArc(gameObject.mID, ref value);
             }
         }
 
-        public float ShapeRadius
+        public float ConeRadius
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetShapeRadius(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetConeRadius(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetShapeRadius(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetConeRadius(gameObject.mID, ref value);
             }
         }
 
-        public float ShapeArc
+        public float SphereRadius
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetShapeArc(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetSphereRadius(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetShapeArc(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetSphereRadius(gameObject.mID, ref value);
             }
         }
+
 
         public Vector3 axis = Vector3.Zero;
 
-        // Initial Position
-        public bool HasRandomSpawnPos
+        // Initial Position Offset
+        public ValueType spawnPosValueType= ValueType.CONSTANT;
+        public Vector3 spawnPositionOffset
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetHasRandomSpawnPos(gameObject.mID, out bool value);
+                FunctionCalls.ParticleSystem_GetSpawnPos(gameObject.mID, out Vector3 value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetHasRandomSpawnPos(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetSpawnPos(gameObject.mID, ref value);
             }
         }
 
         public Vector3 minRandomSpawnPos = Vector3.Zero;
         public Vector3 maxRandomSpawnPos = Vector3.Zero;
 
-        // Color
-        public ValueType colorValueType = ValueType.CONSTANT;
+        // Colour
+        public ValueType colourValueType = ValueType.CONSTANT;
         public Vector4 Colour
         {
             get
@@ -302,23 +302,23 @@ namespace SliceEngine
             }
         }
 
-        public bool ColorOverLifetime
+        public bool ColourOverLifetime
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetColorOverLifetime(gameObject.mID, out bool value);
+                FunctionCalls.ParticleSystem_GetColourOverLifetime(gameObject.mID, out bool value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetColorOverLifetime(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetColourOverLifetime(gameObject.mID, ref value);
             }
         }
 
         public Vector4 minRandomColour = new Vector4(0, 0, 0, 1);
         public Vector4 maxRandomColour = new Vector4(0, 0, 0, 1);
 
-        public Dictionary<float, Vector4> colorLifeTimeMap = new Dictionary<float, Vector4>();
+        public Dictionary<float, Vector4> colourLifeTimeMap = new Dictionary<float, Vector4>();
 
         // Velocity
         public ValueType velocityValueType = ValueType.CONSTANT;

@@ -131,6 +131,7 @@ namespace SliceEngine
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
 			SetColor(data, ptx.colour);
+			//data.texID = ptx.textureID;
 			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
 			data.entityID = 0;
 
@@ -149,6 +150,7 @@ namespace SliceEngine
 			}
 
 		}
+		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
 	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
 	{
