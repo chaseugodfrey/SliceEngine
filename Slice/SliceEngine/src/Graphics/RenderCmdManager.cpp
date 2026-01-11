@@ -130,7 +130,8 @@ namespace SliceEngine
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
 			SetColor(data, ptx.colour);
-			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
+			data.texID = ptx.textureID;
+			//data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
 			data.entityID = 0;
 
 			//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));

@@ -182,11 +182,31 @@ namespace SliceEngine
 			output[name][typeName][propName]["height"] = data.height;
 		}
 
+		// For Freeze Options
 		template<>
 		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const RigidBody::FreezeOptions& data, const Entity& entity)
 		{
 			output[name][typeName][propName] = { data.freezeX, data.freezeY, data.freezeZ };
+		}
+
+		// For Particle System burst
+		template<>
+		inline void Serialize<std::vector<ParticleSystem::Burst>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::vector<ParticleSystem::Burst>& data, const Entity& entity)
+		{
+			auto& arr = output[name][typeName][propName];
+			arr = json::array();
+
+			for (const auto& burst : data)
+			{
+				arr.push_back(json::array({
+					burst.numParticles,
+					burst.burstRepetitions,
+					burst.burstPeriod,
+					burst.triggerTime
+					}));
+			}
 		}
 
 		// For glm::vec4
@@ -316,14 +336,14 @@ namespace SliceEngine
 
 				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
 				{
-					// Nested vector — recurse
+					// Nested vector ï¿½ recurse
 					std::vector<typename T::value_type> innerResult;
 					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
 					result.push_back(elem);
 				}
 				else
 				{
-					// Base case — just add the element
+					// Base case ï¿½ just add the element
 					result.push_back(elem);
 				}
 			}
@@ -411,6 +431,11 @@ namespace SliceEngine
 		{
 			if (prop.get_type() == rttr::type::get<T>()) 
 			{
+				if (prop.get_metadata("Serialize").is_valid() && prop.get_metadata("Serialize").to_bool() == false)
+				{
+					return true;
+				}
+
 				try
 				{
 					// Attempt to get JSON value as T
@@ -547,7 +572,7 @@ namespace SliceEngine
 					catch (const nlohmann::json::exception& e)
 					{
 						SLICE_LOG_ERROR("[DeserializeProp] Fallback string conversion failed for "
-							+ componentName + "::" + propName + " — " + std::string(e.what()));
+							+ componentName + "::" + propName + " ï¿½ " + std::string(e.what()));
 
 					}														
 				}
@@ -655,6 +680,58 @@ namespace SliceEngine
 		std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
 		SLICE_LOG_DEBUG(msg);
 
+	}
+
+	inline void to_json(json& j, const Particle& p)
+	{
+		j = json::object();
+	}
+
+	inline void from_json(const json& j, Particle& p)
+	{
+
+	}
+
+	inline void to_json(json& j, const SliceEngine::ParticleSystem::Burst& b)
+	{
+		j = json::array({
+			b.numParticles,
+			b.burstRepetitions,
+			b.burstPeriod,
+			b.triggerTime
+			});
+	}
+
+	inline void from_json(const json& j, ParticleSystem::Burst& b)
+	{
+		if (!j.is_array() || j.size() < 4)
+			return;
+
+		b.numParticles = j[0].get<uint64_t>();
+		b.burstRepetitions = j[1].get<uint64_t>();
+		b.burstPeriod = j[2].get<float>();
+		b.triggerTime = j[3].get<float>();
+
+		b.triggered = false;
+		b.repsDone = 0;
+		b.repTimer = 0.0f;
+	}
+
+	inline void from_json(const json& j, std::vector<ParticleSystem::Burst>& bursts)
+	{
+		bursts.clear();
+
+		if (!j.is_array())
+			return;
+
+		bursts.reserve(j.size());
+
+		for (const auto& elem : j)
+		{
+			ParticleSystem::Burst b{};
+			from_json(elem, b);   // reuse single-burst deserializer
+			bursts.emplace_back(b);
+		}
 	}
 
 	//GameObject

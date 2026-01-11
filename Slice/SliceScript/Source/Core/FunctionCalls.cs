@@ -232,9 +232,9 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetShapeArc(uint entityID, ref float shapeArc);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetHasRandomSpawnPos(uint entityID, out bool hasRandomSpawnPos);
+        internal extern static void ParticleSystem_GetSpawnPos(uint entityID, out Vector3 spawnPos);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetHasRandomSpawnPos(uint entityID, ref bool hasRandomSpawnPos);
+        internal extern static void ParticleSystem_SetSpawnPos(uint entityID, ref Vector3 spawnPos);
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetColour(uint entityID, out Vector4 colour);
         [MethodImpl(MethodImplOptions.InternalCall)]

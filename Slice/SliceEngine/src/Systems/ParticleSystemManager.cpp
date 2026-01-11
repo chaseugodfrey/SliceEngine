@@ -24,12 +24,13 @@ namespace SliceEngine
 	void ParticleSystemManager::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
 		auto& ps = reg.get<ParticleSystem>(entity);
-		ps.parentTransform = mRegistry->try_get<Transform>(entity);	
+		ps.parentTransform = mRegistry->try_get<Transform>(entity);
 		InitializeSystem(ps);
 	}
 	void ParticleSystemManager::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
-	{
+	{		
 		auto& ps = reg.get<ParticleSystem>(entity);
+		ps.parentTransform = mRegistry->try_get<Transform>(entity);
 		if (ps.expired || (!ps.isActive))
 		{
 			if (ps.destroyOnExpire)
@@ -49,6 +50,12 @@ namespace SliceEngine
 		auto& ps = reg.get<ParticleSystem>(entity);
 		ExitSystem(ps);
 	}
+
+	void ParticleSystemManager::ResetManager()
+	{
+		particlesTransforms.clear();
+	}
+
 #pragma endregion
 
 #pragma region System Stuff
@@ -73,6 +80,8 @@ namespace SliceEngine
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
 		ps.systemTimer += dt;
+
+		//SLICE_LOG_VALUES(ps.awaitingIndex);
 
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
 		if (ps.systemTimer >= ps.duration)
@@ -161,8 +170,8 @@ namespace SliceEngine
 
 				//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 						
-				prp.transform = transformMatrix;				
-				prp.textureID = ps.textureID;
+				prp.transform = transformMatrix;		
+				prp.textureID = ps.GetTextureID();
 				prp.colour = ps.colour;
 
 				particlesTransforms.push_back(prp);
@@ -214,7 +223,7 @@ namespace SliceEngine
 
 	void ParticleSystemManager::InitializePosition(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.hasRandomSpawnPos)
+		if (ps.posValueType == ParticleSystem::TWO_CONSTANTS)
 		{
 			// Create a distribution for each axis (x, y, z)
 			std::uniform_real_distribution<float> distX(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
@@ -226,7 +235,7 @@ namespace SliceEngine
 		}
 		else 
 		{
-			p.position = glm::vec3(0.0f);
+			p.position = ps.spawnPos;
 		}
 
 		if (ps.parentTransform)
@@ -346,78 +355,6 @@ namespace SliceEngine
 				}
 			}
 		}
-	}
-#pragma endregion
-
-#pragma region Tests	
-	void ParticleSystemManager::Test1()
-	{
-		SLICE_LOG("Test 1 Beginning...");
-		auto& factory = FactoryInstance;
-		GameObject roy = factory.CreateGO("ParticleSystemTest");
-
-		SLICE_LOG("Adding Particle System Component...");
-		roy.AddComponent<ParticleSystem>();
-
-		json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
-		SLICE_LOG(output.dump(4));
-
-		SLICE_LOG("Deleting Test 1's gameobject...");
-		factory.Destroy(roy);
-
-		SLICE_LOG("Test 1 Ended.");
-	}
-
-	void ParticleSystemManager::Test2Init()
-	{
-		SLICE_LOG("Test 2 Beginning...");
-
-		auto& factory = FactoryInstance;
-		factory.CreateGO("ParticleSystemTest");
-		GameObject roy = factory.GetGOByName("ParticleSystemTest");
-
-		SLICE_LOG("Adding Particle System Component...");
-		roy.AddComponent<ParticleSystem>();
-
-		SLICE_LOG("Modifying base values for simulation...");
-		auto& ps = roy.GetComponent<ParticleSystem>();
-		ps.duration = 1.0f;
-		ps.velocity = glm::vec3(1.0f, 1.0f, 0.0f);
-		ps.emissionRate = 5.0f;
-		ps.lifetime = 2.0f;
-		ps.destroyOnExpire = true;
-	}
-
-	void ParticleSystemManager::Test2Update()
-	{
-		bool testEnded{ false };
-		
-		if (testEnded)
-		{
-			return;
-		}
-
-		GameObject roy = FactoryInstance.GetGOByName("ParticleSystemTest");
-		auto& ps = roy.GetComponent<ParticleSystem>();
-
-		static bool checkpoint1 = false;
-		if (ps.systemTimer >= 1.0f && !checkpoint1)
-		{
-			checkpoint1 = true;
-			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
-			SLICE_LOG("1 second mark");
-		}
-
-		static bool checkpoint2 = false;
-		if (ps.systemTimer >= 2.0f && !checkpoint2)
-		{
-			checkpoint2 = true;
-			json output = SliceEngine::JSONSerializer::SerializeGameObject(roy);
-			SLICE_LOG("2 second mark");
-			SLICE_LOG("Test 2 Ended.");
-			testEnded = true;
-		}
-		
 	}
 #pragma endregion
 }
