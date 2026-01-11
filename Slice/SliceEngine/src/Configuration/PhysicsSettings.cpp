@@ -10,16 +10,6 @@ namespace SliceEngine
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
 		std::string matrix = settings["Layer Collision Matrix"].get<std::string>();
 
-		for (uint32_t i = 0; i < 32; i++)
-		{
-			for (uint32_t j = 0; j < 32 - i; j++)
-			{
-				bool interact = static_cast<bool>(*(matrix.begin() + 32 * i + j));
-				auto row_name = layerManager->GetLayerName(i);
-				auto col_name = layerManager->GetLayerName(j);
-				layerManager->AssignLayerInteraction(row_name, col_name, interact);
-			}
-		}
 	}
 
 	void PhysicsSettings::SaveSettings()
@@ -27,13 +17,19 @@ namespace SliceEngine
 		std::ofstream outFile{ filepath };
 		nlohmann::json physicsSettingsJson;
 
+		std::stringstream ss{};
+		std::string buffer{};
 		std::string matrix{};
 
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
-
-		for (auto& mask : layerManager->collisionMask)
+		
+		for (auto& [layer, name] : layerManager->indexToLayerName)
 		{
-			matrix += std::to_string(mask.second);
+			auto& mask = layerManager->collisionMask[name];
+			ss << std::hex << mask;
+			buffer = ss.str();
+			SLICE_LOG(buffer);
+			matrix += buffer;
 		}
 
 		physicsSettingsJson["Layer Collision Matrix"] = matrix;

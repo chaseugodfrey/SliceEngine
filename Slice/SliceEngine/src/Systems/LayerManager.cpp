@@ -32,8 +32,8 @@ namespace SliceEngine
 			SLICE_LOG_ERROR(name + " already exist bodoh");
 			return;
 		}
-		uint32_t layerBit{};
-		uint32_t bit{};
+		uint32_t layerBit{UINT_MAX};
+		uint32_t bit{UINT_MAX};
 
 		if (removedBits.size() > 0)
 		{
