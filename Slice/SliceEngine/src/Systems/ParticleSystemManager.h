@@ -40,6 +40,7 @@ namespace SliceEngine
 		void UpdateSystem(ParticleSystem& ps, float dt);
 		void ExitSystem(ParticleSystem& ps);
 		void ResetSystem(ParticleSystem& ps, float dt);
+		void ValidateParticleSystem(ParticleSystem& ps);
 
 		// Particle Layer
 		void ActivateParticle(ParticleSystem& ps);
@@ -58,9 +59,20 @@ namespace SliceEngine
 		void ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt);
 
 		void ApplyBurst(ParticleSystem& ps, float dt);
-	};
-}
 
+		glm::vec3 ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias = 1.0f);
+		glm::vec3 RandomPointInSphere(float radius);
+	};
+
+	namespace Utilities 
+	{
+		inline void FixMinMax(float& min, float& max)
+		{
+			if (min > max)
+				std::swap(min, max);
+		}		
+	}
+}
 
 
 #endif

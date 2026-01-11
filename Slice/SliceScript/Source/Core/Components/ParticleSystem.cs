@@ -229,44 +229,45 @@ namespace SliceEngine
             }
         }
 
-        public float ConeAngle
+        public float ConeArc
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetConeAngle(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetConeArc(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetConeAngle(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetConeArc(gameObject.mID, ref value);
             }
         }
 
-        public float ShapeRadius
+        public float ConeRadius
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetShapeRadius(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetConeRadius(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetShapeRadius(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetConeRadius(gameObject.mID, ref value);
             }
         }
 
-        public float ShapeArc
+        public float SphereRadius
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetShapeArc(gameObject.mID, out float value);
+                FunctionCalls.ParticleSystem_GetSphereRadius(gameObject.mID, out float value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetShapeArc(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetSphereRadius(gameObject.mID, ref value);
             }
         }
+
 
         public Vector3 axis = Vector3.Zero;
 

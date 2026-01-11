@@ -75,7 +75,9 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
-		ps.systemTimer += dt;
+		ValidateParticleSystem(ps);
+
+		ps.systemTimer += dt;		
 
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
 		if (ps.systemTimer >= ps.duration)
@@ -152,7 +154,7 @@ namespace SliceEngine
 
 		// Get all particles' final transforms to be renderered
 		ps.renderData.clear();
-		if (ps.renderData.size() != ps.maxParticles)
+		if (ps.renderData.capacity() != ps.maxParticles)
 		{
 			ps.renderData.reserve(ps.maxParticles);
 		}
@@ -165,25 +167,37 @@ namespace SliceEngine
 			}
 
 			ParticleRenderPart prp;
-			glm::mat4 Rot;
 
 			// handle final transform here
 			glm::mat4 transformMatrix = glm::mat4x4(1.f);
 
 			if (ps.isLocalSpace && ps.parentTransform)
 			{
+				transformMatrix = glm::translate(transformMatrix, p.position + ps.parentTransform->position);
+			}
+			else
+			{
 				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::mat4_cast(p.rotation + ps.parentTransform->rotation);
-				transformMatrix *= Rot;
+			}
+
+			glm::quat Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+			transformMatrix *= glm::mat4_cast(Rot);
+			transformMatrix = glm::scale(transformMatrix, p.scale);
+
+			/*if (ps.isLocalSpace && ps.parentTransform)
+			{
+				transformMatrix = glm::translate(transformMatrix, p.position);
+				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+				transformMatrix *= glm::mat4_cast(Rot);
 				transformMatrix = glm::scale(transformMatrix, p.scale);
 			}
 			else
 			{
 				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::mat4_cast(p.rotation);
-				transformMatrix *= Rot;
+				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+				transformMatrix *= glm::mat4_cast(Rot);
 				transformMatrix = glm::scale(transformMatrix, p.scale);
-			}
+			}*/
 
 			//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 
@@ -208,6 +222,17 @@ namespace SliceEngine
 		{
 			b.triggered = false;
 		}
+	}
+	void ParticleSystemManager::ValidateParticleSystem(ParticleSystem& ps)
+	{
+		//Validate Colour
+		Utilities::FixMinMax(ps.minRandomColour.r, ps.maxRandomColour.r);
+		Utilities::FixMinMax(ps.minRandomColour.g, ps.maxRandomColour.g);
+		Utilities::FixMinMax(ps.minRandomColour.b, ps.maxRandomColour.b);
+		Utilities::FixMinMax(ps.minRandomColour.a, ps.maxRandomColour.a);
+
+		//Validate Speed
+		Utilities::FixMinMax(ps.minRandomSpeed, ps.maxRandomSpeed);
 	}
 #pragma endregion
 
@@ -275,25 +300,31 @@ namespace SliceEngine
 
 		if (ps.parentTransform)
 		p.position += ps.parentTransform->position;
+
+		switch (ps.shapeType)
+		{
+		case ParticleSystem::ShapeType::SPHERE:
+			p.position += RandomPointInSphere(ps.sphereRadius);
+			break;
+		default:
+			break;
+		}
 	}
 	void ParticleSystemManager::InitializeRotation(Particle& p, ParticleSystem& ps)
 	{
 		if (ps.initialRotationType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			// Interpolate between min and max quaternion
-			std::uniform_real_distribution<float> tDist(0.0f, 1.0f);
-			float t = tDist(gen);
+			std::uniform_real_distribution<float> dist(
+				ps.minRandomRotation,
+				ps.maxRandomRotation
+			);
 
-			// Spherical linear interpolation between min and max rotations
-			p.rotation = glm::slerp(ps.minRandomRotation, ps.maxRandomRotation, t);
+			p.rotation = dist(gen);
 		}
-		else 
+		else
 		{
 			p.rotation = ps.rotation;
 		}
-
-		if (ps.parentTransform)
-		p.rotation = ps.parentTransform->rotation * p.rotation;
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)
 	{
@@ -315,17 +346,32 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
-		if (ps.velocityValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
+		if (ps.speedValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> distX(ps.minRandomVelocity.x, ps.maxRandomVelocity.x);
-			std::uniform_real_distribution<float> distY(ps.minRandomVelocity.y, ps.maxRandomVelocity.y);
-			std::uniform_real_distribution<float> distZ(ps.minRandomVelocity.z, ps.maxRandomVelocity.z);
-			p.velocity = glm::vec3(distX(gen), distY(gen), distZ(gen));
+			std::uniform_real_distribution<float> dist(
+				ps.minRandomSpeed,
+				ps.maxRandomSpeed);
+
+			p.speed = dist(gen);
 		}
 		else
 		{
-			p.velocity = ps.velocity;
+			p.speed = ps.speed;
 		}
+
+		glm::vec3 direction(0.0f);
+
+		switch (ps.shapeType)
+		{
+		case ParticleSystem::ShapeType::SPHERE:
+			direction = ComputeSphereInitialVelocity(ps.parentTransform->position, p.position, ps.sphereRadius);
+			break;
+		default:
+			direction = glm::vec3(0.0f, 1.0f, 0.0f); // fallback
+			break;
+		}
+
+		p.velocity = glm::normalize(direction) * p.speed;
 	}
 	void ParticleSystemManager::InitializeColour(Particle& p, ParticleSystem& ps)
 	{
@@ -342,12 +388,17 @@ namespace SliceEngine
 		{
 			p.colour = ps.colour;
 		}
+
+		if (ps.colourOverLifetime)
+		{
+			// Temp
+			ps.colourLifeTimeMap[1.0f] = ps.colourOverLifetimeEnd;
+		}
 	}
 
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
-		glm::vec3 worldVelocity = p.rotation * p.velocity;
-		p.position += worldVelocity * ps.speed * dt;
+		p.position += p.velocity * dt;
 	}
 
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
@@ -391,7 +442,7 @@ namespace SliceEngine
 
 	void ParticleSystemManager::ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
-		auto& map = ps.colorLifeTimeMap;
+		auto& map = ps.colourLifeTimeMap;
 
 		if (map.empty())
 			return;		
@@ -434,6 +485,68 @@ namespace SliceEngine
 		float localT = (t - t0) / (t1 - t0);
 
 		p.colour = glm::mix(c0, c1, localT);
+	}
+
+	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(
+		const glm::vec3& center,
+		const glm::vec3& position,
+		float radius,
+		float radialBias
+		)
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		// Direction from center to particle
+		glm::vec3 dir = glm::normalize(position - center);
+
+		radialBias = glm::clamp(radialBias, 0.0f, 1.0f);
+
+		if (glm::dot(dir, dir) < 1e-6f)
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);// fallback
+		else
+			dir = glm::normalize(dir);
+
+		// Random unit vector for spread
+		glm::vec3 randDir;
+		do {
+			randDir = glm::vec3(
+				dist01(gen) * 2.0f - 1.0f,
+				dist01(gen) * 2.0f - 1.0f,
+				dist01(gen) * 2.0f - 1.0f
+			);
+		} while (glm::dot(randDir, randDir) < 1e-6f);
+		randDir = glm::normalize(randDir);
+
+		// Blend radial + random
+		dir = glm::normalize(glm::mix(randDir, dir, radialBias));
+
+		return dir;
+	}
+
+	glm::vec3 ParticleSystemManager::RandomPointInSphere(float radius)
+	{
+		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+		float u = dist(gen);
+		float v = dist(gen);
+		float w = dist(gen);
+
+		// Random direction
+		float theta = 2.0f * glm::pi<float>() * u;
+		float phi = acos(2.0f * v - 1.0f);
+
+		float sinPhi = sin(phi);
+
+		glm::vec3 dir(
+			cos(theta) * sinPhi,
+			sin(theta) * sinPhi,
+			cos(phi)
+		);
+
+		// Correct radial distribution
+		float r = radius * cbrt(w);
+
+		return dir * r;
 	}
 #pragma endregion
 }

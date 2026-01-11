@@ -1091,8 +1091,19 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
 				// Start Speed
-				// To do : Add Value Type Enum
-				DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f, 100.f);
+				switch (ps.speedValueType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f);
+					break;
+
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.1f", 0.0f);
+					break;
+				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.speedValueType, "speed");
 
 				// Start Lifetime
 				switch (ps.initialLifetimeType)
@@ -1107,19 +1118,27 @@ namespace SliceEditor
 				default:
 					break;
 				}
-
 				ImGui::SameLine();
-
 				ButtonValueTypePopup(ps.initialLifetimeType, "lifetime");
 
 				// Start Size
-				// To do : Add Value Type Enum
-				DragVec3InputHeader(mRegistry, "Start Size", "##startSize", ps.scale);
+				switch (ps.scaleType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragVec3InputHeader(mRegistry, "Start Size", "##startSize", ps.scale);
+					break;
 
-				// Start Rotation
-				// To do : Add Value Type Enum
-				BoolInputHeader(mRegistry, "3D Rotation", "##is3Drot", ps.isInitialRotation3D);
-				
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragVec3InputHeader(mRegistry, "Min Start Size", "##minStartSize", ps.minRandomScale);
+					DragVec3InputHeader(mRegistry, "Max Start Size", "##maxStartSize", ps.maxRandomScale);
+					break;
+				default:
+					break;
+				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.scaleType, "size");
+
+				// Start Position
 				switch (ps.posValueType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
@@ -1134,41 +1153,25 @@ namespace SliceEditor
 				default:
 					break;
 				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.posValueType, "position");
 
-				if (ps.isInitialRotation3D)
-				{
-					switch (ps.initialRotationType)
-					{
-					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-						DragRotationInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation, ps.eulerHint);
-						break;
-					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-						DragRotationInputHeader(mRegistry, "Min Rotation", "##minStartRot", ps.minRandomRotation, ps.minEulerHint);
-						DragRotationInputHeader(mRegistry, "Max Rotation", "##maxStartRot", ps.maxRandomRotation, ps.maxEulerHint);
-						break;
-					default:
-						break;
-					}
-				}
-				else
-				{
-					switch (ps.initialRotationType)
-					{
-					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-						DragRotationInputHeader(mRegistry, "Rotation", "##r", ps.rotation, ps.eulerHint);
-						break;
-					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-						DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation.x, "&.1f", 0.f, 360.f);
-						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation.x, "&.1f", 0.f, 360.f);
-						break;
-					default:
-						break;
-					}
-				}
 
+				// Start Rotation
+				switch (ps.initialRotationType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragFloatInputHeader(mRegistry, "Rotation", "##r", ps.rotation, "%.1f", 0.0f, 360.f);
+					break;
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation, "&.1f", 0.f, 360.f);
+					DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					break;
+				default:
+					break;
+				}
 				ImGui::SameLine();
 				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
-				//ComboHeader< SliceEngine::ParticleSystem::ValueType>(mRegistry, "", "##lifetime_valuetype", ps.initialLifetimeType, value_type_names);
 
 				// Start Colour			
 				switch (ps.colourValueType)
@@ -1190,7 +1193,10 @@ namespace SliceEditor
 
 				// Colour Over Lifetime
 				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
-
+				if (ps.colourOverLifetime)
+				{
+					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+				}
 
 				// Gravity
 				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
@@ -1207,14 +1213,17 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Shape"))
 			{
-				static std::vector<std::string> shapeTypes{ "Cone" };
+				static std::vector<std::string> shapeTypes{ "Sphere", "Cone"};
 				// Shape Type Enum
 				ComboHeader<SliceEngine::ParticleSystem::ShapeType>(mRegistry, "Shape", "##shapeType", ps.shapeType, shapeTypes);
 
 				switch (ps.shapeType)
 				{
+				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
+					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Angle", "##coneAngle", ps.coneAngle, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Arc Angle", "##coneArcAngle", ps.coneArc, "%.1f", 0.0f, 90.0f);
 					break;
 				default:
 					break;

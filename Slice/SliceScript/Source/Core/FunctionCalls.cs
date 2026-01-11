@@ -220,17 +220,17 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetShapeType(uint entityID, ref ShapeType shapeType);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetConeAngle(uint entityID, out float coneAngle);
+        internal extern static void ParticleSystem_GetConeArc(uint entityID, out float coneArc);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetConeAngle(uint entityID, ref float coneAngle);
+        internal extern static void ParticleSystem_SetConeArc(uint entityID, ref float coneArc);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetShapeRadius(uint entityID, out float shapeRadius);
+        internal extern static void ParticleSystem_GetConeRadius(uint entityID, out float coneRadius);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetShapeRadius(uint entityID, ref float shapeRadius);
+        internal extern static void ParticleSystem_SetConeRadius(uint entityID, ref float coneRadius);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetShapeArc(uint entityID, out float shapeArc);
+        internal extern static void ParticleSystem_GetSphereRadius(uint entityID, out float sphereRadius);
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetShapeArc(uint entityID, ref float shapeArc);
+        internal extern static void ParticleSystem_SetSphereRadius(uint entityID, ref float sphereRadius);
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetSpawnPos(uint entityID, out Vector3 spawnPos);
         [MethodImpl(MethodImplOptions.InternalCall)]
