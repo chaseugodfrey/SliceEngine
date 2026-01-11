@@ -185,6 +185,13 @@ namespace SliceEditor
 			if (searchBar)
 			{
 				std::string newID = std::string(id) + "searchBar";
+
+				if (ImGui::IsWindowAppearing())
+				{
+					ImGui::SetKeyboardFocusHere();
+					buffer[0] = '\0';
+					searchPrompt.clear();
+				}
 				if (ImGui::InputText(newID.c_str(), buffer, IM_ARRAYSIZE(buffer)))
 				{
 					searchPrompt = buffer;
@@ -216,11 +223,6 @@ namespace SliceEditor
 				}
 			}
 			ImGui::EndCombo();
-		}
-		else
-		{
-			buffer[0] = '\0';
-			searchPrompt.clear();
 		}
 		return changed;
 	}

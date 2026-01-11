@@ -12,6 +12,7 @@ namespace SliceEngine
 	public:
 
 		void Init();
+		void Update();
 		void Load();
 		void Save();
 		void Exit();

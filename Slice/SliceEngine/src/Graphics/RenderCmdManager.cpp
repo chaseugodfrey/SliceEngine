@@ -112,6 +112,7 @@ namespace SliceEngine
 			else
 			{
 				AppendRenderCmd((*rcmds)[key], data, material);
+				(*rcmds)[key].numVar = material->shader.get()->dataIn.size();
 			}
 		}
 	
@@ -130,8 +131,8 @@ namespace SliceEngine
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
 			SetColor(data, ptx.colour);
-			data.texID = ptx.textureID;
-			//data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
+			//data.texID = ptx.textureID;
+			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
 			data.entityID = 0;
 
 			//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
@@ -149,6 +150,7 @@ namespace SliceEngine
 			}
 
 		}
+		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
 	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
 	{
@@ -234,8 +236,13 @@ namespace SliceEngine
 				//else
 				{
 					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
-					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * batch.size(), batch.data());
-					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.size());
+					for(size_t drawCounter{}; drawCounter < batch.size(); )
+					{
+						size_t drawNum{ std::min(batch.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
+						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.data() + drawCounter);
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
+						drawCounter += drawNum;
+					}
 				}
 			}
 			break;
@@ -290,9 +297,14 @@ namespace SliceEngine
 				else
 				{
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
-					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * batch.base.size(), batch.base.data());
-					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * batch.ext.size(), batch.ext.data());
-					glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, batch.base.size());
+					for (size_t drawCounter{}; drawCounter < batch.base.size(); )
+					{
+						size_t drawNum{ std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
+						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.base.data() + drawCounter);
+						glNamedBufferSubData(mEVBO, 0, sizeof(float) * drawNum * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * drawCounter);
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
+						drawCounter += drawNum;
+					}
 				}
 			}
 			break;

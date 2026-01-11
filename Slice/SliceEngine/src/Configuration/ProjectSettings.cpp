@@ -20,7 +20,7 @@ namespace SliceEngine
 
 		if (!inFile.is_open())
 		{
-			SLICE_LOG_WARNING(filepath + ".asset file not found. Creating default asset file.");
+			SLICE_LOG_WARNING(filepath + " not found. Creating default asset file.");
 			inFile.close();
 			SaveSettings();
 			return;
