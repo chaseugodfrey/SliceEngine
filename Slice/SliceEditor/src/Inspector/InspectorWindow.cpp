@@ -1089,6 +1089,21 @@ namespace SliceEditor
 				// To do : Add Value Type Enum
 				BoolInputHeader(mRegistry, "3D Rotation", "##is3Drot", ps.isInitialRotation3D);
 				
+				switch (ps.posValueType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragVec3InputHeader(mRegistry, "Pos Offset", "##startPos", ps.spawnPos);
+					break;
+
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragVec3InputHeader(mRegistry, "Min Pos Offset", "##minStartPos", ps.minRandomSpawnPos);
+					DragVec3InputHeader(mRegistry, "Max Pos Offset", "##maxStartPos", ps.maxRandomSpawnPos);
+					break;
+
+				default:
+					break;
+				}
+
 				if (ps.isInitialRotation3D)
 				{
 					switch (ps.initialRotationType)
@@ -1218,11 +1233,11 @@ namespace SliceEditor
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
 					{
 						std::string texture = ps.textureGUID.toString();
+
 						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Texture", "##ps_texture", texture))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(texture);
-						}
+						SliceEngine::GUID tex_guid = ps.textureGUID;
+						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+						ps.textureGUID = tex_guid;
 					}
 						break;
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
@@ -1241,6 +1256,10 @@ namespace SliceEditor
 						{
 							ps.textureGUID = SliceEngine::GUID::FromString(material);
 						}
+
+						SliceEngine::GUID tex_guid = ps.textureGUID;
+						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+						ps.textureGUID = tex_guid;
 					}
 						break;
 					default:
@@ -1248,12 +1267,12 @@ namespace SliceEditor
 				}
 
 				// LEGACY
-				ImGui::SeparatorText("Legacy");
-				std::string textureID = std::to_string(ps.textureID);
-				if (StringInputHeader(mRegistry, "Texture", "##ps_texture_legacy", textureID))
-				{
-					ps.textureID = std::stoul(textureID);
-				}
+				//ImGui::SeparatorText("Legacy");
+				//std::string textureID = std::to_string(ps.textureID);
+				//if (StringInputHeader(mRegistry, "Texture", "##ps_texture_legacy", textureID))
+				//{
+				//	ps.textureID = std::stoul(textureID);
+				//}
 			}
 
 			ImGui::TreePop();
