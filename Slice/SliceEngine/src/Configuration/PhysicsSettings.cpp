@@ -2,23 +2,37 @@
 #include "PhysicsSettings.h"
 #include "Core/Core.h"
 #include "Systems/LayerManager.h"
+#include "Physics/PhysicsSystem.h"
 
 namespace SliceEngine
 {
 	void PhysicsSettings::LoadSettings(nlohmann::json settings)
 	{
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
-		std::string matrix = settings["Layer Collision Matrix"].get<std::string>();
+		auto physicsSystem = &SliceEngine::Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		for (uint32_t i = 0; i < 32; i++)
+		std::string matrix = settings["Broad Layer Collision Matrix"].get<std::string>();
+
+		for (size_t i = 0; i < matrix.size(); i++)
 		{
-			for (uint32_t j = 0; j < 32 - i; j++)
-			{
-				bool interact = static_cast<bool>(*(matrix.begin() + 32 * i + j));
-				auto row_name = layerManager->GetLayerName(i);
-				auto col_name = layerManager->GetLayerName(j);
-				layerManager->AssignLayerInteraction(row_name, col_name, interact);
-			}
+			std::string chunk = matrix.substr(i, 1);
+			JPH::BroadPhaseLayer::Type bpLayer = std::stoi(chunk);
+			physicsSystem->SetObjectBroadPhaseLayer(static_cast<uint32_t>(i), JPH::BroadPhaseLayer(bpLayer));
+		}
+
+		matrix = settings["Layer Collision Matrix"].get<std::string>();
+
+		std::stringstream ss{};
+		std::string buffer{};
+		auto ptr = layerManager->indexToLayerName.begin();
+
+		for (size_t i = 0; i < matrix.size(); i+=8)
+		{
+			std::string chunk = matrix.substr(i, 8);
+			
+			auto& mask = layerManager->collisionMask[ptr->second];
+			std::from_chars(chunk.data(), chunk.data() + chunk.size(), mask, 16);
+			ptr++;
 		}
 	}
 
@@ -27,18 +41,32 @@ namespace SliceEngine
 		std::ofstream outFile{ filepath };
 		nlohmann::json physicsSettingsJson;
 
+		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
+		auto physicsSystem = &SliceEngine::Core::GetInstance()->GetSystem<PhysicsSystem>();
+
+		std::stringstream ss{};
 		std::string matrix{};
 
-		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
-
-		for (auto& mask : layerManager->collisionMask)
+		for (auto& [layer, name] : layerManager->indexToLayerName)
 		{
-			matrix += std::to_string(mask.second);
+			auto const& mask = physicsSystem->GetBroadPhaseLayer(layer).GetValue();
+			matrix += std::to_string(mask);
+		}
+
+		physicsSettingsJson["Broad Layer Collision Matrix"] = matrix;
+		matrix.clear();
+
+		for (auto& [layer, name] : layerManager->indexToLayerName)
+		{
+			auto& mask = layerManager->collisionMask[name];
+			ss << std::hex << mask;
+			matrix += ss.str();
+			ss.str(std::string());
 		}
 
 		physicsSettingsJson["Layer Collision Matrix"] = matrix;
 
-		physicsSettingsJson >> outFile;
+		outFile << physicsSettingsJson.dump(4);
 
 		outFile.close();
 	}
