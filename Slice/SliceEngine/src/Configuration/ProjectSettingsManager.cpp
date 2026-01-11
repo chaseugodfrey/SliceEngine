@@ -3,6 +3,7 @@
 
 namespace SliceEngine
 {
+
 	void ProjectSettingsManager::Init()
 	{
 		mSettingsList.push_back(std::make_unique<AudioSettings>("AudioSettings"));
@@ -12,6 +13,14 @@ namespace SliceEngine
 		{
 			setting->Init();
 			setting->LoadFromFile();
+		}
+	}
+
+	void ProjectSettingsManager::Update()
+	{
+		for (auto& setting : mSettingsList)
+		{
+			setting->CheckDirty();
 		}
 	}
 
