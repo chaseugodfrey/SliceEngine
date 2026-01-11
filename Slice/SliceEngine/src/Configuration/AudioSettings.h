@@ -49,13 +49,15 @@ namespace SliceEngine
 		FMOD::System* mSystem = nullptr;
 
 	public:
-
+		
+	
 		std::unordered_map<std::string, SFXEntry> mSFXMap{};
-
+	
 		AudioSettings(std::string name) : ProjectSettings(name) {};
 		~AudioSettings() = default;
 		void Init() override;
 		void Exit() override;
+		void DeleteAM();
 		void LoadSettings(nlohmann::json) override;
 		void SaveSettings() override;
 

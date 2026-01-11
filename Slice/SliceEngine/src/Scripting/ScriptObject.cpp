@@ -666,7 +666,7 @@ namespace SliceEngine
 		else if (type == rttr::type::get<glm::vec2>())
 		{
 			mono_field_set_value(scriptInstance, field, &value.get_value<glm::vec2>());
-		}
+		}		
 	}
 
 	MonoObject* ScriptObject::GetListObject(const std::string& name)

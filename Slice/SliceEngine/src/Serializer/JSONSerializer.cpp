@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "JSONSerializer.h"
 #include "Animator/BoneSystem.h"
+#include "Scripting/ScriptSystem.h"
 
 namespace SliceEngine
 {
@@ -262,7 +263,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -458,7 +461,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -600,7 +605,10 @@ namespace SliceEngine
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
-						RigidBody::FreezeOptions
+						RigidBody::FreezeOptions,
+						std::vector<ParticleSystem::Burst>,
+						std::vector<Particle>,
+						GameObject
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -663,7 +671,10 @@ namespace SliceEngine
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
-							RigidBody::FreezeOptions
+							RigidBody::FreezeOptions,
+							std::vector<ParticleSystem::Burst>,							
+							std::vector<Particle>,
+							GameObject
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -776,7 +787,9 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								RigidBody::FreezeOptions,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
@@ -833,6 +846,9 @@ namespace SliceEngine
 				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
 				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
 			}
+
+			gScriptSystem->RemapGameObjectVariables(sceneGraphMap);
+
 			// Using scene graph map to fix scenegraph component is done in another function in scene system.
 
 			return sceneGraphMap;
@@ -878,6 +894,11 @@ namespace SliceEngine
 			if (t == rttr::type::get<unsigned int>()) { return v.get_value<unsigned int>(); }
 			if (t == rttr::type::get<short>()) { return v.get_value<short>(); }
 			if (t == rttr::type::get<std::string>()) { return v.get_value<std::string>(); }
+			if (t == rttr::type::get<GameObject>()) 
+			{ 
+				Entity testVal = v.get_value<GameObject>().GetEntity();
+				return v.get_value<GameObject>().GetEntity();
+			}
 
 			// fall back is to return as a string
 			return v.to_string();

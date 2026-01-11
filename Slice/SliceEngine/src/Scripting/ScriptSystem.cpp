@@ -591,6 +591,16 @@ namespace SliceEngine
 
                         }
                     }
+                    else if (it.second.mType == ScriptFieldType::GameObject)
+                    {
+                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        if (variantVal.is_type<GameObject>())
+                        {
+                            GameObject go = variantVal.get_value<GameObject>();
+                            scriptRef->SetFieldValue(it.second.mName.c_str(), go);
+                        }
+
+                    }
                     else
                     {
                         scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
@@ -661,6 +671,9 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
+                            //case ScriptFieldType::GameObject:
+                            //    scriptRef->AddListFieldValue<std::string>(it.second.mName, static_cast<std::string>(item.get_value<GameObject>().GetName()));
+                            //    break;
                             }
                         }
                     }
@@ -720,6 +733,11 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{                         
+                        //    std::vector<GameObject> var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -779,6 +797,9 @@ namespace SliceEngine
                 {
                     GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
+
+                    // test
+                   
                 }
             }
         }
@@ -1150,6 +1171,30 @@ namespace SliceEngine
 
         eventManager->Unsubscribe<OnTriggerExitEvent, &ScriptSystem::OnTriggerExit>(this);
 
+    }
+
+    void ScriptSystem::RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph)
+    {
+        for (auto& [entity, scriptInstance] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(entity);
+
+            for (auto& [fieldName, variantVal] : scriptComponent.scriptableFieldMap)
+            {
+                if (variantVal.is_type<GameObject>())
+                {
+                    GameObject go = variantVal.get_value<GameObject>();
+                    uint32_t oldID = (uint32_t)go.GetEntity();
+
+                    if (sceneGraph.contains(oldID))
+                    {
+                        uint32_t newID = sceneGraph.at(oldID);
+                        GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
+                        scriptInstance->SetFieldValue<GameObject>(fieldName, newGO);
+                    }
+                }
+            }
+        }
     }
 
     void ScriptSystem::QueueCollision(ScriptCollisionType type, Entity entity, Entity otherEntity)

@@ -45,6 +45,13 @@ namespace SliceEngine
         mSystem = nullptr;
     }
 
+    void AudioSettings::DeleteAM()
+    {
+        auto audioManager = FactoryInstance.GetGOByName("AudioManager");
+
+        FactoryInstance.Destroy(audioManager);
+    }
+
     void AudioSettings::LoadSettings(nlohmann::json audioSettingsInput)
     {
 
