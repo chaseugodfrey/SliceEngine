@@ -196,10 +196,10 @@ namespace SliceEditor
 	void AssetFileWatcher::HandleAssetRemoved(AssetManager& am, RawFileEvent& removeEvent)
 	{
         std::filesystem::path removedFilePath(removeEvent.filePath);
-        if (removedFilePath.extension() == ".temp")
-        {
-            return;
-        }
+        //if (removedFilePath.extension() == ".temp")
+        //{
+        //    return;
+        //}
 
         std::string parentDirectory = removedFilePath.parent_path().filename().string();
         
