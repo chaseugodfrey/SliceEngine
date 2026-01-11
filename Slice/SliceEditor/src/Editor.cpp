@@ -128,7 +128,7 @@ namespace SliceEditor
 		{
 			registry.Update();
 			inputs->Update();
-			//AssetFileWatcher::UpdateFolder(assetManager);
+			AssetFileWatcher::UpdateFolder(assetManager);
 			engine.Update();
 			Render();
 			engine.EndFrame();
