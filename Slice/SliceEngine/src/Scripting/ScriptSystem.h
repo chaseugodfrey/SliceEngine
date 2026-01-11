@@ -102,6 +102,11 @@ namespace SliceEngine
 		/// </summary>
 		void LoadEntityClasses();
 		/// <summary>
+		/// Update a entity's script to a new script.
+		/// </summary>
+		/// <param name="entity"></param>
+		void ReloadEntityScript(Entity entity);
+		/// <summary>
 		/// For debugging. Print the mono heap size. Used when I had memory leaks
 		/// </summary>
 		void LogMonoHeapSize();
