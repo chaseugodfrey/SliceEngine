@@ -270,17 +270,18 @@ namespace SliceEngine
 
         public Vector3 axis = Vector3.Zero;
 
-        // Initial Position
-        public bool HasRandomSpawnPos
+        // Initial Position Offset
+        public ValueType spawnPosValueType= ValueType.CONSTANT;
+        public Vector3 spawnPositionOffset
         {
             get
             {
-                FunctionCalls.ParticleSystem_GetHasRandomSpawnPos(gameObject.mID, out bool value);
+                FunctionCalls.ParticleSystem_GetSpawnPos(gameObject.mID, out Vector3 value);
                 return value;
             }
             set
             {
-                FunctionCalls.ParticleSystem_SetHasRandomSpawnPos(gameObject.mID, ref value);
+                FunctionCalls.ParticleSystem_SetSpawnPos(gameObject.mID, ref value);
             }
         }
 

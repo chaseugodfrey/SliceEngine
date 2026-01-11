@@ -33,6 +33,8 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
+		void ResetManager();
+
 	private:
 		// System Layer
 		void InitializeSystem(ParticleSystem& ps);
@@ -55,16 +57,6 @@ namespace SliceEngine
 		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyCollision(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyBurst(ParticleSystem& ps, float dt);
-
-	// Tests
-	public:
-
-		// Init Test
-		void Test1();
-		
-		// Update Test
-		void Test2Init();
-		void Test2Update();
 	};
 }
 
