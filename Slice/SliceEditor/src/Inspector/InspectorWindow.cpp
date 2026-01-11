@@ -626,15 +626,25 @@ namespace SliceEditor
 
 			if (script.scriptName.empty())
 			{
-				script_name = "Empty";
+				//script_name = "Empty";
 				scriptList.push_back("Empty");
 				selectedIndex = scriptList.size() - 1;
+			}
+
+			if(!script_name.empty())
+			{
+				ImGui::BeginDisabled();
 			}
 
 			if (ComboHeader<int>(mRegistry, "Script Class:", "##scriptClassID", selectedIndex, scriptList, true))
 			{
 				script.scriptName = "SliceEngine.";
 				script.scriptName += scriptList[selectedIndex];
+			}
+
+			if(!script_name.empty())
+			{
+				ImGui::EndDisabled();
 			}
 
 			// Script Variables
@@ -833,7 +843,7 @@ namespace SliceEditor
 
 						#pragma endregion
 
-						//Normal Variables
+						#pragma region Normal Variables
 						else
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -928,6 +938,7 @@ namespace SliceEditor
 								}*/
 							}
 						}
+					#pragma endregion
 					}
 				}
 
