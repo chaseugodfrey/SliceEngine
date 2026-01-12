@@ -1056,6 +1056,25 @@ namespace SliceEngine
         }
     }
 
+    void ScriptSystem::ReloadEntityScript(Entity entity)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        if (mEntityInstances.count(entity) > 0)
+        {
+            mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances.erase(entity);
+        }
+
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+            std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            mEntityInstances[entity] = scriptObj;
+            UpdateScriptVariables(entity);
+            UpdateScriptComponent(entity);
+		}
+    }
+
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)
     {
         *outElementClass = nullptr;
