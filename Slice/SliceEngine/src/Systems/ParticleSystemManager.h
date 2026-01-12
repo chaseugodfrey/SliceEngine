@@ -33,14 +33,13 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
 		void ResetManager();
-
+		void ValidateParticleSystem(ParticleSystem& ps);
 	private:
 		// System Layer
 		void InitializeSystem(ParticleSystem& ps);
 		void UpdateSystem(ParticleSystem& ps, float dt);
 		void ExitSystem(ParticleSystem& ps);
-		void ResetSystem(ParticleSystem& ps, float dt);
-		void ValidateParticleSystem(ParticleSystem& ps);
+		void ResetSystem(ParticleSystem& ps, float dt);		
 
 		// Particle Layer
 		void ActivateParticle(ParticleSystem& ps);
@@ -70,7 +69,7 @@ namespace SliceEngine
 		{
 			if (min > max)
 				std::swap(min, max);
-		}		
+		}
 	}
 }
 

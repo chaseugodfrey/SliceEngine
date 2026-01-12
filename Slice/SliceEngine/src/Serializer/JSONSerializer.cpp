@@ -264,7 +264,8 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
-								std::vector<ParticleSystem::Burst>,
+								ParticleSystem::ValueType,
+								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
@@ -462,6 +463,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
+								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>
 								>
@@ -562,12 +564,12 @@ namespace SliceEngine
 						continue;
 					}
 
-					//if (propVal.get_type() == rttr::type::get<GUID>())
-					//{
-					//	Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(propVal.get_value<GUID>());
-					//}
-
-
+					// check if this property should be skipped
+					auto meta = property.get_metadata("Serialize");
+					if (meta.is_valid() && meta.to_bool() == false)
+					{
+						continue;
+					}
 
 					// To make it easy to see and add what types are supported. If added
 					// but the output is wrong, might need to create a specialized variant
@@ -606,6 +608,7 @@ namespace SliceEngine
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
 						RigidBody::FreezeOptions,
+						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
 						GameObject
@@ -633,6 +636,13 @@ namespace SliceEngine
 						rttr::variant propVal = property.get_value(componentData);
 
 						std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
+						// check if this property should be skipped
+						auto meta = property.get_metadata("Serialize");
+						if (meta.is_valid() && meta.to_bool() == false)
+						{
+							continue;
+						}
 
 						if (!propVal.is_valid())
 						{
@@ -672,6 +682,7 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							RigidBody::FreezeOptions,
+							ParticleSystem::ValueType,
 							std::vector<ParticleSystem::Burst>,							
 							std::vector<Particle>,
 							GameObject
@@ -788,6 +799,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
+								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>
 								>

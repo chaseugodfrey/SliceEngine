@@ -33,6 +33,7 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+
 	struct PrefabEditingEntity
 	{
 
@@ -470,6 +471,7 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
+		uint64_t numBursts{};
 		std::vector<Burst> bursts{};
 
 
@@ -537,11 +539,11 @@ namespace SliceEngine
 		bool hasCollision{ false };
 
 		// Renderer
-		GLuint GetTextureID() const
-		{
-			return textureGUID.GetGUID();
-		}
-
+		GLuint GetTextureID() const { return textureGUID.GetGUID(); }
+		//inline void Validate()
+		//{
+		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);
+		//}
 		enum RenderMode
 		{
 			BILLBOARD,
