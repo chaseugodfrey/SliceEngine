@@ -84,8 +84,6 @@ namespace SliceEngine
 	{
 		ValidateParticleSystem(ps);
 
-		ps.systemTimer += dt;		
-
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
 		if (ps.systemTimer >= ps.duration)
 		{
@@ -95,9 +93,14 @@ namespace SliceEngine
 			}
 			else 
 			{
+				ps.systemTimer = ps.duration;
 				ps.systemEnding = true;
 			}
 		}
+		else 
+		{
+			ps.systemTimer += dt;
+		}		
 
 		// If system is not ending, activate new particles based on emission rate
 		if (!ps.systemEnding)
@@ -231,8 +234,7 @@ namespace SliceEngine
 		}
 	}
 
-	// Ensuring that min is always smaller than max during std_uniform_distribution 
-	// operations to prevent UDB
+	// Validates properties to prevent UDB or exceptions
 	void ParticleSystemManager::ValidateParticleSystem(ParticleSystem& ps)
 	{
 		// Validate Scale
@@ -259,6 +261,19 @@ namespace SliceEngine
 
 		// Validate Speed
 		Utilities::FixMinMax(ps.minRandomSpeed, ps.maxRandomSpeed);
+
+		// Validate Particle Pool
+		if (ps.maxParticles != ps.particles.size())
+		{
+			ps.particles.resize(ps.maxParticles);
+			ps.awaitingIndex = 0u;
+		}
+
+		// Validate Bursts
+		if (ps.numBursts != ps.bursts.size())
+		{
+			ps.bursts.resize(ps.numBursts);
+		}
 	}
 #pragma endregion
 
