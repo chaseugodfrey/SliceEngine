@@ -1171,18 +1171,11 @@ namespace SliceEditor
 				ImGui::SameLine();
 				ButtonValueTypePopup(ps.colourValueType, "colour");
 
-				// Colour Over Lifetime
-				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
-				if (ps.colourOverLifetime)
-				{
-					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
-				}
-
 				// Gravity
 				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
 
 				// Max Particles
-				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "", 0, 0);
+				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "%llu", 0, 5000);
 
 				// Simulation Space
 				BoolInputHeader(mRegistry, "Is Local Space", "##isLocalSpace", ps.isLocalSpace);
@@ -1216,6 +1209,7 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Emission Rate", "##emission_rate", ps.emissionRate, "%.2f", 0.0f, 0.f);
 				
 				// Bursts
+				if (DragUInt64InputHeader(mRegistry, "Number of Bursts", "##numBursts", ps.numBursts, "%llu", 0, 100)) { ps.bursts.resize(ps.numBursts); };
 				if (ImGui::BeginTable("Bursts", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 				{
 					ImGui::TableSetupColumn("Time");
@@ -1227,13 +1221,13 @@ namespace SliceEditor
 					{
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "##burst_time", "##burst_time", burst.triggerTime, "%.2f", 0.0f, 0.0f);
+						DragFloatInputHeader(mRegistry, "", "##burst_time", burst.triggerTime, "%.2f", 0.0f, 0.0f);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "##burst_count", "##burst_count", burst.numParticles, "", 0, 0);
+						DragUInt64InputHeader(mRegistry, "", "##burst_count", burst.numParticles, "%llu", 0, 0);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "##burst_cycle", "##burst_cycle", burst.burstRepetitions, "", 0, 0);
+						DragUInt64InputHeader(mRegistry, "", "##burst_cycle", burst.burstRepetitions, "%llu", 0, 0);
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "##burst_interval", "##burst_interval", burst.burstPeriod, "", 0.0f, 0.0f);
+						DragFloatInputHeader(mRegistry, "", "##burst_interval", burst.burstPeriod, "%%.2f", 0.0f, 0.0f);
 					}
 					ImGui::EndTable();
 				}
@@ -1241,7 +1235,12 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Color Over Lifetime"))
 			{
-
+				// Colour Over Lifetime
+				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
+				if (ps.colourOverLifetime)
+				{
+					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+				}
 			}
 
 			if (ImGui::CollapsingHeader("Renderer"))
@@ -1286,14 +1285,6 @@ namespace SliceEditor
 					default:
 						break;
 				}
-
-				// LEGACY
-				//ImGui::SeparatorText("Legacy");
-				//std::string textureID = std::to_string(ps.textureID);
-				//if (StringInputHeader(mRegistry, "Texture", "##ps_texture_legacy", textureID))
-				//{
-				//	ps.textureID = std::stoul(textureID);
-				//}
 			}
 
 			ImGui::TreePop();
