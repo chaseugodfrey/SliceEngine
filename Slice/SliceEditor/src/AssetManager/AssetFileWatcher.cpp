@@ -148,20 +148,20 @@ namespace SliceEditor
             }
         }
 
-        if (addEvent.filePath.extension() == ".temp")
-        {
-            SliceEngine::GUID sceneGUID = am.mFilenameToGUID[addEvent.filePath.stem().string()];
-            std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
-            std::filesystem::path destPath = am.mAssetDirectory.parent_path() / "Resources" / guidFilename;
+        //if (addEvent.filePath.extension() == ".temp")
+        //{
+        //    SliceEngine::GUID sceneGUID = am.mFilenameToGUID[addEvent.filePath.stem().string()];
+        //    std::string guidFilename = std::to_string(sceneGUID.GetGUID()) + ".temp";
+        //    std::filesystem::path destPath = am.mAssetDirectory.parent_path() / "Resources" / guidFilename;
 
-            try {
-                std::filesystem::copy_file(addEvent.filePath, destPath, std::filesystem::copy_options::overwrite_existing);
-            }
-            catch (const std::filesystem::filesystem_error& e) {
-                SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
-            }
-        }
-        else
+        //    try {
+        //        std::filesystem::copy_file(addEvent.filePath, destPath, std::filesystem::copy_options::overwrite_existing);
+        //    }
+        //    catch (const std::filesystem::filesystem_error& e) {
+        //        SLICE_LOG_ERROR("Failed to update Temp file in resources: " + std::string(e.what()));
+        //    }
+        //}
+        //else
         {
             am.CreateResource(addEvent.filePath, nullptr, true);
 

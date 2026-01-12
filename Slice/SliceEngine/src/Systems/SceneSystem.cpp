@@ -95,7 +95,7 @@ namespace SliceEngine
 
 			if (mCurrentScene.extension() == ".temp")
 			{
-				filePathToLoad.replace_extension(".temp");
+				//filePathToLoad.replace_extension(".temp");
 			}
 
 			SLICE_LOG("Loading scene...");
