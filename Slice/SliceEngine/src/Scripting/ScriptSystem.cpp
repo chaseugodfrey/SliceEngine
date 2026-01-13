@@ -106,6 +106,9 @@ namespace SliceEngine
         SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
+
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::OnEnabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -544,6 +547,10 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
+
+
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -671,6 +678,9 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
+                            //case ScriptFieldType::GameObject:
+                            //    scriptRef->AddListFieldValue<std::string>(it.second.mName, static_cast<std::string>(item.get_value<GameObject>().GetName()));
+                            //    break;
                             }
                         }
                     }
@@ -730,6 +740,11 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{                         
+                        //    std::vector<GameObject> var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -884,6 +899,36 @@ namespace SliceEngine
         //UpdateScriptComponent(entity);
     }
 
+    void ScriptSystem::OnEnabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onEnabled
+                    instance->InvokeOnEnabled();
+                }
+            }
+        }
+    }
+
+    void ScriptSystem::OnDisabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onDisabled
+                    instance->InvokeOnDisabled();
+                }
+            }
+        }
+    }
+
     void ScriptSystem::LoadEntityClasses()
     {
         //loook here aloy
@@ -1009,6 +1054,25 @@ namespace SliceEngine
                 }
             }
         }
+    }
+
+    void ScriptSystem::ReloadEntityScript(Entity entity)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        if (mEntityInstances.count(entity) > 0)
+        {
+            mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances.erase(entity);
+        }
+
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+            std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            mEntityInstances[entity] = scriptObj;
+            UpdateScriptVariables(entity);
+            UpdateScriptComponent(entity);
+		}
     }
 
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)
