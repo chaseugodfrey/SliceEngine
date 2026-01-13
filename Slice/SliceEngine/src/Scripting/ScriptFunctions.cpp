@@ -1234,7 +1234,7 @@ namespace SliceEngine
 		}
 	}
 
-	static bool IsActive(unsigned int entity)
+	static bool Entity_IsActive(unsigned int entity)
 	{
 		if (RegistryInstance.any_of<InactiveEntity>(entt::entity(entity)))
 		{
@@ -1244,7 +1244,7 @@ namespace SliceEngine
 		return true;
 	}
 
-	static void SetActive(unsigned int entity, bool active)
+	static void Entity_SetActive(unsigned int entity, bool active)
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		entt::entity e = entt::entity(entity);
@@ -1564,8 +1564,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
-		ADD_INTERNAL_CALL(IsActive);
-		ADD_INTERNAL_CALL(SetActive);
+		ADD_INTERNAL_CALL(Entity_IsActive);
+		ADD_INTERNAL_CALL(Entity_SetActive);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

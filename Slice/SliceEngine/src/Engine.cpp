@@ -344,8 +344,8 @@ namespace SliceEngine
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
 			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
 			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
@@ -365,6 +365,12 @@ namespace SliceEngine
 		.property("velocity", &Particle::velocity)
 		.property("colour", &Particle::colour);
 
+	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
+		(
+			rttr::value("CONSTANT", ParticleSystem::ValueType::CONSTANT),
+			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
+			);
+
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		.property("duration", &ParticleSystem::duration)
@@ -377,6 +383,7 @@ namespace SliceEngine
 		.property("gForce", &ParticleSystem::gForce)
 		.property("emissionRate", &ParticleSystem::emissionRate)
 
+		.property("numBursts", &ParticleSystem::numBursts)
 		.property("bursts", &ParticleSystem::bursts)
 
 		.property("shapeType", &ParticleSystem::shapeType)
@@ -446,8 +453,10 @@ namespace SliceEngine
 			rttr::metadata("Serialize", false)
 		);
 
-
-	rttr::registration::class_<std::vector<Particle>>("vector<Particle>");
+	rttr::registration::class_<std::vector<Particle>>("vector<Particle>")
+		(
+			rttr::metadata("Serialize", false)
+		);
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()

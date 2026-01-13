@@ -388,29 +388,6 @@ namespace SliceEngine
 			prop.set_value(componentInstance, arr);
 		}
 
-		//// For GameObject
-		//template <>
-		//inline void Deserialize<GameObject>(rttr::variant& componentInstance, rttr::property& prop,
-		//	const GameObject& value, const std::string& propName, const std::string& componentName,
-		//	const Entity& entity)
-		//{
-		//	std::array<Entity, 4> arr;
-		//	for (size_t i = 0; i < arr.size(); ++i)
-		//	{
-		//		auto v = value[i];
-
-		//		if (v == entt::null)
-		//		{
-		//			arr[i] = entt::null;
-		//		}
-		//		else
-		//		{
-		//			arr[i] = v;
-		//		}
-		//	}
-		//	prop.set_value(componentInstance, arr);
-		//}
-
 		// Handle
 		template <typename T>
 		inline void Deserialize(rttr::variant& componentInstance, rttr::property& prop,
