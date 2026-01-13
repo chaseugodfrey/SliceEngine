@@ -1430,6 +1430,20 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region FontRenderer FUNCTIONS
+	static void FonteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.componentEnabled = enabled;
+		}
+	}
+
+#pragma endregion
+
 #pragma region UI FUNCTIONS
 
 	static float Slider_GetValue(uint32_t entityID)
@@ -1503,6 +1517,7 @@ namespace SliceEngine
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
 		RegisterComponent<SpriteRenderer>();
+		RegisterComponent<FontRenderer>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();

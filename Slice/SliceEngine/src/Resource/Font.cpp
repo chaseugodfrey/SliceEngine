@@ -22,5 +22,11 @@ namespace SliceEngine
 	namespace SliceEngineTypes
 	{
 
+		bool Font_Data::LoadFontResource(std::string const&) {
+			return false;
+		}
+		void Font_Data::DestroyFontResource() {
+
+		}
 	}
 }

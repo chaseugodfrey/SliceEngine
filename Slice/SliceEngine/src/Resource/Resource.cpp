@@ -487,6 +487,10 @@ namespace SliceEngine
 		resource.DestroyFontResource();
 	}
 
+	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}*/

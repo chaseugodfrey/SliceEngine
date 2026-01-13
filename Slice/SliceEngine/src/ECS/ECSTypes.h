@@ -691,6 +691,33 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	/*
+	* Current assumptions:
+	* horizontal wrap
+	* text box is same size as rect transform
+	* 
+	* vertical overflow
+	*/
+	struct FontRenderer {
+		bool componentEnabled{ true };
+		GUID fontHandle{};
+		glm::vec4 rgba{ 1.f };
+
+		enum Alignment {
+			LEFT,
+			CENTER,
+			RIGHT
+		} alignment{ LEFT };
+
+
+		float font_size;
+		float line_spacing;
+		
+		std::string text{"Hello World"};
+
+		RTTR_ENABLE();
+	};
+
 	struct Button {
 		RTTR_ENABLE();
 	public:

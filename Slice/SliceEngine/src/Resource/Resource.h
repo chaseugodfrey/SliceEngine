@@ -231,7 +231,7 @@ namespace SliceEngine
 		static std::unique_ptr<SliceEngineTypes::Font_Data> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr);
 
-		//static void Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path);
+		static void Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path);
 	};
 }
 

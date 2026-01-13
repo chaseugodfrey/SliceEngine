@@ -19,10 +19,10 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine {
 
 	namespace {
-		constexpr uint64_t sprite_shader = 15255338910698563845;
-		constexpr uint64_t ui_sprite_eid = 12042508891644566013;
-		constexpr uint64_t ui_font = 0;
-		constexpr uint64_t ui_font_eid = 0;
+		uint64_t sprite_shader = 11505317983061001815;
+		uint64_t ui_sprite_eid = 13043535478215287923;
+		uint64_t font_shader = 0;
+		uint64_t ui_font_eid = 0;
 	}
 
 	void CanvasSystem::Init() {
@@ -36,8 +36,15 @@ namespace SliceEngine {
 		glTextureParameteri(raycast_tex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		CheckGLError();
 
+		auto core = Core::GetInstance();
+		auto rm = core->GetResourceManager();
+		sprite_shader = rm->mFileNameToGUID.at("Shaders/uiSprite.shader").GetGUID();
+		ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
+		font_shader = rm->mFileNameToGUID.at("Shaders/uiFont.shader").GetGUID();
+		//ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
+		
 		eid_shader_map[sprite_shader] = ui_sprite_eid;
-		eid_shader_map[ui_font] = ui_font_eid;
+		eid_shader_map[font_shader] = ui_font_eid;
 	}
 	void CanvasSystem::Release() {
 		glDeleteTextures(1, &raycast_tex);
@@ -186,17 +193,7 @@ namespace SliceEngine {
 		if (elements.empty()) {
 			return;
 		}
-		/*
-		* Things to note:
-		* currently only the last camera that was added in scene view is used as camera,(GameViewWindow.cpp)
-		* this camera is the very first entity within the view(idk why its a stack)
-		* 
-		* the camera that is used for editor is accessed via scene camera (SceneViewWindow.cpp)
-		* 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
-				camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		* 
-		* for now just draw game camera, deal with scene view later
-		*/
+
 
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
@@ -251,8 +248,9 @@ namespace SliceEngine {
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
-			else if (shader == 2) {	//font
-
+			else if (shader == font_shader) {	//font
+				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
+				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
 			}
 		}
 
@@ -320,7 +318,7 @@ namespace SliceEngine {
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
-			else if (shader == 2) {	//font
+			else if (shader == font_shader) {	//font
 
 			}
 		}
@@ -330,6 +328,8 @@ namespace SliceEngine {
 	}
 
 	void CanvasSystem::get_node_render(std::vector<std::pair<Entity, uint64_t>>& render, Entity node) {
+		auto core = SliceEngine::Core::GetInstance();
+		auto const& rm = core->GetResourceManager();
 		if (!mRegistry->any_of<RectTransform>(node)) {
 			return;
 		}
@@ -337,9 +337,10 @@ namespace SliceEngine {
 		if (sprite && sprite->componentEnabled) {
 			render.push_back({ node, sprite_shader });	//eid and shader resource handle
 		}
-		//if (auto font = mRegistry->try_get<FontRenderer>(node)) {
-		//	render.push_back({ node, 2 });
-		//}
+		if (auto font = mRegistry->try_get<FontRenderer>(node)) {
+			//GUID font_guid = rm->mFileNameToGUID["Shaders/uiFont.shader"];
+			render.push_back({ node, font_shader });
+		}
 
 		if (auto scene_graph = mRegistry->try_get<SceneGraph>(node)) {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
