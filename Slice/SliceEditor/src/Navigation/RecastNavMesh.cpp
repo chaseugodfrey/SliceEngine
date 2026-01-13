@@ -385,14 +385,14 @@ namespace SliceEditor
 			recastIndices.data(), (int)recastIndices.size() / 3,
 			areas.data());
 
-		// --- RESTORED: Force Walls to be Unwalkable ---
-		// This overwrites the "Walkable" mark on the top of the wall.
+		// --- SMART SLOPE LOGIC ---
+				// Instead of blindly blocking Model 1+, we check the normal.
 		size_t currentIndexStart = 0;
 		for (size_t i = 0; i < models.size(); ++i)
 		{
 			size_t currentIndexEnd = modelIndexEndPoints[i];
 
-			// Assume Model 0 is Floor, Model 1+ are Obstacles
+			// For secondary models (Walls/Ramps)
 			if (i > 0)
 			{
 				size_t startTriIndex = currentIndexStart / 3;
@@ -400,9 +400,44 @@ namespace SliceEditor
 
 				for (size_t t = startTriIndex; t < endTriIndex; ++t)
 				{
-					if (t < areas.size())
+					// Calculate Triangle Normal
+					int v0_idx = recastIndices[t * 3 + 0];
+					int v1_idx = recastIndices[t * 3 + 1];
+					int v2_idx = recastIndices[t * 3 + 2];
+
+					const float *v0 = &verts[v0_idx * 3];
+					const float *v1 = &verts[v1_idx * 3];
+					const float *v2 = &verts[v2_idx * 3];
+
+					float e0[3], e1[3], normal[3];
+					rcVsub(e0, v1, v0);
+					rcVsub(e1, v2, v0);
+					rcVcross(normal, e0, e1);
+					rcVnormalize(normal);
+
+					// Calculate Slope Angle (Angle between Normal and Up-Vector Y)
+					// Dot product of Normal and (0, 1, 0) is just normal[1]
+					float slopeCos = normal[1];
+
+					// Threshold for "Wall"
+					// If slopeCos is close to 0, it's a vertical wall (Normal is horizontal).
+					// If slopeCos is close to 1, it's flat ground.
+					// cos(45) ~= 0.707. 
+					// So if normal.y < 0.707, it is steeper than 45 degrees.
+
+					float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
+
+					// If it is steeper than our limit, mark as NULL (Obstacle)
+					// OTHERWISE, leave it as WALKABLE (so ramps work!)
+					if (slopeCos < walkableThr)
 					{
-						areas[t] = RC_NULL_AREA; // Force Unwalkable (Area 0)
+						if (t < areas.size()) areas[t] = RC_NULL_AREA;
+					}
+					else
+					{
+						// It's a walkable slope!
+						// Ensure we don't accidentally overwrite it if it was already marked walkable
+						if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
 					}
 				}
 			}
