@@ -59,6 +59,8 @@ namespace SliceEditor
 			ImGui::EndChild();
 		}
 
+		SliceEngine::Core::GetInstance()->GetProjectSettingsManager()->Update();
+
 		if (!isOpen)
 			markForRemoval = true;
 
@@ -224,10 +226,11 @@ namespace SliceEditor
 						ImGui::PopID();
 					}
 
+					ImGui::SameLine();
+
 					if (ImGui::Button("+"))
 					{
-						
-						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(10155432597037438324), entry.AudioClips);
+						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
@@ -285,11 +288,13 @@ namespace SliceEditor
 		// Retrieve variables
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
 		auto& physicsSystem = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
-		auto& matrixMap = layerManager->nameToLayer; 
+		auto& maskMap = layerManager->collisionMask;
+		auto& layerMap = layerManager->indexToLayerName;
+		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
 		
 		std::vector<std::string> layerNames{};
-		layerNames.reserve(matrixMap.size());
-		for (auto& [name, layer] : matrixMap)
+		layerNames.reserve(layerMap.size());
+		for (auto& [index, name] : layerMap)
 			layerNames.push_back(name);
 
 		const int n = static_cast<int>(layerNames.size());
@@ -311,24 +316,31 @@ namespace SliceEditor
 				ImGui::TableSetupColumn("BP Layer",
 					ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed);
 
-				for (size_t i = 0; i < n; i++)
+				for (auto& [index, name] : layerMap)
 				{
-					std::string layerName = layerNames[i];
-					auto layer = matrixMap.at(layerName);
-					auto bp_layer = physicsSystem.GetBroadPhaseLayer(layer);
+					auto bp_layer = physicsSystem.GetBroadPhaseLayer(index);
 					auto bp_layer_index = bp_layer.GetValue();
 
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 
-					ImGui::Text(layerName.c_str());
+					ImGui::Text(name.c_str());
 
 					ImGui::TableSetColumnIndex(1);
 
-					if (ComboHeader(mRegistry, "", ("##bp_" + layerName).c_str(), bp_layer_index, bplayer_to_name_list))
+					if (ImGui::BeginCombo(("##bp" + name).c_str(), bplayer_to_name_list[bp_layer_index].c_str(), ImGuiComboFlags_WidthFitPreview))
 					{
-						JPH::BroadPhaseLayer new_bp_layer(bp_layer_index);
-						physicsSystem.SetObjectBroadPhaseLayer(layer, new_bp_layer);
+						for (size_t i = 0; i < bplayer_to_name_list.size(); ++i)
+						{
+							if (ImGui::Selectable(bplayer_to_name_list[i].c_str()))
+							{
+								JPH::BroadPhaseLayer new_bp_layer(i);
+								physicsSystem.SetObjectBroadPhaseLayer(index, new_bp_layer);
+								physicsSettings.isDirty = true;
+							}
+						}
+
+						ImGui::EndCombo();
 					}
 				}
 
@@ -393,6 +405,7 @@ namespace SliceEditor
 						if (ImGui::Checkbox("##cell", &collides))
 						{
 							layerManager->AssignLayerInteraction(colName, rowName, collides);
+							physicsSettings.isDirty = true;
 						}
 
 						ImGui::PopID();

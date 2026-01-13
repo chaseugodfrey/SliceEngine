@@ -47,8 +47,9 @@ namespace SliceEngine
 		{
 			std::vector<BasicIDat> base;
 			std::vector<glm::uvec4> ext;
+			uint32_t numVar;
 		};
-		struct TranslucentCmd
+		struct TranslucentCmd // --TODO-- set NumVar in the shader part, then just do remove it from renderCmd class
 		{
 			RCK_Size id;
 			BasicIDat base;

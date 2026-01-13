@@ -160,6 +160,8 @@ namespace SliceEngine
 		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
+		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
+		mOnEntityDisabled = scClass->GetMethod("OnDisabled", 0);
 
 		//// Collision functions
 		mOnCollideEnter = scClass->GetMethod("OnCollideEnter", 1);
@@ -370,6 +372,22 @@ namespace SliceEngine
 		if (mOnMouseHover)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnMouseHover);
+		}
+	}
+
+	void ScriptObject::InvokeOnEnabled()
+	{
+		if (mOnEntityEnabled)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityEnabled);
+		}
+	}
+
+	void ScriptObject::InvokeOnDisabled()
+	{
+		if (mOnEntityDisabled)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityDisabled);
 		}
 	}
 

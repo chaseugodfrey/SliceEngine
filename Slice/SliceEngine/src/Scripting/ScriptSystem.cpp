@@ -106,6 +106,9 @@ namespace SliceEngine
         SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
+
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::OnEnabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -544,6 +547,10 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
+
+
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -892,6 +899,36 @@ namespace SliceEngine
         //UpdateScriptComponent(entity);
     }
 
+    void ScriptSystem::OnEnabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onEnabled
+                    instance->InvokeOnEnabled();
+                }
+            }
+        }
+    }
+
+    void ScriptSystem::OnDisabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onDisabled
+                    instance->InvokeOnDisabled();
+                }
+            }
+        }
+    }
+
     void ScriptSystem::LoadEntityClasses()
     {
         //loook here aloy
@@ -1017,6 +1054,25 @@ namespace SliceEngine
                 }
             }
         }
+    }
+
+    void ScriptSystem::ReloadEntityScript(Entity entity)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        if (mEntityInstances.count(entity) > 0)
+        {
+            mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances.erase(entity);
+        }
+
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+            std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            mEntityInstances[entity] = scriptObj;
+            UpdateScriptVariables(entity);
+            UpdateScriptComponent(entity);
+		}
     }
 
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)

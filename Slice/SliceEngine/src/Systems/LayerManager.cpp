@@ -32,16 +32,15 @@ namespace SliceEngine
 			SLICE_LOG_ERROR(name + " already exist bodoh");
 			return;
 		}
-		uint32_t layerBit{};
-		uint32_t bit{};
+
+		uint32_t bit{UINT_MAX};
 
 		if (removedBits.size() > 0)
 		{
 			// use the latest bit to be removed
 			bit = removedBits.back();
-			layerBit = 1 << bit;
 
-			collisionMask[name] = layerBit;
+			collisionMask[name] = UINT32_MAX;
 			indexToLayerName[currentBit] = name;
 			nameToLayer[name] = bit;
 
@@ -51,10 +50,9 @@ namespace SliceEngine
 		{
 			// get the bit for this layer
 			bit = currentBit;
-			layerBit = 1u << currentBit;
 
 			// update both map and vector
-			collisionMask[name] = layerBit;
+			collisionMask[name] = UINT32_MAX;
 			indexToLayerName[currentBit] = name;
 			nameToLayer[name] = currentBit;
 
@@ -67,7 +65,7 @@ namespace SliceEngine
 		numberOflayers++;
 
 		// Jolt bodies need to know about the new layer and its mask
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(bit, layerBit);
+		Core::GetInstance()->GetSystem<PhysicsSystem>().SetCollisionMask(bit, UINT32_MAX);
 
 	}
 

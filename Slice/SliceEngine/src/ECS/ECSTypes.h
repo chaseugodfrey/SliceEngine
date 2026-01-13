@@ -33,7 +33,13 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+
 	struct PrefabEditingEntity
+	{
+
+	};
+
+	struct InactiveEntity
 	{
 
 	};
@@ -391,13 +397,21 @@ namespace SliceEngine
 	struct Particle
 	{
 		bool active{ false };
+
+		float maxAge{};
 		float age{};             // how long this particle has been alive
+		float rotation{};
+		float speed{};
+
+		inline float normalizedLifetime() const
+		{
+			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
+		}
 		
 		glm::vec3 finalPosition{};	// including parent transform position if localspace
 		glm::vec3 position{};
-		glm::quat rotation{};
 		glm::vec3 scale{};
-		glm::vec3 velocity{};    // derived from speed + angle
+		glm::vec3 velocity{};	  // derived from speed + direction
 		glm::vec4 colour{};       // if you want per-particle tint
 	};
 
@@ -412,30 +426,15 @@ namespace SliceEngine
 		enum ValueType : unsigned int
 		{
 			CONSTANT,
-			CURVE,
 			TWO_CONSTANTS
 		};
 
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
-		float duration{};                       // how long the system should last, 0.0f = forever
-		float speed{};							
+		float duration{};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
-
-		// Lifetime
-		ValueType initialLifetimeType{ CONSTANT };
-		float lifetime{};
-		float minParticleLifetime{};
-		float maxParticleLifetime{};
-		// Rotation
-
-		bool isInitialRotation3D{ false };
-		ValueType initialRotationType{ CONSTANT };
-		glm::quat rotation{};
-		glm::quat minRandomRotation{};
-		glm::quat maxRandomRotation{};
 
 		inline float WrapAngle(float deg)
 		{
@@ -453,32 +452,12 @@ namespace SliceEngine
 			};
 		}
 
-		glm::vec3 eulerHint = glm::degrees(glm::eulerAngles(rotation));
-		glm::vec3 minEulerHint = glm::degrees(glm::eulerAngles(minRandomRotation));
-		glm::vec3 maxEulerHint = glm::degrees(glm::eulerAngles(maxRandomRotation));
-		
-		inline void Set1DRotation(float val)
-		{
-			eulerHint.x = val;
-		}
-
-		inline float Get1DRotation()			
-		{
-			return eulerHint.x;
-		}
-
-		// Size/Scale
-		ValueType scaleType{ CONSTANT };
-		glm::vec3 scale{ 1.0f };
-		glm::vec3 minRandomScale{ 1.0f };
-		glm::vec3 maxRandomScale{ 1.0f };
-
 		bool destroyOnExpire{ false };
 		uint64_t maxParticles{ 200 };            // pool size. default 200
 
 		float gForce{0.0f};
 
-		// EMISSION
+		// Emission
 		float emissionRate{ 0.0f };              // particles/sec
 		// Bursts		
 		struct Burst
@@ -492,57 +471,85 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
+		uint64_t numBursts{};
 		std::vector<Burst> bursts{};
 
 
 		// Shape Settings
 		enum ShapeType
 		{
-			CONE,
 			SPHERE,
+			CONE,
 			BOX,
 			EDGE,
 			CIRCLE,
 			RECTANGLE
-		} shapeType;
+		} shapeType{ SPHERE };
 
-		float coneAngle{};
-		float shapeRadius{};					
-		float shapeArc{};
+		// Cone
+		float coneArc{};
+		float coneRadius{};
+
+		// Sphere
+		float sphereRadius{0.1f};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
+		// Start Size/Scale
+		ValueType scaleType{ CONSTANT };
+		glm::vec3 scale{ 1.0f };
+		glm::vec3 minRandomScale{ 1.0f };
+		glm::vec3 maxRandomScale{ 1.0f };
+
+		// Start Lifetime
+		ValueType initialLifetimeType{ CONSTANT };
+		float lifetime{};
+		float minParticleLifetime{};
+		float maxParticleLifetime{};
+
+		// Start Rotation (1-D spins to reduce workload for a cosmetic system, referencing Unity3D)
+		ValueType initialRotationType{ CONSTANT };
+		float rotation{};
+		float minRandomRotation{};
+		float maxRandomRotation{};
+
+		// Start Position Offset
 		ValueType posValueType{ CONSTANT };
 		glm::vec3 spawnPos{};					// offset from component owner position
 		glm::vec3 minRandomSpawnPos{};
 		glm::vec3 maxRandomSpawnPos{};
 
-		// Color
-		ValueType colorValueType{ CONSTANT };
+		// Start Colour
+		ValueType colourValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
-		bool colorOverLifetime{ false };			// to add
-		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		ValueType velocityValueType{ CONSTANT };
-		glm::vec3 velocity{ 1.0f };
-		glm::vec3 minRandomVelocity{ 1.0f };
-		glm::vec3 maxRandomVelocity{ 1.0f };
+		// Start Speed
+		ValueType speedValueType{ CONSTANT };
+		float speed{};
+		float minRandomSpeed{};
+		float maxRandomSpeed{};
+
+		// Colour over lifetime
+		bool colourOverLifetime{ false };
+		std::map<float, glm::vec4> colourLifeTimeMap;
+		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
 
 		bool hasCollision{ false };
 
 		// Renderer
-		GLuint GetTextureID() const
-		{
-			return textureGUID.GetGUID();
-		}
-
+		GLuint GetTextureID() const { return textureGUID.GetGUID(); }
+		//inline void Validate()
+		//{
+		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);
+		//}
 		enum RenderMode
 		{
 			BILLBOARD,
 			MESH
 		} renderMode;
+
 		GUID textureGUID;
 		GUID materialGUID;
 		GUID meshGUID;
@@ -551,11 +558,10 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Mesh> meshHandle;
 
 		// Internal
-		std::vector<Particle> particles{};
+		std::vector<Particle> particles{};		// Main Storage of all particles
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
-
-		// Main Particle Storage Poooool
+		std::vector<ParticleRenderPart> renderData;
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true

@@ -344,8 +344,8 @@ namespace SliceEngine
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
 			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
 			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
@@ -355,67 +355,86 @@ namespace SliceEngine
 	rttr::registration::class_<Particle>(typeid(Particle).name())
 		.constructor<>()
 		.property("active", &Particle::active)
+
 		.property("age", &Particle::age)
-		.property("position", &Particle::position)
 		.property("rotation", &Particle::rotation)
+		.property("speed", &Particle::speed)
+
+		.property("position", &Particle::position)
 		.property("scale", &Particle::scale)
 		.property("velocity", &Particle::velocity)
 		.property("colour", &Particle::colour);
 
+	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
+		(
+			rttr::value("CONSTANT", ParticleSystem::ValueType::CONSTANT),
+			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
+			);
+
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		.property("duration", &ParticleSystem::duration)
-		.property("speed",&ParticleSystem::speed)
 		.property("isRepeating", &ParticleSystem::isRepeating)
-		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
+		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
 
-		.property("initialLifetimeType",&ParticleSystem::initialLifetimeType)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
+		.property("maxParticles", &ParticleSystem::maxParticles)
+
+		.property("gForce", &ParticleSystem::gForce)
+		.property("emissionRate", &ParticleSystem::emissionRate)
+
+		.property("numBursts", &ParticleSystem::numBursts)
+		.property("bursts", &ParticleSystem::bursts)
+
+		.property("shapeType", &ParticleSystem::shapeType)
+
+		.property("coneArc", &ParticleSystem::coneArc)
+		.property("coneRadius", &ParticleSystem::coneRadius)
+
+		.property("shapeRadius", &ParticleSystem::sphereRadius)
+		.property("axis", &ParticleSystem::axis)
+
+		.property("scaleType", &ParticleSystem::scaleType)
+		.property("scale", &ParticleSystem::scale)
+		.property("minRandomScale", &ParticleSystem::minRandomScale)
+		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
+
+		.property("initialLifetimeType", &ParticleSystem::initialLifetimeType)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
 		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
 
-		.property("isInitialRotation3D", &ParticleSystem::isInitialRotation3D)
 		.property("initialRotationType", &ParticleSystem::initialRotationType)
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
 
-		.property("scaleType",&ParticleSystem::scaleType)
-		.property("scale", &ParticleSystem::scale)
-		.property("minRandomScale", &ParticleSystem::minRandomScale)
-		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
-
-		.property("emissionRate", &ParticleSystem::emissionRate)
-		.property("coneAngle", &ParticleSystem::coneAngle)
-		.property("shapeArc", &ParticleSystem::shapeArc)
-		.property("shapeType", &ParticleSystem::shapeType)
-		.property("axis", &ParticleSystem::axis)
 		.property("spawnPosValueType", &ParticleSystem::posValueType)
 		.property("spawnPos", &ParticleSystem::spawnPos)
 		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
 		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
-		.property("velocity", &ParticleSystem::velocity)
-		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
-		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
 
-		.property("colorValueType", &ParticleSystem::colorValueType)
+		.property("colorValueType", &ParticleSystem::colourValueType)
 		.property("colour", &ParticleSystem::colour)
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
-		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
 
-		.property("gForce", &ParticleSystem::gForce)
+		.property("speedValueType", &ParticleSystem::speedValueType)
+		.property("speed", &ParticleSystem::speed)
+		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
+		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
+
+		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
+		.property("colour", &ParticleSystem::colourLifeTimeMap)
+		
+		// temp
+		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
 		.property("hasCollision", &ParticleSystem::hasCollision)
-		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
-		.property("maxParticles", &ParticleSystem::maxParticles)
-		.property("oldestIndex", &ParticleSystem::oldestIndex)
-		.property("particles", &ParticleSystem::particles)
-
-
 
 		.property("textureGUID", &ParticleSystem::textureGUID)
-
-		.property("bursts", &ParticleSystem::bursts);
+		.property("materialGUID", &ParticleSystem::materialGUID)
+		.property("meshGUID", &ParticleSystem::meshGUID)
+		;
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
@@ -434,8 +453,10 @@ namespace SliceEngine
 			rttr::metadata("Serialize", false)
 		);
 
-
-	rttr::registration::class_<std::vector<Particle>>("vector<Particle>");
+	rttr::registration::class_<std::vector<Particle>>("vector<Particle>")
+		(
+			rttr::metadata("Serialize", false)
+		);
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
