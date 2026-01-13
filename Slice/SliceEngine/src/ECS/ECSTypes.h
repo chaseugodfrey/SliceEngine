@@ -534,7 +534,7 @@ namespace SliceEngine
 		bool hasCollision{ false };
 
 		// Renderer
-		GLuint GetTextureID() const { return textureGUID.GetGUID(); }
+		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
 		//inline void Validate()
 		//{
 		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);

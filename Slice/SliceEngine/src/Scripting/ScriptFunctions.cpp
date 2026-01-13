@@ -1566,23 +1566,10 @@ namespace SliceEngine
 		// Particle system
 		ADD_INTERNAL_CALL(ParticleSystem_GetDuration);
 		ADD_INTERNAL_CALL(ParticleSystem_SetDuration);
-
-		ADD_INTERNAL_CALL(ParticleSystem_GetSpeed);
-		ADD_INTERNAL_CALL(ParticleSystem_SetSpeed);
-
-		ADD_INTERNAL_CALL(ParticleSystem_GetRepeating);	
-
+		ADD_INTERNAL_CALL(ParticleSystem_GetRepeating);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRepeating);
 		ADD_INTERNAL_CALL(ParticleSystem_GetLocalSpace);
 		ADD_INTERNAL_CALL(ParticleSystem_SetLocalSpace);
-
-		ADD_INTERNAL_CALL(ParticleSystem_GetLifetime);
-		ADD_INTERNAL_CALL(ParticleSystem_SetLifetime);
-
-		ADD_INTERNAL_CALL(ParticleSystem_GetMinLifetime);
-		ADD_INTERNAL_CALL(ParticleSystem_SetMinLifetime);
-
-		ADD_INTERNAL_CALL(ParticleSystem_GetMaxLifetime);
-		ADD_INTERNAL_CALL(ParticleSystem_SetMaxLifetime);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetDestroyOnExpire);
 		ADD_INTERNAL_CALL(ParticleSystem_SetDestroyOnExpire);
@@ -1601,21 +1588,64 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetConeArc);
 		ADD_INTERNAL_CALL(ParticleSystem_SetConeArc);
-
 		ADD_INTERNAL_CALL(ParticleSystem_GetConeRadius);
 		ADD_INTERNAL_CALL(ParticleSystem_SetConeRadius);
-
 		ADD_INTERNAL_CALL(ParticleSystem_GetSphereRadius);
 		ADD_INTERNAL_CALL(ParticleSystem_SetSphereRadius);
 
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScale);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScale);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetLifetimeValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetLifetimeValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxLifetime);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotation);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotation);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMax);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMax);
+
 		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosValueType);
 		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosValueType);
-
 		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPos);
 		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPos);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosMax);
 
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourValueType);
 		ADD_INTERNAL_CALL(ParticleSystem_GetColour);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColour);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeed);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeed);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedMax);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
@@ -1627,7 +1657,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_SetTextureID);
 
 		ADD_INTERNAL_CALL(ParticleSystem_IsExpired);
+
 		ADD_INTERNAL_CALL(ParticleSystem_GetSystemTimer);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSystemTimer);
 
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
