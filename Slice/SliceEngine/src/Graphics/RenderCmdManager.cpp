@@ -23,6 +23,7 @@
 // Textures			  0 - Custom Shaders (Deferred.frag)
 // Mat4,eID,texID,col 1 - Instanced.vert, Deferred.vert, debugOutline.vert, shadow.vert, pointShadow.vert (Deprecated: Deferred.frag)
 // uvec4			  2 - Custom Shaders (Deferred.frag)
+// Font				  3 - uiFont.vert
 
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom

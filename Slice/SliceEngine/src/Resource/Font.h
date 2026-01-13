@@ -14,6 +14,10 @@ DigiPen Institute of Technology is prohibited.
 #include <vector>
 #include <string>
 
+void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
+
 namespace SliceEngine
 {
 	namespace SliceEngineTypes
@@ -36,7 +40,7 @@ namespace SliceEngine
 			std::unordered_map<char, Atlas_UV> atlas_uvs;
 			std::unordered_map<char, GlyphData> glyph_datas;
 
-			unsigned short atlasSize;
+			//unsigned short atlasSize;
 
 			unsigned char font_size{};
 			unsigned char padding;

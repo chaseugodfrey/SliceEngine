@@ -45,6 +45,11 @@ namespace SliceEngine {
 		
 		eid_shader_map[sprite_shader] = ui_sprite_eid;
 		eid_shader_map[font_shader] = ui_font_eid;
+
+		glCreateBuffers(1, &font_ssbo);
+		GLbitfield flags = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT;
+		glNamedBufferStorage(font_ssbo, sizeof(Font_Instance) * Font_Max_Instance, nullptr, flags);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, font_binding_index, font_ssbo);
 	}
 	void CanvasSystem::Release() {
 		glDeleteTextures(1, &raycast_tex);
@@ -158,6 +163,7 @@ namespace SliceEngine {
 
 
 		std::vector<std::pair<Entity, uint64_t>> entities_to_draw{};
+		//entities_to_draw.reserve(100);
 		for (auto entity : overlay_canvas) {
 			auto const& canvas = mRegistry->get<Canvas>(entity);
 			if (canvas.componentEnabled) {
@@ -193,6 +199,7 @@ namespace SliceEngine {
 		if (elements.empty()) {
 			return;
 		}
+		CheckGLError();
 
 
 		auto core = SliceEngine::Core::GetInstance();
@@ -214,6 +221,11 @@ namespace SliceEngine {
 		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();*/
 
+		//Get quad
+		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto const& quad_mesh = quad.meshes[0];
+		glBindVertexArray(quad_mesh.vao);
+
 		for (auto const& element : elements) {
 			if (element.second != shader_guid) {
 				shader_guid = element.second;
@@ -226,31 +238,101 @@ namespace SliceEngine {
 				CheckGLError();
 			}
 
-			auto const& rect = mRegistry->get<RectTransform>(element.first);
-			uniform_loc = glGetUniformLocation(shader, "M");
-			glm::mat4 model = rect.ToMatrix();
-			glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-			CheckGLError();
-
 			if (shader_guid == sprite_shader) {	//sprite
+				auto const& rect = mRegistry->get<RectTransform>(element.first);
+				uniform_loc = glGetUniformLocation(shader, "M");
+				glm::mat4 model = rect.ToMatrix();
+				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
+		//		CheckGLError();
+
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
 
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
+			//	CheckGLError();
+
+				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+			//	CheckGLError();
+			}
+			else if (shader_guid == font_shader) {	//font
+				//continue;
+				//Use rect to format the font characters
+				unsigned int instance_count = 0;
+				
+				auto const& rect = mRegistry->get<RectTransform>(element.first);
+				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
+
+				if (font_render.fontHandle.GetGUID() == 0) {
+					continue;
+				}
+
+				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
+
+				uniform_loc = glGetUniformLocation(shader, "rgba");
+				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
+
+				glBindTextureUnit(0, font.get()->atlas_texture);
+				// default for now
+				//auto const& res = rm->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+				//glBindTextureUnit(0, res.get()->texture_id);
 				CheckGLError();
 
-				//Get quad
-				auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-				auto const& quad_mesh = quad.meshes[0];
-				glBindVertexArray(quad_mesh.vao);
-				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				CheckGLError();
-			}
-			else if (shader == font_shader) {	//font
-				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
-				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
+				float x_pen = rect.final_x;
+				float y_pen = rect.final_y;
+				float relative_scale = font_render.font_size / font->font_size;
+
+				uniform_loc = glGetUniformLocation(shader, "relative_scale");
+				glUniform1f(uniform_loc, relative_scale);
+
+				for (char ch : font_render.text) {
+					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
+
+					float x = x_pen + glyph.xoff * relative_scale;
+					float y = y_pen - glyph.yoff * relative_scale;
+					float w = glyph.w * relative_scale;
+					float h = glyph.h * relative_scale;
+
+					x_pen += glyph.advance * relative_scale;
+					
+					if (w == 0) {
+						continue;
+					}
+
+					RectTransform temp_rect;
+					temp_rect.final_width = w;
+					temp_rect.final_height = h;
+					temp_rect.final_x = x;
+					temp_rect.final_y = y;
+
+					Font_Instance instance_data;
+
+					instance_data.model_to_ndc = temp_rect.ToMatrix();
+					SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
+					instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
+					//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
+					font_Instances[instance_count] = instance_data;
+					++instance_count;
+
+					if (instance_count >= Font_Max_Instance) {
+						glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * Font_Max_Instance, font_Instances);
+						CheckGLError();
+						glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, Font_Max_Instance);
+						CheckGLError();
+						instance_count = 0;
+					}
+				}
+
+				//glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+				//CheckGLError();
+
+				if (instance_count) {
+					glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * instance_count, font_Instances);
+					CheckGLError();
+					glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, instance_count);
+					CheckGLError();
+				}
 			}
 		}
 
@@ -260,7 +342,7 @@ namespace SliceEngine {
 		if (elements.empty()) {
 			return;
 		}
-
+		return;
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
 
@@ -279,6 +361,11 @@ namespace SliceEngine {
 		glUniform1ui(uniform_loc, canv.graphic_raycastable);
 		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();
+
+		//Get quad
+		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto const& quad_mesh = quad.meshes[0];
+		glBindVertexArray(quad_mesh.vao);
 
 		for (auto const& element : elements) {
 			if (element.second != shader_guid) {
@@ -311,10 +398,6 @@ namespace SliceEngine {
 				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
 
-				//Get quad
-				auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-				auto const& quad_mesh = quad.meshes[0];
-				glBindVertexArray(quad_mesh.vao);
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
@@ -455,6 +538,7 @@ namespace SliceEngine {
 
 	void _CheckGLError(const char* file, int line)
 	{
+		return;
 #ifndef _DEBUG 
 		return;
 #endif // only do this on debug

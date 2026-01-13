@@ -711,7 +711,7 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
