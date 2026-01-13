@@ -617,7 +617,7 @@ namespace SliceEditor
 			auto& scriptMap = SliceEngine::gScriptSystem->mEntityClasses;
 			std::string script_name = script.scriptName;
 			std::vector<std::string> scriptList{};
-			static int selectedIndex = 0;
+			int selectedIndex = 0;
 
 			for (auto& [key, value] : scriptMap)
 			{
@@ -630,22 +630,39 @@ namespace SliceEditor
 				scriptList.push_back("Empty");
 				selectedIndex = scriptList.size() - 1;
 			}
-
-			if(!script_name.empty())
+			else
 			{
-				ImGui::BeginDisabled();
+				//ngl its not the most robust method probably but its a fix for now
+				std::string searchName = script.scriptName;
+				if (script.scriptName.starts_with("SliceEngine."))
+				{
+					searchName = script.scriptName.substr(std::string("SliceEngine.").size());
+				}
+
+				auto it = std::find(scriptList.begin(), scriptList.end(), searchName);
+				if (it != scriptList.end())
+				{
+					selectedIndex = std::distance(scriptList.begin(), it);
+				}
 			}
 
+			//if(!script_name.empty())
+			//{
+			//	ImGui::BeginDisabled();
+			//}
+
+			ImGui::PushID((int)entity);
 			if (ComboHeader<int>(mRegistry, "Script Class:", "##scriptClassID", selectedIndex, scriptList, true))
 			{
 				script.scriptName = "SliceEngine.";
 				script.scriptName += scriptList[selectedIndex];
+				SliceEngine::gScriptSystem->ReloadEntityScript(entity);
 			}
-
-			if(!script_name.empty())
-			{
-				ImGui::EndDisabled();
-			}
+			ImGui::PopID();
+			//if(!script_name.empty())
+			//{
+			//	ImGui::EndDisabled();
+			//}
 
 			// Script Variables
 
