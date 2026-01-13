@@ -1000,8 +1000,9 @@ namespace SliceEngine
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
 
-                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);
-                            if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
+                            /*
+                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);*/
+                           /* if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
                             {
                                 SLICE_LOG(fieldTypeStr + "is an array!");
                             }
@@ -1018,7 +1019,7 @@ namespace SliceEngine
                                 {
                                     SLICE_LOG_VALUES("It is a struct");
                                 }
-                            }
+                            }*/
                             rttr::variant var;
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
