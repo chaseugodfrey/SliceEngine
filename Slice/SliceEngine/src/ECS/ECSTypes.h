@@ -33,6 +33,14 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	/// <summary>
+	/// Purely for mapping C# prefab variable to our own
+	/// Cause the prefab var we use has too many unnecessary variables in it
+	/// </summary>
+	struct PrefabVar
+	{
+		std::string prefabFileName;
+	};
 
 	struct PrefabEditingEntity
 	{

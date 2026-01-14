@@ -559,6 +559,32 @@ namespace SliceEngine
 				return result;
 			}
 			break;
+		case MONO_TYPE_CLASS:
+		{
+			MonoObject* obj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+			if (!obj) return {};
+
+			MonoClass* objClass = mono_object_get_class(obj);
+			std::string className = mono_class_get_name(objClass);
+
+			if (className == "Prefab") 
+			{
+				// Extract the string field (e.g., "prefabPath") from the C# Prefab class
+				MonoClassField* pathField = mono_class_get_field_from_name(objClass, "prefabName");
+				MonoString* monoStr = nullptr;
+				mono_field_get_value(obj, pathField, &monoStr);
+				MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
+				if (monoStr != nullptr)
+				{
+					char* utf8str = mono_string_to_utf8(monoStr);
+					result = utf8str;
+					mono_free(utf8str);
+				}
+
+				return PrefabVar{ result };
+			}
+		}
+		break;
 		case MONO_TYPE_VALUETYPE:
 			std::string typeName = mono_type_get_name(type);
 			// Check for value type like vectors and stuff
@@ -685,6 +711,20 @@ namespace SliceEngine
 		{
 			mono_field_set_value(scriptInstance, field, &value.get_value<glm::vec2>());
 		}		
+		else if (type == rttr::type::get<PrefabVar>())
+		{
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+			MonoObject* prefabInstance = mono_object_new(mono_domain_get(), prefabClass);
+
+			std::string path = value.get_value<PrefabVar>().prefabFileName;
+			MonoString* monoStr = mono_string_new(mono_domain_get(), path.c_str());
+
+			// Manual field set or call a constructor
+			MonoClassField* pathField = mono_class_get_field_from_name(prefabClass, "prefabName");
+			mono_field_set_value(prefabInstance, pathField, monoStr);
+
+			mono_field_set_value(scriptInstance, field, prefabInstance);
+		}
 	}
 
 	MonoObject* ScriptObject::GetListObject(const std::string& name)
