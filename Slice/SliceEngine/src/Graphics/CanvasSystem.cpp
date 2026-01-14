@@ -264,9 +264,9 @@ namespace SliceEngine {
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
 				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
 
-				if (font_render.fontHandle.GetGUID() == 0) {
+			/*	if (font_render.fontHandle.GetGUID() == 0) {
 					continue;
-				}
+				}*/
 
 				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
 

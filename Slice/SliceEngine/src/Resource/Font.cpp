@@ -25,6 +25,17 @@ namespace SliceEngine
 			uint16_t version_number = 1;
 		}
 
+		void Font_Data::InitializeDefault() {
+			for (char ch = 32; ch < 127; ++ch) {
+				GlyphData glyph{};
+				glyph_datas[ch] = glyph;
+			}
+			font_size = 1;	//avoid divide by 0
+			padding = 0;
+
+			atlas_texture = 0;
+		}
+
 		bool Font_Data::unpack_data(char* const buffer, uint64_t& offset) {
 			if (atlas_texture) {
 				return false;
@@ -90,7 +101,7 @@ namespace SliceEngine
 
 			glCreateTextures(GL_TEXTURE_2D, 1, &atlas_texture);
 			CheckGLError();
-			glTextureParameteri(atlas_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTextureParameteri(atlas_texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTextureParameteri(atlas_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTextureParameteri(atlas_texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTextureParameteri(atlas_texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

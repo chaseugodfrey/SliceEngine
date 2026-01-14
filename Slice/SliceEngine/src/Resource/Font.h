@@ -26,8 +26,8 @@ namespace SliceEngine
 		* The glyph parameters are defined with the origin at the top left
 		*/
 		struct GlyphData {
-			char w, h, xoff, yoff;
-			float advance;
+			char w{}, h{}, xoff{}, yoff{};
+			float advance{};
 		};
 
 		struct Atlas_UV {
@@ -47,6 +47,7 @@ namespace SliceEngine
 
 			bool LoadFontResource(std::string const&);
 			void DestroyFontResource();
+			void InitializeDefault();
 		private:
 			bool unpack_data(char* const buffer, uint64_t& offset);
 		};

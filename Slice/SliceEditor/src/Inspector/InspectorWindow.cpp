@@ -235,18 +235,16 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
-			//glm::vec3 rgb;
-			//rgb.r = sprite.rgba.r; rgb.g = sprite.rgba.g; rgb.b = sprite.rgba.b;
-			//DragColorInputHeader(mRegistry, "RGB", "##rgb", rgb);
 
 			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
 
-			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 100.f);
+			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
 			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
-
+			
 			SliceEngine::GUID font_guid = font.fontHandle;
 			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
 			font.fontHandle = font_guid;
+			
 
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
 			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);

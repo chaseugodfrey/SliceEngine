@@ -37,6 +37,8 @@ namespace SliceEngine
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
+
+		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
 	}
 
 
@@ -226,7 +228,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Font_Data>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 0;
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::FONT_BLANK_DEFAULT;
 
 		static std::unique_ptr<SliceEngineTypes::Font_Data> Load(ResourceManager& resourceMgr, const std::string& path);
 		static void Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr);

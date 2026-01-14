@@ -476,8 +476,13 @@ namespace SliceEngine
 	std::unique_ptr<SliceEngineTypes::Font_Data> Type<SliceEngineTypes::Font_Data>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
 		auto font = std::make_unique<SliceEngineTypes::Font_Data>();
-		if (!font->LoadFontResource(path)) {
-			return nullptr;
+		if (!std::filesystem::exists(path)) {
+			font->InitializeDefault();
+		}
+		else {
+			if (!font->LoadFontResource(path)) {
+				return nullptr;
+			}
 		}
 		return font;
 	}

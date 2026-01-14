@@ -1492,6 +1492,7 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::FONT;
 
 		int font_resolution{50};
+		int padding{ 2 };
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -1504,6 +1505,7 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties
 			metaJson["fontReso"] = font_resolution;
+			metaJson["padding"] = padding;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -1514,7 +1516,31 @@ namespace SliceEditor
 
 			return std::filesystem::path(desc_path);
 		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
 
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+			font_resolution = metaData["fontReso"].get<int>();
+			padding = metaData["padding"].get<int>();
+		}
 	};
 }
 
