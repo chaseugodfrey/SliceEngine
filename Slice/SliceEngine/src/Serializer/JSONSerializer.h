@@ -873,10 +873,21 @@ namespace rttr
 			{
 				return rttr::variant(valueJson.get<std::vector<int>>());
 			}
-			if (typeName == "classSliceEngine::GameObject")
+			if (typeName == "SliceEngine::GameObject")
 			{
 				uint32_t oldID = valueJson.get<uint32_t>();
 				return rttr::variant(SliceEngine::GameObject(SliceEngine::RegistryInstance, static_cast<Entity>(oldID)));
+			}
+			if (typeName == "std::vector<SliceEngine::GameObject>")
+			{
+				std::vector<uint32_t> oldIDs = valueJson.get <std::vector<uint32_t>>();
+				std::vector<SliceEngine::GameObject> gameobjects;
+				for (uint32_t id : oldIDs)
+				{
+					gameobjects.push_back(SliceEngine::GameObject(SliceEngine::RegistryInstance, static_cast<Entity>(id)));
+				}
+
+				return rttr::variant(gameobjects); //?? does this work?? i hope so
 			}
 
 			return rttr::variant(valueJson.get<std::string>());
