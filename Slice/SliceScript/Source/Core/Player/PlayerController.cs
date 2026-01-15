@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 
 namespace SliceEngine
@@ -20,6 +21,7 @@ namespace SliceEngine
 
         // =============== Movement variables =============== 
         public float moveSpeed = 2.5f;
+        public float rotationSpeed = 12f;
         public float dashMultiplier = 5f;
         public float dashDuration = 0.2f;
         private bool isDashing = false;
@@ -33,8 +35,56 @@ namespace SliceEngine
         private int jumpCounter = 0;
         private Vector3 input;
         private float verticalVelocity = 0f;
-        public float gravity = -30f;
         public float terminalVelocity = -50f;
+
+        private Vector3 velocity;
+        private bool wasGrounded;
+        private float lastGroundedTime;
+        private float lastJumpPressedTime;
+        private bool jumpRequested;
+        private bool jumpImpulseApplied;
+        private float jumpApplyAtTime;
+        private bool doubleJumpAvailable;
+
+        // Jump and Gravity
+        public float jumpHeight = 1.4f;
+        public float gravity = -9.81f;
+        public float groundedGravity = -2f;
+        public float coyoteTime = 0.08f;
+        public float jumpBuffer = 0.10f;
+        private float jumpDelay = 0.00f;
+        private float lastAirTime = float.NegativeInfinity;
+        private float lastLandTime = float.NegativeInfinity;
+        private float minAirTimeForLanding = 0.06f;
+        private float landCooldown = 0.08f;           // prevents immediate retriggering
+
+        private bool enableDoubleJump = true;
+        public float doubleJumpHeight = 1.2f;
+        private bool resetYOnDoubleJump = true;
+
+        // Dash Variables
+        private bool isGroundDashing = false;
+        private bool isAirDashing = false;
+        private float dashTimer = 0f;
+        private float groundDashCooldownUntil = 0f;
+        private float airDashCooldownUntil = 0f;
+        private Vector3 dashDir = Vector3.Zero;
+
+        public float dashDistance = 6f;
+        public float dashStartDuration = 0.25f;
+        public float dashCooldown = 0.6f;
+        public bool dashUsesMoveDirection = true;
+        public float groundDashUpAngleDeg = 0f;
+
+        private bool useBackdashAnimation = true;
+        public float backDashDotThreshold = 0f;
+        private bool dashDefaultBackwards = true;
+        private bool rotateToDashDirection = false;
+
+        public float airDashDistance = 5f;
+        public float airDashDuration = 0.25f;
+        public float airDashCooldown = 0.8f;
+        public float airDashUpAngleDeg = 15f;
 
         // =============== Attack variables =============== 
         public float attackResetTime = 1f;
@@ -59,6 +109,37 @@ namespace SliceEngine
         public Vector3 attack3Window;
         public float attack3Duration;
         private Hitbox attack3HB;
+
+        private int attackIndex = 0;
+        private float attackTimer = 0f;
+        private bool queuedNext = false;
+
+        // Chain-window facing override
+        private bool queuedFacingOverride = false;
+        private Vector3 queuedFacing = Vector3.Zero;
+
+        // Lunge runtime (Atk1 / Atk2)
+        private bool isLunging = false;
+        private float lungeTimer = 0f;
+        private float lungeDuration = 0f;
+        private float lungeDelay = 0f;
+        private bool lungeStarted = false;
+        private Vector3 lungeDir = Vector3.Zero;
+        private float lungeSpeed = 0f;
+
+        // Attack 3 Arc runtime
+        private bool atk3ArcActive = false;
+        private float atk3ArcTimer = 0f;
+        private bool atk3ImpulseFired = false;
+        private Vector3 atk3ArcDir = Vector3.Zero;
+        private Vector3 atk3HorizVel = Vector3.Zero;
+        private float atk3UpwardEndTime = 0f;
+
+        // Plunge runtime 
+        private bool isPlunging = false;
+        private float plungeTimer = 0f;
+        private Vector3 plungeDir = Vector3.Zero;
+        private bool plungeImpulseStarted = false;
 
         // =============== Internal variables =============== 
         public bool canInput = false;
@@ -97,8 +178,14 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             GroundCheck();
-            if (canInput) HandleInput();
+            if (canInput)
+            {
+                HandleInput();
+                HandleDashInput();
+            }
+            UpdateDash();
             if (canMove) HandleMovement();
+            HandleJump();
             AttackResetTimer();
         }
         private void HandleInput()
@@ -112,156 +199,622 @@ namespace SliceEngine
             if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
             else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
 
-            input = input.Normalize();
+            if (input.SquareMagnitude() > 1f) input = input.Normalize();
 
-            if (input != Vector3.Zero)
-            {
-                animator.ChangeAnim(21);
-                animator.SetBool("Walk", true);
-            }
+            //if (input != Vector3.Zero)
+            //{
+            //    animator.ChangeAnim(21);
+            //    animator.SetBool("Walk", true);
+            //}
             //else
             //{
             //    animator.SetBool("Idle", true);
             //}
 
-            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
+            //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
             if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
-        #region Movement
+        #region New Movement
         private void HandleMovement()
         {
-            Transform camTransform;
-
-            if (camera == null)
+            Vector3 camForward = new Vector3();
+            if (camera != null)
             {
-                return;
+                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
+                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+            }
+
+            Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+            Vector3 moveDirInput = camForward * input.z + camRight * input.x;
+
+            float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
+            if (isGroundDashing || isAirDashing)
+            {
+                float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
+                                                  : airDashDistance / Math.Max(0.0001f, airDashDuration);
+                Vector3 dashVel = dashDir * dashSpeed;
+                Vector3 finalMove = isGroundDashing
+                    ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
+                    : dashVel;
+
+                transform.Position += finalMove * Time.deltaTime;
+
+                if (rotateToDashDirection)
+                {
+                    Vector3 face = dashDir; face.y = 0f;
+                    if (face.SquareMagnitude() > 0.0001f)
+                        transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, Quaternion.LookRotation(face.Normalize(), Vector3.Up), 20f * Time.deltaTime);
+                }
+            }
+            else if (isAttacking || isPlunging)
+            {
+                if (isPlunging && !plungeImpulseStarted)
+                {
+                    // no movement at all
+                    // (skip calling Move with any Y to avoid CC grounded quirks)
+                }
+                else
+                {
+                    // existing behavior for attacks / active plunge impulse
+                    Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
+                    transform.Position += finalMove * Time.deltaTime;
+                }
             }
             else
             {
-                camTransform = camera.transform;
+                // Normal locomotion
+                if (moveDirInput.SquareMagnitude() > 0.0001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
+                    float scaledRotSpeed = rotationSpeed;
+                    transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
+                }
+
+                Vector3 horizontal = moveDirInput * movementSpeed;
+                Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
+                transform.Position += finalMove * Time.deltaTime;
             }
 
-            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-            camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-            camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+            //if (animator)
+            //{
+            //    animator.SetFloat("Speed", (isAttacking ? 0f : rawPlanarSpeed));
+            //    //animator.SetFloat("YVel", velocity.y);
+            //    //animator.SetBool("IsDashing", isGroundDashing || isAirDashing);
+            //    animator.SetBool("IsAttacking", isAttacking);
+            //}
 
-            Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
 
-            if (isDashing) return;
+            //if (walkAudioSource != null)
+            //{
+            //    if (walkingNow)
+            //    {
+            //        if (!walkAudioSource.isPlaying)
+            //            walkAudioSource.Play();
+            //    }
+            //    else
+            //    {
+            //        if (walkAudioSource.isPlaying)
+            //            walkAudioSource.Stop();
+            //    }
+            //}
+        }
+
+        // -------------------- Jump ------------------------------------------------------------------------------------------
+        void HandleJump()
+        {
+            if (grounded) lastGroundedTime = Time.time;
+
+            if (wasGrounded && !grounded)
+            {
+                lastAirTime = Time.time; // mark when airborne
+                //if (animator) animator.SetBool("Grounded", false);
+            }
+
+            if (!wasGrounded && grounded)
+            {
+                // Only trigger landing if we were in the air at least minAirTimeForLanding
+                bool longEnoughAir = (Time.time - lastAirTime) >= minAirTimeForLanding;
+                bool cooldownOK = (Time.time - lastLandTime) >= landCooldown;
+
+                if (longEnoughAir && cooldownOK)
+                {
+                    //AudioManager.instance.PlaySFX("Land");
+                    lastLandTime = Time.time;
+
+                    //if (animator)
+                    //{
+                    //    animator.ResetTrigger("Land");
+                    //    animator.SetTrigger("Land");
+                    //    animator.SetBool("Grounded", true);
+                    //}
+                }
+                else
+                {
+                    // still update animator grounded bool so we don't get stuck in 'air' state
+                    //if (animator) animator.SetBool("Grounded", true);
+                }
+
+                doubleJumpAvailable = enableDoubleJump;
+                jumpRequested = false;
+                jumpImpulseApplied = false;
+            }
+
+            // Jump input disabled during attacks
+            if (!isAttacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                lastJumpPressedTime = Time.time;
+
+            bool canCoyote = (Time.time - lastGroundedTime) <= coyoteTime;
+            bool bufferedJump = (Time.time - lastJumpPressedTime) <= jumpBuffer;
+
+            if (!grounded && !canCoyote)
+            {
+                if (!isAttacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                {
+                    DoDoubleJump();
+                }
+            }
+            else
+            {
+                if (!isAttacking && !jumpRequested && bufferedJump && canCoyote)
+                {
+                    jumpRequested = true;
+                    jumpImpulseApplied = false;
+                    jumpApplyAtTime = Time.time + Math.Max(0f, jumpDelay);
+
+                    lastJumpPressedTime = -999f;
+                    lastGroundedTime = -999f;
+
+                    //if (animator)
+                    //{
+                    //    animator.ResetTrigger("Land");
+                    //    animator.SetTrigger("Jump");
+                    //    animator.SetBool("Grounded", false);
+                    //}
+                }
+            }
+
+            // Apply jump impulse (delayed if any)
+            if (!isGroundDashing && !isAirDashing && !isAttacking && jumpRequested && !jumpImpulseApplied && Time.time >= jumpApplyAtTime)
+            {
+                float jumpSpeed = (float)Math.Sqrt(jumpHeight * -2f * gravity);
+                velocity.y = jumpSpeed;
+                jumpImpulseApplied = true;
+                //AudioManager.instance.PlaySFX("Jump");
+            }
+
+            // Gravity
+            if (isAirDashing)
+            {
+                velocity.y = 0f;
+            }
+            else if (isPlunging && !plungeImpulseStarted)
+            {
+                velocity.y = 0f;
+            }
+            else if (grounded)
+            {
+                // Hard lock to ground
+                velocity.y = 0f;
+            }
+            else
+            {
+                // Airborne → apply gravity
+                velocity.y += gravity * Time.deltaTime;
+            }
+
+            wasGrounded = grounded;
+        }
+
+        void DoDoubleJump()
+        {
+            doubleJumpAvailable = false;
+            jumpRequested = false;
+            jumpImpulseApplied = true;
+
+            if (resetYOnDoubleJump && velocity.y < 0f) velocity.y = 0f;
+
+            float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * -2f * gravity);
+            velocity.y = jumpSpeed;
+
+            //AudioManager.instance.PlaySFX("DoubleJump");
+
+            //if (animator)
+            //{
+            //    animator.ResetTrigger("Jump");
+            //    animator.SetTrigger("DoubleJump");
+            //    animator.SetBool("Grounded", false);
+            //}
+        }
+
+        #endregion
+
+        // -------------------- Dash ------------------------------------------------------------------------------------------
+        #region Dash
+        void HandleDashInput()
+        {
+            if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
+
+            // Dashes cancel the attack
+            if (isAttacking)
+            {
+                EndAttackState();
+            }
 
             if (grounded)
             {
-                // Reset vertical velocity when grounded
-                if (verticalVelocity < 0f)
-                    verticalVelocity = 0f;
+                if (!isGroundDashing && Time.time >= groundDashCooldownUntil) BeginGroundDash();
             }
             else
             {
-                // Apply gravity
-                verticalVelocity += gravity * Time.deltaTime;
-
-                // Optional terminal velocity clamp
-                if (verticalVelocity < terminalVelocity)
-                    verticalVelocity = terminalVelocity;
+                if (!isAirDashing && Time.time >= airDashCooldownUntil) BeginAirDash();
             }
-
-            // Handle regular movement
-            Vector3 horizontalMovement = moveDir * moveSpeed;
-
-            if (moveDir.LengthSquared() > 0.01f)
-            {
-                playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-            }
-
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                if (!isDashing) StartCoroutine(Dash(moveDir));
-            }
-
-            transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
-
-            //Console.WriteLine(animator.GetCurrAnimName());
         }
-        private void HandlePhysicsMovement()
+
+        Vector3 ComputeFlatDashDir(bool useMoveDir)
         {
-            Transform camTransform;
+            //bool hasInput = input.SquareMagnitude() > 0.0001f;
+            //if (hasInput) input = input.Normalize();
 
-            if (camera == null)
+            //if (!useMoveDir || !hasInput)
+            //{
+            //    Vector3 dir = (dashDefaultBackwards ? -transform.Forward : transform.Forward);
+            //    dir.y = 0f;
+            //    return dir.Normalize();
+            //}
+
+            //if (camera != null)
+            //{
+            //    Vector3 camForward = new Vector3();
+            //    camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
+            //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+            //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+
+            //    return input.SquareMagnitude() > 0.0001f ? camForward
+            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
+            //}
+            //else
+            //{
+            //    Vector3 moveDirInput = transform.Forward * input.z + transform.Right * input.x;
+            //    moveDirInput.y = 0f;
+            //    return moveDirInput.SquareMagnitude() > 0.0001f ? moveDirInput.Normalize()
+            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
+            //}
+            bool hasInput = input.SquareMagnitude() > 0.0001f;
+            if (hasInput)
+                input = input.Normalize();
+
+            // --- NO INPUT OR FORCED FORWARD ---
+            if (!useMoveDir || !hasInput)
             {
-                return;
+                Vector3 forward = transform.Forward; // IMPORTANT
+                forward.y = 0f;
+                return (dashDefaultBackwards ? -forward : forward).Normalize();
             }
-            else
+
+            // --- CAMERA-RELATIVE DASH ---
+            if (camera != null)
             {
-                camTransform = camera.transform;
+                Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
+                camForward.y = 0f;
+                camForward = camForward.Normalize();
+
+                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward);
+
+                Vector3 dashDir =
+                    camForward * input.z +
+                    camRight * input.x;
+
+                dashDir.y = 0f;
+                return dashDir.Normalize();
             }
 
-            Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-            camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-            camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-            Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+            // --- TRANSFORM-RELATIVE FALLBACK ---
+            Vector3 moveDir =
+                transform.Forward * input.z +
+                transform.Right * input.x;
 
-            if (isDashing) return;
-
-            // Handle regular movement
-            Vector3 movement = moveDir * moveSpeed;
-            bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
-            if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
-
-            rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
-
-            if (moveDir.LengthSquared() > 0.01f)
-            {
-                playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-            }
-
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                if (!isDashing) StartCoroutine(Dash(moveDir));
-            }
-
-
-            //Console.WriteLine(animator.GetCurrAnimName());
+            moveDir.y = 0f;
+            return moveDir.Normalize();
         }
-        private void TryJump()
+
+        Vector3 AddUpwardAngle(Vector3 flatDir, float angleDeg)
         {
-            if (CanJump())
+            flatDir.y = 0f;
+            if (flatDir.SquareMagnitude() < 0.0001f) flatDir = transform.Forward;
+            flatDir.Normalize();
+            float rad = (float)(angleDeg * ((Math.PI*2) / 360));
+            Vector3 tilted = (flatDir * Math.Cos(rad)) + (Vector3.Up * Math.Sin(rad));
+            return tilted.Normalize();
+        }
+
+        void BeginGroundDash()
+        {
+            isGroundDashing = true;
+            isAirDashing = false;
+
+            Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
+            dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
+            dashTimer = Math.Max(0.0001f, dashStartDuration);
+
+            //if (animator)
             {
+                Vector3 flatFacing = transform.Forward; 
+                flatFacing.y = 0f; 
+                flatFacing.Normalize();
+                Vector3 flatDash = transform.Forward; 
+                flatDash.y = 0f; 
+                flatDash.Normalize();
+                float dot = Vector3.Dot(flatDash, flatFacing);
+                bool isBackDash = dot < backDashDotThreshold;
 
-                rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
-                jumpCounter++;
+                //if (useBackdashAnimation && isBackDash)
+                //{
+                //    animator.ResetTrigger(backDashTrigger);
+                //    animator.SetTrigger(backDashTrigger);
+                //}
+                //else
+                //{
+                //    animator.ResetTrigger(fwdDashTrigger);
+                //    animator.SetTrigger(fwdDashTrigger);
+                //}
+            }
 
-                if (jumpCounter == 1)
+            //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
+            //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
+            //if (dashEffectsCoroutine != null)
+            //{
+            //    StopCoroutine(dashEffectsCoroutine);
+            //    dashEffectsCoroutine = null;
+            //}
+            //dashEffectsCoroutine = StartCoroutine(DashEffects());
+            //// Someone forgot to start their coroutines :(
+            //camRig.DashFOVKick(8f, 0.08f, 0.04f, 0.10f);    //Camera FOV
+            //camRig.Shake(10f, 0.12f);                       //Camera Shake
+        }
+
+        void BeginAirDash()
+        {
+            isAirDashing = true;
+            isGroundDashing = false;
+
+            Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
+            dashDir = AddUpwardAngle(flat, airDashUpAngleDeg);
+
+            dashTimer = Math.Max(0.0001f, airDashDuration);
+            velocity.y = 0f;
+
+            //if (animator)
+            {
+                animator.SetBool("Grounded", false);
+
+                Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+                Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+                float dot = Vector3.Dot(flatDash, flatFacing);
+                bool isBackDash = dot < backDashDotThreshold;
+
+                //if (useBackdashAnimation && isBackDash)
+                //{
+                //    animator.ResetTrigger(backDashTrigger);
+                //    animator.SetTrigger(backDashTrigger);
+                //}
+                //else
+                //{
+                //    animator.ResetTrigger(airDashTrigger);
+                //    animator.SetTrigger(airDashTrigger);
+                //}
+            }
+
+            //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
+            //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
+            //if (dashEffectsCoroutine != null)
+            //{
+            //    StopCoroutine(dashEffectsCoroutine);
+            //    dashEffectsCoroutine = null;
+            //}
+            //dashEffectsCoroutine = StartCoroutine(DashEffects());
+
+            //camRig.DashFOVKick(8f, 0.08f, 0.04f, 0.10f);    //Camera FOV
+            //camRig.Shake(10f, 0.12f);                       //Camera Shake
+        }
+
+        void UpdateDash()
+        {
+            if (isGroundDashing || isAirDashing)
+            {
+                dashTimer -= Time.deltaTime;
+                if (dashTimer <= 0f)
                 {
-                    if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
-                            String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
-                            String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-                            String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                            String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-                            String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-                        animator.SetBool("JumpLoop", true);
-                    AudioSettings.PlaySFX("Jump");
+                    if (isGroundDashing) EndGroundDash();
+                    else EndAirDash();
                 }
-                else if (jumpCounter == 2)
-                {
-                    if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-                                String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-                    {
-                        animator.SetBool("AirDashStart", true);
-                    }
-                    AudioSettings.PlaySFX("DoubleJump");
-                }
-
-                rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
-                groundCheckLocked = true;
-                grounded = false;
-
-                Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
             }
         }
-        private bool CanJump()
+
+        void EndGroundDash()
         {
-            return grounded || jumpCounter < maxJumps;
+            isGroundDashing = false;
+            groundDashCooldownUntil = Time.time + dashCooldown;
         }
+
+        void EndAirDash()
+        {
+            isAirDashing = false;
+            airDashCooldownUntil = Time.time + airDashCooldown;
+        }
+
+        //private IEnumerator DashEffects()
+        //{
+        //    lensDistortion.intensity.value = -0.8f;
+        //    float timer = 0f;
+        //    while (timer <= Mathf.Max(lensDistortionDuration, playerGlowDuration))
+        //    {
+        //        timer += Time.deltaTime;
+        //        lensDistortion.intensity.value = Mathf.Lerp(-0.5f, 0f, timer / lensDistortionDuration);
+
+        //        foreach (MeshRenderer mr in playerMat)
+        //        {
+        //            mr.material.SetFloat("_GlowAmount", Mathf.Lerp(1, 0, timer / playerGlowDuration));
+        //        }
+
+        //        yield return null;
+        //    }
+        //}
+        void EndAttackState()
+        {
+            isAttacking = false;
+            attackIndex = 0;
+            attackTimer = 0f;
+            queuedNext = false;
+            queuedFacingOverride = false;
+
+            // Clear movement bursts
+            isLunging = false;
+            lungeStarted = false;
+
+            atk3ArcActive = false;
+            atk3ImpulseFired = false;
+            atk3HorizVel = Vector3.Zero;
+
+            //if (animator) animator.SetBool("IsAttacking", false);
+        }
+        #endregion
+        #region Movement
+        //private void OldHandleMovement()
+        //{
+        //    Transform camTransform;
+
+        //    if (camera == null)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        camTransform = camera.transform;
+        //    }
+
+        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+
+        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+        //    if (isDashing) return;
+
+        //    if (grounded)
+        //    {
+        //        // Reset vertical velocity when grounded
+        //        if (verticalVelocity < 0f)
+        //            verticalVelocity = 0f;
+        //    }
+        //    else
+        //    {
+        //        // Apply gravity
+        //        verticalVelocity += gravity * Time.deltaTime;
+
+        //        // Optional terminal velocity clamp
+        //        if (verticalVelocity < terminalVelocity)
+        //            verticalVelocity = terminalVelocity;
+        //    }
+
+        //    // Handle regular movement
+        //    Vector3 horizontalMovement = moveDir * moveSpeed;
+
+        //    if (moveDir.LengthSquared() > 0.01f)
+        //    {
+        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
+        //    }
+
+        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+        //    {
+        //        if (!isDashing) StartCoroutine(Dash(moveDir));
+        //    }
+
+        //    transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
+
+        //    //Console.WriteLine(animator.GetCurrAnimName());
+        //}
+        //private void HandlePhysicsMovement()
+        //{
+        //    Transform camTransform;
+
+        //    if (camera == null)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        camTransform = camera.transform;
+        //    }
+
+        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+        //    if (isDashing) return;
+
+        //    // Handle regular movement
+        //    Vector3 movement = moveDir * moveSpeed;
+        //    bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
+        //    if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
+
+        //    rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
+
+        //    if (moveDir.LengthSquared() > 0.01f)
+        //    {
+        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
+        //    }
+
+        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+        //    {
+        //        if (!isDashing) StartCoroutine(Dash(moveDir));
+        //    }
+
+
+        //    //Console.WriteLine(animator.GetCurrAnimName());
+        //}
+        //private void TryJump()
+        //{
+        //    if (CanJump())
+        //    {
+
+        //        rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
+        //        jumpCounter++;
+
+        //        if (jumpCounter == 1)
+        //        {
+        //            if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+        //                animator.SetBool("JumpLoop", true);
+        //            AudioSettings.PlaySFX("Jump");
+        //        }
+        //        else if (jumpCounter == 2)
+        //        {
+        //            if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+        //                        String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+        //            {
+        //                animator.SetBool("AirDashStart", true);
+        //            }
+        //            AudioSettings.PlaySFX("DoubleJump");
+        //        }
+
+        //        rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
+        //        groundCheckLocked = true;
+        //        grounded = false;
+
+        //        Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
+        //    }
+        //}
+        //private bool CanJump()
+        //{
+        //    return grounded || jumpCounter < maxJumps;
+        //}
         private void GroundCheck()
         {
             if (groundCheckLocked)
@@ -292,27 +845,27 @@ namespace SliceEngine
                 }
             }
         }
-        private IEnumerator Dash(Vector3 dashDir)
-        {
-            isDashing = true;
+        //private IEnumerator Dash(Vector3 dashDir)
+        //{
+        //    isDashing = true;
 
-            AudioSettings.PlaySFX("Dash");
+        //    AudioSettings.PlaySFX("Dash");
 
-            Vector3 dash = Vector3.Zero;
+        //    Vector3 dash = Vector3.Zero;
 
-            animator.SetBool("AirDashStart", true);
+        //    animator.SetBool("AirDashStart", true);
 
-            if (input == Vector3.Zero) dash = playerModel.GetComponent<Transform>().RotationQuat * transform.Backward * dashMultiplier;
-            else dash = dashDir * dashMultiplier;
+        //    if (input == Vector3.Zero) dash = playerModel.GetComponent<Transform>().RotationQuat * transform.Backward * dashMultiplier;
+        //    else dash = dashDir * dashMultiplier;
 
-            rb.Velocity = new Vector3(dash.x, 0f, dash.z);
+        //    rb.Velocity = new Vector3(dash.x, 0f, dash.z);
 
-            yield return new WaitForSeconds(dashDuration);
+        //    yield return new WaitForSeconds(dashDuration);
 
-            isDashing = false;
-        }
-        private void ExampleMovement()
-        {
+        //    isDashing = false;
+        //}
+        //private void ExampleMovement()
+        //{
             //Vector3 right = Vector3.Cross(up, direction).Normalize();
             //float rotationSpeedFrame = rotationSpeed * Time.deltaTime;
 
@@ -405,7 +958,7 @@ namespace SliceEngine
             //    animator.SetBool("Run", false);
             //    animator.SetBool("Attack", true);
             //}
-        }
+        //}
         #endregion
         #region Attacks
         private void InitializeAttackHitboxes()
