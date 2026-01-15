@@ -55,6 +55,24 @@ namespace SliceEngine
 			static FragShader LoadFragShader(std::string const&);
 			void DestroyFragShader();
 		};
+		class CustomShader {
+		public:
+			unsigned int s;
+
+			struct ShaderParams
+			{
+				std::string name;
+				uint32_t baseData;
+				unsigned char numBytes;
+				bool isUnsigned;
+				bool isFloating;
+			};
+
+			std::vector<ShaderParams> dataIn;
+
+			static CustomShader LoadCShader(std::string const&);
+			void DestroyCShader();
+		};
 	}
 }
 

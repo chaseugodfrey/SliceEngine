@@ -102,6 +102,11 @@ namespace SliceEngine
 		/// </summary>
 		void LoadEntityClasses();
 		/// <summary>
+		/// Update a entity's script to a new script.
+		/// </summary>
+		/// <param name="entity"></param>
+		void ReloadEntityScript(Entity entity);
+		/// <summary>
 		/// For debugging. Print the mono heap size. Used when I had memory leaks
 		/// </summary>
 		void LogMonoHeapSize();
@@ -130,6 +135,8 @@ namespace SliceEngine
 
 		void UnsubscribeToEvents();
 
+		void RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph);
+
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -144,7 +151,8 @@ namespace SliceEngine
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-
+		void OnEnabled(entt::registry& reg, entt::entity entity);
+		void OnDisabled(entt::registry& reg, entt::entity entity);
 		//Collision Events
 		void OnCollideEnter(const OnCollisionEnterEvent& event);
 		void OnCollideStay(const OnCollisionStayEvent& event);

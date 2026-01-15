@@ -85,6 +85,8 @@ namespace SliceEditor
 
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector<std::string>& list);
 
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list);
+
 	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
 
 	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int inc = 1, int min = 0, int max = 0);
@@ -185,6 +187,13 @@ namespace SliceEditor
 			if (searchBar)
 			{
 				std::string newID = std::string(id) + "searchBar";
+
+				if (ImGui::IsWindowAppearing())
+				{
+					ImGui::SetKeyboardFocusHere();
+					buffer[0] = '\0';
+					searchPrompt.clear();
+				}
 				if (ImGui::InputText(newID.c_str(), buffer, IM_ARRAYSIZE(buffer)))
 				{
 					searchPrompt = buffer;
@@ -217,11 +226,6 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
-		else
-		{
-			buffer[0] = '\0';
-			searchPrompt.clear();
-		}
 		return changed;
 	}
 
@@ -238,7 +242,7 @@ namespace SliceEditor
 
 		ImGui::SetNextItemWidth(150.0f);
 
-		ComboInput(reg , id, selected, container,searchBar);
+		changed = ComboInput(reg , id, selected, container,searchBar);
 		return changed;
 	}
 
@@ -324,37 +328,6 @@ namespace SliceEditor
 					}
 				}
 			}
-			//}
-
-			/*else
-			{
-				int selectedIndex = currentIndex;
-
-				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
-				{
-					const std::string& selectedName = mapNames[selectedIndex];
-					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-					changed = (handle.getGUID() != newGUID);
-					if (changed)
-					{
-						if (!setFunc)
-						{
-							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-							auto newHandle = rm->get<T>(newGUID);
-
-							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-							handle = newHandle;
-						}
-
-						else
-						{
-							setFunc(newGUID);
-						}
-					}
-				}
-			}*/
 		}
 		
 		//No Drag-Drop for some reason
@@ -400,7 +373,14 @@ namespace SliceEditor
 					}
 
 					else
+					{
+						/*auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::Handle<T>>>(handle, newHandle, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+
 						setFunc(newGUID);
+					}
 				}
 			}
 

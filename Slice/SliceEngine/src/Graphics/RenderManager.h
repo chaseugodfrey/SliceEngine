@@ -59,13 +59,13 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting();
 		void RenderLighting(Entity cam);
-		void RenderAfterLighting(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam);
 		void RenderVignette(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
+		void ForceSetCustomShader(const std::string& sh, GLuint s);
 		bool UniformExists(const char* str, GLint& ref);
 		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		//void LinkTransformInstancing(GUID guid);
@@ -75,7 +75,6 @@ namespace SliceEngine
 		glm::vec4 mNavMeshDebugColor_Bounds{ 0.f, 0.2f, 0.25f, 0.85f };
 
 	private:
-		const int mMaxInstance = 500;
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
@@ -108,11 +107,6 @@ namespace SliceEngine
 			glm::ivec2 intSize;
 			GLuint tex;
 		};
-		struct InstanceData
-		{
-			glm::mat4 mtx;
-		};
-
 #pragma region Enums
 		enum FBOType : unsigned char
 		{
@@ -126,7 +120,6 @@ namespace SliceEngine
 			S_BASIC						,
 			S_SHADOW				,
 			S_POINT_SHADOW	,
-			S_DEFERRED				,
 			S_SKYBOX					,
 			S_SKYBOX_Light		,
 			S_LIGHTING				,
@@ -153,7 +146,6 @@ namespace SliceEngine
 			{ ShaderOpt::S_BASIC,           "Shaders/basic.shader" },
 			{ ShaderOpt::S_SHADOW,          "Shaders/shadow.shader" },
 			{ ShaderOpt::S_POINT_SHADOW,    "Shaders/pointShadow.shader" },
-			{ ShaderOpt::S_DEFERRED,        "Shaders/deferred.shader" },
 			{ ShaderOpt::S_SKYBOX,          "Shaders/skybox.shader" },
 			{ ShaderOpt::S_SKYBOX_Light,    "Shaders/skyboxLight.shader" },
 			{ ShaderOpt::S_LIGHTING,        "Shaders/lighting.shader" },
@@ -221,7 +213,6 @@ namespace SliceEngine
 #pragma endregion
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
-		GLuint mIVBO{};
 		GLuint mShadowUBO;
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
@@ -233,8 +224,6 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<std::string, GLuint> mCurrShader;
-		std::vector<InstanceData> mInstanceVtx;
-
 		RenderCmdManager renderQueue;
 
 		GLuint SkyboxMap{};
