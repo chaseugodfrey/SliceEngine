@@ -745,6 +745,94 @@ namespace SliceEditor
 
 		return changed;
 	}
+
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<SliceEngine::GameObject > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				ImGui::BeginDisabled();
+				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
+				{
+					std::string empty = " ";
+					ImGui::InputText(newID.c_str(), &empty);
+				}
+				else
+				{
+
+					std::string goName = entry.GetName();
+					ImGui::InputText(newID.c_str(), &goName);
+				}
+				ImGui::EndDisabled();
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+					{
+						oldList = list;
+						entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+						entry = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
+
+						//Disabled Undo/Redo for Lists atm
+						/*std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+
+						changed = true;
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+
+				//if (ImGui::IsItemDeactivatedAfterEdit())
+				//{
+				//	editFunc("Edit", std::string(property_label), list, entry, idx);
+				//}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
+
+				// record in history
+				/*if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						addFunc, std::string(property_label), "", "");
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
 	
 	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
 	{
