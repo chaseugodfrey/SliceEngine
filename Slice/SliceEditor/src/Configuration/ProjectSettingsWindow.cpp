@@ -120,11 +120,6 @@ namespace SliceEditor
 					
 					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), name));
 
-					ImGui::SameLine();
-					if (ImGui::Button(("Remove Entry " + key).c_str()))
-					{
-						groupToDelete = key;
-					}
 
 					if (ImGui::IsItemDeactivatedAfterEdit())
 					{
@@ -136,6 +131,12 @@ namespace SliceEditor
 
 						}
 
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button(("Remove Entry " + key).c_str()))
+					{
+						groupToDelete = key;
 					}
 
 					//hasChanged = DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + key).c_str(), entry.volume, "%.3f", 0.f, 1.0f) || hasChanged;

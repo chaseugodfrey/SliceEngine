@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
@@ -124,11 +125,16 @@ namespace SliceEditor
 
 	void Editor::Run()
 	{
+		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			registry.Update();
 			inputs->Update();
-			AssetFileWatcher::UpdateFolder(assetManager);
+			if (contentBrowser)
+			{
+				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
+			}
 			engine.Update();
 			Render();
 			engine.EndFrame();
