@@ -111,6 +111,8 @@ namespace SliceEngine
 	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
+	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
+	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors

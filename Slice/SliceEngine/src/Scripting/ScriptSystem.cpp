@@ -106,6 +106,9 @@ namespace SliceEngine
         SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
+
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::OnEnabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -544,6 +547,10 @@ namespace SliceEngine
             mono_gchandle_free(it.second->mHandle);
         }
 
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
+
+
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -671,9 +678,9 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
-                            //case ScriptFieldType::GameObject:
-                            //    scriptRef->AddListFieldValue<std::string>(it.second.mName, static_cast<std::string>(item.get_value<GameObject>().GetName()));
-                            //    break;
+                            case ScriptFieldType::GameObject:
+                                scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
+                                break;
                             }
                         }
                     }
@@ -733,11 +740,14 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        //else if (it.second.mType == ScriptFieldType::GameObject)
-                        //{                         
-                        //    std::vector<GameObject> var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
-                        //    scriptComponent.scriptableFieldMap[it.first] = var;
-                        //}
+                        else if (it.second.mType == ScriptFieldType::GameObject)
+                        {
+                            //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                            //scriptComponent.scriptableFieldMap[it.first] = var;
+
+                            // test
+
+                        }
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -764,6 +774,11 @@ namespace SliceEngine
                         else if (it.second.mType == ScriptFieldType::Vector3)
                         {
                             std::vector<glm::vec3> var = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::GameObject)
+                        {
+                            std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
                     }
@@ -892,6 +907,36 @@ namespace SliceEngine
         //UpdateScriptComponent(entity);
     }
 
+    void ScriptSystem::OnEnabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onEnabled
+                    instance->InvokeOnEnabled();
+                }
+            }
+        }
+    }
+
+    void ScriptSystem::OnDisabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onDisabled
+                    instance->InvokeOnDisabled();
+                }
+            }
+        }
+    }
+
     void ScriptSystem::LoadEntityClasses()
     {
         //loook here aloy
@@ -963,8 +1008,9 @@ namespace SliceEngine
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
 
-                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);
-                            if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
+                            /*
+                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);*/
+                           /* if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
                             {
                                 SLICE_LOG(fieldTypeStr + "is an array!");
                             }
@@ -981,7 +1027,7 @@ namespace SliceEngine
                                 {
                                     SLICE_LOG_VALUES("It is a struct");
                                 }
-                            }
+                            }*/
                             rttr::variant var;
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
@@ -1017,6 +1063,25 @@ namespace SliceEngine
                 }
             }
         }
+    }
+
+    void ScriptSystem::ReloadEntityScript(Entity entity)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        if (mEntityInstances.count(entity) > 0)
+        {
+            mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances.erase(entity);
+        }
+
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+            std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            mEntityInstances[entity] = scriptObj;
+            UpdateScriptVariables(entity);
+            UpdateScriptComponent(entity);
+		}
     }
 
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)
@@ -1191,6 +1256,39 @@ namespace SliceEngine
                         uint32_t newID = sceneGraph.at(oldID);
                         GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
                         scriptInstance->SetFieldValue<GameObject>(fieldName, newGO);
+                    }
+                }
+                else if (variantVal.is_type <std::vector<GameObject>>())
+                {
+                    // NOTE for gideon
+                    // i realise, i should probblay be using set index instead because there is already a list existing
+                    // but with the old IDs
+                    // but i'm just going to clear and readd again
+                    // not as efficient but time is of the essence! We must ride at noon.
+
+                    std::vector<GameObject> oldGOs = variantVal.get_value<std::vector<GameObject>>();
+                    MonoObject* listObject = scriptInstance->GetListObject(fieldName);
+                    if (listObject == nullptr)
+                    {
+                        SLICE_LOG_ERROR("List " + fieldName + " is null or Clear() isn't defined");
+                        continue;
+                    }
+
+                    // clear the list first before adding from the serialized vector
+                    scriptInstance->mScriptClass->InvokeMethod(listObject, scriptInstance->mScriptClass->mFields[fieldName].mListClear, nullptr);
+
+                    // clear the list first before adding from the serialized vector
+                    for (GameObject oldGO : oldGOs)
+                    {
+                        uint32_t oldID = (uint32_t)oldGO.GetEntity();
+
+                        if (sceneGraph.contains(oldID))
+                        {
+                            uint32_t newID = sceneGraph.at(oldID);
+                            GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
+                            scriptInstance->AddListFieldValue<GameObject>(fieldName, newGO);
+                            //newGOs.push_back(newGO);
+                        }
                     }
                 }
             }

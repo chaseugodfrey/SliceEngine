@@ -39,6 +39,11 @@ namespace SliceEngine
 
 	};
 
+	struct InactiveEntity
+	{
+
+	};
+
 	struct SliceEntity 
 	{
 		std::string mName;

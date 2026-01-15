@@ -102,6 +102,11 @@ namespace SliceEngine
 		/// </summary>
 		void LoadEntityClasses();
 		/// <summary>
+		/// Update a entity's script to a new script.
+		/// </summary>
+		/// <param name="entity"></param>
+		void ReloadEntityScript(Entity entity);
+		/// <summary>
 		/// For debugging. Print the mono heap size. Used when I had memory leaks
 		/// </summary>
 		void LogMonoHeapSize();
@@ -146,7 +151,8 @@ namespace SliceEngine
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-
+		void OnEnabled(entt::registry& reg, entt::entity entity);
+		void OnDisabled(entt::registry& reg, entt::entity entity);
 		//Collision Events
 		void OnCollideEnter(const OnCollisionEnterEvent& event);
 		void OnCollideStay(const OnCollisionStayEvent& event);
