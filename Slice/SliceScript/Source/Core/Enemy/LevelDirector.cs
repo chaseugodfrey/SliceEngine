@@ -97,8 +97,11 @@ namespace SliceEngine
         {
             Console.WriteLine("Level Director Ini called");
             enemySpawners.Clear();
+            Console.WriteLine("Spawners cleared");
             SetUpSpawnLocations();
+            Console.WriteLine("Spawner location set up");
             SpawnSpawners();
+            Console.WriteLine("Spawners spawned");
         }
 
         //Go through the list of transform for the current stage to spawn spawners
@@ -121,6 +124,11 @@ namespace SliceEngine
         private void SetUpSpawnLocations()
         {
            GameObject[] temp =  gameObject.FindGameObjectsWithTag(spawnTags);
+
+            if (temp == null)
+            {
+                return;
+            }
 
             foreach(GameObject local in temp)
             {
