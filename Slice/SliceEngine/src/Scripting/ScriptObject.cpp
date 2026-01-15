@@ -573,10 +573,10 @@ namespace SliceEngine
 				MonoClassField* pathField = mono_class_get_field_from_name(objClass, "prefabName");
 				MonoString* monoStr = nullptr;
 				mono_field_get_value(obj, pathField, &monoStr);
-				MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
-				if (monoStr != nullptr)
+				MonoString* strVal = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
+				if (strVal != nullptr)
 				{
-					char* utf8str = mono_string_to_utf8(monoStr);
+					char* utf8str = mono_string_to_utf8(strVal);
 					result = utf8str;
 					mono_free(utf8str);
 				}
@@ -587,8 +587,37 @@ namespace SliceEngine
 		break;
 		case MONO_TYPE_VALUETYPE:
 			std::string typeName = mono_type_get_name(type);
-			// Check for value type like vectors and stuff
 
+			// Check for value type like vectors and stuff
+			if (typeName == "SliceEngine.Prefab")
+			{
+				MonoObject* valueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+				
+				if (valueObj == nullptr)
+				{
+					return PrefabVar{ "" };
+				}
+				
+				void* unboxPtr = mono_object_unbox(valueObj);
+
+				MonoClass* prefabClass = mono_type_get_class(type);
+
+				// get the field related to "prefabName" from c#'s prefab.cs
+				MonoClassField* nameField = mono_class_get_field_from_name(prefabClass, "prefabName");
+
+				MonoString* monoStr = nullptr;
+				mono_field_get_value((MonoObject*)unboxPtr, nameField, &monoStr);
+
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					std::string name(utf8);
+					mono_free(utf8);
+					return PrefabVar{ name };
+				}
+
+				return PrefabVar{ "" };
+			}
 			break;
 		}
 
