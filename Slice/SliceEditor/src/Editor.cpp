@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
@@ -124,11 +125,16 @@ namespace SliceEditor
 
 	void Editor::Run()
 	{
+		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			registry.Update();
 			inputs->Update();
-			AssetFileWatcher::UpdateFolder(assetManager);
+			if (contentBrowser)
+			{
+				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
+			}
 			engine.Update();
 			Render();
 			engine.EndFrame();
@@ -242,7 +248,17 @@ namespace SliceEditor
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
 		auto manager = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto target = manager->selectedFolder->fullPath/path.filename();
+		const std::filesystem::path selectedfolderPath = manager->selectedFolder->fullPath;
+		std::filesystem::path target = selectedfolderPath /path.filename();
+		int counter = 1;
+
+		while (std::filesystem::exists(target))
+		{
+			target = selectedfolderPath / (path.stem().string() + "_" + std::to_string(counter) + path.extension().string());
+			++counter;
+		}
+
+		//Need to check and rename if the name already exists
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
