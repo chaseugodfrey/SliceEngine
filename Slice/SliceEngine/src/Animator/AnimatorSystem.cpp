@@ -28,7 +28,6 @@ namespace SliceEngine
 	}
 	void AnimatorSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-		
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.stateMachine.CheckStates();
@@ -178,11 +177,7 @@ namespace SliceEngine
 
 		auto rscMgr = core->GetResourceManager();
 
-		GUID defCtrl = rscMgr->mFileNameToGUID["Default/DefaultController.controller"];
-
-		//animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
-		/*animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skl);
-		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animpkg);*/
+		GUID defCtrl = rscMgr->mFileNameToGUID["Default/BasicController.controller"];
 
 		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 		if(!animator.Handle_stateMachine.IsValid())
