@@ -494,6 +494,13 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyFontResource();
+		if (!std::filesystem::exists(path)) {
+			resource->InitializeDefault();
+		}
+		else {
+			resource->LoadFontResource(path);
+		}
 	}
 
 	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)

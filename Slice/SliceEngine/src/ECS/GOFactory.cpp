@@ -803,8 +803,8 @@ namespace SliceEngine
 		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
 		ui_ele.AddComponent<FontRenderer>();
 		auto& ui_font = ui_ele.GetComponent<FontRenderer>();
-		ui_font.rgba = { 1.f,0.f,0.f,1.f };
-		ui_font.font_size = 20;
+		ui_font.rgba = { 0.f,0.f,0.f,1.f };
+		ui_font.font_size = 50;
 		ui_font.line_spacing = 20;
 		auto rm = Core::GetInstance()->GetResourceManager();
 		ui_font.fontHandle = (GUID)0;

@@ -50,8 +50,8 @@ int main(int argc, char** argv)
 	* Padding, default = 2
 	*/
 	Font::FontData font_compiler;
-	if (obj.contains("font_size")) {
-		font_compiler.font_size = obj["font_reso"];
+	if (obj.contains("fontReso")) {
+		font_compiler.font_size = obj["fontReso"];
 	}
 	if (obj.contains("padding")) {
 		font_compiler.padding = obj["padding"];
