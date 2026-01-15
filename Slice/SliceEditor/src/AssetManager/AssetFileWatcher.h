@@ -21,19 +21,22 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEditor
 {
     class AssetManager;
+    class ContentBrowserManager;
     struct RawFileEvent;
 
     namespace AssetFileWatcher
     {
-        void UpdateFolder(AssetManager& am);
+        void UpdateFolder(ContentBrowserManager& manager, AssetManager& am);
 
-        void HandleAssetAdded(AssetManager& am, RawFileEvent& addEvent);
+        void HandleAssetAdded(ContentBrowserManager& manager, AssetManager& am, RawFileEvent& addEvent);
         void HandleAssetRemoved(AssetManager& am, RawFileEvent& removeEvent);
         void HandleAssetRenamed(AssetManager& am, RawFileEvent& renamedOld, RawFileEvent& renamedNew);
         void HandleAssetModified(AssetManager& am, RawFileEvent& event);
         void HandleAssetMoved(AssetManager& am, std::vector<RawFileEvent>& events);
 
         std::optional<uint64_t> HashFile(const std::filesystem::path& filePath);
+
+   
     }
 }
 
