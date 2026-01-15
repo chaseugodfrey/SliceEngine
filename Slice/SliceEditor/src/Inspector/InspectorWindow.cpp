@@ -645,7 +645,7 @@ namespace SliceEditor
 			auto& scriptMap = SliceEngine::gScriptSystem->mEntityClasses;
 			std::string script_name = script.scriptName;
 			std::vector<std::string> scriptList{};
-			static int selectedIndex = 0;
+			int selectedIndex = 0;
 
 			for (auto& [key, value] : scriptMap)
 			{
@@ -658,22 +658,39 @@ namespace SliceEditor
 				scriptList.push_back("Empty");
 				selectedIndex = scriptList.size() - 1;
 			}
-
-			if(!script_name.empty())
+			else
 			{
-				ImGui::BeginDisabled();
+				//ngl its not the most robust method probably but its a fix for now
+				std::string searchName = script.scriptName;
+				if (script.scriptName.starts_with("SliceEngine."))
+				{
+					searchName = script.scriptName.substr(std::string("SliceEngine.").size());
+				}
+
+				auto it = std::find(scriptList.begin(), scriptList.end(), searchName);
+				if (it != scriptList.end())
+				{
+					selectedIndex = std::distance(scriptList.begin(), it);
+				}
 			}
 
+			//if(!script_name.empty())
+			//{
+			//	ImGui::BeginDisabled();
+			//}
+
+			ImGui::PushID((int)entity);
 			if (ComboHeader<int>(mRegistry, "Script Class:", "##scriptClassID", selectedIndex, scriptList, true))
 			{
 				script.scriptName = "SliceEngine.";
 				script.scriptName += scriptList[selectedIndex];
+				SliceEngine::gScriptSystem->ReloadEntityScript(entity);
 			}
-
-			if(!script_name.empty())
-			{
-				ImGui::EndDisabled();
-			}
+			ImGui::PopID();
+			//if(!script_name.empty())
+			//{
+			//	ImGui::EndDisabled();
+			//}
 
 			// Script Variables
 
@@ -862,6 +879,33 @@ namespace SliceEditor
 									};
 
 								if (DragVec3ListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
+							{
+								auto data = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
