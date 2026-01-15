@@ -261,7 +261,12 @@ namespace SliceEngine
 	// change this, its supposed to be either condiiton change or param idk which
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
-		if (!EFSM.currState) return;
+		if (!EFSM.currState) 
+			return;
+
+		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
+		if (EFSM.currState->stateName == name)
+			return;
 
 		EFSM.parameters[name] = value;
 

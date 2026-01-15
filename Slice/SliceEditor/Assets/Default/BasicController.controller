@@ -73,6 +73,20 @@
                     "hasExitTime": true,
                     "sourceState": "Attack1",
                     "targetState": "Idle"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "Attack1",
+                    "targetState": "Walk"
                 }
             ]
         },
@@ -86,20 +100,6 @@
             ],
             "stateName": "Idle",
             "transitions": [
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Attack1",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "Idle",
-                    "targetState": "Attack1"
-                },
                 {
                     "conditions": [
                         {
@@ -289,20 +289,6 @@
             ],
             "stateName": "Walk",
             "transitions": [
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Attack1",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "Walk",
-                    "targetState": "Attack1"
-                },
                 {
                     "conditions": [
                         {
