@@ -520,6 +520,7 @@ namespace SliceEditor
 					}
 				}
 				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				mRegistry.GetAssetManager().CreateAssetMaps();
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}

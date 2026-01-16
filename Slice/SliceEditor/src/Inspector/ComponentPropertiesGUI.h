@@ -283,6 +283,7 @@ namespace SliceEditor
 			//Push a blank at the end for fallback
 			//mapNames.push_back(" ");
 
+			/*int selectedIndex = (currentIndex < 0) ? 0 : currentIndex;*/
 			int selectedIndex = currentIndex;
 
 			std::string guidString = currentGUID.toString();
@@ -293,6 +294,18 @@ namespace SliceEditor
 				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
 				errorText = "GUID not found in AssetManager";
 				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
+			}
+			//Make sure its in the respective assetMap too
+			else if (auto it = std::find(mapPtr->begin(), mapPtr->end(), currentGUID); it == mapPtr->end())
+			{
+				SLICE_LOG_WARNING("Found GUID in guidToFilename but its not in the assetMap. Remember to update asset maps!");
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[currentGUID];
+				std::string fileNameString = relativePath.filename().string();
+				mapNames.push_back(fileNameString);
 				//Should be the last added unknown GUID
 				selectedIndex = mapNames.size() - 1;
 				ImGui::Text("%s GUID:", property_label);
