@@ -13,30 +13,29 @@ layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
 layout (location=4) out vec4 fMetalRoughData;
 
-struct InstanceData
+struct BasicIDat
 {
 	mat4 mdlMtx;
-	vec4 color;
-	float roughness;
-	float metallic;
 	uint entityID;
-	uint textureID; 
+	uint textureID;
+	uint colRG;
+	uint colBA;
 };
 
-layout(binding=0, std430) readonly buffer ssbo3
+layout(binding=0, std430) readonly buffer ssbo0
 {
 	sampler2D textures[];
 };
 
-layout(binding=2, std430) readonly buffer ssbo1
+layout(binding=1, std430) readonly buffer ssbo1
 {
-	InstanceData iDat[];
+	BasicIDat iDat[];
 };
 
 void main(void){
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
-	fFragColor = texture(textures[iDat[vInstance].textureID], vTex) * vec4(iDat[vInstance].color.rgb, 0.5);
+	fFragColor = texture(textures[iDat[vInstance].textureID], vTex) * iDat[vInstance].color;
 	fGID = iDat[vInstance].entityID;
 	fMetalRoughData.xy = vec2(iDat[vInstance].roughness, iDat[vInstance].metallic);
 }

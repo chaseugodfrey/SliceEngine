@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
 #include <Input/InputSystem.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
@@ -87,34 +88,26 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
-		EnableMemoryLeakChecking(-1);
+		//EnableMemoryLeakChecking(-1);
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
-		inputs = std::make_unique<EditorInputs>(registry);
 
-		//assetManager.ScanResourceFolder();
 		assetManager.Init();
 
+		// Engine Core
 		engine.Init();
-
+		inputs = std::make_unique<EditorInputs>(registry);
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
-
-		// todo: calling this here first to put this when loading scene + 
-		// reminder to change scene root to a list in case we want to have multiple scenes
-		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
-
-		// default controller here pls
-		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
-
+		
+		// Editor Core
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
 		SLICE_LOG("Initializing Editor Systems.");
 
 		InitManagers();
 		InitWindowManager();
 
-		engine.SceneInit();
 		//SliceEditor::InitFileWatcher();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
@@ -132,11 +125,16 @@ namespace SliceEditor
 
 	void Editor::Run()
 	{
+		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			registry.Update();
 			inputs->Update();
-			AssetFileWatcher::UpdateFolder(assetManager);
+			if (contentBrowser)
+			{
+				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
+			}
 			engine.Update();
 			Render();
 			engine.EndFrame();
@@ -250,7 +248,17 @@ namespace SliceEditor
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
 		auto manager = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto target = manager->selectedFolder->fullPath/path.filename();
+		const std::filesystem::path selectedfolderPath = manager->selectedFolder->fullPath;
+		std::filesystem::path target = selectedfolderPath /path.filename();
+		int counter = 1;
+
+		while (std::filesystem::exists(target))
+		{
+			target = selectedfolderPath / (path.stem().string() + "_" + std::to_string(counter) + path.extension().string());
+			++counter;
+		}
+
+		//Need to check and rename if the name already exists
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());

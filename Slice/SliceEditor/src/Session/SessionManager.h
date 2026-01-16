@@ -11,7 +11,6 @@ namespace SliceEditor
 
 	class SessionManager : public IBaseManager
 	{
-		std::unique_ptr<Preferences> mPreferences;
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 
@@ -35,12 +34,6 @@ namespace SliceEditor
 
 		void Init() override;
 		void Update() override;
-
-		void OpenPreferences();
-		void SetPreferences();
-		void CreateDefaultPreferenceFile();
-		void SavePreferences();
-		Preferences& GetPreferences();
 
 		void OnSceneSave(OnSceneSaveEvent);
 

@@ -182,11 +182,31 @@ namespace SliceEngine
 			output[name][typeName][propName]["height"] = data.height;
 		}
 
+		// For Freeze Options
 		template<>
 		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const RigidBody::FreezeOptions& data, const Entity& entity)
 		{
 			output[name][typeName][propName] = { data.freezeX, data.freezeY, data.freezeZ };
+		}
+
+		// For Particle System burst
+		template<>
+		inline void Serialize<std::vector<ParticleSystem::Burst>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::vector<ParticleSystem::Burst>& data, const Entity& entity)
+		{
+			auto& arr = output[name][typeName][propName];
+			arr = json::array();
+
+			for (const auto& burst : data)
+			{
+				arr.push_back(json::array({
+					burst.numParticles,
+					burst.burstRepetitions,
+					burst.burstPeriod,
+					burst.triggerTime
+					}));
+			}
 		}
 
 		// For glm::vec4
@@ -213,11 +233,21 @@ namespace SliceEngine
 			output[name][typeName][propName] = std::to_string(static_cast<uint64_t>(value));
 		}
 
+		// For GameObject
+		/*template <>
+		inline void Serialize<GameObject>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const GameObject& value, const Entity& entity)
+		{
+			output[name][typeName][propName] = value.GetEntity();
+		}*/
+
 		// For ScriptableFieldMap
 		template<>
 		inline void Serialize<std::unordered_map<std::string, rttr::variant>>(json& output, const std::string& name, const std::string_view& typeName,
 			const std::string& propName, const std::unordered_map<std::string, rttr::variant>& value, const Entity& entity)
 		{
+
+
 			for (const auto& [k, v] : value)
 			{
 				output[name][typeName][propName][k] = VariantToJson(v);
@@ -306,14 +336,14 @@ namespace SliceEngine
 
 				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
 				{
-					// Nested vector — recurse
+					// Nested vector ï¿½ recurse
 					std::vector<typename T::value_type> innerResult;
 					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
 					result.push_back(elem);
 				}
 				else
 				{
-					// Base case — just add the element
+					// Base case ï¿½ just add the element
 					result.push_back(elem);
 				}
 			}
@@ -378,6 +408,11 @@ namespace SliceEngine
 		{
 			if (prop.get_type() == rttr::type::get<T>()) 
 			{
+				if (prop.get_metadata("Serialize").is_valid() && prop.get_metadata("Serialize").to_bool() == false)
+				{
+					return true;
+				}
+
 				try
 				{
 					// Attempt to get JSON value as T
@@ -514,7 +549,7 @@ namespace SliceEngine
 					catch (const nlohmann::json::exception& e)
 					{
 						SLICE_LOG_ERROR("[DeserializeProp] Fallback string conversion failed for "
-							+ componentName + "::" + propName + " — " + std::string(e.what()));
+							+ componentName + "::" + propName + " ï¿½ " + std::string(e.what()));
 
 					}														
 				}
@@ -622,6 +657,83 @@ namespace SliceEngine
 		std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
 		SLICE_LOG_DEBUG(msg);
 
+	}
+
+	inline void to_json(json& j, const Particle& p)
+	{
+		j = json::object();
+	}
+
+	inline void from_json(const json& j, Particle& p)
+	{
+
+	}
+
+	inline void to_json(json& j, const SliceEngine::ParticleSystem::Burst& b)
+	{
+		j = json::array({
+			b.numParticles,
+			b.burstRepetitions,
+			b.burstPeriod,
+			b.triggerTime
+			});
+	}
+
+	inline void from_json(const json& j, ParticleSystem::Burst& b)
+	{
+		if (!j.is_array() || j.size() < 4)
+			return;
+
+		b.numParticles = j[0].get<uint64_t>();
+		b.burstRepetitions = j[1].get<uint64_t>();
+		b.burstPeriod = j[2].get<float>();
+		b.triggerTime = j[3].get<float>();
+
+		b.triggered = false;
+		b.repsDone = 0;
+		b.repTimer = 0.0f;
+	}
+
+	inline void from_json(const json& j, std::vector<ParticleSystem::Burst>& bursts)
+	{
+		bursts.clear();
+
+		if (!j.is_array())
+			return;
+
+		bursts.reserve(j.size());
+
+		for (const auto& elem : j)
+		{
+			ParticleSystem::Burst b{};
+			from_json(elem, b);   // reuse single-burst deserializer
+			bursts.emplace_back(b);
+		}
+	}
+
+	//GameObject
+	// From Json doesnt work because mRegistry should not be accessible in this file
+	inline void from_json(const json& j, GameObject& go)
+	{
+		if (j.is_string())
+		{
+			std::string s = j.get<std::string>();
+			if (s.empty())
+			{
+				go = GameObject();
+			}
+			else
+			{
+				uint32_t id = static_cast<uint32_t>(std::stoul(s));
+				Entity e = static_cast<Entity>(id);
+				go = GameObject(RegistryInstance, e);
+			}
+		}
+	}
+
+	inline void to_json(json& j, const GameObject& go)
+	{
+		j = go.GetEntity();
 	}
 }
 
@@ -760,6 +872,22 @@ namespace rttr
 			if (typeName == "std::vector<int>")
 			{
 				return rttr::variant(valueJson.get<std::vector<int>>());
+			}
+			if (typeName == "SliceEngine::GameObject")
+			{
+				uint32_t oldID = valueJson.get<uint32_t>();
+				return rttr::variant(SliceEngine::GameObject(SliceEngine::RegistryInstance, static_cast<Entity>(oldID)));
+			}
+			if (typeName == "std::vector<SliceEngine::GameObject>")
+			{
+				std::vector<uint32_t> oldIDs = valueJson.get <std::vector<uint32_t>>();
+				std::vector<SliceEngine::GameObject> gameobjects;
+				for (uint32_t id : oldIDs)
+				{
+					gameobjects.push_back(SliceEngine::GameObject(SliceEngine::RegistryInstance, static_cast<Entity>(id)));
+				}
+
+				return rttr::variant(gameobjects); //?? does this work?? i hope so
 			}
 
 			return rttr::variant(valueJson.get<std::string>());

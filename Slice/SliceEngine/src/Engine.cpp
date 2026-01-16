@@ -34,7 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Systems/SceneSystem.h"
-#include "Configuration/ProjectSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
@@ -44,6 +44,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
+
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
 {
@@ -96,6 +97,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
+		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
 
@@ -109,6 +111,8 @@ namespace SliceEngine
 	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
+	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
+	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -342,8 +346,8 @@ namespace SliceEngine
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
 			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
 			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
@@ -353,62 +357,86 @@ namespace SliceEngine
 	rttr::registration::class_<Particle>(typeid(Particle).name())
 		.constructor<>()
 		.property("active", &Particle::active)
+
 		.property("age", &Particle::age)
-		.property("position", &Particle::position)
 		.property("rotation", &Particle::rotation)
+		.property("speed", &Particle::speed)
+
+		.property("position", &Particle::position)
 		.property("scale", &Particle::scale)
 		.property("velocity", &Particle::velocity)
 		.property("colour", &Particle::colour);
 
+	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
+		(
+			rttr::value("CONSTANT", ParticleSystem::ValueType::CONSTANT),
+			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
+			);
+
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		.property("duration", &ParticleSystem::duration)
-		.property("speed",&ParticleSystem::speed)
 		.property("isRepeating", &ParticleSystem::isRepeating)
-		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
+		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
 
-		.property("initialLifetimeType",&ParticleSystem::initialLifetimeType)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
+		.property("maxParticles", &ParticleSystem::maxParticles)
+
+		.property("gForce", &ParticleSystem::gForce)
+		.property("emissionRate", &ParticleSystem::emissionRate)
+
+		.property("numBursts", &ParticleSystem::numBursts)
+		.property("bursts", &ParticleSystem::bursts)
+
+		.property("shapeType", &ParticleSystem::shapeType)
+
+		.property("coneArc", &ParticleSystem::coneArc)
+		.property("coneRadius", &ParticleSystem::coneRadius)
+
+		.property("shapeRadius", &ParticleSystem::sphereRadius)
+		.property("axis", &ParticleSystem::axis)
+
+		.property("scaleType", &ParticleSystem::scaleType)
+		.property("scale", &ParticleSystem::scale)
+		.property("minRandomScale", &ParticleSystem::minRandomScale)
+		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
+
+		.property("initialLifetimeType", &ParticleSystem::initialLifetimeType)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
 		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
 
-		.property("isInitialRotation3D", &ParticleSystem::isInitialRotation3D)
 		.property("initialRotationType", &ParticleSystem::initialRotationType)
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
 
-		.property("scaleType",&ParticleSystem::scaleType)
-		.property("scale", &ParticleSystem::scale)
-		.property("minRandomScale", &ParticleSystem::minRandomScale)
-		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
-
-		.property("emissionRate", &ParticleSystem::emissionRate)
-		.property("coneAngle", &ParticleSystem::coneAngle)
-		.property("shapeArc", &ParticleSystem::shapeArc)
-		.property("shapeType", &ParticleSystem::shapeType)
-		.property("axis", &ParticleSystem::axis)
-		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("spawnPosValueType", &ParticleSystem::posValueType)
+		.property("spawnPos", &ParticleSystem::spawnPos)
 		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
 		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
-		.property("velocity", &ParticleSystem::velocity)
-		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
-		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
 
-		.property("colorValueType", &ParticleSystem::colorValueType)
+		.property("colorValueType", &ParticleSystem::colourValueType)
 		.property("colour", &ParticleSystem::colour)
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
-		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
 
-		.property("gForce", &ParticleSystem::gForce)
+		.property("speedValueType", &ParticleSystem::speedValueType)
+		.property("speed", &ParticleSystem::speed)
+		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
+		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
+
+		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
+		.property("colour", &ParticleSystem::colourLifeTimeMap)
+		
+		// temp
+		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
 		.property("hasCollision", &ParticleSystem::hasCollision)
-		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
-		.property("maxParticles", &ParticleSystem::maxParticles)
-		.property("oldestIndex", &ParticleSystem::oldestIndex)
-		.property("particles", &ParticleSystem::particles)
 
-		.property("bursts", &ParticleSystem::bursts);
+		.property("textureGUID", &ParticleSystem::textureGUID)
+		.property("materialGUID", &ParticleSystem::materialGUID)
+		.property("meshGUID", &ParticleSystem::meshGUID)
+		;
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
@@ -417,6 +445,20 @@ namespace SliceEngine
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
 		.property("triggered", &ParticleSystem::Burst::triggered);
+
+	rttr::registration::class_<std::vector<ParticleSystem::Burst>>("BurstVector");
+
+	rttr::registration::class_<Particle>(typeid(Particle).name())
+		.constructor<>()
+		.property("particles", &ParticleSystem::particles)
+		(
+			rttr::metadata("Serialize", false)
+		);
+
+	rttr::registration::class_<std::vector<Particle>>("vector<Particle>")
+		(
+			rttr::metadata("Serialize", false)
+		);
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
@@ -530,7 +572,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		//EnableMemoryLeakChecking(92083);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -593,7 +635,13 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
 
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
+		Core::GetInstance()->GetProjectSettingsManager()->Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
+
+		// =========================== TESTING AREA ===========================
+		// 
 		//mRender->CreateCamera();
 
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
@@ -604,30 +652,22 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Init();
+		//auto mNetwork = Core::GetInstance()->GetNetwork();
+		//mNetwork->Init();
 
-		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
-		//NetworkingThread::printAddr();
-		//TestPlaySFX();
 
 	}
 
-	void Engine::SceneInit()
- 	{
-		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
-	}
 
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
-		auto sTransform = core->GetSystem<TransformSystem>();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
@@ -635,6 +675,7 @@ namespace SliceEngine
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 		static bool isPlaying = false;
 
@@ -663,6 +704,7 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					sButton.InitSystem();
+					FactoryInstance.CreateGO("AudioManager");
 					isPlaying = true;
 				}
 
@@ -691,7 +733,11 @@ namespace SliceEngine
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
+				sParticleSystemManager.ResetManager();
 				sAudio->StopAllSound();
+				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+				audioSettings->DeleteAM();
+				
 				sScene->ReloadScene();
 				isPlaying = false;
 
@@ -802,9 +848,11 @@ namespace SliceEngine
 		frm->EndSystem("Canvas");
 
 		frm->StartSystem("Particle System");
-		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
 		frm->EndSystem("Particle System");
-
 
 		frm->EndFrame();
 		frm->CalculateSystemPercentages();
@@ -832,80 +880,9 @@ namespace SliceEngine
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
 		mCanvas.Release();
 
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		Core::GetInstance()->GetAudioSettings()->Exit();
-		mAudioManager->Exit();
 
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Exit();
-
-		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
-	}
-
-	void Engine::LoadProjectSettings()
-	{
-		auto sScene = Core::GetInstance()->GetSceneSystem();
-		auto sResourceManager = Core::GetInstance()->GetResourceManager();
-
-		std::filesystem::path proj = "projectSettings.json";
-
-		ProjectSettings s;
-		if (!std::filesystem::exists(proj)) {
-			// Safe defaults if file missing
-			s.scenes = {};
-			s.startupScene.clear();
-		}
-
-		else
-		{
-			std::ifstream in(proj);
-			nlohmann::json j; in >> j;
-
-			if (j.contains("product") && j["product"].contains("name"))
-			{
-				s.productName = j["product"]["name"].get<std::string>();
-			}
-
-			if (j.contains("render")) 
-			{
-				s.width = j["render"].value("width", s.width);
-				s.height = j["render"].value("height", s.height);
-				s.vsync = j["render"].value("vsync", s.vsync);
-			}
-			if (j.contains("scenes"))
-			{
-				s.scenes = j["scenes"].get<std::vector<std::string>>();
-			}
-			s.startupScene = j.value("startupScene", s.startupScene);
-
-			// Fallback: if startupScene empty, use first scene
-			std::string sceneToLoad = !s.startupScene.empty()
-				? s.startupScene
-				: (s.scenes.empty() ? "" : s.scenes.front());
-
-			if (sceneToLoad.empty()) {
-				// Nothing to load�show blank/editor splash or exit gracefully
-				// log: "No scenes configured."
-			}
-
-			else
-			{
-				std::filesystem::path sceneFilePath(sceneToLoad);
-				
-				SLICE_LOG("Scene File Path" + sceneFilePath.string());
-				sScene->SetDefaultScenePath(sceneFilePath);
-
-				
-
-				//sScene->LoadScene(sceneToLoad); // for now by filepath
-				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
-
-
-			}
-		}
 	}
 
 }

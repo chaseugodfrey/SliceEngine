@@ -50,6 +50,9 @@ namespace SliceEngine
 
         public virtual void OnTriggerExit(uint other) { }
 
+        public virtual void OnEnabled() { }
+
+        public virtual void OnDisabled() { }
 
         public virtual void OnButtonClick() { }
         public virtual void OnButtonRelease() { }
@@ -147,6 +150,16 @@ namespace SliceEngine
         public void StopAllCoroutines()
         {
             CoroutineManager.StopAllCoroutines(this);
+        }
+
+        public void SetActive(bool active)
+        {
+            FunctionCalls.Entity_SetActive(gameObject.mID, active);
+        }
+
+        public bool IsActive(bool active)
+        {
+                return FunctionCalls.Entity_IsActive(gameObject.mID);
         }
     }
 }

@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <mono/metadata/threads.h>
 #include "../Core/Core.h"
 #include "ScriptSystem.h"
+#include "Core/Core.h"
 namespace SliceEngine
 {
 	//class ScriptSystem; // Forward-declare the class
@@ -126,6 +127,8 @@ namespace SliceEngine
 		MonoMethod* mOnUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
 		MonoMethod* mOnEntityDestroy = nullptr;
+		MonoMethod* mOnEntityEnabled = nullptr;
+		MonoMethod* mOnEntityDisabled = nullptr;
 
 		// Standard object functions
 		MonoMethod* mOnCollideEnter = nullptr;
@@ -256,6 +259,16 @@ namespace SliceEngine
 		void InvokeOnMouseHover();
 
 		/// <summary>
+		/// Call when the entity is enabled again
+		/// </summary>
+		void InvokeOnEnabled();
+
+		/// <summary>
+		/// Call when the entity is disabled
+		/// </summary>
+		void InvokeOnDisabled();
+
+		/// <summary>
 		/// Call when entering a state
 		/// </summary>
 		/// <param name="stateName"></param>
@@ -334,40 +347,41 @@ namespace SliceEngine
 
 		}
 
-		//template <>
-		//GameObject GetFieldValue<GameObject>(const std::string& name)
-		//{
-		//	const auto& fields = mScriptClass->mFields;
-		//	if (fields.count(name) == 0)
-		//	{
-		//		return GameObject(); // Return an invalid/null GameObject
-		//	}
 
-		//	const ScriptField& field = fields.at(name);
+		template <>
+		GameObject GetFieldValue<GameObject>(const std::string& name)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0)
+			{
+				return GameObject(); // Return an invalid/null GameObject
+			}
 
-		//	// 1. Retrieve the pointer to the C# object (MonoObject*)
-		//	MonoObject* instance = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+			const ScriptField& field = fields.at(name);
 
-		//	// 2. Handle null references in C#
-		//	if (instance == nullptr)
-		//	{
-		//		return GameObject();
-		//	}
+			// 1. Retrieve the pointer to the C# object (MonoObject*)
+			MonoObject* instance = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
 
-		//	// 3. Get the 'mID' field from the C# GameObject class
-		//	// Optimization: You should cache this MonoClassField* in your ScriptSystem
-		//	MonoClass* gameObjectClass = mono_object_get_class(instance);
-		//	MonoClassField* idField = mono_class_get_field_from_name(gameObjectClass, "mID");
+			// 2. Handle null references in C#
+			if (instance == nullptr)
+			{
+				return GameObject();
+			}
 
-		//	// 4. Extract the uint32_t value from the mID field
-		//	uint32_t entityID = 0;
-		//	mono_field_get_value(instance, idField, &entityID);
+			// 3. Get the 'mID' field from the C# GameObject class
+			// Optimization: You should cache this MonoClassField* in your ScriptSystem
+			MonoClass* gameObjectClass = mono_object_get_class(instance);
+			MonoClassField* idField = mono_class_get_field_from_name(gameObjectClass, "mID");
 
-		//	// 5. Construct and return the C++ GameObject wrapper
-		//	// Note: Since ScriptObject doesn't store the Registry, 
-		//	// you must use your global gScriptSystem to access the current registry.
-		//	return GameObject(*gScriptSystem->mRegistry, (Entity)(entityID));
-		//}
+			// 4. Extract the uint32_t value from the mID field
+			uint32_t entityID = 0;
+			mono_field_get_value(instance, idField, &entityID);
+
+			// 5. Construct and return the C++ GameObject wrapper
+			// Note: Since ScriptObject doesn't store the Registry, 
+			// you must use your global gScriptSystem to access the current registry.
+			return GameObject(*gScriptSystem->mRegistry, (Entity)(entityID));
+		}
 
 #pragma region For Arrays
 		template<typename T>
@@ -397,6 +411,27 @@ namespace SliceEngine
 			for (uintptr_t i = 0; i < length; ++i)
 			{
 				result[i] = mono_array_get(monoArray, T, i);
+			}
+
+			return result;
+		}
+
+		template<>
+		std::vector<GameObject> GetArrayFieldValue(const std::string& name)
+		{
+			std::vector<GameObject> result;
+
+			std::vector<std::string> ids = GetArrayFieldValue<std::string>(name);
+
+			for (const auto& id : ids)
+			{
+				if (id.empty())
+				{
+					result.emplace_back();
+					continue;
+				}
+
+				//FactoryInstance.GetGOByEntity(static_cast<uint64_t>())
 			}
 
 			return result;
@@ -600,6 +635,64 @@ namespace SliceEngine
 			return result;
 		}
 
+		template <>
+		std::vector<GameObject> GetListFieldValue(const std::string& name)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<GameObject> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.reserve(count);
+
+			//GameObject GetFieldValue bs
+			MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+			MonoClassField* idField = mono_class_get_field_from_name(gameObjectClass, "mID");
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+
+				// This returns a MonoObject* representing the specific GameObject instance at index [i]
+				MonoObject* gameObjectInstance = (MonoObject*)mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+
+				if (gameObjectInstance)
+				{
+					// Extract the uint32_t ID from this specific instance
+					uint32_t entityID = 0;
+					mono_field_get_value(gameObjectInstance, idField, &entityID);
+
+					// Reconstruct the C++ GameObject wrapper and add to vector
+					result.emplace_back(*gScriptSystem->mRegistry, (Entity)entityID);
+				}
+				else
+				{
+					// If the element in the C# list is null, add an invalid/empty GameObject
+					result.emplace_back();
+				}
+			}
+			return result;
+		}
+
 		template <typename T>
 		void AddListFieldValue(const std::string& name, T value)
 		{
@@ -652,6 +745,44 @@ namespace SliceEngine
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
 			// TODO: handle exceptions ill do it aft everything works
+
+		}
+
+		template <>
+		void AddListFieldValue<GameObject>(const std::string& name, GameObject value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+
+			MonoImage* coreImage = mono_assembly_get_image(gScriptSystem->mCoreAssembly);
+			MonoClass* gameObjectClass = mono_class_from_name(coreImage, "SliceEngine", "GameObject");
+
+			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+
+			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			uint32_t entityID = (uint32_t)value.GetEntity();
+			void* ctorArgs[1];
+			ctorArgs[0] = &entityID;
+
+			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			void* addArgs[1];
+			addArgs[0] = managedGameObject;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, addArgs, &exception);
 
 		}
 
@@ -709,6 +840,43 @@ namespace SliceEngine
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
 			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template<>
+		void SetListFieldValue<GameObject>(const std::string& name, int index, const GameObject& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+			MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+
+			//Initialising  the C# GameObject
+			uint32_t entityID = (uint32_t)value.GetEntity();
+			void* ctorArgs[1];
+			ctorArgs[0] = &entityID;
+
+			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			//Setting the item in the list to its index
+			void* params[2];
+			params[0] = &index;
+			params[1] = managedGameObject;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
 		}
 		
 		void RemoveListField(const std::string& name, int index)
@@ -820,6 +988,44 @@ namespace SliceEngine
 
 		}
 
+		template<>
+		void SetListField<GameObject>(const std::string& name, const std::vector<GameObject>& val)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// Some fail safes i guess
+			// incase its out of sync 
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+
+			if (count != val.size())
+			{
+				SLICE_LOG_ERROR("C# List " + name + " is not in sync");
+			}
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				SetListFieldValue<GameObject>(name, i, val[i]);
+			}
+
+		}
 
 #pragma endregion
 
@@ -857,37 +1063,37 @@ namespace SliceEngine
 			}
 		}
 
-		//template <>
-		//void SetFieldValue<GameObject>(const std::string& name, GameObject val)
-		//{
-		//	const auto& fields = mScriptClass->mFields;
-		//	if (fields.count(name) == 0) return;
+		template <>
+		void SetFieldValue<GameObject>(const std::string& name, GameObject val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0) return;
 
-		//	const ScriptField& field = fields.at(name);
+			const ScriptField& field = fields.at(name);
 
-		//	// 1. Get the MonoClass for the C# GameObject
-		//	// Note: You should ideally cache this MonoClass* in your ScriptSystem to avoid lookups
-		//	MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+			// 1. Get the MonoClass for the C# GameObject
+			// Note: You should ideally cache this MonoClass* in your ScriptSystem to avoid lookups
+			MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
 
-		//	if (!gameObjectClass) return;
+			if (!gameObjectClass) return;
 
-		//	// 2. Create a new managed instance of the C# GameObject
-		//	MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
+			// 2. Create a new managed instance of the C# GameObject
+			MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
 
-		//	// 3. Initialize the object (Calls the constructor)
-		//	// We can call the constructor that takes a uint ID
-		//	void* args[1];
-		//	uint32_t entityID = (uint32_t)val.GetEntity();
-		//	args[0] = &entityID;
+			// 3. Initialize the object (Calls the constructor)
+			// We can call the constructor that takes a uint ID
+			void* args[1];
+			uint32_t entityID = (uint32_t)val.GetEntity();
+			args[0] = &entityID;
 
-		//	// Find the constructor: GameObject(uint id)
-		//	MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-		//	mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+			// Find the constructor: GameObject(uint id)
+			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			mono_runtime_invoke(ctor, managedInstance, args, nullptr);
 
-		//	// 4. Set the field in your ScriptObject to this new C# object reference
-		//	// Since it's a reference type, we pass the pointer to the MonoObject itself
-		//	mono_field_set_value(mMonoInstance, field.mClassField, managedInstance);
-		//}
+			// 4. Set the field in your ScriptObject to this new C# object reference
+			// Since it's a reference type, we pass the pointer to the MonoObject itself
+			mono_field_set_value(mMonoInstance, field.mClassField, managedInstance);
+		}
 
 		MonoObject* GetListObject(const std::string& name);
 
