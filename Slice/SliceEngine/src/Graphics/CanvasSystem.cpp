@@ -25,6 +25,64 @@ namespace SliceEngine {
 		uint64_t ui_font_eid = 0;
 	}
 
+	namespace SliceEngineTypes {
+		/*
+		* to handle wrapping in text box
+		* first tokenize according to spaces and line breaks
+		* calculate the size of each word and ensure the line does not exceed limit
+		* 
+		* potentially do this only when text gets changed, and calculate only size at runtime
+		* see if this really cooks performance first
+		*/
+		void Tokenize(FontRenderer& font_render, Font_Data const& font) {
+			float relative_size = font_render.font_size / font.font_size;
+			
+			auto const& font_text = font_render.text;
+			std::vector<FontRenderer::Token> token_list{};
+			token_list.reserve(50);	//probably less then 50 words and spaces in 1 component, just a heuristic
+
+			for (size_t pos = 0; pos < font_text.size(); ++pos) {
+				FontRenderer::Token token{};
+				token.pos = &font_text[pos];
+
+				const char* pattern = " \n\t";
+				switch (font_text[pos]) {
+				case '\n':
+					token.size = 0;
+					break;
+				case ' ':
+					token.size = font.glyph_datas.at(font_text[pos]).advance * relative_size;
+					break;
+				case '\t':
+					token.size = font.glyph_datas.at(' ').advance * relative_size * 4;	//1 tab is 4 spaces
+					break;
+				default:
+					{
+					size_t next = font_text.find_first_of(pattern, pos);
+					if (next == std::string::npos) {
+						next = font_text.size();
+					}
+					
+					for (size_t ch = pos; ch < next; ++ch) {
+						token.size += font.glyph_datas.at(font_text[ch]).advance * relative_size;
+					}
+
+					pos += next - pos - 1;	//-1 because of loop increments
+					}
+					break;
+				}
+
+				token_list.push_back(std::move(token));
+			}
+
+			font_render.token_list.swap(token_list);
+		}
+
+		void Fit_Line(FontRenderer const& font_render, RectTransform const& rect) {
+
+		}
+	}
+
 	void CanvasSystem::Init() {
 		glCreateFramebuffers(1, &fbo);
 
@@ -257,34 +315,35 @@ namespace SliceEngine {
 			//	CheckGLError();
 			}
 			else if (shader_guid == font_shader) {	//font
-				//continue;
-				//Use rect to format the font characters
-				unsigned int instance_count = 0;
-				
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
 				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
 
-			/*	if (font_render.fontHandle.GetGUID() == 0) {
-					continue;
-				}*/
+				if (font_render.fontHandle.GetGUID() == DefaultResourceIDs::FONT_BLANK_DEFAULT) {
+					return;
+				}
 
+				//Use rect to format the font characters
+				unsigned int instance_count = 0;
 				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
 
-				uniform_loc = glGetUniformLocation(shader, "rgba");
+				unsigned int uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
 
-				glBindTextureUnit(0, font.get()->atlas_texture);
-				// default for now
-				//auto const& res = rm->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
-				//glBindTextureUnit(0, res.get()->texture_id);
-				CheckGLError();
-
-				float x_pen = rect.final_x;
-				float y_pen = rect.final_y;
 				float relative_scale = font_render.font_size / font->font_size;
 
 				uniform_loc = glGetUniformLocation(shader, "relative_scale");
 				glUniform1f(uniform_loc, relative_scale);
+
+				glBindTextureUnit(0, font.get()->atlas_texture);
+
+				CheckGLError();
+
+
+				//fit into a line
+
+
+				float x_pen = rect.final_x;
+				float y_pen = rect.final_y;
 
 				for (char ch : font_render.text) {
 					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
@@ -295,7 +354,7 @@ namespace SliceEngine {
 					float h = glyph.h * relative_scale;
 
 					x_pen += glyph.advance * relative_scale;
-					
+
 					if (w == 0) {
 						continue;
 					}
@@ -338,6 +397,7 @@ namespace SliceEngine {
 
 		CheckGLError();
 	}
+
 	void CanvasSystem::render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
@@ -422,6 +482,14 @@ namespace SliceEngine {
 		}
 		if (auto font = mRegistry->try_get<FontRenderer>(node)) {
 			//GUID font_guid = rm->mFileNameToGUID["Shaders/uiFont.shader"];
+
+			//tokenize the font string to fit into text box
+			if (!font->token_updated) {
+				auto const& font_data = rm->get<SliceEngineTypes::Font_Data>(font->fontHandle);
+				SliceEngineTypes::Tokenize(*font, *font_data.get());
+				font->token_updated = true;
+				
+			}
 			render.push_back({ node, font_shader });
 		}
 

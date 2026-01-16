@@ -726,6 +726,7 @@ namespace SliceEngine
 	*/
 	struct FontRenderer {
 		bool componentEnabled{ true };
+		bool token_updated{ false };
 		GUID fontHandle{};
 		glm::vec4 rgba{ 1.f };
 
@@ -740,6 +741,13 @@ namespace SliceEngine
 		float line_spacing;
 		
 		std::string text{"Hello World"};
+
+		struct Token {
+			//std::string text{};
+			const char* pos{};
+			float size{};
+		};
+		std::vector<Token> token_list{};
 
 		RTTR_ENABLE();
 	};
