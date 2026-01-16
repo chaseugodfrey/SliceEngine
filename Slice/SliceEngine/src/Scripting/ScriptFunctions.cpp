@@ -1787,6 +1787,16 @@ namespace SliceEngine
 		return registry.try_get<NavAgent>(e);
 	}
 
+	static void NavAgent_ComponentState(uint32_t entityID, bool componentState)
+	{
+		NavAgent* agent = GetNavAgent(entityID);
+
+		if (agent)
+		{
+			agent->componentEnabled = componentState;
+		}
+	}
+
 	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3 *target)
 	{
 		NavAgent *agent = GetNavAgent(entityID);
@@ -2141,6 +2151,7 @@ namespace SliceEngine
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);
+		ADD_INTERNAL_CALL(NavAgent_ComponentState);
 		ADD_INTERNAL_CALL(NavAgent_SetDestination);
 		ADD_INTERNAL_CALL(NavAgent_Stop);
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
