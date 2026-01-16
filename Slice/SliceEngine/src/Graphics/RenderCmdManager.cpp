@@ -131,6 +131,7 @@ namespace SliceEngine
 
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
+			data.mdlMtx[0].w = 2.f; // Bilboard particles
 			SetColor(data, ptx.colour);
 			//data.texID = ptx.textureID;
 			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
