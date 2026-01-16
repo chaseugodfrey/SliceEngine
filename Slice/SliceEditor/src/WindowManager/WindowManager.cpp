@@ -846,7 +846,7 @@ namespace SliceEditor
 		static std::string sceneName = "";
 
 		bool isOpen;
-		if (ImGui::Begin("save scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::Begin("Save Scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::InputText("New Scene Name", &sceneName))
 			{
@@ -857,29 +857,19 @@ namespace SliceEditor
 			{
 				if (!sceneName.empty())
 				{
-					
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
-
 					// 2. Construct the new path
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
+					std::filesystem::path newScenePath = "Assets/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
-					
 					sceneSystem->OnSceneSave(newScenePath);
-
-					
-					sceneSystem->SetCurrentScenePath(newScenePath);
 
 					SliceEngine::gScriptSystem->OnEnd();
 
-					
 					sceneSystem->LoadSceneIntoQueue(newScenePath);
 
-				
-					saveSceneAsPopup = false;
-
-					
+					saveSceneAsPopup = false;					
 				}
 			}
 
@@ -915,9 +905,6 @@ namespace SliceEditor
 				{
 
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->mFactory.ClearGameObjects();
-					SliceEngine::Core::GetInstance()->mFactory.UpdateDestroyed();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(newScenePath);
 					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
 					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
 					newScenePopupOpen = false;

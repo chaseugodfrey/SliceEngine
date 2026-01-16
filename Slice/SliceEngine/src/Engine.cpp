@@ -688,7 +688,7 @@ namespace SliceEngine
 		{
 			if (sScene->isSceneUnloaded)
 			{
-				sScene->LoadNextScene();
+				sScene->LoadSceneFromQueue();
 			}
 		}
 

@@ -311,7 +311,7 @@ namespace SliceEditor
 					//Set to scene path and remove temp file
 					if (std::filesystem::exists(originalScenePath))
 					{
-						SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(originalScenePath);
+						SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(originalScenePath);
 						std::filesystem::remove(currentScenePath);
 					}
 				}

@@ -79,9 +79,13 @@ namespace SliceEditor
 		EditorUtilities::SetTheme(theme.ID);
 
 		// Scene
+		auto& assetManager = registry.GetAssetManager();
 		auto& scene = mPreferences->scene;
-		auto scene_to_load = scene.startingID != SliceEngine::GUID::null() ? scene.startingID : scene.lastID;
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(scene_to_load);
+		auto scene_to_load_guid = scene.startingID != SliceEngine::GUID::null() ? scene.startingID : scene.lastID;
+		auto scene_metadata_filename = assetManager.GetFilenameFromGUID(scene_to_load_guid);
+		auto scene_metadata_path = assetManager.GetMetaDataFromFilename(scene_metadata_filename.value());
+
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(scene_metadata_path.replace_extension(""));
 	}
 
 }

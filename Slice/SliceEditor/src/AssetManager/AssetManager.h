@@ -79,7 +79,7 @@ namespace SliceEditor
 		void AddDefaultsToManifest(nlohmann::json& manifestJSON);
 
 		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
-		std::filesystem::path GetMetaDataFromFilename(std::string guid);
+		std::filesystem::path GetMetaDataFromFilename(std::string filename);
 		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
