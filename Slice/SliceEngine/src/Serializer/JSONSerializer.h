@@ -889,6 +889,11 @@ namespace rttr
 
 				return rttr::variant(gameobjects); //?? does this work?? i hope so
 			}
+			if (typeName == "SliceEngine::PrefabVar")
+			{
+				return rttr::variant(SliceEngine::PrefabVar{ valueJson.get<std::string>() });
+
+			}
 
 			return rttr::variant(valueJson.get<std::string>());
 		}
