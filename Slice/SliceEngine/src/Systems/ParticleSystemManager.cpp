@@ -212,7 +212,7 @@ namespace SliceEngine
 			//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
 
 			prp.transform = transformMatrix;
-			prp.textureID = ps.GetTextureID();
+			prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
 			prp.colour = p.colour;
 
 			ps.renderData.push_back(prp);

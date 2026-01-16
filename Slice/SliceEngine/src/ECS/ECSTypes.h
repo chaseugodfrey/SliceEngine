@@ -419,7 +419,7 @@ namespace SliceEngine
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
-		GLuint textureID{};
+		GLuint64 textureID{};
 	};
 	struct ParticleSystem
 	{
