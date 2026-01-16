@@ -17,6 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Raycast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -161,7 +163,7 @@ namespace SliceEngine
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
 
-		bool PSystemRayCast();
+		bool PSystemRayCast(Entity entity);
 	};
 }
 

@@ -19,9 +19,10 @@ namespace SliceEngine
             return true;
         }
 
-        public bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+        public bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, float maxDistance, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
         {
-
+            hitInfo = new RayCastHit();
+            return true;
         }
 
         public bool SphereCast()
