@@ -173,92 +173,254 @@ namespace SliceEngine
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetDuration(uint entityID, out float duration);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetDuration(uint entityID, ref float duration);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetSpeed(uint entityID, out float speed);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetSpeed(uint entityID, ref float speed);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetRepeating(uint entityID, out bool repeating);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetRepeating(uint entityID, ref bool repeating);
-        [MethodImpl (MethodImplOptions.InternalCall)]
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetLocalSpace(uint entityID, out bool localSpace);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetLocalSpace(uint entityID, ref bool localSpace);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetLifetime(uint entityID, out float lifetime);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetLifetime(uint entityID, ref float lifetime);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetMinLifetime(uint entityID, out float minLifetime);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetMinLifetime(uint entityID, ref float minLifetime);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetMaxLifetime(uint entityID, out float maxLifetime);
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetMaxLifetime(uint entityID, ref float maxLifetime);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetDestroyOnExpire(uint entityID, out bool destroyOnExpire);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetDestroyOnExpire(uint entityID, ref bool destroyOnExpire);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetMaxParticles(uint entityID, out ulong destroyOnExpire);
+        internal extern static void ParticleSystem_GetMaxParticles(uint entityID, out ulong maxParticles);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetMaxParticles(uint entityID, ref ulong destroyOnExpire);
+        internal extern static void ParticleSystem_SetMaxParticles(uint entityID, ref ulong maxParticles);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetGForce(uint entityID, out float gForce);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetGForce(uint entityID, ref float destroyOnExpire);
+        internal extern static void ParticleSystem_SetGForce(uint entityID, ref float gForce);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetEmissionRate(uint entityID, out float emissionRate);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetEmissionRate(uint entityID, ref float emissionRate);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetShapeType(uint entityID, out ShapeType shapeType);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetShapeType(uint entityID, ref ShapeType shapeType);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetConeArc(uint entityID, out float coneArc);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetConeArc(uint entityID, ref float coneArc);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetConeRadius(uint entityID, out float coneRadius);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetConeRadius(uint entityID, ref float coneRadius);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetSphereRadius(uint entityID, out float sphereRadius);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetSphereRadius(uint entityID, ref float sphereRadius);
+
+        // Scale
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetScaleValueType(uint entityID, out ParticleSystem.ValueType scaleType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetScaleValueType(uint entityID, ref ParticleSystem.ValueType scaleType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetScale(uint entityID, out Vector3 scale);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetScale(uint entityID, ref Vector3 scale);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetScaleMin(uint entityID, out Vector3 minScale);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetScaleMin(uint entityID, ref Vector3 minScale);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetScaleMax(uint entityID, out Vector3 maxScale);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetScaleMax(uint entityID, ref Vector3 maxScale);
+
+        // Lifetime
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetLifetimeValueType(uint entityID, out ParticleSystem.ValueType lifetimeType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetLifetimeValueType(uint entityID, ref ParticleSystem.ValueType lifetimeType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetLifetime(uint entityID, out float lifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetLifetime(uint entityID, ref float lifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMinLifetime(uint entityID, out float minLifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMinLifetime(uint entityID, ref float minLifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMaxLifetime(uint entityID, out float maxLifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMaxLifetime(uint entityID, ref float maxLifetime);
+
+        // Rotation
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRotationValueType(uint entityID, out ParticleSystem.ValueType rotationType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRotationValueType(uint entityID, ref ParticleSystem.ValueType rotationType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRotation(uint entityID, out float rotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRotation(uint entityID, ref float rotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRotationMin(uint entityID, out float minRotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRotationMin(uint entityID, ref float minRotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRotationMax(uint entityID, out float maxRotation);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRotationMax(uint entityID, ref float maxRotation);
+
+        // Spawn Position
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpawnPosValueType(uint entityID, out ParticleSystem.ValueType spawnType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpawnPosValueType(uint entityID, ref ParticleSystem.ValueType spawnType);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetSpawnPos(uint entityID, out Vector3 spawnPos);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetSpawnPos(uint entityID, ref Vector3 spawnPos);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpawnPosMin(uint entityID, out Vector3 minSpawnPos);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpawnPosMin(uint entityID, ref Vector3 minSpawnPos);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpawnPosMax(uint entityID, out Vector3 maxSpawnPos);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpawnPosMax(uint entityID, ref Vector3 maxSpawnPos);
+
+        // Colour
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetColourValueType(uint entityID, out ParticleSystem.ValueType colourType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetColourValueType(uint entityID, ref ParticleSystem.ValueType colourType);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetColour(uint entityID, out Vector4 colour);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetColour(uint entityID, ref Vector4 colour);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetColourOverLifetime(uint entityID, out bool colourOverTime);
+        internal extern static void ParticleSystem_GetColourMin(uint entityID, out Vector4 minColour);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverTime);
+        internal extern static void ParticleSystem_SetColourMin(uint entityID, ref Vector4 minColour);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetVelocity(uint entityID, out Vector3 velocity);
+        internal extern static void ParticleSystem_GetColourMax(uint entityID, out Vector4 maxColour);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetVelocity(uint entityID, ref Vector3 velocity);
+        internal extern static void ParticleSystem_SetColourMax(uint entityID, ref Vector4 maxColour);
+
+        // Speed
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpeedValueType(uint entityID, out ParticleSystem.ValueType speedType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpeedValueType(uint entityID, ref ParticleSystem.ValueType speedType);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpeed(uint entityID, out float speed);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpeed(uint entityID, ref float speed);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpeedMin(uint entityID, out float minSpeed);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpeedMin(uint entityID, ref float minSpeed);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetSpeedMax(uint entityID, out float maxSpeed);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSpeedMax(uint entityID, ref float maxSpeed);
+
+        // Misc
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetColourOverLifetime(uint entityID, out bool colourOverLifetime);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetCollision(uint entityID, out bool collision);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetCollision(uint entityID, ref bool collision);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetTextureID(uint entityID, out uint textureID);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetTextureID(uint entityID, ref uint textureID);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_IsExpired(uint entityID, out bool isExpired);
+
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetSystemTimer(uint entityID, out float systemTimer);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetSystemTimer(uint entityID, ref float systemTimer);
 
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
