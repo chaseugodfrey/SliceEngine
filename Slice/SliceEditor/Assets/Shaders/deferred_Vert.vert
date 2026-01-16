@@ -56,6 +56,16 @@ void main(void){
 	}
 
 	mat4 model_to_world = iDat[gl_InstanceID].mdlMtx;
+	bool isBillboard = false;
+	if(model_to_world[0].w > 1.0f)
+	{
+		model_to_world[0].w = 0.0f;
+		model_to_world = V * model_to_world;
+		model_to_world[0][0] = 1.0; model_to_world[0][1] = 0.0; model_to_world[0][2] = 0.0;
+		model_to_world[1][0] = 0.0; model_to_world[1][1] = 1.0; model_to_world[1][2] = 0.0;
+		model_to_world[2][0] = 0.0; model_to_world[2][1] = 0.0; model_to_world[2][2] = 1.0;
+		isBillboard = true;
+	}
 
 	if(is_bone_animated) {
 		model_to_world = model_to_world * inverse_root * bone_tform;
@@ -68,5 +78,8 @@ void main(void){
 	vNom = normalize(N * aNom);
 	vTex = aTex;
 	vInstance = gl_InstanceID;
-	gl_Position	= P * V * posInWorld;
+	if(isBillboard)
+		gl_Position	= P * posInWorld;
+	else
+		gl_Position	= P * V * posInWorld;
 }
