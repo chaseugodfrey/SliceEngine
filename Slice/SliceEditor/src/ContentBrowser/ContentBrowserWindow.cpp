@@ -202,6 +202,15 @@ namespace SliceEditor
 		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
 		{}
 
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("%s", node.fileName.c_str());
+				ImGui::EndTooltip();
+			}
+		}
+
 		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
 		{
 			if (ImGui::MenuItem("Open Folder"))
@@ -228,7 +237,7 @@ namespace SliceEditor
 			SelectFolder(node);
 		}
 
-		ImGui::Text("%s", node.fileName.c_str());
+		ImGui::TextWrapped("%s", node.fileName.c_str());
 	}
 
 	void ContentBrowserWindow::DisplayFileNode(DirectoryNode& node)
@@ -276,6 +285,14 @@ namespace SliceEditor
 			ImGui::EndDragDropSource();
 		}
 
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("%s", node.fileName.c_str());
+				ImGui::EndTooltip();
+			}
+		}
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
@@ -358,7 +375,7 @@ namespace SliceEditor
 
 		RenameFilePopup(node);
 
-		ImGui::Text("%s", node.fileName.c_str());
+		ImGui::TextWrapped("%s", node.fileName.c_str());
 	}
 
 	void ContentBrowserWindow::SelectFolder(DirectoryNode& node)

@@ -340,6 +340,7 @@ namespace SliceEditor
 			assetType = metaData["assetType"].get<std::string>();
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
+			// small to do : pls dont make it crash
 			is_static = metaData["static"].get<bool>();
 			skeleMetaPath = metaData["skeleMetaPath"].get<std::string>();
 			animMetaPath = metaData["animMetaPath"].get<std::string>();

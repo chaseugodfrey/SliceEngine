@@ -16,7 +16,7 @@ namespace SliceEngine
 
         public void SetBool(string name, bool value)
         {
-            Console.WriteLine("Setting bool animation parameter: " + name + " to " + value);
+            //Console.WriteLine("Setting bool animation parameter: " + name + " to " + value);
             FunctionCalls.SetBool(gameObject.mID, name, value);
         }
 
