@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include "Skeleton.h"
 #include "StateMachine.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -36,6 +37,8 @@ namespace SliceEngine
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
+
+		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
 	}
 
 
@@ -220,6 +223,17 @@ namespace SliceEngine
 		static void Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr);
 
 		static void Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Font_Data>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::FONT_BLANK_DEFAULT;
+
+		static std::unique_ptr<SliceEngineTypes::Font_Data> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path);
 	};
 }
 

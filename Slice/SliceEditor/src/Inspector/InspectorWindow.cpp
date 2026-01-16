@@ -226,6 +226,34 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayFontRenderer(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("FontRenderer", mBaseFlags))
+		{
+			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
+
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
+
+			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
+
+			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
+			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
+			
+			SliceEngine::GUID font_guid = font.fontHandle;
+			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
+			font.fontHandle = font_guid;
+			
+
+			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
+			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
+			
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplayCanvas(entt::entity entity) {
 		if (ImGui::TreeNodeEx("Canvas", mBaseFlags))
 		{
@@ -1535,6 +1563,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))
+			{
+				DisplayFontRenderer(node->entity);
 				ImGui::Separator();
 			}
 
