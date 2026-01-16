@@ -797,6 +797,23 @@ namespace SliceEngine
 		return ui_ele;
 	}
 
+	GameObject GOFactory::CreateGO_Text()
+	{
+		auto ui_ele = CreateGO("Text");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<FontRenderer>();
+		auto& ui_font = ui_ele.GetComponent<FontRenderer>();
+		ui_font.rgba = { 0.f,0.f,0.f,1.f };
+		ui_font.font_size = 50;
+		ui_font.line_spacing = 20;
+		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_font.fontHandle = (GUID)0;
+
+		return ui_ele;
+	}
+
 
 	GameObject GOFactory::CreateGO_Model(GUID skele_guid, GUID anim_guid, GUID model_guid) {
 		//Get the resource handle first

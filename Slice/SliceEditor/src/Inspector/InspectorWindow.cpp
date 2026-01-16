@@ -231,6 +231,34 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplayFontRenderer(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("FontRenderer", mBaseFlags))
+		{
+			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
+
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
+
+			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
+
+			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
+			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
+			
+			SliceEngine::GUID font_guid = font.fontHandle;
+			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
+			font.fontHandle = font_guid;
+			
+
+			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
+			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
+			
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplayCanvas(entt::entity entity) {
 		if (ImGui::TreeNodeEx("Canvas", mBaseFlags))
 		{
@@ -362,8 +390,8 @@ namespace SliceEditor
 						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
 						SliderFloatInputHeader(mRegistry, "Spread", "##spread", as.spread, "%.1f", 0.0, 360.0);
 						//To add volume rolloff dropdown
-						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance);
-						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Min Distance", "##minDistance", as.minDistance, "%.1f", 0.0f, as.maxDistance);
+						SliderFloatInputHeader(mRegistry, "Max Distance", "##maxDistance", as.maxDistance, "%.1f", as.minDistance, 1000.0f);
 					}
 						
 
@@ -620,63 +648,59 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Script>(entity);
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", script.componentEnabled);
 
+			auto& scriptMap = SliceEngine::gScriptSystem->mEntityClasses;
 			std::string script_name = script.scriptName;
-			if (script_name.empty())
-				script_name = "(Empty)";
+			std::vector<std::string> scriptList{};
+			int selectedIndex = 0;
 
-			// Script Name
-
-			ImGui::Text("Script Class: ");
-			ImGui::SameLine(150.0f);
-			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-			ImGui::InputText("##script_name", &script_name, ImGuiInputTextFlags_ReadOnly);
-
-			ImGui::Separator();
+			for (auto& [key, value] : scriptMap)
+			{
+				scriptList.push_back(value->mClassName);
+			}
 
 			if (script.scriptName.empty())
 			{
-				if (ImGui::Button("Add Script"))
+				//script_name = "Empty";
+				scriptList.push_back("Empty");
+				selectedIndex = scriptList.size() - 1;
+			}
+			else
+			{
+				//ngl its not the most robust method probably but its a fix for now
+				std::string searchName = script.scriptName;
+				if (script.scriptName.starts_with("SliceEngine."))
 				{
-					ImGui::OpenPopup("script_list_popup");
+					searchName = script.scriptName.substr(std::string("SliceEngine.").size());
 				}
 
-				if (ImGui::BeginPopupContextItem("script_list_popup"))
-				{					
-					auto& script_map = SliceEngine::gScriptSystem->mEntityClasses;
-
-					std::vector<const char*> script_list{};
-
-					static int list_index = 1;
-
-					for (auto& [key, value] : script_map)
-					{
-						script_list.push_back(value->mClassName.c_str());
-					}
-
-					//std::string selected_script_class{};
-
-					if (ImGui::BeginListBox("##script_list"))
-					{
-						for (size_t i = 0; i < script_list.size(); i++)
-						{
-							if (ImGui::Selectable(script_list[i]))
-							{
-								script.scriptName = "SliceEngine.";
-								script.scriptName += script_list[i];
-								ImGui::CloseCurrentPopup();
-							}
-						}
-
-						ImGui::EndListBox();
-					}
-
-					ImGui::EndPopup();
+				auto it = std::find(scriptList.begin(), scriptList.end(), searchName);
+				if (it != scriptList.end())
+				{
+					selectedIndex = std::distance(scriptList.begin(), it);
 				}
 			}
 
+			//if(!script_name.empty())
+			//{
+			//	ImGui::BeginDisabled();
+			//}
+
+			ImGui::PushID((int)entity);
+			if (ComboHeader<int>(mRegistry, "Script Class:", "##scriptClassID", selectedIndex, scriptList, true))
+			{
+				script.scriptName = "SliceEngine.";
+				script.scriptName += scriptList[selectedIndex];
+				SliceEngine::gScriptSystem->ReloadEntityScript(entity);
+			}
+			ImGui::PopID();
+			//if(!script_name.empty())
+			//{
+			//	ImGui::EndDisabled();
+			//}
+
 			// Script Variables
 
-			else
+			if(!script.scriptName.empty())
 			{
 				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(entity);
 
@@ -866,11 +890,38 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
+
+							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
+							{
+								auto data = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+
+								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
+									{
+										if (funcToExec == "Edit")
+										{
+											sp->SetListField(name, list);
+										}
+										else if (funcToExec == "Add")
+										{
+											sp->AddListFieldValue(name, val);
+										}
+										else if (funcToExec == "Remove")
+										{
+											sp->RemoveListField(name, index);
+										}
+									};
+
+								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetListField(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							}
 						}
 
 						#pragma endregion
 
-						//Normal Variables
+						#pragma region Normal Variables
 						else
 						{
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
@@ -965,6 +1016,7 @@ namespace SliceEditor
 								}*/
 							}
 						}
+					#pragma endregion
 					}
 				}
 
@@ -1065,11 +1117,11 @@ namespace SliceEditor
 			{
 				value_type = SliceEngine::ParticleSystem::ValueType::CONSTANT;
 			}
-
-			if (ImGui::Selectable("Curve"))
-			{
-				value_type = SliceEngine::ParticleSystem::ValueType::CURVE;
-			}
+		
+			//if (ImGui::Selectable("Curve"))
+			//{
+			//	value_type = SliceEngine::ParticleSystem::ValueType::CURVE;
+			//}
 
 			if (ImGui::Selectable("Random from 2 Constants"))
 			{
@@ -1097,8 +1149,21 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
 				// Start Speed
-				// To do : Add Value Type Enum
-				DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f, 100.f);
+				switch (ps.speedValueType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f);
+					break;
+
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.1f", 0.0f);
+					break;
+				default:
+					break;
+				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.speedValueType, "speed");
 
 				// Start Lifetime
 				switch (ps.initialLifetimeType)
@@ -1113,59 +1178,63 @@ namespace SliceEditor
 				default:
 					break;
 				}
-
 				ImGui::SameLine();
-
 				ButtonValueTypePopup(ps.initialLifetimeType, "lifetime");
 
 				// Start Size
-				// To do : Add Value Type Enum
-				DragVec3InputHeader(mRegistry, "Start Size", "##startSize", ps.scale);
+				switch (ps.scaleType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragVec3InputHeader(mRegistry, "Start Size", "##startSize", ps.scale);
+					break;
+
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragVec3InputHeader(mRegistry, "Min Start Size", "##minStartSize", ps.minRandomScale);
+					DragVec3InputHeader(mRegistry, "Max Start Size", "##maxStartSize", ps.maxRandomScale);
+					break;
+				default:
+					break;
+				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.scaleType, "size");
+
+				// Start Position
+				switch (ps.posValueType)
+				{
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragVec3InputHeader(mRegistry, "Pos Offset", "##startPos", ps.spawnPos);
+					break;
+
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragVec3InputHeader(mRegistry, "Min Pos Offset", "##minStartPos", ps.minRandomSpawnPos);
+					DragVec3InputHeader(mRegistry, "Max Pos Offset", "##maxStartPos", ps.maxRandomSpawnPos);
+					break;
+
+				default:
+					break;
+				}
+				ImGui::SameLine();
+				ButtonValueTypePopup(ps.posValueType, "position");
+
 
 				// Start Rotation
-				// To do : Add Value Type Enum
-				BoolInputHeader(mRegistry, "3D Rotation", "##is3Drot", ps.isInitialRotation3D);
-				
-				if (ps.isInitialRotation3D)
+				switch (ps.initialRotationType)
 				{
-					switch (ps.initialRotationType)
-					{
-					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-						DragRotationInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation, ps.eulerHint);
-						break;
-					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-						DragRotationInputHeader(mRegistry, "Min Rotation", "##minStartRot", ps.minRandomRotation, ps.minEulerHint);
-						DragRotationInputHeader(mRegistry, "Max Rotation", "##maxStartRot", ps.maxRandomRotation, ps.maxEulerHint);
-						break;
-					default:
-						break;
-					}
+				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+					DragFloatInputHeader(mRegistry, "Rotation", "##r", ps.rotation, "%.1f", 0.0f, 360.f);
+					break;
+				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+					DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation, "&.1f", 0.f, 360.f);
+					DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					break;
+				default:
+					break;
 				}
-
-				else
-				{
-					switch (ps.initialRotationType)
-					{
-					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-						DragFloatInputHeader(mRegistry, "Start Rotation", "##startRot", ps.rotation.x, "&.1f", 0.f, 360.f);
-						break;
-					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-						DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation.x, "&.1f", 0.f, 360.f);
-						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation.x, "&.1f", 0.f, 360.f);
-						break;
-					default:
-						break;
-					}
-				}
-
 				ImGui::SameLine();
 				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
-				//ComboHeader< SliceEngine::ParticleSystem::ValueType>(mRegistry, "", "##lifetime_valuetype", ps.initialLifetimeType, value_type_names);
 
-				// Start Color
-				// To do : Add Value Type Enum
-
-				switch (ps.colorValueType)
+				// Start Colour			
+				switch (ps.colourValueType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
 					DragColor4InputHeader(mRegistry, "Start Colour", "##colorStart", ps.colour);
@@ -1177,16 +1246,14 @@ namespace SliceEditor
 				default:
 					break;
 				}
-
 				ImGui::SameLine();
-
-				ButtonValueTypePopup(ps.colorValueType, "color");
+				ButtonValueTypePopup(ps.colourValueType, "colour");
 
 				// Gravity
 				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
 
 				// Max Particles
-				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "", 0, 0);
+				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "%llu", 0, 5000);
 
 				// Simulation Space
 				BoolInputHeader(mRegistry, "Is Local Space", "##isLocalSpace", ps.isLocalSpace);
@@ -1197,14 +1264,17 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Shape"))
 			{
-				static std::vector<std::string> shapeTypes{ "Cone" };
+				static std::vector<std::string> shapeTypes{ "Sphere", "Cone"};
 				// Shape Type Enum
 				ComboHeader<SliceEngine::ParticleSystem::ShapeType>(mRegistry, "Shape", "##shapeType", ps.shapeType, shapeTypes);
 
 				switch (ps.shapeType)
 				{
+				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
+					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Angle", "##coneAngle", ps.coneAngle, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Arc Angle", "##coneArcAngle", ps.coneArc, "%.1f", 0.0f, 90.0f);
 					break;
 				default:
 					break;
@@ -1217,6 +1287,7 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Emission Rate", "##emission_rate", ps.emissionRate, "%.2f", 0.0f, 0.f);
 				
 				// Bursts
+				if (DragUInt64InputHeader(mRegistry, "Number of Bursts", "##numBursts", ps.numBursts, "%llu", 0, 100)) { ps.bursts.resize(ps.numBursts); };
 				if (ImGui::BeginTable("Bursts", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 				{
 					ImGui::TableSetupColumn("Time");
@@ -1224,17 +1295,33 @@ namespace SliceEditor
 					ImGui::TableSetupColumn("Cycle");
 					ImGui::TableSetupColumn("Interval");
 					ImGui::TableHeadersRow();
+					int counter = 0;
+					float itemWidth = 50.0f;
 					for (auto& burst : ps.bursts)
 					{
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "##burst_time", "##burst_time", burst.triggerTime, "%.2f", 0.0f, 0.0f);
+						float columnWidth = ImGui::GetColumnWidth();
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string triggerTimeID = ("##burst_triggerTime" + std::to_string(counter));
+						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, FLT_MAX);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "##burst_count", "##burst_count", burst.numParticles, "", 0, 0);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstCountID = ("##burst_count" + std::to_string(counter));
+						DragUInt64Input(mRegistry, burstCountID.c_str(), burst.numParticles, "%llu", 0, UINT_MAX);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "##burst_cycle", "##burst_cycle", burst.burstRepetitions, "", 0, 0);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstCycleID = ("##burst_cycle" + std::to_string(counter));
+						DragUInt64Input(mRegistry, burstCycleID.c_str(), burst.burstRepetitions, "%llu", 0, UINT_MAX);
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "##burst_interval", "##burst_interval", burst.burstPeriod, "", 0.0f, 0.0f);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstIntervalID = ("##burst_interval" + std::to_string(counter));
+						DragFloatInput(mRegistry, burstIntervalID.c_str(), burst.burstPeriod, "%.2f", 0.0f, FLT_MAX);
+						++counter;
 					}
 					ImGui::EndTable();
 				}
@@ -1242,7 +1329,12 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Color Over Lifetime"))
 			{
-
+				// Colour Over Lifetime
+				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
+				if (ps.colourOverLifetime)
+				{
+					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+				}
 			}
 
 			if (ImGui::CollapsingHeader("Renderer"))
@@ -1255,11 +1347,11 @@ namespace SliceEditor
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
 					{
 						std::string texture = ps.textureGUID.toString();
+
 						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Texture", "##ps_texture", texture))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(texture);
-						}
+						SliceEngine::GUID tex_guid = ps.textureGUID;
+						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+						ps.textureGUID = tex_guid;
 					}
 						break;
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
@@ -1278,18 +1370,14 @@ namespace SliceEditor
 						{
 							ps.textureGUID = SliceEngine::GUID::FromString(material);
 						}
+
+						SliceEngine::GUID tex_guid = ps.textureGUID;
+						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
+						ps.textureGUID = tex_guid;
 					}
 						break;
 					default:
 						break;
-				}
-
-				// LEGACY
-				ImGui::SeparatorText("Legacy");
-				std::string textureID = std::to_string(ps.textureID);
-				if (StringInputHeader(mRegistry, "Texture", "##ps_texture_legacy", textureID))
-				{
-					ps.textureID = std::stoul(textureID);
 				}
 			}
 
@@ -1483,6 +1571,11 @@ namespace SliceEditor
 				DisplaySpriteRenderer(node->entity);
 				ImGui::Separator();
 			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))
+			{
+				DisplayFontRenderer(node->entity);
+				ImGui::Separator();
+			}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Canvas>(entity))
 			{
@@ -1605,6 +1698,11 @@ namespace SliceEditor
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
 			mat.SerializeAsset(node->fullPath);
+		}		
+		
+		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->fullPath);
 		}
 
 		//std::string mat_file_name{};
@@ -1634,20 +1732,15 @@ namespace SliceEditor
 		//	ImGui::EndDragDropTarget();
 		//}
 
-		if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Roughness", "##roughness", mat.roughness, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 
-		if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
-
-		if (DragColor3InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}
+		//if (DragFloatInputHeader(mRegistry, "Metallic", "##metallic", mat.metallic, "%.2f", 0.0f, 1.0f))
+		//{
+		//	mat.SerializeAsset(node->fullPath);
+		//}
 	}
 
 	void InspectorWindow::DisplayState(StateNode* node)

@@ -406,6 +406,7 @@ namespace SliceEditor
 	struct Preferences
 	{
 		EditorThemeType Theme;
+		SliceEngine::GUID StartingSceneGUID;
 	};
 
 	struct testtest

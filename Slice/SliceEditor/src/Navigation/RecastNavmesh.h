@@ -35,6 +35,9 @@ namespace SliceEditor
         void Clear();
 
         rcConfig& GetConfig();
+        float *GetAgentHeight();
+        float *GetAgentRadius();
+        float *GetMaxClimb();
 
     private:
         rcConfig config{};
@@ -47,6 +50,10 @@ namespace SliceEditor
 
         dtNavMesh *navMesh = nullptr;      
         dtNavMeshQuery *navQuery = nullptr;
+
+        float m_agentHeight;
+        float m_agentRadius;
+        float m_agentMaxClimb;
 	};
 }
 #endif

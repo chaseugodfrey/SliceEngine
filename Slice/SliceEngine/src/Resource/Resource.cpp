@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include "Core/Core.h"
 #include "Systems/SceneSystem.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -85,6 +86,24 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	// Custom Shader
+	std::unique_ptr<SliceEngineTypes::CustomShader> Type<SliceEngineTypes::CustomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::CustomShader>(SliceEngineTypes::CustomShader::LoadCShader(path));
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyCShader();	//calls glDeleteProgram
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyCShader();	//calls glDeleteProgram
+		resource->LoadCShader(path); // --TODO-- in case I store the val somewhere else
+	}
+
 	// Vertex Shader
 	std::unique_ptr<SliceEngineTypes::VertShader> Type<SliceEngineTypes::VertShader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -182,18 +201,17 @@ namespace SliceEngine
 
 		try
 		{
-			
 			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
-			float newRoughness = materialJson["roughness"].get<float>();
-			float newMetallic = materialJson["metallic"].get<float>();
+			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
+
 			glm::from_json(materialJson["color"], materialToReload->color);
+			materialToReload->floatDat.clear();
+			materialToReload->uintDat.clear();
+			materialToReload->intDat.clear();
+			materialToReload->boolDat.clear();
 
-			
-			materialToReload->roughness = newRoughness;
-			materialToReload->metallic = newMetallic;
-
-			
 			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
+			GUID oldShaderGUID = materialToReload->shader.getGUID();
 
 			
 			if (oldAlbedoGUID != newAlbedoGUID)
@@ -203,6 +221,38 @@ namespace SliceEngine
 			else
 			{
 				// The texture is the same. DO NOTHING to the handle.
+			}
+			if (newShaderGUID != oldShaderGUID)
+			{
+				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
+				for (auto& i : materialToReload->shader.get()->dataIn)
+				{
+					if (i.isFloating)
+					{
+						if (i.numBytes == 4)
+							materialToReload->floatDat.push_back(std::bit_cast<float>(i.baseData));
+					}
+					else
+					{
+						if (i.numBytes == 4)
+						{
+							if (i.isUnsigned)
+								materialToReload->uintDat.push_back(i.baseData);
+							else
+								materialToReload->intDat.push_back(static_cast<int>(i.baseData));
+						}
+						else if (i.numBytes == 1)
+							materialToReload->boolDat.push_back(static_cast<bool>(i.baseData));
+					}
+				}
+
+			}
+			else
+			{
+				materialJson["floats"].get_to(materialToReload->floatDat);
+				materialJson["ints"].get_to(materialToReload->intDat);
+				materialJson["uints"].get_to(materialToReload->uintDat);
+				materialJson["bools"].get_to(materialToReload->boolDat);
 			}
 		}
 		catch (nlohmann::json::exception& e)
@@ -421,4 +471,39 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::StateMachine>::Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	//Font
+	std::unique_ptr<SliceEngineTypes::Font_Data> Type<SliceEngineTypes::Font_Data>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto font = std::make_unique<SliceEngineTypes::Font_Data>();
+		if (!std::filesystem::exists(path)) {
+			font->InitializeDefault();
+		}
+		else {
+			if (!font->LoadFontResource(path)) {
+				return nullptr;
+			}
+		}
+		return font;
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFontResource();
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyFontResource();
+		if (!std::filesystem::exists(path)) {
+			resource->InitializeDefault();
+		}
+		else {
+			resource->LoadFontResource(path);
+		}
+	}
+
+	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}*/
 }

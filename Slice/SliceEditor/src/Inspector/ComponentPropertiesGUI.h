@@ -28,14 +28,14 @@ namespace SliceEditor
 
 	#pragma endregion
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f);
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f, float speed = 0.1f);
 
 	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
 
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min = 0, int max = 0);
 	
-	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0, float speed = 1.0f);
 	bool DragUInt32Input(Registry& reg, const char* id, uint32_t& val, const char* format, uint32_t min = 0, uint32_t max = 0);
 
 	bool BoolInput(Registry& reg, const char* id, bool& val);
@@ -46,13 +46,13 @@ namespace SliceEditor
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 
-	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f, float speed = 0.1f);
 	
 	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 	
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "X: %llu", uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "X: %llu", uint64_t min = 0, uint64_t max = 0, float speed = 1.0f);
 	bool DragUInt32InputHeader(Registry& reg, const char* property_label, const char* id, uint32_t& val, const char* format = "X: %u", uint32_t min = 0, uint32_t max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
@@ -84,6 +84,8 @@ namespace SliceEditor
 	bool DragVec3ArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<glm::vec3>)> func, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format = "%.3f", float inc =0.1f, float min = 0.f, float max = 0.f);
 
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector<std::string>& list);
+
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list);
 
 	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
 
@@ -185,6 +187,13 @@ namespace SliceEditor
 			if (searchBar)
 			{
 				std::string newID = std::string(id) + "searchBar";
+
+				if (ImGui::IsWindowAppearing())
+				{
+					ImGui::SetKeyboardFocusHere();
+					buffer[0] = '\0';
+					searchPrompt.clear();
+				}
 				if (ImGui::InputText(newID.c_str(), buffer, IM_ARRAYSIZE(buffer)))
 				{
 					searchPrompt = buffer;
@@ -217,11 +226,6 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
-		else
-		{
-			buffer[0] = '\0';
-			searchPrompt.clear();
-		}
 		return changed;
 	}
 
@@ -238,7 +242,7 @@ namespace SliceEditor
 
 		ImGui::SetNextItemWidth(150.0f);
 
-		ComboInput(reg , id, selected, container,searchBar);
+		changed = ComboInput(reg , id, selected, container,searchBar);
 		return changed;
 	}
 
@@ -324,37 +328,6 @@ namespace SliceEditor
 					}
 				}
 			}
-			//}
-
-			/*else
-			{
-				int selectedIndex = currentIndex;
-
-				if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
-				{
-					const std::string& selectedName = mapNames[selectedIndex];
-					SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-					changed = (handle.getGUID() != newGUID);
-					if (changed)
-					{
-						if (!setFunc)
-						{
-							auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-							auto newHandle = rm->get<T>(newGUID);
-
-							std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-							reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-							handle = newHandle;
-						}
-
-						else
-						{
-							setFunc(newGUID);
-						}
-					}
-				}
-			}*/
 		}
 		
 		//No Drag-Drop for some reason
@@ -400,7 +373,14 @@ namespace SliceEditor
 					}
 
 					else
+					{
+						/*auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+						auto newHandle = rm->get<T>(newGUID);
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::Handle<T>>>(handle, newHandle, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+
 						setFunc(newGUID);
+					}
 				}
 			}
 

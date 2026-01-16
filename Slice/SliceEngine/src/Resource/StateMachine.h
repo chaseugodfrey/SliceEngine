@@ -97,6 +97,7 @@ namespace SliceEngine
 			std::unordered_map<std::string, State> stateMap;
 			std::string entryState;
 			State* currState = nullptr;
+			State* anyState = nullptr;
 			std::string nextState;
 			std::string prevState;
 

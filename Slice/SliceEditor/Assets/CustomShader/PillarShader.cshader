@@ -1,0 +1,28 @@
+#IN
+float noiseScale = 58.1;
+
+#CODE
+float rand(vec2 n)
+{
+    return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+
+vec4 TexColorC(vec4 texCol, vec4 color)
+{
+    float var0 = rand(vTex) * noiseScale;
+    
+    float var1 = smoothstep(0.f, vTex.y, var0);
+    
+    float var2 = var1 * texCol.a * color.a;
+    
+    vec4 var3 = texCol * color;
+    var3.a = 0.f;
+    
+    vec4 var4 = var3 * vec4(vTex.x);
+    
+    return vec4(var4.r, var4.g, var4.b, var2);
+}
+vec2 RoughMet()
+{
+    return vec2(0.f, 0.f);
+}
