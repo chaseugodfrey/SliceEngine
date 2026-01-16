@@ -8,6 +8,7 @@ project "SliceEditor"
 
     files { "src/**", "thirdparty/imgui/include/**", 
     "thirdparty/recast/Recast/Source/*.cpp",
+    "thirdparty/recast/Detour/DetourCrowd/Source/**.cpp",
     "thirdparty/recast/Detour/Detour/Source/**.cpp" }
 
     --rtti "On"
@@ -26,6 +27,7 @@ project "SliceEditor"
         ThirdParty.MONO_INC,
         ThirdParty.RECAST_INC,
         ThirdParty.DETOUR_INC,
+        ThirdParty.DETOUR_CROWD_INC,
         "thirdparty/imgui/include",
         "thirdparty/filewatch/FileWatch"
         

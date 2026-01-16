@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Skeleton.h"
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
+#include <DetourCrowd.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -719,9 +720,44 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	/*
+	* Current assumptions:
+	* horizontal wrap
+	* text box is same size as rect transform
+	* 
+	* vertical overflow
+	*/
+	struct FontRenderer {
+		bool componentEnabled{ true };
+		bool token_updated{ false };
+		GUID fontHandle{};
+		glm::vec4 rgba{ 1.f };
+
+		enum Alignment {
+			LEFT,
+			CENTER,
+			RIGHT
+		} alignment{ LEFT };
+
+
+		float font_size;
+		float line_spacing;
+		
+		std::string text{"Hello World"};
+
+		struct Token {
+			//std::string text{};
+			const char* pos{};
+			float size{};
+		};
+		std::vector<Token> token_list{};
+
 		RTTR_ENABLE();
 	};
 
@@ -792,6 +828,7 @@ namespace SliceEngine
 	{
 		dtNavMesh* navMesh;
 		dtNavMeshQuery* navMeshQuery;
+		dtCrowd *navMeshCrowd;
 	};
 
 	struct NavMeshDebugObj
@@ -816,6 +853,7 @@ namespace SliceEngine
 
 		float speed = 2.0f;
 		bool hasNewTarget = false;
+		int crowdAgentID = -1;
 	};
 }
 

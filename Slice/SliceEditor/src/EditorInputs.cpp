@@ -34,10 +34,16 @@ namespace SliceEditor
 
 		}
 
+		ImGuiWindow* wnd = ImGui::FindWindowByName("Inspector");
+		isInspectorFocused = wnd && (ImGui::GetCurrentContext()->NavWindow == wnd);
+
 		//Normal Inputs
 		if (ImGui::IsKeyPressed(ImGuiKey_Delete))
 		{
-			EventManager::GetInstance()->Publish<DeleteSelectedEntities>();
+			if(!isInspectorFocused)
+			{
+				EventManager::GetInstance()->Publish<DeleteSelectedEntities>();
+			}
 		}
 
 

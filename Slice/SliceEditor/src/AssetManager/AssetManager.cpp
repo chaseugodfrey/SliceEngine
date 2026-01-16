@@ -304,6 +304,9 @@ namespace SliceEditor
 		case AssetType::NavMesh:
 			CompileNavMeshAsset(static_cast<NavMeshData*>(metaData));
 			break;
+		case AssetType::Font:
+			CompileFontAsset(metaPath);
+			break;
 		}
 
 		mGUIDtoFilename[metaData->guid] = metaData->assetName;
@@ -376,6 +379,9 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::Font:
+			metaData = std::make_unique<FontMetaData>();
+			break;
 		}
 
 		if (metaData)
@@ -398,6 +404,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
 	}
 
 	void AssetManager::CreateAssetMaps()
@@ -412,6 +419,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model] = {};
 		mAssetTypeToGUIDs[AssetType::Texture] = {};
 		mAssetTypeToGUIDs[AssetType::Scene] = {};
+		mAssetTypeToGUIDs[AssetType::Font] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -421,6 +429,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Font].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT);
 		
 		//Loop Through and Add the Respective GUIDs
 		for (const auto& [guid, filename] : mGUIDtoFilename)
@@ -476,10 +485,13 @@ namespace SliceEditor
 			return &mAssetTypeToGUIDs[AssetType::Scene];
 		}
 
-		else
+		else if (assetType == "Font")
 		{
-			return nullptr;
+			return &mAssetTypeToGUIDs[AssetType::Font];
 		}
+        
+        else 
+            return nullptr;
 	}
 
 #pragma region Asset Compiling
@@ -556,6 +568,45 @@ namespace SliceEditor
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
+
+	void AssetManager::CompileFontAsset(std::filesystem::path const& desc_file)
+	{
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		//std::filesystem::path rel_Path = std::filesystem::relative(desc_file, compiler_dir);
+
+		std::wstring cmd = desc_file.wstring();
+		std::filesystem::path compiler = "Font_Compile.exe";
+		// Start the child process. 
+		if (!CreateProcess(compiler.wstring().c_str(),   // No module name (use command line)
+			cmd.data(),        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			return;
+		}
+
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+
 	void AssetManager::CompileAudioAsset(AudioData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -996,6 +1047,12 @@ namespace SliceEditor
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 		assetEntry["name"] = "Color Deaded";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
+		assetEntry["name"] = "Font Default";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 	}
