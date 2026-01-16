@@ -309,6 +309,7 @@ namespace SliceEditor
 				//Should be the last added unknown GUID
 				selectedIndex = mapNames.size() - 1;
 				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
 			}
 			else
 			{
