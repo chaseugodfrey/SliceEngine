@@ -7,113 +7,125 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class EnemySlime : Entity
+    public class EnemySlime : EnemyBase
     {
-        Transform enemyT;
-        //GameObject player;
-        Transform playerT = null;
 
-        public bool active = false;
+
+//      public bool active = false;
         public bool stunned = false;
 
         public float horKnockback = 1f;
         public float vertKnockback = 1f;
 
-        public float attackRange = 1f;
-        public float attackCheckRange = 1f;
+        public float attackTriggerRange = 1f;
+        public float attackDamageRange = 1f;
         public float attackWindUpTiming = 1f;
         //public float flickerTiming = 1f;
-        private bool attacking = false;
+        public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
-        private enum state 
-        {Chase,  Attack, Stunned};
+        public GameObject basicHitBox;
 
-        private state currentState = state.Chase;
+        //private enum state 
+        //{Chase,  Attack, Stunned};
 
-        private RigidBody rb;
+        //private state currentState = state.Chase;
 
-        public override void OnCreate()
-        {
-            enemyT = GetComponent<Transform>();
-            rb = GetComponent<RigidBody>();
-        }
+
+
+
 
         //Function called when you want the enemy to be active
-        public void SetUp()
-        {   active = true;  playerT = Bootstrap.Player.transform; }
 
-        public void Reset()
-        {   active = false; }
+        public override void SetUp()
+        {
+            base.SetUp(); 
+            Console.WriteLine("Slime setup called");
+            this.ChangeState(new EnemySlimeChaseState(this));
+        }
+
+        //public void Reset()
+        //{   active = false; }
 
         public override void OnUpdate(float dt)
         {
-            DoActionBasedOnState(dt);
+            if (Input.IsKeyDown(Keys.KEY_P))
+            {
+                Console.WriteLine("PPPPressed"); SetUp();
+            }
+            base.OnUpdate(dt);
+            //DoActionBasedOnState(dt);
 
-            //if (Input.IsKeyDown(Keys.KEY_B))
-            //{
-            //    SetUp();
-            //}
+                //if (Input.IsKeyDown(Keys.KEY_B))
+                //{
+                //    SetUp();
+                //}
 
-            //if (player.Has<Player>())
-            //{
-            //    PlayerController playerComp = player.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
+                //if (player.Has<Player>())
+                //{
+                //    PlayerController playerComp = player.As<PlayerController>();
+                //    SliceLog.Log(playerComp.direction.ToString());
+                //}
 
-            //if (playerT.gameObject.Has<PlayerController>())
-            //{
-            //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
+                //if (playerT.gameObject.Has<PlayerController>())
+                //{
+                //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
+                //    SliceLog.Log(playerComp.direction.ToString());
+                //}
 
         }
 
         private void DoActionBasedOnState(float deltaTime)
         {
-            switch (currentState) 
-            {
-                case state.Chase:
-                    if (active && playerT != null && !stunned)
-                    {
-                        Vector3 direction_diff = playerT.Position - enemyT.Position;
+            //switch (currentState) 
+            //{
+            //    case state.Chase:
+            //        if (active && playerT != null && !stunned)
+            //        {
+            //            Vector3 direction_diff = playerT.Position - enemyT.Position;
 
+            //            enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
 
+            //            if (direction_diff.Magnitude() <= attackTriggerRange)
+            //            {
+            //                currentState = state.Attack;
+            //                //attack state
+            //            }
 
-                        enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
+            //        }
+            //        break;
+            //    case state.Attack:
+            //        if (!attacking)
+            //        {
+            //            StartCoroutine(AttackCoroutine());
+            //        }
+            //        break;
+            //    case state.Stunned:
 
-                        if (direction_diff.Magnitude() <= attackRange)
-                        {
-                            currentState = state.Attack;
-                            //attack state
-                        }
+            //        break;
+            //} 
+        }
 
-                    }
-                    break;
-                case state.Attack:
-                    if (!attacking)
-                    {
-                        StartCoroutine(AttackCoroutine());
-                    }
-                    break;
-                case state.Stunned:
-
-                    break;
-            } 
+        public void Attack()
+        {
+            StartCoroutine(AttackCoroutine());
         }
 
         IEnumerator AttackCoroutine()
         {
+            Console.WriteLine("Attacking");
             attacking = true;
 
             yield return new WaitForSeconds(attackWindUpTiming);
-
+            Console.WriteLine("Timing returned");
             // flicker on
 
             Vector3 direction_diff = playerT.Position - enemyT.Position;
 
-            if (direction_diff.Magnitude() <= attackCheckRange)
+            Console.WriteLine("Checking");
+            if (direction_diff.Magnitude() <= attackDamageRange)
             {
+                Console.WriteLine("Damage is through");
                 Bootstrap.Player.TakeDamage(damage);
                 //Make player take damage( waiting for rayan and jiale to do their thing)
             }
@@ -122,9 +134,12 @@ namespace SliceEngine
 
             // flicker off
 
+            Console.WriteLine("Turning attacking Off");
             attacking = false;
 
-            currentState = state.Chase;
+            Console.WriteLine("attackign is Off");
+
+            //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
             yield break;
         }
@@ -142,6 +157,7 @@ namespace SliceEngine
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
+            // This override is just to insert a debug
             Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
@@ -157,16 +173,11 @@ namespace SliceEngine
             SliceLog.Console("ENEMY IS BEING HIT");
         }
 
-        private bool isDead = false;
-
-        public override void OnDeath()
-        {
-            if (!isDead)
-            {
-                isDead = true;
-                this.gameObject.Destroy();
-            }
-        }
+        
+        //public override void OnDeath()
+        //{
+            
+        //}
 
     }
 }

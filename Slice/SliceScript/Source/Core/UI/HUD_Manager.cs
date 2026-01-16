@@ -48,7 +48,7 @@ namespace SliceEngine
 
         public void Initialize()
         {
-            return;
+            Console.WriteLine("HUD Ini called");
             health = gameObject.FindGameObjectWithName(healthSliderName).GetComponent<Slider>();
             victory = gameObject.FindGameObjectWithName(victoryName).GetComponent<SpriteRenderer>();
             defeat = gameObject.FindGameObjectWithName(defeatName).GetComponent<SpriteRenderer>();

@@ -61,6 +61,8 @@ namespace SliceEngine
                 if (HUDManager == null)         Console.WriteLine("HUD Manager controller");
                 if (LevelDirector == null)      Console.WriteLine("Level Director controller");
             }
+
+            Console.WriteLine("Boostrap Check finished");
             /*
             if (CameraController != null)   CameraController.Initialize();
             if (Player != null)             Player.Initialize();
