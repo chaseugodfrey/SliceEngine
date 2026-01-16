@@ -97,7 +97,7 @@ namespace SliceEditor
 
 		// Engine Core
 		engine.Init();
-		inputs = std::make_unique<EditorInputs>(registry);
+		inputs = std::make_unique<EditorInputs>(registry, false);
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
 		
