@@ -807,7 +807,7 @@ namespace SliceEngine
 		ui_font.font_size = 50;
 		ui_font.line_spacing = 20;
 		auto rm = Core::GetInstance()->GetResourceManager();
-		ui_font.fontHandle = (GUID)0;
+		ui_font.fontHandle = (GUID)DefaultResourceIDs::FONT_BLANK_DEFAULT;
 
 		return ui_ele;
 	}

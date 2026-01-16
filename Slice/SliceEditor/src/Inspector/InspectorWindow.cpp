@@ -236,14 +236,26 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
 
+			/*
+			* will need to update this token_updated from scripts too
+			*/
+
+			if (StringInput(mRegistry, "##font_text", font.text, 150.f)) {
+				font.token_updated = false;
+			}
+
 			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
 
-			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
+			if (DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f)) {
+				font.token_updated = false;
+			}
 			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
 			
 			SliceEngine::GUID font_guid = font.fontHandle;
-			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
-			font.fontHandle = font_guid;
+			if (GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font")) {
+				font.fontHandle = font_guid;
+				font.token_updated = false;
+			}
 			
 
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};

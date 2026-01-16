@@ -748,12 +748,13 @@ namespace SliceEngine
 		float font_size;
 		float line_spacing;
 		
-		std::string text{"Hello World"};
+		std::string text{"Hello World\nNew Line"};
 
 		struct Token {
 			//std::string text{};
 			const char* pos{};
 			float size{};
+			unsigned int char_cnt{};
 		};
 		std::vector<Token> token_list{};
 
