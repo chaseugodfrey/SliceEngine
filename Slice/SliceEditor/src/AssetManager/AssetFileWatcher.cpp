@@ -18,11 +18,12 @@ DigiPen Institute of Technology is prohibited.
 #include "AssetTypes.h"
 #include "Core/Registry.h"
 #include <Systems/SceneSystem.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include "../../SliceEngine/src/Configuration/ProjectSettings.h"
 
 namespace SliceEditor
 {
-    void AssetFileWatcher::UpdateFolder(AssetManager& am)
+    void AssetFileWatcher::UpdateFolder(ContentBrowserManager& manager, AssetManager& am)
     {
         std::vector<RawFileEvent> rawEvents;
 
@@ -72,7 +73,7 @@ namespace SliceEditor
                     {
                         if (!am.mFilenameToGUID.contains(eventType.filePath.stem().string()))
                         {
-                            HandleAssetAdded(am,eventType);
+                            HandleAssetAdded(manager, am,eventType);
                             previousAction = eventType;
                         }
                     }
@@ -115,7 +116,7 @@ namespace SliceEditor
             {
             case filewatch::Event::added:
             {
-                HandleAssetAdded(am, rawEvents.at(0));
+                HandleAssetAdded(manager, am, rawEvents.at(0));
 
                 break;
             }
@@ -134,8 +135,18 @@ namespace SliceEditor
         }
     }
 
-    void AssetFileWatcher::HandleAssetAdded(AssetManager& am, RawFileEvent& addEvent)
+    void AssetFileWatcher::HandleAssetAdded(ContentBrowserManager& manager, AssetManager& am, RawFileEvent& addEvent)
 	{
+        if (!manager.mPendingDrops.empty() && !manager.mActiveDrop)
+        {
+            manager.mActiveDrop = std::move(manager.mPendingDrops.front());
+        }
+
+        if (manager.mActiveDrop.has_value())
+        {
+            return;
+        }
+
         for (auto& [key, value] : am.mSupportedAssetTypes)
         {
             if (addEvent.filePath.extension() == key)
@@ -163,6 +174,37 @@ namespace SliceEditor
         //}
         //else
         {
+            //Get the name of the asset
+            std::string originalFileName = addEvent.filePath.stem().string();
+            //Get the extension of the asset
+            std::string originalExt = addEvent.filePath.extension().string();
+            std::string parentDirectory;
+
+            auto it = am.mSupportedAssetTypes.find(originalExt);
+            if (it != am.mSupportedAssetTypes.end())
+            {
+                parentDirectory = it->second.second;
+            }
+
+            std::string assetName = parentDirectory + "/" + originalFileName + originalExt;
+
+            int nameCount = 0;
+            
+            while (am.mFilenameToGUID.contains(assetName))
+            {
+                nameCount++;
+                assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+            }
+
+            std::filesystem::path newAssetFileName(assetName);
+
+            addEvent.filePath.replace_filename(newAssetFileName);
+
+            if (ImGui::BeginDragDropSource())
+            {
+                return;
+            }
+
             am.CreateResource(addEvent.filePath, nullptr, true);
 
             if (addEvent.filePath.extension() == ".navmesh")

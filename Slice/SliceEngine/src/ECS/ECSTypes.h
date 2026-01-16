@@ -34,6 +34,14 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	/// <summary>
+	/// Purely for mapping C# prefab variable to our own
+	/// Cause the prefab var we use has too many unnecessary variables in it
+	/// </summary>
+	struct PrefabVar
+	{
+		std::string prefabFileName;
+	};
 
 	struct PrefabEditingEntity
 	{
@@ -540,7 +548,7 @@ namespace SliceEngine
 		bool hasCollision{ false };
 
 		// Renderer
-		GLuint GetTextureID() const { return textureGUID.GetGUID(); }
+		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
 		//inline void Validate()
 		//{
 		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);

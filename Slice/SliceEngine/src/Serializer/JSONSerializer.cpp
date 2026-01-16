@@ -911,6 +911,10 @@ namespace SliceEngine
 				Entity testVal = v.get_value<GameObject>().GetEntity();
 				return v.get_value<GameObject>().GetEntity();
 			}
+			if (t == rttr::type::get<PrefabVar>())
+			{
+				return v.get_value<PrefabVar>().prefabFileName;
+			}
 
 			// fall back is to return as a string
 			return v.to_string();
