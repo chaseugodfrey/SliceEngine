@@ -247,7 +247,7 @@ namespace SliceEngine
 				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
 			}
 		}
-		if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		if(!colliderShape.componentEnabled && mRegistry->any_of<InactiveEntity>(event.entity))
 		{
 			
 			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
