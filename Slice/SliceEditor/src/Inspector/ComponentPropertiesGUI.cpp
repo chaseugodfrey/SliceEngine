@@ -52,11 +52,11 @@ namespace SliceEditor
 
 
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed)
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
+		bool changed = ImGui::DragFloat(id, &val, speed, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -115,11 +115,11 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max, float speed)
 	{
 		static uint64_t oldVal{};
 
-		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, speed, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -223,12 +223,12 @@ namespace SliceEditor
 		return false;
 	}
 
-	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max, float speed)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+		changed = DragFloatInput(reg, id, val, format, min, max, speed) || changed;
 
 		return changed;
 	}
@@ -253,12 +253,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max, float speed)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = DragUInt64Input(reg, id, val, format, min, max) || changed;
+		changed = DragUInt64Input(reg, id, val, format, min, max, speed) || changed;
 
 		return changed;
 	}
