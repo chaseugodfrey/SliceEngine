@@ -70,7 +70,7 @@ namespace SliceEngine
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
-		void OnSliceEntityModified(SliceEntityModifiedEvent& event);
+		//void OnSliceEntityModified(SliceEntityModifiedEvent& event);
 
 		void UpdateShapeFromTransform(Entity entity);
 

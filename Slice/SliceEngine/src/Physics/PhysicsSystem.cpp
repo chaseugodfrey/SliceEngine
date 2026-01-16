@@ -504,28 +504,28 @@ namespace SliceEngine
 		//std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
-	void PhysicsSystem::OnSliceEntityModified(SliceEntityModifiedEvent& event)
-	{
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
-		if (!checkEntity.HasComponent<ColliderShape>())
-			return;
+	//void PhysicsSystem::OnSliceEntityModified(SliceEntityModifiedEvent& event)
+	//{
+	//	GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+	//	if (!checkEntity.HasComponent<ColliderShape>())
+	//		return;
 
-		auto& slice = mRegistry->get<SliceEntity>(event.entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+	//	auto& slice = mRegistry->get<SliceEntity>(event.entity);
+	//	auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 
-		if (slice.mActive && colliderShape.componentEnabled)
-		{
-			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
-			{
-				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
-			}
-		}
-		if(!slice.mActive)
-		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
-		}
+	//	if (slice.mActive && colliderShape.componentEnabled)
+	//	{
+	//		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+	//		{
+	//			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+	//		}
+	//	}
+	//	if(!slice.mActive)
+	//	{
+	//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+	//	}
 
-	}
+	//}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
 	{
@@ -1162,7 +1162,7 @@ namespace SliceEngine
 
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
 
-		eventManager->Subscribe<SliceEntityModifiedEvent, &PhysicsSystem::OnSliceEntityModified>(this);
+		//eventManager->Subscribe<SliceEntityModifiedEvent, &PhysicsSystem::OnSliceEntityModified>(this);
 
 	}
 

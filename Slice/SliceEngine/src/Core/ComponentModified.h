@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
 	// Free functions invoked by entt registry when components are modified.
-	void NotifySliceEntityModified(entt::registry& reg, entt::entity entity);
+	//void NotifySliceEntityModified(entt::registry& reg, entt::entity entity);
 	void NotifyColliderShapeModified(entt::registry& reg, entt::entity entity);
 	void NotifyRigidBodyModified(entt::registry& reg, entt::entity entity);
 }
