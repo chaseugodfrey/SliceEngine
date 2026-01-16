@@ -24,6 +24,7 @@ namespace SliceEngine
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
+        public GameObject basicHitBox;
 
         //private enum state 
         //{Chase,  Attack, Stunned};

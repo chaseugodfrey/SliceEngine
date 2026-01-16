@@ -47,21 +47,6 @@ namespace SliceEngine
                 //attack state
             }
         }
-
-        public override void DoEnemyActionFixed()
-        {   }
-
-        public override void ReachTargetAction()
-        {   }
-
-        public override void OnLanding()
-        {   }
-
-        public override void OnCollide()
-        {   }
-
-        public override void OnDamaged()
-        {   }
     }
 
     //--- Attack State ---
@@ -89,22 +74,6 @@ namespace SliceEngine
             }
             
         }
-        
-
-        public override void DoEnemyActionFixed()
-        { }
-
-        public override void ReachTargetAction()
-        { }
-
-        public override void OnLanding()
-        { }
-
-        public override void OnCollide()
-        { }
-
-        public override void OnDamaged()
-        { }
     }
 
 
@@ -113,26 +82,6 @@ namespace SliceEngine
     {
         public EnemySlimeStunState(EnemySlime owner) : base(owner) { }
 
-        public override void DoEnemyAction(float dt)
-        { }
-
-
-        public override void DoEnemyActionFixed()
-        { }
-
-        public override void ReachTargetAction()
-        { }
-
-        public override void OnLanding()
-        {
-            // Exit state
-        }
-
-        public override void OnCollide()
-        { }
-
-        public override void OnDamaged()
-        { }
     }
 
 }
