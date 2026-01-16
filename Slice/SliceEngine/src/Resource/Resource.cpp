@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include "Core/Core.h"
 #include "Systems/SceneSystem.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -470,4 +471,39 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::StateMachine>::Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	//Font
+	std::unique_ptr<SliceEngineTypes::Font_Data> Type<SliceEngineTypes::Font_Data>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto font = std::make_unique<SliceEngineTypes::Font_Data>();
+		if (!std::filesystem::exists(path)) {
+			font->InitializeDefault();
+		}
+		else {
+			if (!font->LoadFontResource(path)) {
+				return nullptr;
+			}
+		}
+		return font;
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFontResource();
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyFontResource();
+		if (!std::filesystem::exists(path)) {
+			resource->InitializeDefault();
+		}
+		else {
+			resource->LoadFontResource(path);
+		}
+	}
+
+	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}*/
 }
