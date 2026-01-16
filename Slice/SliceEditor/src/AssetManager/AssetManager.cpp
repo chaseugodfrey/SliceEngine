@@ -206,7 +206,7 @@ namespace SliceEditor
 		metaPath += ".meta";
 
 		// check if a file already exist
-		if (std::filesystem::exists(metaPath) && !recompile)
+		if (std::filesystem::exists(metaData->resourcePath) && !recompile)
 		{
 			AssetExistEvent assetEvent(metaData->assetName);
 			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
@@ -246,7 +246,8 @@ namespace SliceEditor
 					if (data->skeletonGUID.IsValid())
 					{
 						skeleData->guid = data->skeletonGUID;
-						skeleData->resourcePath = data->skeleMetaPath;
+						skeleData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(skeleData->guid.GetGUID()) + mAssetExtensions[AssetType::Skeleton];
+						//skeleData->resourcePath = data->skeleMetaPath;
 					}
 					data->skeleMetaPath = CreateResource(skeleData->resourcePath, skeleData.get(), AddToRM).string();
 					data->skeletonGUID = skeleData->guid;
@@ -259,7 +260,8 @@ namespace SliceEditor
 					if (data->animationGUID.IsValid())
 					{
 						animData->guid = data->animationGUID;
-						animData->resourcePath = data->animMetaPath;
+						animData->resourcePath = mResourcesDirectory.string() + "/" + std::to_string(animData->guid.GetGUID()) + mAssetExtensions[AssetType::Animation];
+						//animData->resourcePath = data->animMetaPath;
 					}
 					data->animMetaPath = CreateResource(animData->resourcePath, animData.get(), AddToRM).string();
 					data->animationGUID = animData->guid;
