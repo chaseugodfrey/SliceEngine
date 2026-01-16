@@ -21,7 +21,7 @@ namespace SliceEditor
 		nlohmann::json preferences;
 
 		preferences["Theme"] = EditorThemes[0];
-		preferences["StartingSceneGUID"] = SliceEngine::GUID::null();
+		preferences["Starting Scene GUID"] = SliceEngine::GUID::null();
 
 		preferencesFile << preferences.dump();
 		preferencesFile.close();
