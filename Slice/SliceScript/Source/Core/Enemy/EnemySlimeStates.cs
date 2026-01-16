@@ -65,7 +65,7 @@ namespace SliceEngine
                 if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
                 {
 
-                    enemyOwner.As<EnemySlime>().Attack();
+                    enemyOwner.As<EnemySlime>().StartAttackCoroutine();
                 }
                 else
                 {

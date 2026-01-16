@@ -2,12 +2,12 @@
     {
         "Cam Offset": {
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 20,
+                "entity_id": 18,
                 "neighbours": [
                     0,
-                    10,
+                    8,
                     9,
-                    5
+                    3
                 ]
             },
             "struct SliceEngine::Script": {
@@ -121,17 +121,33 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 19,
+                "entity_id": 17,
                 "neighbours": [
                     0,
                     4294967295,
-                    12,
-                    11
+                    10,
+                    9
                 ]
             },
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.PlayerController",
                 "scriptableFieldMap": {
+                    "airDashCooldown": {
+                        "Type": "float",
+                        "Value": 0.800000011920929
+                    },
+                    "airDashDistance": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "airDashDuration": {
+                        "Type": "float",
+                        "Value": 0.25
+                    },
+                    "airDashUpAngleDeg": {
+                        "Type": "float",
+                        "Value": 15.0
+                    },
                     "attack1Damage": {
                         "Type": "int",
                         "Value": 0
@@ -196,6 +212,10 @@
                         "Type": "float",
                         "Value": 1.0
                     },
+                    "backDashDotThreshold": {
+                        "Type": "float",
+                        "Value": 0.0
+                    },
                     "canInput": {
                         "Type": "bool",
                         "Value": false
@@ -203,6 +223,10 @@
                     "canMove": {
                         "Type": "bool",
                         "Value": false
+                    },
+                    "coyoteTime": {
+                        "Type": "float",
+                        "Value": 0.07999999821186066
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -212,6 +236,14 @@
                         "Type": "int",
                         "Value": 100
                     },
+                    "dashCooldown": {
+                        "Type": "float",
+                        "Value": 0.6000000238418579
+                    },
+                    "dashDistance": {
+                        "Type": "float",
+                        "Value": 6.0
+                    },
                     "dashDuration": {
                         "Type": "float",
                         "Value": 0.20000000298023224
@@ -220,9 +252,21 @@
                         "Type": "float",
                         "Value": 5.0
                     },
-                    "debug": {
+                    "dashStartDuration": {
+                        "Type": "float",
+                        "Value": 0.25
+                    },
+                    "dashUsesMoveDirection": {
                         "Type": "bool",
-                        "Value": false
+                        "Value": true
+                    },
+                    "debugMode": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "doubleJumpHeight": {
+                        "Type": "float",
+                        "Value": 1.2000000476837158
                     },
                     "fallForce": {
                         "Type": "float",
@@ -232,13 +276,33 @@
                         "Type": "float",
                         "Value": 20.0
                     },
+                    "gravity": {
+                        "Type": "float",
+                        "Value": -9.8100004196167
+                    },
                     "groundCheckDelay": {
                         "Type": "float",
                         "Value": 0.05000000074505806
                     },
+                    "groundDashUpAngleDeg": {
+                        "Type": "float",
+                        "Value": 0.0
+                    },
+                    "groundedGravity": {
+                        "Type": "float",
+                        "Value": -2.0
+                    },
+                    "jumpBuffer": {
+                        "Type": "float",
+                        "Value": 0.10000000149011612
+                    },
                     "jumpForce": {
                         "Type": "float",
                         "Value": 5.0
+                    },
+                    "jumpHeight": {
+                        "Type": "float",
+                        "Value": 1.399999976158142
                     },
                     "maxHealth": {
                         "Type": "int",
@@ -259,6 +323,14 @@
                     "playerModel": {
                         "Type": "SliceEngine::GameObject",
                         "Value": 4294967295
+                    },
+                    "rotationSpeed": {
+                        "Type": "float",
+                        "Value": 12.0
+                    },
+                    "terminalVelocity": {
+                        "Type": "float",
+                        "Value": -50.0
                     }
                 }
             },
@@ -303,12 +375,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 18,
+                "entity_id": 16,
                 "neighbours": [
                     0,
                     4294967295,
                     4294967295,
-                    17
+                    15
                 ]
             },
             "struct SliceEngine::Script": {
@@ -400,12 +472,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 17,
+                "entity_id": 15,
                 "neighbours": [
                     0,
+                    14,
                     16,
-                    18,
-                    12
+                    10
                 ]
             },
             "struct SliceEngine::Script": {
@@ -471,12 +543,12 @@
                 "width": 2000
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16,
+                "entity_id": 14,
                 "neighbours": [
-                    17,
+                    15,
                     4294967295,
                     4294967295,
-                    15
+                    13
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -536,12 +608,12 @@
                 "width": 400
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 15,
+                "entity_id": 13,
                 "neighbours": [
-                    17,
+                    15,
+                    12,
                     14,
-                    16,
-                    8
+                    6
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -609,12 +681,12 @@
                 "width": 100
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 14,
+                "entity_id": 12,
                 "neighbours": [
-                    15,
+                    13,
                     4294967295,
                     4294967295,
-                    13
+                    11
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -674,11 +746,11 @@
                 "width": 50
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 13,
+                "entity_id": 11,
                 "neighbours": [
-                    15,
+                    13,
                     4294967295,
-                    14,
+                    12,
                     4294967295
                 ]
             },
@@ -734,12 +806,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 12,
+                "entity_id": 10,
                 "neighbours": [
                     0,
                     4294967295,
-                    17,
-                    19
+                    15,
+                    17
                 ]
             },
             "struct SliceEngine::Script": {
@@ -807,12 +879,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 11,
+                "entity_id": 9,
                 "neighbours": [
                     0,
                     4294967295,
-                    19,
-                    9
+                    17,
+                    18
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -876,9 +948,9 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 10,
+                "entity_id": 8,
                 "neighbours": [
-                    20,
+                    18,
                     4294967295,
                     4294967295,
                     4294967295
@@ -916,7 +988,7 @@
         }
     },
     {
-        "SlimeTest": {
+        "Attack Hit Box": {
             "struct SliceEngine::ColliderShape": {
                 "boxData": {
                     "scale": [
@@ -932,18 +1004,6 @@
                     0.0,
                     0.0
                 ]
-            },
-            "struct SliceEngine::Renderer": {
-                "componentEnabled": true,
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "4412061832024819835"
-                },
-                "renderTag": "0",
-                "skinned": false
             },
             "struct SliceEngine::RigidBody": {
                 "CollisionDetection": "",
@@ -966,71 +1026,21 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9,
+                "entity_id": 7,
                 "neighbours": [
-                    0,
-                    6,
-                    11,
-                    20
+                    3,
+                    4294967295,
+                    4,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.EnemySlime",
-                "scriptableFieldMap": {
-                    "active": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "attackDamageRange": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "attackTriggerRange": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "attackWindUpTiming": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "basicHitBox": {
-                        "Type": "SliceEngine::GameObject",
-                        "Value": 17
-                    },
-                    "currentHealth": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "damage": {
-                        "Type": "int",
-                        "Value": 10
-                    },
-                    "horKnockback": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "maxHealth": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "movementSpeed": {
-                        "Type": "float",
-                        "Value": 5.0
-                    },
-                    "stunned": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "vertKnockback": {
-                        "Type": "float",
-                        "Value": 1.0
-                    }
-                }
+                "scriptName": "SliceEngine.GeneralHitbox"
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "SlimeTest",
+                "mName": "Attack Hit Box",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1040,9 +1050,9 @@
                     0.0
                 ],
                 "position": [
-                    -4.599999904632568,
-                    1.0,
-                    0.0
+                    0.0,
+                    0.6676530838012695,
+                    1.6137397289276123
                 ],
                 "rotation": [
                     1.0,
@@ -1073,12 +1083,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8,
+                "entity_id": 6,
                 "neighbours": [
-                    17,
-                    4294967295,
                     15,
-                    7
+                    4294967295,
+                    13,
+                    5
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1138,11 +1148,11 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7,
+                "entity_id": 5,
                 "neighbours": [
-                    17,
+                    15,
                     4294967295,
-                    8,
+                    6,
                     4294967295
                 ]
             },
@@ -1189,73 +1199,49 @@
         }
     },
     {
-        "Collision": {
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                },
+        "Mesh Renderer": {
+            "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
-                "isTrigger": true,
-                "offSet": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            "struct SliceEngine::RigidBody": {
-                "CollisionDetection": "",
-                "angularDamping": 0.0,
-                "freezePosition": [
-                    false,
-                    false,
-                    false
-                ],
-                "freezeRotation": [
-                    false,
-                    false,
-                    false
-                ],
-                "friction": 0.0,
-                "gravityFactor": 0.0,
-                "isKinematic": true,
-                "linearDamping": 0.0,
-                "mass": 1.0,
-                "restituition": 0.0
+                "material": {
+                    "GUID": "10819322238111217941"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10365400057864474275"
+                },
+                "renderTag": "0",
+                "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6,
+                "entity_id": 4,
                 "neighbours": [
-                    9,
+                    3,
                     4294967295,
                     4294967295,
-                    4294967295
+                    7
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Collision",
+                "mName": "Mesh Renderer",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    0.0,
+                    -90.0,
                     0.0,
                     0.0
                 ],
                 "position": [
-                    1.040980339050293,
-                    -0.003415226936340332,
+                    0.0,
+                    0.0,
                     0.0
                 ],
                 "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
+                    -0.7071067690849304,
+                    0.7071067690849304,
+                    -0.0,
                     0.0
                 ],
                 "scale": [
@@ -1305,11 +1291,11 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5,
+                "entity_id": 3,
                 "neighbours": [
                     0,
                     4,
-                    20,
+                    18,
                     4294967295
                 ]
             },
@@ -1334,7 +1320,7 @@
                     },
                     "basicHitBox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 20
+                        "Value": 14
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -1343,6 +1329,10 @@
                     "damage": {
                         "Type": "int",
                         "Value": 7
+                    },
+                    "flickerTiming": {
+                        "Type": "float",
+                        "Value": 1.0
                     },
                     "horKnockback": {
                         "Type": "float",
@@ -1382,138 +1372,6 @@
                     0.0,
                     0.0,
                     -5.224394798278809
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Mesh Renderer": {
-            "struct SliceEngine::Renderer": {
-                "componentEnabled": true,
-                "material": {
-                    "GUID": "10819322238111217941"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "10365400057864474275"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
-                "neighbours": [
-                    5,
-                    4294967295,
-                    4294967295,
-                    3
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Mesh Renderer",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    -90.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    -0.7071067690849304,
-                    0.7071067690849304,
-                    -0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        }
-    },
-    {
-        "Attack Hit Box": {
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                },
-                "componentEnabled": true,
-                "isTrigger": false,
-                "offSet": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            "struct SliceEngine::RigidBody": {
-                "CollisionDetection": "",
-                "angularDamping": 0.05000000074505806,
-                "freezePosition": [
-                    false,
-                    false,
-                    false
-                ],
-                "freezeRotation": [
-                    false,
-                    false,
-                    false
-                ],
-                "friction": 0.5,
-                "gravityFactor": 1.0,
-                "isKinematic": false,
-                "linearDamping": 0.05000000074505806,
-                "mass": 1.0,
-                "restituition": 0.0
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
-                "neighbours": [
-                    5,
-                    4294967295,
-                    4,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "Attack Hit Box",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.6676530838012695,
-                    1.6137397289276123
                 ],
                 "rotation": [
                     1.0,

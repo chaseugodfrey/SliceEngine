@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SliceEngine
 {
-    public class Spawner : SliceBehaviour
+    public class Old_Test_Spawner : SliceBehaviour
     {
         public float spawnTime = 5.0f;     // delay before wave starts
         public int spawnCount = 4;         // how many enemies per wave

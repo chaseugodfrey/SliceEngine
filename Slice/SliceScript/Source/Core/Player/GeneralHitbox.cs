@@ -12,10 +12,20 @@ namespace SliceEngine
     {
         public delegate void HitBoxTriggerEvent(GameObject hit);
         public event HitBoxTriggerEvent HitBoxListeners;
+        public event HitBoxTriggerEvent ExitListeners;
 
-        private void OnTriggerEnter(uint other)
+        public override void OnTriggerEnter(uint other)
         {
+            Console.WriteLine("Trigger Enter called");
+            base.OnTriggerEnter(other);
             HitBoxListeners(gameObject.FindGameObjectWithID(other));
+        }
+
+        //REMOVE THIS ONCE ENABLE IS WORKING
+        public override void OnTriggerExit(uint other)
+        {
+            base.OnTriggerEnter(other);
+            ExitListeners(gameObject.FindGameObjectWithID(other));
         }
     }
 }
