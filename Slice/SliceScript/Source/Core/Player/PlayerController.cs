@@ -488,7 +488,7 @@ namespace SliceEngine
             // --- NO INPUT OR FORCED FORWARD ---
             if (!useMoveDir || !hasInput)
             {
-                Vector3 forward = transform.Forward; // IMPORTANT
+                Vector3 forward = transform.Forward; 
                 forward.y = 0f;
                 return (dashDefaultBackwards ? -forward : forward).Normalize();
             }
