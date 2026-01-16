@@ -89,36 +89,39 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			int param_id{};
-			for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
+			if(!mAnimatorData->empty())
 			{
-				std::string param_label_id = "##param" + name + std::to_string(param_id);
-				std::string param_name = name;
-				ImGui::SetNextItemWidth(125.0f);
-				if (ImGui::InputText(param_label_id.c_str(), &param_name))
+				int param_id{};
+				for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
 				{
+					std::string param_label_id = "##param" + name + std::to_string(param_id);
+					std::string param_name = name;
+					ImGui::SetNextItemWidth(125.0f);
+					if (ImGui::InputText(param_label_id.c_str(), &param_name))
+					{
 
-				}
+					}
 
-				ImGui::SameLine(0.0f, 100.0f);
+					ImGui::SameLine(0.0f, 100.0f);
 
-				if (param.is_type<float>())
-				{
-					ImGui::SetNextItemWidth(150.0f);
-					DragFloatInputHeader(mRegistry, "", (param_label_id + "_float").c_str(), param.get_value<float>());
-				}
+					if (param.is_type<float>())
+					{
+						ImGui::SetNextItemWidth(150.0f);
+						DragFloatInputHeader(mRegistry, "", (param_label_id + "_float").c_str(), param.get_value<float>());
+					}
 
-				else if (param.is_type<int>())
-				{
-					ImGui::SetNextItemWidth(150.0f);
-					DragIntInputHeader(mRegistry, "", (param_label_id + "_int").c_str(), param.get_value<int>());
-				}
+					else if (param.is_type<int>())
+					{
+						ImGui::SetNextItemWidth(150.0f);
+						DragIntInputHeader(mRegistry, "", (param_label_id + "_int").c_str(), param.get_value<int>());
+					}
 
-				else if (param.is_type<bool>())
-				{
-					BoolInputHeader(mRegistry, "", (param_label_id + "_bool").c_str(), param.get_value<bool>());
+					else if (param.is_type<bool>())
+					{
+						BoolInputHeader(mRegistry, "", (param_label_id + "_bool").c_str(), param.get_value<bool>());
+					}
 				}
 			}
 		}
@@ -170,16 +173,19 @@ namespace SliceEditor
 
 		ImNodes::BeginNodeEditor();
 
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			for (auto& [id, node] : mAnimatorData->mStateNodes)
+			if (!mAnimatorData->empty())
 			{
-				DrawStateNode(&node);
-			}
+				for (auto& [id, node] : mAnimatorData->mStateNodes)
+				{
+					DrawStateNode(&node);
+				}
 
-			for (auto& [id, link] : mAnimatorData->mTransitionNodes)
-			{
-				DrawTransitionLinkNode(&link);
+				for (auto& [id, link] : mAnimatorData->mTransitionNodes)
+				{
+					DrawTransitionLinkNode(&link);
+				}
 			}
 		}
 
@@ -196,61 +202,64 @@ namespace SliceEditor
 
 	void AnimatorWindow::DrawPostEditorElements()
 	{
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			//// Check for inputs for popups
-			//for (auto& [id, node] : mAnimatorData->mStateNodes)
-			//{
-			//	if (CheckStateInput(&node))
-			//	{
-			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
-			//	}
-			//}
-
-			//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
-			//{
-			//	if (CheckLinkInput(&link))
-			//	{
-			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
-			//	}
-			//}
-
-			if (ImNodes::IsEditorHovered())
+			if (!mAnimatorData->empty())
 			{
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-				{
-					ImGui::OpenPopup("NodeEditor_Popup");
-				}
-			}
+				//// Check for inputs for popups
+				//for (auto& [id, node] : mAnimatorData->mStateNodes)
+				//{
+				//	if (CheckStateInput(&node))
+				//	{
+				//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+				//	}
+				//}
 
-			if (ImGui::BeginPopup("Node_Popup"))
-			{
-				if (ImGui::Selectable("Make Entry State"))
-				{
+				//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
+				//{
+				//	if (CheckLinkInput(&link))
+				//	{
+				//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
+				//	}
+				//}
 
+				if (ImNodes::IsEditorHovered())
+				{
+					if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+					{
+						ImGui::OpenPopup("NodeEditor_Popup");
+					}
 				}
 
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("Link_Popup"))
-			{
-				if (ImGui::Selectable("Delete"))
+				if (ImGui::BeginPopup("Node_Popup"))
 				{
+					if (ImGui::Selectable("Make Entry State"))
+					{
 
+					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("NodeEditor_Popup"))
-			{
-				if (ImGui::Selectable("Create Node"))
+				if (ImGui::BeginPopup("Link_Popup"))
 				{
+					if (ImGui::Selectable("Delete"))
+					{
 
+					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
+				if (ImGui::BeginPopup("NodeEditor_Popup"))
+				{
+					if (ImGui::Selectable("Create Node"))
+					{
+
+					}
+
+					ImGui::EndPopup();
+				}
 			}
 		}
 	}

@@ -88,7 +88,7 @@ namespace SliceEngine
 
 		auto resourceMgr = Core::GetInstance()->GetResourceManager();
 		auto filePathGUID = resourceMgr->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
-		if (filePathGUID)
+		if (std::filesystem::exists(mCurrentScene))
 		{
 			
 			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
@@ -96,31 +96,29 @@ namespace SliceEngine
 
 			SLICE_LOG("Loading scene...");
 
-			auto map = JSONSerializer::DeserializeScene(filePathToLoad);
+			auto map = JSONSerializer::DeserializeScene(mCurrentScene);
 
-			if (mCurrentScene.extension() == ".temp")
-			{
-				// this only happens in editor mode
-				// technically temp file shouldn't even be creating a resource i think
-				// so it doesn't have to be cleaned up, 
-				if (std::filesystem::exists(mCurrentScene))
-				{
-					GUID fileGUID = resourceMgr->mFileNameToGUID[mCurrentSceneName];
-					resourceMgr->ReleaseResource(fileGUID);
-
-					// delete all 3 files
-					std::filesystem::remove(mCurrentScene);
-					std::filesystem::remove(filePathToLoad);
-					std::filesystem::path newPath = mCurrentScene;
-					mCurrentScene += ".meta";
-					std::filesystem::remove(mCurrentScene);
-
-					// change back to the .scene one
-					newPath.replace_extension(".scene");
-					mCurrentScene = newPath;
-					//filePathToLoad = mCurrentScene;
-				}
-			}
+			//if (mCurrentScene.extension() == ".temp")
+			//{
+			//	// this only happens in editor mode
+			//	// technically temp file shouldn't even be creating a resource i think
+			//	// so it doesn't have to be cleaned up, 
+			//	if (std::filesystem::exists(mCurrentScene))
+			//	{
+			//		GUID fileGUID = resourceMgr->mFileNameToGUID[mCurrentSceneName];
+			//		resourceMgr->ReleaseResource(fileGUID);
+			//		// delete all 3 files
+			//		std::filesystem::remove(mCurrentScene);
+			//		std::filesystem::remove(filePathToLoad);
+			//		std::filesystem::path newPath = mCurrentScene;
+			//		mCurrentScene += ".meta";
+			//		std::filesystem::remove(mCurrentScene);
+			//		// change back to the .scene one
+			//		newPath.replace_extension(".scene");
+			//		mCurrentScene = newPath;
+			//		//filePathToLoad = mCurrentScene;
+			//	}
+			//}
 
 
 			SLICE_LOG("Scene loaded successfully.");

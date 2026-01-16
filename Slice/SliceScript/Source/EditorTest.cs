@@ -10,21 +10,23 @@ namespace SliceEngine
     {
         public bool boolTest = false;
         public GameObject GOtest;
-        public List<int> intList = new List<int>();
-        public List<GameObject> goListTest = new List<GameObject>();
-        public Vector3 vec3test;
+        public Prefab prefabObj = new Prefab("Asset/Test.prefab");
+
+        //public List<int> intList = new List<int>();
+        //public List<GameObject> goListTest = new List<GameObject>();
+        //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
 
             GOtest = FindGameObjectWithName("Cube");
             int i = 0;
 
-            foreach (var gameObject in goListTest)
-            {
-                Console.WriteLine(gameObject.mID);
-                SliceLog.Console(i);
-                i++;
-            }
+            //foreach (var gameObject in goListTest)
+            //{
+            //    Console.WriteLine(gameObject.mID);
+            //    SliceLog.Console(i);
+            //    i++;
+            //}
         }
     }
 }
