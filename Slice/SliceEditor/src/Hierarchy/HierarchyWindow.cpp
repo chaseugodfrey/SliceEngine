@@ -30,6 +30,8 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph, bool isPrefab)
 	{
+		static bool pendingSelect = false;
+		static EntityNode* pendingNode = nullptr;
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
@@ -97,6 +99,21 @@ namespace SliceEditor
 		}
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		bool itemHovered = ImGui::IsItemHovered();
+		//Set Pending Select when clicked
+		if (itemHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			pendingSelect = true;
+			pendingNode = node;
+		}
+
+		//Disable select when dragging off the threshold
+		if (pendingSelect && ImGui::IsItemActive() && ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
+		{
+			pendingSelect = false;
+		}
+		
+
 		if (node->isPrefab)
 		{
 			ImGui::PopStyleColor();
@@ -128,16 +145,19 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		if (ImGui::IsItemClicked())
+		//Commit to the selection only if its released on the object
+		if (pendingSelect && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 		{
+			pendingSelect = false;
+
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				mSelection.SelectSingleAdd(node);
+				mSelection.SelectSingleAdd(pendingNode);
 			}
 
 			else
 			{
-				mSelection.SelectSingle(node);
+				mSelection.SelectSingle(pendingNode);
 			}
 		}
 
