@@ -153,6 +153,19 @@ void SliceEngine::MyContactListener::OnContactPersisted(const JPH::Body& inBody1
 		}
 	}
 
+	void MyContactListener::RemoveContactPair(const std::pair<GameObject, GameObject>& contactPair)
+	{
+		auto it = collisionPairs.find(contactPair);
+		if(it != collisionPairs.end())
+		{
+			collisionPairs.erase(it);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Contact listener remove pair should not come here");
+		}
+	}
+
 	void SliceEngine::MyContactListener::clearBodiesInContact()
 	{
 		bodiesInContact.clear();

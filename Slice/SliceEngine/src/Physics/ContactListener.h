@@ -39,6 +39,8 @@ namespace SliceEngine
 
 		void PublishCollisionPersistEvents();
 
+		void RemoveContactPair(const std::pair<GameObject, GameObject>& contactPair);
+
 	};
 
 

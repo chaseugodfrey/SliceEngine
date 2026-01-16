@@ -821,8 +821,12 @@ namespace SliceEngine
 			{
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
+
 				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
+
+				std::pair<GameObject, GameObject> collisionPair = contactListener->MakeOrderedPair(checkEntity1, checkEntity2);
+				contactListener->RemoveContactPair(collisionPair);
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
