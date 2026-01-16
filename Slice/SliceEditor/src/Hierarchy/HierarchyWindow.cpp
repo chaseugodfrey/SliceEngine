@@ -201,7 +201,7 @@ namespace SliceEditor
 				}
 				else
 				{
-					std::cout << "Unable to get scene graph of: " << int(child_entity) << std::endl;
+					//std::cout << "Unable to get scene graph of: " << int(child_entity) << std::endl;
 					break;
 				}
 			}

@@ -43,9 +43,6 @@ namespace SliceEngine
             if (HUDManager != null) Console.WriteLine("HUD Manager found");
             else Console.WriteLine("HUD Manager not found");
 
-
-            Console.WriteLine("Jiale called");
-            
             // Calling initialize on each script if nothing is empty
 
             if (CameraController != null && Player != null && HUDManager != null && LevelDirector != null)
