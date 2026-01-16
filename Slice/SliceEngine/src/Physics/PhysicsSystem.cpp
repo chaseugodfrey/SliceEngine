@@ -96,6 +96,9 @@ namespace SliceEngine
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
 			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
 
+			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
+			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
+
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
 			return true;
@@ -237,14 +240,14 @@ namespace SliceEngine
 
 		sliceEngineVariantShape shapeData = colliderShape.shapeData;
 
-		if (colliderShape.componentEnabled && slice.mActive) // if true set the layer so it can collide
+		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity)) // if true set the layer so it can collide
 		{
 			if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 			{
 				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
 			}
 		}
-		if(!colliderShape.componentEnabled && slice.mActive)
+		if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
 		{
 			
 			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
@@ -504,7 +507,7 @@ namespace SliceEngine
 		//std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
-	//void PhysicsSystem::OnSliceEntityModified(SliceEntityModifiedEvent& event)
+	//void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
 	//{
 	//	GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
 	//	if (!checkEntity.HasComponent<ColliderShape>())
@@ -525,7 +528,28 @@ namespace SliceEngine
 	//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
 	//	}
 
-	//}
+
+	void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
+	{
+		auto& slice = reg.get<SliceEntity>(entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		if (colliderShape.componentEnabled)
+		{
+			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			{
+				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			}
+		}
+	}
+
+	void  PhysicsSystem::OnEntityDisabled(entt::registry& reg, entt::entity entity)
+	{
+		auto& slice = reg.get<SliceEntity>(entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+	}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
 	{

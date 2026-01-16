@@ -70,7 +70,9 @@ namespace SliceEngine
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
-		//void OnSliceEntityModified(SliceEntityModifiedEvent& event);
+		void OnEntityEnabled(entt::registry& reg, entt::entity entity);
+
+		void OnEntityDisabled(entt::registry& reg, entt::entity entity);
 
 		void UpdateShapeFromTransform(Entity entity);
 
