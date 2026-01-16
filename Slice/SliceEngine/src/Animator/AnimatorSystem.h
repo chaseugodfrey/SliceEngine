@@ -36,6 +36,7 @@ namespace SliceEngine
 		void BoneUpdate();
 		void InitSystem();
 		void InitAnimatorEntity(entt::registry& reg, entt::entity entity);
+		GUID GetMdlGUID(entt::registry& reg, entt::entity entity, SceneGraph& scene_graph);
 	};
 
 	
