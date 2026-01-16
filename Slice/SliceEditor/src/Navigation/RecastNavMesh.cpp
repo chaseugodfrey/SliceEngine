@@ -36,12 +36,15 @@ namespace SliceEditor
 	void RecastNavMesh::Init()
 	{
 		memset(&config, 0, sizeof(config));
+		m_agentHeight = 2.0f;
+		m_agentRadius = 1.5;
+		m_agentMaxClimb = 0.5f;
 		config.cs = 0.1f;
 		config.ch = 0.01f;
 		config.walkableSlopeAngle = 45.0f;
-		config.walkableHeight = (int)ceilf(2.0f / config.ch);
-		config.walkableClimb = (int)floorf(0.5f / config.ch);
-		config.walkableRadius = (int)ceilf(1.5 / config.cs);
+		config.walkableHeight = (int)ceilf(m_agentHeight / config.ch); // Agent Height
+		config.walkableClimb = (int)floorf(m_agentMaxClimb / config.ch); // Max Climb
+		config.walkableRadius = (int)ceilf(m_agentRadius / config.cs); // Agent Radius
 		config.maxEdgeLen = (int)(12.0f / config.cs);
 		config.maxSimplificationError = 1.1f;
 		config.minRegionArea = (int)rcSqr(8);
@@ -79,6 +82,21 @@ namespace SliceEditor
 	rcConfig& RecastNavMesh::GetConfig()
 	{
 		return config;
+	}
+
+	float *RecastNavMesh::GetAgentHeight()
+	{
+		return &m_agentHeight;
+	}
+
+	float *RecastNavMesh::GetAgentRadius()
+	{
+		return &m_agentRadius;
+	}
+
+	float *RecastNavMesh::GetMaxClimb()
+	{
+		return &m_agentMaxClimb;
 	}
 
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
