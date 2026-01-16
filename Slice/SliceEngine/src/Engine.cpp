@@ -638,7 +638,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
 		Core::GetInstance()->GetProjectSettingsManager()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
 
 		// =========================== TESTING AREA ===========================
 		// 
@@ -658,6 +657,10 @@ namespace SliceEngine
 
 	}
 
+	void Engine::InitScene()
+	{
+		Core::GetInstance()->GetSceneSystem()->Init();
+	}
 
 	void Engine::Update()
 	{

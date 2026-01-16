@@ -405,8 +405,19 @@ namespace SliceEditor
 
 	struct Preferences
 	{
-		EditorThemeType Theme;
-		SliceEngine::GUID StartingSceneGUID;
+		struct Theme
+		{
+			EditorThemeType ID;
+		};
+
+		struct Scene
+		{
+			SliceEngine::GUID startingID;
+			SliceEngine::GUID lastID;
+		};
+
+		Theme theme;
+		Scene scene;
 	};
 
 	struct testtest

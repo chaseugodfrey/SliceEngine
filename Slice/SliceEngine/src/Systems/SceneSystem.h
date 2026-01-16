@@ -52,7 +52,9 @@ namespace SliceEngine
 		void LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
 		void WriteTempFile();
-		void SetCurrentScenePath(std::filesystem::path const& filePath);
+
+		void SetCurrentScenePath(GUID const guid);
+		void SetCurrentScenePath(std::filesystem::path const filePath);
 		
 		void OnSceneSave(std::filesystem::path const filePath);
 		void SaveCurrentScene();

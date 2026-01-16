@@ -16,7 +16,6 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	
 	void SceneSystem::Init()
 	{
 		if (!LoadScene(mCurrentScene))
@@ -32,7 +31,6 @@ namespace SliceEngine
 		mSceneQueue.push(filePath);
 		mNextScene = filePath;
 		UnloadCurrentScene();
-		
 	}
 
 	bool SceneSystem::LoadScene(GUID const guid)
@@ -92,7 +90,6 @@ namespace SliceEngine
 		{
 			
 			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
-
 
 			SLICE_LOG("Loading scene...");
 
@@ -179,9 +176,15 @@ namespace SliceEngine
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
 	}
 
-	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
+	void SceneSystem::SetCurrentScenePath(GUID const guid)
 	{
-		mCurrentScene = filePath;
+		auto scene = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(guid);
+		mCurrentScene = scene.IsValid() ? scene->GetFilePath() : "";
+	}
+
+	void SceneSystem::SetCurrentScenePath(std::filesystem::path filepath)
+	{
+		mCurrentScene = filepath;
 	}
 
 	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)

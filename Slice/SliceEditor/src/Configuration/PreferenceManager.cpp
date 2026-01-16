@@ -6,24 +6,7 @@ namespace SliceEditor
 {
 	void PreferenceManager::Init()
 	{
-		LoadPreferences();
 
-		// check starting scene path
-		// if blank, open default scene
-		// if not, set starting scene to path from guid
-
-		auto resourceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto sceneManager = SliceEngine::Core::GetInstance()->GetSceneSystem();
-
-		if (resourceManager->CheckResource(mPreferences->StartingSceneGUID))
-		{
-			auto sceneHandle = resourceManager->get<SliceEngine::SliceEngineTypes::Scene>(mPreferences->StartingSceneGUID);
-
-			if (sceneHandle.IsValid())
-			{
-				sceneManager->SetCurrentScenePath(sceneHandle->GetFilePath());
-			}
-		}
 	}
 
 	void PreferenceManager::Update()
@@ -61,14 +44,12 @@ namespace SliceEditor
 		preferencesFile >> preferencesJson; 
 
 		std::string p_theme = preferencesJson["Theme"].get<std::string>();
-		mPreferences->Theme = EditorUtilities::GetThemeTypeFromString(p_theme);
+		mPreferences->theme.ID = EditorUtilities::GetThemeTypeFromString(p_theme);
 
-		SliceEngine::GUID p_startingSceneGUID = preferencesJson["StartingSceneGUID"].get<SliceEngine::GUID>();
-		mPreferences->StartingSceneGUID = p_startingSceneGUID;
+		uint64_t p_startingSceneGUID = preferencesJson["Starting Scene GUID"].get<uint64_t>();
+		mPreferences->scene.startingID = SliceEngine::GUID(p_startingSceneGUID);
 
 		preferencesFile.close();
-
-		SetPreferences();
 	}
 
 	void PreferenceManager::SavePreferences()
@@ -77,9 +58,10 @@ namespace SliceEditor
 		std::ofstream preferencesFile{ filepath };
 		nlohmann::json preferences;
 
-		preferences["Theme"] = EditorThemes[mPreferences->Theme];
+		preferences["Theme"] = EditorThemes[mPreferences->theme.ID];
+		preferences["Starting Scene GUID"] = mPreferences->scene.startingID;
 
-		preferencesFile << preferences.dump();
+		preferencesFile << preferences.dump(4);
 		preferencesFile.close();
 
 		SetPreferences();
@@ -92,7 +74,14 @@ namespace SliceEditor
 
 	void PreferenceManager::SetPreferences()
 	{
-		EditorUtilities::SetTheme(mPreferences->Theme);
+		// Theme
+		auto& theme = mPreferences->theme;
+		EditorUtilities::SetTheme(theme.ID);
+
+		// Scene
+		auto& scene = mPreferences->scene;
+		auto scene_to_load = scene.startingID != SliceEngine::GUID::null() ? scene.startingID : scene.lastID;
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetCurrentScenePath(scene_to_load);
 	}
 
 }
