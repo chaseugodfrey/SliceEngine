@@ -1022,6 +1022,22 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}*/
 							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
+							{
+								auto data = scriptRef->GetFieldValue(it.second.mName);
+
+								//Insert the function pointer here?
+
+								if (data.is_type<SliceEngine::PrefabVar>())
+								{
+									SliceEngine::PrefabVar& val = data.get_value<SliceEngine::PrefabVar>();
+
+									ImGui::Text(it.second.mName.c_str());
+									ImGui::SameLine(150.f);
+
+									ImGui::Text(val.prefabFileName.c_str());
+								}
+							}
 						}
 					#pragma endregion
 					}
