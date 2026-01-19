@@ -690,6 +690,9 @@ namespace SliceEngine
                             case ScriptFieldType::GameObject:
                                 scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
                                 break;
+                            case ScriptFieldType::Prefab:
+                                scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
+                                break;
                             }
                         }
                     }
