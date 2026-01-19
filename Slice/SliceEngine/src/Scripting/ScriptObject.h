@@ -349,6 +349,40 @@ namespace SliceEngine
 
 		}
 
+		template<>
+		PrefabVar GetFieldValue<PrefabVar>(const std::string& name)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.contains(name) == 0)
+			{
+				return PrefabVar();
+			}
+
+			const ScriptField& field = fields.at(name);
+
+			MonoObject* instance = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (instance == nullptr)
+			{
+				return PrefabVar();
+			}
+
+			MonoClass* prefabClass = mono_object_get_class(instance);
+			MonoClassField* idField = mono_class_get_field_from_name(prefabClass, "prefabName");
+
+			MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), idField, instance));
+			std::string result;
+
+			if (monoStr != nullptr)
+			{
+				char* utf8str = mono_string_to_utf8(monoStr);
+				result = utf8str;
+				mono_free(utf8str);
+				return PrefabVar{ result };
+			}
+
+			return PrefabVar();
+		}
 
 		template <>
 		GameObject GetFieldValue<GameObject>(const std::string& name)

@@ -818,9 +818,13 @@ namespace SliceEngine
                 }
                 else if (it.second.mType == ScriptFieldType::Prefab)
                 {
-                    rttr::variant prefabVar = scriptRef->GetFieldValue(it.second.mName);
-                    scriptComponent.scriptableFieldMap[it.first] = prefabVar;
-                    }
+                    // this shit broken
+                    //rttr::variant prefabVar = scriptRef->GetFieldValue(it.second.mName);
+                    //scriptComponent.scriptableFieldMap[it.first] = prefabVar;
+
+                    PrefabVar var = scriptRef->GetFieldValue<PrefabVar>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
             }
         }
     }
