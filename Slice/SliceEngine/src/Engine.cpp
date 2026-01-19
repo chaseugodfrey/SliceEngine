@@ -779,12 +779,6 @@ namespace SliceEngine
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
 
-		// process all enabled action maps in Game mode
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			SliceEngine::GetActionMappingSystem().processAllInput();
-		}
-
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
