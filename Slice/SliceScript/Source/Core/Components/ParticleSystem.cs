@@ -27,20 +27,6 @@ namespace SliceEngine
                 FunctionCalls.ParticleSystem_SetDuration(gameObject.mID, ref value);
             }
         }
-        // 0 = forever
-
-        public float Speed
-        {
-            get
-            {
-                FunctionCalls.ParticleSystem_GetSpeed(gameObject.mID, out float value);
-                return value;
-            }
-            set
-            {
-                FunctionCalls.ParticleSystem_SetSpeed(gameObject.mID, ref value);
-            }
-        }
 
         public bool IsRepeating
         {
@@ -54,6 +40,7 @@ namespace SliceEngine
                 FunctionCalls.ParticleSystem_SetRepeating(gameObject.mID, ref value);
             }
         }
+
         public bool IsLocalSpace
         {
             get
@@ -66,75 +53,6 @@ namespace SliceEngine
                 FunctionCalls.ParticleSystem_SetLocalSpace(gameObject.mID, ref value);
             }
         }
-
-
-        // Lifetime
-        public ValueType initialLifetimeType = ValueType.CONSTANT;
-
-        public float Lifetime
-        {
-            get 
-            {
-                FunctionCalls.ParticleSystem_GetLifetime(gameObject.mID, out float value);
-                return value;
-            }
-            set
-            {
-                FunctionCalls.ParticleSystem_SetLifetime(gameObject.mID, ref value);
-            }
-        }
-
-        public float minParticleLifetime
-        {
-            get
-            {
-                FunctionCalls.ParticleSystem_GetMinLifetime(gameObject.mID, out float value);
-                return value;
-            }
-            set
-            {
-                FunctionCalls.ParticleSystem_SetMinLifetime(gameObject.mID, ref value);
-            }
-        }
-
-        public float maxParticleLifetime
-        {
-            get
-            {
-                FunctionCalls.ParticleSystem_GetMaxLifetime(gameObject.mID, out float value);
-                return value;
-            }
-            set
-            {
-                FunctionCalls.ParticleSystem_SetMaxLifetime(gameObject.mID, ref value);
-            }
-        }
-
-        // Rotation
-        public bool isInitialRotation3D = false;
-        public ValueType initialRotationType = ValueType.CONSTANT;
-        public Quaternion rotation = Quaternion.Identity;
-        public Quaternion minRandomRotation = Quaternion.Identity;
-        public Quaternion maxRandomRotation = Quaternion.Identity;
-        public Vector3 eulerHint = Vector3.Zero;
-        public Vector3 minEulerHint = Vector3.Zero;
-        public Vector3 maxEulerHint = Vector3.Zero;
-
-        public void Set1DRotation(float val)
-        {
-            eulerHint.x = val;
-        }
-
-        public float Get1DRotation()
-        {
-            return eulerHint.x;
-        }
-
-        // Size / Scale
-        public ValueType scaleType = ValueType.CONSTANT;
-        public Vector3 scale = Vector3.One;
-        public Vector3 minRandomScale = Vector3.One;
-        public Vector3 maxRandomScale = Vector3.One;
 
         public bool DestroyOnExpire
         {
@@ -175,7 +93,6 @@ namespace SliceEngine
             }
         }
 
-        // Emission
         public float EmissionRate
         {
             get
@@ -188,20 +105,6 @@ namespace SliceEngine
                 FunctionCalls.ParticleSystem_SetEmissionRate(gameObject.mID, ref value);
             }
         }
-
-        public class Burst
-        {
-            public ulong numParticles = 0;
-            public ulong burstRepetitions = 0;
-            public float burstPeriod = 0f;
-            public float triggerTime = 0f;
-            public bool triggered = false;
-
-            public ulong repsDone = 0;
-            public float repTimer = 0f;
-        }
-
-        public List<Burst> bursts = new List<Burst>();
 
         // Shape
         public enum ShapeType
@@ -267,11 +170,180 @@ namespace SliceEngine
         }
 
 
-        public Vector3 axis = Vector3.Zero;
+        // Scale
+        public ValueType ScaleValueType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetScaleValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetScaleValueType(gameObject.mID, ref value);
+            }
+        }
 
-        // Initial Position Offset
-        public ValueType spawnPosValueType= ValueType.CONSTANT;
-        public Vector3 spawnPositionOffset
+        public Vector3 Scale
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetScale(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetScale(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 ScaleMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetScaleMin(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetScaleMin(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 ScaleMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetScaleMax(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetScaleMax(gameObject.mID, ref value);
+            }
+        }
+
+        // Lifetime
+        public ValueType InitialLifetimeType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetLifetimeValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetLifetimeValueType(gameObject.mID, ref value);
+            }
+        }
+
+        public float Lifetime
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetLifetime(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetLifetime(gameObject.mID, ref value);
+            }
+        }
+
+        public float ParticleLifetimeMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetMinLifetime(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetMinLifetime(gameObject.mID, ref value);
+            }
+        }
+
+        public float ParticleLifetimeMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetMaxLifetime(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetMaxLifetime(gameObject.mID, ref value);
+            }
+        }
+
+        // Rotation
+        public ValueType RotationType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetRotationValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetRotationValueType(gameObject.mID, ref value);
+            }
+        }
+
+        public float Rotation
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetRotation(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetRotation(gameObject.mID, ref value);
+            }
+        }
+
+        public float RotationMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetRotationMin(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetRotationMin(gameObject.mID, ref value);
+            }
+        }
+
+        public float RotationMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetRotationMax(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetRotationMax(gameObject.mID, ref value);
+            }
+        }
+
+        // Spawn Position
+        public ValueType SpawnPosValueType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpawnPosValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpawnPosValueType(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 SpawnPos
         {
             get
             {
@@ -284,11 +356,46 @@ namespace SliceEngine
             }
         }
 
-        public Vector3 minRandomSpawnPos = Vector3.Zero;
-        public Vector3 maxRandomSpawnPos = Vector3.Zero;
+        public Vector3 SpawnPosMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpawnPosMin(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpawnPosMin(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 SpawnPosMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpawnPosMax(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpawnPosMax(gameObject.mID, ref value);
+            }
+        }
 
         // Colour
-        public ValueType colourValueType = ValueType.CONSTANT;
+        public ValueType ColourValueType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetColourValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetColourValueType(gameObject.mID, ref value);
+            }
+        }
+
         public Vector4 Colour
         {
             get
@@ -302,6 +409,84 @@ namespace SliceEngine
             }
         }
 
+        public Vector4 ColourMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetColourMin(gameObject.mID, out Vector4 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetColourMin(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector4 ColourMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetColourMax(gameObject.mID, out Vector4 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetColourMax(gameObject.mID, ref value);
+            }
+        }
+
+
+        // Speed
+        public ValueType SpeedValueType
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpeedValueType(gameObject.mID, out ValueType value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpeedValueType(gameObject.mID, ref value);
+            }
+        }
+        public float Speed
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpeed(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpeed(gameObject.mID, ref value);
+            }
+        }
+        public float SpeedMin
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpeedMin(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpeedMin(gameObject.mID, ref value);
+            }
+        }
+        public float SpeedMax
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetSpeedMax(gameObject.mID, out float value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSpeedMax(gameObject.mID, ref value);
+            }
+        }
+
+        // Col over lifetime
         public bool ColourOverLifetime
         {
             get
@@ -314,28 +499,6 @@ namespace SliceEngine
                 FunctionCalls.ParticleSystem_SetColourOverLifetime(gameObject.mID, ref value);
             }
         }
-
-        public Vector4 minRandomColour = new Vector4(0, 0, 0, 1);
-        public Vector4 maxRandomColour = new Vector4(0, 0, 0, 1);
-
-        public Dictionary<float, Vector4> colourLifeTimeMap = new Dictionary<float, Vector4>();
-
-        // Velocity
-        public ValueType velocityValueType = ValueType.CONSTANT;
-        public Vector3 Velocity
-        {
-            get
-            {
-                FunctionCalls.ParticleSystem_GetVelocity(gameObject.mID, out Vector3 value);
-                return value;
-            }
-            set
-            {
-                FunctionCalls.ParticleSystem_SetVelocity(gameObject.mID, ref value);
-            }
-        }
-        public Vector3 minRandomVelocity = Vector3.One;
-        public Vector3 maxRandomVelocity = Vector3.One;
 
         // Collision
         public bool HasCollision
@@ -365,10 +528,7 @@ namespace SliceEngine
             }
         }
 
-        public enum RenderMode { BILLBOARD, MESH }
-        public RenderMode renderMode = RenderMode.BILLBOARD;
 
-        public bool systemEnding = false;
         public bool Expired
         {
             get
@@ -377,7 +537,6 @@ namespace SliceEngine
                 return value;
             }
         }
-        public bool isActive = true;
 
         public float SystemTimer
         {
@@ -385,6 +544,10 @@ namespace SliceEngine
             {
                 FunctionCalls.ParticleSystem_GetSystemTimer(gameObject.mID, out float value);
                 return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetSystemTimer(gameObject.mID, ref value);
             }
         }
 

@@ -140,10 +140,6 @@ namespace SliceEditor
 			auto go = factory.CreateGO_Canvas();
 
 			//no parent for now because only overlay
-
-			/*if (parent != entt::null)
-				factory.SetParent(go.GetEntity(), parent);*/
-
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -159,6 +155,20 @@ namespace SliceEditor
 			if (parent != entt::null)
 				factory.SetParent(go.GetEntity(), parent);
 
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreateText(entt::entity parent, HistoryManager* history)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Text();
+
+			//no parent for now because only overlay
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -438,6 +448,11 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Slider"))
 				{
 					EditorUtilities::GameObject_CreateSlider(entt::null, history);
+				}
+
+				if (ImGui::MenuItem("Text"))
+				{
+					EditorUtilities::GameObject_CreateText(entt::null, history);
 				}
 
 				ImGui::EndMenu();

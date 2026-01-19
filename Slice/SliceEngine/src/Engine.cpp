@@ -307,6 +307,12 @@ namespace SliceEngine
 		(
 			rttr::value("Overlay", Canvas::Type::OVERLAY)
 			);
+	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
+		(
+			rttr::value("Left", FontRenderer::LEFT),
+			rttr::value("Center", FontRenderer::CENTER),
+			rttr::value("Right", FontRenderer::RIGHT)
+			);
 	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
 		(
 			rttr::value("Color", Button::Transition::Color),
@@ -518,6 +524,15 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("rgba", &SpriteRenderer::rgba)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
+.constructor<>()
+.property("font", &FontRenderer::fontHandle)
+.property("rgba", &FontRenderer::rgba)
+.property("font_size", &FontRenderer::font_size)
+.property("line_spacing", &FontRenderer::line_spacing)
+.property("alignment", &FontRenderer::alignment)
+.property("componentEnabled", &FontRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.constructor<>()
@@ -798,16 +813,16 @@ namespace SliceEngine
 			{
 				frm->StartSystem("Physics");
 
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
+				//Prestep: push dynamic poses to physics world
+				core->GetSystem<PhysicsSystem>().PreStepSync();
 
 				// Single world step
 				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-				frm->EndSystem("Physics");
 
-				//sTransform.UpdateTransforms();
+				frm->EndSystem("Physics");
 
 			}
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));

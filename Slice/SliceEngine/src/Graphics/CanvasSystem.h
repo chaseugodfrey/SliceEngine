@@ -77,11 +77,22 @@ namespace SliceEngine
 		void render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 		void render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 
+
 		//k i realised how render manager uses fbo now
 		unsigned int fbo{};
 		unsigned int raycast_tex{};
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
+
+		static constexpr unsigned int Font_Max_Instance = 200;
+
+		struct Font_Instance {
+			glm::mat4 model_to_ndc{};
+			glm::vec4 atlas_uv{};
+		} font_Instances[Font_Max_Instance];
+		unsigned int font_ssbo;
+		static constexpr unsigned int font_binding_index = 3;
 	};
+
 
 
 	//do i need a system for 2d, prob no for now

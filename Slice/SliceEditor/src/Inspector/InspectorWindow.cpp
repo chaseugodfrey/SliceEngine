@@ -82,12 +82,25 @@ namespace SliceEditor
 		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
+		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
 
 		
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
-		BoolInput(mRegistry, "##isActive", slice.mActive);
+		if (BoolInput(mRegistry, "##isActive", isActive))
+		{
+			if (isActive)
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(entity);
+				slice.mActive = true;
+			}
+			else
+			{
+				slice.mActive = false;
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(entity);
+			}
+		}
 		ImGui::SameLine();
 
 		std::string editable_name = original_name;
@@ -221,6 +234,34 @@ namespace SliceEditor
 			SliceEngine::GUID tex_guid = sprite.textureHandle;
 			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 			sprite.textureHandle = tex_guid;
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplayFontRenderer(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("FontRenderer", mBaseFlags))
+		{
+			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
+
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
+
+			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
+
+			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
+			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
+			
+			SliceEngine::GUID font_guid = font.fontHandle;
+			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
+			font.fontHandle = font_guid;
+			
+
+			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
+			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
+			
 
 			ImGui::TreePop();
 		}
@@ -1261,17 +1302,33 @@ namespace SliceEditor
 					ImGui::TableSetupColumn("Cycle");
 					ImGui::TableSetupColumn("Interval");
 					ImGui::TableHeadersRow();
+					int counter = 0;
+					float itemWidth = 50.0f;
 					for (auto& burst : ps.bursts)
 					{
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "", "##burst_time", burst.triggerTime, "%.2f", 0.0f, 0.0f);
+						float columnWidth = ImGui::GetColumnWidth();
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string triggerTimeID = ("##burst_triggerTime" + std::to_string(counter));
+						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, FLT_MAX);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "", "##burst_count", burst.numParticles, "%llu", 0, 0);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstCountID = ("##burst_count" + std::to_string(counter));
+						DragUInt64Input(mRegistry, burstCountID.c_str(), burst.numParticles, "%llu", 0, UINT_MAX);
 						ImGui::TableNextColumn();
-						DragUInt64InputHeader(mRegistry, "", "##burst_cycle", burst.burstRepetitions, "%llu", 0, 0);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstCycleID = ("##burst_cycle" + std::to_string(counter));
+						DragUInt64Input(mRegistry, burstCycleID.c_str(), burst.burstRepetitions, "%llu", 0, UINT_MAX);
 						ImGui::TableNextColumn();
-						DragFloatInputHeader(mRegistry, "", "##burst_interval", burst.burstPeriod, "%%.2f", 0.0f, 0.0f);
+						ImGui::SetNextItemWidth(itemWidth);
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+						std::string burstIntervalID = ("##burst_interval" + std::to_string(counter));
+						DragFloatInput(mRegistry, burstIntervalID.c_str(), burst.burstPeriod, "%.2f", 0.0f, FLT_MAX);
+						++counter;
 					}
 					ImGui::EndTable();
 				}
@@ -1519,6 +1576,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))
+			{
+				DisplayFontRenderer(node->entity);
 				ImGui::Separator();
 			}
 
