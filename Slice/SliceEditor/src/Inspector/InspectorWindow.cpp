@@ -1024,19 +1024,12 @@ namespace SliceEditor
 							}
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
 							{
-								auto data = scriptRef->GetFieldValue(it.second.mName);
+								auto data = scriptRef->GetFieldValue<SliceEngine::PrefabVar>(it.second.mName);
+								ImGui::Text(it.second.mName.c_str());
+								ImGui::SameLine(150.f);
 
-								//Insert the function pointer here?
-
-								if (data.is_type<SliceEngine::PrefabVar>())
-								{
-									SliceEngine::PrefabVar& val = data.get_value<SliceEngine::PrefabVar>();
-
-									ImGui::Text(it.second.mName.c_str());
-									ImGui::SameLine(150.f);
-
-									ImGui::Text(val.prefabFileName.c_str());
-								}
+								ImGui::Text(data.prefabFileName.c_str());
+							
 							}
 						}
 					#pragma endregion
