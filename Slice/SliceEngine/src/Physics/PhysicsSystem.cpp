@@ -1121,6 +1121,11 @@ namespace SliceEngine
 		}
 	}
 
+	void PhysicsSystem::ClearCollisionPairs()
+	{
+		contactListener->clearCollisionsPairs();
+	}
+
 	void PhysicsSystem::StepWorld(float dt)
 	{
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());

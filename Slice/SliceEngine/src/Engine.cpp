@@ -807,6 +807,11 @@ namespace SliceEngine
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
 
+		if (!sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+		}
+
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
