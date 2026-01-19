@@ -813,16 +813,16 @@ namespace SliceEngine
 			{
 				frm->StartSystem("Physics");
 
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
+				//Prestep: push dynamic poses to physics world
+				core->GetSystem<PhysicsSystem>().PreStepSync();
 
 				// Single world step
 				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-				frm->EndSystem("Physics");
 
-				//sTransform.UpdateTransforms();
+				frm->EndSystem("Physics");
 
 			}
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));

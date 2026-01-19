@@ -28,6 +28,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Configuration/ProjectSettingsManager.h"
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
+#include "../Systems/LayerManager.h"
 
 namespace SliceEngine
 {
@@ -1252,6 +1253,45 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region LAYERMASK FUNCTIONS
+	static int LayerMask_GetMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return static_cast<int>(Core::GetInstance()->GetLayerManager()->GetMask(name));
+	}
+
+	static MonoString* LayerMask_LayerToName(int layer)
+	{
+		if(layer >= MAX_LAYERS)
+		{
+			SLICE_LOG_ERROR("Scripting: Layer {} is out of bounds.", layer);
+			std::string errorLayer = "If your layer is this very long string u did something wrong or I did(Please contact Aloysius for assistance)";
+			return mono_string_new(mono_domain_get(), errorLayer.c_str());
+		}
+
+		std::string layerName = Core::GetInstance()->GetLayerManager()->GetLayerName(layer);
+		return mono_string_new(mono_domain_get(), layerName.c_str());
+	}
+
+	static int LayerMask_NameToLayer(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+		int layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
+
+		if(layer >= INVALID_LAYER)
+		{
+			SLICE_LOG_ERROR("Scripting: Layer '{}' does not exist.", name);
+			return INVALID_LAYER;
+		}
+
+		return layer;
+	}
+
+	
+
+#pragma endregion
+
 #pragma region AUDIO FUNCTIONS
 	static AudioSource* GetAudioComponent(unsigned int entity)
 	{
@@ -2106,6 +2146,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
+
+		//LayerMask
+		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_LayerToName);
+		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);

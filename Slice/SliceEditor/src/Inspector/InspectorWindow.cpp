@@ -82,12 +82,25 @@ namespace SliceEditor
 		auto& slice = core->GetRegistry().get<SliceEngine::SliceEntity>(entity);
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
+		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
 
 		
 		auto layer_manager = core->GetLayerManager();
 		auto layer_name_list = layer_manager->GetLayerNameList();
 
-		BoolInput(mRegistry, "##isActive", slice.mActive);
+		if (BoolInput(mRegistry, "##isActive", isActive))
+		{
+			if (isActive)
+			{
+				SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(entity);
+				slice.mActive = true;
+			}
+			else
+			{
+				slice.mActive = false;
+				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(entity);
+			}
+		}
 		ImGui::SameLine();
 
 		std::string editable_name = original_name;
