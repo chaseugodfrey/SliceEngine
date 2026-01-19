@@ -55,8 +55,8 @@ namespace SliceEngine
         private float jumpDelay = 0.00f;
         private float lastAirTime = float.NegativeInfinity;
         private float lastLandTime = float.NegativeInfinity;
-        private float minAirTimeForLanding = 0.06f;
-        private float landCooldown = 0.08f;           // prevents immediate retriggering
+        public float minAirTimeForLanding = 0.06f;
+        public float landCooldown = 0.08f;           // prevents immediate retriggering
 
         private bool enableDoubleJump = true;
         public float doubleJumpHeight = 1.2f;
@@ -212,7 +212,7 @@ namespace SliceEngine
             //}
 
             //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            //if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
         #region New Movement
         private void HandleMovement()
@@ -393,7 +393,7 @@ namespace SliceEngine
             {
                 velocity.y = 0f;
             }
-            else if (grounded)
+            else if (grounded && velocity.y <= 0)
             {
                 // Hard lock to ground
                 velocity.y = 0f;
@@ -844,6 +844,7 @@ namespace SliceEngine
                         animator.SetBool("Idle", true);
                 }
             }
+            Console.WriteLine("Grounded: " + grounded);
         }
         //private IEnumerator Dash(Vector3 dashDir)
         //{

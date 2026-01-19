@@ -56,6 +56,11 @@
             "path": "Resources/13612963309126088302.wav"
         },
         {
+            "guid": 15623366526804671863,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/15623366526804671863.controller"
+        },
+        {
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
@@ -161,6 +166,11 @@
             "path": "Resources/16799538569288340419.wav"
         },
         {
+            "guid": 13997579886109962365,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/13997579886109962365.controller"
+        },
+        {
             "guid": 11944477452832270171,
             "name": "Audio/Run.wav",
             "path": "Resources/11944477452832270171.wav"
@@ -181,14 +191,14 @@
             "path": "Resources/15950455196030294385.wav"
         },
         {
-            "guid": 10554390144329038318,
-            "name": "Material/Player_Armour_m.mat",
-            "path": "Resources/10554390144329038318.mat"
-        },
-        {
             "guid": 12482959374751952982,
             "name": "Models/Enemy_Basic_Static.fbx",
             "path": "Resources/12482959374751952982.mdl"
+        },
+        {
+            "guid": 10554390144329038318,
+            "name": "Material/Player_Armour_m.mat",
+            "path": "Resources/10554390144329038318.mat"
         },
         {
             "guid": 13235260938847189597,
@@ -216,19 +226,44 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
+            "guid": 18291013744030930576,
+            "name": "[00] Player/Game Title.png",
+            "path": "Resources/18291013744030930576.dds"
+        },
+        {
+            "guid": 15631357197428217716,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/15631357197428217716.controller"
+        },
+        {
+            "guid": 14034271979947251569,
+            "name": "[04]Environment/Environment_Engine_1.animpkg",
+            "path": "Resources/14034271979947251569.animpkg"
+        },
+        {
+            "guid": 10784448363745349353,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/10784448363745349353.controller"
+        },
+        {
+            "guid": 16487878039444877888,
+            "name": "Default/DefaultController.controller",
+            "path": "Resources/16487878039444877888.controller"
+        },
+        {
+            "guid": 14919455020680615893,
+            "name": "Models/Crystal_Combined.animpkg",
+            "path": "Resources/14919455020680615893.animpkg"
+        },
+        {
+            "guid": 9629196364033593818,
+            "name": "Default/DefaultController.controller",
+            "path": "Resources/9629196364033593818.controller"
+        },
+        {
             "guid": 17780188480855605116,
             "name": "Default/Eze_Working_Scene.scene",
             "path": "Resources/17780188480855605116.scene"
-        },
-        {
-            "guid": 17572647935097086416,
-            "name": "Prefabs/MainMenu_Prefab.prefab",
-            "path": "Resources/17572647935097086416.prefab"
-        },
-        {
-            "guid": 10150479252312340859,
-            "name": "Models/Enemy_Basic.animpkg",
-            "path": "Resources/10150479252312340859.animpkg"
         },
         {
             "guid": 14037766457360526962,
@@ -241,14 +276,9 @@
             "path": "Resources/11441254779053870097.scene"
         },
         {
-            "guid": 15944834739893347014,
-            "name": "NavMesh/navmesh_debug_NewScene.navmesh",
-            "path": "Resources/15944834739893347014.navmesh"
-        },
-        {
-            "guid": 10731921158266549350,
+            "guid": 12320056596655170664,
             "name": "Default/Level1.temp",
-            "path": "Resources/10731921158266549350.scene"
+            "path": "Resources/12320056596655170664.scene"
         },
         {
             "guid": 15021947035957259762,
@@ -346,11 +376,6 @@
             "path": "Resources/17926379886479867228.skl"
         },
         {
-            "guid": 14919455020680615893,
-            "name": "Models/Crystal_Combined.animpkg",
-            "path": "Resources/14919455020680615893.animpkg"
-        },
-        {
             "guid": 16670911289530868217,
             "name": "Models/EnemySlimeOuter.skl",
             "path": "Resources/16670911289530868217.skl"
@@ -361,19 +386,29 @@
             "path": "Resources/14018566679936275834.animpkg"
         },
         {
+            "guid": 17572647935097086416,
+            "name": "Prefabs/MainMenu_Prefab.prefab",
+            "path": "Resources/17572647935097086416.prefab"
+        },
+        {
+            "guid": 10150479252312340859,
+            "name": "Models/Enemy_Basic.animpkg",
+            "path": "Resources/10150479252312340859.animpkg"
+        },
+        {
             "guid": 16108474294497114739,
             "name": "Models/Enemy_Basic_Static.skl",
             "path": "Resources/16108474294497114739.skl"
         },
         {
-            "guid": 15459697471143272539,
-            "name": "Models/Environment_Background_Towers.fbx",
-            "path": "Resources/15459697471143272539.mdl"
-        },
-        {
             "guid": 15124670150845613275,
             "name": "Models/Enemy_Basic_Static.animpkg",
             "path": "Resources/15124670150845613275.animpkg"
+        },
+        {
+            "guid": 15459697471143272539,
+            "name": "Models/Environment_Background_Towers.fbx",
+            "path": "Resources/15459697471143272539.mdl"
         },
         {
             "guid": 16122907701320877530,
@@ -404,6 +439,11 @@
             "guid": 18329491173128811221,
             "name": "Models/Environment_Engine_1.animpkg",
             "path": "Resources/18329491173128811221.animpkg"
+        },
+        {
+            "guid": 15944834739893347014,
+            "name": "NavMesh/navmesh_debug_NewScene.navmesh",
+            "path": "Resources/15944834739893347014.navmesh"
         },
         {
             "guid": 10128043101700684016,
@@ -841,11 +881,6 @@
             "path": "Resources/9776906413334577460.dds"
         },
         {
-            "guid": 18291013744030930576,
-            "name": "[00] Player/Game Title.png",
-            "path": "Resources/18291013744030930576.dds"
-        },
-        {
             "guid": 10888316271910488409,
             "name": "[05]New_Environment/Environment.animpkg",
             "path": "Resources/10888316271910488409.animpkg"
@@ -934,11 +969,6 @@
             "guid": 10807057769849652561,
             "name": "[04]Environment/Environment_Engine_1.skl",
             "path": "Resources/10807057769849652561.skl"
-        },
-        {
-            "guid": 14034271979947251569,
-            "name": "[04]Environment/Environment_Engine_1.animpkg",
-            "path": "Resources/14034271979947251569.animpkg"
         },
         {
             "guid": 14884183165765477983,
