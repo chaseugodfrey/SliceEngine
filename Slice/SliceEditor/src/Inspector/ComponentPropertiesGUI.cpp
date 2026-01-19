@@ -476,12 +476,31 @@ namespace SliceEditor
 
 		return changed;
 	}
-	//bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
-	//{
-	//	ImGui::Text(property_label);
-	//	ImGui::SameLine(150.f);
-	//	static SliceEngine::GameObject oldVal{};
 
+	bool PrefabInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::PrefabVar)> func, const char* property_label, const char* id, SliceEngine::PrefabVar& val)
+	{
+		bool changed = false;
+		auto& assetMan = reg.GetAssetManager();
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		//Search for the filename in the assetMap
+		if (assetMan.mFilenameToGUID.find(val.prefabFileName) == assetMan.mFilenameToGUID.end())
+		{
+			//If cant find the prefab fileName:
+			ImGui::Text(val.prefabFileName.c_str());
+		}
+
+		else
+		{
+			SliceEngine::GUID currentPrefab = assetMan.mFilenameToGUID[val.prefabFileName];
+			if (GUIDDragDropInputHeader(reg, "", id, currentPrefab, "Prefab"))
+			{
+				val.prefabFileName = assetMan.mGUIDtoFilename[currentPrefab];
+			}
+		}
+
+		return changed;
+	}
 	//	val.GetName();
 
 	//	ImGui::BeginDisabled();
