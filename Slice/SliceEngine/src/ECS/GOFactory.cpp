@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
 #include "../Core/ComponentEventHandler.h"
+#include "../Core/ComponentModified.h"
 #include "../Graphics/TransformHelper.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -29,6 +30,7 @@ namespace SliceEngine
 		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
+		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
 	}
 
 	GOFactory::~GOFactory()

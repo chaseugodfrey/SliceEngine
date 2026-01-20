@@ -16,6 +16,11 @@ namespace SliceEngine
             prefabName = name.prefabName;
         }
 
+        public GameObject Instantiate()
+        {
+            return new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
+        }
+
         public static Prefab empty = new Prefab("");
 
         public static bool operator ==(Prefab a, Prefab b)

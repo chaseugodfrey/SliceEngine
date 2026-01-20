@@ -2,6 +2,7 @@
 #include "PreferenceWindow.h"
 #include "Core/Registry.h"
 #include "Configuration/PreferenceManager.h"
+#include <Inspector/ComponentPropertiesGUI.h>
 
 namespace SliceEditor
 {
@@ -30,7 +31,8 @@ namespace SliceEditor
 
 	void PreferenceWindow::Init()
 	{
-		mPreferenceList.push_back(std::make_unique<ThemePreferenceDisplay>(mRegistry, "Themes"));
+		mPreferenceList.push_back(std::make_unique<ThemePreferenceDisplay>(mRegistry, "Theme"));
+		mPreferenceList.push_back(std::make_unique<ScenePreferenceDisplay>(mRegistry, "Scene"));
 	}
 
 	void PreferenceWindow::Draw()
@@ -87,18 +89,33 @@ namespace SliceEditor
 	{
 		ImGui::SeparatorText("Themes");
 
-		if (ImGui::BeginCombo("Theme", EditorThemes[preferences.Theme]))
+		if (ImGui::BeginCombo("Theme", EditorThemes[preferences.theme.ID]))
 		{
 			for (int i = 0; i < EditorThemes.size(); i++)
 			{
 				if (ImGui::Selectable(EditorThemes[i]))
 				{
-					preferences.Theme = EditorThemeType(i);
+					preferences.theme.ID = EditorThemeType(i);
 				}
 			}
 
 			ImGui::EndCombo();
 		}
+	}
 
+	void ScenePreferenceDisplay::DisplayPreferences(Preferences& preferences)
+	{
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+
+		ImGui::SeparatorText("Scene");
+
+		auto startingSceneHandle = resourceMgr->get<SliceEngine::SliceEngineTypes::Scene>(preferences.scene.startingID);
+		auto startingSceneString = startingSceneHandle.IsValid() ? startingSceneHandle->GetFilePath().string() : "None.";
+
+		if (HandleDragDropInputHeader(mRegistry, "Startup Scene", "##startup_scene", startingSceneHandle, "Scene"))
+		{
+			preferences.scene.startingID = startingSceneHandle.getGUID();
+		}
+		
 	}
 }
