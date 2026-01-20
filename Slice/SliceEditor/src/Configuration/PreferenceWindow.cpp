@@ -96,6 +96,7 @@ namespace SliceEditor
 				if (ImGui::Selectable(EditorThemes[i]))
 				{
 					preferences.theme.ID = EditorThemeType(i);
+					EditorUtilities::SetTheme(preferences.theme.ID);
 				}
 			}
 
