@@ -117,6 +117,7 @@
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\AudioSettings.h" />
+    <ClInclude Include="src\Configuration\BuildSettings.h" />
     <ClInclude Include="src\Configuration\PhysicsSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettingsIncludes.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\AudioSettings.cpp" />
+    <ClCompile Include="src\Configuration\BuildSettings.cpp" />
     <ClCompile Include="src\Configuration\PhysicsSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettingsManager.cpp" />

@@ -1022,6 +1022,22 @@ namespace SliceEditor
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}*/
 							}
+							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
+							{
+								auto data = scriptRef->GetFieldValue<SliceEngine::PrefabVar>(it.second.mName);
+								
+								std::function<void(std::string, SliceEngine::PrefabVar)> func = [sp = scriptRef](std::string name, SliceEngine::PrefabVar val)
+									{
+										sp->SetFieldValue(name, val);
+									};
+
+								if (PrefabInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
+							
+							}
 						}
 					#pragma endregion
 					}
@@ -1710,6 +1726,50 @@ namespace SliceEditor
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
 			mat.SerializeAsset(node->fullPath);
+		}
+		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
+		int floatCnt{}, intCnt{}, uintCnt{}, boolCnt{};
+		for (auto& i : shdr.get()->dataIn)
+		{
+			switch (i.dataType)
+			{
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+			{
+				std::string s = "##Material_Bool_" + i.name;
+				bool tempBool{};
+				if (BoolInputHeader(mRegistry, i.name.c_str(), s.c_str(), tempBool))
+				{
+					mat.boolDat[boolCnt] = tempBool;
+					mat.SerializeAsset(node->fullPath);
+				}
+				++boolCnt;
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+			{
+				std::string s = "##Material_Uint_" + i.name;
+				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.uintDat[uintCnt], "%.u", 0, UINT_MAX))
+					mat.SerializeAsset(node->fullPath);
+				++uintCnt;
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+			{
+				std::string s = "##Material_Int_" + i.name;
+				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.intDat[intCnt], "%.d", -INT_MAX, INT_MAX))
+					mat.SerializeAsset(node->fullPath);
+				++intCnt;
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+			{
+				std::string s = "##Material_Float_" + i.name;
+				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.floatDat[floatCnt], "%.2f", 0.0f, FLT_MAX, 0.01f))
+					mat.SerializeAsset(node->fullPath);
+				++floatCnt;
+				break;
+			}
+			}
 		}
 
 		//std::string mat_file_name{};

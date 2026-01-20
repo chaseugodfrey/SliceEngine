@@ -227,22 +227,20 @@ namespace SliceEngine
 				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
 				for (auto& i : materialToReload->shader.get()->dataIn)
 				{
-					if (i.isFloating)
+					switch (i.dataType)
 					{
-						if (i.numBytes == 4)
-							materialToReload->floatDat.push_back(std::bit_cast<float>(i.baseData));
-					}
-					else
-					{
-						if (i.numBytes == 4)
-						{
-							if (i.isUnsigned)
-								materialToReload->uintDat.push_back(i.baseData);
-							else
-								materialToReload->intDat.push_back(static_cast<int>(i.baseData));
-						}
-						else if (i.numBytes == 1)
-							materialToReload->boolDat.push_back(static_cast<bool>(i.baseData));
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						materialToReload->boolDat.push_back(i.baseData.sp_bool);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						materialToReload->uintDat.push_back(i.baseData.sp_uint);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						materialToReload->intDat.push_back(i.baseData.sp_int);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						materialToReload->floatDat.push_back(i.baseData.sp_float);
+						break;
 					}
 				}
 

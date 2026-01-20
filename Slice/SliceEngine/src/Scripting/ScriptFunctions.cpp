@@ -1587,11 +1587,13 @@ namespace SliceEngine
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
 			if(cStrName == "EnemyTest")
 			{
-				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
+			//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
 		//mono_free(cStrName);
+		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
 		return entt::null;
 	}
