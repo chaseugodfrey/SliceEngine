@@ -21,7 +21,7 @@ namespace SliceEngine
 		//if (!LoadScene(mCurrentScene))
 		//	LoadDefaultScene();
 
-		mCurrentState = mNextState = SceneState::DEFAULT;
+		//mCurrentState = mNextState = SceneState::DEFAULT;
 
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
 	}
