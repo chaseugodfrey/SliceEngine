@@ -41,10 +41,18 @@ namespace SliceEngine
 	{
 		auto asset_directory_path = std::filesystem::path("Assets");
 		auto next_scene_filepath = mSceneQueue.front();
+		mSceneQueue.pop();
+
+		// Check if initial scene is empty, then load default scene
+		if (next_scene_filepath.empty())
+		{
+			SLICE_LOG("No scene to load. Loading Default Scene.");
+			LoadDefaultScene();
+			return true;
+		}
+
 		auto next_scene_filename = std::filesystem::relative(next_scene_filepath, asset_directory_path).generic_string();
 
-		mSceneQueue.pop();
-		
 		SLICE_LOG("Attempting to load scene from path: " + next_scene_filepath.string());
 
 		if (!std::filesystem::exists(next_scene_filepath))

@@ -416,6 +416,7 @@ namespace SliceEditor
 			SliceEngine::GUID lastID;
 		};
 
+		unsigned int version;
 		Theme theme;
 		Scene scene;
 	};
