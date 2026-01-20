@@ -481,6 +481,8 @@ namespace SliceEditor
 	{
 		bool changed = false;
 		auto& assetMan = reg.GetAssetManager();
+		SliceEngine::GUID currentGUID;
+		static SliceEngine::PrefabVar oldVal;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		//Search for the filename in the assetMap
@@ -488,15 +490,46 @@ namespace SliceEditor
 		{
 			//If cant find the prefab fileName:
 			ImGui::Text(val.prefabFileName.c_str());
+			if(ImGui::IsItemHovered())
+			{
+				if (ImGui::BeginTooltip())
+				{
+					ImGui::Text("Asset not found!");
+					ImGui::EndTooltip();
+				}
+			}
 		}
 
 		else
 		{
-			SliceEngine::GUID currentPrefab = assetMan.mFilenameToGUID[val.prefabFileName];
-			if (GUIDDragDropInputHeader(reg, "", id, currentPrefab, "Prefab"))
+			currentGUID = assetMan.mFilenameToGUID[val.prefabFileName];
+			if (GUIDDragDropInputHeader(reg, "", id, currentGUID, "Prefab"))
 			{
-				val.prefabFileName = assetMan.mGUIDtoFilename[currentPrefab];
+				val.prefabFileName = assetMan.mGUIDtoFilename[currentGUID];
+				changed = true;
 			}
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Prefab"))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (currentGUID != newGUID);
+				if (changed)
+				{
+					oldVal = val;
+					std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::PrefabVar>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::PrefabVar>>(func, std::string(property_label), oldVal, val);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+					//I probably should have a check here.
+					val.prefabFileName = assetMan.mGUIDtoFilename[newGUID];
+				}
+			}
+
+			ImGui::EndDragDropTarget();
 		}
 
 		return changed;

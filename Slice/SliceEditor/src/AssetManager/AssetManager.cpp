@@ -417,6 +417,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model] = {};
 		mAssetTypeToGUIDs[AssetType::Texture] = {};
 		mAssetTypeToGUIDs[AssetType::Font] = {};
+		mAssetTypeToGUIDs[AssetType::Prefab] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -481,6 +482,11 @@ namespace SliceEditor
 		if (assetType == "Font")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Font];
+		}
+
+		if (assetType == "Prefab")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Prefab];
 		}
 	}
 

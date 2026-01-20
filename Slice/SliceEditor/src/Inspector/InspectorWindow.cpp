@@ -1025,10 +1025,17 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
 							{
 								auto data = scriptRef->GetFieldValue<SliceEngine::PrefabVar>(it.second.mName);
-								ImGui::Text(it.second.mName.c_str());
-								ImGui::SameLine(150.f);
+								
+								std::function<void(std::string, SliceEngine::PrefabVar)> func = [sp = scriptRef](std::string name, SliceEngine::PrefabVar val)
+									{
+										sp->SetFieldValue(name, val);
+									};
 
-								ImGui::Text(data.prefabFileName.c_str());
+								if (PrefabInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								{
+									scriptRef->SetFieldValue(it.second.mName, data);
+									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+								}
 							
 							}
 						}
