@@ -59,13 +59,25 @@ namespace SliceEngine
 		public:
 			unsigned int s;
 
+			enum class SP_TYPE : unsigned char
+			{
+				BOOL,
+				INT,
+				UINT,
+				FLOAT
+			};
+
 			struct ShaderParams
 			{
 				std::string name;
-				uint32_t baseData;
-				unsigned char numBytes;
-				bool isUnsigned;
-				bool isFloating;
+				union Data
+				{
+					uint32_t sp_uint;
+					int32_t	 sp_int;
+					bool	 sp_bool;
+					float	 sp_float;
+				} baseData;
+				SP_TYPE dataType;
 			};
 
 			std::vector<ShaderParams> dataIn;
