@@ -120,6 +120,8 @@ namespace SliceEngine
 
 		void PreStepSync();
 
+		void ClearCollisionPairs();
+
 		//Helps me with seperation of interface and implementation
 	public:
 

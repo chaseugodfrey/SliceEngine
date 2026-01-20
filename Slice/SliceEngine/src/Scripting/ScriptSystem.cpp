@@ -608,6 +608,15 @@ namespace SliceEngine
                         }
 
                     }
+                    else if (it.second.mType == ScriptFieldType::Prefab)
+                    {
+                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        if (variantVal.is_type<PrefabVar>())
+                        {
+                            PrefabVar var = variantVal.get_value<PrefabVar>();
+                            scriptRef->SetFieldValue(it.second.mName.c_str(), var);
+                        }
+                    }
                     else
                     {
                         scriptRef->SetFieldValue(it.second.mName.c_str(), scriptComponent.scriptableFieldMap[it.first]);
@@ -680,6 +689,9 @@ namespace SliceEngine
                                 break;
                             case ScriptFieldType::GameObject:
                                 scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
+                                break;
+                            case ScriptFieldType::Prefab:
+                                scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
                                 break;
                             }
                         }
@@ -779,6 +791,11 @@ namespace SliceEngine
                         else if (it.second.mType == ScriptFieldType::GameObject)
                         {
                             std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        else if (it.second.mType == ScriptFieldType::Prefab)
+                        {
+                            std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
                     }
