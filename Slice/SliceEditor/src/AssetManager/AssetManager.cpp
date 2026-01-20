@@ -420,6 +420,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Texture] = {};
 		mAssetTypeToGUIDs[AssetType::Scene] = {};
 		mAssetTypeToGUIDs[AssetType::Font] = {};
+		mAssetTypeToGUIDs[AssetType::Prefab] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -489,9 +490,15 @@ namespace SliceEditor
 		{
 			return &mAssetTypeToGUIDs[AssetType::Font];
 		}
-        
+
+		if (assetType == "Prefab")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Prefab];
+		}
+
         else 
             return nullptr;
+
 	}
 
 #pragma region Asset Compiling

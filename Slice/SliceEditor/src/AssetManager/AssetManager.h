@@ -99,7 +99,8 @@ namespace SliceEditor
 			{ AssetType::Material, {} },
 			{ AssetType::Model, {} },
 			{ AssetType::Texture, {} },
-			{ AssetType::Scene, {} }
+			{ AssetType::Scene, {} },
+			{ AssetType::Prefab, {}}
 		};
 
 		std::unordered_map <std::string, std::pair<AssetType,std::string>> mSupportedAssetTypes = 
