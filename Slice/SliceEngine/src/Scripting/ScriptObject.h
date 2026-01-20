@@ -48,6 +48,8 @@ namespace SliceEngine
 		List
 	};
 
+
+
 	//struct
 	struct ScriptField
 	{
@@ -347,6 +349,40 @@ namespace SliceEngine
 
 		}
 
+		template<>
+		PrefabVar GetFieldValue<PrefabVar>(const std::string& name)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.contains(name) == 0)
+			{
+				return PrefabVar();
+			}
+
+			const ScriptField& field = fields.at(name);
+
+			MonoObject* instance = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			if (instance == nullptr)
+			{
+				return PrefabVar();
+			}
+
+			MonoClass* prefabClass = mono_object_get_class(instance);
+			MonoClassField* idField = mono_class_get_field_from_name(prefabClass, "prefabName");
+
+			MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), idField, instance));
+			std::string result;
+
+			if (monoStr != nullptr)
+			{
+				char* utf8str = mono_string_to_utf8(monoStr);
+				result = utf8str;
+				mono_free(utf8str);
+				return PrefabVar{ result };
+			}
+
+			return PrefabVar();
+		}
 
 		template <>
 		GameObject GetFieldValue<GameObject>(const std::string& name)
@@ -693,6 +729,76 @@ namespace SliceEngine
 			return result;
 		}
 
+		template <>
+		std::vector<PrefabVar> GetListFieldValue(const std::string& name)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			std::vector<PrefabVar> result;
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return result;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+			result.reserve(count);
+
+			//Prefab GetFieldValue bs
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+			MonoClassField* idField = mono_class_get_field_from_name(prefabClass, "prefabName");
+
+			void* params[1];
+			for (int i = 0; i < count; ++i)
+			{
+				params[0] = &i;
+
+				// This returns a MonoObject* representing the specific Prefab instance at index [i]
+				MonoObject* prefabInstance = (MonoObject*)mono_runtime_invoke(field.mListGetItem, listObject, params, &exception);
+
+				if (prefabInstance)
+				{
+					// Extract the uint32_t ID from this specific instance
+					MonoString* monoStr = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), idField, prefabInstance));
+					std::string strResult;
+
+					if (monoStr != nullptr)
+					{
+						char* utf8str = mono_string_to_utf8(monoStr);
+						strResult = utf8str;
+						mono_free(utf8str);
+						PrefabVar value(strResult);
+						result.emplace_back(strResult);
+					}
+					else
+					{
+						// if cant get str out
+						result.emplace_back();
+					}
+				}
+				else
+				{
+					// If the element in the C# list is null, add an invalid/empty Prefab
+					result.emplace_back();
+				}
+			}
+			return result;
+		}
+
+
 		template <typename T>
 		void AddListFieldValue(const std::string& name, T value)
 		{
@@ -745,6 +851,42 @@ namespace SliceEngine
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListAdd, listObject, params, &exception);
 			// TODO: handle exceptions ill do it aft everything works
+
+		}
+
+		template <>
+		void AddListFieldValue<PrefabVar>(const std::string& name, PrefabVar value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+			MonoObject* managedPrefabObj = mono_object_new(mono_domain_get(), prefabClass);
+
+			//Initialising  the C# Prefab 
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.prefabFileName.c_str());
+			void* ctorArgs[1];
+			ctorArgs[0] = monoStr;
+
+			MonoMethod* ctor = mono_class_get_method_from_name(prefabClass, ".ctor", 1);
+			mono_runtime_invoke(ctor, managedPrefabObj, ctorArgs, nullptr);
+
+			void* addArgs[1];
+			addArgs[0] = managedPrefabObj;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListAdd, listObject, addArgs, &exception);
 
 		}
 
@@ -840,6 +982,43 @@ namespace SliceEngine
 			MonoObject* exception = nullptr;
 			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
 			// TODO: handle exceptions ill do it aft everything works
+		}
+
+		template<>
+		void SetListFieldValue<PrefabVar>(const std::string& name, int index, const PrefabVar& value)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// get the script field
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if it failed to get a list object or listAdd wasn't initialized
+			if (listObject == nullptr || field.mListAdd == nullptr)
+				return;
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+			MonoObject* managedPrefabObj = mono_object_new(mono_domain_get(), prefabClass);
+
+			//Initialising  the C# prefab
+			MonoString* monoStr = mono_string_new(mono_domain_get(), value.prefabFileName.c_str());
+			void* ctorArgs[1];
+			ctorArgs[0] = monoStr;
+
+			MonoMethod* ctor = mono_class_get_method_from_name(prefabClass, ".ctor", 1);
+			mono_runtime_invoke(ctor, managedPrefabObj, ctorArgs, nullptr);
+
+			//Setting the item in the list to its index
+			void* params[2];
+			params[0] = &index;
+			params[1] = managedPrefabObj;
+
+			MonoObject* exception = nullptr;
+			mono_runtime_invoke(field.mListSetItem, listObject, params, &exception);
 		}
 
 		template<>
@@ -1027,6 +1206,46 @@ namespace SliceEngine
 
 		}
 
+		template<>
+		void SetListField<PrefabVar>(const std::string& name, const std::vector<PrefabVar>& val)
+		{
+			if (mono_domain_get() != gScriptSystem->mAppDomain)
+			{
+				mono_thread_attach(gScriptSystem->mRootDomain);
+				mono_domain_set(gScriptSystem->mAppDomain, false);
+			}
+
+			// Some fail safes i guess
+			// incase its out of sync 
+			const ScriptField& field = mScriptClass->mFields.at(name);
+
+			MonoObject* listObject = mono_field_get_value_object(mono_domain_get(), field.mClassField, mMonoInstance);
+
+			// if any of these aren't ready then dont continue w anything
+			if (listObject == nullptr || field.mListGetCount == nullptr || field.mListGetItem == nullptr)
+				return;
+
+			MonoObject* exception = nullptr;
+
+			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
+
+			// TODO: add in exception handling like in my other invoke stuff
+
+			int count = *(int*)mono_object_unbox(countObj);
+
+			if (count != val.size())
+			{
+				SLICE_LOG_ERROR("C# List " + name + " is not in sync");
+			}
+
+			for (size_t i = 0; i < val.size(); ++i)
+			{
+				SetListFieldValue<PrefabVar>(name, i, val[i]);
+			}
+
+		}
+
+
 #pragma endregion
 
 
@@ -1062,6 +1281,38 @@ namespace SliceEngine
 				mono_field_set_value(mMonoInstance, field.mClassField, monoStr);
 			}
 		}
+		template <>
+		void SetFieldValue<PrefabVar>(const std::string& name, PrefabVar val)
+		{
+			const auto& fields = mScriptClass->mFields;
+			if (fields.count(name) == 0) return;
+
+			const ScriptField& field = fields.at(name);
+
+			// 1. Get the MonoClass for the C# Prefab
+			// Note: You should ideally cache this MonoClass* in your ScriptSystem to avoid lookups
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+
+			if (!prefabClass) return;
+
+			// 2. Create a new managed instance of the C# Prefab
+			MonoObject* managedInstance = mono_object_new(mono_domain_get(), prefabClass);
+
+			// 3. Initialize the object (Calls the constructor)
+			// We can call the constructor that takes a uint ID
+			void* args[1];
+			MonoString* monoStr = mono_string_new(mono_domain_get(), val.prefabFileName.c_str());
+			args[0] = monoStr;
+
+			// Find the constructor: GameObject(uint id)
+			MonoMethod* ctor = mono_class_get_method_from_name(prefabClass, ".ctor", 1);
+			mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+			// 4. Set the field in your ScriptObject to this new C# object reference
+			// Since it's a reference type, we pass the pointer to the MonoObject itself
+			mono_field_set_value(mMonoInstance, field.mClassField, managedInstance);
+		}
+
 
 		template <>
 		void SetFieldValue<GameObject>(const std::string& name, GameObject val)

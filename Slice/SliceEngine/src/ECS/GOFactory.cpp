@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
 #include "../Core/ComponentEventHandler.h"
+#include "../Core/ComponentModified.h"
 #include "../Graphics/TransformHelper.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -29,6 +30,7 @@ namespace SliceEngine
 		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
+		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
 	}
 
 	GOFactory::~GOFactory()
@@ -791,6 +793,23 @@ namespace SliceEngine
 		slider.handle = handle.GetEntity();
 		slider.fill = fill.GetEntity();
 		slider.SetValue(0.f, ui_ele.GetEntity());
+
+		return ui_ele;
+	}
+
+	GameObject GOFactory::CreateGO_Text()
+	{
+		auto ui_ele = CreateGO("Text");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<FontRenderer>();
+		auto& ui_font = ui_ele.GetComponent<FontRenderer>();
+		ui_font.rgba = { 0.f,0.f,0.f,1.f };
+		ui_font.font_size = 50;
+		ui_font.line_spacing = 20;
+		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_font.fontHandle = (GUID)0;
 
 		return ui_ele;
 	}

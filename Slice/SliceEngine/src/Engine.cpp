@@ -113,6 +113,8 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
+	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
+	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -304,6 +306,12 @@ namespace SliceEngine
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
 			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
+	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
+		(
+			rttr::value("Left", FontRenderer::LEFT),
+			rttr::value("Center", FontRenderer::CENTER),
+			rttr::value("Right", FontRenderer::RIGHT)
 			);
 	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
 		(
@@ -517,6 +525,15 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 
+rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
+.constructor<>()
+.property("font", &FontRenderer::fontHandle)
+.property("rgba", &FontRenderer::rgba)
+.property("font_size", &FontRenderer::font_size)
+.property("line_spacing", &FontRenderer::line_spacing)
+.property("alignment", &FontRenderer::alignment)
+.property("componentEnabled", &FontRenderer::componentEnabled);
+
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.constructor<>()
 	.property("speed", &NavAgent::speed)
@@ -638,7 +655,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
 		Core::GetInstance()->GetProjectSettingsManager()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
 
 		// =========================== TESTING AREA ===========================
 		// 
@@ -658,6 +674,10 @@ namespace SliceEngine
 
 	}
 
+	void Engine::InitScene()
+	{
+		Core::GetInstance()->GetSceneSystem()->Init();
+	}
 
 	void Engine::Update()
 	{
@@ -683,7 +703,7 @@ namespace SliceEngine
 		{
 			if (sScene->isSceneUnloaded)
 			{
-				sScene->LoadNextScene();
+				sScene->LoadSceneFromQueue();
 			}
 		}
 
@@ -730,6 +750,8 @@ namespace SliceEngine
 			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
+
+				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
@@ -762,12 +784,6 @@ namespace SliceEngine
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
 
-		// process all enabled action maps in Game mode
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			SliceEngine::GetActionMappingSystem().processAllInput();
-		}
-
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
 		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -796,16 +812,16 @@ namespace SliceEngine
 			{
 				frm->StartSystem("Physics");
 
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
+				//Prestep: push dynamic poses to physics world
+				core->GetSystem<PhysicsSystem>().PreStepSync();
 
 				// Single world step
 				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-				frm->EndSystem("Physics");
 
-				//sTransform.UpdateTransforms();
+				frm->EndSystem("Physics");
 
 			}
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));

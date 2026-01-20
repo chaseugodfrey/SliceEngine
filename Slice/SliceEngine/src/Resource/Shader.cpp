@@ -222,29 +222,27 @@ namespace SliceEngine
 					std::string throwaway;
 					std::stringstream ss{ line };
 					ss >> throwaway; // data type
-					if (throwaway[0] == 'u')
-						inParam.isUnsigned = true;
 
-					if (throwaway == "uint" || throwaway == "int")
-						inParam.numBytes = 4;
+					if (throwaway == "uint")
+						inParam.dataType = SP_TYPE::UINT;
+					else if(throwaway == "int")
+						inParam.dataType = SP_TYPE::INT;
 					else if(throwaway == "bool")
-						inParam.numBytes = 1;
+						inParam.dataType = SP_TYPE::BOOL;
 					else if (throwaway == "float")
-					{
-						inParam.isFloating = true;
-						inParam.numBytes = 4;
-					}
+						inParam.dataType = SP_TYPE::FLOAT;
+
 					ss >> inParam.name;
 					ss >> throwaway;
 
-					if (inParam.isFloating)
+					if (inParam.dataType == SP_TYPE::FLOAT)
 					{
 						float tempFloat{};
 						ss >> tempFloat;
-						inParam.baseData = std::bit_cast<uint32_t>(tempFloat);
+						inParam.baseData.sp_float = tempFloat;
 					}
 					else
-						ss >> inParam.baseData;
+						ss >> inParam.baseData.sp_uint;
 
 					dataIn.push_back(inParam);
 				}
@@ -324,22 +322,20 @@ float ExtractFloat(int num)
 				std::stringstream ss;
 				for (int i = 0; i < dataIn.size(); ++i)
 				{
-					if (dataIn[i].isFloating)
+					switch (dataIn[i].dataType)
 					{
-						if (dataIn[i].numBytes == 4)
-							ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
-					}
-					else
-					{
-						if (dataIn[i].numBytes == 4)
-						{
-							if (dataIn[i].isUnsigned)
-								ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
-							else
-								ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
-						}
-						else if (dataIn[i].numBytes == 1)
-							ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
+						break;
 					}
 				}
 				fragNumExtraElems += ss.str();

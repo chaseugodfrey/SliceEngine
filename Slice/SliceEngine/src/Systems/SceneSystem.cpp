@@ -16,11 +16,10 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	
 	void SceneSystem::Init()
 	{
-		if (!LoadScene(mCurrentScene))
-			LoadDefaultScene();
+		//if (!LoadScene(mCurrentScene))
+		//	LoadDefaultScene();
 
 		mCurrentState = mNextState = SceneState::DEFAULT;
 
@@ -30,25 +29,6 @@ namespace SliceEngine
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
-		mNextScene = filePath;
-		UnloadCurrentScene();
-		
-	}
-
-	bool SceneSystem::LoadScene(GUID const guid)
-	{
-		auto resourceManager = Core::GetInstance()->GetResourceManager();
-		auto scene = resourceManager->get<SliceEngineTypes::Scene>(guid);
-
-		if (!scene.IsValid())
-			return false;
-		
-		return LoadScene(scene->GetFilePath());
-	}
-
-	bool SceneSystem::LoadScene(SliceEngineTypes::Scene const* scene)
-	{
-		return LoadScene(scene->GetFilePath());
 	}
 
 	void SceneSystem::LoadDefaultScene()
@@ -57,83 +37,47 @@ namespace SliceEngine
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
 	}
 
-	bool SceneSystem::LoadScene(std::filesystem::path const filePath)
+	bool SceneSystem::LoadSceneFromQueue()
 	{
-		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
+		auto asset_directory_path = std::filesystem::path("Assets");
+		auto next_scene_filepath = mSceneQueue.front();
+		mSceneQueue.pop();
 
-		std::filesystem::path mAssetDirectory = std::filesystem::path("Assets");
-
-		mCurrentSceneName = std::filesystem::relative(filePath, mAssetDirectory).generic_string();
-
-		mCurrentScene = filePath;
-
-		// auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(filePath.stem().string()).get();
-		// if (filePath.extension() == ".temp")
-		// {
-		// 	SLICE_LOG("Loading scene...");
-
-		// 	auto map = JSONSerializer::DeserializeScene(filePath);
-
-		// 	SLICE_LOG("Scene loaded successfully.");
-
-		// 	Core::GetInstance()->mFactory.BuildSceneGraph(map);
-		// 	Core::GetInstance()->mFactory.DebugPrint();
-		// 	OnSceneLoadedEvent event;
-		// 	event.isSceneLoaded = true;
-
-		// 	EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
-
-		// 	return;
-		// }
-
-		auto resourceMgr = Core::GetInstance()->GetResourceManager();
-		auto filePathGUID = resourceMgr->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
-		if (filePathGUID)
+		// Check if initial scene is empty, then load default scene
+		if (next_scene_filepath.empty())
 		{
-			
-			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
-
-
-			SLICE_LOG("Loading scene...");
-
-			auto map = JSONSerializer::DeserializeScene(filePathToLoad);
-
-			if (mCurrentScene.extension() == ".temp")
-			{
-				// this only happens in editor mode
-				// technically temp file shouldn't even be creating a resource i think
-				// so it doesn't have to be cleaned up, 
-				if (std::filesystem::exists(mCurrentScene))
-				{
-					GUID fileGUID = resourceMgr->mFileNameToGUID[mCurrentSceneName];
-					resourceMgr->ReleaseResource(fileGUID);
-
-					// delete all 3 files
-					std::filesystem::remove(mCurrentScene);
-					std::filesystem::remove(filePathToLoad);
-					std::filesystem::path newPath = mCurrentScene;
-					mCurrentScene += ".meta";
-					std::filesystem::remove(mCurrentScene);
-
-					// change back to the .scene one
-					newPath.replace_extension(".scene");
-					mCurrentScene = newPath;
-					//filePathToLoad = mCurrentScene;
-				}
-			}
-
-
-			SLICE_LOG("Scene loaded successfully.");
-
-			Core::GetInstance()->mFactory.BuildSceneGraph(map);
-			Core::GetInstance()->mFactory.DebugPrint();
-
-			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
-
+			SLICE_LOG("No scene to load. Loading Default Scene.");
+			LoadDefaultScene();
 			return true;
 		}
 
-		return false;
+		auto next_scene_filename = std::filesystem::relative(next_scene_filepath, asset_directory_path).generic_string();
+
+		SLICE_LOG("Attempting to load scene from path: " + next_scene_filepath.string());
+
+		if (!std::filesystem::exists(next_scene_filepath))
+		{
+			SLICE_LOG("Failed to load scene from path: " + next_scene_filepath.string());
+			return false;
+		}
+
+		UnloadCurrentScene();
+
+		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
+
+		auto map = JSONSerializer::DeserializeScene(next_scene_filepath);
+		 
+		mCurrentScene = next_scene_filepath;
+		mCurrentSceneName = next_scene_filepath.stem().string();
+
+		SLICE_LOG("Scene: " + next_scene_filepath.string() + " loaded successfully.");
+
+		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+		Core::GetInstance()->mFactory.DebugPrint();
+
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
+
+		return true;
 	}
 
 	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
@@ -154,20 +98,6 @@ namespace SliceEngine
 		}
 	}
 
-	void SceneSystem::LoadNextScene()
-	{
-		/*auto scene_to_load = mSceneQueue.front();
-		mSceneQueue.pop();
-		LoadScene(scene_to_load);*/
-		if (mNextScene == mSceneQueue.front())
-		{
-			
-			LoadScene(mNextScene);
-			mSceneQueue.pop();
-			mNextScene = "";
-		}
-	}
-
 	void SceneSystem::WriteTempFile()
 	{
 		std::filesystem::path CurrentScene = mCurrentScene;
@@ -177,11 +107,6 @@ namespace SliceEngine
 		CurrentSceneTemp.replace_extension(".temp");
 
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
-	}
-
-	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
-	{
-		mCurrentScene = filePath;
 	}
 
 	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
@@ -223,7 +148,13 @@ namespace SliceEngine
 
 	void SceneSystem::UnloadCurrentScene()
 	{
-		SLICE_LOG("Unloading Scenes.");
+		if (mCurrentScene.empty())
+		{
+			SLICE_LOG("No scene is currently loaded. Skipping unload.");
+			return;
+		}
+
+		SLICE_LOG("Unloading scene: " + mCurrentScene.string());
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
 		Core::GetInstance()->mFactory.UpdateDestroyed();
@@ -310,6 +241,6 @@ namespace SliceEngine
 		if (mCurrentScene.empty())
 			return "New Scene";
 
-		return mCurrentScene.stem().string();
+		return mCurrentSceneName;
 	}
 }

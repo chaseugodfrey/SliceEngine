@@ -28,14 +28,14 @@ namespace SliceEditor
 
 	#pragma endregion
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f);
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f, float speed = 0.1f);
 
 	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
 
 	bool DragIntInput(Registry& reg, const char* id, int& val, const char* format, int min = 0, int max = 0);
 	
-	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min = 0, uint64_t max = 0, float speed = 1.0f);
 	bool DragUInt32Input(Registry& reg, const char* id, uint32_t& val, const char* format, uint32_t min = 0, uint32_t max = 0);
 
 	bool BoolInput(Registry& reg, const char* id, bool& val);
@@ -46,13 +46,13 @@ namespace SliceEditor
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 
-	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f, float speed = 0.1f);
 	
 	bool SliderFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntInputHeader(Registry& reg, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
 	
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "X: %llu", uint64_t min = 0, uint64_t max = 0);
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format = "X: %llu", uint64_t min = 0, uint64_t max = 0, float speed = 1.0f);
 	bool DragUInt32InputHeader(Registry& reg, const char* property_label, const char* id, uint32_t& val, const char* format = "X: %u", uint32_t min = 0, uint32_t max = 0);
 	
 	bool BoolInputHeader(Registry& reg, const char* property_label, const char* id, bool& val);
@@ -74,6 +74,8 @@ namespace SliceEditor
 	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
 
 	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val);
+
+	bool PrefabInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::PrefabVar)> func, const char* property_label, const char* id, SliceEngine::PrefabVar& val);
 
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
@@ -118,60 +120,6 @@ namespace SliceEditor
 	//		// set the handle/guid here
 	// }
 	//
-
-	/*template <typename T>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
-	{
-		bool changed = false;
-		std::string filename{ "(empty)" };
-
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
-
-		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
-
-		if (file.has_value())
-		{
-			filename = file.value();
-		}
-
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
-			{
-				SliceEngine::GUID newGUID (*(SliceEngine::GUID*)payload->Data);
-
-				// Check if guid is same, if is, then dont execute anything
-				changed = (handle.getGUID() != newGUID);
-				if (changed)
-				{
-					if (!setFunc)
-					{
-						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-						auto newHandle = rm->get<T>(newGUID);
-
-						std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-						handle = newHandle;
-					}
-
-					else
-						setFunc(newGUID);
-				}
-			}
-
-			ImGui::EndDragDropTarget();
-		}
-
-		return changed;
-
-	}*/
 
 	template<typename Enum>
 	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
@@ -283,6 +231,7 @@ namespace SliceEditor
 			//Push a blank at the end for fallback
 			//mapNames.push_back(" ");
 
+			/*int selectedIndex = (currentIndex < 0) ? 0 : currentIndex;*/
 			int selectedIndex = currentIndex;
 
 			std::string guidString = currentGUID.toString();
@@ -293,6 +242,18 @@ namespace SliceEditor
 				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
 				errorText = "GUID not found in AssetManager";
 				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s GUID:", property_label);
+				ImGui::SameLine(150.f);
+			}
+			//Make sure its in the respective assetMap too
+			else if (auto it = std::find(mapPtr->begin(), mapPtr->end(), currentGUID); it == mapPtr->end())
+			{
+				SLICE_LOG_WARNING("Found GUID in guidToFilename but its not in the assetMap. Remember to update asset maps!");
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[currentGUID];
+				std::string fileNameString = relativePath.filename().string();
+				mapNames.push_back(fileNameString);
 				//Should be the last added unknown GUID
 				selectedIndex = mapNames.size() - 1;
 				ImGui::Text("%s GUID:", property_label);

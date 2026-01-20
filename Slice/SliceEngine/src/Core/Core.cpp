@@ -78,6 +78,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
+		mFactory.RegisterComponent<FontRenderer>();
 		mFactory.RegisterComponent<Button>();
 		mFactory.RegisterComponent<Slider>();
 
