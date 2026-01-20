@@ -60,7 +60,12 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Enemy\LevelDirector.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
@@ -74,6 +79,7 @@
     <Compile Include="Source\Core\Math\Vector4.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
@@ -92,9 +98,6 @@
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
-    <Compile Include="Source\EnemyChase.cs" />
-    <Compile Include="Source\EnemySlime.cs" />
-    <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
