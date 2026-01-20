@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include "Core/Core.h"
 #include "Systems/SceneSystem.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -226,22 +227,20 @@ namespace SliceEngine
 				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
 				for (auto& i : materialToReload->shader.get()->dataIn)
 				{
-					if (i.isFloating)
+					switch (i.dataType)
 					{
-						if (i.numBytes == 4)
-							materialToReload->floatDat.push_back(std::bit_cast<float>(i.baseData));
-					}
-					else
-					{
-						if (i.numBytes == 4)
-						{
-							if (i.isUnsigned)
-								materialToReload->uintDat.push_back(i.baseData);
-							else
-								materialToReload->intDat.push_back(static_cast<int>(i.baseData));
-						}
-						else if (i.numBytes == 1)
-							materialToReload->boolDat.push_back(static_cast<bool>(i.baseData));
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						materialToReload->boolDat.push_back(i.baseData.sp_bool);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						materialToReload->uintDat.push_back(i.baseData.sp_uint);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						materialToReload->intDat.push_back(i.baseData.sp_int);
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						materialToReload->floatDat.push_back(i.baseData.sp_float);
+						break;
 					}
 				}
 
@@ -470,4 +469,39 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::StateMachine>::Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	//Font
+	std::unique_ptr<SliceEngineTypes::Font_Data> Type<SliceEngineTypes::Font_Data>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto font = std::make_unique<SliceEngineTypes::Font_Data>();
+		if (!std::filesystem::exists(path)) {
+			font->InitializeDefault();
+		}
+		else {
+			if (!font->LoadFontResource(path)) {
+				return nullptr;
+			}
+		}
+		return font;
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFontResource();
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyFontResource();
+		if (!std::filesystem::exists(path)) {
+			resource->InitializeDefault();
+		}
+		else {
+			resource->LoadFontResource(path);
+		}
+	}
+
+	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}*/
 }

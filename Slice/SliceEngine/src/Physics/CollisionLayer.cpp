@@ -180,8 +180,20 @@ namespace SliceEngine
 	}
 
 
+	bool ObjectLayerFilterImpl::ShouldCollide(JPH::ObjectLayer inLayer) const
+	{
+		if (inLayer < 0u || inLayer >= Layers::NUM_LAYERS)
+		{
+			JPH_ASSERT(false, "Object layer out of bounds");
+			return false;
+		}
 
+		// COLLISION_OFF layer collides with nothing
+		if (inLayer == Layers::COLLISION_OFF)
+			return false;
 
+		return layerMask & (1u << inLayer);
+	}
 
 }
 

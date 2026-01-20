@@ -171,6 +171,8 @@ namespace SliceEditor
 	void AnimationWindow::UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip, float time)
 	{
 		animClip->UpdateTransforms(mCurrentAnimator->final_tforms, time, *mCurrentAnimator->Handle_skeleton.get());
+		UpdateBoneScene(tmpEnt);
+		UpdateBones();
 	}
 
 	void AnimationWindow::UpdateBoneScene(Entity ent)
@@ -268,24 +270,9 @@ namespace SliceEditor
 			mTimeline.isPlaying = false;
 			LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex]);
 
-			// update trf, bones scenegraph and bones update function
-			//animationClips[mCurrentClipIndex]->UpdateTransforms(mCurrentAnimator->final_tforms, 0, *mCurrentAnimator->Handle_skeleton.get());
 			UpdateTransform(animationClips[mCurrentClipIndex], 0);
-			// update scenegraph
-			//auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-
-			//for (auto entity : viewBone)
-			{
-				UpdateBoneScene(tmpEnt);
-			}
-
-			UpdateBones();
-
-			/*auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
-			for (auto entity : viewAnimator)
-			{
-				UpdateBones(entity);
-			}*/
+			//UpdateBoneScene(tmpEnt);
+			//UpdateBones();
 		}
 
 		ImGui::SameLine();
@@ -434,31 +421,10 @@ namespace SliceEditor
 						float safe_time = std::min(mCurrentTime, anim->duration);
 						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
 						UpdateTransform(anim, safe_time);
-						UpdateBoneScene(tmpEnt);
-						UpdateBones();
+						//UpdateBoneScene(tmpEnt);
+						//UpdateBones();
 					}
 				}
-
-				//core->GetSystem<SliceEngine::BoneSystem>().Update_Scenegraph();
-
-				//if (!ret)
-				//{
-					// update scenegraph
-					//auto viewBone = core->GetRegistry().view<SliceEngine::Bone_Entity>();
-					//for (auto entity : viewBone)
-					/*{
-						UpdateBoneScene(tmpEnt);
-					}*/
-
-					//UpdateBones();
-
-					/*auto viewAnimator = core->GetRegistry().view<SliceEngine::Animator>();
-					for (auto entity : viewAnimator)
-					{
-						UpdateBones(entity);
-					}*/
-				//}
-				//core->GetSystem<SliceEngine::AnimatorSystem>().BoneUpdate();
 			}
 		}
 

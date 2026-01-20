@@ -19,10 +19,68 @@ DigiPen Institute of Technology is prohibited.
 namespace SliceEngine {
 
 	namespace {
-		constexpr uint64_t sprite_shader = 11505317983061001815;
-		constexpr uint64_t ui_sprite_eid = 13043535478215287923;
-		constexpr uint64_t ui_font = 0;
-		constexpr uint64_t ui_font_eid = 0;
+		uint64_t sprite_shader = 11505317983061001815;
+		uint64_t ui_sprite_eid = 13043535478215287923;
+		uint64_t font_shader = 0;
+		uint64_t ui_font_eid = 0;
+	}
+
+	namespace SliceEngineTypes {
+		/*
+		* to handle wrapping in text box
+		* first tokenize according to spaces and line breaks
+		* calculate the size of each word and ensure the line does not exceed limit
+		* 
+		* potentially do this only when text gets changed, and calculate only size at runtime
+		* see if this really cooks performance first
+		*/
+		void Tokenize(FontRenderer& font_render, Font_Data const& font) {
+			float relative_size = font_render.font_size / font.font_size;
+			
+			auto const& font_text = font_render.text;
+			std::vector<FontRenderer::Token> token_list{};
+			token_list.reserve(50);	//probably less then 50 words and spaces in 1 component, just a heuristic
+
+			for (size_t pos = 0; pos < font_text.size(); ++pos) {
+				FontRenderer::Token token{};
+				token.pos = &font_text[pos];
+
+				const char* pattern = " \n\t";
+				switch (font_text[pos]) {
+				case '\n':
+					token.size = 0;
+					break;
+				case ' ':
+					token.size = font.glyph_datas.at(font_text[pos]).advance * relative_size;
+					break;
+				case '\t':
+					token.size = font.glyph_datas.at(' ').advance * relative_size * 4;	//1 tab is 4 spaces
+					break;
+				default:
+					{
+					size_t next = font_text.find_first_of(pattern, pos);
+					if (next == std::string::npos) {
+						next = font_text.size();
+					}
+					
+					for (size_t ch = pos; ch < next; ++ch) {
+						token.size += font.glyph_datas.at(font_text[ch]).advance * relative_size;
+					}
+
+					pos += next - pos - 1;	//-1 because of loop increments
+					}
+					break;
+				}
+
+				token_list.push_back(std::move(token));
+			}
+
+			font_render.token_list.swap(token_list);
+		}
+
+		void Fit_Line(FontRenderer const& font_render, RectTransform const& rect) {
+
+		}
 	}
 
 	void CanvasSystem::Init() {
@@ -36,8 +94,20 @@ namespace SliceEngine {
 		glTextureParameteri(raycast_tex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		CheckGLError();
 
+		auto core = Core::GetInstance();
+		auto rm = core->GetResourceManager();
+		sprite_shader = rm->mFileNameToGUID.at("Shaders/uiSprite.shader").GetGUID();
+		ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
+		font_shader = rm->mFileNameToGUID.at("Shaders/uiFont.shader").GetGUID();
+		//ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
+		
 		eid_shader_map[sprite_shader] = ui_sprite_eid;
-		eid_shader_map[ui_font] = ui_font_eid;
+		eid_shader_map[font_shader] = ui_font_eid;
+
+		glCreateBuffers(1, &font_ssbo);
+		GLbitfield flags = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT;
+		glNamedBufferStorage(font_ssbo, sizeof(Font_Instance) * Font_Max_Instance, nullptr, flags);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, font_binding_index, font_ssbo);
 	}
 	void CanvasSystem::Release() {
 		glDeleteTextures(1, &raycast_tex);
@@ -151,6 +221,7 @@ namespace SliceEngine {
 
 
 		std::vector<std::pair<Entity, uint64_t>> entities_to_draw{};
+		//entities_to_draw.reserve(100);
 		for (auto entity : overlay_canvas) {
 			auto const& canvas = mRegistry->get<Canvas>(entity);
 			if (canvas.componentEnabled) {
@@ -186,17 +257,8 @@ namespace SliceEngine {
 		if (elements.empty()) {
 			return;
 		}
-		/*
-		* Things to note:
-		* currently only the last camera that was added in scene view is used as camera,(GameViewWindow.cpp)
-		* this camera is the very first entity within the view(idk why its a stack)
-		* 
-		* the camera that is used for editor is accessed via scene camera (SceneViewWindow.cpp)
-		* 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
-				camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		* 
-		* for now just draw game camera, deal with scene view later
-		*/
+		CheckGLError();
+
 
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
@@ -217,6 +279,11 @@ namespace SliceEngine {
 		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();*/
 
+		//Get quad
+		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto const& quad_mesh = quad.meshes[0];
+		glBindVertexArray(quad_mesh.vao);
+
 		for (auto const& element : elements) {
 			if (element.second != shader_guid) {
 				shader_guid = element.second;
@@ -229,40 +296,113 @@ namespace SliceEngine {
 				CheckGLError();
 			}
 
-			auto const& rect = mRegistry->get<RectTransform>(element.first);
-			uniform_loc = glGetUniformLocation(shader, "M");
-			glm::mat4 model = rect.ToMatrix();
-			glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-			CheckGLError();
-
 			if (shader_guid == sprite_shader) {	//sprite
+				auto const& rect = mRegistry->get<RectTransform>(element.first);
+				uniform_loc = glGetUniformLocation(shader, "M");
+				glm::mat4 model = rect.ToMatrix();
+				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
+		//		CheckGLError();
+
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
 
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
-				CheckGLError();
+			//	CheckGLError();
 
-				//Get quad
-				auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-				auto const& quad_mesh = quad.meshes[0];
-				glBindVertexArray(quad_mesh.vao);
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				CheckGLError();
+			//	CheckGLError();
 			}
-			else if (shader == 2) {	//font
+			else if (shader_guid == font_shader) {	//font
+				auto const& rect = mRegistry->get<RectTransform>(element.first);
+				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
 
+				if (font_render.fontHandle.GetGUID() == DefaultResourceIDs::FONT_BLANK_DEFAULT) {
+					return;
+				}
+
+				//Use rect to format the font characters
+				unsigned int instance_count = 0;
+				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
+
+				unsigned int uniform_loc = glGetUniformLocation(shader, "rgba");
+				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
+
+				float relative_scale = font_render.font_size / font->font_size;
+
+				uniform_loc = glGetUniformLocation(shader, "relative_scale");
+				glUniform1f(uniform_loc, relative_scale);
+
+				glBindTextureUnit(0, font.get()->atlas_texture);
+
+				CheckGLError();
+
+
+				//fit into a line
+
+
+				float x_pen = rect.final_x;
+				float y_pen = rect.final_y;
+
+				for (char ch : font_render.text) {
+					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
+
+					float x = x_pen + glyph.xoff * relative_scale;
+					float y = y_pen - glyph.yoff * relative_scale;
+					float w = glyph.w * relative_scale;
+					float h = glyph.h * relative_scale;
+
+					x_pen += glyph.advance * relative_scale;
+
+					if (w == 0) {
+						continue;
+					}
+
+					RectTransform temp_rect;
+					temp_rect.final_width = w;
+					temp_rect.final_height = h;
+					temp_rect.final_x = x;
+					temp_rect.final_y = y;
+
+					Font_Instance instance_data;
+
+					instance_data.model_to_ndc = temp_rect.ToMatrix();
+					SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
+					instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
+					//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
+					font_Instances[instance_count] = instance_data;
+					++instance_count;
+
+					if (instance_count >= Font_Max_Instance) {
+						glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * Font_Max_Instance, font_Instances);
+						CheckGLError();
+						glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, Font_Max_Instance);
+						CheckGLError();
+						instance_count = 0;
+					}
+				}
+
+				//glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+				//CheckGLError();
+
+				if (instance_count) {
+					glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * instance_count, font_Instances);
+					CheckGLError();
+					glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, instance_count);
+					CheckGLError();
+				}
 			}
 		}
 
 		CheckGLError();
 	}
+
 	void CanvasSystem::render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
 		}
-
+		return;
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
 
@@ -281,6 +421,11 @@ namespace SliceEngine {
 		glUniform1ui(uniform_loc, canv.graphic_raycastable);
 		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();
+
+		//Get quad
+		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
+		auto const& quad_mesh = quad.meshes[0];
+		glBindVertexArray(quad_mesh.vao);
 
 		for (auto const& element : elements) {
 			if (element.second != shader_guid) {
@@ -313,14 +458,10 @@ namespace SliceEngine {
 				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
 
-				//Get quad
-				auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
-				auto const& quad_mesh = quad.meshes[0];
-				glBindVertexArray(quad_mesh.vao);
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
-			else if (shader == 2) {	//font
+			else if (shader == font_shader) {	//font
 
 			}
 		}
@@ -330,6 +471,8 @@ namespace SliceEngine {
 	}
 
 	void CanvasSystem::get_node_render(std::vector<std::pair<Entity, uint64_t>>& render, Entity node) {
+		auto core = SliceEngine::Core::GetInstance();
+		auto const& rm = core->GetResourceManager();
 		if (!mRegistry->any_of<RectTransform>(node)) {
 			return;
 		}
@@ -337,9 +480,18 @@ namespace SliceEngine {
 		if (sprite && sprite->componentEnabled) {
 			render.push_back({ node, sprite_shader });	//eid and shader resource handle
 		}
-		//if (auto font = mRegistry->try_get<FontRenderer>(node)) {
-		//	render.push_back({ node, 2 });
-		//}
+		if (auto font = mRegistry->try_get<FontRenderer>(node)) {
+			//GUID font_guid = rm->mFileNameToGUID["Shaders/uiFont.shader"];
+
+			//tokenize the font string to fit into text box
+			if (!font->token_updated) {
+				auto const& font_data = rm->get<SliceEngineTypes::Font_Data>(font->fontHandle);
+				SliceEngineTypes::Tokenize(*font, *font_data.get());
+				font->token_updated = true;
+				
+			}
+			render.push_back({ node, font_shader });
+		}
 
 		if (auto scene_graph = mRegistry->try_get<SceneGraph>(node)) {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
@@ -454,6 +606,7 @@ namespace SliceEngine {
 
 	void _CheckGLError(const char* file, int line)
 	{
+		return;
 #ifndef _DEBUG 
 		return;
 #endif // only do this on debug

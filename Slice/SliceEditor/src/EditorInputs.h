@@ -10,7 +10,8 @@ namespace SliceEditor
 		Registry& registry;
 
 	public:
-		EditorInputs(Registry& reg) : registry(reg) {};
+		bool isInspectorFocused;
+		EditorInputs(Registry& reg, bool inspectorFocus) : registry(reg), isInspectorFocused(inspectorFocus) {};
 		bool isActive;
 
 		void Init();
