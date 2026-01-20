@@ -91,7 +91,7 @@ namespace SliceEngine
 		if (std::filesystem::exists(mCurrentScene))
 		{
 			
-			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
+			//std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
 
 
 			SLICE_LOG("Loading scene...");
