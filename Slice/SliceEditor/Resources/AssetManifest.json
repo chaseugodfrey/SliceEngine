@@ -11,6 +11,11 @@
             "path": "Resources/15884595881201833390.mdl"
         },
         {
+            "guid": 11602968218607037776,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/11602968218607037776.controller"
+        },
+        {
             "guid": 9886919587323407782,
             "name": "Audio/A2.wav",
             "path": "Resources/9886919587323407782.wav"
@@ -74,11 +79,6 @@
             "guid": 14512970778092126093,
             "name": "Default/navmeshtest.temp",
             "path": "Resources/14512970778092126093.scene"
-        },
-        {
-            "guid": 17572729816882902352,
-            "name": "Default/BasicController.controller",
-            "path": "Resources/17572729816882902352.controller"
         },
         {
             "guid": 14344363735321873368,
@@ -156,6 +156,11 @@
             "path": "Resources/15444100828152761678.wav"
         },
         {
+            "guid": 14244224659510421467,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/14244224659510421467.controller"
+        },
+        {
             "guid": 16895767658385788011,
             "name": "Material/Player_Sword_m.mat",
             "path": "Resources/16895767658385788011.mat"
@@ -174,11 +179,6 @@
             "guid": 11944477452832270171,
             "name": "Audio/Run.wav",
             "path": "Resources/11944477452832270171.wav"
-        },
-        {
-            "guid": 13460357634091750174,
-            "name": "Default/GolemController.controller",
-            "path": "Resources/13460357634091750174.controller"
         },
         {
             "guid": 15472863805971150537,
@@ -231,39 +231,39 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
-            "guid": 15358816323272323381,
+            "guid": 17147306072363453600,
+            "name": "[04]Environment/Environment_Engine_2.animpkg",
+            "path": "Resources/17147306072363453600.animpkg"
+        },
+        {
+            "guid": 10087968746839460320,
             "name": "Default/BasicController.controller",
-            "path": "Resources/15358816323272323381.controller"
+            "path": "Resources/10087968746839460320.controller"
         },
         {
-            "guid": 10119110391915830736,
-            "name": "Editor/AudioIcon.png",
-            "path": "Resources/10119110391915830736.dds"
+            "guid": 9336273396156370476,
+            "name": "Material/default.mat",
+            "path": "Resources/9336273396156370476.mat"
         },
         {
-            "guid": 12151694488898209434,
-            "name": "[05]New_Environment/Environment-BackgroundTowers.skl",
-            "path": "Resources/12151694488898209434.skl"
-        },
-        {
-            "guid": 13273152527463267380,
+            "guid": 16996812809793225901,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/13273152527463267380.controller"
+            "path": "Resources/16996812809793225901.controller"
         },
         {
-            "guid": 14398956356898289746,
-            "name": "Editor/AnimatorIcon.png",
-            "path": "Resources/14398956356898289746.dds"
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
         },
         {
-            "guid": 17474183113380494688,
-            "name": "[04]Environment/Environment_Towers_P6.skl",
-            "path": "Resources/17474183113380494688.skl"
+            "guid": 14285044838440524560,
+            "name": "Shaders/shadow_Geom.geom",
+            "path": "Resources/14285044838440524560.geom"
         },
         {
-            "guid": 12232299919356520036,
+            "guid": 11478171667897728791,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/12232299919356520036.controller"
+            "path": "Resources/11478171667897728791.controller"
         },
         {
             "guid": 10464052820645603593,
@@ -286,9 +286,14 @@
             "path": "Resources/10725444541108303107.scene"
         },
         {
-            "guid": 11442149271343942381,
+            "guid": 15021947035957259762,
+            "name": "Default/NewScene.temp",
+            "path": "Resources/15021947035957259762.scene"
+        },
+        {
+            "guid": 14384343234085203602,
             "name": "Default/GolemController.controller",
-            "path": "Resources/11442149271343942381.controller"
+            "path": "Resources/14384343234085203602.controller"
         },
         {
             "guid": 14037766457360526962,
@@ -311,11 +316,6 @@
             "path": "Resources/10731921158266549350.scene"
         },
         {
-            "guid": 15021947035957259762,
-            "name": "Default/NewScene.temp",
-            "path": "Resources/15021947035957259762.scene"
-        },
-        {
             "guid": 16304538495588573609,
             "name": "Default/ParticleSystemTest.scene",
             "path": "Resources/16304538495588573609.scene"
@@ -329,6 +329,21 @@
             "guid": 17882015253966645802,
             "name": "Editor/AnimationIcon.png",
             "path": "Resources/17882015253966645802.dds"
+        },
+        {
+            "guid": 10119110391915830736,
+            "name": "Editor/AudioIcon.png",
+            "path": "Resources/10119110391915830736.dds"
+        },
+        {
+            "guid": 12151694488898209434,
+            "name": "[05]New_Environment/Environment-BackgroundTowers.skl",
+            "path": "Resources/12151694488898209434.skl"
+        },
+        {
+            "guid": 14398956356898289746,
+            "name": "Editor/AnimatorIcon.png",
+            "path": "Resources/14398956356898289746.dds"
         },
         {
             "guid": 18400379806743012927,
@@ -366,11 +381,6 @@
             "path": "Resources/10125292758465881867.dds"
         },
         {
-            "guid": 9336273396156370476,
-            "name": "Material/default.mat",
-            "path": "Resources/9336273396156370476.mat"
-        },
-        {
             "guid": 12638191067484305032,
             "name": "Material/EnemySlime_Inner_m.mat",
             "path": "Resources/12638191067484305032.mat"
@@ -389,11 +399,6 @@
             "guid": 16483552102943977758,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/16483552102943977758.mat"
-        },
-        {
-            "guid": 17926379886479867228,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17926379886479867228.skl"
         },
         {
             "guid": 14919455020680615893,
@@ -791,11 +796,6 @@
             "path": "Resources/13781540877947589117.frag"
         },
         {
-            "guid": 14285044838440524560,
-            "name": "Shaders/shadow_Geom.geom",
-            "path": "Resources/14285044838440524560.geom"
-        },
-        {
             "guid": 18309228460714719629,
             "name": "Shaders/skybox.shader",
             "path": "Resources/18309228460714719629.shader"
@@ -1041,11 +1041,6 @@
             "path": "Resources/14884183165765477983.mdl"
         },
         {
-            "guid": 17147306072363453600,
-            "name": "[04]Environment/Environment_Engine_2.animpkg",
-            "path": "Resources/17147306072363453600.animpkg"
-        },
-        {
             "guid": 14005382682046334189,
             "name": "[04]Environment/Environment_P1.fbx",
             "path": "Resources/14005382682046334189.mdl"
@@ -1054,6 +1049,11 @@
             "guid": 10398390136459026822,
             "name": "[04]Environment/Environment_P1.animpkg",
             "path": "Resources/10398390136459026822.animpkg"
+        },
+        {
+            "guid": 17474183113380494688,
+            "name": "[04]Environment/Environment_Towers_P6.skl",
+            "path": "Resources/17474183113380494688.skl"
         },
         {
             "guid": 13886188110459834569,

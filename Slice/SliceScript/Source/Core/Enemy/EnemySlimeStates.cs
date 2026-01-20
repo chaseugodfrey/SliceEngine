@@ -16,7 +16,7 @@ namespace SliceEngine
     public class EnemySlimeState : EnemyState
     {
         protected EnemySlime enemyOwner;
-        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; Console.WriteLine("Slime chase state created"); }
+        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; /*SliceLog.Log("Slime chase state created");*/ Console.WriteLine("Slime chase state created"); }
         public override void DoEnemyAction(float dt) {}
         public override void DoEnemyActionFixed() {}
         public override void OnCollide() {}
