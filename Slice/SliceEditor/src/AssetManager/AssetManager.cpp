@@ -435,6 +435,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Scene] = {};
 		mAssetTypeToGUIDs[AssetType::Font] = {};
 		mAssetTypeToGUIDs[AssetType::Prefab] = {};
+		mAssetTypeToGUIDs[AssetType::CustomShader] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -508,6 +509,11 @@ namespace SliceEditor
 		if (assetType == "Prefab")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Prefab];
+		}
+
+		if (assetType == "Custom Shader")
+		{
+			return &mAssetTypeToGUIDs[AssetType::CustomShader];
 		}
 
         else 

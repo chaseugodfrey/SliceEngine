@@ -1702,6 +1702,8 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMaterial(DirectoryNode* node)
 	{
+		MaterialData mat;
+		std::filesystem::path mat_path = node->fileName;
 		std::string buffer{};
 		static float f_buffer{};
 
@@ -1711,12 +1713,14 @@ namespace SliceEditor
 		ImGui::Text(node->fileName.c_str());
 		ImGui::EndGroup();
 		
-		MaterialData mat;
-		std::filesystem::path mat_path = node->fileName;
 		//auto metapath = SliceEngine::Core::GetInstance()->GetResourceManager()->GetResourcePath(mat_path.stem().string());
 
 		//if (metapath.has_value())
 		mat.DeserializeAsset(node->fullPath);
+		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "Custom Shader"))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
 
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
 		{
@@ -1768,6 +1772,12 @@ namespace SliceEditor
 					mat.SerializeAsset(node->fullPath);
 				++floatCnt;
 				break;
+			}
+			default:
+			{
+				ImGui::Text(i.name.c_str());
+				ImGui::SameLine(150.f);
+
 			}
 			}
 		}
