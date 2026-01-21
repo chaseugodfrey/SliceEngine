@@ -1082,7 +1082,6 @@ namespace SliceEditor
 	{
 		if (mFilenameToGUID.find(fileName) != mFilenameToGUID.end())
 		{
-			
 			std::filesystem::path metaPath = mAssetDirectory / fileName;
 			//metaPath.replace_extension(".meta");
 			metaPath += ".meta";

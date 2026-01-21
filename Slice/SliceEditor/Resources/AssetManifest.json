@@ -51,14 +51,14 @@
             "path": "Resources/13612963309126088302.wav"
         },
         {
+            "guid": 10853710783587271977,
+            "name": "Fonts/Roboto-VariableFont.ttf",
+            "path": "Resources/10853710783587271977.fnt"
+        },
+        {
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
-        },
-        {
-            "guid": 11993684851040886857,
-            "name": "Models/Enemy_Basic.fbx",
-            "path": "Resources/11993684851040886857.mdl"
         },
         {
             "guid": 11766461363590934609,
@@ -96,6 +96,16 @@
             "path": "Resources/12851759591155610253.mat"
         },
         {
+            "guid": 18329491173128811221,
+            "name": "Models/Environment_Engine_1.animpkg",
+            "path": "Resources/18329491173128811221.animpkg"
+        },
+        {
+            "guid": 12876286632047317072,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/12876286632047317072.controller"
+        },
+        {
             "guid": 9646178157620972647,
             "name": "Shaders/bloomSplit.shader",
             "path": "Resources/9646178157620972647.shader"
@@ -126,11 +136,6 @@
             "path": "Resources/16649409170736443788.mat"
         },
         {
-            "guid": 14290610553851825961,
-            "name": "Default/BasicController.controller",
-            "path": "Resources/14290610553851825961.controller"
-        },
-        {
             "guid": 15444100828152761678,
             "name": "Audio/Jump.wav",
             "path": "Resources/15444100828152761678.wav"
@@ -151,6 +156,16 @@
             "path": "Resources/16799538569288340419.wav"
         },
         {
+            "guid": 17753361635269803423,
+            "name": "Textures/Gideon.png",
+            "path": "Resources/17753361635269803423.dds"
+        },
+        {
+            "guid": 16071234098106909877,
+            "name": "Default/DefaultController.controller",
+            "path": "Resources/16071234098106909877.controller"
+        },
+        {
             "guid": 11944477452832270171,
             "name": "Audio/Run.wav",
             "path": "Resources/11944477452832270171.wav"
@@ -159,6 +174,11 @@
             "guid": 15472863805971150537,
             "name": "Default/NewScene.scene",
             "path": "Resources/15472863805971150537.scene"
+        },
+        {
+            "guid": 16514452644679914879,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/16514452644679914879.controller"
         },
         {
             "guid": 14886466983544040807,
@@ -211,29 +231,19 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
-            "guid": 16670911289530868217,
-            "name": "Models/EnemySlimeOuter.skl",
-            "path": "Resources/16670911289530868217.skl"
+            "guid": 10230791056562210482,
+            "name": "Material/EnemySpawner_m.mat",
+            "path": "Resources/10230791056562210482.mat"
         },
         {
-            "guid": 14127415488162852360,
-            "name": "Shaders/instanced.shader",
-            "path": "Resources/14127415488162852360.shader"
-        },
-        {
-            "guid": 10228526262418762068,
+            "guid": 17032483170968416768,
             "name": "Default/BasicController.controller",
-            "path": "Resources/10228526262418762068.controller"
+            "path": "Resources/17032483170968416768.controller"
         },
         {
-            "guid": 14384991108815475297,
+            "guid": 15010126194810607520,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/14384991108815475297.controller"
-        },
-        {
-            "guid": 13611782339947031175,
-            "name": "Default/DefaultController.controller",
-            "path": "Resources/13611782339947031175.controller"
+            "path": "Resources/15010126194810607520.controller"
         },
         {
             "guid": 10464052820645603593,
@@ -246,24 +256,19 @@
             "path": "Resources/15770641130210236395.mdl"
         },
         {
-            "guid": 18108076544179655602,
-            "name": "Material/undo.mat",
-            "path": "Resources/18108076544179655602.mat"
+            "guid": 10119110391915830736,
+            "name": "Editor/AudioIcon.png",
+            "path": "Resources/10119110391915830736.dds"
         },
         {
-            "guid": 10125292758465881867,
-            "name": "Frieren.jpg",
-            "path": "Resources/10125292758465881867.dds"
+            "guid": 14398956356898289746,
+            "name": "Editor/AnimatorIcon.png",
+            "path": "Resources/14398956356898289746.dds"
         },
         {
-            "guid": 9356309978054612381,
+            "guid": 15565527019482978058,
             "name": "Default/GolemController.controller",
-            "path": "Resources/9356309978054612381.controller"
-        },
-        {
-            "guid": 9389013239765543472,
-            "name": "Default/GolemController.controller",
-            "path": "Resources/9389013239765543472.controller"
+            "path": "Resources/15565527019482978058.controller"
         },
         {
             "guid": 16214383079991584321,
@@ -284,16 +289,6 @@
             "guid": 17882015253966645802,
             "name": "Editor/AnimationIcon.png",
             "path": "Resources/17882015253966645802.dds"
-        },
-        {
-            "guid": 10119110391915830736,
-            "name": "Editor/AudioIcon.png",
-            "path": "Resources/10119110391915830736.dds"
-        },
-        {
-            "guid": 14398956356898289746,
-            "name": "Editor/AnimatorIcon.png",
-            "path": "Resources/14398956356898289746.dds"
         },
         {
             "guid": 18400379806743012927,
@@ -321,6 +316,16 @@
             "path": "Resources/17483949530436669692.fnt"
         },
         {
+            "guid": 18108076544179655602,
+            "name": "Material/undo.mat",
+            "path": "Resources/18108076544179655602.mat"
+        },
+        {
+            "guid": 10125292758465881867,
+            "name": "Frieren.jpg",
+            "path": "Resources/10125292758465881867.dds"
+        },
+        {
             "guid": 9336273396156370476,
             "name": "Material/default.mat",
             "path": "Resources/9336273396156370476.mat"
@@ -329,11 +334,6 @@
             "guid": 12638191067484305032,
             "name": "Material/EnemySlime_Inner_m.mat",
             "path": "Resources/12638191067484305032.mat"
-        },
-        {
-            "guid": 10230791056562210482,
-            "name": "Material/EnemySpawner_m.mat",
-            "path": "Resources/10230791056562210482.mat"
         },
         {
             "guid": 11863813900028625629,
@@ -356,9 +356,19 @@
             "path": "Resources/14919455020680615893.animpkg"
         },
         {
+            "guid": 16670911289530868217,
+            "name": "Models/EnemySlimeOuter.skl",
+            "path": "Resources/16670911289530868217.skl"
+        },
+        {
             "guid": 14018566679936275834,
             "name": "Models/EnemySlimeOuter.animpkg",
             "path": "Resources/14018566679936275834.animpkg"
+        },
+        {
+            "guid": 11993684851040886857,
+            "name": "Models/Enemy_Basic.fbx",
+            "path": "Resources/11993684851040886857.mdl"
         },
         {
             "guid": 14464725476257600466,
@@ -409,11 +419,6 @@
             "guid": 10212446774121703514,
             "name": "Models/Environment_Engine_1.skl",
             "path": "Resources/10212446774121703514.skl"
-        },
-        {
-            "guid": 18329491173128811221,
-            "name": "Models/Environment_Engine_1.animpkg",
-            "path": "Resources/18329491173128811221.animpkg"
         },
         {
             "guid": 11293181652687913365,
@@ -581,6 +586,11 @@
             "path": "Resources/16589850600042331924.frag"
         },
         {
+            "guid": 14127415488162852360,
+            "name": "Shaders/instanced.shader",
+            "path": "Resources/14127415488162852360.shader"
+        },
+        {
             "guid": 16233866524882921744,
             "name": "Shaders/instanced_Frag.frag",
             "path": "Resources/16233866524882921744.frag"
@@ -739,11 +749,6 @@
             "guid": 12836516999346286443,
             "name": "Textures/CharacterTest.png",
             "path": "Resources/12836516999346286443.dds"
-        },
-        {
-            "guid": 17753361635269803423,
-            "name": "Textures/Gideon.png",
-            "path": "Resources/17753361635269803423.dds"
         },
         {
             "guid": 12204963044621912467,
