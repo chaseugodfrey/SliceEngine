@@ -129,7 +129,7 @@ namespace SliceEngine
             }
             // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
             Console.Write("Flicker waiting -> ");
-            new WaitForSeconds(flickerTiming);
+            yield return new WaitForSeconds(flickerTiming);
             Console.Write("Flicker returned -> ");
             //_basicHitBox.As<GeneralHitbox>().SetActive(false);
             basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;

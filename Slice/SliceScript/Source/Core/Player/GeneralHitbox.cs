@@ -24,7 +24,7 @@ namespace SliceEngine
             //{
             //    Console.WriteLine("Enter Hitbox has subs");
             //    SliceLog.Log("Enter Hitbox has subs");
-                HitBoxListeners(gameObject.FindGameObjectWithID(other));
+            HitBoxListeners(gameObject.FindGameObjectWithID(other));
             //}
             //else
             //{
