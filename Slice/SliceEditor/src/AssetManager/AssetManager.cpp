@@ -28,6 +28,8 @@ namespace SliceEditor
 {
 	void AssetManager::Init()
 	{
+		SLICE_LOG("Initializing Asset Manager.");
+
 		//Sanity Checks for the Directories
 		if (!std::filesystem::exists(mAssetDirectory))
 			std::filesystem::create_directory(mAssetDirectory);
@@ -430,7 +432,9 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Material] = {};
 		mAssetTypeToGUIDs[AssetType::Model] = {};
 		mAssetTypeToGUIDs[AssetType::Texture] = {};
+		mAssetTypeToGUIDs[AssetType::Scene] = {};
 		mAssetTypeToGUIDs[AssetType::Font] = {};
+		mAssetTypeToGUIDs[AssetType::Prefab] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -471,31 +475,44 @@ namespace SliceEditor
 			return &mAssetTypeToGUIDs[AssetType::Audio];
 		}
 
-		if (assetType == "Model")
+		else if (assetType == "Model")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Model];
 		}
 
-
-		if (assetType == "Texture")
+		else if (assetType == "Texture")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Texture];
 		}
 
-		if (assetType == "Material")
+		else if (assetType == "Material")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Material];
 		}
 
-		if (assetType == "Controller")
+		else if (assetType == "Controller")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Controller];
 		}
 
-		if (assetType == "Font")
+		else if (assetType == "Scene")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Scene];
+		}
+
+		else if (assetType == "Font")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Font];
 		}
+
+		if (assetType == "Prefab")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Prefab];
+		}
+
+        else 
+            return nullptr;
+
 	}
 
 #pragma region Asset Compiling

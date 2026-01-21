@@ -655,7 +655,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
 		Core::GetInstance()->GetProjectSettingsManager()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
 
 		// =========================== TESTING AREA ===========================
 		// 
@@ -675,6 +674,10 @@ namespace SliceEngine
 
 	}
 
+	void Engine::InitScene()
+	{
+		Core::GetInstance()->GetSceneSystem()->Init();
+	}
 
 	void Engine::Update()
 	{
@@ -700,7 +703,7 @@ namespace SliceEngine
 		{
 			if (sScene->isSceneUnloaded)
 			{
-				sScene->LoadNextScene();
+				sScene->LoadSceneFromQueue();
 			}
 		}
 
@@ -747,6 +750,8 @@ namespace SliceEngine
 			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
+
+				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
@@ -800,11 +805,6 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
-
-		if (!sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{

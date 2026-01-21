@@ -75,6 +75,8 @@ namespace SliceEditor
 
 	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val);
 
+	bool PrefabInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::PrefabVar)> func, const char* property_label, const char* id, SliceEngine::PrefabVar& val);
+
 	bool DragFloatArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<float>)> func, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 
 	bool DragIntArrayScriptHeader(Registry& reg, std::function<void(std::string, std::vector<int>)> func, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int min = 0, int max = 0);
@@ -118,60 +120,6 @@ namespace SliceEditor
 	//		// set the handle/guid here
 	// }
 	//
-
-	/*template <typename T>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
-	{
-		bool changed = false;
-		std::string filename{ "(empty)" };
-
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
-
-		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
-
-		if (file.has_value())
-		{
-			filename = file.value();
-		}
-
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
-			{
-				SliceEngine::GUID newGUID (*(SliceEngine::GUID*)payload->Data);
-
-				// Check if guid is same, if is, then dont execute anything
-				changed = (handle.getGUID() != newGUID);
-				if (changed)
-				{
-					if (!setFunc)
-					{
-						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-						auto newHandle = rm->get<T>(newGUID);
-
-						std::unique_ptr<ValueCommand<SliceEngine::Handle<T>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<T>>>(handle, handle, newHandle);
-						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-
-						handle = newHandle;
-					}
-
-					else
-						setFunc(newGUID);
-				}
-			}
-
-			ImGui::EndDragDropTarget();
-		}
-
-		return changed;
-
-	}*/
 
 	template<typename Enum>
 	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
