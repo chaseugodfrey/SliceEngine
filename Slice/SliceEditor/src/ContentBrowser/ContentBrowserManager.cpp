@@ -47,11 +47,17 @@ namespace SliceEditor
 	void ContentBrowserManager::LoadDefaultIcons()
 	{
 		auto resouceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
+		auto& assetManager = registry.GetAssetManager();
 		for (int i = 1; i < iconNames.size(); i++)
 		{
-			auto textureHandle = resouceManager->get<SliceEngine::SliceEngineTypes::Texture>(iconNames[i]);
+			if (iconNames[i].empty())
+				continue;
+			
+			auto textureHandle = resouceManager->get<SliceEngine::SliceEngineTypes::Texture>("Editor/" + iconNames[i] + ".png");
 			if (textureHandle.IsValid())
 				defaultIconMap.emplace(i, textureHandle);
+			else
+				SLICE_LOG_WARNING("Failed to load default icon: " + iconNames[i]);
 		}
 	}
 
@@ -63,6 +69,11 @@ namespace SliceEditor
 			return std::nullopt;
 
 		return it->second;
+	}
+
+	std::optional<SliceEngine::Handle<Texture>> ContentBrowserManager::GetTextureIconHandle(std::string path)
+	{
+		return SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Texture>(path);
 	}
 
 	std::unique_ptr<EditorWindow> ContentBrowserManager::CreateEditorWindow()
