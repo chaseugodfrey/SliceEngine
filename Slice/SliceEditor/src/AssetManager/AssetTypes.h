@@ -918,14 +918,14 @@ namespace SliceEditor
 				to_json(metaJson["stateMap"][it.first], it.second);
 			}
 
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-			if (outFile.is_open())
+			std::ofstream output(desc_path);
+			if (output.is_open())
 			{
-				outFile << metaJson.dump(4);
-				outFile.close();
+				output << metaJson.dump(4);
+				output.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 
 		void SerializeAsset(const std::filesystem::path& desc_path)
