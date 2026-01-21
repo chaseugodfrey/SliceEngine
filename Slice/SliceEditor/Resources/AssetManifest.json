@@ -11,11 +11,6 @@
             "path": "Resources/15884595881201833390.mdl"
         },
         {
-            "guid": 11602968218607037776,
-            "name": "Default/BasicController.controller",
-            "path": "Resources/11602968218607037776.controller"
-        },
-        {
             "guid": 9886919587323407782,
             "name": "Audio/A2.wav",
             "path": "Resources/9886919587323407782.wav"
@@ -156,11 +151,6 @@
             "path": "Resources/15444100828152761678.wav"
         },
         {
-            "guid": 14244224659510421467,
-            "name": "Default/GolemController.controller",
-            "path": "Resources/14244224659510421467.controller"
-        },
-        {
             "guid": 16895767658385788011,
             "name": "Material/Player_Sword_m.mat",
             "path": "Resources/16895767658385788011.mat"
@@ -226,44 +216,59 @@
             "path": "Resources/14055201041453575611.scene"
         },
         {
+            "guid": 14061518656071609281,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/14061518656071609281.controller"
+        },
+        {
             "guid": 14583993837501124312,
             "name": "CustomShader/PillarShader.cshader",
             "path": "Resources/14583993837501124312.cshader"
         },
         {
-            "guid": 17147306072363453600,
-            "name": "[04]Environment/Environment_Engine_2.animpkg",
-            "path": "Resources/17147306072363453600.animpkg"
+            "guid": 17780188480855605116,
+            "name": "Default/Eze_Working_Scene.scene",
+            "path": "Resources/17780188480855605116.scene"
         },
         {
-            "guid": 10087968746839460320,
+            "guid": 18343140291072292897,
             "name": "Default/BasicController.controller",
-            "path": "Resources/10087968746839460320.controller"
+            "path": "Resources/18343140291072292897.controller"
         },
         {
-            "guid": 9336273396156370476,
-            "name": "Material/default.mat",
-            "path": "Resources/9336273396156370476.mat"
+            "guid": 14018566679936275834,
+            "name": "Models/EnemySlimeOuter.animpkg",
+            "path": "Resources/14018566679936275834.animpkg"
         },
         {
-            "guid": 16996812809793225901,
+            "guid": 9418924338847149050,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/16996812809793225901.controller"
+            "path": "Resources/9418924338847149050.controller"
         },
         {
-            "guid": 17926379886479867228,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17926379886479867228.skl"
+            "guid": 17683357046608441411,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/17683357046608441411.controller"
         },
         {
-            "guid": 14285044838440524560,
-            "name": "Shaders/shadow_Geom.geom",
-            "path": "Resources/14285044838440524560.geom"
+            "guid": 12638191067484305032,
+            "name": "Material/EnemySlime_Inner_m.mat",
+            "path": "Resources/12638191067484305032.mat"
         },
         {
-            "guid": 11478171667897728791,
+            "guid": 16233822509833608886,
+            "name": "[04]Environment/Environment.animpkg",
+            "path": "Resources/16233822509833608886.animpkg"
+        },
+        {
+            "guid": 10129335638091556696,
+            "name": "Shaders/uiFont_Vert.vert",
+            "path": "Resources/10129335638091556696.vert"
+        },
+        {
+            "guid": 16482170256842168488,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/11478171667897728791.controller"
+            "path": "Resources/16482170256842168488.controller"
         },
         {
             "guid": 10464052820645603593,
@@ -276,24 +281,19 @@
             "path": "Resources/15770641130210236395.mdl"
         },
         {
-            "guid": 17780188480855605116,
-            "name": "Default/Eze_Working_Scene.scene",
-            "path": "Resources/17780188480855605116.scene"
+            "guid": 9336273396156370476,
+            "name": "Material/default.mat",
+            "path": "Resources/9336273396156370476.mat"
         },
         {
-            "guid": 10725444541108303107,
+            "guid": 12771765856255971804,
             "name": "Default/Eze_Working_Scene.temp",
-            "path": "Resources/10725444541108303107.scene"
+            "path": "Resources/12771765856255971804.scene"
         },
         {
-            "guid": 15021947035957259762,
-            "name": "Default/NewScene.temp",
-            "path": "Resources/15021947035957259762.scene"
-        },
-        {
-            "guid": 14384343234085203602,
+            "guid": 13365514750532936042,
             "name": "Default/GolemController.controller",
-            "path": "Resources/14384343234085203602.controller"
+            "path": "Resources/13365514750532936042.controller"
         },
         {
             "guid": 14037766457360526962,
@@ -314,6 +314,11 @@
             "guid": 10731921158266549350,
             "name": "Default/Level1.temp",
             "path": "Resources/10731921158266549350.scene"
+        },
+        {
+            "guid": 15021947035957259762,
+            "name": "Default/NewScene.temp",
+            "path": "Resources/15021947035957259762.scene"
         },
         {
             "guid": 16304538495588573609,
@@ -381,14 +386,19 @@
             "path": "Resources/10125292758465881867.dds"
         },
         {
-            "guid": 12638191067484305032,
-            "name": "Material/EnemySlime_Inner_m.mat",
-            "path": "Resources/12638191067484305032.mat"
-        },
-        {
             "guid": 10230791056562210482,
             "name": "Material/EnemySpawner_m.mat",
             "path": "Resources/10230791056562210482.mat"
+        },
+        {
+            "guid": 14919455020680615893,
+            "name": "Models/Crystal_Combined.animpkg",
+            "path": "Resources/14919455020680615893.animpkg"
+        },
+        {
+            "guid": 15666473067063233781,
+            "name": "Material/hitbox.mat",
+            "path": "Resources/15666473067063233781.mat"
         },
         {
             "guid": 11863813900028625629,
@@ -401,9 +411,9 @@
             "path": "Resources/16483552102943977758.mat"
         },
         {
-            "guid": 14919455020680615893,
-            "name": "Models/Crystal_Combined.animpkg",
-            "path": "Resources/14919455020680615893.animpkg"
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
         },
         {
             "guid": 10365400057864474275,
@@ -414,11 +424,6 @@
             "guid": 16670911289530868217,
             "name": "Models/EnemySlimeOuter.skl",
             "path": "Resources/16670911289530868217.skl"
-        },
-        {
-            "guid": 14018566679936275834,
-            "name": "Models/EnemySlimeOuter.animpkg",
-            "path": "Resources/14018566679936275834.animpkg"
         },
         {
             "guid": 11993684851040886857,
@@ -796,6 +801,11 @@
             "path": "Resources/13781540877947589117.frag"
         },
         {
+            "guid": 14285044838440524560,
+            "name": "Shaders/shadow_Geom.geom",
+            "path": "Resources/14285044838440524560.geom"
+        },
+        {
             "guid": 18309228460714719629,
             "name": "Shaders/skybox.shader",
             "path": "Resources/18309228460714719629.shader"
@@ -849,16 +859,6 @@
             "guid": 18140685015262928956,
             "name": "Shaders/uiFont_Frag.frag",
             "path": "Resources/18140685015262928956.frag"
-        },
-        {
-            "guid": 16233822509833608886,
-            "name": "[04]Environment/Environment.animpkg",
-            "path": "Resources/16233822509833608886.animpkg"
-        },
-        {
-            "guid": 10129335638091556696,
-            "name": "Shaders/uiFont_Vert.vert",
-            "path": "Resources/10129335638091556696.vert"
         },
         {
             "guid": 11505317983061001815,
@@ -1039,6 +1039,11 @@
             "guid": 14884183165765477983,
             "name": "[04]Environment/Environment_Engine_2.fbx",
             "path": "Resources/14884183165765477983.mdl"
+        },
+        {
+            "guid": 17147306072363453600,
+            "name": "[04]Environment/Environment_Engine_2.animpkg",
+            "path": "Resources/17147306072363453600.animpkg"
         },
         {
             "guid": 14005382682046334189,

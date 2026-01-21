@@ -157,7 +157,7 @@ namespace SliceEngine
             FunctionCalls.Entity_SetActive(gameObject.mID, active);
         }
 
-        public bool IsActive(bool active)
+        public bool IsActive()
         {
                 return FunctionCalls.Entity_IsActive(gameObject.mID);
         }

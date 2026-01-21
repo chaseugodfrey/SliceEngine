@@ -166,6 +166,11 @@ namespace SliceEngine
         }
         public override void OnCreate()
         {
+            if (debugMode)
+            {
+                return;
+            }
+
             Console.WriteLine("Test");
             playerModel = gameObject.FindGameObjectWithName("RootNode");
             animator = playerModel?.GetComponent<Animator>();

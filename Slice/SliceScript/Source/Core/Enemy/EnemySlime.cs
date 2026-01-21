@@ -28,14 +28,34 @@ namespace SliceEngine
         //Function called when you want the enemy to be active
         public override void SetUp()
         {
+            //Safety net return;
+            if (active) return;
+
+
             base.SetUp(); 
             Console.WriteLine("Slime setup called");
+
             this.ChangeState(new EnemySlimeChaseState(this));
+
             if(basicHitBox.Has<GeneralHitbox>())
             {
                 _basicHitBox = basicHitBox.As<GeneralHitbox>();
                 _basicHitBox.HitBoxListeners += BasicAttack;
                 _basicHitBox.ExitListeners += TempRemovePlayerCheck;
+                //_basicHitBox.SetActive(false);
+                basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
+
+
+                if(basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+                {
+                    Console.WriteLine("Hit Box successfully turned off");
+                    SliceLog.Log("Hit Box successfully turned off");
+                }
+                else
+                {
+                    Console.WriteLine("Hit Box still on");
+                    SliceLog.Log("Hit Box still on");
+                }
             }
             else
             {
@@ -48,7 +68,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (Input.IsKeyDown(Keys.KEY_P))
+            if (Input.IsKeyDown(Keys.KEY_P) && active == false)
             {
                 Console.WriteLine("PPPPressed"); SetUp();
             }
@@ -59,9 +79,13 @@ namespace SliceEngine
         {
             if( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
             {
-                isPlayerInBasic = true;
+                //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
-                //Bootstrap.Player.TakeDamage(damage);
+                Bootstrap.Player.TakeDamage(damage);
+            }
+            else
+            {
+                Console.Write("| Failed player check on damage, no damage done |");
             }
         }
 
@@ -81,36 +105,59 @@ namespace SliceEngine
 
         IEnumerator AttackCoroutine()
         {
-            Console.WriteLine("Attacking");
+            Console.Write("Attacking is On -> ");
             attacking = true;
-
+            Console.Write("Windup waiting -> ");
             yield return new WaitForSeconds(attackWindUpTiming);
-            Console.WriteLine("Windup returned");
+            Console.Write("Windup returned -> ");
             // flicker on
 
             // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
-            //basicHitBox.As<GeneralHitbox>().SetActive(true);
+            //_basicHitBox.SetActive(true);
+            basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = true;
 
-
-            // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
-            //new WaitForSeconds(flickerTiming);
-            //basicHitBox.As<GeneralHitbox>().SetActive(false);
-            Console.WriteLine("Turning box On");
-
-            //bool damaging = true;
-            float count = 0f;
-            while (count < flickerTiming)
+            Console.Write("Box On | ");
+            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
-                count += Time.deltaTime;
-                if (isPlayerInBasic)
-                {
-                    Bootstrap.Player.TakeDamage(damage);
-                    break;
-                }
+                Console.Write("Hit Box successfully turned on -> ");
+                //SliceLog.Log("Hit Box successfully turned off");
+            }
+            else
+            {
+                Console.WriteLine("Hit Box still off -> ");
+                //SliceLog.Log("Hit Box still on");
+            }
+            // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
+            Console.Write("Flicker waiting -> ");
+            new WaitForSeconds(flickerTiming);
+            Console.Write("Flicker returned -> ");
+            //_basicHitBox.As<GeneralHitbox>().SetActive(false);
+            basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
+
+            Console.Write("Box Off | ");
+            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+            {
+                Console.WriteLine("Hit Box successfully turned off -> ");
+                //SliceLog.Log("Hit Box successfully turned off");
+            }
+            else
+            {
+                Console.WriteLine("Hit Box still on -> ");
+                //SliceLog.Log("Hit Box still on");
             }
 
+            //bool damaging = true;
+            //float count = 0f;
+            //while (count < flickerTiming)
+            //{
+            //  count += Time.deltaTime;
+            //  if (isPlayerInBasic)
+            //  {
+            //      Bootstrap.Player.TakeDamage(damage);
+            //      break;
+            //  }
+            //}
 
-            Console.WriteLine("Turning box Off");
             // flicker off
 
             ///Outdated code that is just about checking distance.
@@ -129,7 +176,7 @@ namespace SliceEngine
 
             attacking = false;
 
-            Console.WriteLine("attacking is Off");
+            Console.WriteLine("Attacking is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
