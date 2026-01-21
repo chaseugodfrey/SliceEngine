@@ -77,6 +77,12 @@ namespace SliceEngine
 
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
 
+		if (next_scene_filepath.extension() == ".temp")
+		{
+			//std::filesystem::remove(next_scene_filepath);
+			mCurrentScene.replace_extension(".scene");
+		}
+
 		return true;
 	}
 
