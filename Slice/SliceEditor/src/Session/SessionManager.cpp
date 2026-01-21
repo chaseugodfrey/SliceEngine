@@ -141,11 +141,8 @@ namespace SliceEditor
 
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
 	{
-		if (event.isSceneLoaded)
-		{
-			mEntityNodes.clear();
-			CreateEntityNodes();
-		}
+		mEntityNodes.clear();
+		CreateEntityNodes();
 	}
 
 	void SessionManager::OnSceneStop(const OnSceneStopEvent& event)
