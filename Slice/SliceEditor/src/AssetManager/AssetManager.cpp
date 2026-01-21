@@ -934,7 +934,7 @@ namespace SliceEditor
 
 			counter++;
 		}
-
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		std::unique_ptr<MetaData> meta;
 		switch (type)
 		{
@@ -944,7 +944,27 @@ namespace SliceEditor
 				// Create a file in asset folder
 				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
 				derived->shader = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+				auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(derived->shader);
+				for (auto& i : shdr.get()->dataIn)
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						derived->boolDat.push_back(i.baseData.sp_bool);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						derived->uintDat.push_back(i.baseData.sp_uint);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						derived->intDat.push_back(i.baseData.sp_int);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						derived->floatDat.push_back(i.baseData.sp_float);
+						break;
+					}
+				}
 
+				
 				// create a default asset file at the file path
 				derived->SerializeAsset(filePath); 
 				
