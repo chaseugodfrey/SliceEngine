@@ -12,7 +12,50 @@ namespace SliceEngine
     {
         public delegate void HitBoxTriggerEvent(GameObject hit);
         public event HitBoxTriggerEvent HitBoxListeners;
-        public event HitBoxTriggerEvent ExitListeners;
+        private ColliderShape _collider;
+        private bool _enabled = false;
+
+
+        public override void OnUpdate(float dt)
+        {
+            if (_enabled)
+            {
+                _enabled = false;
+            }
+        }
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            _collider = GetComponent<ColliderShape>();
+        }
+
+        public void TurnOn()
+        {
+            if (_collider == null && this.HasComponent<ColliderShape>())
+            {
+                _collider = GetComponent<ColliderShape>();
+            }
+            else if (_collider != null)
+            {
+                _collider.ComponentEnabled = true;
+                _enabled = true;
+            }
+        }
+
+        public void TurnOff()
+        {
+            //Redundancy
+            if (_collider == null && this.HasComponent<ColliderShape>())
+            {
+                _collider = GetComponent<ColliderShape>();
+            }
+            else if (_collider != null)
+            {
+                _collider.ComponentEnabled = false;
+                _enabled = false;
+            }
+        }
+
 
         public override void OnTriggerEnter(uint other)
         {
@@ -35,23 +78,13 @@ namespace SliceEngine
             
         }
 
-        //REMOVE THIS ONCE ENABLE IS WORKING
-        public override void OnTriggerExit(uint other)
+        public override void OnTriggerStay(uint other)
         {
-            /*
-            //base.OnTriggerEnter(other);
-            if (ExitListeners != null)
+            base.OnTriggerStay(other);
+            if (_enabled)
             {
-                Console.WriteLine("Exit Hitbox has subs");
-                SliceLog.Log("Exit Hitbox has subs");
-                ExitListeners(gameObject.FindGameObjectWithID(other));
+                HitBoxListeners(gameObject.FindGameObjectWithID(other));
             }
-            else
-            {
-                Console.WriteLine("Exit Hitbox no subs");
-                SliceLog.Log("Exit Hitbox no subs");
-            }
-            */
         }
     }
 }
