@@ -905,7 +905,7 @@ namespace SliceEditor
 				{
 
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveScene(newScenePath);
 					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
 					newScenePopupOpen = false;
 					sceneName = "NewScene";
