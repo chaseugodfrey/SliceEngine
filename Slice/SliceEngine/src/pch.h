@@ -32,6 +32,7 @@ DigiPen Institute of Technology is prohibited.
 #include <type_traits>
 #include <assert.h>
 #include <thread>
+#include <utility>
 
 #include <math.h>
 

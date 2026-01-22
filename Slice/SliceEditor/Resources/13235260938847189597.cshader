@@ -1,0 +1,13 @@
+#IN
+float roughness = 0;
+float metallic = 0;
+
+#CODE
+vec4 TexColorC(vec4 texCol, vec4 color)
+{
+    return texCol * color;
+}
+vec2 RoughMet()
+{
+    return vec2(roughness, metallic);
+}

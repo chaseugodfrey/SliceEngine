@@ -46,6 +46,7 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
+		void InitScene();
 
 		void Update();
 		void Draw();

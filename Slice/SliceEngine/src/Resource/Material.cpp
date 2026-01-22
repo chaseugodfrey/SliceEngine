@@ -73,22 +73,20 @@ namespace SliceEngine
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			for (auto& i : shader.get()->dataIn)
 			{
-				if (i.isFloating)
+				switch (i.dataType)
 				{
-					if (i.numBytes == 4)
-						floatDat.push_back(std::bit_cast<float>(i.baseData));
-				}
-				else
-				{
-					if (i.numBytes == 4)
-					{
-						if (i.isUnsigned)
-							uintDat.push_back(i.baseData);
-						else
-							intDat.push_back(static_cast<int>(i.baseData));
-					}
-					else if (i.numBytes == 1)
-						boolDat.push_back(static_cast<bool>(i.baseData));
+				case CustomShader::SP_TYPE::BOOL:
+					boolDat.push_back(i.baseData.sp_bool);
+					break;
+				case CustomShader::SP_TYPE::UINT:
+					uintDat.push_back(i.baseData.sp_uint);
+					break;
+				case CustomShader::SP_TYPE::INT:
+					intDat.push_back(i.baseData.sp_int);
+					break;
+				case CustomShader::SP_TYPE::FLOAT:
+					floatDat.push_back(i.baseData.sp_float);
+					break;
 				}
 			}
 		 }

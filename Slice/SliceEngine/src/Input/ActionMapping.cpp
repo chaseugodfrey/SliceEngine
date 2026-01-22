@@ -5,7 +5,7 @@ file:           ActionMapping.cpp
 
 email:          micahshengyao.lim@digipen.edu
 
-brief:          
+brief:
 
 Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
@@ -88,8 +88,8 @@ namespace SliceEngine
 		{
 			return *existingMap;
 		}
-		
-		
+
+
 		// else create new map and return it
 		auto& newMap = maps[mapName];
 		newMap.name = mapName;
@@ -136,7 +136,7 @@ namespace SliceEngine
 		// find action index through its name then bind the keycode to it
 		size_t actionIndex = findAction(map, actionName);
 		// if action found, bind keycode
-		if(actionIndex != static_cast<size_t>(-1))
+		if (actionIndex != static_cast<size_t>(-1))
 		{
 			map.definitions[actionIndex].bindings.push_back({ keyCode, 1.0f, 0.0f, 0.0f }); // for button, scaleX=1.0f, x/y=0.0f
 			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "'\n";
@@ -172,12 +172,12 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Clearing Functions
-	/* 
-		Functions to clear maps, bindings, actions
+	/*
+		- functions to clear maps, bindings, actions
 		so clear binding will read in actionname and mapname, find map, find action, clear all its binding vector and then remove
 		it from the json file when we call savetofile.
-		Then clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
-		Clear map just removes the entire map from the maps unordered map 
+		- then clear action will read in actionname and mapname, find map, find action, remove both definition and state at that index
+		- clear map just removes the entire map from the maps unordered map
 	 */
 	void ActionMappingSystem::ClearBindings(const std::string& mapName, const std::string& actionName)
 	{
@@ -201,7 +201,7 @@ namespace SliceEngine
 		map->states[actionIndex].performedThisFrame = false; // reset performed flag
 		map->states[actionIndex].phase = ActionPhase::Waiting; // neutral state
 	}
-	
+
 	void ActionMappingSystem::ClearAction(const std::string& mapName, const std::string& actionName)
 	{
 		auto* map = findMap(maps, mapName);
@@ -218,7 +218,7 @@ namespace SliceEngine
 
 		// erase matching definition plus its parallel state
 		// my previous method wasn't efficient apparently, gpt says to cast to ptrdiff_t to avoid warnings
-		map->definitions.erase(map->definitions.begin() + static_cast<std::ptrdiff_t>(idx)); 
+		map->definitions.erase(map->definitions.begin() + static_cast<std::ptrdiff_t>(idx));
 		map->states.erase(map->states.begin() + static_cast<std::ptrdiff_t>(idx));
 	}
 
@@ -234,7 +234,7 @@ namespace SliceEngine
 	}
 
 #pragma endregion
-	
+
 #pragma region Input Processing
 	// processing, this is the one area where i used gpt for help because idk how to use the queue with it
 	void ActionMappingSystem::processInput(const std::string& mapName)
@@ -242,7 +242,7 @@ namespace SliceEngine
 		// designers can query PerformedThisFrame(map, "Jump")
 
 		// check inputsystem existence or enabled or whether its in game mode
-		if(!inputSys || !inputSys->IsEnabled() || inputSys->GetMode() != InputMode::Game)
+		if (!inputSys || !inputSys->IsEnabled() || inputSys->GetMode() != InputMode::Game)
 		{
 			return; // input system not ready
 		}
@@ -255,10 +255,10 @@ namespace SliceEngine
 		}
 
 		// clear previous frame's action states
-		for(auto& actionState : map->states)
+		for (auto& actionState : map->states)
 		{
 			actionState.performedThisFrame = false;
-			if(actionState.phase == ActionPhase::Performed || actionState.phase == ActionPhase::Canceled)
+			if (actionState.phase == ActionPhase::Performed || actionState.phase == ActionPhase::Canceled)
 			{
 				actionState.phase = ActionPhase::Waiting; // reset to waiting if it was performed or started
 			}
@@ -273,7 +273,7 @@ namespace SliceEngine
 			auto& actionState = map->states[i];
 			bool actionPerformed = false;
 
-			if(actionDef.type != ActionType::Button)
+			if (actionDef.type != ActionType::Button)
 			{
 				continue; // currently only handling button actions
 			}
@@ -288,18 +288,18 @@ namespace SliceEngine
 				pressed = pressed || inputSys->IsKeyPressed(binding.keyCode);
 				released = released || inputSys->IsKeyReleased(binding.keyCode);
 			}
-			if(pressed)
+			if (pressed)
 			{
 				actionState.phase = ActionPhase::Performed;
 				actionState.performedThisFrame = true;
 			}
-			else if(released)
+			else if (released)
 			{
 				actionState.phase = ActionPhase::Canceled;
 			}
 		}
 		//handle value1d actions
-		for(size_t i{}; i < map->definitions.size(); ++i)
+		for (size_t i{}; i < map->definitions.size(); ++i)
 		{
 			// reset accumulated values
 			auto& actionDef = map->definitions[i];
@@ -311,9 +311,9 @@ namespace SliceEngine
 			}
 
 			float value = 0.0f;
-			for(const auto& bind : actionDef.bindings)
+			for (const auto& bind : actionDef.bindings)
 			{
-				if(inputSys->IsKeyDown(bind.keyCode))
+				if (inputSys->IsKeyDown(bind.keyCode))
 				{
 					value += bind.scaleX; // scalex -> (e.g. A = -1.0f, D = +1.0f)
 				}
@@ -322,7 +322,7 @@ namespace SliceEngine
 			actionState.valueX = std::clamp(value, -1.0f, 1.0f); // clamp to -1.0f to 1.0f range
 
 			// turn the phase to performed if valueX is non-zero
-			if(actionState.valueX != 0.f)
+			if (actionState.valueX != 0.f)
 			{
 				actionState.phase = ActionPhase::Performed;
 			}
@@ -335,7 +335,7 @@ namespace SliceEngine
 			auto& actionDef = map->definitions[i];
 			auto& actionState = map->states[i];
 
-			if(actionDef.type != ActionType::Value2D)
+			if (actionDef.type != ActionType::Value2D)
 			{
 				continue; // skip non-Value2D actions
 			}
@@ -346,7 +346,7 @@ namespace SliceEngine
 			// check each binding for the action so we can accumulate values
 			for (const auto& binding : actionDef.bindings)
 			{
-				if(inputSys->IsKeyDown(binding.keyCode))
+				if (inputSys->IsKeyDown(binding.keyCode))
 				{
 					x += binding.x;
 					y += binding.y;
@@ -357,7 +357,7 @@ namespace SliceEngine
 			actionState.valueX = std::clamp(x, -1.0f, 1.0f);
 			actionState.valueY = std::clamp(y, -1.0f, 1.0f);
 
-			if(actionState.valueX != 0.f || actionState.valueY != 0.f)
+			if (actionState.valueX != 0.f || actionState.valueY != 0.f)
 			{
 				actionState.phase = ActionPhase::Performed;
 			}
@@ -453,13 +453,13 @@ namespace SliceEngine
 	// do save to file first so we know how to load from file later
 	bool ActionMappingSystem::SaveToJson(const std::string& path) const
 	{
-		try 
+		try
 		{
 			json root;
 			root["version"] = 1;
 			root["maps"] = json::array();
 
-			for (const auto& kv : maps) 
+			for (const auto& kv : maps)
 			{
 				const auto& mapName = kv.first;
 				const auto& map = kv.second;
@@ -469,7 +469,7 @@ namespace SliceEngine
 				jMap["enabled"] = map.enabled;
 				jMap["actions"] = json::array();
 
-				for (size_t i = 0; i < map.definitions.size(); ++i) 
+				for (size_t i = 0; i < map.definitions.size(); ++i)
 				{
 					const auto& def = map.definitions[i];
 
@@ -479,18 +479,18 @@ namespace SliceEngine
 					jAct["type"] = (def.type == ActionType::Button) ? "button" : (def.type == ActionType::Value1D) ? "value1d" : "value2d";
 
 					json jBinds = json::array();
-					for (const auto& b : def.bindings) 
+					for (const auto& b : def.bindings)
 					{
 						json jBind;
 						jBind["key"] = b.keyCode;
 						// value2d or value1d
-						if (def.type == ActionType::Value2D) 
-						{ 
+						if (def.type == ActionType::Value2D)
+						{
 							jBind["x"] = b.x;
 							jBind["y"] = b.y;
-						} 
-						if (def.type == ActionType::Value1D) 
-						{ 
+						}
+						if (def.type == ActionType::Value1D)
+						{
 							jBind["scale"] = b.scaleX; // only scaleX used for 1D
 						}
 						jBinds.push_back(jBind);
@@ -516,7 +516,7 @@ namespace SliceEngine
 
 	bool ActionMappingSystem::LoadFromJson(const std::string& path)
 	{
-		try 
+		try
 		{
 			std::ifstream in(path, std::ios::binary);
 			if (!in) return false;
@@ -527,7 +527,7 @@ namespace SliceEngine
 				return false;
 			}
 
-			// clear and rebuild (simplest behavior for editor “Open Project”)
+			// clear and rebuild
 			maps.clear();
 
 			auto jMaps = root["maps"];
@@ -537,7 +537,7 @@ namespace SliceEngine
 			}
 
 			// loop through maps
-			for (const auto& jMap : jMaps) 
+			for (const auto& jMap : jMaps)
 			{
 				// validate map object
 				if (!jMap.contains("name") || !jMap.contains("actions")) continue;
@@ -549,7 +549,7 @@ namespace SliceEngine
 				const auto& jActions = jMap["actions"];
 				if (!jActions.is_array()) continue;
 
-				for (const auto& jAct : jActions) 
+				for (const auto& jAct : jActions)
 				{
 					std::string actName = jAct.value("name", "");
 					std::string typeStr = jAct.value("type", "button");
@@ -573,7 +573,7 @@ namespace SliceEngine
 
 					const auto& jBinds = jAct["bindings"];
 					if (jBinds.is_array()) {
-						for (const auto& jBind : jBinds) 
+						for (const auto& jBind : jBinds)
 						{
 							int   key = jBind.value("key", 0);
 							if (type == ActionType::Button)
@@ -600,7 +600,7 @@ namespace SliceEngine
 
 			return true;
 		}
-		catch (...) 
+		catch (...)
 		{
 			return false;
 		}
