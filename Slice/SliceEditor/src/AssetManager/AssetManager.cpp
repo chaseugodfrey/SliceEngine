@@ -336,7 +336,7 @@ namespace SliceEditor
 
 		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
-
+		SliceEngine::GUID defaultGUID = SliceEngine::GUID::null();
 		// I think can compile assets somewhere around here
 		switch (assetType)
 		{
@@ -360,6 +360,9 @@ namespace SliceEditor
 			break;
 		case AssetType::CustomShader:
 			metaData = std::make_unique<CustomShaderData>();
+			
+			defaultGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
@@ -387,6 +390,17 @@ namespace SliceEditor
 		if (metaData)
 		{
 			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
+			std::filesystem::path relativePath = std::filesystem::relative(filePath, "Assets");
+			std::string assetName = relativePath.stem().generic_string();
+			// Handle default resources here
+			// Idk how else without having a function to hardcode register all default assets
+			// its prob better to just have a default name for all default resources
+			
+			if (assetName == "default")
+			{
+				metaData->guid = defaultGUID;
+			}
+
 
 			return metaData;
 		}
@@ -421,6 +435,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Scene] = {};
 		mAssetTypeToGUIDs[AssetType::Font] = {};
 		mAssetTypeToGUIDs[AssetType::Prefab] = {};
+		mAssetTypeToGUIDs[AssetType::CustomShader] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -494,6 +509,11 @@ namespace SliceEditor
 		if (assetType == "Prefab")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Prefab];
+		}
+
+		if (assetType == "Custom Shader")
+		{
+			return &mAssetTypeToGUIDs[AssetType::CustomShader];
 		}
 
         else 
@@ -920,7 +940,7 @@ namespace SliceEditor
 
 			counter++;
 		}
-
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		std::unique_ptr<MetaData> meta;
 		switch (type)
 		{
@@ -929,6 +949,28 @@ namespace SliceEditor
 				meta = std::make_unique<MaterialData>();
 				// Create a file in asset folder
 				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
+				derived->shader = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+				auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(derived->shader);
+				for (auto& i : shdr.get()->dataIn)
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						derived->boolDat.push_back(i.baseData.sp_bool);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						derived->uintDat.push_back(i.baseData.sp_uint);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						derived->intDat.push_back(i.baseData.sp_int);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						derived->floatDat.push_back(i.baseData.sp_float);
+						break;
+					}
+				}
+
+				
 				// create a default asset file at the file path
 				derived->SerializeAsset(filePath); 
 				
