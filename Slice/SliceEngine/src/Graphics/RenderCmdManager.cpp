@@ -23,6 +23,7 @@
 // Textures			  0 - Custom Shaders (Deferred.frag)
 // Mat4,eID,texID,col 1 - Instanced.vert, Deferred.vert, debugOutline.vert, shadow.vert, pointShadow.vert (Deprecated: Deferred.frag)
 // uvec4			  2 - Custom Shaders (Deferred.frag)
+// Font				  3 - uiFont.vert
 
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom
@@ -130,6 +131,7 @@ namespace SliceEngine
 
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
+			data.mdlMtx[0].w = 2.f; // Bilboard particles
 			SetColor(data, ptx.colour);
 			//data.texID = ptx.textureID;
 			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
@@ -476,22 +478,20 @@ namespace SliceEngine
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
-			if (i.isFloating)
+			switch (i.dataType)
 			{
-				if (i.numBytes == 4)
-					cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
-			}
-			else
-			{
-				if (i.numBytes == 4)
-				{
-					if (i.isUnsigned)
-						cmd[mainID][subID] = mat->uintDat[numUints++];
-					else
-						cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
-				}
-				else if (i.numBytes == 1)
-					cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+				cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+				cmd[mainID][subID] = mat->uintDat[numUints++];
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+				cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+				cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				break;
 			}
 
 			if (++subID > 4)
@@ -517,22 +517,20 @@ namespace SliceEngine
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
-			if (i.isFloating)
+			switch (i.dataType)
 			{
-				if (i.numBytes == 4)
-					rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
-			}
-			else
-			{
-				if (i.numBytes == 4)
-				{
-					if (i.isUnsigned)
-						rc.ext[mainID][subID] = mat->uintDat[numUints++];
-					else
-						rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
-				}
-				else if (i.numBytes == 1)
-					rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+				rc.ext[mainID][subID] = mat->uintDat[numUints++];
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				break;
 			}
 
 			if (++subID > 4)

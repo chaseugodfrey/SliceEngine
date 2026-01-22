@@ -51,14 +51,14 @@
             "path": "Resources/13612963309126088302.wav"
         },
         {
+            "guid": 10853710783587271977,
+            "name": "Fonts/Roboto-VariableFont.ttf",
+            "path": "Resources/10853710783587271977.fnt"
+        },
+        {
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
-        },
-        {
-            "guid": 11993684851040886857,
-            "name": "Models/Enemy_Basic.fbx",
-            "path": "Resources/11993684851040886857.mdl"
         },
         {
             "guid": 11766461363590934609,
@@ -96,14 +96,14 @@
             "path": "Resources/12851759591155610253.mat"
         },
         {
-            "guid": 14800216528882930636,
-            "name": "player.skl",
-            "path": "Resources/14800216528882930636.skl"
+            "guid": 18329491173128811221,
+            "name": "Models/Environment_Engine_1.animpkg",
+            "path": "Resources/18329491173128811221.animpkg"
         },
         {
-            "guid": 14324996193881786954,
+            "guid": 12876286632047317072,
             "name": "Default/GolemController.controller",
-            "path": "Resources/14324996193881786954.controller"
+            "path": "Resources/12876286632047317072.controller"
         },
         {
             "guid": 9646178157620972647,
@@ -151,14 +151,19 @@
             "path": "Resources/9563528329987127914.wav"
         },
         {
-            "guid": 14464725476257600466,
-            "name": "Models/Enemy_Basic.skl",
-            "path": "Resources/14464725476257600466.skl"
-        },
-        {
             "guid": 16799538569288340419,
             "name": "Audio/Plunge.wav",
             "path": "Resources/16799538569288340419.wav"
+        },
+        {
+            "guid": 17753361635269803423,
+            "name": "Textures/Gideon.png",
+            "path": "Resources/17753361635269803423.dds"
+        },
+        {
+            "guid": 16071234098106909877,
+            "name": "Default/DefaultController.controller",
+            "path": "Resources/16071234098106909877.controller"
         },
         {
             "guid": 11944477452832270171,
@@ -169,6 +174,11 @@
             "guid": 15472863805971150537,
             "name": "Default/NewScene.scene",
             "path": "Resources/15472863805971150537.scene"
+        },
+        {
+            "guid": 16514452644679914879,
+            "name": "Default/BasicController.controller",
+            "path": "Resources/16514452644679914879.controller"
         },
         {
             "guid": 14886466983544040807,
@@ -221,44 +231,19 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
-            "guid": 17926379886479867228,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17926379886479867228.skl"
+            "guid": 10230791056562210482,
+            "name": "Material/EnemySpawner_m.mat",
+            "path": "Resources/10230791056562210482.mat"
         },
         {
-            "guid": 15033367174215302921,
-            "name": "Shaders/skyboxIrr_Frag.frag",
-            "path": "Resources/15033367174215302921.frag"
-        },
-        {
-            "guid": 13903551773035877216,
+            "guid": 17032483170968416768,
             "name": "Default/BasicController.controller",
-            "path": "Resources/13903551773035877216.controller"
+            "path": "Resources/17032483170968416768.controller"
         },
         {
-            "guid": 12943839657372967138,
-            "name": "Default/BasicController.controller",
-            "path": "Resources/12943839657372967138.controller"
-        },
-        {
-            "guid": 16118859338446067342,
-            "name": "Default/Prefab Test.scene",
-            "path": "Resources/16118859338446067342.scene"
-        },
-        {
-            "guid": 16453345830123164686,
-            "name": "Shaders/pointShadow_Vert.vert",
-            "path": "Resources/16453345830123164686.vert"
-        },
-        {
-            "guid": 11533068048314044389,
+            "guid": 15010126194810607520,
             "name": "Default/DefaultController.controller",
-            "path": "Resources/11533068048314044389.controller"
-        },
-        {
-            "guid": 16874210713682150124,
-            "name": "Default/DefaultController.controller",
-            "path": "Resources/16874210713682150124.controller"
+            "path": "Resources/15010126194810607520.controller"
         },
         {
             "guid": 10464052820645603593,
@@ -271,14 +256,19 @@
             "path": "Resources/15770641130210236395.mdl"
         },
         {
-            "guid": 14640442302982835126,
-            "name": "Shaders/basicCopy_Frag.frag",
-            "path": "Resources/14640442302982835126.frag"
+            "guid": 10119110391915830736,
+            "name": "Editor/AudioIcon.png",
+            "path": "Resources/10119110391915830736.dds"
         },
         {
-            "guid": 16226094521170506891,
+            "guid": 14398956356898289746,
+            "name": "Editor/AnimatorIcon.png",
+            "path": "Resources/14398956356898289746.dds"
+        },
+        {
+            "guid": 15565527019482978058,
             "name": "Default/GolemController.controller",
-            "path": "Resources/16226094521170506891.controller"
+            "path": "Resources/15565527019482978058.controller"
         },
         {
             "guid": 16214383079991584321,
@@ -291,19 +281,14 @@
             "path": "Resources/16304538495588573609.scene"
         },
         {
+            "guid": 16118859338446067342,
+            "name": "Default/Prefab Test.scene",
+            "path": "Resources/16118859338446067342.scene"
+        },
+        {
             "guid": 17882015253966645802,
             "name": "Editor/AnimationIcon.png",
             "path": "Resources/17882015253966645802.dds"
-        },
-        {
-            "guid": 10119110391915830736,
-            "name": "Editor/AudioIcon.png",
-            "path": "Resources/10119110391915830736.dds"
-        },
-        {
-            "guid": 14398956356898289746,
-            "name": "Editor/AnimatorIcon.png",
-            "path": "Resources/14398956356898289746.dds"
         },
         {
             "guid": 18400379806743012927,
@@ -326,6 +311,11 @@
             "path": "Resources/15309186703193371093.dds"
         },
         {
+            "guid": 17483949530436669692,
+            "name": "Fonts/JetBrainsMono-Light.ttf",
+            "path": "Resources/17483949530436669692.fnt"
+        },
+        {
             "guid": 18108076544179655602,
             "name": "Material/undo.mat",
             "path": "Resources/18108076544179655602.mat"
@@ -346,11 +336,6 @@
             "path": "Resources/12638191067484305032.mat"
         },
         {
-            "guid": 10230791056562210482,
-            "name": "Material/EnemySpawner_m.mat",
-            "path": "Resources/10230791056562210482.mat"
-        },
-        {
             "guid": 11863813900028625629,
             "name": "Material/Player_m.mat",
             "path": "Resources/11863813900028625629.mat"
@@ -359,6 +344,11 @@
             "guid": 16483552102943977758,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/16483552102943977758.mat"
+        },
+        {
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
         },
         {
             "guid": 14919455020680615893,
@@ -374,6 +364,16 @@
             "guid": 14018566679936275834,
             "name": "Models/EnemySlimeOuter.animpkg",
             "path": "Resources/14018566679936275834.animpkg"
+        },
+        {
+            "guid": 11993684851040886857,
+            "name": "Models/Enemy_Basic.fbx",
+            "path": "Resources/11993684851040886857.mdl"
+        },
+        {
+            "guid": 14464725476257600466,
+            "name": "Models/Enemy_Basic.skl",
+            "path": "Resources/14464725476257600466.skl"
         },
         {
             "guid": 10150479252312340859,
@@ -421,11 +421,6 @@
             "path": "Resources/10212446774121703514.skl"
         },
         {
-            "guid": 18329491173128811221,
-            "name": "Models/Environment_Engine_1.animpkg",
-            "path": "Resources/18329491173128811221.animpkg"
-        },
-        {
             "guid": 11293181652687913365,
             "name": "Shaders/upSample.shader",
             "path": "Resources/11293181652687913365.shader"
@@ -444,6 +439,11 @@
             "guid": 10128043101700684016,
             "name": "player.fbx",
             "path": "Resources/10128043101700684016.mdl"
+        },
+        {
+            "guid": 14800216528882930636,
+            "name": "player.skl",
+            "path": "Resources/14800216528882930636.skl"
         },
         {
             "guid": 10140212064093200294,
@@ -469,6 +469,11 @@
             "guid": 15512966748982858088,
             "name": "Shaders/basicCopy.shader",
             "path": "Resources/15512966748982858088.shader"
+        },
+        {
+            "guid": 14640442302982835126,
+            "name": "Shaders/basicCopy_Frag.frag",
+            "path": "Resources/14640442302982835126.frag"
         },
         {
             "guid": 14545510956482838483,
@@ -621,6 +626,11 @@
             "path": "Resources/10014890641284040322.frag"
         },
         {
+            "guid": 16453345830123164686,
+            "name": "Shaders/pointShadow_Vert.vert",
+            "path": "Resources/16453345830123164686.vert"
+        },
+        {
             "guid": 13781540877947589117,
             "name": "Shaders/shadow_Frag.frag",
             "path": "Resources/13781540877947589117.frag"
@@ -661,14 +671,34 @@
             "path": "Resources/11123960638445412492.shader"
         },
         {
-            "guid": 10465698938210015493,
+            "guid": 15033367174215302921,
+            "name": "Shaders/skyboxIrr_Frag.frag",
+            "path": "Resources/15033367174215302921.frag"
+        },
+        {
+            "guid": 11963653456854187663,
             "name": "Shaders/skyboxLight.shader",
-            "path": "Resources/10465698938210015493.shader"
+            "path": "Resources/11963653456854187663.shader"
         },
         {
             "guid": 9402868621044949570,
             "name": "Shaders/skybox_Vert.vert",
             "path": "Resources/9402868621044949570.vert"
+        },
+        {
+            "guid": 17359729727017650081,
+            "name": "Shaders/uiFont.shader",
+            "path": "Resources/17359729727017650081.shader"
+        },
+        {
+            "guid": 18140685015262928956,
+            "name": "Shaders/uiFont_Frag.frag",
+            "path": "Resources/18140685015262928956.frag"
+        },
+        {
+            "guid": 10129335638091556696,
+            "name": "Shaders/uiFont_Vert.vert",
+            "path": "Resources/10129335638091556696.vert"
         },
         {
             "guid": 11505317983061001815,
@@ -721,11 +751,6 @@
             "path": "Resources/12836516999346286443.dds"
         },
         {
-            "guid": 17753361635269803423,
-            "name": "Textures/Gideon.png",
-            "path": "Resources/17753361635269803423.dds"
-        },
-        {
             "guid": 12204963044621912467,
             "name": "Textures/HEALTH.png",
             "path": "Resources/12204963044621912467.dds"
@@ -768,6 +793,11 @@
         {
             "guid": 11697903386653029786,
             "name": "Color Deaded",
+            "path": "NIL"
+        },
+        {
+            "guid": 13139552845236438047,
+            "name": "Font Default",
             "path": "NIL"
         }
     ]

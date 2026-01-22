@@ -199,8 +199,9 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
 	{
-		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
-		{}
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
+		{
+		}
 
 		if (ImGui::IsItemHovered())
 		{
@@ -264,7 +265,7 @@ namespace SliceEditor
 			canDrag = false;
 		}
 
-		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
 		{
 			if(!(node.type == SelectionType::PREFAB))
 			{
@@ -346,6 +347,9 @@ namespace SliceEditor
 					break;
 				case AssetType::Prefab:
 					file.metaData = std::make_unique<PrefabData>();
+					break;
+				case AssetType::Font:
+					file.metaData = std::make_unique<FontMetaData>();
 					break;
 				}
 				//Default Init the MetaData base class
@@ -473,6 +477,15 @@ namespace SliceEditor
 				{
 					DisplayAudioData(data);
 				}
+				break;
+
+			case AssetType::Font:
+				if (auto* data = static_cast<FontMetaData*>(file.metaData.get()))
+				{
+					DisplayFontData(data);
+					//DisplayAudioData(data);
+				}
+				break;
 			}
 
 			if (ImGui::Button("Compile"))
@@ -507,7 +520,8 @@ namespace SliceEditor
 
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get());
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				mRegistry.GetAssetManager().CreateAssetMaps();
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -525,13 +539,25 @@ namespace SliceEditor
 		}
 	}
 
-	ImTextureID ContentBrowserWindow::GetIcon(SelectionType type)
+	ImTextureID ContentBrowserWindow::GetIcon(DirectoryNode* node)
 	{
-		auto textureHandle = mManager.GetDefaultIconHandle(type);
+		using namespace SliceEngine;
+		std::optional<Handle<SliceEngineTypes::Texture>> handle;
 
-		if (textureHandle.has_value())
+		switch (node->type)
 		{
-			auto texture = textureHandle.value().get();
+		case SelectionType::TEXTURE:
+			handle = mManager.GetTextureIconHandle(node->relativePath.generic_string());
+			break;
+
+		default:
+			handle = mManager.GetDefaultIconHandle(node->type);
+			break;
+		}
+
+		if (handle.has_value())
+		{
+			auto texture = handle.value().get();
 			if (texture && texture->texture_id != 0)
 				return static_cast<ImU64>(texture->texture_id);
 		}
@@ -666,6 +692,31 @@ namespace SliceEditor
 			};
 		Label("Is Static: ");
 		ImGui::Checkbox("##Is_Static", &data->is_static);
+	}
+
+	void ContentBrowserWindow::DisplayFontData(FontMetaData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+		Label("Font Resolution: ");
+		int font_reso = data->font_resolution;
+		if (ImGui::DragInt("##Font_Reso", &font_reso, 1, 1, 200))
+		{
+			font_reso = std::clamp(font_reso, 1, 200);
+			data->font_resolution = font_reso;// = static_cast<unsigned char>(mip);
+		}
+		Label("Padding: ");
+		int padding = data->padding;
+		if (ImGui::DragInt("##Padding", &padding, 1, 1, 10))
+		{
+			padding = std::clamp(padding, 1, 10);
+			data->padding = padding;// = static_cast<unsigned char>(mip);
+		}
 	}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)

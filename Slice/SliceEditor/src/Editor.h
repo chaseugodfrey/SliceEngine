@@ -34,6 +34,7 @@ namespace SliceEditor
 		Registry registry;
 		std::unique_ptr<EditorInputs> inputs;
 		RecastNavMesh navMesh;
+
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
 		void InitEditorState();
@@ -42,6 +43,7 @@ namespace SliceEditor
 
 		void Update();
 		void Render();
+		void Save();
 
 	public:
 
