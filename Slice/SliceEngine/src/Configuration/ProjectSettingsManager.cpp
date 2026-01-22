@@ -7,7 +7,7 @@ namespace SliceEngine
 	void ProjectSettingsManager::Init()
 	{
 		mSettingsList.push_back(std::make_unique<AudioSettings>("AudioSettings"));
-		//mSettingsList.push_back(std::make_unique<PhysicsSettings>("PhysicsSettings"));
+		mSettingsList.push_back(std::make_unique<PhysicsSettings>("PhysicsSettings"));
 
 		for (auto& setting : mSettingsList)
 		{
