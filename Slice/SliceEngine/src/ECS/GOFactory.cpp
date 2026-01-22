@@ -805,7 +805,7 @@ namespace SliceEngine
 		auto& ui_font = ui_ele.GetComponent<FontRenderer>();
 		ui_font.rgba = { 0.f,0.f,0.f,1.f };
 		ui_font.font_size = 50;
-		ui_font.line_spacing = 20;
+		ui_font.line_spacing = 1.25f;
 		auto rm = Core::GetInstance()->GetResourceManager();
 		ui_font.fontHandle = (GUID)DefaultResourceIDs::FONT_BLANK_DEFAULT;
 

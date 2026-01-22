@@ -746,7 +746,7 @@ namespace SliceEngine
 
 
 		float font_size;
-		float line_spacing;
+		float line_spacing;	//multiplier of font_size
 		
 		std::string text{"Hello World\nNew Line"};
 
