@@ -62,11 +62,11 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194307,
+                "entity_id": 9,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194313,
+                    3,
                     4294967295
                 ]
             },
@@ -165,12 +165,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194308,
+                "entity_id": 8,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194309,
-                    4194313
+                    7,
+                    3
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -264,13 +264,16 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194309,
+                "entity_id": 7,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194310,
-                    4194308
+                    6,
+                    8
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.PlayerTestNavAgent"
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
@@ -362,12 +365,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194310,
+                "entity_id": 6,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194311,
-                    4194309
+                    5,
+                    7
                 ]
             },
             "struct SliceEngine::Script": {
@@ -465,12 +468,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194311,
+                "entity_id": 5,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194312,
-                    4194310
+                    4,
+                    6
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -512,7 +515,7 @@
                 "bloomStrength": 0.4000000059604645,
                 "componentEnabled": true,
                 "debugRenderTag": "0",
-                "depthTex": 26,
+                "depthTex": 33,
                 "far": 200.0,
                 "fogColor": [
                     0.20000000298023224,
@@ -524,7 +527,7 @@
                 "near": 0.009999999776482582,
                 "postRenderTag": "0",
                 "pov": 60.0,
-                "textureID": 25,
+                "textureID": 32,
                 "vignetteCenter": [
                     0.5,
                     0.5
@@ -534,12 +537,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194312,
+                "entity_id": 4,
                 "neighbours": [
                     0,
                     4294967295,
                     4294967295,
-                    4194311
+                    5
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -588,7 +591,7 @@
                 }
             },
             "struct SliceEngine::NavAgent": {
-                "componentEnabled": false,
+                "componentEnabled": true,
                 "currentPath": "",
                 "currentPathIndex": 0,
                 "hasNewTarget": false,
@@ -632,12 +635,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194313,
+                "entity_id": 3,
                 "neighbours": [
                     0,
                     4294967295,
-                    4194308,
-                    4194307
+                    8,
+                    9
                 ]
             },
             "struct SliceEngine::Script": {
@@ -649,7 +652,7 @@
                     },
                     "targetObject": {
                         "Type": "std::string",
-                        "Value": ""
+                        "Value": "RootNode"
                     }
                 }
             },
