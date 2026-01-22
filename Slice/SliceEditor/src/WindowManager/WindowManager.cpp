@@ -860,7 +860,7 @@ namespace SliceEditor
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
 					// 2. Construct the new path
-					std::filesystem::path newScenePath = "Assets/" + sceneName + ".scene";
+					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
 					sceneSystem->OnSceneSave(newScenePath);
