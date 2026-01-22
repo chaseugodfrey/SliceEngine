@@ -347,6 +347,7 @@ namespace SliceEngine {
 				//fit into a line
 				struct Line {
 					unsigned char token_count;
+					float line_width{};
 				};
 				std::vector<Line> lines{};
 				float total_width = (float)rect.final_width;
@@ -357,12 +358,14 @@ namespace SliceEngine {
 					assert(token.char_cnt > 0);
 					if (*token.pos == '\n') {	//if token is a line break
 						temp_line.token_count++;
+						temp_line.line_width = current_width;
 						lines.push_back(temp_line);
 
 						current_width = 0;
 						temp_line.token_count = 0;
 					}
 					else if (current_width + token.size > total_width) {	//next token cant fit, carry over
+						temp_line.line_width = current_width;
 						lines.push_back(temp_line);
 
 						current_width = token.size;
@@ -375,18 +378,35 @@ namespace SliceEngine {
 				}
 
 				if (temp_line.token_count) {	//any left over carried over tokens
+					temp_line.line_width = current_width;
 					lines.push_back(temp_line);
 				}
 
 				//Use rect as the text box
 				//position the pen
 				float left_ref = rect.final_x -(float)rect.final_width / 2;
-				float top_ref = rect.final_y +(float)rect.final_height / 2 - font_render.font_size;
+				float top_ref = rect.final_y +(float)rect.final_height / 2;
 				float x_pen = left_ref;
 				float y_pen = top_ref;
 
 				size_t tokens_cnt = 0;
 				for (Line const& line : lines) {
+					switch (font_render.alignment) {
+					case FontRenderer::LEFT: {
+						x_pen = left_ref;
+					}
+						break;
+					case FontRenderer::CENTER: {
+						x_pen = left_ref + rect.final_width / 2 - line.line_width / 2;
+					}
+						break;
+					case FontRenderer::RIGHT: {
+						x_pen = left_ref + rect.final_width - line.line_width;
+					}
+						break;
+					}
+					y_pen -= font_render.line_spacing * font_render.font_size;
+
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
 						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
 						for (unsigned int ch_it = 0; ch_it < curr_token.char_cnt; ++ch_it) {
@@ -432,8 +452,6 @@ namespace SliceEngine {
 						}
 					}
 
-					x_pen = left_ref;
-					y_pen -= font_render.line_spacing * font_render.font_size;
 				}
 				/*
 				for (char ch : font_render.text) {
