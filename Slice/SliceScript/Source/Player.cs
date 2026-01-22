@@ -317,11 +317,28 @@ namespace SliceEngine
 
         public override void OnCollideEnter(uint other)
         {
+            GameObject enemy = FindGameObjectWithName("Enemy");
+            NavAgent na = enemy.GetComponent<NavAgent>();
             if(other == floor.mID)
             {
+                if (na.ComponentIsEnabled(enemy) == false)
+                {
+                    na.SetComponentIsEnabled(enemy, true);
+                }
                 grounded = true;
                 jumpCounter = 0;
             }
+            if (other == enemy.mID) // if collision with enemy
+            {
+                if (na.ComponentIsEnabled(enemy) == true)
+                {
+                    na.SetComponentIsEnabled(enemy, false);
+                }
+                RigidBody rb = enemy.GetComponent<RigidBody>();
+                rb.AddForce(new Vector3(0, 3, 3), ForceMode.Impulse);
+                FunctionCalls.Log("Collision with Enemy, knockback");
+            }
+
         }
 
         public override void OnCollideExit(uint other)

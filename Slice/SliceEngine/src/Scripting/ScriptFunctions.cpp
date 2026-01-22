@@ -1827,6 +1827,16 @@ namespace SliceEngine
 		return agent && !agent->currentPath.empty();
 
 	}
+	static bool NavAgent_GetComponentEnabled(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		return agent->componentEnabled;
+	}
+	static void NavAgent_SetComponentEnabled(uint32_t entityID, bool isEnabled)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent) agent->componentEnabled = isEnabled;
+	}
 #pragma endregion
 
 #pragma region SpriteRenderer FUNCTIONS
@@ -2131,6 +2141,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_HasPath);
+		ADD_INTERNAL_CALL(NavAgent_GetComponentEnabled);
+		ADD_INTERNAL_CALL(NavAgent_SetComponentEnabled);
 
 		//UI
 		ADD_INTERNAL_CALL(Slider_GetValue);
