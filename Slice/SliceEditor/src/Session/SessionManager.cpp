@@ -145,7 +145,10 @@ namespace SliceEditor
 	{
 		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SliceEntity>();
-		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		auto isPrefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		auto prefabEditorView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::PrefabEditingEntity>();
+
+		//SLICE_LOG_DEBUG( "Prefab Editing Entity Size: " + std::to_string(prefabEditorView.size()));
 
 		//EntityNode Map for Hierarchy
 		if (view.size() != mEntityNodes.size())
@@ -167,7 +170,7 @@ namespace SliceEditor
 			}
 
 			//Check for prefab Component
-			for (auto entity : prefabView)
+			for (auto entity : isPrefabView)
 			{
 				auto it = mEntityNodes.find(entity);
 				if(it != mEntityNodes.end())
@@ -192,14 +195,14 @@ namespace SliceEditor
 		}
 
 		//PrefabNode Map for Prefab Editor
-		if (prefabView.size() != mPrefabNodes.size())
+		if (prefabEditorView.size() != mPrefabNodes.size())
 		{
 			for (auto& [entity, node] : mPrefabNodes)
 			{
 				node->seen = false;
 			}
 
-			for (auto entity : prefabView)
+			for (auto entity : prefabEditorView)
 			{
 				//Checking for un-added entities
 				if (mPrefabNodes.find(entity) == mPrefabNodes.end())
@@ -303,13 +306,13 @@ namespace SliceEditor
 		auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
 
 		//Add the parent to mPrefabNodes (just a lookup table)
-		auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());
-		auto& prefabNodePtr = pair.first->second;
-		EntityNode& prefabNode = *prefabNodePtr;
-		prefabNode.entity = entity;
-		//prefabNode.isPrefab = true;
-		prefabNode.type = SelectionType::PREFAB_ENTITY;
-		prefabNode.isSelected = false;
+		//auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());
+		//auto& prefabNodePtr = pair.first->second;
+		//EntityNode& prefabNode = *prefabNodePtr;
+		//prefabNode.entity = entity;
+		////prefabNode.isPrefab = true;
+		//prefabNode.type = SelectionType::PREFAB_ENTITY;
+		//prefabNode.isSelected = false;
 
 		//First child of this entity
 		Entity childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::DOWN];
