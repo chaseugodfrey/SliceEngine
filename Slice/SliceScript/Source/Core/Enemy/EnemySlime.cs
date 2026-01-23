@@ -78,7 +78,9 @@ namespace SliceEngine
 
         public void BasicAttack(GameObject hit)
         {
-            if( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
+            Console.Write("| Basic Attack called |");
+
+            if ( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
             {
                 //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
