@@ -63,7 +63,7 @@ void main(void){
 		model_to_world = V * model_to_world;
 		model_to_world[0][0] = 1.0; model_to_world[0][1] = 0.0; model_to_world[0][2] = 0.0;
 		model_to_world[1][0] = 0.0; model_to_world[1][1] = 1.0; model_to_world[1][2] = 0.0;
-		model_to_world[2][0] = 0.0; model_to_world[2][1] = 0.0; model_to_world[2][2] = 1.0;
+		model_to_world[2][0] = 0.0; model_to_world[2][1] = 0.0; model_to_world[2][2] = 1.0;	
 		isBillboard = true;
 	}
 

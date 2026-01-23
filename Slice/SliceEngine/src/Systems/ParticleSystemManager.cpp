@@ -190,16 +190,15 @@ namespace SliceEngine
 				transformMatrix = glm::translate(transformMatrix, p.position);
 			}
 
-			glm::quat Rot;
 			if (ps.isRotation3D)
 			{
-				Rot = p.rotation3D;
+				prp.additionalRotation = p.rotation3D;
 			}
 			else 
 			{
-				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+				prp.additionalRotation = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
 			}
-			transformMatrix *= glm::mat4_cast(Rot);
+
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 
 			prp.transform = transformMatrix;
