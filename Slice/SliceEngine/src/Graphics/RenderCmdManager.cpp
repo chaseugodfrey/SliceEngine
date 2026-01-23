@@ -61,7 +61,7 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
 		
 		for (auto entity : view)
 		{
