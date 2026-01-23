@@ -12,6 +12,11 @@ namespace SliceEditor
 {
 	namespace EditorUtilities
 	{
+		void Scene_CreateDefault(std::string filename)
+		{
+			std::filesystem::path newScenePath = "Assets/Default/" + filename + ".scene";
+
+		}
 
 		SliceEngine::GameObject GameObject_CreateEmpty(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
