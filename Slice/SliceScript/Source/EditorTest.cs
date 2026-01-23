@@ -28,5 +28,25 @@ namespace SliceEngine
             //    i++;
             //}
         }
+
+        public override void OnEnabled()
+        {
+            SliceLog.Console("On Enabled");
+        }
+
+        public override void OnDisabled()
+        {
+            SliceLog.Console("On Disable");
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            SliceLog.Console("Collide enter with", other);
+        }
+
+        public override void OnCollideStay(uint other)
+        {
+            SliceLog.Console("Collide stay with", other);
+        }
     }
 }

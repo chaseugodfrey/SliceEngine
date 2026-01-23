@@ -96,8 +96,10 @@ namespace SliceEngine
 			DRAW_MODELS,
 			DRAW_OPAQUE,
 			DRAW_TRANSLUCENT,
+			DRAW_TRANSLUCENT_ID_ONLY,
 			DRAW_PREFAB_OPAQUE,
-			DRAW_PREFAB_TRANSLUCENT
+			DRAW_PREFAB_TRANSLUCENT,
+			DRAW_PREFAB_TRANSLUCENT_ID_ONLY
 		};
 
 		RenderCmdManager();
@@ -127,7 +129,7 @@ namespace SliceEngine
 		GLuint mEVBO{};
 		GLuint mTextureVBO{};
 		glm::mat4 VP{};
-
+		Entity mLastKnownCam;
 
 		std::map<RCK_Size, RenderCmd> renderCmds;
 		std::vector<TranslucentCmd> translucentCmds; //single draw calls

@@ -78,7 +78,7 @@
       <AdditionalOptions>/IGNORE:4204 /IGNORE:4006 /IGNORE:4098 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Debug\Jolt.pdb" "."</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Debug" "."</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -108,7 +108,7 @@
       <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release\Jolt.pdb" "."</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release" "."</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
