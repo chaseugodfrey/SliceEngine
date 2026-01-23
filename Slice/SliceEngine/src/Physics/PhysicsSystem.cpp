@@ -531,8 +531,13 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
 	{
-		auto& slice = reg.get<SliceEntity>(entity);
+		if (!reg.any_of<SliceEntity>(entity) && !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
+
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+		auto& slice = reg.get<SliceEntity>(entity);
 
 		if (colliderShape.componentEnabled)
 		{
@@ -545,6 +550,10 @@ namespace SliceEngine
 
 	void  PhysicsSystem::OnEntityDisabled(entt::registry& reg, entt::entity entity)
 	{
+		if (!reg.any_of<SliceEntity>(entity) && !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
 		auto& slice = reg.get<SliceEntity>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 

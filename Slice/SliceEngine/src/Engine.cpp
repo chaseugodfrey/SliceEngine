@@ -179,6 +179,10 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
+	
+	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
+		.constructor<>()
+		.property("mTest", &InactiveEntity::mTest);
 
 	rttr::registration::class_<RigidBody::FreezeOptions>("FreezeOptions")
 		.constructor<>()
