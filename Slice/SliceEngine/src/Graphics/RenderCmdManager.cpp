@@ -113,7 +113,7 @@ namespace SliceEngine
 			else
 			{
 				AppendRenderCmd((*rcmds)[key], data, material);
-				(*rcmds)[key].numVar = material->shader.get()->dataIn.size();
+				(*rcmds)[key].numVar = static_cast<uint32_t>(material->shader.get()->dataIn.size());
 			}
 		}
 	
@@ -160,6 +160,7 @@ namespace SliceEngine
 	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
+		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
 		glm::vec3 camFront, camRight, camUp;
 		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
@@ -312,7 +313,9 @@ namespace SliceEngine
 			break;
 		}
 		case DrawType::DRAW_TRANSLUCENT:
+		case DrawType::DRAW_TRANSLUCENT_ID_ONLY:
 		case DrawType::DRAW_PREFAB_TRANSLUCENT:
+		case DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY:
 		{
 			RCK_ModelT currMdlID = 0xFFFF;
 
@@ -326,13 +329,21 @@ namespace SliceEngine
 				auto& dat = i.base;
 
 				// Change Shader
-				auto thisShader = shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset));
+				auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
 				if (thisShader != mShader)
 				{
 					mShader = thisShader;
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly"); 
+					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
+					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
+					if (uniformLoc != -1)
+					{
+						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
+						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
+					}
 				}
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));

@@ -237,21 +237,39 @@ namespace SliceEngine
 		if(colliderShape.shape == nullptr)
 			return;
 
+		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		{
+			if (colliderShape.bodyID.IsInvalid())
+			{
+				CreateJoltBody(event.entity);
+			}
+		}
+		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		{
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+				DeleteJoltBody(event.entity);
+			}
+		}
+
+
 
 		sliceEngineVariantShape shapeData = colliderShape.shapeData;
 
-		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity)) // if true set the layer so it can collide
-		{
-			if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
-			{
-				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
-			}
-		}
-		if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
-		{
-			
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
-		}
+		//if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity)) // if true set the layer so it can collide
+		//{
+		//	if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		//	{
+		//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		//	}
+		//}
+		//if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		//{
+		//	
+		//	physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+		//}
+
+
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
 
@@ -539,13 +557,15 @@ namespace SliceEngine
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 		auto& slice = reg.get<SliceEntity>(entity);
 
+
 		if (colliderShape.componentEnabled)
 		{
-			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			if (colliderShape.bodyID.IsInvalid())
 			{
-				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+				CreateJoltBody(entity);
 			}
 		}
+		
 	}
 
 	void  PhysicsSystem::OnEntityDisabled(entt::registry& reg, entt::entity entity)
@@ -557,7 +577,14 @@ namespace SliceEngine
 		auto& slice = reg.get<SliceEntity>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+		if (colliderShape.componentEnabled)
+		{
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+				DeleteJoltBody(entity);
+			}
+		}
+		
 	}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
@@ -987,111 +1014,7 @@ namespace SliceEngine
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto& slice = reg.get<SliceEntity>(entity);
-		auto& transform = reg.get<Transform>(entity);
-		auto& colliderShape = reg.get<ColliderShape>(entity);
-
-		bool isRigibody = false;
-
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
-		if (checkEntity.HasComponent<RigidBody>())
-		{
-			isRigibody = true;
-		}
-
-		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape,transform);
-		if (!shape)
-		{
-			SLICE_LOG_ERROR("Failed to create Shape for entity");
-			return;
-		}
-		colliderShape.shape = shape;
-
-		//Convert transform data
-		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
-		glm::quat rot = transform.rotation;
-		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
-
-		JPH::BodyCreationSettings bodySettings;
-
-		//Create body
-		if (isRigibody)
-		{
-			auto& rigidBody = reg.get<RigidBody>(entity);
-			if (rigidBody.isKinematic)
-			{
-				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
-
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
-			}
-			else
-			{
-				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
-
-				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
-			}
-
-			//Set physics properties
-			if (!rigidBody.isKinematic)
-			{
-				bodySettings.mGravityFactor = rigidBody.gravityFactor;
-				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
-				//bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
-				bodySettings.mFriction = rigidBody.friction;
-				bodySettings.mRestitution = rigidBody.restitution;
-				bodySettings.mLinearDamping = rigidBody.linearDamping;
-				bodySettings.mAngularDamping = rigidBody.angularDamping;
-			}
-			if (rigidBody.isKinematic)
-			{
-				bodySettings.mFriction = rigidBody.friction;
-				bodySettings.mRestitution = rigidBody.restitution;
-				bodySettings.mCollideKinematicVsNonDynamic = true;
-			}
-
-				//handle freeze position
-				JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
-
-				bodySettings.mAllowedDOFs = allowedDofs;
-
-				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
-		}
-		else if (!isRigibody)
-		{
-			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
-
-			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
-			//bodySettings.mFriction = 0.6f;
-			bodySettings.mRestitution = 0.0f;
-
-		}
-
-		//Set as sensor for triggers
-		if (colliderShape.isTrigger)
-		{
-			bodySettings.mIsSensor = true;
-		}
-
-		bodySettings.mAllowDynamicOrKinematic = true; // allow changing motion type at runtime
-
-		//Store entity ID in user data for collision callbacks
-		bodySettings.mUserData = static_cast<uint64_t>(entity);
-
-		//Create and add the body
-		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
-		if (!body)
-		{
-			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
-			return;
-		}
-
-		//Add to physics world and store bodyID in rigidbody
-		colliderShape.bodyID = body->GetID();
-		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
-
-		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
-		physicsSystem->OptimizeBroadPhase();
+		CreateJoltBody(entity);
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -1135,8 +1058,148 @@ namespace SliceEngine
 		contactListener->clearCollisionsPairs();
 	}
 
+	void PhysicsSystem::DeleteJoltBody(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+		colliderShape.bodyID = JPH::BodyID();
+		physicsSystem->OptimizeBroadPhase();
+	}
+
+	void PhysicsSystem::CreateJoltBody(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& slice = mRegistry->get<SliceEntity>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		bool isRigibody = false;
+
+		if (checkEntity.HasComponent<RigidBody>())
+		{
+			isRigibody = true;
+		}
+
+		//Create shape based on collider
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape, transform);
+		if (!shape)
+		{
+			SLICE_LOG_ERROR("Failed to create Shape for entity");
+			return;
+		}
+		colliderShape.shape = shape;
+
+		//Convert transform data
+		JPH::Vec3 position(transform.position.x, transform.position.y, transform.position.z);
+		glm::quat rot = transform.rotation;
+		JPH::Quat rotation(rot.x, rot.y, rot.z, rot.w);
+
+		JPH::BodyCreationSettings bodySettings;
+
+		//Create body
+		if (isRigibody)
+		{
+			auto& rigidBody = mRegistry->get<RigidBody>(entity);
+			if (rigidBody.isKinematic)
+			{
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
+			}
+			else
+			{
+				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
+			}
+
+			//Set physics properties
+			if (!rigidBody.isKinematic)
+			{
+				bodySettings.mGravityFactor = rigidBody.gravityFactor;
+				bodySettings.mMotionQuality = rigidBody.CollisionDetection;
+				//bodySettings.mMassPropertiesOverride.mMass = rigidBody.mass;
+				bodySettings.mFriction = rigidBody.friction;
+				bodySettings.mRestitution = rigidBody.restitution;
+				bodySettings.mLinearDamping = rigidBody.linearDamping;
+				bodySettings.mAngularDamping = rigidBody.angularDamping;
+			}
+			if (rigidBody.isKinematic)
+			{
+				bodySettings.mFriction = rigidBody.friction;
+				bodySettings.mRestitution = rigidBody.restitution;
+				bodySettings.mCollideKinematicVsNonDynamic = true;
+			}
+
+			//handle freeze position
+			JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
+
+			bodySettings.mAllowedDOFs = allowedDofs;
+
+			bodySettings.mMotionQuality = rigidBody.CollisionDetection;
+		}
+		else if (!isRigibody)
+		{
+			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+
+			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
+			//bodySettings.mFriction = 0.6f;
+			bodySettings.mRestitution = 0.0f;
+
+		}
+
+		//Set as sensor for triggers
+		if (colliderShape.isTrigger)
+		{
+			bodySettings.mIsSensor = true;
+		}
+
+		bodySettings.mAllowDynamicOrKinematic = true; // allow changing motion type at runtime
+
+		//Store entity ID in user data for collision callbacks
+		bodySettings.mUserData = static_cast<uint64_t>(entity);
+
+		//Create and add the body
+		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
+		if (!body)
+		{
+			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
+			return;
+		}
+
+		//Add to physics world and store bodyID in rigidbody
+		colliderShape.bodyID = body->GetID();
+		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+
+		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
+		physicsSystem->OptimizeBroadPhase();
+
+
+
+	}
+
 	void PhysicsSystem::StepWorld(float dt)
 	{
+		//JPH::BodyID testBodyID;
+		//
+		//if (testBodyID.IsInvalid())
+		//{
+		//	std::cout << "ALOYSISU INVALID BODYID 67676767\n";
+		//}
+
+
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 	}
 

@@ -281,6 +281,7 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
