@@ -425,16 +425,21 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 			//----------------------------------------------------------------
-			//SetShader(ShaderPaths[S_DEFERRED]);
-			if (cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
-			else
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
-			LoadSettings(GPS_TEST_TRANSLUCENT);
-			//UpdateCamVP();
+			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
 			BindCameraDepth(cam);
-			renderQueue.UseDrawCalls(mCurrShader.second, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
-			
+			if (cam == mCurrentCamIDHover) // Don't Draw into ID when drawing debugging onwards
+			{
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], 0, 0, 0);
+				glDepthMask(GL_FALSE);
+				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY);
+			}
+			// When Drawing the Transparent part also writes into depth buffer
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			//UpdateCamVP();
+			glDepthMask(GL_TRUE);
+			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
+			//----------------------------------------------------------------
+			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
