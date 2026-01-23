@@ -210,7 +210,8 @@ namespace SliceEditor
             if (addEvent.filePath.extension() == ".navmesh")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(sScene->GetCurrentSceneName());
+                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
+                std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(sceneName);
 
                 std::ifstream inFile(metaFilePath);
                 nlohmann::json metaJson;
