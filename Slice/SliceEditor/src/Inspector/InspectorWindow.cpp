@@ -1545,6 +1545,10 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayEntity(EntityNode* node)
 	{
+		if (node->entity == SliceEngine::FactoryInstance.GetRootEntity())
+		{
+			return;
+		}
 		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
 		{
 			if (ImGui::Button("Create New Prefab"))
