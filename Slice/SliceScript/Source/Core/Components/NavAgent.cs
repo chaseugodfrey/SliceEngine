@@ -12,6 +12,14 @@ namespace SliceEngine
             gameObject = entity;
         }
 
+        public void ComponentState(bool componentState)
+        {
+            if(gameObject != null)
+            {
+                FunctionCalls.NavAgent_ComponentState(gameObject.mID, componentState);
+            }
+        }
+
         public float Speed
         {
             get
