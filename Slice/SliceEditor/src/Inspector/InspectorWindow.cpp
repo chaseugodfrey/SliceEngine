@@ -1224,21 +1224,37 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.posValueType, "position");
 
 
-				// Start Rotation
+				// Start Rotation			
 				switch (ps.initialRotationType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Rotation", "##r", ps.rotation, "%.1f", 0.0f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Rotation", "##rot3D", ps.rotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.1f", 0.0f, 360.f);
+					}					
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation, "&.1f", 0.f, 360.f);
-					DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Min Rotation", "##minRot3D", ps.minRotation3DHint);
+						DragVec3InputHeader(mRegistry, "Max Rotation", "##maxRot3D", ps.maxRotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					}					
 					break;
 				default:
 					break;
 				}
 				ImGui::SameLine();
-				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
+				ButtonValueTypePopup(ps.initialRotationType, "rotation");
+				BoolInputHeader(mRegistry, "3D Rotation", "##is3DRotation", ps.isRotation3D);
 
 				// Start Colour			
 				switch (ps.colourValueType)

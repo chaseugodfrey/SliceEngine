@@ -190,7 +190,15 @@ namespace SliceEngine
 				transformMatrix = glm::translate(transformMatrix, p.position);
 			}
 
-			glm::quat Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+			glm::quat Rot;
+			if (ps.isRotation3D)
+			{
+				Rot = p.rotation3D;
+			}
+			else 
+			{
+				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
+			}
 			transformMatrix *= glm::mat4_cast(Rot);
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 
@@ -229,8 +237,17 @@ namespace SliceEngine
 		Utilities::FixMinMax(ps.minParticleLifetime, ps.maxParticleLifetime);
 
 		// Validate Rotation
-		Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
-
+		if (ps.isRotation3D)
+		{
+			Utilities::FixMinMax(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
+			Utilities::FixMinMax(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
+			Utilities::FixMinMax(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
+		}
+		else 
+		{
+			Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
+		}
+		
 		// Validate Start Position Offset
 		Utilities::FixMinMax(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
 		Utilities::FixMinMax(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y);
@@ -338,16 +355,39 @@ namespace SliceEngine
 	{
 		if (ps.initialRotationType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> dist(
-				ps.minRandomRotation,
-				ps.maxRandomRotation
-			);
+			if (ps.isRotation3D)
+			{
+				std::uniform_real_distribution<float> distX(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
+				std::uniform_real_distribution<float> distY(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
+				std::uniform_real_distribution<float> distZ(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
 
-			p.rotation = dist(gen);
+				glm::vec3 eul{
+					distX(gen),
+					distY(gen),
+					distZ(gen)
+				};
+				p.rotation3D = glm::quat(glm::radians(eul));
+			}
+			else 
+			{
+				std::uniform_real_distribution<float> dist(
+					ps.minRandomRotation,
+					ps.maxRandomRotation
+				);
+
+				p.rotation = dist(gen);
+			}
 		}
 		else
 		{
-			p.rotation = ps.rotation;
+			if (ps.isRotation3D)
+			{
+				p.rotation3D = glm::quat(glm::radians(ps.rotation3DHint));
+			}
+			else 
+			{
+				p.rotation = ps.rotation;
+			}
 		}
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)

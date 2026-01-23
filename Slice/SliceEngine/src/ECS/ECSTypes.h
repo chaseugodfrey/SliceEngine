@@ -258,7 +258,7 @@ namespace SliceEngine
 		unsigned int prefabID;
 
 		// GUID reference to original prefab
-		GUID prefabGUID;
+		GUID prefabGUID{};
 
 		Handle<SliceEngineTypes::Prefab> prefabHandle;
 
@@ -410,7 +410,7 @@ namespace SliceEngine
 		float maxAge{};
 		float age{};             // how long this particle has been alive
 		float rotation{};
-		float speed{};
+		float speed{};		
 
 		inline float normalizedLifetime() const
 		{
@@ -422,6 +422,7 @@ namespace SliceEngine
 		glm::vec3 scale{};
 		glm::vec3 velocity{};	  // derived from speed + direction
 		glm::vec4 colour{};       // if you want per-particle tint
+		glm::quat rotation3D{};
 	};
 
 	struct ParticleRenderPart
@@ -522,6 +523,12 @@ namespace SliceEngine
 		float rotation{};
 		float minRandomRotation{};
 		float maxRandomRotation{};
+		
+		// 3D Rotation
+		bool isRotation3D{};
+		glm::vec3 rotation3DHint{};
+		glm::vec3 minRotation3DHint{};
+		glm::vec3 maxRotation3DHint{};		
 
 		// Start Position Offset
 		ValueType posValueType{ CONSTANT };
@@ -550,15 +557,12 @@ namespace SliceEngine
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
-		//inline void Validate()
-		//{
-		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);
-		//}
+
 		enum RenderMode
 		{
 			BILLBOARD,
 			MESH
-		} renderMode;
+		} renderMode{ BILLBOARD };
 
 		GUID textureGUID;
 		GUID materialGUID;

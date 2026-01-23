@@ -737,6 +737,89 @@ namespace SliceEngine
 			go.GetComponent<ParticleSystem>().maxRandomRotation = *value;
 			return;
 		}
+	
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	// 3D Rotation
+	static void ParticleSystem_GetIsRotation3D(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isRotation3D;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetIsRotation3D(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().isRotation3D = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().rotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().rotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMinRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMinRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMaxRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMaxRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRotation3DHint = *value;
+			return;
+		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
@@ -1975,7 +2058,6 @@ namespace SliceEngine
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
 		//RegisterComponent<TextRenderer>();
-		//RegisterComponent<ParticleEmitter>();
 	}
 
 	/// <summary>
@@ -2089,6 +2171,14 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMin);
 		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMax);
 		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMax);
+		ADD_INTERNAL_CALL(ParticleSystem_GetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_SetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxRotation3DHint);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosValueType);
 		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosValueType);
