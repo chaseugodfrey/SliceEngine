@@ -19,6 +19,7 @@ namespace SliceEditor
 	{
 		mPrefabInspected = false;
 		mShowHierarchyEntityIDs = false;
+		mNoOfEntities = 0;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -28,6 +29,7 @@ namespace SliceEditor
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
+		CreateEntityNodes();
 	}
 
 	void SessionManager::Update()
@@ -107,13 +109,23 @@ namespace SliceEditor
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
 		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
 
 		if (view.size() != mEntityNodes.size())
 		{
-			mEntityNodes.clear();
+			//mEntityNodes.clear();
 			for (auto entity : view)
 			{
-				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
+				mEntityNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+
+				for (auto node : selectionMan->GetSelectedNodes())
+				{
+					if (node->type == SelectionType::ENTITY)
+					{
+						mEntityNodes[entity].get()->isSelected = node->isSelected;
+					}
+				}
+				
 			}
 
 			for (auto entity : prefabView)
@@ -134,11 +146,19 @@ namespace SliceEditor
 		}
 	}
 
-	void SessionManager::CreatePrefabNodes()
+	void SessionManager::UpdateEntityNodes()
 	{
-		//auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mPrefabParent.get()->entity);
-	}
+		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
 
+		if (view.size() != mNoOfEntities)
+		{
+			for (auto entity : view)
+			{
+
+			}
+		}
+	}
+		
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
 	{
 		mEntityNodes.clear();
