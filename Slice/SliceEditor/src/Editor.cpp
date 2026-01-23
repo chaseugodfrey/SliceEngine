@@ -116,7 +116,9 @@ namespace SliceEditor
 		inputs->isActive = true;
 
 		//// Init starting scene
-		//engine.InitScene();
+		// who commented it out say now
+		// it broke play stop
+		engine.InitScene();
 	}
 
 	void Editor::Run()
@@ -186,6 +188,11 @@ namespace SliceEditor
 		ImGui::CreateContext();
 		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
+
+		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 22.0f);
+		if (font) io.FontDefault = font;
+
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

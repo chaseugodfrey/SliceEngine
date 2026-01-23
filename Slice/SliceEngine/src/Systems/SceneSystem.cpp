@@ -21,7 +21,7 @@ namespace SliceEngine
 		//if (!LoadScene(mCurrentScene))
 		//	LoadDefaultScene();
 
-		mCurrentState = mNextState = SceneState::DEFAULT;
+		//mCurrentState = mNextState = SceneState::DEFAULT;
 
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
 	}
@@ -74,8 +74,15 @@ namespace SliceEngine
 
 		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 		Core::GetInstance()->mFactory.DebugPrint();
+		OnSceneLoadedEvent event;
+		event.isSceneLoaded = true;
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
-		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
+		if (next_scene_filepath.extension() == ".temp")
+		{
+			//std::filesystem::remove(next_scene_filepath);
+			mCurrentScene.replace_extension(".scene");
+		}
 
 		return true;
 	}
@@ -134,6 +141,11 @@ namespace SliceEngine
 
 		SLICE_LOG("Scene saved successfully.");
 
+	}
+
+	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	{
+		OnSceneSave(filePath);
 	}
 
 	void SceneSystem::SaveCurrentScene()

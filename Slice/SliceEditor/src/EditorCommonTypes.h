@@ -205,7 +205,7 @@ namespace SliceEditor
 		std::unordered_map<int, StateNode> mStateNodes;
 		std::unordered_map<int, TransitionLinkNode> mTransitionNodes;
 		std::unordered_map<std::string, int> mNameToStateID;
-		
+
 		using State = SliceEngine::SliceEngineTypes::State;
 		using Transition = SliceEngine::SliceEngineTypes::Transition;
 		using Parameters = decltype(StateMachineData::parameters);
@@ -214,7 +214,7 @@ namespace SliceEditor
 		{
 			return mStateMachineAsset == nullptr;
 		}
-		
+
 		void reset()
 		{
 			mStateMachineAsset.reset();
@@ -336,11 +336,11 @@ namespace SliceEditor
 
 		std::optional<std::reference_wrapper<State>> GetState(const Transition& transition)
 		{
-			 auto link = GetTransitionNode(transition.id);
-			 if (!link.has_value())
-				 return std::nullopt;
+			auto link = GetTransitionNode(transition.id);
+			if (!link.has_value())
+				return std::nullopt;
 
-			 return GetState(link->get().source_id);
+			return GetState(link->get().source_id);
 		}
 
 		static std::optional<std::reference_wrapper<Transition>> GetTransition(State& state, int transition_id)
@@ -391,14 +391,30 @@ namespace SliceEditor
 	{
 		DARK = 0,
 		LIGHT = 1,
-		MICROSOFT = 2
+		MICROSOFT = 2,
+		CLASSICSTEAM = 3,
+		GREENLEAF = 4,
+		DARCULA = 5,
+		DISCORDDARK = 6,
+		DEEPDARK = 7,
+		MOONLIGHT = 8,
+		EXCELLENCY = 9,
+		REST = 10
 	};
 
-	constexpr std::array<const char*, 3> EditorThemes =
+	constexpr std::array<const char*, 11> EditorThemes =
 	{
 		"Dark",
 		"Light",
-		"Microsoft"
+		"Microsoft",
+		"ClassicSteam",
+		"GreenLeaf",
+		"Darcula",
+		"DiscordDark",
+		"DeepDark",
+		"Moonlight",
+		"Excellency",
+		"Rest"
 	};
 
 	// PREFERENCES
