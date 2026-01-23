@@ -15,6 +15,8 @@ namespace SliceEngine
         float pathUpdateTimer = 0.0f;
         float pathUpdateInterval = 0.2f;
 
+        GameObject targetObjRef;
+
         public bool active = false;
         private bool isDead = false;
 
@@ -37,6 +39,8 @@ namespace SliceEngine
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
             navAgent = GetComponent<NavAgent>();
+            navAgent.Speed = this.movementSpeed;
+            StartNav();
         }
         public override void OnUpdate(float dt)
         {
@@ -48,9 +52,17 @@ namespace SliceEngine
                 {
                     state.DoEnemyAction(dt);
                 }
+
+
                 if (navAgent != null)
                 {
+                    pathUpdateTimer += dt;
 
+                    if (pathUpdateTimer > pathUpdateInterval)
+                    {
+                        pathUpdateTimer = 0.0f;
+                        UpdateNavAgentTarget();
+                    }
                 }
             }
         }
@@ -69,12 +81,14 @@ namespace SliceEngine
         #region Creation and Set Up
         public virtual void SetUp()
         {
-            Console.WriteLine("Base Setup Called");
+            SliceLog.Log("Base Setup Called");
             //REMEMBER TO REMOVE THIS 
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
+
             navAgent = GetComponent<NavAgent>();
             navAgent.Speed = this.movementSpeed;
+            targetObjRef = Bootstrap.Player.gameObject;
             //
 
 
@@ -89,17 +103,24 @@ namespace SliceEngine
 
         public void StartNav()
         {
-
+            SliceLog.Log("Navmesh is starting");
+            navAgent.enabled = true;
+            if (navAgent == null)
+            {
+                SliceLog.Log("NavAgentEmpty");
+            }
         }
 
         public void StopNav()
         {
-
+            navAgent.enabled = false;
         }
 
         public void UpdateNavAgentTarget()
         {
+            GameObject activeTarget = targetObjRef != null ? targetObjRef : Bootstrap.Player.gameObject;
 
+            navAgent.SetDestination(activeTarget.GetComponent<Transform>().Position);
         }
         #endregion  
 

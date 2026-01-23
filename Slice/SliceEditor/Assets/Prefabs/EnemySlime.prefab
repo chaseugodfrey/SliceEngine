@@ -17,6 +17,18 @@
                     0.0
                 ]
             },
+            "struct SliceEngine::NavAgent": {
+                "componentEnabled": false,
+                "currentPath": "",
+                "currentPathIndex": 0,
+                "hasNewTarget": false,
+                "speed": 2.0,
+                "target": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -45,11 +57,11 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048590,
+                "entity_id": 14,
                 "neighbours": [
                     0,
-                    1048591,
-                    1048589,
+                    15,
+                    13,
                     4294967295
                 ]
             },
@@ -74,7 +86,7 @@
                     },
                     "basicHitBox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048592
+                        "Value": 16
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -163,12 +175,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048591,
+                "entity_id": 15,
                 "neighbours": [
-                    1048590,
+                    14,
                     4294967295,
                     4294967295,
-                    1048592
+                    16
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -236,11 +248,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048592,
+                "entity_id": 16,
                 "neighbours": [
-                    1048590,
+                    14,
                     4294967295,
-                    1048591,
+                    15,
                     4294967295
                 ]
             },

@@ -493,15 +493,15 @@
                 "scriptableFieldMap": {
                     "defeatName": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 3
+                        "Value": 2097155
                     },
                     "healthSliderName": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 13
+                        "Value": 2097165
                     },
                     "victoryName": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 4
+                        "Value": 2097156
                     }
                 }
             },
@@ -1006,10 +1006,22 @@
                     0.0
                 ]
             },
+            "struct SliceEngine::NavAgent": {
+                "componentEnabled": false,
+                "currentPath": "",
+                "currentPathIndex": 0,
+                "hasNewTarget": false,
+                "speed": 2.0,
+                "target": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14437008735982366014",
+                "prefabGUID": "15574561905588018843",
                 "prefabHandle": {
-                    "GUID": "14437008735982366014"
+                    "GUID": "15574561905588018843"
                 },
                 "prefabID": 0
             },
@@ -1063,7 +1075,7 @@
                     },
                     "basicHitBox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 16
+                        "Value": 5
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -1087,7 +1099,7 @@
                     },
                     "movementSpeed": {
                         "Type": "float",
-                        "Value": 4.0
+                        "Value": 10.0
                     },
                     "stunned": {
                         "Type": "bool",
@@ -1133,9 +1145,9 @@
     {
         "Mesh Renderer": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14437008735982366014",
+                "prefabGUID": "15574561905588018843",
                 "prefabHandle": {
-                    "GUID": "14437008735982366014"
+                    "GUID": "15574561905588018843"
                 },
                 "prefabID": 1
             },
@@ -1206,9 +1218,9 @@
                 }
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14437008735982366014",
+                "prefabGUID": "15574561905588018843",
                 "prefabHandle": {
-                    "GUID": "14437008735982366014"
+                    "GUID": "15574561905588018843"
                 },
                 "prefabID": 2
             },

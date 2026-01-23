@@ -35,9 +35,6 @@ namespace SliceEngine
 
             base.SetUp(); 
             Console.WriteLine("Slime setup called");
-
-            this.ChangeState(new EnemySlimeChaseState(this));
-
             if(basicHitBox.Has<GeneralHitbox>())
             {
                 _basicHitBox = basicHitBox.As<GeneralHitbox>();
@@ -62,6 +59,8 @@ namespace SliceEngine
             {
                 Console.WriteLine("Slime has no hitbox");
             }
+
+            this.ChangeState(new EnemySlimeChaseState(this));
         }
 
         public void Reset()
@@ -92,12 +91,12 @@ namespace SliceEngine
             }
         }
 
-        public void StartAttackCoroutine()
+        public void StartExplodeCoroutine()
         {
-            StartCoroutine(AttackCoroutine());
+            StartCoroutine(ExplodeCoroutine());
         }
 
-        IEnumerator AttackCoroutine()
+        IEnumerator ExplodeCoroutine()
         {
             Console.Write("exploding is On -> ");
             exploding = true;
