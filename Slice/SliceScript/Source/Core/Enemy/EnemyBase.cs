@@ -1,5 +1,6 @@
 using SliceEngine;
 using System;
+using System.Security.Permissions;
 
 
 namespace SliceEngine
@@ -9,6 +10,11 @@ namespace SliceEngine
         #region Enemy Fields
         public Transform enemyT { get; protected set; }
         protected RigidBody rb;
+        protected NavAgent navAgent;
+
+        float pathUpdateTimer = 0.0f;
+        float pathUpdateInterval = 0.2f;
+
         public bool active = false;
         private bool isDead = false;
 
@@ -30,13 +36,22 @@ namespace SliceEngine
             base.OnCreate();
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
+            navAgent = GetComponent<NavAgent>();
         }
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
-            if (active && state != null)
+            if (active)
             {
-                state.DoEnemyAction(dt);
+
+                if (state != null)
+                {
+                    state.DoEnemyAction(dt);
+                }
+                if (navAgent != null)
+                {
+
+                }
             }
         }
 
@@ -58,12 +73,35 @@ namespace SliceEngine
             //REMEMBER TO REMOVE THIS 
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
+            navAgent = GetComponent<NavAgent>();
+            navAgent.Speed = this.movementSpeed;
             //
+
+
+
             active = true; playerT = Bootstrap.Player.transform; }
 
         public virtual void Reset()
         { active = false; state = null; }
         #endregion
+
+        #region Navmesh
+
+        public void StartNav()
+        {
+
+        }
+
+        public void StopNav()
+        {
+
+        }
+
+        public void UpdateNavAgentTarget()
+        {
+
+        }
+        #endregion  
 
         #region Entity Overrides
         public override void OnDeath()

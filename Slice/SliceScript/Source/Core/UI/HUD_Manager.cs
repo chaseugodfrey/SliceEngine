@@ -52,9 +52,9 @@ namespace SliceEngine
         public void Initialize()
         {
             Console.WriteLine("HUD Ini called");
-            health = healthSliderName.GetComponent<Slider>();
-            victory = victoryName.GetComponent<SpriteRenderer>();
-            defeat = defeatName.GetComponent<SpriteRenderer>();
+            health = healthSliderName.GetComponent<Slider>();      
+            victory = victoryName.GetComponent<SpriteRenderer>();  
+            defeat = defeatName.GetComponent<SpriteRenderer>();    
         }
     }
 }
