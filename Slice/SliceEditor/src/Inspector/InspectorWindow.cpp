@@ -647,6 +647,27 @@ namespace SliceEditor
 
 	}
 
+	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	{
+		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+
+		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+
+			DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
+
+			DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
+
+			BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
+
+			DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
+
+			ImGui::TreePop();
+		}
+
+	}
+
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
@@ -1470,6 +1491,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			{
+				if (ImGui::Selectable("Add Nav Mesh Link"))
+				{
+					reg.emplace<SliceEngine::NavMeshLink>(entity);
+				}
+			}
+
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
 				if (ImGui::Selectable("Add Box Collider"))
@@ -1658,6 +1687,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavAgent>(entity))
 			{
 				DisplayNavAgent(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			{
+				DisplayNavMeshLink(node->entity);
 				ImGui::Separator();
 			}
 
