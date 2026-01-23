@@ -258,6 +258,10 @@ namespace SliceEngine {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void CanvasSystem::DrawWorld() {
+
+	}
+
 	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
@@ -387,7 +391,7 @@ namespace SliceEngine {
 				float left_ref = rect.final_x -(float)rect.final_width / 2;
 				float top_ref = rect.final_y +(float)rect.final_height / 2;
 				float x_pen = left_ref;
-				float y_pen = top_ref;
+				float y_pen = top_ref - font_render.font_size;
 
 				size_t tokens_cnt = 0;
 				for (Line const& line : lines) {
@@ -405,7 +409,6 @@ namespace SliceEngine {
 					}
 						break;
 					}
-					y_pen -= font_render.line_spacing * font_render.font_size;
 
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
 						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
@@ -452,6 +455,7 @@ namespace SliceEngine {
 						}
 					}
 
+					y_pen -= font_render.line_spacing * font_render.font_size;
 				}
 				/*
 				for (char ch : font_render.text) {
