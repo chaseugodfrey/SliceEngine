@@ -859,7 +859,6 @@ namespace SliceEditor
 				{
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
-					// 2. Construct the new path
 					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
@@ -904,8 +903,8 @@ namespace SliceEditor
 				if (!sceneName.empty())
 				{
 					EditorUtilities::Scene_CreateDefault(sceneName);
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Assets/" + sceneName + ".scene");
+					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Assets/Default/" + sceneName + ".scene");
 					newScenePopupOpen = false;
 					sceneName = "NewScene";
 				}
