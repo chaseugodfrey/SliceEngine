@@ -143,6 +143,11 @@ namespace SliceEngine
 
 	}
 
+	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	{
+		OnSceneSave(filePath);
+	}
+
 	void SceneSystem::SaveCurrentScene()
 	{
 		OnSceneSave(mCurrentScene);
