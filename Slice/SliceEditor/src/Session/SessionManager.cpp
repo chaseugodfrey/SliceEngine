@@ -19,7 +19,6 @@ namespace SliceEditor
 	{
 		mPrefabInspected = false;
 		mShowHierarchyEntityIDs = false;
-		mNoOfEntities = 0;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -29,18 +28,14 @@ namespace SliceEditor
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
-		CreateEntityNodes();
+		//CreateEntityNodes();
 	}
 
 	void SessionManager::Update()
 	{
-		CreateEntityNodes();
+		UpdateEntityNodes();
 
-		if (mPrefabInspected)
-		{
-
-		}
-		else
+		if (!mPrefabInspected && !mPrefabNodes.empty())
 		{
 			mPrefabNodes.clear();
 		}
@@ -105,7 +100,7 @@ namespace SliceEditor
 		}
 	}
 
-	void SessionManager::CreateEntityNodes()
+	/*void SessionManager::CreateEntityNodes()
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
 		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
@@ -144,25 +139,108 @@ namespace SliceEditor
 				mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
 			}
 		}
-	}
+	}*/
 
 	void SessionManager::UpdateEntityNodes()
 	{
-		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
+		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
+		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SliceEntity>();
+		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
 
-		if (view.size() != mNoOfEntities)
+		//EntityNode Map for Hierarchy
+		if (view.size() != mEntityNodes.size())
 		{
+			//Set the seen to false for removal checking ltr on
+			for (auto& [entity,node] : mEntityNodes)
+			{
+				node->seen = false;
+			}
+
 			for (auto entity : view)
 			{
+				//Checking for un-added entities
+				if (mEntityNodes.find(entity) == mEntityNodes.end())
+				{
+					AddEntityNode(entity);
+				}
+				mEntityNodes[entity]->seen = true;
+			}
 
+			//Check for prefab Component
+			for (auto entity : prefabView)
+			{
+				auto it = mEntityNodes.find(entity);
+				if(it != mEntityNodes.end())
+				{
+					it->second->isPrefab = true;
+				}
+			}
+
+			//Removal of no longer existing entities (Check for removal after looping thru once to set seen to true
+			for (auto it = mEntityNodes.begin(); it != mEntityNodes.end(); )
+			{
+				//Was not found in the scene
+				if (it->second->seen == false)
+				{
+					it = mEntityNodes.erase(it);
+				}
+				else
+				{
+					++it;
+				}
 			}
 		}
+
+		//PrefabNode Map for Prefab Editor
+		if (prefabView.size() != mPrefabNodes.size())
+		{
+			for (auto& [entity, node] : mPrefabNodes)
+			{
+				node->seen = false;
+			}
+
+			for (auto entity : prefabView)
+			{
+				//Checking for un-added entities
+				if (mPrefabNodes.find(entity) == mPrefabNodes.end())
+				{
+					mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+					mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
+				}
+
+				mPrefabNodes[entity]->seen = true;
+			}
+
+			//Removal of no longer existing entities (Check for removal after looping thru once to set seen to true
+			for (auto it = mPrefabNodes.begin(); it != mPrefabNodes.end(); )
+			{
+				//Was not found in the scene
+				if (it->second->seen == false)
+				{
+					it = mPrefabNodes.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+	}
+
+	void SessionManager::AddEntityNode(entt::entity entity)
+	{
+		mEntityNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+	}
+
+	void SessionManager::RemoveEntityNode(entt::entity entity)
+	{
+		mEntityNodes.erase(entity);
 	}
 		
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
 	{
 		mEntityNodes.clear();
-		CreateEntityNodes();
+		UpdateEntityNodes();
 	}
 
 	void SessionManager::OnSceneStop(const OnSceneStopEvent& event)
@@ -229,7 +307,7 @@ namespace SliceEditor
 		auto& prefabNodePtr = pair.first->second;
 		EntityNode& prefabNode = *prefabNodePtr;
 		prefabNode.entity = entity;
-		prefabNode.isPrefab = true;
+		//prefabNode.isPrefab = true;
 		prefabNode.type = SelectionType::PREFAB_ENTITY;
 		prefabNode.isSelected = false;
 

@@ -12,7 +12,6 @@ namespace SliceEditor
 	class SessionManager : public IBaseManager
 	{
 
-		int mNoOfEntities;
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
@@ -39,9 +38,9 @@ namespace SliceEditor
 		void SetNodeAsPrefab(EntityNode* entity, bool isPrefab);
 
 		//Editor Hierarchy
-		void CreateEntityNodes();
+		//void CreateEntityNodes();
 		void UpdateEntityNodes();
-		void AddEntityNode(EntityNode* node, bool isSelected = false);
+		void AddEntityNode(entt::entity entity);
 		void RemoveEntityNode(entt::entity entity);
 
 		//Scene Functions
