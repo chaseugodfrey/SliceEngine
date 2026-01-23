@@ -33,11 +33,11 @@ namespace SliceEngine
             {
                 source = gameObject;
             }
-
+            Console.WriteLine("Enitity taking damage");
             //Debug.Log($"{name} taking {amount} damage");
-            currentHealth -= amount;
-            if (currentHealth > 0) OnDamaged(source);
-            if (currentHealth <= 0)
+            this.currentHealth -= amount;
+            if (this.currentHealth > 0) OnDamaged(source);
+            if (this.currentHealth <= 0)
             {
                 currentHealth = 0; // Ensure health doesn't go below zero
                 OnDeath();

@@ -17,11 +17,11 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (_enabled)
-            {
-                Console.Write(" __ On update is turning enabled off __ ");
-                _enabled = false;
-            }
+            //if (_enabled)
+            //{
+            //    Console.Write(" __ On update is turning enabled off __ ");
+            //    _enabled = false;
+            //}
         }
         public override void OnCreate()
         {
@@ -63,36 +63,27 @@ namespace SliceEngine
             Console.WriteLine("GENERAL HIT BOX Trigger Enter called");
             //base.OnTriggerEnter(other);
 
-
-            //if (HitBoxListeners != null)
-            //{
-            //    Console.WriteLine("Enter Hitbox has subs");
-            //    SliceLog.Log("Enter Hitbox has subs");
-
             if (_enabled)
             {
+                Console.WriteLine("Enabled");
                 HitBoxListeners(gameObject.FindGameObjectWithID(other));
             }
-
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Enter Hitbox no subs");
-            //    SliceLog.Log("Enter Hitbox no subs");
-            //}
-
-            
-        }
-
-        public override void OnTriggerStay(uint other)
-        {
-            //Console.WriteLine("!! STAY detected!!");
-            base.OnTriggerStay(other);
-            if (_enabled)
+            else
             {
-                //Console.Write("!! STAY IS THROWING THINGS !!");
-                HitBoxListeners(gameObject.FindGameObjectWithID(other));
+                Console.WriteLine("Enabled not enabled");
             }
         }
+
+
+        //public override void OnTriggerStay(uint other)
+        //{
+        //    //Console.WriteLine("!! STAY detected!!");
+        //    base.OnTriggerStay(other);
+        //    if (_enabled)
+        //    {
+        //        //Console.Write("!! STAY IS THROWING THINGS !!");
+        //        HitBoxListeners(gameObject.FindGameObjectWithID(other));
+        //    }
+        //}
     }
 }

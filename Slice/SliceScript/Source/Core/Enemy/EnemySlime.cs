@@ -84,7 +84,7 @@ namespace SliceEngine
             {
                 //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
-                Bootstrap.Player.TakeDamage(damage);
+                Bootstrap.Player.TakeDamage(damage, this.gameObject);
             }
             else
             {
