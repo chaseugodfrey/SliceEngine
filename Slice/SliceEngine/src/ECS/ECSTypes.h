@@ -50,7 +50,9 @@ namespace SliceEngine
 
 	struct InactiveEntity
 	{
+		bool mTest{ false };
 
+		InactiveEntity() {}
 	};
 
 	struct SliceEntity 
