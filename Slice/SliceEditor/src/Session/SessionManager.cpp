@@ -274,13 +274,16 @@ namespace SliceEditor
 
 		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
 
-		if (!mAnimatorData->empty())
-			mAnimatorData->reset();
-
-		if (!mAnimatorData->Load(filepath))
+		if (mAnimatorData)
 		{
-			mAnimatorData.reset();
-			SLICE_LOG_ERROR("Animator Data not loaded.");
+			if (!mAnimatorData->empty())
+				mAnimatorData->reset();
+
+			if (!mAnimatorData->Load(filepath))
+			{
+				mAnimatorData.reset();
+				SLICE_LOG_ERROR("Animator Data not loaded.");
+			}
 		}
 	}
 

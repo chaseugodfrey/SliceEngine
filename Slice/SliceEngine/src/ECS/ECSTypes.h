@@ -229,6 +229,7 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
 		bool componentEnabled{ true };
@@ -747,14 +748,15 @@ namespace SliceEngine
 
 
 		float font_size;
-		float line_spacing;
+		float line_spacing;	//multiplier of font_size
 		
-		std::string text{"Hello World"};
+		std::string text{"Hello World\nNew Line"};
 
 		struct Token {
 			//std::string text{};
 			const char* pos{};
 			float size{};
+			unsigned int char_cnt{};
 		};
 		std::vector<Token> token_list{};
 

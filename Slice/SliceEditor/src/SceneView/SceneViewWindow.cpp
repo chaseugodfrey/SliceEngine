@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Session/SessionManager.h"
 #include "WindowManager/WindowManager.h"
 #include "History/HistoryManager.h"
+#include "Inspector/ComponentPropertiesGUI.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -651,6 +652,7 @@ namespace SliceEditor
 			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
 			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
+			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
 			ImGui::EndPopup();
 		}
 	}
