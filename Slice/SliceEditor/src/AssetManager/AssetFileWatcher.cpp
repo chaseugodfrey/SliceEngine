@@ -190,15 +190,22 @@ namespace SliceEditor
 
             int nameCount = 0;
             
-            while (am.mFilenameToGUID.contains(assetName))
+            if (am.mFilenameToGUID.contains(assetName))
             {
-                nameCount++;
-                assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+
+                while (am.mFilenameToGUID.contains(assetName))
+                {
+                    nameCount++;
+                    assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+                }
+
+                std::filesystem::path newAssetFileName(assetName);
+
+                addEvent.filePath.replace_filename(newAssetFileName);
+
             }
 
-            std::filesystem::path newAssetFileName(assetName);
 
-            addEvent.filePath.replace_filename(newAssetFileName);
 
             if (ImGui::BeginDragDropSource())
             {
@@ -218,7 +225,7 @@ namespace SliceEditor
                 if (inFile >> metaJson) {
                     inFile.close();
                     auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-                    auto navMeshPath = resourceMgr->GetResourcePath(addEvent.filePath.stem().string());
+                    auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" +addEvent.filePath.filename().string());
 
                     if (navMeshPath.has_value()) {
                         metaJson["navMeshFile"] = navMeshPath.value();
