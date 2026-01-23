@@ -531,7 +531,7 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
 	{
-		if (!reg.any_of<SliceEntity>(entity) && !reg.any_of<ColliderShape>(entity))
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
 		{
 			return;
 		}
@@ -550,7 +550,7 @@ namespace SliceEngine
 
 	void  PhysicsSystem::OnEntityDisabled(entt::registry& reg, entt::entity entity)
 	{
-		if (!reg.any_of<SliceEntity>(entity) && !reg.any_of<ColliderShape>(entity))
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
 		{
 			return;
 		}
