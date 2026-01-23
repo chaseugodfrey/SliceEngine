@@ -15,11 +15,11 @@ namespace SliceEngine
         private ColliderShape _collider;
         private bool _enabled = false;
 
-
         public override void OnUpdate(float dt)
         {
             if (_enabled)
             {
+                Console.Write(" __ On update is turning enabled off __ ");
                 _enabled = false;
             }
         }
@@ -37,6 +37,7 @@ namespace SliceEngine
             }
             else if (_collider != null)
             {
+                Console.Write("++ Box Turned On ++");
                 _collider.ComponentEnabled = true;
                 _enabled = true;
             }
@@ -67,7 +68,11 @@ namespace SliceEngine
             //{
             //    Console.WriteLine("Enter Hitbox has subs");
             //    SliceLog.Log("Enter Hitbox has subs");
-            HitBoxListeners(gameObject.FindGameObjectWithID(other));
+
+            if (_enabled)
+            { 
+                HitBoxListeners(gameObject.FindGameObjectWithID(other));
+            }
             //}
             //else
             //{
@@ -80,9 +85,11 @@ namespace SliceEngine
 
         public override void OnTriggerStay(uint other)
         {
+            Console.WriteLine("!! STAY detected!!");
             base.OnTriggerStay(other);
             if (_enabled)
             {
+                Console.Write("!! STAY IS THROWING THINGS !!");
                 HitBoxListeners(gameObject.FindGameObjectWithID(other));
             }
         }

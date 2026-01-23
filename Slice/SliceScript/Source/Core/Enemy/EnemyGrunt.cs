@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class EnemySlime : EnemyBase
+    public class EnemyGrunt : EnemyBase
     {
         public bool stunned = false;
 
@@ -18,8 +18,8 @@ namespace SliceEngine
         public float attackDamageRange = 1f;
         public float attackWindUpTiming = 1f;
         public float flickerTiming = 1f;
-        public bool exploding { get; private set; } = false;
-        private float _explodingCounter = 0f;
+        public bool attacking { get; private set; } = false;
+        private float _attackCounter = 0f;
 
         public GameObject basicHitBox;
         private GeneralHitbox _basicHitBox;
@@ -34,9 +34,9 @@ namespace SliceEngine
 
 
             base.SetUp(); 
-            Console.WriteLine("Slime setup called");
+            Console.WriteLine("Grunt setup called");
 
-            this.ChangeState(new EnemySlimeChaseState(this));
+            this.ChangeState(new EnemyGruntChaseState(this));
 
             if(basicHitBox.Has<GeneralHitbox>())
             {
@@ -97,8 +97,8 @@ namespace SliceEngine
 
         IEnumerator AttackCoroutine()
         {
-            Console.Write("exploding is On -> ");
-            exploding = true;
+            Console.Write("Attacking is On -> ");
+            attacking = true;
 
             Console.Write("Windup waiting -> ");
             yield return new WaitForSeconds(attackWindUpTiming);
@@ -145,8 +145,8 @@ namespace SliceEngine
                 //SliceLog.Log("Hit Box still on");
             }
 
-            exploding = false;
-            Console.WriteLine("exploding is Off");
+            attacking = false;
+            Console.WriteLine("Attacking is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
