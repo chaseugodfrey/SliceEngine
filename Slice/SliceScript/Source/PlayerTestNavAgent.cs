@@ -16,7 +16,6 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            // Cache references once at startup
             floor = FindGameObjectWithName("Floor");
             if (floor == null) FunctionCalls.LogWarn("PlayerTest: 'Floor' not found!");
 
