@@ -377,7 +377,7 @@ namespace SliceEngine
 		LoadSettings(GPS_SHADOW);
 		RenderPointShadowMaps();
 
-		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
 		for (auto cam : cams)
 		{
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -477,7 +477,7 @@ namespace SliceEngine
 			glBindVertexArray(mdl.vao);
 
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
-			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
 			int count{};
 			for (auto& entity : cams)
 			{
@@ -506,7 +506,7 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(); //renderEntity
+			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
 			for (int i{}; i < 3; ++i)
 			{
 				GUID modelID;
@@ -661,7 +661,7 @@ namespace SliceEngine
 		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
 		glViewport(0, 0, shadowDim, shadowDim);
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -701,7 +701,7 @@ namespace SliceEngine
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -772,7 +772,7 @@ namespace SliceEngine
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
