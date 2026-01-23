@@ -34,18 +34,13 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 	GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
 	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
 
-	int test1 = inBody1.GetUserData();
-	int test2 = inBody2.GetUserData();
-
-	if (test1 != 9 && test2 != 9)
-	{
-
-	}
 
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 	//std::cout << inBody1.GetUserData() << " and " << inBody2.GetUserData() << std::endl;
 	//std::cout << (uint32_t)checkEntity1.GetEntity() << " and " << (uint32_t)checkEntity2.GetEntity()<< std::endl;
+
+	
 	if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 	{
 		OnTriggerEnterEvent triggerEvent1;
