@@ -887,6 +887,7 @@ namespace SliceEngine
 				root = go.GetEntity();
 				go.AddComponent<Animator>();
 				auto& animator = go.GetComponent<Animator>();
+				go.RemoveComponent<Bone>();
 
 				GUID skeletonGUID = skele_guid;
 				GUID animPkgGUID = anim_guid;
