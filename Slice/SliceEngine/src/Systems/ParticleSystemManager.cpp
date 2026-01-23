@@ -194,23 +194,6 @@ namespace SliceEngine
 			transformMatrix *= glm::mat4_cast(Rot);
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 
-			/*if (ps.isLocalSpace && ps.parentTransform)
-			{
-				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-				transformMatrix *= glm::mat4_cast(Rot);
-				transformMatrix = glm::scale(transformMatrix, p.scale);
-			}
-			else
-			{
-				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-				transformMatrix *= glm::mat4_cast(Rot);
-				transformMatrix = glm::scale(transformMatrix, p.scale);
-			}*/
-
-			//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
-
 			prp.transform = transformMatrix;
 			prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
 			prp.colour = p.colour;

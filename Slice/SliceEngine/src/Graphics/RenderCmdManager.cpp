@@ -153,7 +153,6 @@ namespace SliceEngine
 				// --TODO--
 				renderCmds[key].base.push_back(std::move(data));
 			}
-
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
