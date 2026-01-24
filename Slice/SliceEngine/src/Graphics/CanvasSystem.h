@@ -18,22 +18,22 @@ DigiPen Institute of Technology is prohibited.
 
 /*
 * Brief description of a canvas
-* 
+*
 * Each Canvas will have its own framebuffer,
 * and canvas elements will draw onto that framebuffer
-* 
+*
 * Depending on canvas mode: world, camera, overlay
 * will change how its drawn
-* 
+*
 * only focus on overlay for now
-* 
+*
 * most likely what will happen
 * -each canvas will search through its children and grab all 2d sprite element components(can look into dirty flag nxt time)
 * -iterate through each component and draw to a framebuffer
 * -finally draw the completed framebuffer to the final framebuffer
-* 
+*
 * likely there is only 1 shared framebuffer for overlay, that follows the reference pixel size
-* for now lock the 
+* for now lock the
 */
 
 void _CheckGLError(const char* file, int line);
@@ -103,7 +103,7 @@ namespace SliceEngine
 	* -sets transform component's values according to canvas system
 	* -rect transform will store values that are used by canvas system
 	* -dosent just contain position, but also the target rect area in the framebuffer to draw whatever renderer is used
-	* 
+	*
 	* Sprite Renderer
 	* -contains handle for the texture to draw(ignore font for now, will be a font renderer component)
 	* -will be used during canvas.render to draw to the framebuffer

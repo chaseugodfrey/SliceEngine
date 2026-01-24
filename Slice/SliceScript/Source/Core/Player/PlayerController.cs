@@ -94,9 +94,9 @@ namespace SliceEngine
 
         public string attack1HBName;
         public int attack1Damage;
-        public Vector3 attack1Window; 
+        public Vector3 attack1Window;
         public float attack1Duration;
-        private Hitbox attack1HB; 
+        private Hitbox attack1HB;
 
         public string attack2HBName;
         public int attack2Damage;
@@ -174,7 +174,7 @@ namespace SliceEngine
 
             InitializeAttackHitboxes();
         }
-        
+
         public override void OnUpdate(float dt)
         {
             GroundCheck();
@@ -201,18 +201,19 @@ namespace SliceEngine
 
             if (input.SquareMagnitude() > 1f) input = input.Normalize();
 
-            //if (input != Vector3.Zero)
-            //{
-            //    animator.ChangeAnim(21);
-            //    animator.SetBool("Walk", true);
-            //}
-            //else
-            //{
-            //    animator.SetBool("Idle", true);
-            //}
+            if (input != Vector3.Zero)
+            {
+                if (animator.SafeToChange("Walk"))
+                    animator.SetBool("Walk", true);
+            }
+            else
+            {
+                if (animator.SafeToChange("Idle"))
+                    animator.SetBool("Idle", true);
+            }
 
             //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
-            //if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
         #region New Movement
         private void HandleMovement()
@@ -246,13 +247,22 @@ namespace SliceEngine
                     if (face.SquareMagnitude() > 0.0001f)
                         transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, Quaternion.LookRotation(face.Normalize(), Vector3.Up), 20f * Time.deltaTime);
                 }
+
+                if (animator != null)
+                {
+                    //animator.SetBool("DashStart", true);
+                }
             }
             else if (isAttacking || isPlunging)
             {
                 if (isPlunging && !plungeImpulseStarted)
                 {
                     // no movement at all
-                    // (skip calling Move with any Y to avoid CC grounded quirks)
+                    // (skip calling Move with any Y to avoid CC grounded quirks).
+                    if (animator != null)
+                    {
+                        //animator.SetBool("Plunge", true);
+                    }
                 }
                 else
                 {
@@ -274,6 +284,11 @@ namespace SliceEngine
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
+
+                if (animator != null)
+                {
+                    //animator.SetBool("PlungeLand", true);
+                }
             }
 
             //if (animator)
@@ -285,6 +300,14 @@ namespace SliceEngine
             //}
 
             bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
+
+            //if (animator != null)
+            //{
+            //    if(walkingNow)
+            //        animator.SetBool("PlungToWalk", true);
+            //    else
+            //        animator.SetBool("PlungToIdle", true);
+            //}
 
             //if (walkAudioSource != null)
             //{
@@ -309,7 +332,10 @@ namespace SliceEngine
             if (wasGrounded && !grounded)
             {
                 lastAirTime = Time.time; // mark when airborne
-                //if (animator) animator.SetBool("Grounded", false);
+                if (animator != null)
+                {
+                    animator.SetBool("JumpLoop", true);
+                }
             }
 
             if (!wasGrounded && grounded)
@@ -323,6 +349,7 @@ namespace SliceEngine
                     //AudioManager.instance.PlaySFX("Land");
                     lastLandTime = Time.time;
 
+
                     //if (animator)
                     //{
                     //    animator.ResetTrigger("Land");
@@ -334,6 +361,13 @@ namespace SliceEngine
                 {
                     // still update animator grounded bool so we don't get stuck in 'air' state
                     //if (animator) animator.SetBool("Grounded", true);
+                }
+
+
+                if (animator != null)
+                {
+                    if (animator.SafeToChange("Land"))
+                        animator.SetBool("Land", true);
                 }
 
                 doubleJumpAvailable = enableDoubleJump;
@@ -365,6 +399,11 @@ namespace SliceEngine
 
                     lastJumpPressedTime = -999f;
                     lastGroundedTime = -999f;
+
+                    if (animator != null)
+                    {
+                        //animator.SetBool("JumpLoop", true);
+                    }
 
                     //if (animator)
                     //{
@@ -419,6 +458,11 @@ namespace SliceEngine
             velocity.y = jumpSpeed;
 
             //AudioManager.instance.PlaySFX("DoubleJump");
+
+            if (animator != null)
+            {
+                animator.SetBool("AirDashStart", true);
+            }
 
             //if (animator)
             //{
@@ -488,7 +532,7 @@ namespace SliceEngine
             // --- NO INPUT OR FORCED FORWARD ---
             if (!useMoveDir || !hasInput)
             {
-                Vector3 forward = transform.Forward; 
+                Vector3 forward = transform.Forward;
                 forward.y = 0f;
                 return (dashDefaultBackwards ? -forward : forward).Normalize();
             }
@@ -524,7 +568,7 @@ namespace SliceEngine
             flatDir.y = 0f;
             if (flatDir.SquareMagnitude() < 0.0001f) flatDir = transform.Forward;
             flatDir.Normalize();
-            float rad = (float)(angleDeg * ((Math.PI*2) / 360));
+            float rad = (float)(angleDeg * ((Math.PI * 2) / 360));
             Vector3 tilted = (flatDir * Math.Cos(rad)) + (Vector3.Up * Math.Sin(rad));
             return tilted.Normalize();
         }
@@ -540,11 +584,11 @@ namespace SliceEngine
 
             //if (animator)
             {
-                Vector3 flatFacing = transform.Forward; 
-                flatFacing.y = 0f; 
+                Vector3 flatFacing = transform.Forward;
+                flatFacing.y = 0f;
                 flatFacing.Normalize();
-                Vector3 flatDash = transform.Forward; 
-                flatDash.y = 0f; 
+                Vector3 flatDash = transform.Forward;
+                flatDash.y = 0f;
                 flatDash.Normalize();
                 float dot = Vector3.Dot(flatDash, flatFacing);
                 bool isBackDash = dot < backDashDotThreshold;
@@ -559,6 +603,11 @@ namespace SliceEngine
                 //    animator.ResetTrigger(fwdDashTrigger);
                 //    animator.SetTrigger(fwdDashTrigger);
                 //}
+            }
+
+            if (animator != null)
+            {
+                animator.SetBool("DashStart", true);
             }
 
             //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
@@ -587,7 +636,7 @@ namespace SliceEngine
 
             //if (animator)
             {
-                animator.SetBool("Grounded", false);
+                //animator.SetBool("Grounded", false);
 
                 Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
                 Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
@@ -604,6 +653,11 @@ namespace SliceEngine
                 //    animator.ResetTrigger(airDashTrigger);
                 //    animator.SetTrigger(airDashTrigger);
                 //}
+            }
+
+            if (animator != null)
+            {
+                animator.SetBool("AirDashStart", true);
             }
 
             //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
@@ -636,6 +690,7 @@ namespace SliceEngine
         {
             isGroundDashing = false;
             groundDashCooldownUntil = Time.time + dashCooldown;
+
         }
 
         void EndAirDash()
@@ -680,7 +735,141 @@ namespace SliceEngine
             //if (animator) animator.SetBool("IsAttacking", false);
         }
         #endregion
-        
+        #region Movement
+        //private void OldHandleMovement()
+        //{
+        //    Transform camTransform;
+
+        //    if (camera == null)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        camTransform = camera.transform;
+        //    }
+
+        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+
+        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+        //    if (isDashing) return;
+
+        //    if (grounded)
+        //    {
+        //        // Reset vertical velocity when grounded
+        //        if (verticalVelocity < 0f)
+        //            verticalVelocity = 0f;
+        //    }
+        //    else
+        //    {
+        //        // Apply gravity
+        //        verticalVelocity += gravity * Time.deltaTime;
+
+        //        // Optional terminal velocity clamp
+        //        if (verticalVelocity < terminalVelocity)
+        //            verticalVelocity = terminalVelocity;
+        //    }
+
+        //    // Handle regular movement
+        //    Vector3 horizontalMovement = moveDir * moveSpeed;
+
+        //    if (moveDir.LengthSquared() > 0.01f)
+        //    {
+        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
+        //    }
+
+        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+        //    {
+        //        if (!isDashing) StartCoroutine(Dash(moveDir));
+        //    }
+
+        //    transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
+
+        //    //Console.WriteLine(animator.GetCurrAnimName());
+        //}
+        //private void HandlePhysicsMovement()
+        //{
+        //    Transform camTransform;
+
+        //    if (camera == null)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        camTransform = camera.transform;
+        //    }
+
+        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
+        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
+
+        //    if (isDashing) return;
+
+        //    // Handle regular movement
+        //    Vector3 movement = moveDir * moveSpeed;
+        //    bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
+        //    if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
+
+        //    rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
+
+        //    if (moveDir.LengthSquared() > 0.01f)
+        //    {
+        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
+        //    }
+
+        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+        //    {
+        //        if (!isDashing) StartCoroutine(Dash(moveDir));
+        //    }
+
+
+        //    //Console.WriteLine(animator.GetCurrAnimName());
+        //}
+        //private void TryJump()
+        //{
+        //    if (CanJump())
+        //    {
+
+        //        rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
+        //        jumpCounter++;
+
+        //        if (jumpCounter == 1)
+        //        {
+        //            if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+        //                    String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+        //                animator.SetBool("JumpLoop", true);
+        //            AudioSettings.PlaySFX("Jump");
+        //        }
+        //        else if (jumpCounter == 2)
+        //        {
+        //            if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+        //                        String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
+        //            {
+        //                animator.SetBool("AirDashStart", true);
+        //            }
+        //            AudioSettings.PlaySFX("DoubleJump");
+        //        }
+
+        //        rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
+        //        groundCheckLocked = true;
+        //        grounded = false;
+
+        //        Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
+        //    }
+        //}
+        //private bool CanJump()
+        //{
+        //    return grounded || jumpCounter < maxJumps;
+        //}
         private void GroundCheck()
         {
             if (groundCheckLocked)
@@ -700,19 +889,134 @@ namespace SliceEngine
                 if (grounded)
                 {
                     jumpCounter = 0;
-                    if (!isAttacking &&
-                        (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 && input == Vector3.Zero) ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-                        String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
-                        animator.SetBool("Idle", true);
+                    //if (!isAttacking)
+                    //    &&
+                    //    (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 && input == Vector3.Zero) ||
+                    //String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
+                    //String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
+                    //String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
+                    //    String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
+                    //    String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
+                    //animator.SetBool("Idle", true);
                 }
             }
-            Console.WriteLine("Grounded: " + grounded);
+            //Console.WriteLine("Grounded: " + grounded);
         }
-        
+        //private IEnumerator Dash(Vector3 dashDir)
+        //{
+        //    isDashing = true;
+
+        //    AudioSettings.PlaySFX("Dash");
+
+        //    Vector3 dash = Vector3.Zero;
+
+        //    animator.SetBool("AirDashStart", true);
+
+        //    if (input == Vector3.Zero) dash = playerModel.GetComponent<Transform>().RotationQuat * transform.Backward * dashMultiplier;
+        //    else dash = dashDir * dashMultiplier;
+
+        //    rb.Velocity = new Vector3(dash.x, 0f, dash.z);
+
+        //    yield return new WaitForSeconds(dashDuration);
+
+        //    isDashing = false;
+        //}
+        //private void ExampleMovement()
+        //{
+        //Vector3 right = Vector3.Cross(up, direction).Normalize();
+        //float rotationSpeedFrame = rotationSpeed * Time.deltaTime;
+
+        //if (testingShit == false)
+        //{
+        //    CloneGO("GameObject_2");
+        //    testingShit = true;
+        //}
+        //// Forwards
+        //if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
+        //{
+        //    //t.Position += direction * moveSpeed * dt;
+
+        //    transform.Position += direction * moveSpeed * Time.deltaTime;
+
+        //    // animator.ChangeAnim(21);
+        //    animator.SetBool("Run", true);
+        //    animator.SetBool("Idle", false);
+        //    animator.SetBool("Attack", false);
+        //}
+
+        //// Left
+        //if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
+        //{
+        //    //t.Position -= right * moveSpeed * dt;
+        //    Vector3 rotationAxis = new Vector3(0, 1, 0); // Y-axis
+        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
+        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+
+        //    this.direction = rotation * this.direction;
+        //    this.up = rotation * this.up;
+
+
+        //    //  animator.ChangeAnim(21);
+        //    animator.SetBool("Run", true);
+        //    animator.SetBool("Idle", false);
+        //    animator.SetBool("Attack", false);
+        //}
+
+        //// Backward
+        //if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
+        //{
+        //    //t.Position -= direction * moveSpeed * dt;
+
+        //    transform.Position -= direction * moveSpeed * Time.deltaTime;
+        //    //    animator.ChangeAnim(21);
+        //    animator.SetBool("Run", true);
+        //    animator.SetBool("Idle", false);
+        //    animator.SetBool("Attack", false);
+        //}
+
+        //// Right
+        //if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
+        //{
+        //    //t.Position += right * moveSpeed * dt;
+        //    //   animator.ChangeAnim(21);
+        //    Vector3 rotationAxis = new Vector3(0, -1, 0); // Y-axis
+        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
+        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
+
+        //    this.direction = rotation * this.direction;
+        //    this.up = rotation * this.up;
+
+        //    animator.SetBool("Run", true);
+        //    animator.SetBool("Attack", false);
+        //    animator.SetBool("Idle", false);
+        //}
+
+        //transform.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
+
+        //if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
+        //{
+        //    //  animator.ChangeAnim(13);
+        //    animator.SetBool("Idle", true);
+        //    animator.SetBool("Attack", false);
+        //    animator.SetBool("Run", false);
+        //}
+
+        //// Up (Spacebar)
+        //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
+        //{
+        //    transform.Position += new Vector3(0, 1, 0) * moveSpeed * Time.deltaTime;
+        //}
+
+
+        //// Scale Down
+        //if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
+        //{
+        //    animator.SetBool("Idle", false);
+        //    animator.SetBool("Run", false);
+        //    animator.SetBool("Attack", true);
+        //}
+        //}
+        #endregion
         #region Attacks
         private void InitializeAttackHitboxes()
         {
@@ -765,15 +1069,18 @@ namespace SliceEngine
 
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
-                    animator.SetBool("AttackToIdle1", true);
+                    if (animator.SafeToChange("AttackToIdle1"))
+                        animator.SetBool("AttackToIdle1", true);
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                 {
-                    animator.SetBool("AttackToIdle2", true);
+                    if (animator.SafeToChange("AttackToIdle2"))
+                        animator.SetBool("AttackToIdle2", true);
                 }
                 if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
                 {
-                    animator.SetBool("Attack3ToLoco", true);
+                    if (animator.SafeToChange("Attack3ToLoco"))
+                        animator.SetBool("Attack3ToLoco", true);
                 }
             }
         }
@@ -867,7 +1174,7 @@ namespace SliceEngine
                     String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 || 
+                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
                     return true;
             }
@@ -915,8 +1222,8 @@ namespace SliceEngine
         #endregion
         public override void OnCollideEnter(uint other)
         {
-           // SliceLog.Log("OADMOSMODASM");
-           // gameObject.Destroy();
+            // SliceLog.Log("OADMOSMODASM");
+            // gameObject.Destroy();
         }
         public void OnGrounded()
         {
@@ -925,7 +1232,7 @@ namespace SliceEngine
 
         #region On Overrides
         protected override void OnHeal() { }
-        protected override void OnDamaged(GameObject source) 
+        protected override void OnDamaged(GameObject source)
         {
             Console.WriteLine("Player Taking Damage. Current Health: ");
             Console.WriteLine(currentHealth);
