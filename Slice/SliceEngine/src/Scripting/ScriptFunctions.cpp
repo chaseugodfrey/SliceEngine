@@ -1776,7 +1776,7 @@ namespace SliceEngine
 			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
 		}
 
-		return false;
+		return 0.0f;
 	}
 
 	static float GetCurrAnimTime(unsigned int entityID)
@@ -1788,6 +1788,18 @@ namespace SliceEngine
 		}
 
 		return 0.0f;
+	}
+
+	static bool SafeToChange(unsigned int entityID, MonoString* string)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+
+			return GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName);
+		}
+		return false;
 	}
 
 #pragma endregion
@@ -2195,6 +2207,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+		ADD_INTERNAL_CALL(SafeToChange);
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);

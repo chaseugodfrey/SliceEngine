@@ -499,6 +499,9 @@ namespace SliceEngine
         internal extern static bool IsCurrAnimFin(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SafeToChange(uint entity, string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
