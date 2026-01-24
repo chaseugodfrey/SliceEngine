@@ -74,8 +74,15 @@ namespace SliceEngine
 
 		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 		Core::GetInstance()->mFactory.DebugPrint();
+
+		std::filesystem::path metaPath = next_scene_filepath;
+		metaPath += ".meta";
+
+		std::string navMesh = LoadNavMeshFromMeta(metaPath);
+
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;
+		event.navMeshPath = navMesh;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
 		if (next_scene_filepath.extension() == ".temp")
@@ -87,22 +94,37 @@ namespace SliceEngine
 		return true;
 	}
 
-	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
+	std::string SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
 	{
+		if (!std::filesystem::exists(metaFile))
+			return "";
+
 		std::ifstream meta(metaFile);
+		if (!meta.is_open())
+			return "";
 
 		nlohmann::json metaData;
 
-		meta >> metaData;
-
+		try {
+			meta >> metaData;
+		}
+		catch (...) {
+			return "";
+		}
 		meta.close();
 
-		std::filesystem::path navMeshFile(metaData["navMeshFile"].get<std::string>());
-
-		if (std::filesystem::exists(navMeshFile))
+		if (metaData.contains("navMeshFile"))
 		{
-			//Do sth idk
+			std::string navMeshPath = metaData["navMeshFile"].get<std::string>();
+
+			// Optional: Check if the referenced navmesh file actually exists before returning
+			if (std::filesystem::exists(navMeshPath))
+			{
+				return navMeshPath;
+			}
 		}
+
+		return "";
 	}
 
 	void SceneSystem::WriteTempFile()
@@ -141,6 +163,11 @@ namespace SliceEngine
 
 		SLICE_LOG("Scene saved successfully.");
 
+	}
+
+	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	{
+		OnSceneSave(filePath);
 	}
 
 	void SceneSystem::SaveCurrentScene()

@@ -499,6 +499,9 @@ namespace SliceEngine
         internal extern static bool IsCurrAnimFin(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SafeToChange(uint entity, string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -515,6 +518,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float NavAgent_GetSpeed(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float NavAgent_ComponentState(uint entityID, bool componentState);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void NavAgent_SetSpeed(uint entityID, float speed);

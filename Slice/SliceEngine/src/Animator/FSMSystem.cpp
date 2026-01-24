@@ -92,7 +92,7 @@ namespace SliceEngine
 				{
 					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
 
-					//bool check = currentParamValue.to_bool();
+					bool check = currentParamValue.to_bool();
 
 					if (EvalCon(currentParamValue, condition.op, condition.value))
 					{
@@ -236,6 +236,25 @@ namespace SliceEngine
 
 		EFSM.currState->isLoop = loop;
 	}
+	bool FSMSystem::SafeToChange(std::string& name)
+	{
+		if (!EFSM.currState)
+			return false;
+
+		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
+		{
+			if (std::strcmp(transition.targetState.c_str(), name.c_str()) == 0)
+				return true;
+		}
+
+		for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
+		{
+			if (std::strcmp(transition.targetState.c_str(), name.c_str()) == 0)
+				return true;
+		}
+
+		return false;
+	}
 	std::string FSMSystem::GetCurrAnimName()
 	{
 		if (!EFSM.currState) 
@@ -263,6 +282,10 @@ namespace SliceEngine
 	{
 		if (!EFSM.currState) 
 			return;
+
+		// im pretty sure this should be removed later
+		if (std::strcmp(name.c_str(), "AirDashStart") == 0)
+			bool ys = true;
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
 		if (EFSM.currState->stateName == name)

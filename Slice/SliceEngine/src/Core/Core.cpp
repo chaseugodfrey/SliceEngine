@@ -74,18 +74,15 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Prefab>();
 		mFactory.RegisterComponent<Animator>();
 		mFactory.RegisterComponent<Bone>();
-
+		mFactory.RegisterComponent<InactiveEntity>();
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
 		mFactory.RegisterComponent<FontRenderer>();
 		mFactory.RegisterComponent<Button>();
 		mFactory.RegisterComponent<Slider>();
-
 		mFactory.RegisterComponent<NavAgent>();
-
 		mFactory.RegisterComponent<Prefab>();
-
 		mResource->InitResourceManager();
 
 	}
