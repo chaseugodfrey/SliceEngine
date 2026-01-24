@@ -69,7 +69,7 @@ namespace SliceEngine
 			std::string scriptFunc{};
 
 			unsigned int animIdx{};
-			unsigned int fameNumber{};
+			unsigned int frameNumber{};
 		};
 
 		struct Animation {
