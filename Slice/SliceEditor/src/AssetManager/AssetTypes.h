@@ -28,6 +28,7 @@ namespace SliceEditor
 		Texture,
 		Model,
 		Skeleton,
+		Font,
 		Animation,
 		Audio,
 		Scene,
@@ -104,6 +105,7 @@ namespace SliceEditor
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
+		constexpr uint64_t FONT = SliceEngine::FNVHash::fnv1a("Font");
 
 	}
 
@@ -916,14 +918,14 @@ namespace SliceEditor
 				to_json(metaJson["stateMap"][it.first], it.second);
 			}
 
-			std::ofstream outFile(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
-			if (outFile.is_open())
+			std::ofstream output(desc_path);
+			if (output.is_open())
 			{
-				outFile << metaJson.dump(4);
-				outFile.close();
+				output << metaJson.dump(4);
+				output.close();
 			}
 
-			return std::filesystem::path(desc_path.string() + "/" + std::to_string(guid.GetGUID()) + ".meta");
+			return std::filesystem::path(desc_path);
 		}
 
 		void SerializeAsset(const std::filesystem::path& desc_path)
@@ -1484,6 +1486,62 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path);
 		}
 
+	};
+
+	struct FontMetaData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::FONT;
+
+		int font_resolution{50};
+		int padding{ 2 };
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+			metaJson["fontReso"] = font_resolution;
+			metaJson["padding"] = padding;
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+			font_resolution = metaData["fontReso"].get<int>();
+			padding = metaData["padding"].get<int>();
+		}
 	};
 }
 

@@ -43,13 +43,14 @@ namespace SliceEditor
 
 		void CompileAssetPopup(DroppedFile& entry, bool& isOpen);
 
-		ImTextureID GetIcon(SelectionType type);
+		ImTextureID GetIcon(DirectoryNode* node);
 
 	#pragma region Display Meta Data Functions
 		void DisplayTextureData(TextureData* data);
 		void DisplayFBXData(ModelData* data);
 		void DisplayMaterialData(MaterialData* data);
 		void DisplayAudioData(AudioData* data);
+		void DisplayFontData(FontMetaData* data);
 		
 	#pragma endregion
 

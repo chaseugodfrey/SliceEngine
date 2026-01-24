@@ -54,6 +54,12 @@ struct GONetworkEvent {
 	Entity entity;
 	bool create;
 };
+
+//struct SliceEntityModifiedEvent
+//{
+//	Entity entity;
+//};
+
 struct ColliderShapeModifiedEvent
 {
 	Entity entity;
@@ -67,6 +73,7 @@ struct RigidBodyModifiedEvent
 struct OnSceneLoadedEvent
 {
 	bool isSceneLoaded;
+	std::string navMeshPath;
 };
 
 struct OnSceneStopEvent

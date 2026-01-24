@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -49,6 +49,7 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
 
+        //Physics
         [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
         internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
 
@@ -75,6 +76,20 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void ColliderShape_SetEnabled(uint entityID, bool enabled);
+
+        //End Physics
+
+        //Layer
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int LayerMask_GetMask(string layerName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string LayerMask_LayerToName(int layer);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int LayerMask_NameToLayer(string layerName);
+        //End Layer
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
@@ -484,6 +499,9 @@ namespace SliceEngine
         internal extern static bool IsCurrAnimFin(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SafeToChange(uint entity, string name);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -500,6 +518,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float NavAgent_GetSpeed(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float NavAgent_ComponentState(uint entityID, bool componentState);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void NavAgent_SetSpeed(uint entityID, float speed);

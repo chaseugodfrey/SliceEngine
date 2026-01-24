@@ -13,8 +13,6 @@ namespace SliceEditor
 	{
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
-
-
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
 		SliceEngine::GUID mInspectedPrefabGUID;
@@ -35,22 +33,32 @@ namespace SliceEditor
 		void Init() override;
 		void Update() override;
 
-		void OnSceneSave(OnSceneSaveEvent);
 
 		//Node Settings
 		void SetNodeAsPrefab(EntityNode* entity, bool isPrefab);
 
+		//Editor Hierarchy
+		//void CreateEntityNodes();
+		void UpdateEntityNodes();
+		void AddEntityNode(entt::entity entity);
+		void RemoveEntityNode(entt::entity entity);
 
-		void CreateEntityNodes();
-		void CreatePrefabNodes();
+		//Scene Functions
+		void OnSceneSave(OnSceneSaveEvent);
 		void OnSceneChange(const OnSceneLoadedEvent& event);
 		void OnSceneStop(const OnSceneStopEvent& event);
+
+
 		void OnAssetFileChanged(const AssetFileChangedEvent& event);
+
+		//Prefab Inspector Functions
 		void PrefabInspected(const PrefabInspectedEvent& event);
 		void BuildPrefabTree(Entity node);
 		bool IsPrefabInspected();
 		Entity GetPrefabEntityInspected();
 		SliceEngine::GUID GetPrefabGUIDInspected();
+
+		//Debug Settings
 		void ToggleHierarchyEntityIDs();
 		bool GetHierarchyEntityIDs();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();

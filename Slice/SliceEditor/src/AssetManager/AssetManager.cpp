@@ -28,6 +28,8 @@ namespace SliceEditor
 {
 	void AssetManager::Init()
 	{
+		SLICE_LOG("Initializing Asset Manager.");
+
 		//Sanity Checks for the Directories
 		if (!std::filesystem::exists(mAssetDirectory))
 			std::filesystem::create_directory(mAssetDirectory);
@@ -302,6 +304,9 @@ namespace SliceEditor
 		case AssetType::NavMesh:
 			CompileNavMeshAsset(static_cast<NavMeshData*>(metaData));
 			break;
+		case AssetType::Font:
+			CompileFontAsset(metaPath);
+			break;
 		}
 
 		mGUIDtoFilename[metaData->guid] = metaData->assetName;
@@ -331,7 +336,7 @@ namespace SliceEditor
 
 		AssetType assetType = it->second.first;
 		std::unique_ptr<MetaData> metaData;
-
+		SliceEngine::GUID defaultGUID = SliceEngine::GUID::null();
 		// I think can compile assets somewhere around here
 		switch (assetType)
 		{
@@ -355,6 +360,9 @@ namespace SliceEditor
 			break;
 		case AssetType::CustomShader:
 			metaData = std::make_unique<CustomShaderData>();
+			
+			defaultGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
@@ -374,11 +382,25 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::Font:
+			metaData = std::make_unique<FontMetaData>();
+			break;
 		}
 
 		if (metaData)
 		{
 			metaData->InitMetaData(filePath, assetType, mAssetExtensions[assetType]);
+			std::filesystem::path relativePath = std::filesystem::relative(filePath, "Assets");
+			std::string assetName = relativePath.stem().generic_string();
+			// Handle default resources here
+			// Idk how else without having a function to hardcode register all default assets
+			// its prob better to just have a default name for all default resources
+			
+			if (assetName == "default")
+			{
+				metaData->guid = defaultGUID;
+			}
+
 
 			return metaData;
 		}
@@ -396,6 +418,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
 	}
 
 	void AssetManager::CreateAssetMaps()
@@ -409,6 +432,10 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Material] = {};
 		mAssetTypeToGUIDs[AssetType::Model] = {};
 		mAssetTypeToGUIDs[AssetType::Texture] = {};
+		mAssetTypeToGUIDs[AssetType::Scene] = {};
+		mAssetTypeToGUIDs[AssetType::Font] = {};
+		mAssetTypeToGUIDs[AssetType::Prefab] = {};
+		mAssetTypeToGUIDs[AssetType::CustomShader] = {};
 
 		//Add the Default Values
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CUBE_DEFAULT);
@@ -418,6 +445,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Font].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT);
 		
 		//Loop Through and Add the Respective GUIDs
 		for (const auto& [guid, filename] : mGUIDtoFilename)
@@ -448,26 +476,49 @@ namespace SliceEditor
 			return &mAssetTypeToGUIDs[AssetType::Audio];
 		}
 
-		if (assetType == "Model")
+		else if (assetType == "Model")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Model];
 		}
 
-
-		if (assetType == "Texture")
+		else if (assetType == "Texture")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Texture];
 		}
 
-		if (assetType == "Material")
+		else if (assetType == "Material")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Material];
 		}
 
-		if (assetType == "Controller")
+		else if (assetType == "Controller")
 		{
 			return &mAssetTypeToGUIDs[AssetType::Controller];
 		}
+
+		else if (assetType == "Scene")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Scene];
+		}
+
+		else if (assetType == "Font")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Font];
+		}
+
+		if (assetType == "Prefab")
+		{
+			return &mAssetTypeToGUIDs[AssetType::Prefab];
+		}
+
+		if (assetType == "Custom Shader")
+		{
+			return &mAssetTypeToGUIDs[AssetType::CustomShader];
+		}
+
+        else 
+            return nullptr;
+
 	}
 
 #pragma region Asset Compiling
@@ -544,6 +595,45 @@ namespace SliceEditor
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 	}
+
+	void AssetManager::CompileFontAsset(std::filesystem::path const& desc_file)
+	{
+		STARTUPINFO si;
+		PROCESS_INFORMATION pi;
+
+		ZeroMemory(&si, sizeof(si));
+		si.cb = sizeof(si);
+		ZeroMemory(&pi, sizeof(pi));
+
+		//std::filesystem::path rel_Path = std::filesystem::relative(desc_file, compiler_dir);
+
+		std::wstring cmd = desc_file.wstring();
+		std::filesystem::path compiler = "Font_Compile.exe";
+		// Start the child process. 
+		if (!CreateProcess(compiler.wstring().c_str(),   // No module name (use command line)
+			cmd.data(),        // Command line
+			NULL,           // Process handle not inheritable
+			NULL,           // Thread handle not inheritable
+			FALSE,          // Set handle inheritance to FALSE
+			0,              // No creation flags
+			NULL,           // Use parent's environment block
+			NULL,           // Use parent's starting directory 
+			&si,            // Pointer to STARTUPINFO structure
+			&pi)           // Pointer to PROCESS_INFORMATION structure
+			)
+		{
+			printf("CreateProcess failed (%d).\n", GetLastError());
+			return;
+		}
+
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+
 	void AssetManager::CompileAudioAsset(AudioData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -850,7 +940,7 @@ namespace SliceEditor
 
 			counter++;
 		}
-
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		std::unique_ptr<MetaData> meta;
 		switch (type)
 		{
@@ -859,6 +949,28 @@ namespace SliceEditor
 				meta = std::make_unique<MaterialData>();
 				// Create a file in asset folder
 				MaterialData* derived = dynamic_cast<MaterialData*>(meta.get());
+				derived->shader = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+				auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(derived->shader);
+				for (auto& i : shdr.get()->dataIn)
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						derived->boolDat.push_back(i.baseData.sp_bool);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						derived->uintDat.push_back(i.baseData.sp_uint);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						derived->intDat.push_back(i.baseData.sp_int);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						derived->floatDat.push_back(i.baseData.sp_float);
+						break;
+					}
+				}
+
+				
 				// create a default asset file at the file path
 				derived->SerializeAsset(filePath); 
 				
@@ -986,6 +1098,12 @@ namespace SliceEditor
 		assetEntry["name"] = "Color Deaded";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
+
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
+		assetEntry["name"] = "Font Default";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
 	}
 
 	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)
@@ -1006,7 +1124,6 @@ namespace SliceEditor
 	{
 		if (mFilenameToGUID.find(fileName) != mFilenameToGUID.end())
 		{
-			
 			std::filesystem::path metaPath = mAssetDirectory / fileName;
 			//metaPath.replace_extension(".meta");
 			metaPath += ".meta";

@@ -8,6 +8,7 @@ project "SliceEditor"
 
     files { "src/**", "thirdparty/imgui/include/**", 
     "thirdparty/recast/Recast/Source/*.cpp",
+    "thirdparty/recast/Detour/DetourCrowd/Source/**.cpp",
     "thirdparty/recast/Detour/Detour/Source/**.cpp" }
 
     --rtti "On"
@@ -26,6 +27,7 @@ project "SliceEditor"
         ThirdParty.MONO_INC,
         ThirdParty.RECAST_INC,
         ThirdParty.DETOUR_INC,
+        ThirdParty.DETOUR_CROWD_INC,
         "thirdparty/imgui/include",
         "thirdparty/filewatch/FileWatch"
         
@@ -66,38 +68,30 @@ project "SliceEditor"
     filter "files:thirdparty/**"
         flags { "NoPCH" }
 
+    filter "configurations:EditorRelease"
+        optimize "On"
+        links {
+            "rttr_core",
+            "Jolt_r.lib"
+        }
+        -- Removed /mir and /s to prevent deleting your build folder
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_R .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }    
+
+
     filter "configurations:EditorDebug"
-        --defines {"DEBUG_MODE" }
-       -- staticruntime "off" -- Comment this back in to get release to work but debug will break
         symbols "On"
-        
         links {
             "rttr_core_d",
             "Jolt_d.lib"
-             }
-        
+        }
         linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
-        -- includedirs
-        -- {
-        --     ThirdParty.RTTR_INC
-        -- }
-         postbuildcommands {
-                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
-            }
-    
-    filter "configurations:EditorRelease"
-        --defines { "RELEASE_MODE " }
-        --staticruntime "off"
         
-        optimize "On"
-        
-         links {
-            "rttr_core",
-            "Jolt_r.lib"
-            }
-         postbuildcommands {
-                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
-            }
+        -- Removed /mir and /s to prevent deleting your build folder
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_D .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }
     
 
         -- includedirs

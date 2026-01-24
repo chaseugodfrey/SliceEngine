@@ -96,6 +96,9 @@ namespace SliceEngine
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
 			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
 
+			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
+			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
+
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
 			return true;
@@ -178,22 +181,7 @@ namespace SliceEngine
 				massProps.ScaleToMass(rigidBody.mass);
 
 				//handle freeze position
-				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
-
-				if (!rigidBody.freezePosition.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-				if(!rigidBody.freezePosition.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-				if (!rigidBody.freezePosition.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-				//handle freeze rotation
-				if (!rigidBody.freezeRotation.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::RotationX;
-				if (!rigidBody.freezeRotation.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::RotationY;
-				if (!rigidBody.freezeRotation.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+				JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
 
 				mp->SetMassProperties(allowedDofs, massProps);
 				//mp->ScaleToMass(rigidBody.mass);
@@ -249,20 +237,39 @@ namespace SliceEngine
 		if(colliderShape.shape == nullptr)
 			return;
 
-
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData,ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
-
-		if (colliderShape.componentEnabled) // if true set the layer so it can collide
+		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
 		{
-			if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+			if (colliderShape.bodyID.IsInvalid())
 			{
-				physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+				CreateJoltBody(event.entity);
 			}
 		}
-		else //else set to collision off layer
+		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+				DeleteJoltBody(event.entity);
+			}
 		}
+
+
+
+		sliceEngineVariantShape shapeData = colliderShape.shapeData;
+
+		//if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity)) // if true set the layer so it can collide
+		//{
+		//	if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		//	{
+		//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		//	}
+		//}
+		//if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		//{
+		//	
+		//	physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+		//}
+
+
 
 		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
 
@@ -507,22 +514,7 @@ namespace SliceEngine
 			body.SetCollideKinematicVsNonDynamic(true);
 
 			//handle freeze position
-			JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
-
-			if (!rigidBody.freezePosition.freezeX)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-			if (!rigidBody.freezePosition.freezeY)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-			if (!rigidBody.freezePosition.freezeZ)
-				allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-			//handle freeze rotation
-			if (!rigidBody.freezeRotation.freezeX)
-				allowedDofs |= JPH::EAllowedDOFs::RotationX;
-			if (!rigidBody.freezeRotation.freezeY)
-				allowedDofs |= JPH::EAllowedDOFs::RotationY;
-			if (!rigidBody.freezeRotation.freezeZ)
-				allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+			JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
 
 			mp->SetMassProperties(allowedDofs, massProps);
 			//mp->ScaleToMass(rigidBody.mass);
@@ -533,11 +525,73 @@ namespace SliceEngine
 		//std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
+	//void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
+	//{
+	//	GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+	//	if (!checkEntity.HasComponent<ColliderShape>())
+	//		return;
+
+	//	auto& slice = mRegistry->get<SliceEntity>(event.entity);
+	//	auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+	//	if (slice.mActive && colliderShape.componentEnabled)
+	//	{
+	//		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+	//		{
+	//			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+	//		}
+	//	}
+	//	if(!slice.mActive)
+	//	{
+	//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
+	//	}
+
+
+	void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
+	{
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
+
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+		auto& slice = reg.get<SliceEntity>(entity);
+
+
+		if (colliderShape.componentEnabled)
+		{
+			if (colliderShape.bodyID.IsInvalid())
+			{
+				CreateJoltBody(entity);
+			}
+		}
+		
+	}
+
+	void  PhysicsSystem::OnEntityDisabled(entt::registry& reg, entt::entity entity)
+	{
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
+		auto& slice = reg.get<SliceEntity>(entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		if (colliderShape.componentEnabled)
+		{
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+				DeleteJoltBody(entity);
+			}
+		}
+		
+	}
+
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
 	{
 		auto& transform = mRegistry->get<Transform>(entity);
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData> shapeData = colliderShape.shapeData;
+		sliceEngineVariantShape shapeData = colliderShape.shapeData;
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
@@ -724,69 +778,28 @@ namespace SliceEngine
 
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
 	{
-		std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData> shapeData = collider.shapeData;
+		sliceEngineVariantShape shapeData = collider.shapeData;
+
+		JPH::ShapeRefC shapeReference = nullptr;
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
-			JPH::BoxShapeSettings *shapeSetting = new JPH::BoxShapeSettings(boxData.scale);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateBoxShape(collider);
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
-			JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateSphereShape(collider);
 		}
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
-			const ColliderShape::CapsuleData& capsuleData = std::get<ColliderShape::CapsuleData>(collider.shapeData);
-			JPH::CapsuleShapeSettings *shapeSetting = new JPH::CapsuleShapeSettings(capsuleData.height, capsuleData.radius);
-			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				collider.offSet,
-				JPH::Quat::sIdentity(),
-				shapeSetting);
-
-			auto result = newShape.Create();
-
-			if (result.HasError())
-			{
-				SLICE_LOG_ERROR("Failed to get Capsule Data: " + std::string(result.GetError()));
-				return nullptr;
-			}
-
-			return result.Get();
+			shapeReference = CreateCapsuleShape(collider);
 		}
-
-		SLICE_LOG_ERROR("Unsupported Collider Shape");
-		return nullptr;
-
+		else
+		{ 
+			SLICE_LOG_ERROR("Unsupported Collider Shape");
+		}
+		
+		return shapeReference;
 
 	}
 
@@ -868,8 +881,12 @@ namespace SliceEngine
 			{
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
+
 				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
+
+				std::pair<GameObject, GameObject> collisionPair = contactListener->MakeOrderedPair(checkEntity1, checkEntity2);
+				contactListener->RemoveContactPair(collisionPair);
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
@@ -910,23 +927,173 @@ namespace SliceEngine
 		contactListener->clearBodiesInContact();
 	}
 
+	JPH::EAllowedDOFs PhysicsSystem::AllowedDOFs(const RigidBody& rigidBody) const
+	{
+
+		//handle freeze position
+		JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
+
+		if (!rigidBody.freezePosition.freezeX)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationX;
+		if (!rigidBody.freezePosition.freezeY)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationY;
+		if (!rigidBody.freezePosition.freezeZ)
+			allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
+
+		//handle freeze rotation
+		if (!rigidBody.freezeRotation.freezeX)
+			allowedDofs |= JPH::EAllowedDOFs::RotationX;
+		if (!rigidBody.freezeRotation.freezeY)
+			allowedDofs |= JPH::EAllowedDOFs::RotationY;
+		if (!rigidBody.freezeRotation.freezeZ)
+			allowedDofs |= JPH::EAllowedDOFs::RotationZ;
+
+		return allowedDofs;
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateBoxShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::BoxData& boxData = std::get<ColliderShape::BoxData>(collider.shapeData);
+		JPH::BoxShapeSettings* shapeSetting = new JPH::BoxShapeSettings(boxData.scale);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Box Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
+		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Sphere Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateCapsuleShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::CapsuleData& capsuleData = std::get<ColliderShape::CapsuleData>(collider.shapeData);
+		JPH::CapsuleShapeSettings* shapeSetting = new JPH::CapsuleShapeSettings(capsuleData.height, capsuleData.radius);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Capsule Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-		auto& slice = reg.get<SliceEntity>(entity);
-		auto& transform = reg.get<Transform>(entity);
+		CreateJoltBody(entity);
+	}
+
+	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
+	{
 		auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+
+		physicsSystem->OptimizeBroadPhase();
+	}
+
+	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
+	{
+		//auto& transform = reg.get<Transform>(entity);
+		//auto& colliderShape = reg.get<ColliderShape>(entity);
+
+		//SyncECSToPhysics(transform, colliderShape);
+
+		////physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+		////SyncPhysicsToECS(transform, colliderShape);
+		////HandleRemovedContacts();	
+	}
+
+	void PhysicsSystem::PreStepSync()
+	{
+		auto view = mRegistry->view<Transform, ColliderShape>();
+		// Safe, iterator-free iteration
+		for (auto [e, t, c] : view.each())
+		{
+			UpdateShapeFromTransform(e);
+			SyncECSToPhysics(t, c);
+		}
+	}
+
+	void PhysicsSystem::ClearCollisionPairs()
+	{
+		contactListener->clearCollisionsPairs();
+	}
+
+	void PhysicsSystem::DeleteJoltBody(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+
+		
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+		colliderShape.bodyID = JPH::BodyID();
+		physicsSystem->OptimizeBroadPhase();
+	}
+
+	void PhysicsSystem::CreateJoltBody(Entity entity)
+	{
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
+		if (!checkEntity.HasComponent<ColliderShape>())
+			return;
+
+		auto& slice = mRegistry->get<SliceEntity>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
 
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (checkEntity.HasComponent<RigidBody>())
 		{
 			isRigibody = true;
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape,transform);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape, transform);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
@@ -944,7 +1111,7 @@ namespace SliceEngine
 		//Create body
 		if (isRigibody)
 		{
-			auto& rigidBody = reg.get<RigidBody>(entity);
+			auto& rigidBody = mRegistry->get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
 				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
@@ -975,6 +1142,13 @@ namespace SliceEngine
 				bodySettings.mRestitution = rigidBody.restitution;
 				bodySettings.mCollideKinematicVsNonDynamic = true;
 			}
+
+			//handle freeze position
+			JPH::EAllowedDOFs allowedDofs = AllowedDOFs(rigidBody);
+
+			bodySettings.mAllowedDOFs = allowedDofs;
+
+			bodySettings.mMotionQuality = rigidBody.CollisionDetection;
 		}
 		else if (!isRigibody)
 		{
@@ -1011,80 +1185,21 @@ namespace SliceEngine
 
 		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
 		physicsSystem->OptimizeBroadPhase();
-	}
 
-	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
-	{
-		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		// Remove body form physics world
-		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
-		// Destroy the body from the physics world
-		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
-
-		physicsSystem->OptimizeBroadPhase();
-	}
-
-	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
-	{
-		auto& transform = reg.get<Transform>(entity);
-		auto& colliderShape = reg.get<ColliderShape>(entity);
-
-		GameObject check = Core::GetInstance()->mFactory.GetGOByEntity(entity);
-		if (check.GetTag() == "Player")
-		{
-			auto& rigidBody = reg.get<RigidBody>(entity);
-
-			JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
-			if (lock.Succeeded())
-			{
-				JPH::Body& body = lock.GetBody();
-				JPH::MotionProperties* mp = body.GetMotionProperties();
-
-				JPH::RefConst<JPH::Shape> shape = body.GetShape();
-				JPH::MassProperties massProps = shape->GetMassProperties();
-
-				massProps.ScaleToMass(rigidBody.mass);
-				body.SetCollideKinematicVsNonDynamic(true);
-
-				//handle freeze position
-				JPH::EAllowedDOFs allowedDofs = JPH::EAllowedDOFs::None;
-
-				if (!rigidBody.freezePosition.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationX;
-				if (!rigidBody.freezePosition.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationY;
-				if (!rigidBody.freezePosition.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::TranslationZ;
-
-				//handle freeze rotation
-				if (!rigidBody.freezeRotation.freezeX)
-					allowedDofs |= JPH::EAllowedDOFs::RotationX;
-				if (!rigidBody.freezeRotation.freezeY)
-					allowedDofs |= JPH::EAllowedDOFs::RotationY;
-				if (!rigidBody.freezeRotation.freezeZ)
-					allowedDofs |= JPH::EAllowedDOFs::RotationZ;
-
-				mp->SetMassProperties(allowedDofs, massProps);
-				//mp->ScaleToMass(rigidBody.mass);
-				mp->SetLinearDamping(rigidBody.linearDamping);
-				mp->SetAngularDamping(rigidBody.angularDamping);
-			}
-
-		}
-
-		UpdateShapeFromTransform(entity);
-
-		SyncECSToPhysics(transform, colliderShape);
-
-		//physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
-		//SyncPhysicsToECS(transform, colliderShape);
-		//HandleRemovedContacts();	
 	}
 
 	void PhysicsSystem::StepWorld(float dt)
 	{
+		//JPH::BodyID testBodyID;
+		//
+		//if (testBodyID.IsInvalid())
+		//{
+		//	std::cout << "ALOYSISU INVALID BODYID 67676767\n";
+		//}
+
+
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
 	}
 
@@ -1147,6 +1262,8 @@ namespace SliceEngine
 		eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
 
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
+
+		//eventManager->Subscribe<SliceEntityModifiedEvent, &PhysicsSystem::OnSliceEntityModified>(this);
 
 	}
 
@@ -1254,7 +1371,6 @@ namespace SliceEngine
 		collisionSteps = steps;
 	}
 
-
 	float PhysicsSystem::GetGravityFactor(Entity entity) const
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
@@ -1303,6 +1419,32 @@ namespace SliceEngine
 	{
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
+	}
+
+	bool PhysicsSystem::PSystemRayCast(Entity entity)
+	{
+		auto& sliceEntity = mRegistry->get<SliceEntity>(entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		
+		JPH::Vec3 origin{};
+		JPH::Vec3 direction{};
+
+		JPH::RRayCast inRay(origin, direction);
+		JPH::RayCastResult ioHit;
+		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
+		ObjectLayerFilterImpl test(sliceEntity.mLayer);
+		JPH::BodyFilter inBodyFilter = {};
+
+
+
+		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter,test, inBodyFilter);
+		//CastRay
+		// (const RRayCast &inRay, 
+		// RayCastResult &ioHit, 
+		// const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, 
+		// const ObjectLayerFilter &inObjectLayerFilter = { }, 
+		// const BodyFilter &inBodyFilter = { }) const;
+		return true;
 	}
 
 

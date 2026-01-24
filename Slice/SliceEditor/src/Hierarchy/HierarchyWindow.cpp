@@ -232,12 +232,13 @@ namespace SliceEditor
 			return;
 		}
 		
+		//Selection Check for PrefabNodes
 		if (sessionManager->GetPrefabNodes()[parentEntity]->isSelected)
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 		
-		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
+		//ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		if (ImGui::TreeNodeEx(parentName.c_str(), treeNodeFlags))
 		{
 			if (ImGui::IsItemHovered()&&ImGui::IsItemClicked())
@@ -260,7 +261,7 @@ namespace SliceEditor
 			}
 			ImGui::TreePop();
 		}
-		ImGui::PopStyleColor();
+		//ImGui::PopStyleColor();
 		
 	}
 
@@ -327,14 +328,14 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("Model"))
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					//EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
-				}
-			}
+			//if (ImGui::AcceptDragDropPayload("Model"))
+			//{
+			//	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+			//	{
+			//		SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+			//		//EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+			//	}
+			//}
 
 			if (ImGui::AcceptDragDropPayload("Prefab"))
 			{

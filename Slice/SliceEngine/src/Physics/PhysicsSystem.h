@@ -17,6 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Raycast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -27,6 +29,7 @@ DigiPen Institute of Technology is prohibited.
 namespace 
 {
 	constexpr size_t TEN_MB = (10 * 1024 * 1024); //Jolt says 10mb is for typical usage;
+	
 }
 
 
@@ -34,6 +37,8 @@ namespace SliceEngine
 {
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
+
+	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData>;
 
 	class PhysicsSystem final: public BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
@@ -47,7 +52,7 @@ namespace SliceEngine
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		std::unique_ptr<MyContactListener> contactListener;
 		bool isInitialized = false; 
-		int collisionSteps{4};
+		int collisionSteps{2};
 
 	private:
 
@@ -65,14 +70,27 @@ namespace SliceEngine
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
+		void OnEntityEnabled(entt::registry& reg, entt::entity entity);
+
+		void OnEntityDisabled(entt::registry& reg, entt::entity entity);
+
 		void UpdateShapeFromTransform(Entity entity);
 
-		void SyncECSToPhysics(Transform& transform, ColliderShape& rigidBody) const;
+		void SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const;
 
-		void SyncPhysicsToECS(Transform& transform, ColliderShape& rigidBody) const;
+		void SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const;
 
 		void HandleRemovedContacts();
 
+		JPH::EAllowedDOFs AllowedDOFs(const RigidBody& rigidBody) const;
+
+		JPH::ShapeRefC CreateBoxShape(const ColliderShape& collider) const;
+
+		JPH::ShapeRefC CreateSphereShape(const ColliderShape& collider) const;
+
+		JPH::ShapeRefC CreateCapsuleShape(const ColliderShape& collider) const;
+
+		//System required functions
 	public:
 
 		PhysicsSystem() = default;
@@ -96,13 +114,20 @@ namespace SliceEngine
 
 		void SubscribeToEvents();
 
-		glm::vec3 GetLinearVelocity(Entity entity);
-
-		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
-
 		void StepWorld(float dt);
 
 		void PostStepSync();
+
+		void PreStepSync();
+
+		void ClearCollisionPairs();
+
+		void DeleteJoltBody(Entity entity);
+
+		void CreateJoltBody(Entity entity);
+
+		//Helps me with seperation of interface and implementation
+	public:
 
 		void AddForceToEntity(Entity entity, const JPH::Vec3& force);
 
@@ -141,6 +166,12 @@ namespace SliceEngine
 		void OffGravity(Entity entity, bool condition);
 
 		bool IsGravityOff(Entity entity) const;
+
+		glm::vec3 GetLinearVelocity(Entity entity);
+
+		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
+
+		bool PSystemRayCast(Entity entity);
 	};
 }
 
