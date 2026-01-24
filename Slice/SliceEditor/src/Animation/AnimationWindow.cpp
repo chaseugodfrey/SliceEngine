@@ -16,14 +16,12 @@ namespace SliceEditor
 
 	void AnimationWindow::Init()
 	{
-		//AnimationPropertyGroup transformGroup;
+		//AnimationPropertyGroup EventGroup;
 
-		//transformGroup.name = "Transform";
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//EventGroup.name = "Events";
+		////EventGroup.properties.push_back(AnimationProperty{ "Animation Event", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
-		//mPropertyGroups.push_back(transformGroup);
+		//mPropertyGroups.push_back(EventGroup);
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
@@ -99,6 +97,13 @@ namespace SliceEditor
 		// add 0 check for size()
 		mCurrentClipIndex = 0;
 		LoadDataFromAnimationClip(*animationClips[0]);
+
+		//AnimationPropertyGroup EventGroup;
+
+		//EventGroup.name = "Events";
+		//EventGroup.properties.push_back(AnimationProperty{ "Animation Event", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+		//mPropertyGroups.push_back(EventGroup);
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		AnimationPropertyGroup transformGroup;
@@ -288,6 +293,18 @@ namespace SliceEditor
 
 		if (wasLoop)
 			ImGui::PopStyleColor();
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Add Event"))
+		{
+			auto core = SliceEngine::Core::GetInstance();
+			// pop up type script name and script func
+			std::string scriptName{};
+			std::string scriptFunc{};
+
+			mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
+		}
 
 
 		// run timeline here temporarily

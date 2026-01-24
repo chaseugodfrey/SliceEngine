@@ -607,6 +607,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it

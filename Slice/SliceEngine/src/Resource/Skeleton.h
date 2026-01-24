@@ -62,6 +62,16 @@ namespace SliceEngine
 			std::vector<Frame> transforms;
 			bool animated{ false };
 		};
+
+		struct AnimationKeyFrame
+		{
+			std::string scriptName{};
+			std::string scriptFunc{};
+
+			unsigned int animIdx{};
+			unsigned int fameNumber{};
+		};
+
 		struct Animation {
 			std::string name{};
 			unsigned int fps{ 60 };

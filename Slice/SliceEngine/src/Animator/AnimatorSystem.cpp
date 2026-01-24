@@ -88,6 +88,17 @@ namespace SliceEngine
 				else
 				{
 					animator.current_time += dt;
+
+					// publish animation key frame event
+					unsigned int currentFrame = static_cast<unsigned int>(animator.current_time) * anim.fps;
+					for (auto eventFrame : animator.eventFrames)
+					{
+						if (eventFrame.fameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
+						{
+							// publish event
+						}
+					}
+
 					if (animator.current_time > anim.duration)
 					{
 
