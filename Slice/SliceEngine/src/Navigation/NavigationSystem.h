@@ -18,6 +18,8 @@ namespace SliceEngine
 
         std::optional<NavMeshDebugObj> activePathDebugInfo;
 
+        std::unordered_map<int, glm::vec3> m_agentOffMeshTargets;
+
     public:
         void Init();
         void Update(float dt);

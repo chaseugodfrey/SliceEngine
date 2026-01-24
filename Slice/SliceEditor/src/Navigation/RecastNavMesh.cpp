@@ -37,7 +37,7 @@ namespace SliceEditor
 	{
 		memset(&config, 0, sizeof(config));
 		m_agentHeight = 2.0f;
-		m_agentRadius = 1.5;
+		m_agentRadius = 0.f;
 		m_agentMaxClimb = 0.5f;
 		config.cs = 0.1f;
 		config.ch = 0.01f;
@@ -99,6 +99,7 @@ namespace SliceEditor
 		return &m_agentMaxClimb;
 	}
 
+	// SINGULAR MODEL
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
 	{
 		Clear();
@@ -329,7 +330,8 @@ namespace SliceEditor
 
 	// its 256b 
 	// maybe i adjust this to be model*
-	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model*> models, const std::vector<glm::mat4> &transform)
+	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model*> models, const std::vector<glm::mat4> &transform,
+		const std::vector<SliceEngine::NavMeshLink> &links)
 	{
 		if (models.size() != transform.size())
 		{
@@ -574,6 +576,39 @@ namespace SliceEditor
 			//}
 		}
 
+		std::vector<float> offMeshVerts;
+		std::vector<float> offMeshRad;
+		std::vector<unsigned char> offMeshDir;
+		std::vector<unsigned char> offMeshAreas;
+		std::vector<unsigned short> offMeshFlags;
+		std::vector<unsigned int> offMeshUserID;
+
+		for (size_t i = 0; i < links.size(); ++i)
+		{
+			const auto &link = links[i];
+
+			// Start
+			offMeshVerts.push_back(link.startLink.x);
+			offMeshVerts.push_back(link.startLink.y);
+			offMeshVerts.push_back(link.startLink.z);
+
+			// End
+			offMeshVerts.push_back(link.endLink.x);
+			offMeshVerts.push_back(link.endLink.y);
+			offMeshVerts.push_back(link.endLink.z);
+
+			offMeshRad.push_back(link.radius);
+			offMeshDir.push_back(link.bidirectional ? 1 : 0);
+			offMeshAreas.push_back(RC_WALKABLE_AREA); // Standard walkable area
+			offMeshFlags.push_back(1);                // Standard walkable flag
+			offMeshUserID.push_back((unsigned int)i + 1); // Simple ID
+
+			// In RecastNavMesh.cpp loop
+			std::cout << "[Recast] Baking Link " << i << ": Start("
+				<< link.startLink.x << "," << link.startLink.y << "," << link.startLink.z << ") -> End("
+				<< link.endLink.x << "," << link.endLink.y << "," << link.endLink.z << ")" << std::endl;
+		}
+
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
 		params.verts = polyMesh->verts;
@@ -588,6 +623,18 @@ namespace SliceEditor
 		params.detailVertsCount = detailMesh->nverts;
 		params.detailTris = detailMesh->tris;
 		params.detailTriCount = detailMesh->ntris;
+
+		params.offMeshConVerts = offMeshVerts.data();
+		params.offMeshConRad = offMeshRad.data();
+		params.offMeshConDir = offMeshDir.data();
+		params.offMeshConAreas = offMeshAreas.data();
+		params.offMeshConFlags = offMeshFlags.data();
+		params.offMeshConUserID = offMeshUserID.data();
+		params.offMeshConCount = (int)offMeshRad.size();
+
+		params.walkableHeight = m_agentHeight;
+		params.walkableRadius = m_agentRadius;
+		params.walkableClimb = m_agentMaxClimb;
 		rcVcopy(params.bmin, polyMesh->bmin);
 		rcVcopy(params.bmax, polyMesh->bmax);
 
@@ -597,7 +644,17 @@ namespace SliceEditor
 
 		unsigned char *navData = nullptr;
 		int navDataSize = 0;
-		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
+		std::cout << "[Recast] Attempting to bake " << params.offMeshConCount << " off-mesh connections." << std::endl;
+		if (params.offMeshConCount > 0)
+		{
+			std::cout << "  Link 0 Start: " << params.offMeshConVerts[0] << ", " << params.offMeshConVerts[1] << ", " << params.offMeshConVerts[2] << std::endl;
+		}
+
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+		{
+			SLICE_LOG_ERROR("Could not build Detour navmesh.");
+			return false;
+		}
 
 		// testing if can save into file, this is for detour to read
 		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
