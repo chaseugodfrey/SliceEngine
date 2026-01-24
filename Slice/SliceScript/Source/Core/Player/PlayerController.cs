@@ -230,6 +230,7 @@ namespace SliceEngine
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
 
             float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
+            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
             if (isGroundDashing || isAirDashing)
             {
                 float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
@@ -250,7 +251,15 @@ namespace SliceEngine
 
                 if (animator != null)
                 {
-                    //animator.SetBool("DashStart", true);
+                    if (isGroundDashing)
+                    {
+                        //animator.SetBool("DashStart", true);
+                    }
+                    else if (isAirDashing)
+                    {
+
+                    }
+                    //
                 }
             }
             else if (isAttacking || isPlunging)
@@ -262,6 +271,7 @@ namespace SliceEngine
                     if (animator != null)
                     {
                         //animator.SetBool("Plunge", true);
+
                     }
                 }
                 else
@@ -285,10 +295,15 @@ namespace SliceEngine
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
 
-                if (animator != null)
-                {
-                    //animator.SetBool("PlungeLand", true);
-                }
+                //if (animator != null)
+                //{
+                //    animator.SetBool("PlungeLand", true);
+                //    if (walkingNow)
+                //        animator.SetBool("PlungToWalk", true);
+                //    else
+                //        animator.SetBool("PlungToIdle", true);
+
+                //}
             }
 
             //if (animator)
@@ -299,7 +314,6 @@ namespace SliceEngine
             //    animator.SetBool("IsAttacking", isAttacking);
             //}
 
-            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
 
             //if (animator != null)
             //{
@@ -607,6 +621,7 @@ namespace SliceEngine
 
             if (animator != null)
             {
+                SliceLog.Log("Dash???");
                 animator.SetBool("DashStart", true);
             }
 
