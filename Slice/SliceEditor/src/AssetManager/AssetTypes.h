@@ -41,6 +41,7 @@ namespace SliceEditor
 		Prefab,
 		Controller,
 		NavMesh,
+		NavMeshBin,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -105,6 +106,7 @@ namespace SliceEditor
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
+		constexpr uint64_t NAVMESHBIN = SliceEngine::FNVHash::fnv1a("NavMeshBin");
 		constexpr uint64_t FONT = SliceEngine::FNVHash::fnv1a("Font");
 
 	}
@@ -1468,6 +1470,33 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+	};
+
+	struct NavMeshBinData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::NAVMESHBIN;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
