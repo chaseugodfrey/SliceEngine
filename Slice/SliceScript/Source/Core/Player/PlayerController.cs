@@ -266,6 +266,17 @@ namespace SliceEngine
             {
                 if (isPlunging && !plungeImpulseStarted)
                 {
+                    // if it grounds when plunging
+                    if (grounded)
+                    {
+                        // transition to plunge land
+                        // check if there is input
+                        // if there is then transition to plunge walk
+                        // else transition to plunge idle?
+                            
+                    }
+
+
                     // no movement at all
                     // (skip calling Move with any Y to avoid CC grounded quirks).
                     if (animator != null)
@@ -1052,7 +1063,15 @@ namespace SliceEngine
         }
         private void TryAttack()
         {
-            if (!isAttacking)
+            // transition to plunge if in air
+            if (!grounded && isPlunging == false)
+            {
+                // do plunge?
+                isPlunging = true;
+                return;
+            }
+
+            if (!isAttacking && !isPlunging)
             {
                 attackCounter++;
                 if (attackCounter > 3) attackCounter = 1;
