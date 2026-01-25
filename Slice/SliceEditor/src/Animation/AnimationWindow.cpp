@@ -5,6 +5,7 @@
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
 #include <Animator/BoneSystem.h>
+#include <Inspector/ComponentPropertiesGUI.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>	//just to get it working for now
 
@@ -301,42 +302,49 @@ namespace SliceEditor
 		ImGui::BeginGroup();
 
 		std::string preview = "No Animations";
+		std::vector<std::string> animationClipNames;
+		std::string animationName;
 
 		if (hasAnimator)
 		{
 			if (animationClips.size() > 0)
 			{
-				if (animationClips[mCurrentClipIndex]->name.empty())
+				size_t pos_ = animationClips[0]->name.find_first_of('|');
+				if(pos_ != std::string::npos)
 				{
-					preview = std::to_string(mCurrentClipIndex);
+					animationName = animationClips[0]->name.substr(0, pos_) + " Animation: ";
 				}
-				else
+				for (auto animationClip : animationClips)
 				{
-					preview = animationClips[mCurrentClipIndex]->name;
-				}
-				
+					size_t pos = animationClip->name.find_first_of('|');
+					std::string clipName;
 
+					if (pos != std::string::npos)
+					{
+						clipName = animationClip->name.substr(pos + 1);
+					}
+					else
+					{
+						clipName = animationClip->name;
+					}
+
+					animationClipNames.push_back(clipName);
+				}
+			}
+			else
+			{
+				animationClipNames.push_back("");
 			}
 		}
 
-		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
+		else
 		{
-			for (size_t i = 0; i < animationClips.size(); i++)
-			{
-				std::string anim_name = animationClips[i]->name;
-				if (anim_name.empty())
-				{
-					anim_name = std::to_string(i);
-				}
+			animationClipNames.push_back("No Animations");
+		}
 
-				if (ImGui::Selectable(anim_name.c_str()))
-				{
-					mCurrentClipIndex = i;
-					LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[i]);
-				}
-			}
-
-			ImGui::EndCombo();
+		if (ComboHeader(mRegistry, animationName.c_str(), "##animSelected", mCurrentClipIndex, animationClipNames, true))
+		{
+			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex]);
 		}
 
 		ImGui::EndGroup();
