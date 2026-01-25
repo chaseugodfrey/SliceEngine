@@ -27,6 +27,8 @@ namespace SliceEngine {
 
 	namespace SliceEngineTypes {
 		/*
+		* a token is a string that should be treated as 1 unit when dealing with text wrapping
+		* 
 		* to handle wrapping in text box
 		* first tokenize according to spaces and line breaks
 		* calculate the size of each word and ensure the line does not exceed limit
@@ -49,12 +51,15 @@ namespace SliceEngine {
 				switch (font_text[pos]) {
 				case '\n':
 					token.size = 0;
+					token.char_cnt = 1;
 					break;
 				case ' ':
 					token.size = font.glyph_datas.at(font_text[pos]).advance * relative_size;
+					token.char_cnt = 1;
 					break;
 				case '\t':
 					token.size = font.glyph_datas.at(' ').advance * relative_size * 4;	//1 tab is 4 spaces
+					token.char_cnt = 1;
 					break;
 				default:
 					{
@@ -66,7 +71,7 @@ namespace SliceEngine {
 					for (size_t ch = pos; ch < next; ++ch) {
 						token.size += font.glyph_datas.at(font_text[ch]).advance * relative_size;
 					}
-
+					token.char_cnt = next - pos;
 					pos += next - pos - 1;	//-1 because of loop increments
 					}
 					break;
@@ -120,7 +125,7 @@ namespace SliceEngine {
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<canvasEntity>();
+		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
 		empty.final_height = target_height; empty.final_width = target_width;
@@ -201,7 +206,7 @@ namespace SliceEngine {
 		GLenum render_color[] = {GL_COLOR_ATTACHMENT0};
 		GLenum render_eid[] = {GL_COLOR_ATTACHMENT1};
 
-		auto view = core->GetRegistry().view<canvasEntity>();
+		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
 
 		std::vector<Entity> overlay_canvas{};
 		for (auto entity : view) {
@@ -340,11 +345,115 @@ namespace SliceEngine {
 
 
 				//fit into a line
+				struct Line {
+					unsigned char token_count;
+					float line_width{};
+				};
+				std::vector<Line> lines{};
+				float total_width = (float)rect.final_width;
+				float current_width = 0.f;
+				Line temp_line{};
 
+				for (auto const& token : font_render.token_list) {
+					assert(token.char_cnt > 0);
+					if (*token.pos == '\n') {	//if token is a line break
+						temp_line.token_count++;
+						temp_line.line_width = current_width;
+						lines.push_back(temp_line);
 
-				float x_pen = rect.final_x;
-				float y_pen = rect.final_y;
+						current_width = 0;
+						temp_line.token_count = 0;
+					}
+					else if (current_width + token.size > total_width) {	//next token cant fit, carry over
+						temp_line.line_width = current_width;
+						lines.push_back(temp_line);
 
+						current_width = token.size;
+						temp_line.token_count = 1;
+					}
+					else {	//token can fit, append to current line
+						temp_line.token_count++;
+						current_width += token.size;
+					}
+				}
+
+				if (temp_line.token_count) {	//any left over carried over tokens
+					temp_line.line_width = current_width;
+					lines.push_back(temp_line);
+				}
+
+				//Use rect as the text box
+				//position the pen
+				float left_ref = rect.final_x -(float)rect.final_width / 2;
+				float top_ref = rect.final_y +(float)rect.final_height / 2;
+				float x_pen = left_ref;
+				float y_pen = top_ref;
+
+				size_t tokens_cnt = 0;
+				for (Line const& line : lines) {
+					switch (font_render.alignment) {
+					case FontRenderer::LEFT: {
+						x_pen = left_ref;
+					}
+						break;
+					case FontRenderer::CENTER: {
+						x_pen = left_ref + rect.final_width / 2 - line.line_width / 2;
+					}
+						break;
+					case FontRenderer::RIGHT: {
+						x_pen = left_ref + rect.final_width - line.line_width;
+					}
+						break;
+					}
+					y_pen -= font_render.line_spacing * font_render.font_size;
+
+					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
+						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
+						for (unsigned int ch_it = 0; ch_it < curr_token.char_cnt; ++ch_it) {
+							char ch = *(curr_token.pos + ch_it);
+							if (ch == '\n') {
+								continue;
+							}
+							SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
+
+							float x = x_pen + glyph.xoff * relative_scale;
+							float y = y_pen - glyph.yoff * relative_scale;
+							float w = glyph.w * relative_scale;
+							float h = glyph.h * relative_scale;
+
+							x_pen += glyph.advance * relative_scale;
+
+							if (w == 0) {
+								continue;
+							}
+
+							RectTransform temp_rect;
+							temp_rect.final_width = w;
+							temp_rect.final_height = h;
+							temp_rect.final_x = x;
+							temp_rect.final_y = y;
+
+							Font_Instance instance_data;
+
+							instance_data.model_to_ndc = temp_rect.ToMatrix();
+							SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
+							instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
+							//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
+							font_Instances[instance_count] = instance_data;
+							++instance_count;
+
+							if (instance_count >= Font_Max_Instance) {
+								glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * Font_Max_Instance, font_Instances);
+								CheckGLError();
+								glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, Font_Max_Instance);
+								CheckGLError();
+								instance_count = 0;
+							}
+						}
+					}
+
+				}
+				/*
 				for (char ch : font_render.text) {
 					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
 
@@ -382,7 +491,7 @@ namespace SliceEngine {
 						instance_count = 0;
 					}
 				}
-
+				*/
 				//glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				//CheckGLError();
 
@@ -473,7 +582,7 @@ namespace SliceEngine {
 	void CanvasSystem::get_node_render(std::vector<std::pair<Entity, uint64_t>>& render, Entity node) {
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
-		if (!mRegistry->any_of<RectTransform>(node)) {
+		if (!mRegistry->any_of<RectTransform>(node) || mRegistry->any_of<InactiveEntity>(node)) {
 			return;
 		}
 		auto* sprite = mRegistry->try_get<SpriteRenderer>(node);
@@ -509,7 +618,7 @@ namespace SliceEngine {
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node)) {
+		if (!mRegistry->any_of<RectTransform>(node) || mRegistry->any_of<InactiveEntity>(node)) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);

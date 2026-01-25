@@ -73,6 +73,7 @@ struct RigidBodyModifiedEvent
 struct OnSceneLoadedEvent
 {
 	bool isSceneLoaded;
+	std::string navMeshPath;
 };
 
 struct OnSceneStopEvent

@@ -39,6 +39,11 @@ namespace SliceEngine
         {
             return FunctionCalls.GetCurrAnimTime(gameObject.mID);
         }
+        public bool SafeToChange(string name)
+        {
+            return FunctionCalls.SafeToChange(gameObject.mID, name);
+        }
+
         public float GetCurrAnimFPS()
         {
             return FunctionCalls.GetCurrAnimFPS(gameObject.mID);

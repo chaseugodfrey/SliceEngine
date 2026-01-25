@@ -31,7 +31,7 @@ namespace SliceEngine
 						continue;
 					}
 
-					anim_name  = anim_pkg.animations[i].name;
+					anim_name = anim_pkg.animations[i].name;
 					if (anim_name.empty())
 					{
 						anim_name = std::to_string(i);
@@ -86,26 +86,28 @@ namespace SliceEngine
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
-			for(const SliceEngineTypes::Condition& condition : transition.conditions)
+			for (const SliceEngineTypes::Condition& condition : transition.conditions)
 			{
 				if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
 				{
 					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
 
-					//bool check = currentParamValue.to_bool();
+					bool check = currentParamValue.to_bool();
 
 					if (EvalCon(currentParamValue, condition.op, condition.value))
 					{
 						EFSM.nextState = transition.targetState;
 						EFSM.stateCon = true;
 						EFSM.currState->transitionUsed = &transition;
+						if (currentParamValue.is_type<bool>())
+							EFSM.parameters[condition.paramName] = false;
 						break;
 					}
 				}
 			}
 		}
 
-		if(EFSM.anyState)
+		if (EFSM.anyState)
 		{
 			for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
 			{
@@ -122,6 +124,8 @@ namespace SliceEngine
 							EFSM.nextState = transition.targetState;
 							EFSM.stateCon = true;
 							EFSM.anyState->transitionUsed = &transition;
+							if (currentParamValue.is_type<bool>())
+								EFSM.parameters[condition.paramName] = false;
 							break;
 						}
 					}
@@ -129,7 +133,7 @@ namespace SliceEngine
 			}
 		}
 	}
-	void FSMSystem::UpdateState(float &CTime,float dt)
+	void FSMSystem::UpdateState(float& CTime, float dt)
 	{
 		// update ctime dt somewhere here
 		// not here cos only update when is playin and is bone
@@ -145,7 +149,7 @@ namespace SliceEngine
 
 		bool safeToChange = false;
 
-		if(EFSM.currState->transitionUsed != nullptr)
+		if (EFSM.currState->transitionUsed != nullptr)
 		{
 			if (EFSM.currState->transitionUsed->hasExitTime)
 			{
@@ -162,7 +166,7 @@ namespace SliceEngine
 			}
 		}
 
-		if(EFSM.anyState)
+		if (EFSM.anyState)
 		{
 			if (EFSM.anyState->transitionUsed != nullptr)
 			{
@@ -170,7 +174,7 @@ namespace SliceEngine
 			}
 		}
 
-		if(safeToChange)
+		if (safeToChange)
 		{
 
 			if (EFSM.stateMap.find(EFSM.nextState) != EFSM.stateMap.end())
@@ -189,7 +193,7 @@ namespace SliceEngine
 			CTime = 0.0f;
 			stateChanged = true;
 			EFSM.currState->transitionUsed = nullptr;
-			if(EFSM.anyState)
+			if (EFSM.anyState)
 				EFSM.anyState->transitionUsed = nullptr;
 		}
 	}
@@ -217,7 +221,7 @@ namespace SliceEngine
 		}
 		return false;
 	}
-	
+
 	void FSMSystem::SetFloat(const std::string& name, float value)
 	{
 		if (!EFSM.currState) return;
@@ -236,16 +240,35 @@ namespace SliceEngine
 
 		EFSM.currState->isLoop = loop;
 	}
+	bool FSMSystem::SafeToChange(std::string& name)
+	{
+		if (!EFSM.currState)
+			return false;
+
+		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
+		{
+			if (std::strcmp(transition.targetState.c_str(), name.c_str()) == 0)
+				return true;
+		}
+
+		for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
+		{
+			if (std::strcmp(transition.targetState.c_str(), name.c_str()) == 0)
+				return true;
+		}
+
+		return false;
+	}
 	std::string FSMSystem::GetCurrAnimName()
 	{
-		if (!EFSM.currState) 
+		if (!EFSM.currState)
 			return std::string{};
 
 		return EFSM.currState->stateName;
 	}
 	bool FSMSystem::IsCurrAnimFin()
 	{
-		if (!EFSM.currState) 
+		if (!EFSM.currState)
 			return false;
 
 		return EFSM.currState->isFinish;
@@ -261,8 +284,11 @@ namespace SliceEngine
 	// change this, its supposed to be either condiiton change or param idk which
 	void FSMSystem::SetBool(const std::string& name, bool value)
 	{
-		if (!EFSM.currState) 
+		if (!EFSM.currState)
 			return;
+
+		if (std::strcmp(name.c_str(), "DashStart") == 0)
+			bool ys = true;
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
 		if (EFSM.currState->stateName == name)
@@ -270,7 +296,7 @@ namespace SliceEngine
 
 		EFSM.parameters[name] = value;
 
-		for (auto& [key, var] : EFSM.parameters)
+		/*for (auto& [key, var] : EFSM.parameters)
 		{
 			if(value)
 			{
@@ -282,7 +308,7 @@ namespace SliceEngine
 					}
 				}
 			}
-		}
+		}*/
 	}
 }
 

@@ -179,6 +179,10 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
+	
+	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
+		.constructor<>()
+		.property("mTest", &InactiveEntity::mTest);
 
 	rttr::registration::class_<RigidBody::FreezeOptions>("FreezeOptions")
 		.constructor<>()
@@ -277,6 +281,7 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())

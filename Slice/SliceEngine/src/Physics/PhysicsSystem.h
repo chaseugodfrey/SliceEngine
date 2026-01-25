@@ -122,6 +122,10 @@ namespace SliceEngine
 
 		void ClearCollisionPairs();
 
+		void DeleteJoltBody(Entity entity);
+
+		void CreateJoltBody(Entity entity);
+
 		//Helps me with seperation of interface and implementation
 	public:
 

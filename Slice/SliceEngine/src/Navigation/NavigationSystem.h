@@ -28,7 +28,7 @@ namespace SliceEngine
         void ClearNavMesh();
         void LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e);
         void LoadNavMeshFromBake(NavMeshObj obj);
-        void LoadNavMeshFromFile();
+        void LoadNavMeshFromFile(const std::string& filePath = "");
         std::optional<NavMeshObj>& GetNavMeshObj();
         std::optional<NavMeshDebugObj>& GetNavMeshDebugData();
 
