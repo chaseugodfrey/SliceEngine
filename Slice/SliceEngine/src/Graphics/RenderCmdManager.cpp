@@ -135,7 +135,6 @@ namespace SliceEngine
 
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
-			data.mdlMtx[0].w = 2.f; // Bilboard particles
 			SetColor(data, ptx.colour);
 			data.texID = GetTextureDetails(ptx.textureID);
 			data.entityID = 0;

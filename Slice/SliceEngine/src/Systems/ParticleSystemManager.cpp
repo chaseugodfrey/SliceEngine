@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <random>
 #include "Systems/ParticleSystemManager.h"
+#include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
 #include <Core/Core.h>
 
@@ -83,6 +84,10 @@ namespace SliceEngine
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
 		ValidateParticleSystem(ps);
+
+		// particle billboard from camera
+		glm::mat3 camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRenderManager()->GetViewMatrix()));
+		glm::quat billboardRot = glm::quat_cast(camRot);
 
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
 		if (ps.systemTimer >= ps.duration)
@@ -190,14 +195,14 @@ namespace SliceEngine
 				transformMatrix = glm::translate(transformMatrix, p.position);
 			}
 
-			if (ps.isRotation3D)
-			{
-				prp.additionalRotation = p.rotation3D;
-			}
-			else 
-			{
-				prp.additionalRotation = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-			}
+			// particle rotation
+			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
+
+			// combine rotations
+			glm::quat finalRot = billboardRot * particleRot;
+
+			// apply final rotation
+			transformMatrix *= glm::mat4_cast(finalRot);
 
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 

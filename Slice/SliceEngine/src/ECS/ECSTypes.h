@@ -428,7 +428,6 @@ namespace SliceEngine
 	struct ParticleRenderPart
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
-		glm::quat additionalRotation{};
 		glm::vec4 colour{};
 		GLuint64 textureID{};
 	};
