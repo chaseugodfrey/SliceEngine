@@ -11,6 +11,7 @@ namespace SliceEditor
 	{
 		std::string name;
 		std::vector<ImGui::FrameIndexType> keys;
+		int selectedKeyIndex = -1;
 	};
 
 	// Use ImGui::BeginNeoGroup() to visualize properties

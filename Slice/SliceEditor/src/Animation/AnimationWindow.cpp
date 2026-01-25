@@ -387,6 +387,28 @@ namespace SliceEditor
 					{
 						if (ImGui::BeginNeoTimeline(property.name.c_str(), property.keys))
 						{
+							for (size_t i = 0; i < property.keys.size(); i++)
+							{
+								bool isSelected = (property.selectedKeyIndex == i);
+
+
+								// yea this doesnt work
+								if(ImGui::IsItemClicked())
+								{
+									property.selectedKeyIndex = i;
+
+									std::cout << "Clicked diamond: " << i << " at frame: " << property.keys[i] << std::endl;
+									//mCurrentAnimator->eventFrames[i].scriptFunc = function;
+									//mCurrentAnimator->eventFrames[i].scriptName = name;
+
+								}
+
+								// click off
+								if (isSelected && property.selectedKeyIndex != i) 
+								{
+									property.selectedKeyIndex = i;
+								}
+							}
 							ImGui::EndNeoTimeLine();
 						}
 					}
