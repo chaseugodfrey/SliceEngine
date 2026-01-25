@@ -377,7 +377,7 @@ namespace SliceEngine
 		LoadSettings(GPS_SHADOW);
 		RenderPointShadowMaps();
 
-		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
 		for (auto cam : cams)
 		{
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
@@ -425,16 +425,21 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 			//----------------------------------------------------------------
-			//SetShader(ShaderPaths[S_DEFERRED]);
-			if (cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
-			else
-				LinkFrameBufferSettings(FB_DEFERRED, 5, mColAttachment[mCurrFinalColAttachment], 0, 0, 0, 0);
-			LoadSettings(GPS_TEST_TRANSLUCENT);
-			//UpdateCamVP();
+			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
 			BindCameraDepth(cam);
-			renderQueue.UseDrawCalls(mCurrShader.second, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
-			
+			if (cam == mCurrentCamIDHover) // Don't Draw into ID when drawing debugging onwards
+			{
+				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], 0, 0, 0);
+				glDepthMask(GL_FALSE);
+				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY);
+			}
+			// When Drawing the Transparent part also writes into depth buffer
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			//UpdateCamVP();
+			glDepthMask(GL_TRUE);
+			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT);
+			//----------------------------------------------------------------
+			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
@@ -472,7 +477,7 @@ namespace SliceEngine
 			glBindVertexArray(mdl.vao);
 
 			//auto& frustrum = Core::GetInstance()->GetResourceManager()->GetModel("FrustrumFake");
-			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>();
+			auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
 			int count{};
 			for (auto& entity : cams)
 			{
@@ -501,7 +506,7 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(); //renderEntity
+			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
 			for (int i{}; i < 3; ++i)
 			{
 				GUID modelID;
@@ -656,7 +661,7 @@ namespace SliceEngine
 		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
 		glViewport(0, 0, shadowDim, shadowDim);
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -696,7 +701,7 @@ namespace SliceEngine
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -767,7 +772,7 @@ namespace SliceEngine
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>();
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);

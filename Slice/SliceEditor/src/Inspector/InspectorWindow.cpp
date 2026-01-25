@@ -1582,6 +1582,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayEntity(EntityNode* node)
 	{
+		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
 		if (node->entity == SliceEngine::FactoryInstance.GetRootEntity())
 		{
 			return;
@@ -1598,10 +1599,13 @@ namespace SliceEditor
 
 		else
 		{
-			if (ImGui::Button("Remove Prefab Component"))
+			if(!sessionManager->IsPrefabInspected())
 			{
-				EditorUtilities::GameObject_Unprefab(node->entity);
-				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
+				if (ImGui::Button("Remove Prefab Component"))
+				{
+					EditorUtilities::GameObject_Unprefab(node->entity);
+					mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
+				}
 			}
 		}
 

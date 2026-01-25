@@ -50,7 +50,9 @@ namespace SliceEngine
 
 	struct InactiveEntity
 	{
+		bool mTest{ false };
 
+		InactiveEntity() {}
 	};
 
 	struct SliceEntity 
@@ -229,6 +231,7 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
 		bool componentEnabled{ true };

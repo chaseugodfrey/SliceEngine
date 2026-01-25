@@ -223,7 +223,7 @@ namespace SliceEditor
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
 		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
-		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::string debugPath = "Assets/NavMesh/" + currentSceneName + ".navmesh";
 		std::filesystem::path path(debugPath);
 		if (!std::filesystem::exists(path.parent_path()))
 		{
@@ -528,7 +528,7 @@ namespace SliceEditor
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
 		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
-		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::string debugPath = "Assets/NavMesh/" + currentSceneName + ".navmesh";
 		std::filesystem::path path(debugPath);
 		if (!std::filesystem::exists(path.parent_path()))
 		{

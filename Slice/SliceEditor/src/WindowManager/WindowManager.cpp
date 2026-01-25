@@ -302,6 +302,9 @@ namespace SliceEditor
 				if (isPlaying) // if its play, enable game input
 				{
 					EventManager::GetInstance()->Publish<OnPlayEvent>();
+					ClearSelectionEvent clearedEvent;
+					clearedEvent.suppressHistory = true;
+					EventManager::GetInstance()->Publish< ClearSelectionEvent>(clearedEvent);
 				}
 							
 			}
@@ -315,7 +318,9 @@ namespace SliceEditor
 				{
 					isPaused = false;
 					scene->Stop();
-					
+					ClearSelectionEvent clearedEvent;
+					clearedEvent.suppressHistory = true;
+					EventManager::GetInstance()->Publish< ClearSelectionEvent>(clearedEvent);
 				}
 			}
 		}
