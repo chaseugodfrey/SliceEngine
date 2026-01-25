@@ -179,6 +179,10 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
+	
+	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
+		.constructor<>()
+		.property("mTest", &InactiveEntity::mTest);
 
 	rttr::registration::class_<RigidBody::FreezeOptions>("FreezeOptions")
 		.constructor<>()
@@ -277,6 +281,7 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
@@ -655,7 +660,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
 		Core::GetInstance()->GetProjectSettingsManager()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
 
 		// =========================== TESTING AREA ===========================
 		// 
@@ -675,6 +679,10 @@ namespace SliceEngine
 
 	}
 
+	void Engine::InitScene()
+	{
+		Core::GetInstance()->GetSceneSystem()->Init();
+	}
 
 	void Engine::Update()
 	{
@@ -700,7 +708,7 @@ namespace SliceEngine
 		{
 			if (sScene->isSceneUnloaded)
 			{
-				sScene->LoadNextScene();
+				sScene->LoadSceneFromQueue();
 			}
 		}
 
@@ -747,6 +755,8 @@ namespace SliceEngine
 			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
+
+				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
@@ -778,12 +788,6 @@ namespace SliceEngine
 		sInputs->UpdatePrevInput();
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
-
-		// process all enabled action maps in Game mode
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			SliceEngine::GetActionMappingSystem().processAllInput();
-		}
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));

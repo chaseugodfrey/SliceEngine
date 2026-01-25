@@ -9,6 +9,8 @@ namespace SliceEditor
 
 	class PreferenceManager : public IBaseManager
 	{
+		constexpr static unsigned int CURRENT_VERSION = 1;
+
 		std::unique_ptr<Preferences> mPreferences;
 
 	public:
@@ -17,7 +19,7 @@ namespace SliceEditor
 
 		void Init() override;
 		void Update() override;
-		void CreateDefaultPreferenceFile();
+		void UpdateVersion(nlohmann::json& preferences);
 		void LoadPreferences();
 		void SetPreferences();
 		void SavePreferences();

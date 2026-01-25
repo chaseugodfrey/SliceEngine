@@ -6,24 +6,7 @@ namespace SliceEditor
 {
 	void PreferenceManager::Init()
 	{
-		LoadPreferences();
 
-		// check starting scene path
-		// if blank, open default scene
-		// if not, set starting scene to path from guid
-
-		auto resourceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto sceneManager = SliceEngine::Core::GetInstance()->GetSceneSystem();
-
-		if (resourceManager->CheckResource(mPreferences->StartingSceneGUID))
-		{
-			auto sceneHandle = resourceManager->get<SliceEngine::SliceEngineTypes::Scene>(mPreferences->StartingSceneGUID);
-
-			if (sceneHandle.IsValid())
-			{
-				sceneManager->SetCurrentScenePath(sceneHandle->GetFilePath());
-			}
-		}
 	}
 
 	void PreferenceManager::Update()
@@ -31,17 +14,9 @@ namespace SliceEditor
 
 	}
 
-	void PreferenceManager::CreateDefaultPreferenceFile()
+	void PreferenceManager::UpdateVersion(nlohmann::json& preferences)
 	{
-		std::string filepath = "preferences.json";
-		std::ofstream preferencesFile{ filepath };
-		nlohmann::json preferences;
 
-		preferences["Theme"] = EditorThemes[0];
-		preferences["StartingSceneGUID"] = SliceEngine::GUID::null();
-
-		preferencesFile << preferences.dump();
-		preferencesFile.close();
 	}
 
 	void PreferenceManager::LoadPreferences()
@@ -49,26 +24,40 @@ namespace SliceEditor
 		std::string filepath = "preferences.json";
 		std::ifstream preferencesFile{ filepath };
 
+		mPreferences = std::make_unique<Preferences>();
+
 		if (preferencesFile.fail())
 		{
-			CreateDefaultPreferenceFile();
+			SavePreferences();
 			preferencesFile.open(filepath);
 		}
 
-		mPreferences = std::make_unique<Preferences>();
-
 		nlohmann::json preferencesJson;
 		preferencesFile >> preferencesJson; 
+		
+		unsigned int version = preferencesJson["Version"].get<unsigned int>();
+		if (version != PreferenceManager::CURRENT_VERSION)
+		{
+			// to fill upon version updates
+			UpdateVersion(preferencesJson);
+		}
 
-		std::string p_theme = preferencesJson["Theme"].get<std::string>();
-		mPreferences->Theme = EditorUtilities::GetThemeTypeFromString(p_theme);
+		// Theme
+		auto& p_theme = preferencesJson["Theme"];
 
-		SliceEngine::GUID p_startingSceneGUID = preferencesJson["StartingSceneGUID"].get<SliceEngine::GUID>();
-		mPreferences->StartingSceneGUID = p_startingSceneGUID;
+		std::string p_theme_id = p_theme["ID"].get<std::string>();
+		mPreferences->theme.ID = EditorUtilities::GetThemeTypeFromString(p_theme_id);
+
+		// Scene
+		auto& p_scene = preferencesJson["Scene"];
+
+		uint64_t p_startingSceneGUID = p_scene["Starting Scene"].get<uint64_t>();
+		mPreferences->scene.startingID = SliceEngine::GUID(p_startingSceneGUID);
+
+		uint64_t p_lastSceneGUID = p_scene["Last Scene"].get<uint64_t>();
+		mPreferences->scene.lastID = SliceEngine::GUID(p_lastSceneGUID);
 
 		preferencesFile.close();
-
-		SetPreferences();
 	}
 
 	void PreferenceManager::SavePreferences()
@@ -77,9 +66,19 @@ namespace SliceEditor
 		std::ofstream preferencesFile{ filepath };
 		nlohmann::json preferences;
 
-		preferences["Theme"] = EditorThemes[mPreferences->Theme];
+		preferences["Version"] = PreferenceManager::CURRENT_VERSION;
+		preferences["Theme"] =
+		{
+			{ "ID", EditorThemes[mPreferences->theme.ID] }
+		};
 
-		preferencesFile << preferences.dump();
+		preferences["Scene"] =
+		{
+			{ "Starting Scene", mPreferences->scene.startingID },
+			{ "Last Scene", mPreferences->scene.lastID }
+		};
+
+		preferencesFile << preferences.dump(4);
 		preferencesFile.close();
 
 		SetPreferences();
@@ -92,7 +91,24 @@ namespace SliceEditor
 
 	void PreferenceManager::SetPreferences()
 	{
-		EditorUtilities::SetTheme(mPreferences->Theme);
+		// Theme
+		auto& theme = mPreferences->theme;
+		EditorUtilities::SetTheme(theme.ID);
+
+		// Scene
+		auto& assetManager = registry.GetAssetManager();
+		auto& scene = mPreferences->scene;
+		auto scene_to_load_guid = scene.startingID != SliceEngine::GUID::null() ? scene.startingID : scene.lastID;
+		auto scene_metadata_filename = assetManager.GetFilenameFromGUID(scene_to_load_guid);
+
+		std::filesystem::path scene_filepath_to_load = "";
+		if (scene_metadata_filename.has_value())
+		{
+			scene_filepath_to_load = assetManager.GetMetaDataFromFilename(scene_metadata_filename.value());
+			scene_filepath_to_load.replace_extension("");
+		}
+
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(scene_filepath_to_load);
 	}
 
 }

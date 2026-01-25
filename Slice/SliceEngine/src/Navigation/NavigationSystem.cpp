@@ -84,7 +84,7 @@ namespace SliceEngine
 	{
 		if (e.isSceneLoaded)
 		{
-			LoadNavMeshFromFile();
+			LoadNavMeshFromFile(e.navMeshPath);
 		}
 	}
 
@@ -95,13 +95,26 @@ namespace SliceEngine
 		navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh));
 	}
 
-	void NavigationSystem::LoadNavMeshFromFile()
+	void NavigationSystem::LoadNavMeshFromFile(const std::string& filePath)
 	{
-		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh("Resources/output_navmesh.bin");
+		std::string path_to_load = filePath;
+
+		if (path_to_load.empty())
+		{
+			path_to_load = "Resources/output_navmesh.bin";
+			SLICE_LOG("NavSystem: No specific navmesh found in meta. Loading default: " + path_to_load);
+		}
+		else
+		{
+			SLICE_LOG("NavSystem: Loading specific navmesh from meta: " + path_to_load);
+		}
+
+		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
 			navMeshInstance = std::make_optional<NavMeshObj>(newNavMesh.value());
+			navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh.value()));
 		}
 	}
 

@@ -39,6 +39,8 @@ namespace SliceEngine
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
 
 		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
+		constexpr uint64_t CSHADER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCShader");
+
 	}
 
 
@@ -75,7 +77,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::CustomShader>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 0;
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::CSHADER_DEFAULT;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::CustomShader> Load(ResourceManager& resourceMgr, const std::string& path);

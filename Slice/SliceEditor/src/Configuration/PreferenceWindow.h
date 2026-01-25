@@ -23,6 +23,12 @@ namespace SliceEditor
 		void DisplayPreferences(Preferences&) override;
 	};
 
+	struct ScenePreferenceDisplay : BasePreferenceDisplay
+	{
+		ScenePreferenceDisplay(Registry& reg, std::string nm) : BasePreferenceDisplay(reg, nm) {};
+		void DisplayPreferences(Preferences&) override;
+	};
+
 	class PreferenceWindow : public EditorWindow
 	{
 		enum class PreferenceType : size_t

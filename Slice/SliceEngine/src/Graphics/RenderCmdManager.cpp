@@ -61,7 +61,7 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(); // renderEntity // visibleEntity
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
 		
 		for (auto entity : view)
 		{
@@ -113,7 +113,7 @@ namespace SliceEngine
 			else
 			{
 				AppendRenderCmd((*rcmds)[key], data, material);
-				(*rcmds)[key].numVar = material->shader.get()->dataIn.size();
+				(*rcmds)[key].numVar = static_cast<uint32_t>(material->shader.get()->dataIn.size());
 			}
 		}
 	
@@ -161,6 +161,7 @@ namespace SliceEngine
 	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
+		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
 		glm::vec3 camFront, camRight, camUp;
 		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
@@ -293,7 +294,7 @@ namespace SliceEngine
 					{
 						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
-						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &batch.ext[i]);
+						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
@@ -313,7 +314,9 @@ namespace SliceEngine
 			break;
 		}
 		case DrawType::DRAW_TRANSLUCENT:
+		case DrawType::DRAW_TRANSLUCENT_ID_ONLY:
 		case DrawType::DRAW_PREFAB_TRANSLUCENT:
+		case DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY:
 		{
 			RCK_ModelT currMdlID = 0xFFFF;
 
@@ -327,13 +330,21 @@ namespace SliceEngine
 				auto& dat = i.base;
 
 				// Change Shader
-				auto thisShader = shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset));
+				auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
 				if (thisShader != mShader)
 				{
 					mShader = thisShader;
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly"); 
+					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
+					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
+					if (uniformLoc != -1)
+					{
+						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
+						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
+					}
 				}
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
@@ -479,22 +490,20 @@ namespace SliceEngine
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
-			if (i.isFloating)
+			switch (i.dataType)
 			{
-				if (i.numBytes == 4)
-					cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
-			}
-			else
-			{
-				if (i.numBytes == 4)
-				{
-					if (i.isUnsigned)
-						cmd[mainID][subID] = mat->uintDat[numUints++];
-					else
-						cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
-				}
-				else if (i.numBytes == 1)
-					cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+				cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+				cmd[mainID][subID] = mat->uintDat[numUints++];
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+				cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+				cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				break;
 			}
 
 			if (++subID > 4)
@@ -520,22 +529,20 @@ namespace SliceEngine
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
-			if (i.isFloating)
+			switch (i.dataType)
 			{
-				if (i.numBytes == 4)
-					rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
-			}
-			else
-			{
-				if (i.numBytes == 4)
-				{
-					if (i.isUnsigned)
-						rc.ext[mainID][subID] = mat->uintDat[numUints++];
-					else
-						rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
-				}
-				else if (i.numBytes == 1)
-					rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+				rc.ext[mainID][subID] = mat->uintDat[numUints++];
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				break;
 			}
 
 			if (++subID > 4)

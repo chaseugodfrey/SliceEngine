@@ -1670,11 +1670,13 @@ namespace SliceEngine
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
 			if(cStrName == "EnemyTest")
 			{
-				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
+			//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
 		//mono_free(cStrName);
+		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
 		return entt::null;
 	}
@@ -1857,7 +1859,7 @@ namespace SliceEngine
 			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
 		}
 
-		return false;
+		return 0.0f;
 	}
 
 	static float GetCurrAnimTime(unsigned int entityID)
@@ -1869,6 +1871,18 @@ namespace SliceEngine
 		}
 
 		return 0.0f;
+	}
+
+	static bool SafeToChange(unsigned int entityID, MonoString* string)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+
+			return GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName);
+		}
+		return false;
 	}
 
 #pragma endregion
@@ -1908,6 +1922,16 @@ namespace SliceEngine
 		}
 
 		return registry.try_get<NavAgent>(e);
+	}
+
+	static void NavAgent_ComponentState(uint32_t entityID, bool componentState)
+	{
+		NavAgent* agent = GetNavAgent(entityID);
+
+		if (agent)
+		{
+			agent->componentEnabled = componentState;
+		}
 	}
 
 	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3 *target)
@@ -2273,9 +2297,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+		ADD_INTERNAL_CALL(SafeToChange);
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);
+		ADD_INTERNAL_CALL(NavAgent_ComponentState);
 		ADD_INTERNAL_CALL(NavAgent_SetDestination);
 		ADD_INTERNAL_CALL(NavAgent_Stop);
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);

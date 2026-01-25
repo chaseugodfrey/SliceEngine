@@ -80,7 +80,7 @@ namespace SliceEditor
 		void AddDefaultsToManifest(nlohmann::json& manifestJSON);
 
 		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
-		std::filesystem::path GetMetaDataFromFilename(std::string guid);
+		std::filesystem::path GetMetaDataFromFilename(std::string filename);
 		
 
 		std::optional<std::string> GetFilenameFromGUID(SliceEngine::GUID guid);
@@ -98,7 +98,10 @@ namespace SliceEditor
 			{ AssetType::Controller, {} },
 			{ AssetType::Material, {} },
 			{ AssetType::Model, {} },
-			{AssetType::Texture, {} }
+			{ AssetType::Texture, {} },
+			{ AssetType::Scene, {} },
+			{ AssetType::Prefab, {}},
+			{ AssetType::CustomShader, {}}
 		};
 
 		std::unordered_map <std::string, std::pair<AssetType,std::string>> mSupportedAssetTypes = 

@@ -199,8 +199,9 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
 	{
-		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
-		{}
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
+		{
+		}
 
 		if (ImGui::IsItemHovered())
 		{
@@ -264,7 +265,7 @@ namespace SliceEditor
 			canDrag = false;
 		}
 
-		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
 		{
 			if(!(node.type == SelectionType::PREFAB))
 			{
@@ -538,13 +539,25 @@ namespace SliceEditor
 		}
 	}
 
-	ImTextureID ContentBrowserWindow::GetIcon(SelectionType type)
+	ImTextureID ContentBrowserWindow::GetIcon(DirectoryNode* node)
 	{
-		auto textureHandle = mManager.GetDefaultIconHandle(type);
+		using namespace SliceEngine;
+		std::optional<Handle<SliceEngineTypes::Texture>> handle;
 
-		if (textureHandle.has_value())
+		switch (node->type)
 		{
-			auto texture = textureHandle.value().get();
+		case SelectionType::TEXTURE:
+			handle = mManager.GetTextureIconHandle(node->relativePath.generic_string());
+			break;
+
+		default:
+			handle = mManager.GetDefaultIconHandle(node->type);
+			break;
+		}
+
+		if (handle.has_value())
+		{
+			auto texture = handle.value().get();
 			if (texture && texture->texture_id != 0)
 				return static_cast<ImU64>(texture->texture_id);
 		}

@@ -16,11 +16,13 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
+#include <Core/Registry.h>
 #include <Input/InputSystem.h>
 #include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
+#include <Configuration/PreferenceManager.h>
 
 namespace SliceEditor
 {
@@ -103,24 +105,20 @@ namespace SliceEditor
 		
 		// Editor Core
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
-		SLICE_LOG("Initializing Editor Systems.");
-
 		InitManagers();
-		InitWindowManager();
 
-		//SliceEditor::InitFileWatcher();
+		// Load Preferences & Set starting scene
+		auto preferenceManager = registry.GetManager<PreferenceManager>("Preferences");
+		preferenceManager->LoadPreferences();
+		preferenceManager->SetPreferences();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 		inputs->isActive = true;
 
-
-		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
-		//NavmeshTest.AddComponent<SliceEngine::NavAgent>();
-		//NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
-		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
-		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
-
-		
+		//// Init starting scene
+		// who commented it out say now
+		// it broke play stop
+		engine.InitScene();
 	}
 
 	void Editor::Run()
@@ -157,8 +155,17 @@ namespace SliceEditor
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
+	void Editor::Save()
+	{
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences();
+	}
+
 	void Editor::Exit()
 	{
+		// Save all editor changes
+		// to add save engine changes if needed
+		Save();
+
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
@@ -181,6 +188,11 @@ namespace SliceEditor
 		ImGui::CreateContext();
 		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
+
+		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 22.0f);
+		if (font) io.FontDefault = font;
+
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
