@@ -231,6 +231,7 @@ namespace SliceEngine
 
             float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
             bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
+            //SliceLog.Log("GroundDashing: " + isGroundDashing.ToString() + " AirDashing: " + isAirDashing.ToString() + " isAttacking: " + isAttacking.ToString() + " isPlunging: " + isPlunging.ToString());
             if (isGroundDashing || isAirDashing)
             {
                 float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
@@ -266,36 +267,39 @@ namespace SliceEngine
             {
                 if (isPlunging && !plungeImpulseStarted)
                 {
-                    // if it grounds when plunging
-                    if (grounded)
+                    // apply impulse
+                    plungeImpulseStarted = true;
+                    // ill jus copy the jump but apply it downwards
+                    float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * gravity);
+                    velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
+                }
+                // if it grounds when plunging
+                if (isPlunging && grounded)
+                {
+                    isPlunging = false;
+                    plungeImpulseStarted = false;
+                    // transition to plunge land
+                    if (animator != null)
                     {
-                        // transition to plunge land
-                        if (animator != null)
-                        {
-                            animator.SetBool("PlungeLand", true);
+                        animator.SetBool("PlungeLand", true);
 
-                            // check if there is input
-                            if (input != Vector3.Zero)
-                                animator.SetBool("PlungeToWalk",true);
-                            else
-                                animator.SetBool("PlungeToIdle",true);
+                        // check if there is input
+                        if (input != Vector3.Zero)
+                            animator.SetBool("PlungeToWalk", true);
+                        else
+                            animator.SetBool("PlungeToIdle", true);
 
 
                         // if there is then transition to plunge walk
                         // else transition to plunge idle?
-                        }
                     }
-
-
-                    // no movement at all
-                    // (skip calling Move with any Y to avoid CC grounded quirks).
                 }
-                //else
-                //{
-                    // existing behavior for attacks / active plunge impulse
-                    Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
+                else
+                {
+                // existing behavior for attacks / active plunge impulse
+                Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
-                //}
+                }
             }
             else
             {
