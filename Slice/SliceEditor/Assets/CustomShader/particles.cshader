@@ -1,0 +1,14 @@
+#IN
+
+#CODE
+vec4 TexColorC(vec4 texCol, vec4 color)
+{
+    if(color.a < 0.0001f)
+        discard;
+
+    return texCol * color;
+}
+vec2 RoughMet()
+{
+    return vec2(0.0f, 0.0f);
+}

@@ -10,6 +10,7 @@ namespace SliceEngine
     {
         public bool boolTest = false;
         public GameObject GOtest;
+        private float t = 0.0f;
         public Prefab prefabObj = new Prefab("Asset/Test.prefab");
 
         //public List<int> intList = new List<int>();
@@ -17,16 +18,14 @@ namespace SliceEngine
         //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
-
-            GOtest = FindGameObjectWithName("Cube");
-            int i = 0;
-
-            //foreach (var gameObject in goListTest)
-            //{
-            //    Console.WriteLine(gameObject.mID);
-            //    SliceLog.Console(i);
-            //    i++;
-            //}
+            t += dt;
+            Console.WriteLine(t);
+            if(t >= 3.0f)
+            {
+                SliceLog.Log("Create Prefab!");
+                CreateGameObject(prefabObj.prefabName);
+                t = 0.0f;
+            }
         }
 
         public override void OnEnabled()

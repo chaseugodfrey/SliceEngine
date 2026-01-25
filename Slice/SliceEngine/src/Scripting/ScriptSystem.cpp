@@ -1327,6 +1327,8 @@ namespace SliceEngine
                     }
                 }
             }
+            
+            UpdateScriptComponent(entity);
         }
     }
 

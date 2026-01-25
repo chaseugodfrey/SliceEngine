@@ -458,12 +458,27 @@ namespace SliceEngine
 				};
 			}
 
+			//Theres a problem here? It does not take into account if it had something on the left/right of it.
 			for (auto& [prefabID, entity] : instancePrefabIDToEntityMap)
 			{
 				auto& sceneGraphComp = mRegistry->get<SceneGraph>(entity);
 				auto& originalSceneGraph = prefabIDToSceneGraphMap[prefabID];
-				sceneGraphComp.neighbours[SceneGraph::UP] = originalSceneGraph[SceneGraph::UP] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::UP]] : entt::null;
+
+				//Always have to do down. So do DOWN first.
 				sceneGraphComp.neighbours[SceneGraph::DOWN] = originalSceneGraph[SceneGraph::DOWN] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::DOWN]] : entt::null;
+				//Up is special cus the parentNode of the prefab should not remap its left/up/right. Only down
+				
+				if (originalSceneGraph[SceneGraph::UP] != UINT_MAX)
+				{
+					sceneGraphComp.neighbours[SceneGraph::UP] = instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::UP]];
+				}
+				else
+				{
+					//If it comes here its the parentNode of the Prefab. Skip the left and right setting
+					continue;
+				}
+
+				//sceneGraphComp.neighbours[SceneGraph::UP] = originalSceneGraph[SceneGraph::UP] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::UP]] : entt::null;
 				sceneGraphComp.neighbours[SceneGraph::LEFT] = originalSceneGraph[SceneGraph::LEFT] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::LEFT]] : entt::null;
 				sceneGraphComp.neighbours[SceneGraph::RIGHT] = originalSceneGraph[SceneGraph::RIGHT] != UINT_MAX ? instancePrefabIDToEntityMap[originalSceneGraph[SceneGraph::RIGHT]] : entt::null;
 			}

@@ -330,6 +330,33 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetRotationMax(uint entityID, ref float maxRotation);
 
+        // 3D Rotation
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetIsRotation3D(uint entityID, out bool isRotation3D);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetIsRotation3D(uint entityID, ref bool isRotation3D);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetRotation3DHint(uint entityID, out Vector3 rotation3DHint);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetRotation3DHint(uint entityID, ref Vector3 rotation3DHint);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMinRotation3DHint(uint entityID, out Vector3 minRotation3DHint);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMinRotation3DHint(uint entityID, ref Vector3 minRotation3DHint);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMaxRotation3DHint(uint entityID, out Vector3 maxRotation3DHint);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMaxRotation3DHint(uint entityID, ref Vector3 maxRotation3DHint);
+
+
         // Spawn Position
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -497,6 +524,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool IsCurrAnimFin(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SafeToChange(uint entity, string name);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Destroy(uint entity);
