@@ -270,27 +270,32 @@ namespace SliceEngine
                     if (grounded)
                     {
                         // transition to plunge land
-                        // check if there is input
+                        if (animator != null)
+                        {
+                            animator.SetBool("PlungeLand", true);
+
+                            // check if there is input
+                            if (input != Vector3.Zero)
+                                animator.SetBool("PlungeToWalk",true);
+                            else
+                                animator.SetBool("PlungeToIdle",true);
+
+
                         // if there is then transition to plunge walk
                         // else transition to plunge idle?
-                            
+                        }
                     }
 
 
                     // no movement at all
                     // (skip calling Move with any Y to avoid CC grounded quirks).
-                    if (animator != null)
-                    {
-                        //animator.SetBool("Plunge", true);
-
-                    }
                 }
-                else
-                {
+                //else
+                //{
                     // existing behavior for attacks / active plunge impulse
                     Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
-                }
+                //}
             }
             else
             {
@@ -305,16 +310,6 @@ namespace SliceEngine
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
-
-                //if (animator != null)
-                //{
-                //    animator.SetBool("PlungeLand", true);
-                //    if (walkingNow)
-                //        animator.SetBool("PlungToWalk", true);
-                //    else
-                //        animator.SetBool("PlungToIdle", true);
-
-                //}
             }
 
             //if (animator)
@@ -325,14 +320,6 @@ namespace SliceEngine
             //    animator.SetBool("IsAttacking", isAttacking);
             //}
 
-
-            //if (animator != null)
-            //{
-            //    if(walkingNow)
-            //        animator.SetBool("PlungToWalk", true);
-            //    else
-            //        animator.SetBool("PlungToIdle", true);
-            //}
 
             //if (walkAudioSource != null)
             //{
@@ -1068,6 +1055,10 @@ namespace SliceEngine
             {
                 // do plunge?
                 isPlunging = true;
+                if (animator != null)
+                {
+                    animator.SetBool("Plunge", true);
+                }
                 return;
             }
 
