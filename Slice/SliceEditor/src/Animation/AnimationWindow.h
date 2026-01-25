@@ -44,7 +44,7 @@ namespace SliceEditor
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
-		void LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip);
+		void LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animCipIdx);
 		void LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph);
 		void ClearData();
 
