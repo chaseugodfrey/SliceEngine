@@ -68,6 +68,8 @@ namespace SliceEngine
 		void ForceSetCustomShader(const std::string& sh, GLuint s);
 		bool UniformExists(const char* str, GLint& ref);
 		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
+		const glm::mat4& GetViewMatrix() const;
+		const glm::mat4& GetProjMatrix() const;
 		//void LinkTransformInstancing(GUID guid);
 		
 		// Colors
