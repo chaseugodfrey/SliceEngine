@@ -652,10 +652,7 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
-		std::vector<float> floatDat;
-		std::vector<int> intDat;
-		std::vector<uint32_t> uintDat;
-		std::vector<bool> boolDat;
+		std::map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -709,10 +706,60 @@ namespace SliceEditor
 			// properties
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
-			metaJson["floats"].get_to(floatDat);
-			metaJson["ints"].get_to(intDat);
-			metaJson["uints"].get_to(uintDat);
-			metaJson["bools"].get_to(boolDat);
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(shader);
+			for (auto& i : shdr.get()->dataIn)
+			{
+				if (metaJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					}
+				}
+				else
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						data[i.name] = std::get<bool>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						data[i.name] = std::get<uint32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						data[i.name] = std::get<int32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						data[i.name] = std::get<float>(i.baseData);
+						break;
+					}
+				}
+			}
+
 			from_json(metaJson["color"], color);
 
 			inFile.close();
@@ -725,10 +772,14 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
-			metaJson["floats"] = floatDat;
-			metaJson["ints"] = intDat;
-			metaJson["uints"] = uintDat;
-			metaJson["bools"] = boolDat;
+			nlohmann::json dataJson = nlohmann::json::object();
+			for (const auto& [key, val] : data)
+			{
+				std::visit([&](auto&& arg) {
+					dataJson[key] = arg;
+				}, val);
+			}
+			metaJson["data"] = dataJson;
 
 			std::ofstream output(desc_path);
 

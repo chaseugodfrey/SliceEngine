@@ -485,23 +485,22 @@ namespace SliceEngine
 		auto numVar = mat->shader.get()->dataIn.size();
 
 		int mainID{}, subID{};
-		size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
 			switch (i.dataType)
 			{
 			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-				cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				cmd[mainID][subID] = static_cast<uint32_t>(std::get<bool>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-				cmd[mainID][subID] = mat->uintDat[numUints++];
+				cmd[mainID][subID] = std::get<uint32_t>(mat->data.find(i.name)->second);
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-				cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				cmd[mainID][subID] = static_cast<uint32_t>(std::get<int32_t>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-				cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				cmd[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
 			}
 
@@ -531,16 +530,16 @@ namespace SliceEngine
 			switch (i.dataType)
 			{
 			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				rc.ext[mainID][subID] = static_cast<uint32_t>(std::get<bool>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-				rc.ext[mainID][subID] = mat->uintDat[numUints++];
+				rc.ext[mainID][subID] = std::get<uint32_t>(mat->data.find(i.name)->second);
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				rc.ext[mainID][subID] = static_cast<uint32_t>(std::get<int32_t>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
 			}
 

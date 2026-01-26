@@ -956,16 +956,16 @@ namespace SliceEditor
 					switch (i.dataType)
 					{
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						derived->boolDat.push_back(i.baseData.sp_bool);
+						derived->data[i.name] = std::get<bool>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						derived->uintDat.push_back(i.baseData.sp_uint);
+						derived->data[i.name] = std::get<uint32_t>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						derived->intDat.push_back(i.baseData.sp_int);
+						derived->data[i.name] = std::get<int32_t>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						derived->floatDat.push_back(i.baseData.sp_float);
+						derived->data[i.name] = std::get<float>(i.baseData);
 						break;
 					}
 				}
