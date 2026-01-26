@@ -70,13 +70,7 @@ namespace SliceEngine
 			struct ShaderParams
 			{
 				std::string name;
-				union Data
-				{
-					uint32_t sp_uint;
-					int32_t	 sp_int;
-					bool	 sp_bool;
-					float	 sp_float;
-				} baseData;
+				std::variant<bool, uint32_t, int32_t, float> baseData;
 				SP_TYPE dataType;
 			};
 

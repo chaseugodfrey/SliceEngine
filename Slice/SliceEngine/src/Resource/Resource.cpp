@@ -205,10 +205,7 @@ namespace SliceEngine
 			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
 
 			glm::from_json(materialJson["color"], materialToReload->color);
-			materialToReload->floatDat.clear();
-			materialToReload->uintDat.clear();
-			materialToReload->intDat.clear();
-			materialToReload->boolDat.clear();
+			materialToReload->data.clear();
 
 			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
 			GUID oldShaderGUID = materialToReload->shader.getGUID();
@@ -226,31 +223,45 @@ namespace SliceEngine
 			{
 				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
 				for (auto& i : materialToReload->shader.get()->dataIn)
-				{
-					switch (i.dataType)
-					{
-					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						materialToReload->boolDat.push_back(i.baseData.sp_bool);
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						materialToReload->uintDat.push_back(i.baseData.sp_uint);
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						materialToReload->intDat.push_back(i.baseData.sp_int);
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						materialToReload->floatDat.push_back(i.baseData.sp_float);
-						break;
-					}
-				}
-
+					materialToReload->data.emplace(i.name, i.baseData);
 			}
 			else
 			{
-				materialJson["floats"].get_to(materialToReload->floatDat);
-				materialJson["ints"].get_to(materialToReload->intDat);
-				materialJson["uints"].get_to(materialToReload->uintDat);
-				materialJson["bools"].get_to(materialToReload->boolDat);
+				for (auto& i : materialToReload->shader.get()->dataIn)
+				{
+					if (materialJson["data"].contains(i.name))
+					{
+						switch (i.dataType)
+						{
+						case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						{
+							bool b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						{
+							uint32_t b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						{
+							int32_t b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						{
+							float b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						}
+					}
+					else
+						materialToReload->data.emplace(i.name, i.baseData);
+				}
 			}
 		}
 		catch (nlohmann::json::exception& e)
