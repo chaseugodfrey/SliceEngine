@@ -26,7 +26,8 @@ namespace SliceEditor
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
-		mSequencerFlags |= ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDragging | ImGuiNeoSequencerFlags_Selection_EnableDeletion;
+		mOpenEventPopup = false;
+		mSequencerFlags |= ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDeletion;
 	}
 
 	bool AnimationWindow::CheckForAnimator()
@@ -323,7 +324,11 @@ namespace SliceEditor
 			std::string scriptName{};
 			std::string scriptFunc{};
 
+			//Add the event to the eventFrames vector
+			
+			//TODO if currentFrame already has an event. Dont add another one
 			mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
+
 			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
 		}
 
@@ -400,10 +405,22 @@ namespace SliceEditor
 							{
 								ImGui::NeoKeyframe(&key);
 
-								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeSelected())
+								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeRightClicked())
 								{
-									SLICE_LOG("Clicked " + property.name + std::to_string(key));
+									ImGui::OpenPopup("Keyframe Context");
+									//Set the mCurrentEventIndex for the pop-up
+									auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+										{
+											return x.frameNumber == key;
+										});
+
+									if (it != mCurrentAnimator->eventFrames.end())
+									{
+										mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
+									}
 								}
+
+								
 							}
 
 							ImGui::EndNeoTimeLine();
@@ -415,6 +432,23 @@ namespace SliceEditor
 			}
 
 			ImGui::EndNeoSequencer();
+		}
+
+		//Keyframe Context?
+		if (ImGui::BeginPopupContextItem("Keyframe Context"))
+		{
+
+			if (ImGui::Selectable("Edit Event"))
+			{
+				mOpenEventPopup = true;
+			}
+
+			if (ImGui::Selectable("Delete Event"))
+			{
+				SLICE_LOG_WARNING("Non-function yet TODO");
+			}
+
+			ImGui::EndPopup();
 		}
 
 		auto core = SliceEngine::Core::GetInstance();
@@ -487,6 +521,34 @@ namespace SliceEditor
 		if (!hasAnimator)
 			ImGui::EndDisabled();
 
+		if (mOpenEventPopup)
+		{
+			ImGui::OpenPopup("AnimationEventPopup");
+			AnimatorEventPopup(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
+		}
+
 		ImGui::End();
+	}
+
+	void AnimationWindow::AnimatorEventPopup(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
+	{
+		if (ImGui::BeginPopupModal("AnimationEventPopup",nullptr))
+		{
+			if (StringInputHeader(mRegistry, "Function Name: ", "##animEventFuncName", keyFrame.scriptFunc))
+			{ }
+
+			if (StringInputHeader(mRegistry, "Param String: ", "##animEventParams", keyFrame.scriptName))
+			{ }
+
+			if (ImGui::Button("Save Changes"))
+			{
+				//ImGui::NeoClearSelection();
+				mOpenEventPopup = false;
+				LoadDataFromAnimationClip(animClip, animClipIndex);
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 }
