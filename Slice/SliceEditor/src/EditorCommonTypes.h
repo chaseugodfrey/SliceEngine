@@ -169,6 +169,13 @@ namespace SliceEditor
 		bool isDirectory = false;
 	};
 
+	struct CategoryNode : SelectionNode
+	{
+		std::string name;
+		SelectionType type;
+	};
+
+
 	struct StateNode : SelectionNode
 	{
 		int id{};
@@ -210,6 +217,56 @@ namespace SliceEditor
 		using Transition = SliceEngine::SliceEngineTypes::Transition;
 		using Parameters = decltype(StateMachineData::parameters);
 
+		void create_state_node(std::string name)
+		{
+			StateNode node{};
+			node.id = static_cast<int>(mStateNodes.size());
+			node.in_id = node.id * 2;
+			node.out_id = node.in_id + 1;
+
+			for (auto& [_, stateNode] : mStateNodes)
+			{
+				if (stateNode.name == name)
+					name += " copy";
+				break;
+			}
+
+			node.name = name;
+			node.position = {};
+			mStateNodes.emplace(node.id, node);
+		}
+
+		void create_link(StateNode const& source, StateNode const& target)
+		{
+			TransitionLinkNode link;
+			link.id = static_cast<int>(mTransitionNodes.size());
+			link.source_id = source.id;
+			link.target_id = target.id;
+			link.source_out_id = source.out_id;
+			link.target_in_id = target.in_id;
+
+			mTransitionNodes.emplace(link.id, link);
+
+		}
+
+		void check_default()
+		{
+			if (!mStateNodes.empty())
+			{
+				if (mStateNodes.at(0).name == "Entry" && mStateNodes.at(0).name == "Exit")
+					return;
+			}
+
+			mStateNodes.clear();
+			create_default();
+		}
+
+		void create_default()
+		{
+			create_state_node("Entry");
+			create_state_node("Exit");
+		}
+
 		bool empty() const
 		{
 			return mStateMachineAsset == nullptr;
@@ -234,33 +291,30 @@ namespace SliceEditor
 
 			mStateMachineAsset = std::make_unique<StateMachineData>(data);
 
-			int nodeId{ 2 };
-			int linkId{ 0 };
 			auto& stateMap = data.stateMap;
+
+			create_default();
 
 			for (auto& [name, state] : stateMap)
 			{
-				StateNode node{};
-				node.id = nodeId;
-				node.in_id = nodeId * 2;
-				node.out_id = node.in_id + 1;
-				node.name = name;
-				node.position = ImVec2(state.mNodePos);
-
-				mStateNodes.emplace(nodeId, node);
-				mNameToStateID.emplace(name, nodeId);
-				nodeId++;
+				create_state_node(name);
 			}
 
 			for (auto& [sourceId, sourceNode] : mStateNodes)
 			{
-				auto& sourceState = stateMap.at(sourceNode.name);
+				if (sourceNode.name == "Entry")
+				{
+					auto it = mNameToStateID.find(data.entryState);
+					if (it == mNameToStateID.end())
+						continue;
+					
+					continue;
+				}
 
+				auto& sourceState = stateMap.at(sourceNode.name);
+				
 				for (auto& transition : sourceState.transitions)
 				{
-					transition.id = linkId;
-					sourceNode.transitionIds.push_back(linkId);
-
 					auto targetStateName = transition.targetState;
 
 					auto it = mNameToStateID.find(targetStateName);
@@ -270,15 +324,9 @@ namespace SliceEditor
 					auto targetId = mNameToStateID.at(targetStateName);
 					auto& targetNode = mStateNodes.at(targetId);
 
-					TransitionLinkNode link;
-					link.id = linkId;
-					link.source_id = sourceId;
-					link.target_id = targetId;
-					link.source_out_id = sourceNode.out_id;
-					link.target_in_id = targetNode.in_id;
-
-					mTransitionNodes.emplace(linkId, link);
-					linkId++;
+					create_link(sourceNode, targetNode);
+					transition.id = static_cast<int>(mTransitionNodes.size() - 1);
+					sourceNode.transitionIds.push_back(transition.id);
 				}
 			}
 

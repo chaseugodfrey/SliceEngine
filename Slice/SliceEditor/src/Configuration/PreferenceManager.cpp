@@ -6,15 +6,10 @@ namespace SliceEditor
 {
 	void PreferenceManager::Init()
 	{
-
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &PreferenceManager::UpdatePreferences>(this);
 	}
 
 	void PreferenceManager::Update()
-	{
-
-	}
-
-	void PreferenceManager::UpdateVersion(nlohmann::json& preferences)
 	{
 
 	}
@@ -35,11 +30,13 @@ namespace SliceEditor
 		nlohmann::json preferencesJson;
 		preferencesFile >> preferencesJson; 
 		
-		unsigned int version = preferencesJson["Version"].get<unsigned int>();
-		if (version != PreferenceManager::CURRENT_VERSION)
+		auto version_iter = preferencesJson.find("Version");
+		unsigned int saved_version = version_iter != preferencesJson.end() ? version_iter.value().get<unsigned int>() : 0;
+
+		if (saved_version != PreferenceManager::CURRENT_VERSION)
 		{
 			// to fill upon version updates
-			UpdateVersion(preferencesJson);
+			UpdateVersion(preferencesJson, 0);
 		}
 
 		// Theme
@@ -84,6 +81,23 @@ namespace SliceEditor
 		SetPreferences();
 	}
 
+	void PreferenceManager::UpdatePreferences(OnSceneLoadedEvent e)
+	{
+		if (e.scenePath.empty())
+			return;
+
+		if (e.scenePath.extension() == ".temp")
+			return;
+
+		auto& assetManager = registry.GetAssetManager();
+
+		auto asset_filepath = e.scenePath.relative_path().replace_extension("");
+		auto guid = assetManager.mFilenameToGUID.find(asset_filepath.string());
+
+		if (guid != assetManager.mFilenameToGUID.end())
+			mPreferences->scene.lastID = guid->second;
+	}
+
 	Preferences& PreferenceManager::GetPreferences()
 	{
 		return *mPreferences;
@@ -109,6 +123,16 @@ namespace SliceEditor
 		}
 
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(scene_filepath_to_load);
+	}
+
+	void PreferenceManager::UpdateVersion(nlohmann::json& preferences, unsigned int version)
+	{
+		switch (version)
+		{
+		case 0: SavePreferences();  break;
+		case 1: break;
+		default: break;
+		}
 	}
 
 }

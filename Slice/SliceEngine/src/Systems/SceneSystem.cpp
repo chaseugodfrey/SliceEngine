@@ -74,8 +74,10 @@ namespace SliceEngine
 
 		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 		Core::GetInstance()->mFactory.DebugPrint();
+
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;
+		event.scenePath = mCurrentScene;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
 		if (next_scene_filepath.extension() == ".temp")

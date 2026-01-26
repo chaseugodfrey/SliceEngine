@@ -272,7 +272,7 @@ namespace SliceEditor
 		if (!filename.has_value())
 			return SLICE_LOG_ERROR(".controller filename is wrong!");
 
-		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
+		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value();
 
 		if (!mAnimatorData->empty())
 			mAnimatorData->reset();

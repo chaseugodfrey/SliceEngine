@@ -1052,15 +1052,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		//if (!animator.IsValid())
-		//{
-		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-		//	{
-		//		ImGui::Text("Animator is not valid \n :deadge_1");
-		//		ImGui::TreePop();
-		//	}
-		//}
-		//else
+
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
 			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))

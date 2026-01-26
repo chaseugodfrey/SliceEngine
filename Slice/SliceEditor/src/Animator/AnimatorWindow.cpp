@@ -32,7 +32,7 @@ namespace SliceEditor
 
 	void AnimatorWindow::Draw()
 	{
-		bool hasAnimator = CheckForAnimator();
+		CheckForAnimator();
 		
 		ImGui::Begin("Animator");
 
@@ -42,6 +42,41 @@ namespace SliceEditor
 		DrawPostEditorElements();		
 		ImGui::End();
 	}
+
+	void AnimatorWindow::CheckForAnimator()
+	{
+		// Check if any entities selected
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+			return;
+
+		auto& nodes = selectionManager->GetSelectedNodes();
+		Entity entity = entt::null;
+
+		// if entities present
+		if (nodes.size() > 0)
+		{
+			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
+			entity = entityNode->entity;
+
+			// check if first entity has animator component
+			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
+
+			// if anim exists
+			if (anim)
+			{
+				// if current animator is null or mismatch
+				// ignore if anim == mCurrentAnimator
+				// either case, return true
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				{
+					LoadDataFromAnimator(anim, entity);
+				}
+			}
+		}
+	}
+
 
 	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
 	{
@@ -189,8 +224,8 @@ namespace SliceEditor
 			}
 		}
 
-		DrawEntryNode();
-		DrawExitNode();
+		//DrawEntryNode();
+		//DrawExitNode();
 		DrawPostEditorElements();
 
 		if (mAnimatorData)
@@ -262,52 +297,6 @@ namespace SliceEditor
 				}
 			}
 		}
-	}
-
-	bool AnimatorWindow::CheckForAnimator()
-	{
-		// Check if any entities selected
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
-
-		if (selectionManager->mSelectionType != SelectionType::ENTITY)
-		{
-			return (mCurrentAnimator != nullptr);
-		}
-
-		auto& nodes = selectionManager->GetSelectedNodes();
-		Entity entity = entt::null;
-
-		// if entities present
-		if (nodes.size() > 0)
-		{
-			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
-			entity = entityNode->entity;
-
-			// check if first entity has animator component
-			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-
-			// if anim exists
-			if (anim && anim->IsValid())
-			{
-				// if current animator is null or mismatch
-				// ignore if anim == mCurrentAnimator
-				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
-				{
-					LoadDataFromAnimator(anim, entity);
-					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
-				}
-
-				return true;
-			}
-
-			else
-				return (mCurrentAnimator != nullptr);
-		}
-
-		// if no entities present
-		else
-			return (mCurrentAnimator != nullptr);
 	}
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)

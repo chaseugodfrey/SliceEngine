@@ -602,6 +602,7 @@ namespace SliceEngine
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
 		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
+		std::unordered_map<unsigned int, glm::vec2> node_position_map{};
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;

@@ -28,7 +28,7 @@ namespace SliceEditor
 
 		void AddState();
 
-		bool CheckForAnimator();
+		void CheckForAnimator();
 		void ClearData();
 
 		bool RemoveTransitionFromState(int id);

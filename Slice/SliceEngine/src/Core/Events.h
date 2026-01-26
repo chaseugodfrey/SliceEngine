@@ -72,6 +72,7 @@ struct RigidBodyModifiedEvent
 
 struct OnSceneLoadedEvent
 {
+	std::filesystem::path scenePath;
 	bool isSceneLoaded;
 };
 

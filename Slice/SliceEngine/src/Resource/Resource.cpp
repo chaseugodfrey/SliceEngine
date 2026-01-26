@@ -369,6 +369,7 @@ namespace SliceEngine
 
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;
+			event.scenePath = path;
 			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 		}
 	}

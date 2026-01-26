@@ -746,6 +746,8 @@ namespace SliceEditor
 
 		std::map<std::string, rttr::variant> parameters;
 		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
+		glm::vec2 entryPosition;
+		glm::vec2 exitPosition;
 		std::string entryState;
 
 		StateMachineData() = default;
@@ -898,7 +900,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -907,6 +909,8 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties
 			metaJson["entryState"] = entryState;
+			metaJson["entryNodePosition"] = entryPosition;
+			metaJson["exitNodePosition"] = exitPosition;
 
 			for (auto it : parameters)
 			{
@@ -933,7 +937,9 @@ namespace SliceEditor
 			nlohmann::json assetJson;
 
 			assetJson["entryState"] = entryState;
-			
+			assetJson["entryNodePosition"] = entryPosition;
+			assetJson["exitNodePosition"] = exitPosition;
+	
 			nlohmann::json parametersJson;
 			for (const auto& pair : parameters)
 			{
@@ -1437,6 +1443,12 @@ namespace SliceEditor
 			}
 
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			auto entry_pos = assetJson.find("entryNodePosition");
+			auto exit_pos = assetJson.find("exitNodePosition");
+			entryPosition = entry_pos != assetJson.end() ? entry_pos->get<glm::vec2>() : glm::vec2(0.0f);
+			exitPosition = exit_pos != assetJson.end() ? exit_pos->get<glm::vec2>() : glm::vec2(0.0f);
+
 			entryState = assetJson["entryState"];
 			auto params = assetJson["parameters"];
 
