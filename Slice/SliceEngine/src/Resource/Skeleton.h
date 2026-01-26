@@ -70,7 +70,26 @@ namespace SliceEngine
 
 			unsigned int animIdx{};
 			unsigned int frameNumber{};
+
+			//AnimationKeyFrame() = default;
 		};
+
+		inline void to_json(nlohmann::json& j, const AnimationKeyFrame& f) {
+			j = nlohmann::json{
+				{"scriptName", f.scriptName},
+				{"scriptFunc", f.scriptFunc},
+				{"animIdx", f.animIdx},
+				{"frameNumber", f.frameNumber}
+			};
+		}
+
+		inline void from_json(const nlohmann::json& j, AnimationKeyFrame& f) {
+			j.at("scriptName").get_to(f.scriptName);
+			j.at("scriptFunc").get_to(f.scriptFunc);
+			j.at("animIdx").get_to(f.animIdx);
+			j.at("frameNumber").get_to(f.frameNumber);
+		}
+
 
 		struct Animation {
 			std::string name{};

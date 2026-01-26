@@ -73,6 +73,18 @@ namespace SliceEngine
 
 		}
 
+		template<>
+		inline void Serialize <std::vector<SliceEngineTypes::AnimationKeyFrame>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::vector<SliceEngineTypes::AnimationKeyFrame>& value, const Entity& entity)
+		{
+			json& jArr = output[name][typeName][propName];
+			jArr = json::array();
+			for (const auto& frame : value)
+			{
+				jArr.push_back(frame); 
+			}
+		}
+
 		// For generic vectors
 		template <typename T>
 		void Serialize(json& output, const std::string& name,
@@ -615,8 +627,11 @@ namespace nlohmann
 	}
 }
 
+
+
 namespace SliceEngine
 {
+
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{

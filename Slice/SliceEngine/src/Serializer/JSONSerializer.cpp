@@ -611,7 +611,8 @@ namespace SliceEngine
 						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
-						GameObject
+						GameObject,
+						std::vector<SliceEngineTypes::AnimationKeyFrame>
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
