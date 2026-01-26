@@ -350,7 +350,8 @@ namespace SliceEngine
                 lastAirTime = Time.time; // mark when airborne
                 if (animator != null)
                 {
-                    animator.SetBool("JumpLoop", true);
+                    if (animator.SafeToChange("JumpLoop"))
+                        animator.SetBool("JumpLoop", true);
                 }
             }
 
