@@ -32,6 +32,7 @@ namespace SliceEditor
 
 		SliceEngine::Timeline mTimeline;
 		float mCurrentTime{ 0.0f };
+		ImGuiNeoSequencerFlags mSequencerFlags;
 
 		//
 		SliceEngine::Animator* mCurrentAnimator{ nullptr };

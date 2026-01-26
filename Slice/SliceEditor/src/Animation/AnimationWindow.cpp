@@ -26,6 +26,7 @@ namespace SliceEditor
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
+		mSequencerFlags |= ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDragging | ImGuiNeoSequencerFlags_Selection_EnableDeletion;
 	}
 
 	bool AnimationWindow::CheckForAnimator()
@@ -385,7 +386,7 @@ namespace SliceEditor
 
 		ImGui::EndGroup();
 
-		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame))
+		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame, { 0,0 }, mSequencerFlags))
 		{			
 			for (auto& group : mPropertyGroups)
 			{
@@ -393,30 +394,18 @@ namespace SliceEditor
 				{
 					for (auto& property : group.properties)
 					{
-						if (ImGui::BeginNeoTimeline(property.name.c_str(), property.keys))
+						if (ImGui::BeginNeoTimelineEx(property.name.c_str(), &group.isOpen))
 						{
-							for (size_t i = 0; i < property.keys.size(); i++)
+							for (auto& key : property.keys)
 							{
-								bool isSelected = (property.selectedKeyIndex == i);
+								ImGui::NeoKeyframe(&key);
 
-
-								// yea this doesnt work
-								if(ImGui::IsItemClicked())
+								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeSelected())
 								{
-									property.selectedKeyIndex = i;
-
-									std::cout << "Clicked diamond: " << i << " at frame: " << property.keys[i] << std::endl;
-									//mCurrentAnimator->eventFrames[i].scriptFunc = function;
-									//mCurrentAnimator->eventFrames[i].scriptName = name;
-
-								}
-
-								// click off
-								if (isSelected && property.selectedKeyIndex != i) 
-								{
-									property.selectedKeyIndex = i;
+									SLICE_LOG("Clicked " + property.name + std::to_string(key));
 								}
 							}
+
 							ImGui::EndNeoTimeLine();
 						}
 					}
