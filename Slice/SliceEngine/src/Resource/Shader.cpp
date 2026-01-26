@@ -235,14 +235,37 @@ namespace SliceEngine
 					ss >> inParam.name;
 					ss >> throwaway;
 
-					if (inParam.dataType == SP_TYPE::FLOAT)
+					switch (inParam.dataType)
+					{
+					case SP_TYPE::FLOAT:
 					{
 						float tempFloat{};
 						ss >> tempFloat;
-						inParam.baseData.sp_float = tempFloat;
+						inParam.baseData = tempFloat;
+						break;
 					}
-					else
-						ss >> inParam.baseData.sp_uint;
+					case SP_TYPE::UINT:
+					{
+						uint32_t temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					case SP_TYPE::INT:
+					{
+						int32_t temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					case SP_TYPE::BOOL:
+					{
+						bool temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					}
 
 					dataIn.push_back(inParam);
 				}
@@ -356,9 +379,12 @@ void main(void){
 	float(iDat[vInstance].col >> 8 & 0xFF),
 	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
-	fFragColor = TexColorC(texture(textures[iDat[vInstance].textureID], vTex), color);
-	if(fFragColor.a == 0.f)
+	vec4 texColor = texture(textures[iDat[vInstance].textureID], vTex);
+	if(texColor.a == 0.f)
 		discard;
+
+	fFragColor = TexColorC(texColor, color);
+
 	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold)
 		discard;
 	fGID = iDat[vInstance].entityID;
