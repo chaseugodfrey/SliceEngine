@@ -400,6 +400,15 @@ namespace SliceEngine
 			prop.set_value(componentInstance, arr);
 		}
 
+		template <>
+		inline void Deserialize<std::vector<SliceEngineTypes::AnimationKeyFrame>>(
+			rttr::variant& componentInstance, rttr::property& prop,
+			const std::vector<SliceEngineTypes::AnimationKeyFrame>& vec, const std::string& propName,
+			const std::string& componentName, const Entity& entity)
+		{
+			prop.set_value(componentInstance, vec);
+		}
+
 		// Handle
 		template <typename T>
 		inline void Deserialize(rttr::variant& componentInstance, rttr::property& prop,

@@ -84,10 +84,10 @@ namespace SliceEngine
 		}
 
 		inline void from_json(const nlohmann::json& j, AnimationKeyFrame& f) {
-			j.at("scriptName").get_to(f.scriptName);
-			j.at("scriptFunc").get_to(f.scriptFunc);
-			j.at("animIdx").get_to(f.animIdx);
-			j.at("frameNumber").get_to(f.frameNumber);
+			f.scriptName = j.at("scriptName").get<std::string>();
+			f.scriptFunc = j.at("scriptFunc").get<std::string>();
+			f.animIdx = j.at("animIdx").get<unsigned int>();
+			f.frameNumber = j.at("frameNumber").get<unsigned int>();
 		}
 
 
