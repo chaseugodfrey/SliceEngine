@@ -336,7 +336,7 @@ namespace SliceEngine
 
 				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
 				{
-					// Nested vector � recurse
+					// Nested vector recurse
 					std::vector<typename T::value_type> innerResult;
 					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
 					result.push_back(elem);

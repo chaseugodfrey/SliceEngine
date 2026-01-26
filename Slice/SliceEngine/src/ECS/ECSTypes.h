@@ -432,7 +432,13 @@ namespace SliceEngine
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
+
 		GLuint64 textureID{};
+
+		bool isMeshParticle{false};
+
+		Handle<SliceEngineTypes::Model> modelHandle{};
+		Handle<SliceEngineTypes::Material> materialHandle{};
 	};
 	struct ParticleSystem
 	{
@@ -567,11 +573,12 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		GUID textureGUID;
+		GUID modelGUID;
 		GUID materialGUID;
-		GUID meshGUID;
+
 		Handle<SliceEngineTypes::Texture> textureHandle;
+		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
-		Handle<SliceEngineTypes::Mesh> meshHandle;
 
 		// Internal
 		std::vector<Particle> particles{};		// Main Storage of all particles

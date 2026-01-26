@@ -448,7 +448,7 @@ namespace SliceEngine
 
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("materialGUID", &ParticleSystem::materialGUID)
-		.property("meshGUID", &ParticleSystem::meshGUID)
+		.property("modelGUID", &ParticleSystem::modelGUID)
 		;
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())

@@ -210,6 +210,13 @@ namespace SliceEngine
 			prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
 			prp.colour = p.colour;
 
+			prp.isMeshParticle = (ps.renderMode == ParticleSystem::RenderMode::MESH) ? true : false;
+			if (prp.isMeshParticle)
+			{
+				prp.modelHandle = ps.modelHandle;
+				prp.materialHandle = ps.materialHandle;
+			}
+
 			ps.renderData.push_back(prp);
 		}
 		particlesTransforms.insert(particlesTransforms.end(), ps.renderData.begin(), ps.renderData.end());

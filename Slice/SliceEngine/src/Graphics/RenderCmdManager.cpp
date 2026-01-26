@@ -120,38 +120,86 @@ namespace SliceEngine
 		// Gather Particles --TODO-- Gather shader for particles too
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
-			auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-
-			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-			// --TODO-- Currently hard set particles shader
-			uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
-			RCK_Size key =
-				(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
-				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
-			if (ptx.colour.a > 0.999f)
-				key = key | MRCK_OPAQUE;
-			else
-				key = key | MRCK_TRANSCLUCENT;
-
-			BasicIDat data;
-			data.mdlMtx = ptx.transform;
-			SetColor(data, ptx.colour);
-			data.texID = GetTextureDetails(ptx.textureID);
-			data.entityID = 0;
-
-			//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
-
-			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+			if (!ptx.isMeshParticle)
 			{
-				TranslucentCmd tc{ key, data };
-				translucentCmds.emplace_back(tc);
+				auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+
+				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
+				// --TODO-- Currently hard set particles shader
+				uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
+				RCK_Size key =
+					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
+					(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+				if (ptx.colour.a > 0.999f)
+					key = key | MRCK_OPAQUE;
+				else
+					key = key | MRCK_TRANSCLUCENT;
+
+				BasicIDat data;
+				data.mdlMtx = ptx.transform;
+				SetColor(data, ptx.colour);
+				data.texID = GetTextureDetails(ptx.textureID);
+				data.entityID = 0;
+
+				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
+
+				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+				{
+					TranslucentCmd tc{ key, data };
+					translucentCmds.emplace_back(tc);
+				}
+				else
+				{
+					SetAlpha(data, 1.f);
+					// --TODO--
+					renderCmds[key].base.push_back(std::move(data));
+				}
 			}
-			else
+			else 
 			{
-				SetAlpha(data, 1.f);
-				// --TODO--
-				renderCmds[key].base.push_back(std::move(data));
+				auto& model = ptx.modelHandle;
+				auto* material = ptx.materialHandle.get();
+
+				if (!model.IsValid() || !material)
+					continue;
+
+				RCK_ModelT mdlDet = GetModelDetails(
+					model.getGUID().GetGUID(),
+					0,
+					false
+				);
+
+				uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
+
+				RCK_Size key =
+					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
+					(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+
+				BasicIDat data;
+				data.mdlMtx = ptx.transform;
+				data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				SetColor(data, ptx.colour);
+				data.entityID = 0;
+
+				if (ptx.colour.a > 0.999f)
+					key |= MRCK_OPAQUE;
+				else
+					key |= MRCK_TRANSCLUCENT;
+
+				if (key & MRCK_TRANSCLUCENT)
+				{
+					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, material);
+					translucentCmds.emplace_back(tc);
+				}
+				else
+				{
+					AppendRenderCmd(renderCmds[key], data, material);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(material->shader.get()->dataIn.size());
+				}
 			}
+			
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}

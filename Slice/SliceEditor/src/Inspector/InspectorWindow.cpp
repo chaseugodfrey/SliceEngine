@@ -1397,9 +1397,6 @@ namespace SliceEditor
 				{
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
 					{
-						std::string texture = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
 						SliceEngine::GUID tex_guid = ps.textureGUID;
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
@@ -1407,24 +1404,8 @@ namespace SliceEditor
 						break;
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
 					{
-						std::string mesh = ps.textureGUID.toString();
-						std::string material = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Mesh", "##ps_mesh", mesh))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(mesh);
-						}
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Material", "##ps_material", material))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(material);
-						}
-
-						SliceEngine::GUID tex_guid = ps.textureGUID;
-						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
-						ps.textureGUID = tex_guid;
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
 					}
 						break;
 					default:
