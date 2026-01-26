@@ -1253,6 +1253,7 @@ namespace SliceEngine
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
+        eventManager->Subscribe< AnimationEvent, &ScriptSystem::OnAnimationEvent>(this);
     }
 
     void ScriptSystem::UnsubscribeToEvents()
@@ -1558,6 +1559,12 @@ namespace SliceEngine
         {
             scriptInstance->InvokeButtonOnRelease();
         }
+    }
+
+    void ScriptSystem::OnAnimationEvent(const AnimationEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
     }
 
     void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)

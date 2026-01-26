@@ -167,6 +167,8 @@ namespace SliceEngine
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
 
+		void OnAnimationEvent(const AnimationEvent& event);
+
 		//Slider events
 		void OnSliderValue(const OnSliderValueEvent& event);
 

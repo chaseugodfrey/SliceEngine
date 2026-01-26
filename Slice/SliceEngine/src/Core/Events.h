@@ -58,6 +58,7 @@ struct GONetworkEvent {
 struct AnimationEvent {
 	std::string funcName;
 	std::string scriptName;
+	Entity entity;
 };
 
 //struct SliceEntityModifiedEvent
