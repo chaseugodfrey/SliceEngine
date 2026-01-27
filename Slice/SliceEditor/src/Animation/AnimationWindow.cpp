@@ -327,9 +327,21 @@ namespace SliceEditor
 			//Add the event to the eventFrames vector
 			
 			//TODO if currentFrame already has an event. Dont add another one
-			mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
+			bool frameHasEvent = false;
+			for (auto& event : mCurrentAnimator->eventFrames)
+			{
+				if (event.frameNumber == currentFrame)
+				{
+					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
+					frameHasEvent = true;
+				}
+			}
+			if(!frameHasEvent)
+			{
+				mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
 
-			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+			}
 		}
 
 
