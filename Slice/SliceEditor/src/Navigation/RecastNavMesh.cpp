@@ -223,7 +223,7 @@ namespace SliceEditor
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
 		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
-		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::string debugPath = "Assets/NavMesh/" + currentSceneName + ".navmesh";
 		std::filesystem::path path(debugPath);
 		if (!std::filesystem::exists(path.parent_path()))
 		{
@@ -302,7 +302,7 @@ namespace SliceEditor
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
 		// testing if can save into file, this is for detour to read
-		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
+		std::ofstream outFile("Resources/" + currentSceneName + ".bin", std::ios::binary);
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
@@ -528,7 +528,7 @@ namespace SliceEditor
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
 
 		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
-		std::string debugPath = "Assets/NavMesh/navmesh_debug_" + currentSceneName + ".navmesh";
+		std::string debugPath = "Assets/NavMesh/" + currentSceneName + ".navmesh";
 		std::filesystem::path path(debugPath);
 		if (!std::filesystem::exists(path.parent_path()))
 		{
@@ -600,8 +600,8 @@ namespace SliceEditor
 		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
 		// testing if can save into file, this is for detour to read
-		std::ofstream outFile("Resources/output_navmesh.bin", std::ios::binary);
-		std::cout << "Detour file NavMesh exported to Resources/output_navmesh.bin\n";
+		std::ofstream outFile("Assets/NavMesh/" + currentSceneName + ".bin", std::ios::binary);
+		std::cout << "Detour file NavMesh exported to Assets/NavMesh/" << currentSceneName << ".bin\n";
 
 		if (polyMesh)
 		{

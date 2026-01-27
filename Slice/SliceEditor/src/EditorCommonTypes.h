@@ -125,9 +125,10 @@ namespace SliceEditor
 		//std::string name;
 		entt::entity entity = entt::null;
 		bool isPrefab = false;
+		bool seen = false; //For editor Hierarchy to check if it should be removed or not
 
 		EntityNode()
-			: entity(entt::null), isPrefab(false)
+			: entity(entt::null), isPrefab(false), seen(false)
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;

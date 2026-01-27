@@ -193,20 +193,20 @@ namespace SliceEditor
 
 			if (rect.hori_pivot != SliceEngine::RectTransform::HoriPivot::STRETCH_H) {
 				DragIntInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "W: %d", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "L: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "R: %d", -2000, 2000);	//some random ass min max
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "X: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
 			}
 			ImGui::TreePop();
 		}
@@ -229,7 +229,7 @@ namespace SliceEditor
 			//sprite.rgba.r = rgb.r;sprite.rgba.g = rgb.g;sprite.rgba.b = rgb.b;
 			BoolInputHeader(mRegistry, "Raycast Target", "##raycasttarget", sprite.raycast_target);
 
-			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.1f", 0.f, 1.f);
+			DragFloatInputHeader(mRegistry, "Alpha Threshold", "##alphathreshold", sprite.alphathreshold, "%.01f", 0.f, 1.f);
 
 			SliceEngine::GUID tex_guid = sprite.textureHandle;
 			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
@@ -249,14 +249,26 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
 
+			/*
+			* will need to update this token_updated from scripts too
+			*/
+
+			if (StringInput(mRegistry, "##font_text", font.text, 150.f)) {
+				font.token_updated = false;
+			}
+
 			DragColor4InputHeader(mRegistry, "Color", "##uicolor", font.rgba);
 
-			DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f);
-			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.1f", 1.f, 100.f);
+			if (DragFloatInputHeader(mRegistry, "Font Size", "##font_size", font.font_size, "%.1f", 1.f, 300.f)) {
+				font.token_updated = false;
+			}
+			DragFloatInputHeader(mRegistry, "Line Spacing", "##line_spacing", font.line_spacing, "%.01f", 0.9f, 3.f);
 			
 			SliceEngine::GUID font_guid = font.fontHandle;
-			GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font");
-			font.fontHandle = font_guid;
+			if (GUIDDragDropInputHeader(mRegistry, "Font", "##fonttexture", font_guid, "Font")) {
+				font.fontHandle = font_guid;
+				font.token_updated = false;
+			}
 			
 
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
@@ -1232,21 +1244,37 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.posValueType, "position");
 
 
-				// Start Rotation
+				// Start Rotation			
 				switch (ps.initialRotationType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Rotation", "##r", ps.rotation, "%.1f", 0.0f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Rotation", "##rot3D", ps.rotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.1f", 0.0f, 360.f);
+					}					
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation, "&.1f", 0.f, 360.f);
-					DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Min Rotation", "##minRot3D", ps.minRotation3DHint);
+						DragVec3InputHeader(mRegistry, "Max Rotation", "##maxRot3D", ps.maxRotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					}					
 					break;
 				default:
 					break;
 				}
 				ImGui::SameLine();
-				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
+				ButtonValueTypePopup(ps.initialRotationType, "rotation");
+				BoolInputHeader(mRegistry, "3D Rotation", "##is3DRotation", ps.isRotation3D);
 
 				// Start Colour			
 				switch (ps.colourValueType)
@@ -1537,6 +1565,11 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayEntity(EntityNode* node)
 	{
+		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
+		if (node->entity == SliceEngine::FactoryInstance.GetRootEntity())
+		{
+			return;
+		}
 		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(node->entity))
 		{
 			if (ImGui::Button("Create New Prefab"))
@@ -1549,10 +1582,13 @@ namespace SliceEditor
 
 		else
 		{
-			if (ImGui::Button("Remove Prefab Component"))
+			if(!sessionManager->IsPrefabInspected())
 			{
-				EditorUtilities::GameObject_Unprefab(node->entity);
-				mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
+				if (ImGui::Button("Remove Prefab Component"))
+				{
+					EditorUtilities::GameObject_Unprefab(node->entity);
+					mRegistry.GetManager<SessionManager>("Session")->SetNodeAsPrefab(node, false);
+				}
 			}
 		}
 

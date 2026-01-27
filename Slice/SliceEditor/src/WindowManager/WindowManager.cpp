@@ -302,6 +302,9 @@ namespace SliceEditor
 				if (isPlaying) // if its play, enable game input
 				{
 					EventManager::GetInstance()->Publish<OnPlayEvent>();
+					ClearSelectionEvent clearedEvent;
+					clearedEvent.suppressHistory = true;
+					EventManager::GetInstance()->Publish< ClearSelectionEvent>(clearedEvent);
 				}
 							
 			}
@@ -315,7 +318,9 @@ namespace SliceEditor
 				{
 					isPaused = false;
 					scene->Stop();
-					
+					ClearSelectionEvent clearedEvent;
+					clearedEvent.suppressHistory = true;
+					EventManager::GetInstance()->Publish< ClearSelectionEvent>(clearedEvent);
 				}
 			}
 		}
@@ -859,8 +864,7 @@ namespace SliceEditor
 				{
 					auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
 					
-					// 2. Construct the new path
-					std::filesystem::path newScenePath = "Assets/" + sceneName + ".scene";
+					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
 					std::filesystem::path currentPath = sceneSystem->GetCurrentScenePath();
 
 					sceneSystem->OnSceneSave(newScenePath);
@@ -903,10 +907,9 @@ namespace SliceEditor
 			{
 				if (!sceneName.empty())
 				{
-
-					std::filesystem::path newScenePath = "Assets/Default/" + sceneName + ".scene";
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(newScenePath);
+					EditorUtilities::Scene_CreateDefault(sceneName);
+					//SliceEngine::Core::GetInstance()->GetSceneSystem()->SaveCurrentScene();
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Assets/Default/" + sceneName + ".scene");
 					newScenePopupOpen = false;
 					sceneName = "NewScene";
 				}

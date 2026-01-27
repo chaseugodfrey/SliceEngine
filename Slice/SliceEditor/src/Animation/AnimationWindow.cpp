@@ -5,6 +5,7 @@
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
 #include <Animator/BoneSystem.h>
+#include <Inspector/ComponentPropertiesGUI.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>	//just to get it working for now
 
@@ -16,14 +17,12 @@ namespace SliceEditor
 
 	void AnimationWindow::Init()
 	{
-		//AnimationPropertyGroup transformGroup;
+		//AnimationPropertyGroup EventGroup;
 
-		//transformGroup.name = "Transform";
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		//transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		//EventGroup.name = "Events";
+		////EventGroup.properties.push_back(AnimationProperty{ "Animation Event", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
-		//mPropertyGroups.push_back(transformGroup);
+		//mPropertyGroups.push_back(EventGroup);
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
@@ -98,7 +97,7 @@ namespace SliceEditor
 
 		// add 0 check for size()
 		mCurrentClipIndex = 0;
-		LoadDataFromAnimationClip(*animationClips[0]);
+		LoadDataFromAnimationClip(*animationClips[0], mCurrentClipIndex);
 
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		AnimationPropertyGroup transformGroup;
@@ -117,13 +116,38 @@ namespace SliceEditor
 		
 	}
 
-	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip)
+	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIdx)
 	{
 		endFrame = animClip.num_frames;
 		startFrame = 0;
 		currentFrame = 0;
-
 		mCurrentTime = 0;
+
+		if (!mPropertyGroups.empty())
+		{
+			if (std::strcmp(mPropertyGroups[0].name.c_str(), "Events") == 0)
+			{
+				mPropertyGroups.erase(mPropertyGroups.begin());
+			}
+		}
+
+		AnimationPropertyGroup EventGroup;
+
+		EventGroup.name = "Events";
+		std::vector<ImGui::FrameIndexType> eventFrames{};
+
+		for (int i = 0; i < mCurrentAnimator->eventFrames.size(); i++)
+		{
+			if (mCurrentAnimator->eventFrames[i].animIdx == static_cast<unsigned int>(animClipIdx))
+			{
+				eventFrames.push_back(mCurrentAnimator->eventFrames[i].frameNumber);
+			}
+
+		}
+
+		EventGroup.properties.push_back(AnimationProperty{ "Animation Event", eventFrames });
+
+		mPropertyGroups.insert(mPropertyGroups.begin(),EventGroup);
 	}
 
 	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
@@ -268,7 +292,7 @@ namespace SliceEditor
 			auto core = SliceEngine::Core::GetInstance();
 
 			mTimeline.isPlaying = false;
-			LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex]);
+			LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex],mCurrentClipIndex);
 
 			UpdateTransform(animationClips[mCurrentClipIndex], 0);
 			//UpdateBoneScene(tmpEnt);
@@ -289,6 +313,19 @@ namespace SliceEditor
 		if (wasLoop)
 			ImGui::PopStyleColor();
 
+		ImGui::SameLine();
+
+		if (ImGui::Button("Add Event"))
+		{
+			auto core = SliceEngine::Core::GetInstance();
+			// pop up type script name and script func
+			std::string scriptName{};
+			std::string scriptFunc{};
+
+			mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
+			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+		}
+
 
 		// run timeline here temporarily
 
@@ -301,49 +338,55 @@ namespace SliceEditor
 		ImGui::BeginGroup();
 
 		std::string preview = "No Animations";
+		std::vector<std::string> animationClipNames;
+		std::string animationName;
 
 		if (hasAnimator)
 		{
 			if (animationClips.size() > 0)
 			{
-				if (animationClips[mCurrentClipIndex]->name.empty())
+				size_t pos_ = animationClips[0]->name.find_first_of('|');
+				if(pos_ != std::string::npos)
 				{
-					preview = std::to_string(mCurrentClipIndex);
+					animationName = animationClips[0]->name.substr(0, pos_) + " Animation: ";
 				}
-				else
+				for (auto animationClip : animationClips)
 				{
-					preview = animationClips[mCurrentClipIndex]->name;
-				}
-				
+					size_t pos = animationClip->name.find_first_of('|');
+					std::string clipName;
 
+					if (pos != std::string::npos)
+					{
+						clipName = animationClip->name.substr(pos + 1);
+					}
+					else
+					{
+						clipName = animationClip->name;
+					}
+
+					animationClipNames.push_back(clipName);
+				}
+			}
+			else
+			{
+				animationClipNames.push_back("");
 			}
 		}
 
-		if (ImGui::BeginCombo("##anim_clips", preview.c_str()))
+		else
 		{
-			for (size_t i = 0; i < animationClips.size(); i++)
-			{
-				std::string anim_name = animationClips[i]->name;
-				if (anim_name.empty())
-				{
-					anim_name = std::to_string(i);
-				}
+			animationClipNames.push_back("No Animations");
+		}
 
-				if (ImGui::Selectable(anim_name.c_str()))
-				{
-					mCurrentClipIndex = i;
-					LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[i]);
-				}
-			}
-
-			ImGui::EndCombo();
+		if (ComboHeader(mRegistry, animationName.c_str(), "##animSelected", mCurrentClipIndex, animationClipNames, true))
+		{
+			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex],mCurrentClipIndex);
 		}
 
 		ImGui::EndGroup();
 
 		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame))
-		{
-			
+		{			
 			for (auto& group : mPropertyGroups)
 			{
 				if (ImGui::BeginNeoGroup(group.name.c_str(), &group.isOpen))
@@ -352,6 +395,28 @@ namespace SliceEditor
 					{
 						if (ImGui::BeginNeoTimeline(property.name.c_str(), property.keys))
 						{
+							for (size_t i = 0; i < property.keys.size(); i++)
+							{
+								bool isSelected = (property.selectedKeyIndex == i);
+
+
+								// yea this doesnt work
+								if(ImGui::IsItemClicked())
+								{
+									property.selectedKeyIndex = i;
+
+									std::cout << "Clicked diamond: " << i << " at frame: " << property.keys[i] << std::endl;
+									//mCurrentAnimator->eventFrames[i].scriptFunc = function;
+									//mCurrentAnimator->eventFrames[i].scriptName = name;
+
+								}
+
+								// click off
+								if (isSelected && property.selectedKeyIndex != i) 
+								{
+									property.selectedKeyIndex = i;
+								}
+							}
 							ImGui::EndNeoTimeLine();
 						}
 					}

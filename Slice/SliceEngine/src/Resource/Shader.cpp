@@ -273,6 +273,9 @@ layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
 layout (location=4) out vec4 fMetalRoughData;
 
+uniform int translucentIDOnly;
+uniform float translucentSelectThreshold;
+
 struct BasicIDat
 {
 	mat4 mdlMtx;
@@ -344,15 +347,20 @@ float ExtractFloat(int num)
 			std::string fragEnd{
 R"(
 void main(void){
+
 	fPositionData = vPos;
 	fNormalData = normalize(vNom);
 	vec4 color = vec4(
- float(iDat[vInstance].col >> 24 & 0xFF),
- float(iDat[vInstance].col >> 16 & 0xFF),
- float(iDat[vInstance].col >> 8 & 0xFF),
- float(iDat[vInstance].col & 0xFF)) / float(0xFF);
+	float(iDat[vInstance].col >> 24 & 0xFF),
+	float(iDat[vInstance].col >> 16 & 0xFF),
+	float(iDat[vInstance].col >> 8 & 0xFF),
+	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
 	fFragColor = TexColorC(texture(textures[iDat[vInstance].textureID], vTex), color);
+	if(fFragColor.a == 0.f)
+		discard;
+	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold)
+		discard;
 	fGID = iDat[vInstance].entityID;
 	fMetalRoughData.xy = RoughMet();
 })"};

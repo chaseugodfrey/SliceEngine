@@ -304,6 +304,9 @@ namespace SliceEditor
 		case AssetType::NavMesh:
 			CompileNavMeshAsset(static_cast<NavMeshData*>(metaData));
 			break;
+		case AssetType::NavMeshBin:
+			CompileNavMeshBinAsset(static_cast<NavMeshBinData*>(metaData));
+			break;
 		case AssetType::Font:
 			CompileFontAsset(metaPath);
 			break;
@@ -378,6 +381,9 @@ namespace SliceEditor
 			break;
 		case AssetType::NavMesh:
 			metaData = std::make_unique<NavMeshData>();
+			break;
+		case AssetType::NavMeshBin:
+			metaData = std::make_unique<NavMeshBinData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
@@ -777,6 +783,24 @@ namespace SliceEditor
 		}
 	}
 	void AssetManager::CompileNavMeshAsset(NavMeshData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+	void AssetManager::CompileNavMeshBinAsset(NavMeshBinData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 

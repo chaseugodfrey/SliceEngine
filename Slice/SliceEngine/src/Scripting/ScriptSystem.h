@@ -196,6 +196,11 @@ namespace SliceEngine
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
 
+		// Keep track of the entities that were disabled
+		// so that when its re-enabled, it wont call onStay 
+		std::set<Entity> mEntitiesDisabled;
+		std::map<Entity, std::set<Entity>> mEntityCollisionMap;
+
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
 		std::mutex mQueueLock;
 
