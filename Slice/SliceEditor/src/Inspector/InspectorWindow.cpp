@@ -1064,15 +1064,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		//if (!animator.IsValid())
-		//{
-		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-		//	{
-		//		ImGui::Text("Animator is not valid \n :deadge_1");
-		//		ImGui::TreePop();
-		//	}
-		//}
-		//else
+
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
 			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
@@ -1860,7 +1852,11 @@ namespace SliceEditor
 		if (!anim_data)
 			return;
 
-		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 	

@@ -473,47 +473,44 @@ namespace SliceEditor
 				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
 			}
 
-			//for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			//Bone animation
+			if (mCurrentAnimator->is_bone)
 			{
-
-				//Bone animation
-				if (mCurrentAnimator->is_bone)
+				auto& anim = animationClips[mCurrentClipIndex];
+				if (anim->duration <= 0.0f)
 				{
-					auto& anim = animationClips[mCurrentClipIndex];
-					if (anim->duration <= 0.0f)
+					mCurrentTime = 0.0f;
+				}
+				else
+				{
+					if (mCurrentTime > anim->duration)
 					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						if (mCurrentTime > anim->duration)
+
+						if (!mTimeline.isLoop)
 						{
+							mTimeline.isPlaying = false;
+							currentFrame = startFrame;
+							mCurrentTime = 0.0f;
+							ret = true;
+						}
+						else
+						{
+							mTimeline.isPlaying = true;
+							mCurrentTime = std::fmod(mCurrentTime, anim->duration);
 
-							if (!mTimeline.isLoop)
-							{
-								mTimeline.isPlaying = false;
-								currentFrame = startFrame;
-								mCurrentTime = 0.0f;
-								ret = true;
-							}
-							else
-							{
-								mTimeline.isPlaying = true;
-								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-							}
 						}
 					}
-					if (!ret)
-					{
-						float safe_time = std::min(mCurrentTime, anim->duration);
-						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-						UpdateTransform(anim, safe_time);
-						//UpdateBoneScene(tmpEnt);
-						//UpdateBones();
-					}
+				}
+				if (!ret)
+				{
+					float safe_time = std::min(mCurrentTime, anim->duration);
+					//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+					UpdateTransform(anim, safe_time);
+					//UpdateBoneScene(tmpEnt);
+					//UpdateBones();
 				}
 			}
+
 		}
 
 #pragma endregion
