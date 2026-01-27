@@ -185,7 +185,6 @@ namespace SliceEditor
 		std::vector<int> transitionIds;
 
 		std::string name{};
-		ImVec2 position{};
 
 		StateNode()
 		{
@@ -225,16 +224,16 @@ namespace SliceEditor
 			node.in_id = node.id * 2;
 			node.out_id = node.in_id + 1;
 
-			for (auto& [_, stateNode] : mStateNodes)
+			for (auto& [nm, id] : mNameToStateID)
 			{
-				if (stateNode.name == name)
+				if (nm == name)
 					name += " copy";
 				break;
 			}
 
 			node.name = name;
-			node.position = {};
 			mStateNodes.emplace(node.id, node);
+			mNameToStateID.emplace(name, node.id);
 		}
 
 		void create_link(StateNode const& source, StateNode const& target)
@@ -268,6 +267,31 @@ namespace SliceEditor
 			create_state_node("Exit");
 		}
 
+		void set_position(int state_id, ImVec2 pos)
+		{
+			if (state_id == 0)
+			{
+				mStateMachineAsset->entryPosition = glm::vec2(pos.x, pos.y);
+				return;
+			}
+
+			else if (state_id == 1)
+			{
+				mStateMachineAsset->exitPosition = glm::vec2(pos.x, pos.y);
+				return;
+			}
+
+			else
+			{
+				auto& state_map = mStateMachineAsset->stateMap;
+				auto it = mStateNodes.find(state_id);
+				if (it != mStateNodes.end())
+				{
+					state_map.at(it->second.name).mNodePos = glm::vec2(pos.x, pos.y);
+				}
+			}
+		}
+
 		bool empty() const
 		{
 			return mStateMachineAsset == nullptr;
@@ -284,12 +308,14 @@ namespace SliceEditor
 		bool Load(const std::filesystem::path filepath)
 		{
 			StateMachineData data{};
+
 			if (!data.DeserializeAsset(filepath))
 			{
 				SLICE_LOG_ERROR(".controller filepath does not exist!");
 				return false;
 			}
 
+			data.InitMetaData(filepath, AssetType::Controller, "Controller");
 			mStateMachineAsset = std::make_unique<StateMachineData>(data);
 
 			auto& stateMap = data.stateMap;
@@ -309,6 +335,13 @@ namespace SliceEditor
 					if (it == mNameToStateID.end())
 						continue;
 					
+					create_link(sourceNode, mStateNodes.at(it->second));
+
+					continue;
+				}
+
+				else if (sourceNode.name == "Exit")
+				{
 					continue;
 				}
 

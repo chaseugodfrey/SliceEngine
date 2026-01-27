@@ -6,7 +6,7 @@ namespace SliceEditor
 {
 	void PreferenceManager::Init()
 	{
-		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &PreferenceManager::UpdatePreferences>(this);
+		EventManager::GetInstance()->Subscribe<OnSceneLoadedEvent, &PreferenceManager::UpdateLastSceneLoaded>(this);
 	}
 
 	void PreferenceManager::Update()
@@ -81,18 +81,19 @@ namespace SliceEditor
 		SetPreferences();
 	}
 
-	void PreferenceManager::UpdatePreferences(OnSceneLoadedEvent e)
+	void PreferenceManager::UpdateLastSceneLoaded(OnSceneLoadedEvent e)
 	{
-		if (e.scenePath.empty())
+		auto scene_filepath = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentScenePath();
+		if (scene_filepath.empty())
 			return;
 
-		if (e.scenePath.extension() == ".temp")
+		if (scene_filepath.extension() == ".temp")
 			return;
 
 		auto& assetManager = registry.GetAssetManager();
 
-		auto asset_filepath = e.scenePath.relative_path().replace_extension("");
-		auto guid = assetManager.mFilenameToGUID.find(asset_filepath.string());
+		auto relative_path = scene_filepath.lexically_relative(scene_filepath.parent_path().parent_path());
+		auto guid = assetManager.mFilenameToGUID.find(relative_path.generic_string());
 
 		if (guid != assetManager.mFilenameToGUID.end())
 			mPreferences->scene.lastID = guid->second;

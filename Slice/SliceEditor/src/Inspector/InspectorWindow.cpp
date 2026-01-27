@@ -1857,7 +1857,11 @@ namespace SliceEditor
 		if (!anim_data)
 			return;
 
-		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 	

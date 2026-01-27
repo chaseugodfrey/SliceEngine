@@ -746,11 +746,11 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
-		std::map<std::string, rttr::variant> parameters;
-		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
-		glm::vec2 entryPosition;
-		glm::vec2 exitPosition;
-		std::string entryState;
+		std::map<std::string, rttr::variant> parameters{};
+		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap{};
+		glm::vec2 entryPosition{};
+		glm::vec2 exitPosition{};
+		std::string entryState{};
 
 		StateMachineData() = default;
 		~StateMachineData() = default;
@@ -934,7 +934,7 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path);
 		}
 
-		void SerializeAsset(const std::filesystem::path& desc_path)
+		void SerializeAsset(std::filesystem::path const path = std::filesystem::path{})
 		{
 			nlohmann::json assetJson;
 
@@ -956,15 +956,21 @@ namespace SliceEditor
 			}
 			assetJson["stateMap"] = stateMapJson;
 
-			std::ofstream output(desc_path);
+			std::filesystem::path filepath = path;
+			if (filepath.empty())
+				filepath = assetPath;
+
+			std::ofstream output(filepath);
+
 			if (output.is_open())
 			{
 				output << assetJson.dump(4);
 				output.close();
 			}
+
 			else
 			{
-				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
+				SLICE_LOG_ERROR("Error in opening file for writing: " , assetPath.c_str());
 			}
 		}
 

@@ -22,7 +22,7 @@ namespace SliceEditor
 		void LoadPreferences();
 		void SetPreferences();
 		void SavePreferences();
-		void UpdatePreferences(OnSceneLoadedEvent e);
+		void UpdateLastSceneLoaded(OnSceneLoadedEvent e);
 
 		Preferences& GetPreferences();
 	};
