@@ -1393,21 +1393,17 @@ namespace SliceEditor
 				static std::vector<std::string> render_mode_names = { "Billboard", "Mesh" };
 				ComboHeader(mRegistry, "Render Mode", "##ps_render_mode", ps.renderMode, render_mode_names);
 
+				SliceEngine::GUID tex_guid = ps.textureGUID;
 				switch (ps.renderMode)
 				{
-					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
-					{
-						SliceEngine::GUID tex_guid = ps.textureGUID;
+					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
-					}
-						break;
+						break;					
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
-					{
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
-					}
-						break;
+						break;	
 					default:
 						break;
 				}

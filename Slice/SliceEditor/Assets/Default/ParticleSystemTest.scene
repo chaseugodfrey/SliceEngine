@@ -118,9 +118,9 @@
                 "colorValueType": 0,
                 "colour": [
                     1.0,
-                    0.0,
-                    0.0,
-                    0.48627451062202454
+                    1.0,
+                    1.0,
+                    1.0
                 ],
                 "colourOverLifetime": true,
                 "colourOverLifetimeEnd": [
@@ -134,14 +134,16 @@
                 "destroyOnExpire": false,
                 "duration": 8.100000381469727,
                 "emissionRate": 50.0,
-                "gForce": 3.299999952316284,
+                "gForce": 1.0,
                 "hasCollision": false,
                 "initialLifetimeType": 0,
                 "initialRotationType": 0,
                 "isLocalSpace": false,
                 "isRepeating": true,
                 "lifetime": 7.0,
-                "materialGUID": "",
+                "materialHandle": {
+                    "GUID": "9336273396156370476"
+                },
                 "maxParticleLifetime": 0.0,
                 "maxParticles": 200,
                 "maxRandomColour": [
@@ -181,9 +183,12 @@
                     0.0
                 ],
                 "minRandomSpeed": 0.0,
-                "modelGUID": "",
+                "modelHandle": {
+                    "GUID": "4412061832024819835"
+                },
                 "numBursts": 6,
-                "rotation": 5.0,
+                "renderMode": "Mesh",
+                "rotation": 0.0,
                 "scale": [
                     1.0,
                     1.0,
@@ -200,7 +205,7 @@
                 "spawnPosValueType": 0,
                 "speed": 7.0,
                 "speedValueType": 0,
-                "textureGUID": "17753361635269803423"
+                "textureHandle": "17753361635269803423"
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -462,7 +467,9 @@
                 "isLocalSpace": false,
                 "isRepeating": true,
                 "lifetime": 10.0,
-                "materialGUID": "",
+                "materialHandle": {
+                    "GUID": ""
+                },
                 "maxParticleLifetime": 0.0,
                 "maxParticles": 200,
                 "maxRandomColour": [
@@ -502,8 +509,11 @@
                     0.0
                 ],
                 "minRandomSpeed": 0.0,
-                "modelGUID": "",
+                "modelHandle": {
+                    "GUID": ""
+                },
                 "numBursts": 0,
+                "renderMode": "Billboard",
                 "rotation": 0.0,
                 "scale": [
                     1.0,
@@ -521,7 +531,7 @@
                 "spawnPosValueType": 0,
                 "speed": 0.4000000059604645,
                 "speedValueType": 0,
-                "textureGUID": "17753361635269803423"
+                "textureHandle": "17753361635269803423"
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
