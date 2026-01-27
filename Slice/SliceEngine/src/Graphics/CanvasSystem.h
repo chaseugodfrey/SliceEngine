@@ -59,7 +59,9 @@ namespace SliceEngine
 		*/
 		void UpdateHierachy();
 		void DrawOverlay();
-		void DrawWorld();
+
+		//
+		void ConstructWorldCanvas();
 
 		void Init();
 		void Release();
