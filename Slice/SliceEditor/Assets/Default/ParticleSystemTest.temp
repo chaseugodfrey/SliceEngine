@@ -2,6 +2,7 @@
     {
         "Cube": {
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -331,6 +332,7 @@
     {
         "Cube_1": {
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -338,10 +340,10 @@
                 ],
                 "bursts": [
                     [
-                        0,
+                        100,
                         0,
                         0.0,
-                        0.0
+                        2.0
                     ],
                     [
                         0,
@@ -391,8 +393,8 @@
                 "coneArc": 0.0,
                 "coneRadius": 0.0,
                 "destroyOnExpire": false,
-                "duration": 8.100000381469727,
-                "emissionRate": 50.0,
+                "duration": 2.0,
+                "emissionRate": 0.0,
                 "gForce": 1.0,
                 "hasCollision": false,
                 "initialLifetimeType": 0,

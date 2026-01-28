@@ -198,8 +198,8 @@ namespace SliceEngine
 			// particle rotation
 			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
 
-			// combine rotations
-			glm::quat finalRot = billboardRot * particleRot;
+			// combine rotations if face camera
+			glm::quat finalRot = ps.alwaysFaceCamera ? (billboardRot * particleRot) : particleRot;
 
 			// apply final rotation
 			transformMatrix *= glm::mat4_cast(finalRot);
@@ -218,7 +218,6 @@ namespace SliceEngine
 			else 
 			{
 				prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
-
 			}
 
 			ps.renderData.push_back(prp);

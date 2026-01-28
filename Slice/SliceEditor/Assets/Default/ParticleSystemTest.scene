@@ -30,12 +30,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
+                "entity_id": 8388611,
                 "neighbours": [
                     0,
                     4294967295,
                     4294967295,
-                    1048583
+                    8388615
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -72,6 +72,7 @@
     {
         "Cube_1": {
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -79,10 +80,10 @@
                 ],
                 "bursts": [
                     [
-                        0,
+                        100,
                         0,
                         0.0,
-                        0.0
+                        2.0
                     ],
                     [
                         0,
@@ -132,8 +133,8 @@
                 "coneArc": 0.0,
                 "coneRadius": 0.0,
                 "destroyOnExpire": false,
-                "duration": 8.100000381469727,
-                "emissionRate": 50.0,
+                "duration": 2.0,
+                "emissionRate": 0.0,
                 "gForce": 1.0,
                 "hasCollision": false,
                 "initialLifetimeType": 0,
@@ -223,11 +224,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 8388612,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048581,
+                    8388613,
                     4294967295
                 ]
             },
@@ -310,12 +311,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048581,
+                "entity_id": 8388613,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048582,
-                    1048580
+                    8388614,
+                    8388612
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -396,12 +397,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048582,
+                "entity_id": 8388614,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048583,
-                    1048581
+                    8388615,
+                    8388613
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -438,6 +439,7 @@
     {
         "Cube": {
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -552,12 +554,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048583,
+                "entity_id": 8388615,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048579,
-                    1048582
+                    8388611,
+                    8388614
                 ]
             },
             "struct SliceEngine::SliceEntity": {

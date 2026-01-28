@@ -572,6 +572,8 @@ namespace SliceEngine
 			MESH
 		} renderMode{ BILLBOARD };
 
+		bool alwaysFaceCamera{ true };
+
 		GUID textureGUID;
 
 		Handle<SliceEngineTypes::Texture> textureHandle;

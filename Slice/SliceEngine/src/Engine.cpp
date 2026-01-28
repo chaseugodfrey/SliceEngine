@@ -462,6 +462,8 @@ namespace SliceEngine
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
 		.property("hasCollision", &ParticleSystem::hasCollision)
 
+		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)

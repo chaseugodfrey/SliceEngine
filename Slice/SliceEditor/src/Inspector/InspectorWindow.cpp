@@ -1188,6 +1188,8 @@ namespace SliceEditor
 		{
 			auto& ps = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ParticleSystem>(entity);
 
+			DisplayComponentHeader<SliceEngine::ParticleSystem>(entity);
+
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				// Duration
@@ -1369,7 +1371,7 @@ namespace SliceEditor
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 						std::string triggerTimeID = ("##burst_triggerTime" + std::to_string(counter));
-						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, FLT_MAX);
+						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, ps.duration);
 						ImGui::TableNextColumn();
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
@@ -1405,6 +1407,8 @@ namespace SliceEditor
 			{
 				static std::vector<std::string> render_mode_names = { "Billboard", "Mesh" };
 				ComboHeader(mRegistry, "Render Mode", "##ps_render_mode", ps.renderMode, render_mode_names);
+
+				BoolInputHeader(mRegistry, "Billboard", "##alwaysFaceCamera", ps.alwaysFaceCamera);
 
 				SliceEngine::GUID tex_guid = ps.textureGUID;
 				switch (ps.renderMode)
