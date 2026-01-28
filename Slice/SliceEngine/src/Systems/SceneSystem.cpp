@@ -76,9 +76,11 @@ namespace SliceEngine
 		Core::GetInstance()->mFactory.DebugPrint();
 
 		std::filesystem::path metaPath = next_scene_filepath;
-		metaPath += ".meta";
 
-		std::string navMesh = LoadNavMeshFromMeta(metaPath);
+		std::string navMesh = "";
+		metaPath += ".meta";
+		
+		navMesh = LoadNavMeshFromMeta(metaPath);
 
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;
@@ -113,18 +115,15 @@ namespace SliceEngine
 		}
 		meta.close();
 
+		std::string navMeshPath = "";
+
 		if (metaData.contains("navMeshFile"))
 		{
-			std::string navMeshPath = metaData["navMeshFile"].get<std::string>();
-
-			// Optional: Check if the referenced navmesh file actually exists before returning
-			if (std::filesystem::exists(navMeshPath))
-			{
-				return navMeshPath;
-			}
+			navMeshPath = metaData["navMeshFile"].get<std::string>();
+			
 		}
 
-		return "";
+		return navMeshPath;
 	}
 
 	void SceneSystem::WriteTempFile()

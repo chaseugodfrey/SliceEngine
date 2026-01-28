@@ -304,6 +304,9 @@ namespace SliceEditor
 		case AssetType::NavMesh:
 			CompileNavMeshAsset(static_cast<NavMeshData*>(metaData));
 			break;
+		case AssetType::NavMeshBin:
+			CompileNavMeshBinAsset(static_cast<NavMeshBinData*>(metaData));
+			break;
 		case AssetType::Font:
 			CompileFontAsset(metaPath);
 			break;
@@ -378,6 +381,9 @@ namespace SliceEditor
 			break;
 		case AssetType::NavMesh:
 			metaData = std::make_unique<NavMeshData>();
+			break;
+		case AssetType::NavMeshBin:
+			metaData = std::make_unique<NavMeshBinData>();
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
@@ -794,6 +800,24 @@ namespace SliceEditor
 			//return;
 		}
 	}
+	void AssetManager::CompileNavMeshBinAsset(NavMeshBinData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
 	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
@@ -956,16 +980,16 @@ namespace SliceEditor
 					switch (i.dataType)
 					{
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						derived->boolDat.push_back(i.baseData.sp_bool);
+						derived->data[i.name] = std::get<bool>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						derived->uintDat.push_back(i.baseData.sp_uint);
+						derived->data[i.name] = std::get<uint32_t>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						derived->intDat.push_back(i.baseData.sp_int);
+						derived->data[i.name] = std::get<int32_t>(i.baseData);
 						break;
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						derived->floatDat.push_back(i.baseData.sp_float);
+						derived->data[i.name] = std::get<float>(i.baseData);
 						break;
 					}
 				}

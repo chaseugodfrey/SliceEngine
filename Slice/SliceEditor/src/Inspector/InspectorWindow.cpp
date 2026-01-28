@@ -659,6 +659,27 @@ namespace SliceEditor
 
 	}
 
+	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	{
+		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+
+		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+
+			DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
+
+			DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
+
+			BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
+
+			DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
+
+			ImGui::TreePop();
+		}
+
+	}
+
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
@@ -1064,15 +1085,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		//if (!animator.IsValid())
-		//{
-		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-		//	{
-		//		ImGui::Text("Animator is not valid \n :deadge_1");
-		//		ImGui::TreePop();
-		//	}
-		//}
-		//else
+
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
 			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
@@ -1475,6 +1488,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			{
+				if (ImGui::Selectable("Add Nav Mesh Link"))
+				{
+					reg.emplace<SliceEngine::NavMeshLink>(entity);
+				}
+			}
+
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
 				if (ImGui::Selectable("Add Box Collider"))
@@ -1670,6 +1691,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			{
+				DisplayNavMeshLink(node->entity);
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
@@ -1733,6 +1760,7 @@ namespace SliceEditor
 		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "Custom Shader"))
 		{
 			mat.SerializeAsset(node->fullPath);
+			return;
 		}
 
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
@@ -1745,7 +1773,6 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 		}
 		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
-		int floatCnt{}, intCnt{}, uintCnt{}, boolCnt{};
 		for (auto& i : shdr.get()->dataIn)
 		{
 			switch (i.dataType)
@@ -1753,44 +1780,39 @@ namespace SliceEditor
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
 			{
 				std::string s = "##Material_Bool_" + i.name;
-				bool tempBool{};
+				bool tempBool{ std::get<bool>(mat.data.find(i.name)->second) };
 				if (BoolInputHeader(mRegistry, i.name.c_str(), s.c_str(), tempBool))
 				{
-					mat.boolDat[boolCnt] = tempBool;
+					mat.data[i.name] = tempBool;
 					mat.SerializeAsset(node->fullPath);
 				}
-				++boolCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
 			{
 				std::string s = "##Material_Uint_" + i.name;
-				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.uintDat[uintCnt], "%.u", 0, UINT_MAX))
+				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(mat.data.find(i.name)->second), "%.u", 0, UINT_MAX))
 					mat.SerializeAsset(node->fullPath);
-				++uintCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
 			{
 				std::string s = "##Material_Int_" + i.name;
-				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.intDat[intCnt], "%.d", -INT_MAX, INT_MAX))
+				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(mat.data.find(i.name)->second), "%.d", -INT_MAX, INT_MAX))
 					mat.SerializeAsset(node->fullPath);
-				++intCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 			{
 				std::string s = "##Material_Float_" + i.name;
-				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.floatDat[floatCnt], "%.2f", 0.0f, FLT_MAX, 0.01f))
+				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
 					mat.SerializeAsset(node->fullPath);
-				++floatCnt;
 				break;
 			}
 			default:
 			{
 				ImGui::Text(i.name.c_str());
 				ImGui::SameLine(150.f);
-
 			}
 			}
 		}
@@ -1842,7 +1864,11 @@ namespace SliceEditor
 		if (!anim_data)
 			return;
 
-		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 	

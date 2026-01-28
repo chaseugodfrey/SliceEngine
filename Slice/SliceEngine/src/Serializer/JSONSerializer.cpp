@@ -266,7 +266,8 @@ namespace SliceEngine
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
-								std::vector<Particle>
+								std::vector<Particle>,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -465,7 +466,8 @@ namespace SliceEngine
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
-								std::vector<Particle>
+								std::vector<Particle>,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -611,7 +613,8 @@ namespace SliceEngine
 						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
-						GameObject
+						GameObject,
+						std::vector<SliceEngineTypes::AnimationKeyFrame>
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
@@ -801,7 +804,8 @@ namespace SliceEngine
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
-								std::vector<Particle>
+								std::vector<Particle>,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 

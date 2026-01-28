@@ -45,6 +45,16 @@ namespace SliceEngine
             }
         }
 
+        public bool ComponentIsEnabled(GameObject go) 
+        {
+                return FunctionCalls.NavAgent_GetComponentEnabled(go.mID);
+        }
+
+        public void SetComponentIsEnabled(GameObject go, bool isEnabled) 
+        {
+                FunctionCalls.NavAgent_SetComponentEnabled(go.mID, isEnabled);
+        }
+
         public void SetDestination(Vector3 target)
         {
             if (gameObject != null)
