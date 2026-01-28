@@ -207,14 +207,18 @@ namespace SliceEngine
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 
 			prp.transform = transformMatrix;
-			prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
 			prp.colour = p.colour;
 
 			prp.isMeshParticle = (ps.renderMode == ParticleSystem::RenderMode::MESH) ? true : false;
 			if (prp.isMeshParticle)
 			{
-				prp.modelHandle = ps.modelHandle;
-				prp.materialHandle = ps.materialHandle;
+				prp.modelGUID = ps.modelHandle.getGUID();
+				prp.materialGUID = ps.materialHandle.getGUID();
+			}
+			else 
+			{
+				prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
+
 			}
 
 			ps.renderData.push_back(prp);

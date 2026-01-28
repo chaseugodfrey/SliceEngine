@@ -454,8 +454,6 @@ namespace SliceEngine
 
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
-		.property("materialGUID", &ParticleSystem::materialGUID)
-		.property("modelGUID", &ParticleSystem::modelGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
 		.property("modelHandle", &ParticleSystem::modelHandle)
 		.property("materialHandle", &ParticleSystem::materialHandle);

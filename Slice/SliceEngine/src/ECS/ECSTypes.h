@@ -437,8 +437,8 @@ namespace SliceEngine
 
 		bool isMeshParticle{false};
 
-		Handle<SliceEngineTypes::Model> modelHandle{};
-		Handle<SliceEngineTypes::Material> materialHandle{};
+		GUID modelGUID;
+		GUID materialGUID;
 	};
 	struct ParticleSystem
 	{
@@ -573,8 +573,6 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		GUID textureGUID;
-		GUID modelGUID;
-		GUID materialGUID;
 
 		Handle<SliceEngineTypes::Texture> textureHandle;
 		Handle<SliceEngineTypes::Model> modelHandle;

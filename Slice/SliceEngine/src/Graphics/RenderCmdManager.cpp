@@ -157,14 +157,27 @@ namespace SliceEngine
 			}
 			else 
 			{
-				auto& model = ptx.modelHandle;
-				auto* material = ptx.materialHandle.get();
+				const GUID& modelGUID = ptx.modelGUID;
+				const GUID& materialGUID = ptx.materialGUID;
 
-				if (!model.IsValid() || !material)
+				if (!modelGUID.IsValid() || !materialGUID.IsValid())
+					continue;
+
+				auto* model = Core::GetInstance()
+					->GetResourceManager()
+					->get<SliceEngineTypes::Model>(modelGUID)
+					.get();
+
+				auto* material = Core::GetInstance()
+					->GetResourceManager()
+					->get<SliceEngineTypes::Material>(materialGUID)
+					.get();
+
+				if (!model || !material)
 					continue;
 
 				RCK_ModelT mdlDet = GetModelDetails(
-					model.getGUID().GetGUID(),
+					modelGUID.GetGUID(),
 					0,
 					false
 				);
