@@ -329,6 +329,60 @@ namespace SliceEngine
             }
         }
 
+        public bool IsRotation3D
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetIsRotation3D(gameObject.mID, out bool value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetIsRotation3D(gameObject.mID, ref value);
+            }
+        }
+
+
+        public Vector3 Rotation3D
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetRotation3DHint(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetRotation3DHint(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 MinRotation3D
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetMinRotation3DHint(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetMinRotation3DHint(gameObject.mID, ref value);
+            }
+        }
+
+        public Vector3 MaxRotation3D
+        {
+            get
+            {
+                FunctionCalls.ParticleSystem_GetMaxRotation3DHint(gameObject.mID, out Vector3 value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.ParticleSystem_SetMaxRotation3DHint(gameObject.mID, ref value);
+            }
+        }
+
+
         // Spawn Position
         public ValueType SpawnPosValueType
         {

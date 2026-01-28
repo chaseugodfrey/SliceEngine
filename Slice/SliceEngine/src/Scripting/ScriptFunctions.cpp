@@ -737,6 +737,89 @@ namespace SliceEngine
 			go.GetComponent<ParticleSystem>().maxRandomRotation = *value;
 			return;
 		}
+	
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	// 3D Rotation
+	static void ParticleSystem_GetIsRotation3D(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isRotation3D;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetIsRotation3D(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().isRotation3D = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().rotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().rotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMinRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMinRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMaxRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMaxRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRotation3DHint = *value;
+			return;
+		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
@@ -1776,7 +1859,7 @@ namespace SliceEngine
 			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
 		}
 
-		return false;
+		return 0.0f;
 	}
 
 	static float GetCurrAnimTime(unsigned int entityID)
@@ -1788,6 +1871,18 @@ namespace SliceEngine
 		}
 
 		return 0.0f;
+	}
+
+	static bool SafeToChange(unsigned int entityID, MonoString* string)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+
+			return GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName);
+		}
+		return false;
 	}
 
 #pragma endregion
@@ -1878,6 +1973,16 @@ namespace SliceEngine
 		// Returns true if path is not empty
 		return agent && !agent->currentPath.empty();
 
+	}
+	static bool NavAgent_GetComponentEnabled(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		return agent->componentEnabled;
+	}
+	static void NavAgent_SetComponentEnabled(uint32_t entityID, bool isEnabled)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent) agent->componentEnabled = isEnabled;
 	}
 #pragma endregion
 
@@ -1987,7 +2092,6 @@ namespace SliceEngine
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
 		//RegisterComponent<TextRenderer>();
-		//RegisterComponent<ParticleEmitter>();
 	}
 
 	/// <summary>
@@ -2101,6 +2205,14 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMin);
 		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMax);
 		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMax);
+		ADD_INTERNAL_CALL(ParticleSystem_GetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_SetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxRotation3DHint);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosValueType);
 		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosValueType);
@@ -2195,6 +2307,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+		ADD_INTERNAL_CALL(SafeToChange);
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);
@@ -2204,6 +2317,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_HasPath);
+		ADD_INTERNAL_CALL(NavAgent_GetComponentEnabled);
+		ADD_INTERNAL_CALL(NavAgent_SetComponentEnabled);
 
 		//UI
 		ADD_INTERNAL_CALL(Slider_GetValue);

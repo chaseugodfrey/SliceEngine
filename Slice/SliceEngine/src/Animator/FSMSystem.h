@@ -35,6 +35,7 @@ namespace SliceEngine
 		void SetFloat(const std::string& name, float value);
 		void SetInt(const std::string& name, int value);
 		void SetLoop(bool loop);
+		bool SafeToChange(std::string& name);
 		std::string GetCurrAnimName();
 		bool IsCurrAnimFin();
 		float GetCurrAnimFPS();

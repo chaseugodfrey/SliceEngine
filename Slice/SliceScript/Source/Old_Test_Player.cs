@@ -34,12 +34,30 @@ namespace SliceEngine
         bool grounded = false;
         int jumpCounter = 0;
 
+        GameObject enemy;
+        NavAgent enemyAgent;
+        RigidBody enemyRb;
+        bool isEnemyKnockedBack = false;
+        float knockbackTimer = 0.0f;
+
         public override void OnCreate()
         {
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
             myAudio = GetComponent<AudioSource>();
-            floor = gameObject.FindGameObjectWithName("FloorQuad");
+            floor = FindGameObjectWithName("Floor");
+            if (floor == null) FunctionCalls.LogWarn("PlayerTest: 'Floor' not found!");
+
+            enemy = FindGameObjectWithName("Enemy");
+            if (enemy != null)
+            {
+                enemyAgent = enemy.GetComponent<NavAgent>();
+                enemyRb = enemy.GetComponent<RigidBody>();
+            }
+            else
+            {
+                FunctionCalls.LogWarn("PlayerTest: 'Enemy' not found!");
+            }
             Attack_Collider_1 = gameObject.FindGameObjectWithName("Attack_Collider_1").GetComponent<ColliderShape>();
             Attack_Collider_1.ComponentEnabled = false;
             Console.WriteLine("ALOYSISU LOOK HERE<" + Attack_Collider_1.gameObject.mID + ">");
@@ -313,14 +331,51 @@ namespace SliceEngine
 
 
             //Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
+
+            // Monitor Enemy Landing Logic
+            if (isEnemyKnockedBack && enemyRb != null && enemyAgent != null)
+            {
+                knockbackTimer += dt;
+
+                // Wait a bit before checking for landing (to let it fly up first)
+                if (knockbackTimer > 0.5f)
+                {
+                    // Simple landing check: Is velocity low? Is it close to Y=0 (or whatever floor height is)?
+                    // Or relies on the enemy's own collision logic if available.
+                    // For now, let's just use a timer + height check as a proxy for "Landed"
+
+                    float enemyY = enemy.GetComponent<Transform>().Position.y;
+
+                    // If enemy is falling/on ground (approx 0.5 height)
+                    if (enemyY < 1.0f)
+                    {
+                        // Re-enable Navigation
+                        enemyAgent.SetComponentIsEnabled(enemy, true);
+                        isEnemyKnockedBack = false;
+                        knockbackTimer = 0.0f;
+                        FunctionCalls.Log("Enemy Landed: Resuming Navigation");
+                    }
+                }
+            }
         }
 
         public override void OnCollideEnter(uint other)
         {
-            if(other == floor.mID)
+            if (enemy != null && other == enemy.mID)
             {
-                grounded = true;
-                jumpCounter = 0;
+                FunctionCalls.Log("PlayerTest: OnCollideEnter");
+                if (enemyAgent != null && enemyAgent.ComponentIsEnabled(enemy))
+                {
+                    enemyAgent.SetComponentIsEnabled(enemy, false);
+                    isEnemyKnockedBack = true;
+                    knockbackTimer = 0.0f; // Reset timer
+                }
+                if (enemyRb != null)
+                {
+                    Vector3 force = new Vector3(5.0f, 8.0f, 0.0f);
+                    enemyRb.AddForce(force, ForceMode.Impulse);
+                    FunctionCalls.Log("Collision with Enemy: Applied Knockback (Nav Disabled)");
+                }
             }
         }
 
