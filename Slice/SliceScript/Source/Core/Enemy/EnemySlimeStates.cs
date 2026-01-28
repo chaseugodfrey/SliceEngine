@@ -30,14 +30,14 @@ namespace SliceEngine
     {
         public EnemySlimeChaseState(EnemySlime owner) : base(owner)
         {
-            owner.StartNav();
+            //owner.StartNav();
         }
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
 
-            /*
+            
             Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
@@ -47,7 +47,7 @@ namespace SliceEngine
                 enemyOwner.ChangeState(new EnemySlimeExplodeState(enemyOwner));
                 //attack state
             }
-            */
+            
         }
     }
 

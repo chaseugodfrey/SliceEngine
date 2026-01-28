@@ -16,15 +16,16 @@ namespace SliceEngine
 
         public float attackTriggerRange = 1f;
         public float attackDamageRange = 1f;
-        public float attackWindUpTiming = 1f;
+        public float buildUpTiming = 1f;
         public float flickerTiming = 1f;
         public bool exploding { get; private set; } = false;
         private float _explodingCounter = 0f;
 
-        public GameObject basicHitBox;
-        private GeneralHitbox _basicHitBox;
-
-
+        public GameObject explodeParentObject;
+        public GameObject explodeMeshObject;
+        public GameObject explosionHitBoxObject;
+        private GeneralHitbox explosionHitBox;
+        public GameObject meshRenderer;
 
         //Function called when you want the enemy to be active
         public override void SetUp()
@@ -35,16 +36,17 @@ namespace SliceEngine
 
             base.SetUp(); 
             Console.WriteLine("Slime setup called");
-            if(basicHitBox.Has<GeneralHitbox>())
+            if(explosionHitBoxObject.Has<GeneralHitbox>())
             {
-                _basicHitBox = basicHitBox.As<GeneralHitbox>();
-                _basicHitBox.HitBoxListeners += BasicAttack;
+                explosionHitBox = explosionHitBoxObject.As<GeneralHitbox>();
+                explosionHitBox.HitBoxListeners += BasicExplode;
                 //_basicHitBox.SetActive(false);
                 //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
 
-                _basicHitBox.TurnOff();
+                explosionHitBox.TurnOff();
+                explodeMeshObject.SetActive(false);
 
-                if(basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+                if(explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
                 {
                     Console.WriteLine("Hit Box successfully turned off");
                     SliceLog.Log("Hit Box successfully turned off");
@@ -75,7 +77,7 @@ namespace SliceEngine
             base.OnUpdate(dt);
         }
 
-        public void BasicAttack(GameObject hit)
+        public void BasicExplode(GameObject hit)
         {
             Console.Write("| Basic Attack called |");
 
@@ -101,18 +103,34 @@ namespace SliceEngine
             Console.Write("exploding is On -> ");
             exploding = true;
 
-            Console.Write("Windup waiting -> ");
-            yield return new WaitForSeconds(attackWindUpTiming);
-            Console.Write("Windup returned -> ");
+            Console.Write("Building Up-> ");
+            float buildupCount = 0f;
+
+
+            Transform meshRenderT = meshRenderer.GetComponent<Transform>();
+
+
+            while (buildupCount <= buildUpTiming)
+            {
+                buildupCount += Time.deltaTime;
+
+                float newScale = 1f + (buildupCount * 1f);
+
+                meshRenderT.Scale = new Vector3(newScale, newScale, newScale);
+
+                yield return new WaitForSeconds(Time.deltaTime);
+            }
+            Console.Write("Build Up Done -> ");
 
             // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
             //_basicHitBox.SetActive(true);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = true;
-            _basicHitBox.TurnOn();
+            explosionHitBox.TurnOn();
+            explodeMeshObject.SetActive(true);
             Console.Write("Box On | ");
 
 
-            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == true)
+            if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
                 Console.Write("Hit Box successfully turned on -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
@@ -131,11 +149,12 @@ namespace SliceEngine
 
             //_basicHitBox.As<GeneralHitbox>().SetActive(false);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
-            _basicHitBox.TurnOff();
+            explosionHitBox.TurnOff();
+            explodeMeshObject.SetActive(true);
             Console.Write("Box Off | ");
 
 
-            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+            if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
             {
                 Console.WriteLine("Hit Box successfully turned off -> ");
                 //SliceLog.Log("Hit Box successfully turned off");

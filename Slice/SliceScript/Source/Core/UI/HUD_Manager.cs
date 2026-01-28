@@ -24,7 +24,8 @@ namespace SliceEngine
         public void SetHealth(float input)
         {
             Console.WriteLine("Setting health");
-            health.SetValue(input);
+            //health.SetValue(input);
+            healthSliderName.GetComponent<Slider>().SetValue(input);
             Console.WriteLine("Finish setting health");
         }
 
