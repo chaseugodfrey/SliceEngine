@@ -99,10 +99,15 @@ namespace SliceEngine
 	{
 		std::string path_to_load = filePath;
 
+		//path_to_load += ".scene";
+
 		if (path_to_load.empty())
 		{
-			path_to_load = "Resources/output_navmesh.bin";
-			SLICE_LOG("NavSystem: No specific navmesh found in meta. Loading default: " + path_to_load);
+			//path_to_load = "Resources/output_navmesh.bin";
+			ClearNavMesh();
+			SLICE_LOG("NavSystem: No specific navmesh found in meta" );
+
+			return;
 		}
 		else
 		{
@@ -211,6 +216,89 @@ namespace SliceEngine
 			const dtCrowdAgent *ag = navMeshObj.navMeshCrowd->getAgent(agent.crowdAgentID);
 			if (ag && ag->active)
 			{
+				if (ag->state == DT_CROWDAGENT_STATE_WALKING)
+				{
+					if (ag->ncorners > 0)
+					{
+						bool isNextOffMesh = (ag->cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION);
+
+						if (isNextOffMesh)
+						{
+							SLICE_LOG("Approaching OffMesh Link! Distance: {}", glm::distance(transform.position, glm::vec3(ag->cornerVerts[0], ag->cornerVerts[1], ag->cornerVerts[2])));
+						}
+					}
+					// Check if the next corner is an off-mesh connection
+					if (ag->ncorners > 0 && (ag->cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION))
+					{
+						// cornerVerts[0] is the Start of the link (where we are going now)
+						// cornerVerts[1] is the End of the link (where we need to jump to)
+						glm::vec3 endLinkPos(
+							ag->cornerVerts[3],
+							ag->cornerVerts[4],
+							ag->cornerVerts[5]
+						);
+
+						m_agentOffMeshTargets[agent.crowdAgentID] = endLinkPos;
+					}
+				}
+
+				// ---------------------------------------------------------
+				// 2. HANDLE OFF-MESH MOVEMENT
+				// ---------------------------------------------------------
+				if (ag->state == DT_CROWDAGENT_STATE_OFFMESH)
+				{
+					// Retrieve the cached target
+					glm::vec3 targetPos = transform.position; // Default fallback
+					if (m_agentOffMeshTargets.find(agent.crowdAgentID) != m_agentOffMeshTargets.end())
+					{
+						targetPos = m_agentOffMeshTargets[agent.crowdAgentID];
+					}
+
+					auto rb = reg.try_get<RigidBody>(entity);
+					auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
+
+					if (rb)
+					{
+						glm::vec3 currentPos = transform.position;
+						glm::vec3 dir = targetPos - currentPos;
+
+						// CHECK: Stop if we are close enough to the end
+						float dist = glm::length(dir);
+						if (dist < 0.5f)
+						{
+							// We reached the end. 
+							// DetourCrowd will automatically switch back to WALKING 
+							// once we update npos to be at the end.
+						}
+
+						// NORMALIZE THE VECTOR
+						if (dist > 0.001f)
+							dir = glm::normalize(dir);
+
+						// You might want a specific jump speed or arc here
+						float moveSpeed = 10.0f;
+
+						JPH::Vec3 newVelocity(dir.x * moveSpeed, dir.y * moveSpeed, dir.z * moveSpeed);
+						physicsSys.SetLinearVelocity(entity, newVelocity);
+
+						// Sync Physics pos back to Crowd Agent
+						float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
+						dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+						if (editableAg) memcpy(editableAg->npos, pos, sizeof(float) * 3);
+					}
+					else
+					{
+						// Teleport if no physics
+						transform.position = targetPos;
+
+						// Sync immediately to complete the jump
+						float pos[3] = { targetPos.x, targetPos.y, targetPos.z };
+						dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+						if (editableAg) memcpy(editableAg->npos, pos, sizeof(float) * 3);
+					}
+					return; // Skip standard walking update below
+				}
+
 				glm::vec3 desiredVel(ag->vel[0], ag->vel[1], ag->vel[2]);
 
 				// DEBUG: Print State and Velocity
@@ -219,10 +307,12 @@ namespace SliceEngine
 				//    agent.crowdAgentID, (int)ag->state, desiredVel.x, desiredVel.y, desiredVel.z, ag->params.maxSpeed);
 
 				auto rb = reg.try_get<RigidBody>(entity);
+				auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
+
+
 				if (rb)
 				{
 					// 3. APPLY PHYSICS
-					auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
 					glm::vec3 currentPhysicsVel = physicsSys.GetLinearVelocity(entity);
 
 					JPH::Vec3 newVelocity(

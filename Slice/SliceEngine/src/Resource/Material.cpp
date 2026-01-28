@@ -57,11 +57,41 @@ namespace SliceEngine
 			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);
 
-			materialJson["floats"].get_to(temp.floatDat);
-			materialJson["ints"].get_to(temp.intDat);
-			materialJson["uints"].get_to(temp.uintDat);
-			materialJson["bools"].get_to(temp.boolDat);
-
+			for (auto& i : temp.shader.get()->dataIn)
+			{
+				if (materialJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					}
+				}
+				else
+					temp.data[i.name] = i.baseData;
+			}
 			return temp;
 		}
 
@@ -72,23 +102,7 @@ namespace SliceEngine
 			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			for (auto& i : shader.get()->dataIn)
-			{
-				switch (i.dataType)
-				{
-				case CustomShader::SP_TYPE::BOOL:
-					boolDat.push_back(i.baseData.sp_bool);
-					break;
-				case CustomShader::SP_TYPE::UINT:
-					uintDat.push_back(i.baseData.sp_uint);
-					break;
-				case CustomShader::SP_TYPE::INT:
-					intDat.push_back(i.baseData.sp_int);
-					break;
-				case CustomShader::SP_TYPE::FLOAT:
-					floatDat.push_back(i.baseData.sp_float);
-					break;
-				}
-			}
+				data[i.name] = i.baseData;
 		 }
 
 		void Material::DestroyMaterial() {

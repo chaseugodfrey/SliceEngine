@@ -20,15 +20,17 @@ namespace SliceEditor
 
 		void ClearSelectionSubscribe(ClearSelectionEvent e);
 		void ClearSelection();
+		void DrawMenuBar();
 		void DrawParameters();
 		void DrawEntryNode();
 		void DrawExitNode();
 		void DrawNodeEditor();
 		void DrawPostEditorElements();
 
+		void SaveAnimatorData();
 		void AddState();
 
-		bool CheckForAnimator();
+		void CheckForAnimator();
 		void ClearData();
 
 		bool RemoveTransitionFromState(int id);

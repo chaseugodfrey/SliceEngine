@@ -20,17 +20,17 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	void SelectionManager::UpdateManagers()
-	{
-		for (size_t i = 0; i < mListeners.size(); i++)
-		{
-			mListeners[i]->OnUpdateSelected(mSelectedEntities);
-		}
-	}
+	//void SelectionManager::UpdateManagers()
+	//{
+	//	/*for (size_t i = 0; i < mListeners.size(); i++)
+	//	{
+	//		mListeners[i]->OnUpdateSelected(mSelectedEntities);
+	//	}*/
+	//}
 
 	void SelectionManager::Init()
 	{
-		mSelectedEntities.clear();
+		mSelectedNodes.clear();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &SelectionManager::ClearSelectionEventHandler>(this);
 		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &SelectionManager::DeleteSelectedObjects>(this);
 		EventManager::GetInstance()->Subscribe<CloneSelectedEntities, &SelectionManager::CloneSelectedObjects>(this);
@@ -91,12 +91,6 @@ namespace SliceEditor
 		{
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
 		}
-
-		//std::unordered_set<entt::entity> set{ entity };
-		//for (auto& listener : mListeners)
-		//{
-		//	listener->OnUpdateSelected(set);
-		//}
 	}
 
 	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
@@ -155,27 +149,27 @@ namespace SliceEditor
 
 	}
 
-	void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
-	{
-		auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-		if (it != std::end(mSelectedEntities))
-		{
-			//if (!suppressHistory)
-			//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
+	//void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
+	//{
+	//	auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
+	//	if (it != std::end(mSelectedEntities))
+	//	{
+	//		//if (!suppressHistory)
+	//		//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
 
-			auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
-			if (go.HasComponent<SliceEngine::SelectedEntity>())
-				go.RemoveComponent<SliceEngine::SelectedEntity>();
-			
-			mSelectedEntities.erase(it);
-		}
+	//		auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
+	//		if (go.HasComponent<SliceEngine::SelectedEntity>())
+	//			go.RemoveComponent<SliceEngine::SelectedEntity>();
+	//		
+	//		mSelectedEntities.erase(it);
+	//	}
 
-		std::unordered_set<entt::entity> set{ entity };
-		for (auto& listener : mListeners)
-		{
-			listener->OnUpdateDeselected(set);
-		}
-	}
+	//	std::unordered_set<entt::entity> set{ entity };
+	//	for (auto& listener : mListeners)
+	//	{
+	//		listener->OnUpdateDeselected(set);
+	//	}
+	//}
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
@@ -197,10 +191,10 @@ namespace SliceEditor
 		}
 	}
 
-	void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
+	/*void SelectionManager::UpdateDeslected(std::unordered_set<entt::entity>& entities, bool suppressHistory)
 	{
 
-	}
+	}*/
 
 	void SelectionManager::ClearSelectionEventHandler(ClearSelectionEvent& event)
 	{
@@ -261,10 +255,10 @@ namespace SliceEditor
 		}
 	}
 
-	std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()
+	/*std::unordered_set<entt::entity>& SelectionManager::GetSelectedEntities()
 	{
 		return mSelectedEntities;
-	}
+	}*/
 	std::unordered_set<SelectionNode*>& SelectionManager::GetSelectedNodes()
 	{
 		return mSelectedNodes;
