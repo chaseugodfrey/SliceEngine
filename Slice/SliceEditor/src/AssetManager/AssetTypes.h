@@ -41,6 +41,7 @@ namespace SliceEditor
 		Prefab,
 		Controller,
 		NavMesh,
+		NavMeshBin,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -105,6 +106,7 @@ namespace SliceEditor
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
+		constexpr uint64_t NAVMESHBIN = SliceEngine::FNVHash::fnv1a("NavMeshBin");
 		constexpr uint64_t FONT = SliceEngine::FNVHash::fnv1a("Font");
 
 	}
@@ -652,10 +654,7 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
-		std::vector<float> floatDat;
-		std::vector<int> intDat;
-		std::vector<uint32_t> uintDat;
-		std::vector<bool> boolDat;
+		std::map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -709,10 +708,60 @@ namespace SliceEditor
 			// properties
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
-			metaJson["floats"].get_to(floatDat);
-			metaJson["ints"].get_to(intDat);
-			metaJson["uints"].get_to(uintDat);
-			metaJson["bools"].get_to(boolDat);
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(shader);
+			for (auto& i : shdr.get()->dataIn)
+			{
+				if (metaJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					}
+				}
+				else
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						data[i.name] = std::get<bool>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						data[i.name] = std::get<uint32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						data[i.name] = std::get<int32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						data[i.name] = std::get<float>(i.baseData);
+						break;
+					}
+				}
+			}
+
 			from_json(metaJson["color"], color);
 
 			inFile.close();
@@ -725,10 +774,14 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
-			metaJson["floats"] = floatDat;
-			metaJson["ints"] = intDat;
-			metaJson["uints"] = uintDat;
-			metaJson["bools"] = boolDat;
+			nlohmann::json dataJson = nlohmann::json::object();
+			for (const auto& [key, val] : data)
+			{
+				std::visit([&](auto&& arg) {
+					dataJson[key] = arg;
+				}, val);
+			}
+			metaJson["data"] = dataJson;
 
 			std::ofstream output(desc_path);
 
@@ -1468,6 +1521,33 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+			// specific properties
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+	};
+
+	struct NavMeshBinData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::NAVMESHBIN;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;

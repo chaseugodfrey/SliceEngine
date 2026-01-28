@@ -99,10 +99,15 @@ namespace SliceEngine
 	{
 		std::string path_to_load = filePath;
 
+		//path_to_load += ".scene";
+
 		if (path_to_load.empty())
 		{
-			path_to_load = "Resources/output_navmesh.bin";
-			SLICE_LOG("NavSystem: No specific navmesh found in meta. Loading default: " + path_to_load);
+			//path_to_load = "Resources/output_navmesh.bin";
+			ClearNavMesh();
+			SLICE_LOG("NavSystem: No specific navmesh found in meta" );
+
+			return;
 		}
 		else
 		{

@@ -124,33 +124,34 @@ namespace SliceEngine
 
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
 			// --TODO-- Currently hard set particles shader
-			uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader").get()->s);
-			RCK_Size key = MRCK_OPAQUE |
+			uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
+			RCK_Size key =
 				(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
 				(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			if (ptx.colour.a > 0.999f)
+				key = key | MRCK_OPAQUE;
+			else
+				key = key | MRCK_TRANSCLUCENT;
 
 			BasicIDat data;
 			data.mdlMtx = ptx.transform;
-			data.mdlMtx[0].w = 2.f; // Bilboard particles
 			SetColor(data, ptx.colour);
-			//data.texID = ptx.textureID;
-			data.texID = GetTextureDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT)->bindless_id);
+			data.texID = GetTextureDetails(ptx.textureID);
 			data.entityID = 0;
 
 			//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
-			//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-			//{
-			//	TranslucentCmd tc{ key, data };
-			//	translucentCmds.emplace_back(tc);
-			//}
-			//else
+			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+			{
+				TranslucentCmd tc{ key, data };
+				translucentCmds.emplace_back(tc);
+			}
+			else
 			{
 				SetAlpha(data, 1.f);
 				// --TODO--
 				renderCmds[key].base.push_back(std::move(data));
 			}
-
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
@@ -485,23 +486,22 @@ namespace SliceEngine
 		auto numVar = mat->shader.get()->dataIn.size();
 
 		int mainID{}, subID{};
-		size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
 			switch (i.dataType)
 			{
 			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-				cmd[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				cmd[mainID][subID] = static_cast<uint32_t>(std::get<bool>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-				cmd[mainID][subID] = mat->uintDat[numUints++];
+				cmd[mainID][subID] = std::get<uint32_t>(mat->data.find(i.name)->second);
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-				cmd[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				cmd[mainID][subID] = static_cast<uint32_t>(std::get<int32_t>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-				cmd[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				cmd[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
 			}
 
@@ -531,16 +531,16 @@ namespace SliceEngine
 			switch (i.dataType)
 			{
 			case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->boolDat[numBools++]);
+				rc.ext[mainID][subID] = static_cast<uint32_t>(std::get<bool>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-				rc.ext[mainID][subID] = mat->uintDat[numUints++];
+				rc.ext[mainID][subID] = std::get<uint32_t>(mat->data.find(i.name)->second);
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-				rc.ext[mainID][subID] = static_cast<uint32_t>(mat->intDat[numInts++]);
+				rc.ext[mainID][subID] = static_cast<uint32_t>(std::get<int32_t>(mat->data.find(i.name)->second));
 				break;
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(mat->floatDat[numFloats++]);
+				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
 			}
 

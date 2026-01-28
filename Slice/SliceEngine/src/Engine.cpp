@@ -116,6 +116,7 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
 
+
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
 		.constructor<>()
@@ -357,6 +358,15 @@ namespace SliceEngine
 		.constructor<uint64_t>()
 		.property_readonly("Value", &GUID::GetGUID);
 
+	rttr::registration::class_<SliceEngineTypes::AnimationKeyFrame>("Animation Key Frames")
+		.constructor<>()
+		.property("scriptName", &SliceEngineTypes::AnimationKeyFrame::scriptName)
+		.property("scriptFunc", &SliceEngineTypes::AnimationKeyFrame::scriptFunc)
+		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
+		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
+
+	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
@@ -473,13 +483,15 @@ namespace SliceEngine
 			rttr::metadata("Serialize", false)
 		);
 
+
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
 		.property("current_time", &Animator::current_time)
 		.property("stateMachine Handle", &Animator::Handle_stateMachine)
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
-		.property("componentEnabled", &Animator::componentEnabled);
+		.property("componentEnabled", &Animator::componentEnabled)
+		.property("eventFrames", &Animator::eventFrames);
 
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())

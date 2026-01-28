@@ -62,6 +62,35 @@ namespace SliceEngine
 			std::vector<Frame> transforms;
 			bool animated{ false };
 		};
+
+		struct AnimationKeyFrame
+		{
+			std::string scriptName{};
+			std::string scriptFunc{};
+
+			unsigned int animIdx{};
+			unsigned int frameNumber{};
+
+			//AnimationKeyFrame() = default;
+		};
+
+		inline void to_json(nlohmann::json& j, const AnimationKeyFrame& f) {
+			j = nlohmann::json{
+				{"scriptName", f.scriptName},
+				{"scriptFunc", f.scriptFunc},
+				{"animIdx", f.animIdx},
+				{"frameNumber", f.frameNumber}
+			};
+		}
+
+		inline void from_json(const nlohmann::json& j, AnimationKeyFrame& f) {
+			f.scriptName = j.at("scriptName").get<std::string>();
+			f.scriptFunc = j.at("scriptFunc").get<std::string>();
+			f.animIdx = j.at("animIdx").get<unsigned int>();
+			f.frameNumber = j.at("frameNumber").get<unsigned int>();
+		}
+
+
 		struct Animation {
 			std::string name{};
 			unsigned int fps{ 60 };

@@ -1273,21 +1273,37 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.posValueType, "position");
 
 
-				// Start Rotation
+				// Start Rotation			
 				switch (ps.initialRotationType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Rotation", "##r", ps.rotation, "%.1f", 0.0f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Rotation", "##rot3D", ps.rotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.1f", 0.0f, 360.f);
+					}					
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Rotation", "##minLifetime", ps.minRandomRotation, "&.1f", 0.f, 360.f);
-					DragFloatInputHeader(mRegistry, "Max Rotation", "##maxLifetime", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					if (ps.isRotation3D)
+					{
+						DragVec3InputHeader(mRegistry, "Min Rotation", "##minRot3D", ps.minRotation3DHint);
+						DragVec3InputHeader(mRegistry, "Max Rotation", "##maxRot3D", ps.maxRotation3DHint);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+					}					
 					break;
 				default:
 					break;
 				}
 				ImGui::SameLine();
-				ButtonValueTypePopup(ps.initialLifetimeType, "rotation");
+				ButtonValueTypePopup(ps.initialRotationType, "rotation");
+				BoolInputHeader(mRegistry, "3D Rotation", "##is3DRotation", ps.isRotation3D);
 
 				// Start Colour			
 				switch (ps.colourValueType)
@@ -1775,6 +1791,7 @@ namespace SliceEditor
 		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "Custom Shader"))
 		{
 			mat.SerializeAsset(node->fullPath);
+			return;
 		}
 
 		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
@@ -1787,7 +1804,6 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 		}
 		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
-		int floatCnt{}, intCnt{}, uintCnt{}, boolCnt{};
 		for (auto& i : shdr.get()->dataIn)
 		{
 			switch (i.dataType)
@@ -1795,44 +1811,39 @@ namespace SliceEditor
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
 			{
 				std::string s = "##Material_Bool_" + i.name;
-				bool tempBool{};
+				bool tempBool{ std::get<bool>(mat.data.find(i.name)->second) };
 				if (BoolInputHeader(mRegistry, i.name.c_str(), s.c_str(), tempBool))
 				{
-					mat.boolDat[boolCnt] = tempBool;
+					mat.data[i.name] = tempBool;
 					mat.SerializeAsset(node->fullPath);
 				}
-				++boolCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
 			{
 				std::string s = "##Material_Uint_" + i.name;
-				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.uintDat[uintCnt], "%.u", 0, UINT_MAX))
+				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(mat.data.find(i.name)->second), "%.u", 0, UINT_MAX))
 					mat.SerializeAsset(node->fullPath);
-				++uintCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
 			{
 				std::string s = "##Material_Int_" + i.name;
-				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.intDat[intCnt], "%.d", -INT_MAX, INT_MAX))
+				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(mat.data.find(i.name)->second), "%.d", -INT_MAX, INT_MAX))
 					mat.SerializeAsset(node->fullPath);
-				++intCnt;
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 			{
 				std::string s = "##Material_Float_" + i.name;
-				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), mat.floatDat[floatCnt], "%.2f", 0.0f, FLT_MAX, 0.01f))
+				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
 					mat.SerializeAsset(node->fullPath);
-				++floatCnt;
 				break;
 			}
 			default:
 			{
 				ImGui::Text(i.name.c_str());
 				ImGui::SameLine(150.f);
-
 			}
 			}
 		}
