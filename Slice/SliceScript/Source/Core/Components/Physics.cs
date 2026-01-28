@@ -31,6 +31,12 @@ namespace SliceEngine
             return true;
         }
 
+        public static bool Raycast(Ray ray, out RayCastHit hitInfo, float maxDistance = float.PositiveInfinity, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        {
+            hitInfo = new RayCastHit();
+            return true;
+        }
+
         public bool SphereCast()
         {
             return true;
