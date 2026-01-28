@@ -79,6 +79,7 @@ namespace SliceEditor
 		void DisplayRigidbody(entt::entity entity);
 		void DisplayCollider3D(entt::entity entity);
 		void DisplayNavAgent(entt::entity entity);
+		void DisplayNavMeshLink(entt::entity entity);
 		void DisplaySliceScript(entt::entity entity);
 		void DisplayLight(entt::entity entity);
 		void DisplayAnimator(entt::entity entity);
