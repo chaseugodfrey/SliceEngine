@@ -6,11 +6,6 @@
             "path": "Resources/9385656686377290189.wav"
         },
         {
-            "guid": 15884595881201833390,
-            "name": "Models/Crystal_Combined.fbx",
-            "path": "Resources/15884595881201833390.mdl"
-        },
-        {
             "guid": 9886919587323407782,
             "name": "Audio/A2.wav",
             "path": "Resources/9886919587323407782.wav"
@@ -19,6 +14,11 @@
             "guid": 9975954260658880089,
             "name": "Shaders/shadow_Vert.vert",
             "path": "Resources/9975954260658880089.vert"
+        },
+        {
+            "guid": 9573254789064597855,
+            "name": "Prefabs/Sphere_1.prefab",
+            "path": "Resources/9573254789064597855.prefab"
         },
         {
             "guid": 18152500388378077030,
@@ -91,6 +91,16 @@
             "path": "Resources/9481060356522622619.wav"
         },
         {
+            "guid": 18309228460714719629,
+            "name": "Shaders/skybox.shader",
+            "path": "Resources/18309228460714719629.shader"
+        },
+        {
+            "guid": 9596618875565114266,
+            "name": "Default/navmeshtest.scene",
+            "path": "Resources/9596618875565114266.scene"
+        },
+        {
             "guid": 16821803797395721382,
             "name": "Audio/Golem_LeftStomp.wav",
             "path": "Resources/16821803797395721382.wav"
@@ -104,11 +114,6 @@
             "guid": 12706701987083786906,
             "name": "Audio/SingleHit_Slime_1.wav",
             "path": "Resources/12706701987083786906.wav"
-        },
-        {
-            "guid": 16798126825955145615,
-            "name": "Fonts/Roboto-VariableFont.ttf",
-            "path": "Resources/16798126825955145615.fnt"
         },
         {
             "guid": 12851759591155610253,
@@ -166,6 +171,11 @@
             "path": "Resources/11157093864669200623.mdl"
         },
         {
+            "guid": 9893844877777107304,
+            "name": "Default/ParticleSystemTest.temp",
+            "path": "Resources/9893844877777107304.scene"
+        },
+        {
             "guid": 15444100828152761678,
             "name": "Audio/Jump.wav",
             "path": "Resources/15444100828152761678.wav"
@@ -206,11 +216,6 @@
             "path": "Resources/11944477452832270171.wav"
         },
         {
-            "guid": 15472863805971150537,
-            "name": "Default/NewScene.scene",
-            "path": "Resources/15472863805971150537.scene"
-        },
-        {
             "guid": 14886466983544040807,
             "name": "Shaders/debugOutline.shader",
             "path": "Resources/14886466983544040807.shader"
@@ -241,14 +246,14 @@
             "path": "Resources/13656167422205326723.wav"
         },
         {
-            "guid": 14055201041453575611,
-            "name": "Default/navmeshtest.scene",
-            "path": "Resources/14055201041453575611.scene"
-        },
-        {
             "guid": 14583993837501124312,
             "name": "CustomShader/PillarShader.cshader",
             "path": "Resources/14583993837501124312.cshader"
+        },
+        {
+            "guid": 14986291756004428140,
+            "name": "Prefabs/Test_Spawn.prefab",
+            "path": "Resources/14986291756004428140.prefab"
         },
         {
             "guid": 15309186703193371093,
@@ -296,6 +301,11 @@
             "path": "Resources/14398956356898289746.dds"
         },
         {
+            "guid": 9465227169431037072,
+            "name": "Prefabs/Test Prefab.prefab",
+            "path": "Resources/9465227169431037072.prefab"
+        },
+        {
             "guid": 17435409685680308052,
             "name": "Default/GolemController.controller",
             "path": "Resources/17435409685680308052.controller"
@@ -311,14 +321,24 @@
             "path": "Resources/11441254779053870097.scene"
         },
         {
-            "guid": 10731921158266549350,
+            "guid": 12320056596655170664,
             "name": "Default/Level1.temp",
-            "path": "Resources/10731921158266549350.scene"
+            "path": "Resources/12320056596655170664.scene"
         },
         {
-            "guid": 15021947035957259762,
+            "guid": 13181010849527277318,
+            "name": "[00] Player/Start Btn.png",
+            "path": "Resources/13181010849527277318.dds"
+        },
+        {
+            "guid": 13375713717409677428,
+            "name": "Default/NewScene.scene",
+            "path": "Resources/13375713717409677428.scene"
+        },
+        {
+            "guid": 17382876790473484968,
             "name": "Default/NewScene.temp",
-            "path": "Resources/15021947035957259762.scene"
+            "path": "Resources/17382876790473484968.scene"
         },
         {
             "guid": 16304538495588573609,
@@ -326,9 +346,9 @@
             "path": "Resources/16304538495588573609.scene"
         },
         {
-            "guid": 16118859338446067342,
+            "guid": 18090639709837937991,
             "name": "Default/Prefab Test.scene",
-            "path": "Resources/16118859338446067342.scene"
+            "path": "Resources/18090639709837937991.scene"
         },
         {
             "guid": 17882015253966645802,
@@ -351,9 +371,24 @@
             "path": "Resources/10105107416661838055.dds"
         },
         {
-            "guid": 17483949530436669692,
+            "guid": 13441197947458580501,
             "name": "Fonts/JetBrainsMono-Light.ttf",
-            "path": "Resources/17483949530436669692.fnt"
+            "path": "Resources/13441197947458580501.fnt"
+        },
+        {
+            "guid": 12638191067484305032,
+            "name": "Material/EnemySlime_Inner_m.mat",
+            "path": "Resources/12638191067484305032.mat"
+        },
+        {
+            "guid": 9402868621044949570,
+            "name": "Shaders/skybox_Vert.vert",
+            "path": "Resources/9402868621044949570.vert"
+        },
+        {
+            "guid": 17252748523279415740,
+            "name": "Fonts/Roboto-VariableFont.ttf",
+            "path": "Resources/17252748523279415740.fnt"
         },
         {
             "guid": 18108076544179655602,
@@ -364,11 +399,6 @@
             "guid": 10125292758465881867,
             "name": "Frieren.jpg",
             "path": "Resources/10125292758465881867.dds"
-        },
-        {
-            "guid": 12638191067484305032,
-            "name": "Material/EnemySlime_Inner_m.mat",
-            "path": "Resources/12638191067484305032.mat"
         },
         {
             "guid": 10230791056562210482,
@@ -399,6 +429,11 @@
             "guid": 16483552102943977758,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/16483552102943977758.mat"
+        },
+        {
+            "guid": 15884595881201833390,
+            "name": "Models/Crystal_Combined.fbx",
+            "path": "Resources/15884595881201833390.mdl"
         },
         {
             "guid": 17926379886479867228,
@@ -541,9 +576,14 @@
             "path": "Resources/10057714384501940044.prefab"
         },
         {
-            "guid": 15574561905588018843,
+            "guid": 10880878978351863579,
+            "name": "[05]New_Environment/Environment-Barriers.fbx",
+            "path": "Resources/10880878978351863579.mdl"
+        },
+        {
+            "guid": 14793278505603733972,
             "name": "Prefabs/EnemySlime.prefab",
-            "path": "Resources/15574561905588018843.prefab"
+            "path": "Resources/14793278505603733972.prefab"
         },
         {
             "guid": 13182828767649584504,
@@ -621,24 +661,9 @@
             "path": "Resources/16623696165479466212.prefab"
         },
         {
-            "guid": 15488537037675859337,
-            "name": "Prefabs/Sphere_1.prefab",
-            "path": "Resources/15488537037675859337.prefab"
-        },
-        {
-            "guid": 15841837195898831174,
-            "name": "Prefabs/Test Prefab.prefab",
-            "path": "Resources/15841837195898831174.prefab"
-        },
-        {
             "guid": 17716027878404322278,
             "name": "Prefabs/TestPrefab.prefab",
             "path": "Resources/17716027878404322278.prefab"
-        },
-        {
-            "guid": 9661556335852362431,
-            "name": "Prefabs/Test_Spawn.prefab",
-            "path": "Resources/9661556335852362431.prefab"
         },
         {
             "guid": 15512966748982858088,
@@ -721,14 +746,9 @@
             "path": "Resources/17238299615939153742.frag"
         },
         {
-            "guid": 13855574832480941767,
-            "name": "[05]New_Environment/Environment-BackgroundTowers.animpkg",
-            "path": "Resources/13855574832480941767.animpkg"
-        },
-        {
-            "guid": 11292794793375220773,
+            "guid": 15235268585299909685,
             "name": "Shaders/deferred_Vert.vert",
-            "path": "Resources/11292794793375220773.vert"
+            "path": "Resources/15235268585299909685.vert"
         },
         {
             "guid": 16018679418099098580,
@@ -811,11 +831,6 @@
             "path": "Resources/14285044838440524560.geom"
         },
         {
-            "guid": 18309228460714719629,
-            "name": "Shaders/skybox.shader",
-            "path": "Resources/18309228460714719629.shader"
-        },
-        {
             "guid": 11432798866923574641,
             "name": "Shaders/skyboxGeneration.shader",
             "path": "Resources/11432798866923574641.shader"
@@ -851,29 +866,19 @@
             "path": "Resources/10464052820645603593.frag"
         },
         {
-            "guid": 9402868621044949570,
-            "name": "Shaders/skybox_Vert.vert",
-            "path": "Resources/9402868621044949570.vert"
-        },
-        {
-            "guid": 17359729727017650081,
+            "guid": 10787808635766743373,
             "name": "Shaders/uiFont.shader",
-            "path": "Resources/17359729727017650081.shader"
+            "path": "Resources/10787808635766743373.shader"
         },
         {
-            "guid": 18140685015262928956,
+            "guid": 12554525915184668716,
             "name": "Shaders/uiFont_Frag.frag",
-            "path": "Resources/18140685015262928956.frag"
+            "path": "Resources/12554525915184668716.frag"
         },
         {
-            "guid": 16233822509833608886,
-            "name": "[04]Environment/Environment.animpkg",
-            "path": "Resources/16233822509833608886.animpkg"
-        },
-        {
-            "guid": 10129335638091556696,
+            "guid": 9324350539983501013,
             "name": "Shaders/uiFont_Vert.vert",
-            "path": "Resources/10129335638091556696.vert"
+            "path": "Resources/9324350539983501013.vert"
         },
         {
             "guid": 11505317983061001815,
@@ -1006,11 +1011,6 @@
             "path": "Resources/11340535292100352557.dds"
         },
         {
-            "guid": 13181010849527277318,
-            "name": "[00] Player/Start Btn.png",
-            "path": "Resources/13181010849527277318.dds"
-        },
-        {
             "guid": 16145576743291712706,
             "name": "[00] Player/Vignette Overlay.png",
             "path": "Resources/16145576743291712706.dds"
@@ -1019,6 +1019,11 @@
             "guid": 11803758120824420026,
             "name": "[04]Environment/Environment.fbx",
             "path": "Resources/11803758120824420026.mdl"
+        },
+        {
+            "guid": 16233822509833608886,
+            "name": "[04]Environment/Environment.animpkg",
+            "path": "Resources/16233822509833608886.animpkg"
         },
         {
             "guid": 13763301239244486277,
@@ -1086,9 +1091,9 @@
             "path": "Resources/12506155832162104621.prefab"
         },
         {
-            "guid": 10880878978351863579,
-            "name": "[05]New_Environment/Environment-Barriers.fbx",
-            "path": "Resources/10880878978351863579.mdl"
+            "guid": 13855574832480941767,
+            "name": "[05]New_Environment/Environment-BackgroundTowers.animpkg",
+            "path": "Resources/13855574832480941767.animpkg"
         },
         {
             "guid": 17545168047952745399,

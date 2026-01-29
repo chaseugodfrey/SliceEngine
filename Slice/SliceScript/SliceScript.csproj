@@ -60,7 +60,14 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Enemy\LevelDirector.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
@@ -74,6 +81,7 @@
     <Compile Include="Source\Core\Math\Vector4.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
@@ -92,19 +100,7 @@
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
-    <Compile Include="Source\EnemyChase.cs" />
-    <Compile Include="Source\EnemySlime.cs" />
-    <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
-<<<<<<< HEAD
->>>>>>> working
-=======
->>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
@@ -119,10 +115,10 @@
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\MainMenuButtons.cs" />
     <Compile Include="Source\MainMenuCamera.cs" />
+    <Compile Include="Source\Old_Test_Player.cs" />
+    <Compile Include="Source\Old_Test_Spawner.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\Player.cs" />
     <Compile Include="Source\PlayerTestNavAgent.cs" />
-    <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
