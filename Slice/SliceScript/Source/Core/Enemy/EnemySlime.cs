@@ -114,7 +114,7 @@ namespace SliceEngine
             {
                 buildupCount += Time.deltaTime;
 
-                float newScale = 1f + (buildupCount * 1f);
+                float newScale = 1f + ( (buildupCount / buildUpTiming) * 1f);
 
                 meshRenderT.Scale = new Vector3(newScale, newScale, newScale);
 
@@ -150,7 +150,7 @@ namespace SliceEngine
             //_basicHitBox.As<GeneralHitbox>().SetActive(false);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
             explosionHitBox.TurnOff();
-            explodeMeshObject.SetActive(true);
+            explodeMeshObject.SetActive(false);
             Console.Write("Box Off | ");
 
 

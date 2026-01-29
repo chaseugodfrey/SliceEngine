@@ -491,17 +491,17 @@
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.HUD_Manager",
                 "scriptableFieldMap": {
-                    "defeatName": {
+                    "defeatObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 3
+                        "Value": 5
                     },
-                    "healthSliderName": {
+                    "healthSliderObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 13
+                        "Value": 15
                     },
-                    "victoryName": {
+                    "victoryObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 4
+                        "Value": 6
                     }
                 }
             },
@@ -1064,7 +1064,7 @@
                     },
                     "buildUpTiming": {
                         "Type": "float",
-                        "Value": 3.0
+                        "Value": 2.0
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -1088,7 +1088,7 @@
                     },
                     "flickerTiming": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 0.5
                     },
                     "horKnockback": {
                         "Type": "float",
