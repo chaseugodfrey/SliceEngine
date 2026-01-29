@@ -30,11 +30,7 @@ namespace SliceEngine
 			Handle<CustomShader> shader;
 
 			glm::vec4 color;
-			std::vector<float> floatDat;
-			std::vector<int> intDat;
-			std::vector<uint32_t> uintDat;
-			std::vector<bool> boolDat;
-
+			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
 
 			//takes in a shader resource file that links to shader files
 			//and compile

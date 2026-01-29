@@ -67,6 +67,8 @@ namespace SliceEditor
 
 		std::unique_ptr<DirectoryNode> rootNode;
 
+		std::vector<std::unique_ptr<DirectoryNode>> categoryNodes;
+
 		DirectoryNode* selectedFolder;
 
 		std::queue<DroppedFile> mPendingDrops;

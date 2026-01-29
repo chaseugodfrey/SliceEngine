@@ -654,10 +654,7 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
-		std::vector<float> floatDat;
-		std::vector<int> intDat;
-		std::vector<uint32_t> uintDat;
-		std::vector<bool> boolDat;
+		std::map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -711,10 +708,60 @@ namespace SliceEditor
 			// properties
 			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
-			metaJson["floats"].get_to(floatDat);
-			metaJson["ints"].get_to(intDat);
-			metaJson["uints"].get_to(uintDat);
-			metaJson["bools"].get_to(boolDat);
+			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+			auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(shader);
+			for (auto& i : shdr.get()->dataIn)
+			{
+				if (metaJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = metaJson["data"][i.name];
+						data[i.name] = b;
+						break;
+					}
+					}
+				}
+				else
+				{
+					switch (i.dataType)
+					{
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						data[i.name] = std::get<bool>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						data[i.name] = std::get<uint32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						data[i.name] = std::get<int32_t>(i.baseData);
+						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						data[i.name] = std::get<float>(i.baseData);
+						break;
+					}
+				}
+			}
+
 			from_json(metaJson["color"], color);
 
 			inFile.close();
@@ -727,10 +774,14 @@ namespace SliceEditor
 			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
-			metaJson["floats"] = floatDat;
-			metaJson["ints"] = intDat;
-			metaJson["uints"] = uintDat;
-			metaJson["bools"] = boolDat;
+			nlohmann::json dataJson = nlohmann::json::object();
+			for (const auto& [key, val] : data)
+			{
+				std::visit([&](auto&& arg) {
+					dataJson[key] = arg;
+				}, val);
+			}
+			metaJson["data"] = dataJson;
 
 			std::ofstream output(desc_path);
 
@@ -746,9 +797,11 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
-		std::map<std::string, rttr::variant> parameters;
-		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap;
-		std::string entryState;
+		std::map<std::string, rttr::variant> parameters{};
+		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap{};
+		glm::vec2 entryPosition{};
+		glm::vec2 exitPosition{};
+		std::string entryState{};
 
 		StateMachineData() = default;
 		~StateMachineData() = default;
@@ -900,7 +953,7 @@ namespace SliceEditor
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
-		resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -909,6 +962,8 @@ namespace SliceEditor
 			metaJson["resourcePath"] = resourcePath;
 			// specific properties
 			metaJson["entryState"] = entryState;
+			metaJson["entryNodePosition"] = entryPosition;
+			metaJson["exitNodePosition"] = exitPosition;
 
 			for (auto it : parameters)
 			{
@@ -930,12 +985,14 @@ namespace SliceEditor
 			return std::filesystem::path(desc_path);
 		}
 
-		void SerializeAsset(const std::filesystem::path& desc_path)
+		void SerializeAsset(std::filesystem::path const path = std::filesystem::path{})
 		{
 			nlohmann::json assetJson;
 
 			assetJson["entryState"] = entryState;
-			
+			assetJson["entryNodePosition"] = entryPosition;
+			assetJson["exitNodePosition"] = exitPosition;
+	
 			nlohmann::json parametersJson;
 			for (const auto& pair : parameters)
 			{
@@ -950,15 +1007,21 @@ namespace SliceEditor
 			}
 			assetJson["stateMap"] = stateMapJson;
 
-			std::ofstream output(desc_path);
+			std::filesystem::path filepath = path;
+			if (filepath.empty())
+				filepath = assetPath;
+
+			std::ofstream output(filepath);
+
 			if (output.is_open())
 			{
 				output << assetJson.dump(4);
 				output.close();
 			}
+
 			else
 			{
-				SLICE_LOG_ERROR("Error in opening file for writing: " , desc_path.c_str());
+				SLICE_LOG_ERROR("Error in opening file for writing: " , assetPath.c_str());
 			}
 		}
 
@@ -1439,6 +1502,12 @@ namespace SliceEditor
 			}
 
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			auto entry_pos = assetJson.find("entryNodePosition");
+			auto exit_pos = assetJson.find("exitNodePosition");
+			entryPosition = entry_pos != assetJson.end() ? entry_pos->get<glm::vec2>() : glm::vec2(0.0f);
+			exitPosition = exit_pos != assetJson.end() ? exit_pos->get<glm::vec2>() : glm::vec2(0.0f);
+
 			entryState = assetJson["entryState"];
 			auto params = assetJson["parameters"];
 

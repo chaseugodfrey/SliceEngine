@@ -32,6 +32,7 @@ namespace SliceEditor
 
 		SliceEngine::Timeline mTimeline;
 		float mCurrentTime{ 0.0f };
+		ImGuiNeoSequencerFlags mSequencerFlags;
 
 		//
 		SliceEngine::Animator* mCurrentAnimator{ nullptr };
@@ -42,6 +43,8 @@ namespace SliceEditor
 
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
 		size_t mCurrentClipIndex{ 0 };
+		size_t mCurrentEventIndex{ 0 };
+		bool mOpenEventPopup;
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
@@ -52,6 +55,7 @@ namespace SliceEditor
 		void UpdateTransform(SliceEngine::SliceEngineTypes::Animation* animClip,float time);
 		void UpdateBoneScene(Entity ent);
 		void UpdateBones();
+		void AnimatorEventPopup(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame);
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};

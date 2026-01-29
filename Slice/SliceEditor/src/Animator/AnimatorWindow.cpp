@@ -15,33 +15,79 @@ namespace SliceEditor
 	void AnimatorWindow::Init()
 	{
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
-		mAnimatorData = mSessionManager->GetAnimatorData();
+		//mAnimatorData = mSessionManager->GetAnimatorData();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &AnimatorWindow::ClearSelectionSubscribe>(this);
 
 		//ImNodes::PushColorStyle(ImNodesCol_NodeBackground, )
-		entryNode.id = 0;
-		entryNode.in_id = -1;
-		entryNode.out_id = 1;
-		entryNode.name = "Entry";
+		//entryNode.id = 0;
+		//entryNode.in_id = -1;
+		//entryNode.out_id = 1;
+		//entryNode.name = "Entry";
 
-		exitNode.id = 1;
-		exitNode.in_id = 2;
-		exitNode.out_id = -1;
-		exitNode.name = "Exit";
+		//exitNode.id = 1;
+		//exitNode.in_id = 2;
+		//exitNode.out_id = -1;
+		//exitNode.name = "Exit";
 	}
 
 	void AnimatorWindow::Draw()
 	{
-		bool hasAnimator = CheckForAnimator();
+		CheckForAnimator();
 		
 		ImGui::Begin("Animator");
-
+		DrawMenuBar();
 		DrawParameters();
 		ImGui::SameLine();
 		DrawNodeEditor();
 		DrawPostEditorElements();		
 		ImGui::End();
 	}
+
+	void AnimatorWindow::DrawMenuBar()
+	{
+		if (ImGui::Button("Save"))
+		{
+			if (!mAnimatorData)
+				return;
+
+			mAnimatorData->mStateMachineAsset->SerializeAsset();
+		}
+	}
+
+	void AnimatorWindow::CheckForAnimator()
+	{
+		// Check if any entities selected
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+			return;
+
+		auto& nodes = selectionManager->GetSelectedNodes();
+		Entity entity = entt::null;
+
+		// if entities present
+		if (nodes.size() > 0)
+		{
+			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
+			entity = entityNode->entity;
+
+			// check if first entity has animator component
+			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
+
+			// if anim exists
+			if (anim)
+			{
+				// if current animator is null or mismatch
+				// ignore if anim == mCurrentAnimator
+				// either case, return true
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				{
+					LoadDataFromAnimator(anim, entity);
+				}
+			}
+		}
+	}
+
 
 	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
 	{
@@ -189,8 +235,8 @@ namespace SliceEditor
 			}
 		}
 
-		DrawEntryNode();
-		DrawExitNode();
+		//DrawEntryNode();
+		//DrawExitNode();
 		DrawPostEditorElements();
 
 		if (mAnimatorData)
@@ -264,50 +310,21 @@ namespace SliceEditor
 		}
 	}
 
-	bool AnimatorWindow::CheckForAnimator()
+	void AnimatorWindow::SaveAnimatorData()
 	{
-		// Check if any entities selected
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		auto& sm = mAnimatorData->mStateMachineAsset;
 
-		if (selectionManager->mSelectionType != SelectionType::ENTITY)
-		{
-			return (mCurrentAnimator != nullptr);
-		}
+		//sm->entryPosition = ImNodes::GetNodeEditorSpacePos(0);
+		//sm->exitPosition = ImNodes::GetNodeEditorSpacePos(1);
 
-		auto& nodes = selectionManager->GetSelectedNodes();
-		Entity entity = entt::null;
+		//for (auto& [id, node] : mAnimatorData->mStateNodes)
+		//{
+		//	if (id == 0 || id == 1)
+		//		continue;
 
-		// if entities present
-		if (nodes.size() > 0)
-		{
-			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
-			entity = entityNode->entity;
+		//	
+		//}
 
-			// check if first entity has animator component
-			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-
-			// if anim exists
-			if (anim && anim->IsValid())
-			{
-				// if current animator is null or mismatch
-				// ignore if anim == mCurrentAnimator
-				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
-				{
-					LoadDataFromAnimator(anim, entity);
-					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
-				}
-
-				return true;
-			}
-
-			else
-				return (mCurrentAnimator != nullptr);
-		}
-
-		// if no entities present
-		else
-			return (mCurrentAnimator != nullptr);
 	}
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
@@ -340,7 +357,6 @@ namespace SliceEditor
 	void AnimatorWindow::DrawStateNode(StateNode* node)
 	{
 		ImNodes::BeginNode(node->id);
-
 		//ImNodes::BeginNodeTitleBar();
 		//ImGui::TextUnformatted(name.c_str());
 		//ImNodes::EndNodeTitleBar();
@@ -365,6 +381,14 @@ namespace SliceEditor
 		}
 
 		ImNodes::EndNode();
+
+		if (ImNodes::IsNodeSelected(node->id))
+		{
+			SelectNode(node->id);
+		}
+
+		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
+		mAnimatorData->set_position(node->id, pos);
 	}
 
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
@@ -379,6 +403,21 @@ namespace SliceEditor
 		auto guid = mCurrentAnimator->Handle_stateMachine.getGUID();
 		mSessionManager->LoadAnimatorData(guid);
 		mAnimatorData = mSessionManager->GetAnimatorData();
+
+		// Set Initial Node Positions
+		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
+
+		ImNodes::SetNodeEditorSpacePos(0, mAnimatorData->mStateMachineAsset->entryPosition);
+		ImNodes::SetNodeEditorSpacePos(1, mAnimatorData->mStateMachineAsset->exitPosition);
+
+		for (auto& [name, state] : stateMap)
+		{
+			auto it = mAnimatorData->mNameToStateID.find(name);
+			if (it != mAnimatorData->mNameToStateID.end())
+			{
+				ImNodes::SetNodeEditorSpacePos(it->second, state.mNodePos);
+			}
+		}
 	}
 
 	void AnimatorWindow::ClearData()
@@ -387,7 +426,24 @@ namespace SliceEditor
 		mAnimatorData = nullptr;
 	}
 
-	bool AnimatorWindow::RemoveTransitionFromState(int id)
+	void AnimatorWindow::CreateNode()
+	{
+		mAnimatorData->create_state();
+
+	}
+
+	void AnimatorWindow::DeleteNode(uint16_t id)
+	{
+
+	}
+
+	void AnimatorWindow::SelectNode(uint16_t id)
+	{
+		auto& node = mAnimatorData->mStateNodes.at(id);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+	}
+
+	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
 	{
 		auto transition_it = mAnimatorData->mTransitionNodes.find(id);
 
