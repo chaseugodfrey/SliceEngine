@@ -1592,7 +1592,7 @@ namespace SliceEngine
         void* param = varStr;
         // TODO: Look into whether we want to allow multiple variables or just a string instead
         // if we do then 1 string for func name, 1 string for the variable
-        MonoMethod* eventMethod = scriptClass->GetMethod(event.funcName, 0);
+        MonoMethod* eventMethod = scriptClass->GetMethod(event.funcName, 1);
         if (!eventMethod)
         {
             SLICE_LOG_ERROR("Animation event: Function '{}' not found in script '{}'", event.funcName, scriptClass->mClassName);
