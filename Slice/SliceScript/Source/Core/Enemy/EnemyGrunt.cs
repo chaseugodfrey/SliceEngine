@@ -14,12 +14,19 @@ namespace SliceEngine
         public float horKnockback = 1f;
         public float vertKnockback = 1f;
 
+        public float strafeDistance = 10f;
+        public float strafeTolerance = 2f;
+        public float strafeSpeed = .4f;
+
+        
         public float attackTriggerRange = 1f;
         public float attackDamageRange = 1f;
         public float attackWindUpTiming = 1f;
         public float flickerTiming = 1f;
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
+
+
 
         public GameObject basicHitBox;
         private GeneralHitbox _basicHitBox;
@@ -148,6 +155,8 @@ namespace SliceEngine
             attacking = false;
             Console.WriteLine("Attacking is Off");
 
+            //Need to add a way to kill itself.
+
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
             yield break;
@@ -170,7 +179,6 @@ namespace SliceEngine
             Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
-
         }
 
 

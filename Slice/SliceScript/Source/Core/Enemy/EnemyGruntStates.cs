@@ -41,10 +41,10 @@ namespace SliceEngine
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
-            if (direction_diff.Magnitude() <= enemyOwner.attackTriggerRange)
+            if (direction_diff.Magnitude() <= enemyOwner.strafeDistance)
             {
-                enemyOwner.ChangeState(new EnemyGruntAttackState(enemyOwner));
-                //attack state
+                enemyOwner.ChangeState(new EnemyGruntStrafeState(enemyOwner));
+                //strafe state
             }
         }
     }
@@ -55,7 +55,29 @@ namespace SliceEngine
         public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) { }
 
 
+        public override void DoEnemyAction(float dt)
+        {
+            base.DoEnemyAction(dt);
 
+            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+
+            //float distFromPlayer = direction_diff.Magnitude(); 
+
+            //if (direction_diff.Magnitude() <= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance) && direction_diff.Magnitude() >= (enemyOwner.strafeDistance - enemyOwner.strafeTolerance))
+            SliceLog.Log("" + direction_diff.Magnitude());
+            if (direction_diff.Magnitude() > (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
+            {
+                enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
+            }
+            else if (direction_diff.Magnitude() < enemyOwner.strafeDistance)
+            {
+                enemyOwner.enemyT.Position -= direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
+            }
+            else
+            {
+                enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
+            }
+        }
 
     }
 
