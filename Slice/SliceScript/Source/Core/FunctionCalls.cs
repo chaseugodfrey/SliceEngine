@@ -82,13 +82,13 @@ namespace SliceEngine
         //Layer
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_GetMask(string layerName);
+        internal extern static uint LayerMask_GetMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string LayerMask_LayerToName(int layer);
+        internal extern static string LayerMask_LayerToName(uint layer);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_NameToLayer(string layerName);
+        internal extern static uint LayerMask_NameToLayer(string layerName);
         //End Layer
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

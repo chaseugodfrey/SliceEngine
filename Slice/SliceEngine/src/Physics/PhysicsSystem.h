@@ -171,7 +171,7 @@ namespace SliceEngine
 
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
 
-		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, const uint32_t layer);
+		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, uint32_t& bodyHitID, const uint32_t layer);
 	};
 }
 
