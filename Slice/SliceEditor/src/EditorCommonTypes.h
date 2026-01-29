@@ -209,13 +209,33 @@ namespace SliceEditor
 	struct AnimatorData
 	{
 		std::unique_ptr<StateMachineData> mStateMachineAsset;
-		std::unordered_map<int, StateNode> mStateNodes;
-		std::unordered_map<int, TransitionLinkNode> mTransitionNodes;
-		std::unordered_map<std::string, int> mNameToStateID;
+		std::unordered_map<uint16_t, StateNode> mStateNodes;
+		std::unordered_map<uint16_t, TransitionLinkNode> mTransitionNodes;
+		std::unordered_map<std::string, uint16_t> mNameToStateID;
 
 		using State = SliceEngine::SliceEngineTypes::State;
 		using Transition = SliceEngine::SliceEngineTypes::Transition;
 		using Parameters = decltype(StateMachineData::parameters);
+
+		void create_state()
+		{
+			std::string state_name = "New State";
+			int repeat = 1;
+
+			while (auto it = mNameToStateID.find(state_name) != mNameToStateID.end())
+			{
+				state_name = "New State " + std::to_string(repeat);
+				repeat++;
+			}
+
+			State state{};
+			state.stateName = state_name;
+			state.mNodePos = glm::vec2(0.0f, 0.0f);
+
+			mStateMachineAsset->stateMap.emplace(state_name, state);
+
+			create_state_node(state_name);
+		}
 
 		void create_state_node(std::string name)
 		{
