@@ -116,6 +116,7 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
 
+
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
 		.constructor<>()
@@ -357,6 +358,15 @@ namespace SliceEngine
 		.constructor<uint64_t>()
 		.property_readonly("Value", &GUID::GetGUID);
 
+	rttr::registration::class_<SliceEngineTypes::AnimationKeyFrame>("Animation Key Frames")
+		.constructor<>()
+		.property("scriptName", &SliceEngineTypes::AnimationKeyFrame::scriptName)
+		.property("scriptFunc", &SliceEngineTypes::AnimationKeyFrame::scriptFunc)
+		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
+		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
+
+	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
@@ -384,6 +394,12 @@ namespace SliceEngine
 		(
 			rttr::value("CONSTANT", ParticleSystem::ValueType::CONSTANT),
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
+			);
+
+	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
+		(
+			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
 			);
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
@@ -446,10 +462,13 @@ namespace SliceEngine
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
 		.property("hasCollision", &ParticleSystem::hasCollision)
 
+		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+
+		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
-		.property("materialGUID", &ParticleSystem::materialGUID)
-		.property("meshGUID", &ParticleSystem::meshGUID)
-		;
+		.property("textureHandle", &ParticleSystem::textureHandle)
+		.property("modelHandle", &ParticleSystem::modelHandle)
+		.property("materialHandle", &ParticleSystem::materialHandle);
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
@@ -457,7 +476,10 @@ namespace SliceEngine
 		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
-		.property("triggered", &ParticleSystem::Burst::triggered);
+		.property("triggered", &ParticleSystem::Burst::triggered)
+		(
+			rttr::metadata("Serialize", false)
+		);
 
 	rttr::registration::class_<std::vector<ParticleSystem::Burst>>("BurstVector");
 
@@ -473,13 +495,15 @@ namespace SliceEngine
 			rttr::metadata("Serialize", false)
 		);
 
+
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
 		.property("current_time", &Animator::current_time)
 		.property("stateMachine Handle", &Animator::Handle_stateMachine)
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
-		.property("componentEnabled", &Animator::componentEnabled);
+		.property("componentEnabled", &Animator::componentEnabled)
+		.property("eventFrames", &Animator::eventFrames);
 
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())
@@ -547,6 +571,13 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("currentPath", &NavAgent::currentPath)
 	.property("currentPathIndex", &NavAgent::currentPathIndex)
 	.property("componentEnabled", &NavAgent::componentEnabled);
+
+rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
+.constructor<>()
+.property("startLink", &NavMeshLink::startLink)
+.property("endLink", &NavMeshLink::endLink)
+.property("bidirectional", &NavMeshLink::bidirectional)
+.property("currentPath", &NavMeshLink::radius);
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()

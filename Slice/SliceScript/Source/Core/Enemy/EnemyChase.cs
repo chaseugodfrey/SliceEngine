@@ -68,7 +68,7 @@ namespace SliceEngine
                         navAgent.SetDestination(targetPos);
 
                         // Debug print
-                        FunctionCalls.Log($"Chasing... Target Pos: {targetPos.x}, {targetPos.z}");
+                        // FunctionCalls.Log($"Chasing... Target Pos: {targetPos.x}, {targetPos.z}");
                     }
                 }
             }

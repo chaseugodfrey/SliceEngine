@@ -1027,6 +1027,9 @@ namespace SliceEngine
 		float maxS = fmaxf(scale.x, fmaxf(scale.y, scale.z));
 		return fmaxf(maxS * log10f(lightIntensity), 1.f) * mPointLightFar;
 	}
+
+	const glm::mat4& RenderManager::GetViewMatrix() const { return V; }
+	const glm::mat4& RenderManager::GetProjMatrix() const { return P; }
 #pragma endregion
 
 #pragma region Linking

@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <random>
 #include "Systems/ParticleSystemManager.h"
+#include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
 #include <Core/Core.h>
 
@@ -83,6 +84,10 @@ namespace SliceEngine
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
 		ValidateParticleSystem(ps);
+
+		// particle billboard from camera
+		glm::mat3 camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRenderManager()->GetViewMatrix()));
+		glm::quat billboardRot = glm::quat_cast(camRot);
 
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
 		if (ps.systemTimer >= ps.duration)
@@ -190,30 +195,30 @@ namespace SliceEngine
 				transformMatrix = glm::translate(transformMatrix, p.position);
 			}
 
-			glm::quat Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-			transformMatrix *= glm::mat4_cast(Rot);
+			// particle rotation
+			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
+
+			// combine rotations if face camera
+			glm::quat finalRot = ps.alwaysFaceCamera ? (billboardRot * particleRot) : particleRot;
+
+			// apply final rotation
+			transformMatrix *= glm::mat4_cast(finalRot);
+
 			transformMatrix = glm::scale(transformMatrix, p.scale);
 
-			/*if (ps.isLocalSpace && ps.parentTransform)
-			{
-				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-				transformMatrix *= glm::mat4_cast(Rot);
-				transformMatrix = glm::scale(transformMatrix, p.scale);
-			}
-			else
-			{
-				transformMatrix = glm::translate(transformMatrix, p.position);
-				Rot = glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
-				transformMatrix *= glm::mat4_cast(Rot);
-				transformMatrix = glm::scale(transformMatrix, p.scale);
-			}*/
-
-			//glm::mat4x4 Rot = glm::eulerAngleXYZ(glm::radians(transform.rotation.x), glm::radians(transform.rotation.y + 90.f), glm::radians(transform.rotation.z));
-
 			prp.transform = transformMatrix;
-			prp.textureID = ps.GetTextureID();
 			prp.colour = p.colour;
+
+			prp.isMeshParticle = (ps.renderMode == ParticleSystem::RenderMode::MESH) ? true : false;
+			if (prp.isMeshParticle)
+			{
+				prp.modelGUID = ps.modelHandle.getGUID();
+				prp.materialGUID = ps.materialHandle.getGUID();
+			}
+			else 
+			{
+				prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
+			}
 
 			ps.renderData.push_back(prp);
 		}
@@ -246,8 +251,17 @@ namespace SliceEngine
 		Utilities::FixMinMax(ps.minParticleLifetime, ps.maxParticleLifetime);
 
 		// Validate Rotation
-		Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
-
+		if (ps.isRotation3D)
+		{
+			Utilities::FixMinMax(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
+			Utilities::FixMinMax(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
+			Utilities::FixMinMax(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
+		}
+		else 
+		{
+			Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
+		}
+		
 		// Validate Start Position Offset
 		Utilities::FixMinMax(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
 		Utilities::FixMinMax(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y);
@@ -355,16 +369,39 @@ namespace SliceEngine
 	{
 		if (ps.initialRotationType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> dist(
-				ps.minRandomRotation,
-				ps.maxRandomRotation
-			);
+			if (ps.isRotation3D)
+			{
+				std::uniform_real_distribution<float> distX(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
+				std::uniform_real_distribution<float> distY(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
+				std::uniform_real_distribution<float> distZ(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
 
-			p.rotation = dist(gen);
+				glm::vec3 eul{
+					distX(gen),
+					distY(gen),
+					distZ(gen)
+				};
+				p.rotation3D = glm::quat(glm::radians(eul));
+			}
+			else 
+			{
+				std::uniform_real_distribution<float> dist(
+					ps.minRandomRotation,
+					ps.maxRandomRotation
+				);
+
+				p.rotation = dist(gen);
+			}
 		}
 		else
 		{
-			p.rotation = ps.rotation;
+			if (ps.isRotation3D)
+			{
+				p.rotation3D = glm::quat(glm::radians(ps.rotation3DHint));
+			}
+			else 
+			{
+				p.rotation = ps.rotation;
+			}
 		}
 	}
 	void ParticleSystemManager::InitializeScale(Particle& p, ParticleSystem& ps)
