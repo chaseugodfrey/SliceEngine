@@ -57,10 +57,10 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048582,
+                "entity_id": 6,
                 "neighbours": [
                     0,
-                    1048581,
+                    5,
                     65,
                     4294967295
                 ]
@@ -70,15 +70,15 @@
                 "scriptableFieldMap": {
                     "GOtest": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048581
+                        "Value": 5
                     },
                     "GOtest2": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048580
+                        "Value": 4
                     },
                     "GOtest3": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048579
+                        "Value": 3
                     },
                     "boolTest": {
                         "Type": "bool",
@@ -179,12 +179,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048581,
+                "entity_id": 5,
                 "neighbours": [
-                    1048582,
+                    6,
                     4294967295,
                     4294967295,
-                    1048580
+                    4
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -272,12 +272,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 4,
                 "neighbours": [
-                    1048582,
+                    6,
                     4294967295,
-                    1048581,
-                    1048579
+                    5,
+                    3
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -366,11 +366,11 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
+                "entity_id": 3,
                 "neighbours": [
-                    1048582,
+                    6,
                     4294967295,
-                    1048580,
+                    4,
                     4294967295
                 ]
             },

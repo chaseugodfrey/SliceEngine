@@ -163,8 +163,8 @@ namespace SliceEngine
 		else
 		{
 			// only update prefab variables if its non editor
-			gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
 		}
+		gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
 
 		if (!GO.HasComponent<Prefab>())
 		{
@@ -229,9 +229,10 @@ namespace SliceEngine
 		}
 		else
 		{
-			gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
 
 		}
+
+		gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
 
@@ -350,7 +351,7 @@ namespace SliceEngine
 					bool JoltBodyIDfound = false;
 
 					GameObject instanceGO = FactoryInstance.GetGOByEntity(instancePrefabIDToEntityMap[prefabID]);
-
+					Script scriptCopy;
 					// clone the components from the original prefab entity to the instance
 					for (auto& [id, cloner] : FactoryInstance.mComponentCloners)
 					{
@@ -362,6 +363,12 @@ namespace SliceEngine
 							id == entt::type_id<Bone>().hash() ||
 							id == entt::type_id<SceneGraph>().hash())
 							continue;
+
+						if (id == entt::type_id<Script>().hash() && instanceGO.HasComponent<Script>())
+						{
+							scriptCopy = instanceGO.GetComponent<Script>();
+							//continue;
+						}
 
 						if (id == entt::type_id<ColliderShape>().hash())
 						{
@@ -376,6 +383,25 @@ namespace SliceEngine
 
 						cloner(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
 					}
+
+					// restore the gameobject variables
+					// cause modifying it will copy broken game object variables
+					if (instanceGO.HasComponent<Script>())
+					{
+						Script& scriptComp = instanceGO.GetComponent<Script>();
+						for (auto& [key, value] : scriptComp.scriptableFieldMap)
+						{
+							if (value.is_type<GameObject>())
+							{
+								value = scriptCopy.scriptableFieldMap[key].get_value<GameObject>();
+							}
+							else if (value.is_type<std::vector<GameObject>>())
+							{
+								value = scriptCopy.scriptableFieldMap[key].get_value<std::vector<GameObject>>();
+							}
+						}
+					}
+
 
 					//GameObject testGO = FactoryInstance.GetGOByEntity(instancePrefabIDToEntityMap[prefabID]);
 					//if (testGO.HasComponent<Script>())

@@ -266,6 +266,7 @@ namespace SliceEngine
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>,
+								GameObject,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
