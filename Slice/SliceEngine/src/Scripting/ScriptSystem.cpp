@@ -1253,6 +1253,7 @@ namespace SliceEngine
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
+        eventManager->Subscribe< AnimationEvent, &ScriptSystem::OnAnimationEvent>(this);
     }
 
     void ScriptSystem::UnsubscribeToEvents()
@@ -1558,6 +1559,35 @@ namespace SliceEngine
         {
             scriptInstance->InvokeButtonOnRelease();
         }
+    }
+
+    void ScriptSystem::OnAnimationEvent(const AnimationEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState != SceneState::PLAY_SCENE)
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        auto scriptClass = scriptInstance->GetScriptClass();
+
+        MonoString* varStr = mono_string_new(mono_domain_get(), event.scriptName.c_str());
+        void* param = varStr;
+        // TODO: Look into whether we want to allow multiple variables or just a string instead
+        // if we do then 1 string for func name, 1 string for the variable
+        MonoMethod* eventMethod = scriptClass->GetMethod(event.funcName, 0);
+        if (!eventMethod)
+        {
+            SLICE_LOG_ERROR("Animation event: Function '{}' not found in script '{}'", event.funcName, scriptClass->mClassName);
+            return;
+        }
+
+        // if its here means we can invoke it
+        scriptClass->InvokeMethod(scriptInstance->GetInstance(), eventMethod, &param);
+
+        // for now im just going to invoke blank functions to make sure it works
+        // look to adding support for either string or x number of variables after this is working.
     }
 
     void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
