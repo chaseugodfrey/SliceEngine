@@ -1421,21 +1421,16 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, const uint32_t layer)
-	{
-	//	auto& sliceEntity = mRegistry->get<SliceEntity>(entity);
-	//	auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, uint32_t mask)
+	{	
 		JPH::Vec3 ori = helpers::glmtoJPH(origin);
 		JPH::Vec3 dir = helpers::glmtoJPH(direction);
 
 		JPH::RRayCast inRay(ori, dir);
-		JPH::RayCastResult ioHit; // only reference rest in const
+		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
-		ObjectLayerFilterImpl filterLayer(layer);
+		ObjectLayerFilterImpl filterLayer(mask);
 		JPH::BodyFilter inBodyFilter = {};
-
-
 
 		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
