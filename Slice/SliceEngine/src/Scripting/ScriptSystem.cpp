@@ -1278,59 +1278,75 @@ namespace SliceEngine
     {
         for (auto& [entity, scriptInstance] : mEntityInstances)
         {
-            auto& scriptComponent = mRegistry->get<Script>(entity);
+            FixGOVariables(sceneGraph, entity, scriptInstance);
+        }
+    }
 
-            for (auto& [fieldName, variantVal] : scriptComponent.scriptableFieldMap)
+    void ScriptSystem::RemapPrefabVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity)
+    {
+        if (mEntityInstances.find(entity) == mEntityInstances.end())
+        {
+            return;
+        }
+
+        FixGOVariables(sceneGraph, entity, mEntityInstances[entity]);
+    }
+
+    void ScriptSystem::FixGOVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity, std::shared_ptr<ScriptObject>& scriptInstance)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        for (auto& [fieldName, variantVal] : scriptComponent.scriptableFieldMap)
+        {
+            if (variantVal.is_type<GameObject>())
             {
-                if (variantVal.is_type<GameObject>())
+                GameObject go = variantVal.get_value<GameObject>();
+                uint32_t oldID = (uint32_t)go.GetEntity();
+
+                if (sceneGraph.contains(oldID))
                 {
-                    GameObject go = variantVal.get_value<GameObject>();
-                    uint32_t oldID = (uint32_t)go.GetEntity();
+                    uint32_t newID = sceneGraph.at(oldID);
+                    GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
+                    scriptInstance->SetFieldValue<GameObject>(fieldName, newGO);
+                }
+            }
+            else if (variantVal.is_type <std::vector<GameObject>>())
+            {
+                // NOTE for gideon
+                // i realise, i should probblay be using set index instead because there is already a list existing
+                // but with the old IDs
+                // but i'm just going to clear and readd again
+                // not as efficient but time is of the essence! We must ride at noon.
+
+                std::vector<GameObject> oldGOs = variantVal.get_value<std::vector<GameObject>>();
+                MonoObject* listObject = scriptInstance->GetListObject(fieldName);
+                if (listObject == nullptr)
+                {
+                    SLICE_LOG_ERROR("List " + fieldName + " is null or Clear() isn't defined");
+                    continue;
+                }
+
+                // clear the list first before adding from the serialized vector
+                scriptInstance->mScriptClass->InvokeMethod(listObject, scriptInstance->mScriptClass->mFields[fieldName].mListClear, nullptr);
+
+                // clear the list first before adding from the serialized vector
+                for (GameObject oldGO : oldGOs)
+                {
+                    uint32_t oldID = (uint32_t)oldGO.GetEntity();
 
                     if (sceneGraph.contains(oldID))
                     {
                         uint32_t newID = sceneGraph.at(oldID);
                         GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
-                        scriptInstance->SetFieldValue<GameObject>(fieldName, newGO);
-                    }
-                }
-                else if (variantVal.is_type <std::vector<GameObject>>())
-                {
-                    // NOTE for gideon
-                    // i realise, i should probblay be using set index instead because there is already a list existing
-                    // but with the old IDs
-                    // but i'm just going to clear and readd again
-                    // not as efficient but time is of the essence! We must ride at noon.
-
-                    std::vector<GameObject> oldGOs = variantVal.get_value<std::vector<GameObject>>();
-                    MonoObject* listObject = scriptInstance->GetListObject(fieldName);
-                    if (listObject == nullptr)
-                    {
-                        SLICE_LOG_ERROR("List " + fieldName + " is null or Clear() isn't defined");
-                        continue;
-                    }
-
-                    // clear the list first before adding from the serialized vector
-                    scriptInstance->mScriptClass->InvokeMethod(listObject, scriptInstance->mScriptClass->mFields[fieldName].mListClear, nullptr);
-
-                    // clear the list first before adding from the serialized vector
-                    for (GameObject oldGO : oldGOs)
-                    {
-                        uint32_t oldID = (uint32_t)oldGO.GetEntity();
-
-                        if (sceneGraph.contains(oldID))
-                        {
-                            uint32_t newID = sceneGraph.at(oldID);
-                            GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
-                            scriptInstance->AddListFieldValue<GameObject>(fieldName, newGO);
-                            //newGOs.push_back(newGO);
-                        }
+                        scriptInstance->AddListFieldValue<GameObject>(fieldName, newGO);
+                        //newGOs.push_back(newGO);
                     }
                 }
             }
-            
-            UpdateScriptComponent(entity);
         }
+
+        UpdateScriptComponent(entity);
+
     }
 
     void ScriptSystem::QueueCollision(ScriptCollisionType type, Entity entity, Entity otherEntity)

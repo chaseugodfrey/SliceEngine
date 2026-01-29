@@ -142,8 +142,9 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(prefabGUID);
 
 		std::string name = prefab.get()->filePath;
+		std::unordered_map<uint32_t, uint32_t> sceneGraphMap;
 		//Assets/GameObject_1.prefab
-		Entity prefabEntity = JSONSerializer::DeserializePrefab(prefab.get()->filePath, isEditor);
+		Entity prefabEntity = JSONSerializer::DeserializePrefab(sceneGraphMap, prefab.get()->filePath, isEditor);
 
 		GameObject GO = FactoryInstance.GetGOByEntity(prefabEntity);
 		//std::string goName = GO.GetName(); was for 
@@ -158,6 +159,11 @@ namespace SliceEngine
 			//do this in DeserializePrefab instead
 			mRegistry->emplace_or_replace<PrefabEditingEntity>(prefabEntity);
 			mNextPrefabID[prefabGUID] = GO.GetComponent<Prefab>().prefabID;
+		}
+		else
+		{
+			// only update prefab variables if its non editor
+			gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
 		}
 
 		if (!GO.HasComponent<Prefab>())
@@ -175,11 +181,13 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabChild(childEntity, prefabGUID, isEditor);
+				UpdatePrefabChild(childEntity, prefabGUID, sceneGraphMap, isEditor);
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
+
+
 
 		// if its editor, then store the root entity
 		if (isEditor)
@@ -190,10 +198,11 @@ namespace SliceEngine
 			mPrefabEditable.second = prefabEntity;
 		}
 
+
 		return GO;
 	}
 
-	void PrefabSystem::UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor)
+	void PrefabSystem::UpdatePrefabChild(Entity entity, GUID const& guid, const std::unordered_map<uint32_t, uint32_t>& sceneGraphMap, bool isEditor)
 	{
 		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
@@ -218,12 +227,18 @@ namespace SliceEngine
 				mNextPrefabID[guid] = GO.GetComponent<Prefab>().prefabID;
 			}
 		}
+		else
+		{
+			gScriptSystem->RemapPrefabVariables(sceneGraphMap, GO.GetEntity());
+
+		}
 		auto& sceneGraph = GO.GetComponent<SceneGraph>();
 		Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+
 		while (childEntity != entt::null)
 		{
 			GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-			UpdatePrefabChild(childEntity, guid);
+			UpdatePrefabChild(childEntity, guid, sceneGraphMap);
 			auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 			childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 		}
