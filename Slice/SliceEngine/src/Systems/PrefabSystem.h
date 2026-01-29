@@ -53,7 +53,7 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="entity"></param>
 		void MakePrefab(Entity entity);
-		void MakePrefabChild(Entity entity, unsigned int& prefabID);
+		void MakePrefabChild(Entity entity, unsigned int& prefabID, std::set<Entity>& entitySet);
 
 		void UpdatePrefabComponent(Entity entity, GUID guid, bool toRemove = false);
 

@@ -694,6 +694,8 @@ namespace SliceEngine
 	{
 		unsigned int prefabID = 0;
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		std::set<Entity> entitySet;
+		entitySet.insert(entity);
 
 		GO.AddComponent<Prefab>();
 		// maybe we can just use the entity id as a prefab id
@@ -708,18 +710,58 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				MakePrefabChild(childEntity, prefabID);
+				MakePrefabChild(childEntity, prefabID, entitySet);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
 		}
+
+		// Now, check for game object variables in script component
+		// it can only reference other game objects in the prefab
+		for (auto ent : entitySet)
+		{
+			GameObject currGO = FactoryInstance.GetGOByEntity(ent);
+			if (currGO.HasComponent<Script>())
+			{
+				auto& scriptComp = currGO.GetComponent<Script>();
+				for (auto& [key, value] : scriptComp.scriptableFieldMap)
+				{
+					if (value.is_type<GameObject>())
+					{
+						GameObject referencedGO = value.get_value<GameObject>();
+						if (entitySet.find(referencedGO.GetEntity()) == entitySet.end())
+						{
+							// not found
+							value = GameObject();
+						}
+					}
+					else if (value.is_type<std::vector<GameObject>>())
+					{
+						std::vector<GameObject> referencedGOs = value.get_value<std::vector<GameObject>>();
+						for (auto& refGO : referencedGOs)
+						{
+							if (entitySet.find(refGO.GetEntity()) == entitySet.end())
+							{
+								// not found
+								refGO = GameObject();
+							}
+						}
+						value = referencedGOs;
+					}
+				}
+
+				gScriptSystem->UpdateScriptVariables(entity);
+			}
+
+		}
 	}
 
-	void PrefabSystem::MakePrefabChild(Entity entity, unsigned int& prefabID)
+	void PrefabSystem::MakePrefabChild(Entity entity, unsigned int& prefabID, std::set<Entity>& entitySet)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
 		GO.AddComponent<Prefab>();
+		entitySet.insert(entity);
 		// maybe we can just use the entity id as a prefab id
 		// i dont think prefab IDs have to be unique across prefabs??
 		GO.GetComponent<Prefab>().prefabID = prefabID;
@@ -732,7 +774,7 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				MakePrefabChild(childEntity, prefabID);
+				MakePrefabChild(childEntity, prefabID, entitySet);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
