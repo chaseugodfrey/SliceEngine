@@ -9,9 +9,6 @@ namespace SliceEngine
 {
     public class EnemySlime : EnemyBase
     {
-
-
-//      public bool active = false;
         public bool stunned = false;
 
         public float horKnockback = 1f;
@@ -20,124 +17,166 @@ namespace SliceEngine
         public float attackTriggerRange = 1f;
         public float attackDamageRange = 1f;
         public float attackWindUpTiming = 1f;
-        //public float flickerTiming = 1f;
+        public float flickerTiming = 1f;
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
         public GameObject basicHitBox;
-
-        //private enum state 
-        //{Chase,  Attack, Stunned};
-
-        //private state currentState = state.Chase;
-
-
-
-
+        private GeneralHitbox _basicHitBox;
+        private bool isPlayerInBasic = false;
 
         //Function called when you want the enemy to be active
-
         public override void SetUp()
         {
+            //Safety net return;
+            if (active) return;
+
+
             base.SetUp(); 
             Console.WriteLine("Slime setup called");
+
             this.ChangeState(new EnemySlimeChaseState(this));
+
+            if(basicHitBox.Has<GeneralHitbox>())
+            {
+                _basicHitBox = basicHitBox.As<GeneralHitbox>();
+                _basicHitBox.HitBoxListeners += BasicAttack;
+                _basicHitBox.ExitListeners += TempRemovePlayerCheck;
+                //_basicHitBox.SetActive(false);
+                basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
+
+
+                if(basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+                {
+                    Console.WriteLine("Hit Box successfully turned off");
+                    SliceLog.Log("Hit Box successfully turned off");
+                }
+                else
+                {
+                    Console.WriteLine("Hit Box still on");
+                    SliceLog.Log("Hit Box still on");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Slime has no hitbox");
+            }
         }
 
-        //public void Reset()
-        //{   active = false; }
+        public void Reset()
+        {   active = false; }
 
         public override void OnUpdate(float dt)
         {
-            if (Input.IsKeyDown(Keys.KEY_P))
+            if (Input.IsKeyDown(Keys.KEY_P) && active == false)
             {
                 Console.WriteLine("PPPPressed"); SetUp();
             }
             base.OnUpdate(dt);
-            //DoActionBasedOnState(dt);
-
-                //if (Input.IsKeyDown(Keys.KEY_B))
-                //{
-                //    SetUp();
-                //}
-
-                //if (player.Has<Player>())
-                //{
-                //    PlayerController playerComp = player.As<PlayerController>();
-                //    SliceLog.Log(playerComp.direction.ToString());
-                //}
-
-                //if (playerT.gameObject.Has<PlayerController>())
-                //{
-                //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
-                //    SliceLog.Log(playerComp.direction.ToString());
-                //}
-
         }
 
-        private void DoActionBasedOnState(float deltaTime)
+        public void BasicAttack(GameObject hit)
         {
-            //switch (currentState) 
-            //{
-            //    case state.Chase:
-            //        if (active && playerT != null && !stunned)
-            //        {
-            //            Vector3 direction_diff = playerT.Position - enemyT.Position;
-
-            //            enemyT.Position += direction_diff.Normalize() * movementSpeed * deltaTime;
-
-            //            if (direction_diff.Magnitude() <= attackTriggerRange)
-            //            {
-            //                currentState = state.Attack;
-            //                //attack state
-            //            }
-
-            //        }
-            //        break;
-            //    case state.Attack:
-            //        if (!attacking)
-            //        {
-            //            StartCoroutine(AttackCoroutine());
-            //        }
-            //        break;
-            //    case state.Stunned:
-
-            //        break;
-            //} 
+            if( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
+            {
+                //isPlayerInBasic = true;
+                //RE INSERT ONCE ENABLE IS WORKING
+                Bootstrap.Player.TakeDamage(damage);
+            }
+            else
+            {
+                Console.Write("| Failed player check on damage, no damage done |");
+            }
         }
 
-        public void Attack()
+        public void TempRemovePlayerCheck(GameObject hit)
+        {
+            if (hit.Has<PlayerController>() && hit.As<PlayerController>() == Bootstrap.Player)
+            {
+                isPlayerInBasic = false;
+                //Bootstrap.Player.TakeDamage(damage);
+            }
+        }
+
+        public void StartAttackCoroutine()
         {
             StartCoroutine(AttackCoroutine());
         }
 
         IEnumerator AttackCoroutine()
         {
-            Console.WriteLine("Attacking");
+            Console.Write("Attacking is On -> ");
             attacking = true;
-
+            Console.Write("Windup waiting -> ");
             yield return new WaitForSeconds(attackWindUpTiming);
-            Console.WriteLine("Timing returned");
+            Console.Write("Windup returned -> ");
             // flicker on
 
-            Vector3 direction_diff = playerT.Position - enemyT.Position;
+            // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
+            //_basicHitBox.SetActive(true);
+            basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = true;
 
-            Console.WriteLine("Checking");
-            if (direction_diff.Magnitude() <= attackDamageRange)
+            Console.Write("Box On | ");
+            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
-                Console.WriteLine("Damage is through");
-                Bootstrap.Player.TakeDamage(damage);
-                //Make player take damage( waiting for rayan and jiale to do their thing)
+                Console.Write("Hit Box successfully turned on -> ");
+                //SliceLog.Log("Hit Box successfully turned off");
+            }
+            else
+            {
+                Console.WriteLine("Hit Box still off -> ");
+                //SliceLog.Log("Hit Box still on");
+            }
+            // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
+            Console.Write("Flicker waiting -> ");
+            yield return new WaitForSeconds(flickerTiming);
+            Console.Write("Flicker returned -> ");
+            //_basicHitBox.As<GeneralHitbox>().SetActive(false);
+            basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
+
+            Console.Write("Box Off | ");
+            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+            {
+                Console.WriteLine("Hit Box successfully turned off -> ");
+                //SliceLog.Log("Hit Box successfully turned off");
+            }
+            else
+            {
+                Console.WriteLine("Hit Box still on -> ");
+                //SliceLog.Log("Hit Box still on");
             }
 
-            //new WaitForSeconds(flickerTiming);
+            //bool damaging = true;
+            //float count = 0f;
+            //while (count < flickerTiming)
+            //{
+            //  count += Time.deltaTime;
+            //  if (isPlayerInBasic)
+            //  {
+            //      Bootstrap.Player.TakeDamage(damage);
+            //      break;
+            //  }
+            //}
 
             // flicker off
 
-            Console.WriteLine("Turning attacking Off");
+            ///Outdated code that is just about checking distance.
+            /// REMOVE ONCE SERIALIZED HIT BOX IS WORKING
+            //Vector3 direction_diff = playerT.Position - enemyT.Position;
+            //Console.WriteLine("Checking");
+            //if (direction_diff.Magnitude() <= attackDamageRange)
+            //{
+            //    Console.WriteLine("Damage is through");
+            //    Bootstrap.Player.TakeDamage(damage);
+            //    //Make player take damage( waiting for rayan and jiale to do their thing)
+            //}
+
+
+
+
             attacking = false;
 
-            Console.WriteLine("attackign is Off");
+            Console.WriteLine("Attacking is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 

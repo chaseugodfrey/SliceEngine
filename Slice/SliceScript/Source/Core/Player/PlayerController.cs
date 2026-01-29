@@ -17,6 +17,12 @@ namespace SliceEngine
         //public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         //static bool testingShit = false;
 
+        // =========== Debug Mode =========
+        public bool debugMode = false;
+
+        // =========== Debug Mod ==========
+
+
         public GameObject playerModel;
 
         // =============== Movement variables =============== 
@@ -160,6 +166,11 @@ namespace SliceEngine
         }
         public override void OnCreate()
         {
+            if (debugMode)
+            {
+                return;
+            }
+
             Console.WriteLine("Test");
             playerModel = gameObject.FindGameObjectWithName("RootNode");
             animator = playerModel?.GetComponent<Animator>();
@@ -177,6 +188,13 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+
+            if (debugMode)
+            {
+                return;
+            }
+
+            
             GroundCheck();
             if (canInput)
             {

@@ -5,7 +5,7 @@ using System;
 namespace SliceEngine
 {
 
-    public class Player : SliceBehaviour
+    public class Old_Test_Player : SliceBehaviour
     {
         public float moveSpeed = 2.5f;
         public float rotationSpeed = 250.0f;
