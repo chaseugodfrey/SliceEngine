@@ -30,7 +30,7 @@ namespace SliceEngine
         #endregion
 
 
-        public Transform playerT { get; protected set; } = null;
+        public PlayerController playerT { get { return Bootstrap.Player; } protected set { ; } }
 
         #region Slice Behavior Overrides
         public override void OnCreate()
@@ -93,7 +93,7 @@ namespace SliceEngine
 
 
 
-            active = true; playerT = Bootstrap.Player.transform; }
+            active = true; }
 
         public virtual void Reset()
         { active = false; state = null; }

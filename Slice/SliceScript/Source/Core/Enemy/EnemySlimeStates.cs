@@ -38,7 +38,7 @@ namespace SliceEngine
             base.DoEnemyAction(dt);
 
             
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
@@ -59,7 +59,7 @@ namespace SliceEngine
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
 
             if (!enemyOwner.As<EnemySlime>().exploding)
