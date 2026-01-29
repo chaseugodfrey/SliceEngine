@@ -96,7 +96,7 @@ namespace SliceEngine
 						if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
 						{
 							// publish event
-							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName };
+							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity};
 							EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
 						}
 					}

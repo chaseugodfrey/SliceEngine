@@ -97,6 +97,31 @@ namespace SliceEditor
 		rootNode->isDirectory = true;
 		CreateDirectoryNode(*rootNode);
 		selectedFolder = &*rootNode;
+
+		auto& assetManager = registry.GetAssetManager();
+		// testing categories
+
+		auto sceneNode = std::make_unique<DirectoryNode>();
+		auto& sceneList = assetManager.mAssetTypeToGUIDs[AssetType::Scene];
+		sceneNode->fileName = "Scenes";
+		
+		for (const auto& guid : sceneList)
+		{
+			auto optFilename = assetManager.GetFilenameFromGUID(guid);
+			if (optFilename.has_value())
+			{
+				DirectoryNode child;
+				child.fileName = std::filesystem::path(optFilename.value()).filename().string();
+				child.fullPath = assetManager.mAssetDirectory / optFilename.value();
+				child.relativePath = std::filesystem::relative(child.fullPath, rootNode->fullPath);
+				child.parent = sceneNode.get();
+				child.isDirectory = false;
+				child.type = SelectionType::SCENE;
+				sceneNode->children.insert({ child.fileName, child });
+			}
+		}
+
+		categoryNodes.push_back(std::move(sceneNode));
 	}
 
 	void ContentBrowserManager::RebuildDirectory()

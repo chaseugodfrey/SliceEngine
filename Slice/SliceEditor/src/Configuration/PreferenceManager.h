@@ -2,7 +2,6 @@
 #define PREFERENCE_MANAGER_H
 
 #include "Core/IBaseManager.h"
-
 namespace SliceEditor
 {
 	class Registry;
@@ -19,10 +18,11 @@ namespace SliceEditor
 
 		void Init() override;
 		void Update() override;
-		void UpdateVersion(nlohmann::json& preferences);
+		void UpdateVersion(nlohmann::json& preferences, unsigned int);
 		void LoadPreferences();
 		void SetPreferences();
 		void SavePreferences();
+		void UpdateLastSceneLoaded(OnSceneLoadedEvent e);
 
 		Preferences& GetPreferences();
 	};

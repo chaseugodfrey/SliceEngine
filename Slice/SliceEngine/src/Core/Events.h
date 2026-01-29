@@ -58,6 +58,7 @@ struct GONetworkEvent {
 struct AnimationEvent {
 	std::string funcName;
 	std::string scriptName;
+	Entity entity;
 };
 
 //struct SliceEntityModifiedEvent
@@ -77,6 +78,7 @@ struct RigidBodyModifiedEvent
 
 struct OnSceneLoadedEvent
 {
+	std::filesystem::path scenePath;
 	bool isSceneLoaded;
 	std::string navMeshPath;
 };

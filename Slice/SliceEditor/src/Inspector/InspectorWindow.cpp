@@ -659,6 +659,27 @@ namespace SliceEditor
 
 	}
 
+	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	{
+		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+
+		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+
+			DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
+
+			DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
+
+			BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
+
+			DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
+
+			ImGui::TreePop();
+		}
+
+	}
+
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
@@ -1064,15 +1085,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayAnimator(entt::entity entity)
 	{
 		auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(entity);
-		//if (!animator.IsValid())
-		//{
-		//	if (ImGui::TreeNodeEx("Animator", mBaseFlags))
-		//	{
-		//		ImGui::Text("Animator is not valid \n :deadge_1");
-		//		ImGui::TreePop();
-		//	}
-		//}
-		//else
+
 		if (ImGui::TreeNodeEx("Animator", mBaseFlags))
 		{
 			if (!DisplayComponentHeader<SliceEngine::Animator>(entity))
@@ -1174,6 +1187,8 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Particle System", mBaseFlags))
 		{
 			auto& ps = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ParticleSystem>(entity);
+
+			DisplayComponentHeader<SliceEngine::ParticleSystem>(entity);
 
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
@@ -1356,7 +1371,7 @@ namespace SliceEditor
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 						std::string triggerTimeID = ("##burst_triggerTime" + std::to_string(counter));
-						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, FLT_MAX);
+						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, ps.duration);
 						ImGui::TableNextColumn();
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
@@ -1393,40 +1408,19 @@ namespace SliceEditor
 				static std::vector<std::string> render_mode_names = { "Billboard", "Mesh" };
 				ComboHeader(mRegistry, "Render Mode", "##ps_render_mode", ps.renderMode, render_mode_names);
 
+				BoolInputHeader(mRegistry, "Billboard", "##alwaysFaceCamera", ps.alwaysFaceCamera);
+
+				SliceEngine::GUID tex_guid = ps.textureGUID;
 				switch (ps.renderMode)
 				{
-					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
-					{
-						std::string texture = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
-						SliceEngine::GUID tex_guid = ps.textureGUID;
+					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
-					}
-						break;
+						break;					
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
-					{
-						std::string mesh = ps.textureGUID.toString();
-						std::string material = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Mesh", "##ps_mesh", mesh))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(mesh);
-						}
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Material", "##ps_material", material))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(material);
-						}
-
-						SliceEngine::GUID tex_guid = ps.textureGUID;
-						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
-						ps.textureGUID = tex_guid;
-					}
-						break;
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
+						break;	
 					default:
 						break;
 				}
@@ -1495,6 +1489,14 @@ namespace SliceEditor
 				if (ImGui::Selectable("Add Nav Agent"))
 				{
 					reg.emplace<SliceEngine::NavAgent>(entity);
+				}
+			}
+
+			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			{
+				if (ImGui::Selectable("Add Nav Mesh Link"))
+				{
+					reg.emplace<SliceEngine::NavMeshLink>(entity);
 				}
 			}
 
@@ -1693,6 +1695,12 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			{
+				DisplayNavMeshLink(node->entity);
+				ImGui::Separator();
+			}
+
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
 			{
@@ -1860,7 +1868,11 @@ namespace SliceEditor
 		if (!anim_data)
 			return;
 
-		auto& state = anim_data->mStateMachineAsset->stateMap.at(node->name);
+		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 	

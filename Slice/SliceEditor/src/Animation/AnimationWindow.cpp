@@ -205,34 +205,10 @@ namespace SliceEditor
 	{
 		auto core = SliceEngine::Core::GetInstance();
 
-		auto const& bone = core->GetRegistry().try_get<SliceEngine::Bone>(ent);
-		if(bone)
+		auto const& cAnimator = core->GetRegistry().try_get<SliceEngine::Animator>(ent);
+
+		if (cAnimator)
 		{
-			Entity root_entity = bone->skeleton_root;
-			if (root_entity != ent)
-			{
-				//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
-				auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
-
-				//if (!mTimeline.isPlaying)
-					///continue;
-
-				//some pseudo code
-				glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone->frame_idx];
-				glm::vec3 translation, scale, skew;
-				glm::vec4 perspective;
-				glm::quat rotation;
-				glm::decompose(frame, scale, rotation, translation, skew, perspective);
-				transform.position = translation;
-				transform.rotation = rotation;
-				transform.scale = scale;
-
-				//if is a renderer, tell skeleton to calculate inverse for this index
-				if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
-					mCurrentAnimator->inverse_flags.set(bone->frame_idx);
-				}
-			}
-
 			if (auto scene_graph = core->GetRegistry().try_get<SliceEngine::SceneGraph>(ent)) {
 				entt::entity child = scene_graph->neighbours[SliceEngine::SceneGraph::DOWN];
 				while (child != entt::null)
@@ -242,10 +218,46 @@ namespace SliceEditor
 				}
 			}
 		}
+		else
+		{
+			auto const& bone = core->GetRegistry().try_get<SliceEngine::Bone>(ent);
+			if (bone)
+			{
+				Entity root_entity = bone->skeleton_root;
+				if (root_entity != ent)
+				{
+					//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
+					auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
 
+					//if (!mTimeline.isPlaying)
+						///continue;
 
+					//some pseudo code
+					glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone->frame_idx];
+					glm::vec3 translation, scale, skew;
+					glm::vec4 perspective;
+					glm::quat rotation;
+					glm::decompose(frame, scale, rotation, translation, skew, perspective);
+					transform.position = translation;
+					transform.rotation = rotation;
+					transform.scale = scale;
 
-		
+					//if is a renderer, tell skeleton to calculate inverse for this index
+					if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
+						mCurrentAnimator->inverse_flags.set(bone->frame_idx);
+					}
+				}
+
+				if (auto scene_graph = core->GetRegistry().try_get<SliceEngine::SceneGraph>(ent)) {
+					entt::entity child = scene_graph->neighbours[SliceEngine::SceneGraph::DOWN];
+					while (child != entt::null)
+					{
+						UpdateBoneScene(child);
+						child = core->GetRegistry().get<SliceEngine::SceneGraph>(child).neighbours[SliceEngine::SceneGraph::RIGHT];
+					}
+				}
+			}
+		}
 	}
 
 	void AnimationWindow::UpdateBones()
@@ -485,47 +497,44 @@ namespace SliceEditor
 				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
 			}
 
-			//for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			//Bone animation
+			if (mCurrentAnimator->is_bone)
 			{
-
-				//Bone animation
-				if (mCurrentAnimator->is_bone)
+				auto& anim = animationClips[mCurrentClipIndex];
+				if (anim->duration <= 0.0f)
 				{
-					auto& anim = animationClips[mCurrentClipIndex];
-					if (anim->duration <= 0.0f)
+					mCurrentTime = 0.0f;
+				}
+				else
+				{
+					if (mCurrentTime > anim->duration)
 					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						if (mCurrentTime > anim->duration)
+
+						if (!mTimeline.isLoop)
 						{
+							mTimeline.isPlaying = false;
+							currentFrame = startFrame;
+							mCurrentTime = 0.0f;
+							ret = true;
+						}
+						else
+						{
+							mTimeline.isPlaying = true;
+							mCurrentTime = std::fmod(mCurrentTime, anim->duration);
 
-							if (!mTimeline.isLoop)
-							{
-								mTimeline.isPlaying = false;
-								currentFrame = startFrame;
-								mCurrentTime = 0.0f;
-								ret = true;
-							}
-							else
-							{
-								mTimeline.isPlaying = true;
-								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-							}
 						}
 					}
-					if (!ret)
-					{
-						float safe_time = std::min(mCurrentTime, anim->duration);
-						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-						UpdateTransform(anim, safe_time);
-						//UpdateBoneScene(tmpEnt);
-						//UpdateBones();
-					}
+				}
+				if (!ret)
+				{
+					float safe_time = std::min(mCurrentTime, anim->duration);
+					//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+					UpdateTransform(anim, safe_time);
+					//UpdateBoneScene(tmpEnt);
+					//UpdateBones();
 				}
 			}
+
 		}
 
 #pragma endregion
