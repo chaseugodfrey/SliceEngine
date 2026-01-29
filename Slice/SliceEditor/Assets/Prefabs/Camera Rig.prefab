@@ -1,0 +1,157 @@
+[
+    {
+        "Camera Rig": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 15,
+                "neighbours": [
+                    0,
+                    16,
+                    8,
+                    14
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.CameraController",
+                "scriptableFieldMap": {
+                    "resolutionX": {
+                        "Type": "float",
+                        "Value": 1920.0
+                    },
+                    "resolutionY": {
+                        "Type": "float",
+                        "Value": 1080.0
+                    },
+                    "sensitivity": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            10.0,
+                            8.0,
+                            0.0
+                        ]
+                    },
+                    "yClamp": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            -40.0,
+                            60.0,
+                            0.0
+                        ]
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Camera Rig",
+                "mTag": "Camera"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    1.7715858221054077,
+                    33.25038528442383,
+                    -2.552288549395598e-07
+                ],
+                "position": [
+                    0.0,
+                    -36.39286422729492,
+                    0.0
+                ],
+                "rotation": [
+                    0.9580824375152588,
+                    0.01481313444674015,
+                    0.28607550263404846,
+                    -0.004423081874847412
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Camera": {
+            "struct SliceEngine::Camera": {
+                "bloomExposure": 10.0,
+                "bloomFilterRadius": 5.0,
+                "bloomStrength": 0.4000000059604645,
+                "componentEnabled": true,
+                "debugRenderTag": "0",
+                "depthTex": 33,
+                "far": 200.0,
+                "fogColor": [
+                    0.20000000298023224,
+                    0.20000000298023224,
+                    0.20000000298023224
+                ],
+                "fogIntensity": 0.03999999910593033,
+                "height": 1080,
+                "near": 0.009999999776482582,
+                "postRenderTag": "0",
+                "pov": 60.0,
+                "textureID": 32,
+                "translucentSelectCutoff": 0.20000000298023224,
+                "vignetteCenter": [
+                    0.5,
+                    0.5
+                ],
+                "vignetteIntensity": 0.335999995470047,
+                "vignetteSmoothness": 0.699999988079071,
+                "width": 1920
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 16,
+                "neighbours": [
+                    15,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Camera",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    -6.800000190734863
+                ],
+                "position": [
+                    6.07139760688824e-09,
+                    3.0920000076293945,
+                    -4.5
+                ],
+                "rotation": [
+                    0.7058621644973755,
+                    0.041935939341783524,
+                    -0.7058621048927307,
+                    -0.041935939341783524
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]
