@@ -396,6 +396,12 @@ namespace SliceEngine
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
 			);
 
+	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
+		(
+			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
+			);
+
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		.property("duration", &ParticleSystem::duration)
@@ -456,10 +462,13 @@ namespace SliceEngine
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
 		.property("hasCollision", &ParticleSystem::hasCollision)
 
+		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+
+		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
-		.property("materialGUID", &ParticleSystem::materialGUID)
-		.property("meshGUID", &ParticleSystem::meshGUID)
-		;
+		.property("textureHandle", &ParticleSystem::textureHandle)
+		.property("modelHandle", &ParticleSystem::modelHandle)
+		.property("materialHandle", &ParticleSystem::materialHandle);
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
@@ -467,7 +476,10 @@ namespace SliceEngine
 		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
-		.property("triggered", &ParticleSystem::Burst::triggered);
+		.property("triggered", &ParticleSystem::Burst::triggered)
+		(
+			rttr::metadata("Serialize", false)
+		);
 
 	rttr::registration::class_<std::vector<ParticleSystem::Burst>>("BurstVector");
 

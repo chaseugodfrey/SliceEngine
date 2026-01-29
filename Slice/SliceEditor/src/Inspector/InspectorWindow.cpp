@@ -1188,6 +1188,8 @@ namespace SliceEditor
 		{
 			auto& ps = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::ParticleSystem>(entity);
 
+			DisplayComponentHeader<SliceEngine::ParticleSystem>(entity);
+
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				// Duration
@@ -1369,7 +1371,7 @@ namespace SliceEditor
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 						std::string triggerTimeID = ("##burst_triggerTime" + std::to_string(counter));
-						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, FLT_MAX);
+						DragFloatInput(mRegistry, triggerTimeID.c_str(), burst.triggerTime, "%.2f", 0.0f, ps.duration);
 						ImGui::TableNextColumn();
 						ImGui::SetNextItemWidth(itemWidth);
 						ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
@@ -1406,40 +1408,19 @@ namespace SliceEditor
 				static std::vector<std::string> render_mode_names = { "Billboard", "Mesh" };
 				ComboHeader(mRegistry, "Render Mode", "##ps_render_mode", ps.renderMode, render_mode_names);
 
+				BoolInputHeader(mRegistry, "Billboard", "##alwaysFaceCamera", ps.alwaysFaceCamera);
+
+				SliceEngine::GUID tex_guid = ps.textureGUID;
 				switch (ps.renderMode)
 				{
-					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:
-					{
-						std::string texture = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
-						SliceEngine::GUID tex_guid = ps.textureGUID;
+					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
-					}
-						break;
+						break;					
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
-					{
-						std::string mesh = ps.textureGUID.toString();
-						std::string material = ps.textureGUID.toString();
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Mesh", "##ps_mesh", mesh))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(mesh);
-						}
-
-						// to do : change this to asset drag and drop gui header
-						if (StringInputHeader(mRegistry, "Material", "##ps_material", material))
-						{
-							ps.textureGUID = SliceEngine::GUID::FromString(material);
-						}
-
-						SliceEngine::GUID tex_guid = ps.textureGUID;
-						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
-						ps.textureGUID = tex_guid;
-					}
-						break;
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
+						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
+						break;	
 					default:
 						break;
 				}

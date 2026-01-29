@@ -2,6 +2,7 @@
     {
         "Cube": {
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -34,7 +35,9 @@
                 "isLocalSpace": false,
                 "isRepeating": true,
                 "lifetime": 10.0,
-                "materialGUID": "",
+                "materialHandle": {
+                    "GUID": ""
+                },
                 "maxParticleLifetime": 0.0,
                 "maxParticles": 200,
                 "maxRandomColour": [
@@ -55,7 +58,6 @@
                     0.0
                 ],
                 "maxRandomSpeed": 0.0,
-                "meshGUID": "",
                 "minParticleLifetime": 0.0,
                 "minRandomColour": [
                     0.0,
@@ -75,7 +77,11 @@
                     0.0
                 ],
                 "minRandomSpeed": 0.0,
+                "modelHandle": {
+                    "GUID": ""
+                },
                 "numBursts": 0,
+                "renderMode": "Billboard",
                 "rotation": 0.0,
                 "scale": [
                     1.0,
@@ -93,7 +99,10 @@
                 "spawnPosValueType": 0,
                 "speed": 0.4000000059604645,
                 "speedValueType": 0,
-                "textureGUID": "17753361635269803423"
+                "textureGUID": "17753361635269803423",
+                "textureHandle": {
+                    "GUID": ""
+                }
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -112,7 +121,7 @@
                 "neighbours": [
                     0,
                     4294967295,
-                    1048581,
+                    3,
                     6
                 ]
             },
@@ -199,7 +208,7 @@
                     0,
                     4294967295,
                     7,
-                    1048579
+                    5
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -281,12 +290,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
+                "entity_id": 5,
                 "neighbours": [
                     0,
                     4294967295,
                     6,
-                    1048580
+                    4
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -322,20 +331,8 @@
     },
     {
         "Cube_1": {
-            "struct SliceEngine::Animator": {
-                "AnimPkg Handle": {
-                    "GUID": ""
-                },
-                "Skeleton Handle": {
-                    "GUID": ""
-                },
-                "componentEnabled": true,
-                "current_time": 0.0,
-                "stateMachine Handle": {
-                    "GUID": "13536119102007291593"
-                }
-            },
             "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
                 "axis": [
                     0.0,
                     0.0,
@@ -343,10 +340,10 @@
                 ],
                 "bursts": [
                     [
-                        0,
+                        100,
                         0,
                         0.0,
-                        0.0
+                        2.0
                     ],
                     [
                         0,
@@ -382,8 +379,8 @@
                 "colorValueType": 0,
                 "colour": [
                     1.0,
-                    0.0,
-                    0.0,
+                    1.0,
+                    1.0,
                     1.0
                 ],
                 "colourOverLifetime": true,
@@ -396,16 +393,18 @@
                 "coneArc": 0.0,
                 "coneRadius": 0.0,
                 "destroyOnExpire": false,
-                "duration": 8.100000381469727,
-                "emissionRate": 50.0,
-                "gForce": 3.299999952316284,
+                "duration": 2.0,
+                "emissionRate": 0.0,
+                "gForce": 1.0,
                 "hasCollision": false,
                 "initialLifetimeType": 0,
                 "initialRotationType": 0,
                 "isLocalSpace": false,
                 "isRepeating": true,
                 "lifetime": 7.0,
-                "materialGUID": "",
+                "materialHandle": {
+                    "GUID": "9336273396156370476"
+                },
                 "maxParticleLifetime": 0.0,
                 "maxParticles": 200,
                 "maxRandomColour": [
@@ -426,7 +425,6 @@
                     0.0
                 ],
                 "maxRandomSpeed": 0.0,
-                "meshGUID": "",
                 "minParticleLifetime": 0.0,
                 "minRandomColour": [
                     0.0,
@@ -446,8 +444,12 @@
                     0.0
                 ],
                 "minRandomSpeed": 0.0,
+                "modelHandle": {
+                    "GUID": "4412061832024819835"
+                },
                 "numBursts": 6,
-                "rotation": 5.0,
+                "renderMode": "Mesh",
+                "rotation": 0.0,
                 "scale": [
                     1.0,
                     1.0,
@@ -464,7 +466,10 @@
                 "spawnPosValueType": 0,
                 "speed": 7.0,
                 "speedValueType": 0,
-                "textureGUID": "17753361635269803423"
+                "textureGUID": "",
+                "textureHandle": {
+                    "GUID": ""
+                }
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -479,11 +484,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 4,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048579,
+                    5,
                     4294967295
                 ]
             },
@@ -526,7 +531,7 @@
                 "bloomStrength": 0.4000000059604645,
                 "componentEnabled": true,
                 "debugRenderTag": "0",
-                "depthTex": 33,
+                "depthTex": 32,
                 "far": 200.0,
                 "fogColor": [
                     0.20000000298023224,
@@ -538,7 +543,8 @@
                 "near": 0.009999999776482582,
                 "postRenderTag": "0",
                 "pov": 60.0,
-                "textureID": 32,
+                "textureID": 31,
+                "translucentSelectCutoff": 0.20000000298023224,
                 "vignetteCenter": [
                     0.5,
                     0.5
@@ -548,7 +554,7 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048581,
+                "entity_id": 3,
                 "neighbours": [
                     0,
                     4294967295,
