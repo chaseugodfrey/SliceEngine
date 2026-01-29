@@ -78,7 +78,6 @@ namespace SliceEngine
                 enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
             }
         }
-
     }
 
 
