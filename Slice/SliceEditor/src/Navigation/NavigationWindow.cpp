@@ -12,7 +12,7 @@ namespace SliceEditor
 	void NavigationWindow::Draw()
 	{
 		std::vector<glm::mat4> transformMtxs{};
-		std::vector<SliceEngine::SliceEngineTypes::Model*> models{};
+		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
 
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
@@ -20,22 +20,22 @@ namespace SliceEditor
 
 		if (selectionManager->mSelectionType == SelectionType::ENTITY)
 		{
-			auto& nodes = selectionManager->GetSelectedNodes();
+			auto &nodes = selectionManager->GetSelectedNodes();
 			if (!nodes.empty())
 			{
-				auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				for (auto& node : nodes)
+				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+				for (auto &node : nodes)
 				{
-					EntityNode* entity_node = static_cast<EntityNode*>(node);
+					EntityNode *entity_node = static_cast<EntityNode *>(node);
 					auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
 					if (renderer)
 					{
 						if (renderer->modelHandle.IsValid())
 						{
-							const auto& transform = reg.get<SliceEngine::Transform>(entity_node->entity);
+							const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
 							glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-							* glm::mat4_cast(transform.rotation)
-							* glm::scale(glm::mat4(1.0f), transform.scale);
+								* glm::mat4_cast(transform.rotation)
+								* glm::scale(glm::mat4(1.0f), transform.scale);
 
 							transformMtxs.push_back(transformMatrix);
 							models.push_back(renderer->modelHandle.get());
@@ -46,7 +46,7 @@ namespace SliceEditor
 		}
 
 		ImGui::BeginGroup();
-		auto& config = mCompiler.GetConfig();
+		auto &config = mCompiler.GetConfig();
 		auto height = mCompiler.GetAgentHeight();
 		auto radius = mCompiler.GetAgentRadius();
 		auto maxClimb = mCompiler.GetMaxClimb();
@@ -124,7 +124,26 @@ namespace SliceEditor
 
 		if (ImGui::Button("Bake"))
 		{
-			mCompiler.BuildFromModel(models, transformMtxs);
+			std::vector<SliceEngine::NavMeshLink> links;
+
+			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+
+			// 2. Iterate using .each() to avoid iterator errors
+			reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
+				{
+					SliceEngine::NavMeshLink data;
+
+					// Assuming startLink/endLink in the component are World Space positions 
+					// derived from the editor handles/transforms.
+					data.startLink = linkComp.startLink;
+					data.endLink = linkComp.endLink;
+
+					data.bidirectional = true;
+					data.radius = 5.0f;
+					std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
+					links.push_back(data);
+				});
+			mCompiler.BuildFromModel(models, transformMtxs, links);
 		}
 
 		ImGui::SameLine();
@@ -135,7 +154,7 @@ namespace SliceEditor
 
 		if (models.empty())
 			ImGui::EndDisabled();
-		
+
 		ImGui::End();
 	}
 }

@@ -23,6 +23,9 @@ namespace SliceEditor
 	class ContentBrowserWindow : public EditorWindow
 	{
 		ContentBrowserManager& mManager;
+		
+		int currentCategoryIndex = -1;
+
 	public:
 		//ContentBrowserManager() = default;
 		~ContentBrowserWindow() = default;
@@ -32,6 +35,8 @@ namespace SliceEditor
 		void Draw() override final;
 
 		void DisplayFolders(DirectoryNode& node);
+
+		void DisplayCategories();
 
 		void DisplayItems(DirectoryNode& node);
 

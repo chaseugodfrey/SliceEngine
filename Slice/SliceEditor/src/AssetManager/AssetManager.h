@@ -71,6 +71,7 @@ namespace SliceEditor
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
 		void CompileNavMeshAsset(NavMeshData* metaData);
+		void CompileNavMeshBinAsset(NavMeshBinData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
@@ -129,6 +130,7 @@ namespace SliceEditor
 			{".prefab", {AssetType::Prefab, "Prefab"}},
 			{".controller",{AssetType::Controller, "Controller"}},
 			{".navmesh",{AssetType::NavMesh, "NavMesh"}},
+			{".bin", {AssetType::NavMeshBin, "NavMesh"}},
 			{".skl", {AssetType::Skeleton, "Skeleton"}},
 			{".animpkg", {AssetType::Animation, "Animation"}}
 		};

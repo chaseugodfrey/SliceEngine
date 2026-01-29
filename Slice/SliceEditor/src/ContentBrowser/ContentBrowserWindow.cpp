@@ -55,6 +55,10 @@ namespace SliceEditor
 					DisplayFolders(*mManager.rootNode);
 					//ImGui::Text("Directory Here!");
 
+					ImGui::SeparatorText("Categories");
+
+					DisplayCategories();
+
 					ImGui::EndChild();
 				}
 			}
@@ -140,6 +144,7 @@ namespace SliceEditor
 				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
 				{
 					SelectFolder(node);
+					currentCategoryIndex = -1;
 				}
 
 				for (auto& entry : node.children)
@@ -147,6 +152,20 @@ namespace SliceEditor
 					DisplayFolders(entry.second);
 				}
 				ImGui::TreePop();
+			}
+		}
+	}
+
+	void ContentBrowserWindow::DisplayCategories()
+	{
+		auto& categories = mManager.categoryNodes;
+		for (size_t i = 0; i < categories.size(); ++i)
+		{
+			bool isSelected = (currentCategoryIndex == static_cast<int>(i));
+			if (ImGui::Selectable(categories[i]->fileName.c_str(), isSelected))
+			{
+				currentCategoryIndex = static_cast<int>(i);
+				mManager.selectedFolder = categories[i].get();
 			}
 		}
 	}

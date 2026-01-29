@@ -261,7 +261,7 @@ namespace SliceEngine
 		unsigned int prefabID;
 
 		// GUID reference to original prefab
-		GUID prefabGUID;
+		GUID prefabGUID{};
 
 		Handle<SliceEngineTypes::Prefab> prefabHandle;
 
@@ -413,7 +413,7 @@ namespace SliceEngine
 		float maxAge{};
 		float age{};             // how long this particle has been alive
 		float rotation{};
-		float speed{};
+		float speed{};		
 
 		inline float normalizedLifetime() const
 		{
@@ -425,13 +425,20 @@ namespace SliceEngine
 		glm::vec3 scale{};
 		glm::vec3 velocity{};	  // derived from speed + direction
 		glm::vec4 colour{};       // if you want per-particle tint
+		glm::quat rotation3D{};
 	};
 
 	struct ParticleRenderPart
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
-		GLuint textureID{};
+
+		GLuint64 textureID{};
+
+		bool isMeshParticle{false};
+
+		GUID modelGUID;
+		GUID materialGUID;
 	};
 	struct ParticleSystem
 	{
@@ -524,6 +531,12 @@ namespace SliceEngine
 		float rotation{};
 		float minRandomRotation{};
 		float maxRandomRotation{};
+		
+		// 3D Rotation
+		bool isRotation3D{};
+		glm::vec3 rotation3DHint{};
+		glm::vec3 minRotation3DHint{};
+		glm::vec3 maxRotation3DHint{};		
 
 		// Start Position Offset
 		ValueType posValueType{ CONSTANT };
@@ -552,22 +565,20 @@ namespace SliceEngine
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
-		//inline void Validate()
-		//{
-		//	Core::GetInstance()->GetSystem<ParticleSystemManager>().ValidateParticleSystem(*this);
-		//}
+
 		enum RenderMode
 		{
 			BILLBOARD,
 			MESH
-		} renderMode;
+		} renderMode{ BILLBOARD };
+
+		bool alwaysFaceCamera{ true };
 
 		GUID textureGUID;
-		GUID materialGUID;
-		GUID meshGUID;
+
 		Handle<SliceEngineTypes::Texture> textureHandle;
+		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
-		Handle<SliceEngineTypes::Mesh> meshHandle;
 
 		// Internal
 		std::vector<Particle> particles{};		// Main Storage of all particles
@@ -605,11 +616,13 @@ namespace SliceEngine
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
 		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
+		std::unordered_map<unsigned int, glm::vec2> node_position_map{};
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
@@ -858,6 +871,14 @@ namespace SliceEngine
 		float speed = 2.0f;
 		bool hasNewTarget = false;
 		int crowdAgentID = -1;
+	};
+
+	struct NavMeshLink
+	{
+		glm::vec3 startLink;
+		glm::vec3 endLink;
+		bool bidirectional;
+		float radius;
 	};
 }
 
