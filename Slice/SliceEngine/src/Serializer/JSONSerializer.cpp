@@ -183,9 +183,8 @@ namespace SliceEngine
 
 		}
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor)
+		Entity DeserializePrefab(std::unordered_map<uint32_t, uint32_t>& sceneGraphMap, std::filesystem::path const& filePath, bool Editor)
 		{
-			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			// TODO: ask hafiz if theres a btr way for this
 			// im just gonna duck tape this for now
@@ -267,6 +266,7 @@ namespace SliceEngine
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>,
+								GameObject,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
