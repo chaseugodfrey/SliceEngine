@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
+#include "../src/Physics/PhysicsSystem.h"
 #include <Core/Core.h>
 
 namespace SliceEngine
@@ -154,7 +155,7 @@ namespace SliceEngine
 
 			if (ps.hasCollision)
 			{
-				ApplyCollision(p, ps, dt);
+				ApplyPhysics(p, ps, dt);
 			}
 
 			if (ps.colourOverLifetime)
@@ -479,9 +480,46 @@ namespace SliceEngine
 	{
 		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
-	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyPhysics(Particle& p, ParticleSystem& ps, float dt)
 	{
-		//Idk
+		//if (!ps.hasCollision || !p.active)
+		//	return;
+
+		//// Predict movement
+		//glm::vec3 start = p.position;
+		//glm::vec3 end = p.position + p.velocity * dt;
+
+		//JPH::Vec3 jStart(start.x, start.y, start.z);
+		//JPH::Vec3 jEnd(end.x, end.y, end.z);
+
+		//JPH::RayCast ray(jStart, jEnd);
+		//JPH::RayCastResult hit;
+
+		//auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
+
+		//if (physicsSystem.CastRay(ray, hit))
+		//{
+		//	// Hit position
+		//	JPH::Vec3 hitPos = jStart + (jEnd - jStart) * hit.mFraction;
+		//	p.position = glm::vec3(hitPos.GetX(), hitPos.GetY(), hitPos.GetZ());
+
+		//	// Hit normal
+		//	JPH::Vec3 n = physicsSystem.GetWorldSpaceSurfaceNormal(hit.mBodyID, hit.mSubShapeID2, hitPos);
+		//	glm::vec3 normal(n.GetX(), n.GetY(), n.GetZ());
+
+		//	// Simple bounce
+		//	p.velocity = glm::reflect(p.velocity, normal);
+
+		//	// Optional damping
+		//	p.velocity *= 0.5f;
+
+
+		//	PhysicsSystem::ApplyImpulseToBody(hit.mBodyID, p.velocity);
+		//}
+		//else
+		//{
+		//	p.position = end;
+		//}
 	}
 	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{
