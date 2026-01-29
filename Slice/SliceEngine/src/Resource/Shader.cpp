@@ -196,6 +196,132 @@ namespace SliceEngine
 		}
 #pragma endregion
 #pragma region CustomShader
+		namespace
+		{
+			std::map<std::string, std::string> cShaderPredefines
+			{
+				{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"}
+			};
+			enum class CSHAD_T : unsigned char
+			{
+				NIL,
+				BOOL,
+				INT,
+				UINT,
+				FLOAT,
+				VEC2,
+				VEC3,
+				VEC4
+			};
+			struct cShaderFunc
+			{
+				std::string code;
+				std::string opPredefine;
+				CSHAD_T outType;
+				std::vector<CSHAD_T> inIDs;
+			};
+			std::map<std::string, cShaderFunc> cShaderFuncsTemplates{
+				{"END", {"return %s;\n", "", CSHAD_T::NIL, {}}},
+
+				{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+				{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+				
+				{"GetX_Vec2", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+				{"GetY_Vec2", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},			
+				{"GetX_Vec4", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+				{"GetY_Vec4", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+				{"GetZ_Vec4", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+				{"GetA_Vec4", {"float %s = %s.a;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+
+				{"SetA_Vec4", {"%s.a = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+
+
+				{"Mul_f", {"float %s = %s * %s;\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+				{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+				
+				{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
+				
+				{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
+			};
+			// What I Should See Inside .cshader File
+			// ---------- e.g. 1 ---------- Default
+			// # COLOR CODE
+			// Mul_Vec4: TexCol, Col / Var_0
+			// END: Var_0
+			// 
+			// # ROUGHNESS CODE
+			// Vec2_f_f: roughness, metallic / VarR_0
+			// END: VarR_0
+			// ---------- e.g. 2 ---------- PillarShader
+			// # COLOR CODE
+			// fRand_Vec2: vTex / Var_0
+			// Mul_f: Var_0, noiseScale / Var_1
+			// 
+			// GetY_Vec2: vTex / Var_2
+			// SmoothStep_f: 0.f, Var_2, Var_1 / Var_3
+			// 
+			// GetA_Vec4: texCol / Var_4
+			// GetA_Vec4: color / Var_5
+			// Mul_f: Var_3, Var_4 / Var_6
+			// Mul_f: Var_6, Var_5 / Var_7
+			// 
+			// Mul_Vec4: texCol, color / Var_8
+			// SetA_Vec4: Var_8, 0.f
+			// 
+			// GetX_Vec2: vTex / Var_9
+			// Vec4_f_f_f_f: Var_9, Var_9, Var_9, Var_9 / Var_10
+			// Mul_Vec4: Var_8, Var_10 / Var_11
+			// 
+			// SetA_Vec4: Var_11, Var_7
+			// END: Var_11
+			// 
+			// # ROUGHNESS CODE
+			// END: vec2(0.f)
+			// 
+			//-------------------------------------------------------------------------
+			// Okay, so, how do I tell what is the order of these functions w/ ids
+			//-------------------------------------------------------------------------
+			//
+			// Step 1: Gather the lines & store the IDs
+			// Step 2: Map ids -> What ID I Free + (cShaderFuncsTemplates + dataIDS), ++ Check my Dependencies
+			// 
+			// Step 3: Extract funcs with 0 Dependencies, and loop through all functions w/ it Dependencies?
+			// 
+			// e.g.
+			//  -- CShaderFunc + sprintf --		  -- Ids --			-- Counter --
+			// 1 : texCol, color				Frees[2,4]		Dependencies Remaining(0)
+			// 2 : 1, 4							Frees[3,5]		Dependencies Remaining(2)
+			// 3 : 2, 4							Frees[5]		Dependencies Remaining(2)
+			// 4 : 1, color						Frees[1]		Dependencies Remaining(1)
+			// 5 : 2, 3							Frees[]			Dependencies Remaining(2)
+			// 
+			// ----- Inside LoadCShader Func =====
+			std::map<std::string, CSHAD_T> dataIDS
+			{
+				{"vPos", CSHAD_T::VEC3},
+				{"vNom", CSHAD_T::VEC3},
+				{"vTex", CSHAD_T::VEC2},
+				{"texCol", CSHAD_T::VEC4},
+				{"color", CSHAD_T::VEC4},
+				// -- Defines? --
+				{"0.f", CSHAD_T::FLOAT}, // Do I need this?? Or even this map??
+				{"vec2(0.f)", CSHAD_T::VEC2}
+				// -- Found from ins --
+				//,{"roughness", CSHAD_T::FLOAT},
+				//{"metallic", CSHAD_T::FLOAT},
+				//{"noiseScale", CSHAD_T::FLOAT},
+				//// -- Found from the code --
+				//{"Var_Size", CSHAD_T::VEC4}
+			};
+
+			struct CShadDependencies
+			{
+				std::vector<std::string> freesList;
+				std::string funcStr{};
+				uint8_t dependenciesRemaining{};
+			};
+		}
+
 		CustomShader CustomShader::LoadCShader(std::string const& filepath)
 		{
 			std::ifstream fragShaderFile(filepath, std::ios::binary);
@@ -204,81 +330,72 @@ namespace SliceEngine
 				SLICE_LOG_WARNING("Unable to open Fragment Shader File");
 				return {};
 			}
-			std::string fragShaderSource;
-			std::string line;
 			std::vector<ShaderParams> dataIn;
-			bool readingIn = false;
-			while (std::getline(fragShaderFile, line))
+			nlohmann::json cshaderJson;
+			try
 			{
-				if (!line.empty() && line.back() == '\r')
-					line.pop_back();
-				if (line == std::string{ "#CODE" })
-					break;
-				if (line == std::string{ "" })
-					continue;
-				if (readingIn)
+				cshaderJson = nlohmann::json::parse(fragShaderFile);
+			}
+			catch (nlohmann::json::parse_error& e)
+			{
+				fragShaderFile.close();
+				SLICE_LOG_ERROR("Invalid cshader JSON file" + std::string(e.what()));
+				return {};
+			}
+			fragShaderFile.close();
+			
+			// 1. Extract Params
+			nlohmann::json paramsJson = cshaderJson["Params"];
+			if (paramsJson.contains("Floats"))
+				for (auto& [name, components] : paramsJson["Floats"].items())
 				{
 					ShaderParams inParam{};
-					std::string throwaway;
-					std::stringstream ss{ line };
-					ss >> throwaway; // data type
-
-					if (throwaway == "uint")
-						inParam.dataType = SP_TYPE::UINT;
-					else if(throwaway == "int")
-						inParam.dataType = SP_TYPE::INT;
-					else if(throwaway == "bool")
-						inParam.dataType = SP_TYPE::BOOL;
-					else if (throwaway == "float")
-						inParam.dataType = SP_TYPE::FLOAT;
-
-					ss >> inParam.name;
-					ss >> throwaway;
-
-					switch (inParam.dataType)
-					{
-					case SP_TYPE::FLOAT:
-					{
-						float tempFloat{};
-						ss >> tempFloat;
-						inParam.baseData = tempFloat;
-						break;
-					}
-					case SP_TYPE::UINT:
-					{
-						uint32_t temp{};
-						ss >> temp;
-						inParam.baseData = temp;
-						break;
-					}
-					case SP_TYPE::INT:
-					{
-						int32_t temp{};
-						ss >> temp;
-						inParam.baseData = temp;
-						break;
-					}
-					case SP_TYPE::BOOL:
-					{
-						bool temp{};
-						ss >> temp;
-						inParam.baseData = temp;
-						break;
-					}
-					}
-
+					inParam.dataType = SP_TYPE::FLOAT;
+					inParam.name = name;
+					inParam.baseData = components.get<float>();
 					dataIn.push_back(inParam);
 				}
-				else if (line == std::string("#IN"))
-					readingIn = true;
-			}
-			auto midPos = fragShaderFile.tellg();
-			fragShaderFile.seekg(0, std::ios::end);
-			auto fileSize = fragShaderFile.tellg() - midPos;
-			fragShaderSource.resize(fileSize);
-			fragShaderFile.seekg(midPos, std::ios::beg);
-			fragShaderFile.read(&fragShaderSource[0], fragShaderSource.size());
-			fragShaderFile.close();
+			if (paramsJson.contains("Ints"))
+				for (auto& [name, components] : paramsJson["Ints"].items())
+				{
+					ShaderParams inParam{};
+					inParam.dataType = SP_TYPE::INT;
+					inParam.name = name;
+					inParam.baseData = components.get<int32_t>();
+					dataIn.push_back(inParam);
+				}
+			if (paramsJson.contains("Uints"))
+				for (auto& [name, components] : paramsJson["Uints"].items())
+				{
+					ShaderParams inParam{};
+					inParam.dataType = SP_TYPE::UINT;
+					inParam.name = name;
+					inParam.baseData = components.get<uint32_t>();
+					dataIn.push_back(inParam);
+				}
+			if (paramsJson.contains("Bools"))
+				for (auto& [name, components] : paramsJson["Bools"].items())
+				{
+					ShaderParams inParam{};
+					inParam.dataType = SP_TYPE::BOOL;
+					inParam.name = name;
+					inParam.baseData = components.get<bool>();
+					dataIn.push_back(inParam);
+				}
+
+			// Extract Functions
+			std::map<std::string, std::string> fragInclFunctions{};
+			std::string fragMainShaderSource{
+R"(vec4 TexColorC(vec4 texCol, vec4 color)
+{
+)"};
+			LoadCShaderFunctions(fragMainShaderSource, fragInclFunctions, dataIn, cshaderJson["ColorMain"]);
+			std::string fragSubShaderSource{
+R"(vec2 RoughMet()
+{
+)" };
+			LoadCShaderFunctions(fragSubShaderSource, fragInclFunctions, dataIn, cshaderJson["RoughMetMain"]);
+
 
 			std::string fragStart{
 R"(#version 460 core
@@ -323,6 +440,7 @@ layout(binding=2, std430) readonly buffer ssbo2
 	uvec4 eDat[];
 };
 )"};
+			// Handling the SSBO elements
 			std::string fragNumExtraElems{};
 			{
 				std::stringstream ss;
@@ -366,7 +484,7 @@ float ExtractFloat(int num)
 				}
 				fragNumExtraElems += ss.str();
 			}
-			
+			// GLSL Main Func
 			std::string fragEnd{
 R"(
 void main(void){
@@ -391,9 +509,15 @@ void main(void){
 	fMetalRoughData.xy = RoughMet();
 })"};
 
-			fragStart += fragNumExtraElems + fragShaderSource + fragEnd;
+			// Combine all the texts
+			fragStart += fragNumExtraElems;
+			for (auto& i : fragInclFunctions)
+				fragStart += cShaderPredefines.find(i.first)->second;
+			fragStart += fragMainShaderSource + fragSubShaderSource + fragEnd;
 			GLchar const* frag_shader_code[] = { fragStart.c_str() };
 
+			// -----------------------------------------------------------
+			// Start GLSL compiling
 			int success;
 			char infoLog[512];
 			GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -437,6 +561,96 @@ void main(void){
 
 			glDeleteShader(fragShader);
 			return { shader, dataIn };
+		}
+		void CustomShader::LoadCShaderFunctions(std::string& ret, std::map<std::string, std::string>& funcsPre, std::vector<ShaderParams>& defaulParmas, nlohmann::json& in)
+		{
+			std::map<std::string, CShadDependencies> dependenciesLockedLines;
+			std::queue<std::string> toClearLines;
+
+			for (auto& [funcName, components] : in.items())
+			{
+				auto funcDetails = cShaderFuncsTemplates.find(funcName)->second;
+				// Predefines check
+				if (funcDetails.opPredefine != "" &&
+					cShaderPredefines.find(funcDetails.opPredefine) != cShaderPredefines.end())
+					funcsPre[funcDetails.opPredefine] = cShaderPredefines.find(funcDetails.opPredefine)->second;
+				// Loop through
+				for (auto& [id, dependicies] : components.items())
+				{
+					std::vector<std::string> dep;
+					dependicies.get_to(dep);
+
+					CShadDependencies newID{};
+					if (dependenciesLockedLines.find(id) != dependenciesLockedLines.end())
+					{
+						newID = dependenciesLockedLines[id];
+					}
+					newID.funcStr = funcDetails.code;
+
+					if (funcDetails.outType != CSHAD_T::NIL)
+					{
+						auto p = newID.funcStr.find("%s");
+						if (p != std::string::npos)
+						{
+							newID.funcStr.replace(p, 2, id);
+						}
+					}
+					for (auto i : dep)
+					{
+						if (dataIDS.find(i) == dataIDS.end())
+						{
+							bool found{false};
+							for (auto tryFind : defaulParmas)
+							{
+								if (tryFind.name == i)
+									found = true;
+							}
+							if (!found)
+							{
+								if (dependenciesLockedLines.find(i) != dependenciesLockedLines.end())
+									dependenciesLockedLines[i].freesList.push_back(id);
+								else
+								{
+									CShadDependencies othID{};
+									othID.freesList.push_back(id);
+									dependenciesLockedLines[i] = othID;
+								}
+								++newID.dependenciesRemaining;
+							}
+						}
+						
+						auto p = newID.funcStr.find("%s");
+						if (p != std::string::npos)
+						{
+							newID.funcStr.replace(p, 2, i);
+						}
+					}
+					dependenciesLockedLines[id] = newID;
+					if (newID.dependenciesRemaining == 0)
+						toClearLines.push(id);
+				}
+			}
+			// Extract Functions
+			while (!toClearLines.empty())
+			{
+				auto i = toClearLines.front();
+				toClearLines.pop();
+
+				for (auto cl : dependenciesLockedLines[i].freesList)
+				{
+					auto fl = dependenciesLockedLines.find(cl);
+					if (fl != dependenciesLockedLines.end())
+					{
+						if (--fl->second.dependenciesRemaining == 0)
+						{
+							toClearLines.push(fl->first);
+						}
+					}
+				}
+				ret += dependenciesLockedLines[i].funcStr;
+			}
+			ret += "}\n";
+			std::cout << "\nHELPPP: [" << ret << "\n ]";
 		}
 		void CustomShader::DestroyCShader()
 		{

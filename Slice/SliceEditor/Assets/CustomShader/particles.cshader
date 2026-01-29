@@ -1,14 +1,29 @@
-#IN
-
-#CODE
-vec4 TexColorC(vec4 texCol, vec4 color)
 {
-    if(color.a < 0.0001f)
-        discard;
+    "Params":{
+        "Floats":{
 
-    return texCol * color;
-}
-vec2 RoughMet()
-{
-    return vec2(0.0f, 0.0f);
+        },
+        "Ints":{
+        
+        },
+        "Uints":{
+        
+        },
+        "Bools":{
+        
+        }
+    },
+    "ColorMain":{
+        "Mul_Vec4":{
+            "IDD":["texCol", "color"]
+        },
+        "END":{
+            "Lol":["IDD"]
+        }
+    },
+    "RoughMetMain":{
+        "END":{
+            "NIL":["vec2(0.f)"]
+        }
+    }
 }

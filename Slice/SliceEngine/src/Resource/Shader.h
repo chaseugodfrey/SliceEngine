@@ -77,6 +77,7 @@ namespace SliceEngine
 			std::vector<ShaderParams> dataIn;
 
 			static CustomShader LoadCShader(std::string const&);
+			static void LoadCShaderFunctions(std::string&, std::map<std::string, std::string>&, std::vector<ShaderParams>&, nlohmann::json&);
 			void DestroyCShader();
 		};
 	}

@@ -1,13 +1,33 @@
-#IN
-float roughness = 0;
-float metallic = 0;
-
-#CODE
-vec4 TexColorC(vec4 texCol, vec4 color)
 {
-    return texCol * color;
-}
-vec2 RoughMet()
-{
-    return vec2(roughness, metallic);
+    "Params":{
+        "Floats":{
+            "roughness": 0,
+            "metallic": 0
+        },
+        "Ints":{
+        
+        },
+        "Uints":{
+        
+        },
+        "Bools":{
+        
+        }
+    },
+    "ColorMain":{
+        "Mul_Vec4":{
+            "IDD":["texCol", "color"]
+        },
+        "END":{
+            "Lol":["IDD"]
+        }
+    },
+    "RoughMetMain":{
+        "END":{
+            "NIL":["FINAL_VAL"]
+        },
+        "Vec2_f_f":{
+            "FINAL_VAL":["roughness", "metallic"]
+        }
+    }
 }

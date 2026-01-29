@@ -1,28 +1,58 @@
-#IN
-float noiseScale = 58.1;
-
-#CODE
-float rand(vec2 n)
 {
-    return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
-}
-
-vec4 TexColorC(vec4 texCol, vec4 color)
-{
-    float var0 = rand(vTex) * noiseScale;
-    
-    float var1 = smoothstep(0.f, vTex.y, var0);
-    
-    float var2 = var1 * texCol.a * color.a;
-    
-    vec4 var3 = texCol * color;
-    var3.a = 0.f;
-    
-    vec4 var4 = var3 * vec4(vTex.x);
-    
-    return vec4(var4.r, var4.g, var4.b, var2);
-}
-vec2 RoughMet()
-{
-    return vec2(0.f, 0.f);
+    "Params":{
+        "Floats":{
+            "noiseScale":58.1
+        },
+        "Ints":{
+        
+        },
+        "Uints":{
+        
+        },
+        "Bools":{
+        
+        }
+    },
+    "ColorMain":{
+        "Mul_Vec4":{
+            "Var_8":["texCol", "color"],
+            "Var_11":["Var_8", "Var_10"]
+        },
+        "Mul_f":{
+            "Var_1":["Var_0", "noiseScale"],
+            "Var_6":["Var_3", "Var_4"],
+            "Var_7":["Var_6", "Var_5"]
+        },
+        "GetY_Vec2":{
+            "Var_2":["vTex"]
+        },
+        "SmoothStep_f":{
+            "Var_3":["0.f", "Var_2", "Var_1"]
+        },
+        "GetA_Vec4":{
+            "Var_4":["texCol"],
+            "Var_5":["color"]
+        },
+        "SetA_Vec4":{
+            "NIL1234":["Var_8", "0.f"],
+            "NIL2543":["Var_11", "Var_7"]
+        },
+        "GetX_Vec2":{
+            "Var_9":["vTex"]
+        },
+        "Vec4_f_f_f_f":{
+            "Var_10":["Var_9","Var_9","Var_9","Var_9"]
+        },
+        "fRand_Vec2":{
+            "Var_0":["vTex"]
+        },
+        "END":{
+            "FIN":["Var_11"]
+        }
+    },
+    "RoughMetMain":{
+        "END":{
+            "NIL":["vec2(0.f)"]
+        }
+    }
 }

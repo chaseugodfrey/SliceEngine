@@ -41,13 +41,16 @@ namespace SliceEngine
 			try
 			{
 				materialJson = nlohmann::json::parse(file);
+				
 			}
 			catch (nlohmann::json::parse_error& e)
 			{
+				file.close();
 				SLICE_LOG_ERROR("Invalid material JSON file" + std::string(e.what()));
 
 				return temp;
 			}
+			file.close();
 			// shouldn't need a [0]. Need check how the material file is created
 			temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
