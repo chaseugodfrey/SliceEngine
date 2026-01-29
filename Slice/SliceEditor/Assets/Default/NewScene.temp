@@ -1,6 +1,7 @@
 [
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "GameObject": {
 =======
         "Camera": {
@@ -74,6 +75,9 @@
     {
         "Cube": {
 >>>>>>> working
+=======
+        "GameObject": {
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
             "struct SliceEngine::ColliderShape": {
                 "boxData": {
                     "scale": [
@@ -118,39 +122,55 @@
                 "friction": 0.5,
                 "gravityFactor": 1.0,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "isKinematic": false,
 =======
                 "isKinematic": true,
 >>>>>>> working
+=======
+                "isKinematic": false,
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                 "linearDamping": 0.05000000074505806,
                 "mass": 1.0,
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "entity_id": 3,
 =======
                 "entity_id": 1048580,
 >>>>>>> working
+=======
+                "entity_id": 3,
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                 "neighbours": [
                     0,
                     4294967295,
                     4294967295,
 <<<<<<< HEAD
+<<<<<<< HEAD
                     4294967295
 =======
                     1048581
 >>>>>>> working
+=======
+                    4294967295
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "mName": "GameObject",
 =======
                 "mName": "Cube",
 >>>>>>> working
+=======
+                "mName": "GameObject",
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -161,6 +181,7 @@
                 ],
                 "position": [
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
                     2.0,
                     0.0,
@@ -169,10 +190,13 @@
                 "rotation": [
                     1.0,
 >>>>>>> working
+=======
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                     0.0,
                     0.0,
                     0.0
                 ],
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
                 "scale": [
@@ -386,6 +410,8 @@
                     3.4536118507385254,
                     2.0
                 ],
+=======
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
                 "rotation": [
                     1.0,
                     0.0,
@@ -399,6 +425,7 @@
                 ]
             }
         }
+<<<<<<< HEAD
     },
     {
         "Cube_1": {
@@ -490,5 +517,7 @@
             }
         }
 >>>>>>> working
+=======
+>>>>>>> IS-WHERE-DESIGNERS-ARE-PUSHING-EVERYTHING
     }
 ]
