@@ -1,5 +1,6 @@
 using SliceEngine;
 using System;
+using System.Security.Permissions;
 
 
 namespace SliceEngine
@@ -9,6 +10,13 @@ namespace SliceEngine
         #region Enemy Fields
         public Transform enemyT { get; protected set; }
         protected RigidBody rb;
+        protected NavAgent navAgent;
+
+        float pathUpdateTimer = 0.0f;
+        float pathUpdateInterval = 0.2f;
+
+        GameObject targetObjRef;
+
         public bool active = false;
         private bool isDead = false;
 
@@ -30,13 +38,32 @@ namespace SliceEngine
             base.OnCreate();
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
+            navAgent = GetComponent<NavAgent>();
+            navAgent.Speed = this.movementSpeed;
+            StartNav();
         }
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
-            if (active && state != null)
+            if (active)
             {
-                state.DoEnemyAction(dt);
+
+                if (state != null)
+                {
+                    state.DoEnemyAction(dt);
+                }
+
+
+                if (navAgent != null)
+                {
+                    pathUpdateTimer += dt;
+
+                    if (pathUpdateTimer > pathUpdateInterval)
+                    {
+                        pathUpdateTimer = 0.0f;
+                        UpdateNavAgentTarget();
+                    }
+                }
             }
         }
 
@@ -54,16 +81,48 @@ namespace SliceEngine
         #region Creation and Set Up
         public virtual void SetUp()
         {
-            Console.WriteLine("Base Setup Called");
+            SliceLog.Log("Base Setup Called");
             //REMEMBER TO REMOVE THIS 
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
+
+            navAgent = GetComponent<NavAgent>();
+            navAgent.Speed = this.movementSpeed;
+            targetObjRef = Bootstrap.Player.gameObject;
             //
+
+
+
             active = true; playerT = Bootstrap.Player.transform; }
 
         public virtual void Reset()
         { active = false; state = null; }
         #endregion
+
+        #region Navmesh
+
+        public void StartNav()
+        {
+            SliceLog.Log("Navmesh is starting");
+            navAgent.enabled = true;
+            if (navAgent == null)
+            {
+                SliceLog.Log("NavAgentEmpty");
+            }
+        }
+
+        public void StopNav()
+        {
+            navAgent.enabled = false;
+        }
+
+        public void UpdateNavAgentTarget()
+        {
+            GameObject activeTarget = targetObjRef != null ? targetObjRef : Bootstrap.Player.gameObject;
+
+            navAgent.SetDestination(activeTarget.GetComponent<Transform>().Position);
+        }
+        #endregion  
 
         #region Entity Overrides
         public override void OnDeath()

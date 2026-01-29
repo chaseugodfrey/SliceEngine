@@ -127,5 +127,10 @@ namespace SliceEngine
             
             //mID = 0;
         }
+
+        public void SetActive(bool input)
+        {
+            FunctionCalls.Entity_SetActive(mID, input);
+        }
     }
 }

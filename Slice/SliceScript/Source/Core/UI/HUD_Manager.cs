@@ -8,12 +8,13 @@ namespace SliceEngine
     {
 
         Slider health;
-        public string healthSliderName;
+        public GameObject healthSliderObject;
 
         SpriteRenderer victory;
-        public string victoryName;
+        public GameObject victoryObject;
+
         SpriteRenderer defeat;
-        public string defeatName;
+        public GameObject defeatObject;
         public override void OnCreate()
         {
 
@@ -22,18 +23,22 @@ namespace SliceEngine
 
         public void SetHealth(float input)
         {
-            health.SetValue(input);
+            Console.WriteLine("Setting health");
+            //health.SetValue(input);
+            healthSliderObject.GetComponent<Slider>().SetValue(input);
+            Console.WriteLine("Finish setting health");
         }
 
         public void GameWinScreen()
         {
-            victory.SetEnabled(true);
+            //victory.SetEnabled(true);
+            victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
         }
 
         public void GameLoseScreen()
         {
-
-            defeat.SetEnabled(true);
+            //defeat.SetEnabled(true);
+            defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
         }
 
         public override void OnButtonClick()
@@ -49,9 +54,9 @@ namespace SliceEngine
         public void Initialize()
         {
             Console.WriteLine("HUD Ini called");
-            //health = gameObject.FindGameObjectWithName(healthSliderName).GetComponent<Slider>();
-            //victory = gameObject.FindGameObjectWithName(victoryName).GetComponent<SpriteRenderer>();
-            //defeat = gameObject.FindGameObjectWithName(defeatName).GetComponent<SpriteRenderer>();
+            health = healthSliderObject.GetComponent<Slider>();      
+            victory = victoryObject.GetComponent<SpriteRenderer>();  
+            defeat = defeatObject.GetComponent<SpriteRenderer>();    
         }
     }
 }

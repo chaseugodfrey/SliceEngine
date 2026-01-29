@@ -12,11 +12,11 @@ namespace SliceEngine
     /// Intended action. Will chase the target .
     /// </summary>
 
-    //--- Base Slime State ---
-    public class EnemySlimeState : EnemyState
+    //--- Base Grunt State ---
+    public class EnemyGruntState : EnemyState
     {
-        protected EnemySlime enemyOwner;
-        public EnemySlimeState(EnemySlime owner) { this.enemyOwner = owner; /*SliceLog.Log("Slime chase state created");*/ SliceLog.Log("Slime chase state created"); }
+        protected EnemyGrunt enemyOwner;
+        public EnemyGruntState(EnemyGrunt owner) { this.enemyOwner = owner; /*SliceLog.Log("Grunt chase state created");*/ Console.WriteLine("Grunt chase state created"); }
         public override void DoEnemyAction(float dt) {}
         public override void DoEnemyActionFixed() {}
         public override void OnCollide() {}
@@ -26,35 +26,44 @@ namespace SliceEngine
     }
 
     //--- Chase State (Default)--- 
-    public class EnemySlimeChaseState: EnemySlimeState
+    public class EnemyGruntChaseState: EnemyGruntState
     {
-        public EnemySlimeChaseState(EnemySlime owner) : base(owner)
+        public EnemyGruntChaseState(EnemyGrunt owner) : base(owner)
         {
-            //owner.StartNav();
+            
         }
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
 
-            
             Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
             if (direction_diff.Magnitude() <= enemyOwner.attackTriggerRange)
             {
-                enemyOwner.ChangeState(new EnemySlimeExplodeState(enemyOwner));
+                enemyOwner.ChangeState(new EnemyGruntAttackState(enemyOwner));
                 //attack state
             }
-            
         }
     }
 
-    //--- Explode State ---
-    public class EnemySlimeExplodeState : EnemySlimeState
+    //--- Strafe State ---
+    public class EnemyGruntStrafeState : EnemyGruntState
     {
-        public EnemySlimeExplodeState(EnemySlime owner) : base(owner) {}
+        public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) { }
+
+
+
+
+    }
+
+
+    //--- Attack State ---
+    public class EnemyGruntAttackState : EnemyGruntState
+    {
+        public EnemyGruntAttackState(EnemyGrunt owner) : base(owner) {}
 
         public override void DoEnemyAction(float dt)
         {
@@ -62,19 +71,17 @@ namespace SliceEngine
             Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
 
 
-            if (!enemyOwner.As<EnemySlime>().exploding)
+            if (!enemyOwner.As<EnemyGrunt>().attacking)
             {
                 if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
                 {
 
-                    enemyOwner.As<EnemySlime>().StartExplodeCoroutine();
+                    enemyOwner.As<EnemyGrunt>().StartAttackCoroutine();
                 }
-                /*
                 else
                 {
-                    enemyOwner.ChangeState(new EnemySlimeChaseState(enemyOwner));
+                    enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
                 }
-                */
             }
             
         }
@@ -82,9 +89,9 @@ namespace SliceEngine
 
 
     //--- Stunned State ---
-    public class EnemySlimeStunState : EnemySlimeState
+    public class EnemyGruntStunState : EnemyGruntState
     {
-        public EnemySlimeStunState(EnemySlime owner) : base(owner) { }
+        public EnemyGruntStunState(EnemyGrunt owner) : base(owner) { }
 
     }
 
