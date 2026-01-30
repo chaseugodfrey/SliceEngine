@@ -136,7 +136,10 @@ namespace SliceEngine
 		void UnsubscribeToEvents();
 
 		void RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph);
+		
+		void RemapPrefabVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity);
 
+		void FixGOVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity, std::shared_ptr<ScriptObject>& scriptInstance);
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -166,6 +169,8 @@ namespace SliceEngine
 		//button events
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
+
+		void OnAnimationEvent(const AnimationEvent& event);
 
 		//Slider events
 		void OnSliderValue(const OnSliderValueEvent& event);
