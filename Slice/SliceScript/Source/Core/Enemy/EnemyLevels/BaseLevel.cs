@@ -14,7 +14,7 @@ namespace SliceEngine
         public GameObject levelDirector;
 
         // Maybe change to a list down the line to randomise
-        public Prefab enemyPrefab; 
+        public Prefab enemyPrefab = new Prefab("Prefabs/EnemySlime.prefab"); 
         public bool ToggleLevel = false;
         // Gap between each enemy spawning per enemy point
         public float spawnInterval = 1.0f;
@@ -29,6 +29,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            //SliceLog.Log("In Base level Update");
+
             if (CheckObjective())
             {
                 ToggleLevel = true;
@@ -57,11 +59,15 @@ namespace SliceEngine
             {
                 return;
             }
+           //SliceLog.Log("CREATING ENEMY");
 
             if (timer > spawnInterval)
             {
-               GameObject enemy =  levelDirector.As<LevelDirector>().CreateEnemy(enemyPrefab);
-                enemy.GetComponent<Transform>().Position = enemyPoints[currPoint].GetComponent<Transform>().Position;
+                SliceLog.Log("CREATING ENEMY");
+                GameObject enemy =  levelDirector.As<LevelDirector>().CreateEnemy(enemyPrefab);
+                Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
+                SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
+                enemy.GetComponent<Transform>().Position = enemyPoints[currPoint].GetComponent<Transform>().WorldPosition;
 
                 timer = 0.0f;
                 currPoint++;
