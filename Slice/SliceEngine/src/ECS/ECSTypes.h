@@ -477,7 +477,11 @@ namespace SliceEngine
 		// Physics
 		float gForce{0.0f};
 		bool hasCollision{ false };
-		bool hasBounce{ false };
+		float friction{ 0.9f };
+		float bounciness{ 0.0f };
+		float bounceDampening{ 0.6f };
+		float stickiness{ 0.0f };
+
 
 		// Emission
 		float emissionRate{ 0.0f };              // particles/sec

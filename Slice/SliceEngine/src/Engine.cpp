@@ -413,7 +413,10 @@ namespace SliceEngine
 
 		.property("gForce", &ParticleSystem::gForce)
 		.property("hasCollision", &ParticleSystem::hasCollision)
-		.property("hasBounce", &ParticleSystem::hasBounce)
+		.property("friction", &ParticleSystem::friction)
+		.property("bounciness", &ParticleSystem::bounciness)
+		.property("bounceDampening", &ParticleSystem::bounceDampening)
+		.property("stickiness", &ParticleSystem::stickiness)
 
 		.property("emissionRate", &ParticleSystem::emissionRate)
 

@@ -1321,7 +1321,10 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Has Collision", "##hasCollision", ps.hasCollision);
 				if (ps.hasCollision)
 				{
-					BoolInputHeader(mRegistry, "Has Bounce", "##hasBounce", ps.hasBounce);
+					DragFloatInputHeader(mRegistry, "Friction", "##frictionModifier", ps.friction, "%.1f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Bounciness", "##bouncinessModifier", ps.bounciness, "%.1f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "BounceDampening", "##bounceDampening", ps.bounceDampening, "%.1f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Stickiness", "##stickinessModifier", ps.stickiness, "%.1f", 0.0f, 1.0f);
 				}
 
 				// Max Particles

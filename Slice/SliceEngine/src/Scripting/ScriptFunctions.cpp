@@ -399,23 +399,92 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
-	static void ParticleSystem_GetBounce(unsigned int entity, bool* out)
+
+	static void ParticleSystem_GetFriction(unsigned int entity, float* out)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			*out = go.GetComponent<ParticleSystem>().hasBounce;
+			*out = go.GetComponent<ParticleSystem>().friction;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
-	static void ParticleSystem_SetBounce(unsigned int entity, bool* value)
+	static void ParticleSystem_SetFriction(unsigned int entity, float* value)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			go.GetComponent<ParticleSystem>().hasBounce = *value;
+			go.GetComponent<ParticleSystem>().friction =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetBounciness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounciness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounciness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounciness =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetBounceDampening(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounceDampening;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounceDampening(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounceDampening =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetStickiness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().stickiness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetStickiness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().stickiness =
+				glm::clamp(*value, 0.0f, 1.0f);
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -2205,8 +2274,17 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_GetCollision);
 		ADD_INTERNAL_CALL(ParticleSystem_SetCollision);
 
-		ADD_INTERNAL_CALL(ParticleSystem_GetBounce);
-		ADD_INTERNAL_CALL(ParticleSystem_SetBounce);
+		ADD_INTERNAL_CALL(ParticleSystem_GetFriction);
+		ADD_INTERNAL_CALL(ParticleSystem_SetFriction);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounciness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounciness);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounceDampening);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounceDampening);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetStickiness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetStickiness);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetEmissionRate);
 		ADD_INTERNAL_CALL(ParticleSystem_SetEmissionRate);
