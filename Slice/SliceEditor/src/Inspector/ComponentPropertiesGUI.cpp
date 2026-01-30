@@ -489,7 +489,14 @@ namespace SliceEditor
 		if (assetMan.mFilenameToGUID.find(val.prefabFileName) == assetMan.mFilenameToGUID.end())
 		{
 			//If cant find the prefab fileName:
-			ImGui::Text(val.prefabFileName.c_str());
+			if (val.prefabFileName.empty())
+			{
+				ImGui::Text("No Prefab Set");
+			}
+			else
+			{
+				ImGui::Text(val.prefabFileName.c_str());
+			}
 			if(ImGui::IsItemHovered())
 			{
 				if (ImGui::BeginTooltip())
