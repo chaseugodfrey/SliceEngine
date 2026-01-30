@@ -1421,7 +1421,7 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, uint32_t mask)
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos,uint32_t mask)
 	{	
 		JPH::Vec3 ori = helpers::glmtoJPH(origin);
 		JPH::Vec3 dir = helpers::glmtoJPH(direction);
@@ -1434,7 +1434,17 @@ namespace SliceEngine
 
 		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
-		bodyHitID = ioHit.mBodyID.IsInvalid() ? 0 : ioHit.mBodyID.GetIndex();
+
+		if (!ioHit.mBodyID.IsInvalid())
+		{
+			bodyHitID = ioHit.mBodyID.GetIndex();
+			hitPos = origin + direction * ioHit.mFraction;
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Hello Hafiz");
+			didRayHit = false;
+		}
 
 		return didRayHit;
 	}
