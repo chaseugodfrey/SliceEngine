@@ -41,7 +41,7 @@ namespace SliceEngine
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		GameObject CreatePrefab(const GUID& prefabGUID, bool isEditor = false);
-		void UpdatePrefabChild(Entity entity, GUID const& guid, bool isEditor = false);
+		void UpdatePrefabChild(Entity entity, GUID const& guid, const std::unordered_map<uint32_t, uint32_t>& sceneGraph, bool isEditor = false);
 		void InitEvent();
 		void OnPrefabModified(const OnPrefabModifiedEvent& event);
 		void GetEntityFromPrefab(std::map<unsigned int, Entity>& prefabToEntity, Entity entity);
@@ -53,7 +53,7 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="entity"></param>
 		void MakePrefab(Entity entity);
-		void MakePrefabChild(Entity entity, unsigned int& prefabID);
+		void MakePrefabChild(Entity entity, unsigned int& prefabID, std::set<Entity>& entitySet);
 
 		void UpdatePrefabComponent(Entity entity, GUID guid, bool toRemove = false);
 
