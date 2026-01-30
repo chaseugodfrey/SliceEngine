@@ -669,16 +669,14 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
 			
 			
-			EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);
+			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
 			ImGui::TreePop();
 		}
 
 
 			ImGui::TreePop();
 		}
-
-	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{

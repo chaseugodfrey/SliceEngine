@@ -890,24 +890,25 @@ namespace SliceEngine
 	void PrefabSystem::AddToPrefabChild(Entity childEntity, Entity rootNode)
 	{
 		GameObject rootGO = FactoryInstance.GetGOByEntity(rootNode);
-		auto& childSceneGraph = FactoryInstance.GetGOByEntity(childEntity).GetComponent<SceneGraph>();
+		GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+		auto childSceneGraph = childGO.GetComponent<SceneGraph>();
 
-		while (childEntity != entt::null)
+		while (childGO.IsValid())
 		{
+			//Do the things to the parent, to the child.
 			if (rootGO.HasComponent<Prefab>())
 			{
 				mNextPrefabID[rootGO.GetComponent<Prefab>().prefabGUID]++;
 				unsigned int prefabID = mNextPrefabID[rootGO.GetComponent<Prefab>().prefabGUID];
 				// same as the root GO
-				GameObject GO = FactoryInstance.GetGOByEntity(childEntity);
-				GO.AddComponent<Prefab>();
-				GO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
-				GO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
-				GO.GetComponent<Prefab>().prefabID = UINT_MAX;
-				GO.AddComponent<PrefabEditingEntity>();
+				childGO.AddComponent<Prefab>();
+				childGO.GetComponent<Prefab>().prefabGUID = rootGO.GetComponent<Prefab>().prefabGUID;
+				childGO.GetComponent<Prefab>().prefabHandle = rootGO.GetComponent<Prefab>().prefabHandle;
+				childGO.GetComponent<Prefab>().prefabID = UINT_MAX;
+				childGO.AddComponent<PrefabEditingEntity>();
 
-				FactoryInstance.RemoveFromNameMap(GO.GetName());
-				std::string currName = GO.GetComponent<SliceEntity>().mName;
+				FactoryInstance.RemoveFromNameMap(childGO.GetName());
+				std::string currName = childGO.GetComponent<SliceEntity>().mName;
 				auto allNames = CheckPrefabEntityName(rootGO.GetComponent<Prefab>().prefabGUID, childEntity);
 
 				if (allNames.find(currName) != allNames.end())
@@ -915,23 +916,24 @@ namespace SliceEngine
 					int count = 1;
 					while (allNames.count(currName) != 0)
 					{
-						currName = GO.GetComponent<SliceEntity>().mName + "_" + std::to_string(count);
+						currName = childGO.GetComponent<SliceEntity>().mName + "_" + std::to_string(count);
 						count++;
 					}
 
-					GO.GetComponent<SliceEntity>().mName = currName;
+					childGO.GetComponent<SliceEntity>().mName = currName;
 				}
 			}
+
 			if (childSceneGraph.neighbours[SceneGraph::DOWN] != entt::null)
 			{
 				AddToPrefabChild(childSceneGraph.neighbours[SceneGraph::DOWN], rootNode);
 			}
-			std::string currentName = FactoryInstance.GetGOByEntity(childEntity).GetName();
-			childEntity = FactoryInstance.GetGOByEntity(childEntity).GetComponent<SceneGraph>().neighbours[SceneGraph::RIGHT];
-			std::string newName = FactoryInstance.GetGOByEntity(childEntity).GetName();
-			if(childEntity != entt::null)
+			std::string currentName = childGO.GetName();
+			childGO = FactoryInstance.GetGOByEntity(childSceneGraph.neighbours[SceneGraph::RIGHT]);
+			std::string newName = childGO.GetName();
+			if(childGO.IsValid())
 			{
-				childSceneGraph = FactoryInstance.GetGOByEntity(childEntity).GetComponent<SceneGraph>();
+				childSceneGraph = childGO.GetComponent<SceneGraph>();
 			}
 		}
 	}
