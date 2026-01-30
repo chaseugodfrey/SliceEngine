@@ -1796,7 +1796,10 @@ namespace SliceEngine
 		{
 			std::string cStrName = MonoToString(string);
 
-			GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			if(GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName))
+			{
+				GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			}
 		}
 
 	}

@@ -8,6 +8,7 @@ namespace SliceEditor
 {
 	class HistoryManager;
 	class SelectionManager;
+	class SessionManager;
 	class ContentBrowserManager;
 	class Registry;
 
@@ -39,7 +40,7 @@ namespace SliceEditor
 		void GameObject_Unparent(entt::entity child, HistoryManager* history = nullptr);
 		void GameObject_SetSibling(entt::entity target, entt::entity destination, HistoryManager* history = nullptr);
 		void Scene_CreateDefault(std::string);
-		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager);
+		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager,SessionManager& sessionManager);
 		void Scene_Stop(SelectionManager& selectionManager);
 		void Scene_Save();
 		void Scene_CleanTempFiles(Registry& registry);
