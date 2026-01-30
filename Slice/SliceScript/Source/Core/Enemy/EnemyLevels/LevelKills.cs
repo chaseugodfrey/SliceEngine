@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SliceEngine
+{
+    public class LevelKills : BaseLevel
+    {
+        public int KillsRequired = 0;
+
+        /// <summary>
+        /// If kills required is 0, then is done
+        /// </summary>
+        /// <returns></returns>
+        public override bool CheckObjective()
+        {
+            return KillsRequired == 0;
+        }
+
+        public override void EnemyKilled(GameObject enemy)
+        {
+            KillsRequired--;
+        }
+    }
+}
