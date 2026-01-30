@@ -190,6 +190,9 @@ namespace SliceEditor
 			auto go = factory.CreateGO_Text();
 
 			//no parent for now because only overlay
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
@@ -465,7 +468,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Canvas"))
 				{
-					EditorUtilities::GameObject_CreateCanvas(entt::null, history, isPrefabInspected);
+					EditorUtilities::GameObject_CreateCanvas(parent, history, isPrefabInspected);
 				}
 
 				//Hidden Till it Works
@@ -476,22 +479,22 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Image"))
 				{
-					EditorUtilities::GameObject_CreateImage(entt::null, history, isPrefabInspected);
+					EditorUtilities::GameObject_CreateImage(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Button"))
 				{
-					EditorUtilities::GameObject_CreateButton(entt::null, history, isPrefabInspected);
+					EditorUtilities::GameObject_CreateButton(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Slider"))
 				{
-					EditorUtilities::GameObject_CreateSlider(entt::null, history, isPrefabInspected);
+					EditorUtilities::GameObject_CreateSlider(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Text"))
 				{
-					EditorUtilities::GameObject_CreateText(entt::null, history, isPrefabInspected);
+					EditorUtilities::GameObject_CreateText(parent, history, isPrefabInspected);
 				}
 
 				ImGui::EndMenu();
