@@ -1434,11 +1434,19 @@ namespace SliceEngine
 
 		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
-
 		if (!ioHit.mBodyID.IsInvalid())
 		{
 			bodyHitID = ioHit.mBodyID.GetIndex();
 			hitPos = origin + direction * ioHit.mFraction;
+
+			// do this later aloysius
+			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), ioHit.mBodyID);
+
+			if (lock1.Succeeded())
+			{
+				const JPH::Body& body1 = lock1.GetBody();
+				glm::vec3 hafiz = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+			}
 		}
 		else
 		{
@@ -1448,8 +1456,5 @@ namespace SliceEngine
 
 		return didRayHit;
 	}
-
-
-
 
 }

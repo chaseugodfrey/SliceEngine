@@ -15,6 +15,8 @@ namespace SliceEngine
         public static bool queriesHitTriggers = true;
 
         public const uint DefaultRaycastLayers = ~0u; // All layers
+
+        public static QueryTriggerInteraction globalInteraction = QueryTriggerInteraction.Collide;
         public static bool RayCast(Vector3 origin, Vector3 direction,uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             uint bodyHitID = 0;
