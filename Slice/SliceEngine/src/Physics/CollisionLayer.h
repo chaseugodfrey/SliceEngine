@@ -101,15 +101,15 @@ namespace SliceEngine
 		uint32_t layerMask;
 	};
 
-	class BodyFilterIgnore final : public JPH::BodyFilter
-	{
-	public:
-		bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
-	private:
+	//class BodyFilterIgnore final : public JPH::BodyFilter
+	//{
+	//public:
+	//	bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
+	//private:
 
 
 
-	};
+	//};
 
 
 }

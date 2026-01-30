@@ -493,24 +493,24 @@ namespace SliceEngine
 
 		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos))
-		{
-			p.position = glm::vec3(hitPos.x, hitPos.y, hitPos.z);
+		//if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos))
+		//{
+		//	p.position = glm::vec3(hitPos.x, hitPos.y, hitPos.z);
 
-			// Simple bounce
-			if (ps.hasBounce)
-			{
-				p.velocity = glm::reflect(p.velocity, glm::vec3(-1))a;
-			}
+		//	// Simple bounce
+		//	if (ps.hasBounce)
+		//	{
+		//		p.velocity = glm::reflect(p.velocity, glm::vec3(-1));
+		//	}
 
-			// Optional damping
-			p.velocity.x = 0.0f;
-			p.velocity.z = 0.0f;
-		}
-		else
-		{
-			p.position = end;
-		}
+		//	// Optional damping
+		//	p.velocity.x = 0.0f;
+		//	p.velocity.z = 0.0f;
+		//}
+		//else
+		//{
+		//	p.position = end;
+		//}
 	}
 	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{
