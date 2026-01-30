@@ -1337,14 +1337,15 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region LAYERMASK FUNCTIONS
-	static int LayerMask_GetMask(MonoString* string)
+
+	static uint32_t LayerMask_GetMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return static_cast<int>(Core::GetInstance()->GetLayerManager()->GetMask(name));
+		return Core::GetInstance()->GetLayerManager()->GetMask(name);
 	}
 
-	static MonoString* LayerMask_LayerToName(int layer)
+	static MonoString* LayerMask_LayerToName(uint32_t layer)
 	{
 		if(layer >= MAX_LAYERS)
 		{
@@ -1357,10 +1358,10 @@ namespace SliceEngine
 		return mono_string_new(mono_domain_get(), layerName.c_str());
 	}
 
-	static int LayerMask_NameToLayer(MonoString* string)
+	static uint32_t LayerMask_NameToLayer(MonoString* string)
 	{
 		std::string name = MonoToString(string);
-		int layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
+		uint32_t layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
 
 		if(layer >= INVALID_LAYER)
 		{
@@ -1372,6 +1373,15 @@ namespace SliceEngine
 	}
 
 	
+
+#pragma endregion
+
+#pragma region RAYCASTING FUCNTIONS
+
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID, uint32_t* mask)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *mask);
+	}
 
 #pragma endregion
 
@@ -2270,6 +2280,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
+		ADD_INTERNAL_CALL(Physics_Raycast);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);

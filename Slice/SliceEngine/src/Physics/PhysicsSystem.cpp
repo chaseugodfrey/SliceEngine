@@ -1421,30 +1421,22 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(Entity entity)
-	{
-		auto& sliceEntity = mRegistry->get<SliceEntity>(entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		
-		JPH::Vec3 origin{};
-		JPH::Vec3 direction{};
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, uint32_t mask)
+	{	
+		JPH::Vec3 ori = helpers::glmtoJPH(origin);
+		JPH::Vec3 dir = helpers::glmtoJPH(direction);
 
-		JPH::RRayCast inRay(origin, direction);
-		JPH::RayCastResult ioHit;
+		JPH::RRayCast inRay(ori, dir);
+		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
-		ObjectLayerFilterImpl test(sliceEntity.mLayer);
+		ObjectLayerFilterImpl filterLayer(mask);
 		JPH::BodyFilter inBodyFilter = {};
 
+		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
+		bodyHitID = ioHit.mBodyID.IsInvalid() ? 0 : ioHit.mBodyID.GetIndex();
 
-		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter,test, inBodyFilter);
-		//CastRay
-		// (const RRayCast &inRay, 
-		// RayCastResult &ioHit, 
-		// const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, 
-		// const ObjectLayerFilter &inObjectLayerFilter = { }, 
-		// const BodyFilter &inBodyFilter = { }) const;
-		return true;
+		return didRayHit;
 	}
 
 

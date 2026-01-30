@@ -82,14 +82,18 @@ namespace SliceEngine
         //Layer
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_GetMask(string layerName);
+        internal extern static uint LayerMask_GetMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string LayerMask_LayerToName(int layer);
+        internal extern static string LayerMask_LayerToName(uint layer);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_NameToLayer(string layerName);
+        internal extern static uint LayerMask_NameToLayer(string layerName);
         //End Layer
+
+        //Raycasting
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, uint mask);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
