@@ -27,7 +27,10 @@ namespace SliceBuild
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/17780188480855605116.scene");
+
 		engine.InitScene();
+
 
 		inputSys->SetMode(SliceEngine::InputMode::Game);
 

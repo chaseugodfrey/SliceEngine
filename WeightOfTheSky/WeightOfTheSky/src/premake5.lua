@@ -3,8 +3,8 @@ project "WeightOfTheSky"
     language "C++"
     cppdialect "C++20"            
 
-    targetdir ("%{wks.location}/build/bin/Data")
-    objdir ("%{wks.location}/build/bin-int")
+    targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/build")
+    objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}")
 
     files {
         "src/**.h",
@@ -37,7 +37,7 @@ project "WeightOfTheSky"
     links {
         "SliceEngine",
         "mono-2.0-sgen.lib",
-        "MonoPosixHelper.lib"
+        "MonoPosixHelper.lib",
         "opengl32",        
         "fmod_vc",         
         "glfw3",
@@ -45,7 +45,7 @@ project "WeightOfTheSky"
     }
 
     libdirs {
-        dev_wks_path .. "/build/Data", -- Where SliceEngine.lib lives
+        dev_wks_path .. "/build", -- Where SliceEngine.lib lives
         ThirdParty.GLFW_LIB,
         ThirdParty.GLEW_LIB,
         ThirdParty.FMOD_LIB,
@@ -54,9 +54,9 @@ project "WeightOfTheSky"
         ThirdParty.JOLT_LIB_R,
     }
 
-    filter "configurations:WeightOfTheSky"
+    filter "configurations:RELEASE"
         --defines { "DEBUG", "SLICE_DEBUG" }
-        runtime "Debug"
+        runtime "Release"
         symbols "On"
         
         -- Link Debug versions of libraries if they exist
@@ -71,8 +71,8 @@ project "WeightOfTheSky"
 
     
     prebuildcommands {
-        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYFILE}  "%{script_dev_path}" "%{cfg.targetdir}"',
+        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}/Data/"',
+        '{COPYFILE}  "%{script_dev_path}" "%{cfg.targetdir}/Data/"',
     }
 
     postbuildcommands {
