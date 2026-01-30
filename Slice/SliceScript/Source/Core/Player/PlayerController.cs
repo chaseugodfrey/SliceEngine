@@ -1295,7 +1295,7 @@ namespace SliceEngine
             {
                 isDead = true;
 
-                Bootstrap.LevelDirector.Lose();
+                //Bootstrap.LevelDirector.Lose();
                 //this.gameObject.Destroy();
             }
         }
