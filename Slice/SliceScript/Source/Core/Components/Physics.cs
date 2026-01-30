@@ -15,23 +15,29 @@ namespace SliceEngine
         public static bool queriesHitTriggers = true;
 
         public const uint DefaultRaycastLayers = ~0u; // All layers
-        public static bool RayCast(Vector3 origin, Vector3 direction, float maxDistance = float.PositiveInfinity, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public static bool RayCast(Vector3 origin, Vector3 direction,uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
+            uint bodyHitID = 0;
+
+
+            FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
+
+
             return true;
         }
 
-        public static bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, float maxDistance, uint layerMask, QueryTriggerInteraction queryTriggerInteraction)
+        public static bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, uint layerMask, QueryTriggerInteraction queryTriggerInteraction)
         {
             hitInfo = new RayCastHit();
             return true;
         }
 
-        public static bool Raycast(Ray ray, float maxDistance = float.PositiveInfinity, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public static bool Raycast(Ray ray, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             return true;
         }
 
-        public static bool Raycast(Ray ray, out RayCastHit hitInfo, float maxDistance = float.PositiveInfinity, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        public static bool Raycast(Ray ray, out RayCastHit hitInfo, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             hitInfo = new RayCastHit();
             return true;

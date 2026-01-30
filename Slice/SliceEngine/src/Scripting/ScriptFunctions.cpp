@@ -1376,6 +1376,15 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region RAYCASTING FUCNTIONS
+
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID, uint32_t* mask)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *mask);
+	}
+
+#pragma endregion
+
 #pragma region AUDIO FUNCTIONS
 	static AudioSource* GetAudioComponent(unsigned int entity)
 	{
@@ -2271,6 +2280,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
+		ADD_INTERNAL_CALL(Physics_Raycast);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);

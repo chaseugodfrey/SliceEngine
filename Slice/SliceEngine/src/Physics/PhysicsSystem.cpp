@@ -1434,7 +1434,7 @@ namespace SliceEngine
 
 		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
-		uint32_t hitID = ioHit.mBodyID.IsInvalid() ? 0 : ioHit.mBodyID.GetIndex();
+		bodyHitID = ioHit.mBodyID.IsInvalid() ? 0 : ioHit.mBodyID.GetIndex();
 
 		return didRayHit;
 	}
