@@ -132,16 +132,16 @@ namespace SliceEditor
 
 			for (auto entity : view)
 			{
-				auto &linkComp = view.get<SliceEngine::NavMeshLink>(entity);
+				auto& linkComp = view.get<SliceEngine::NavMeshLink>(entity);
 
 				SliceEngine::NavMeshLink data;
 
 				if (reg.valid(linkComp.startLink) && reg.all_of<SliceEngine::Transform>(linkComp.startLink))
 				{
-					auto &startTrans = reg.get<SliceEngine::Transform>(linkComp.startLink);
+					auto& startTrans = reg.get<SliceEngine::Transform>(linkComp.startLink);
 					auto startGO = SliceEngine::FactoryInstance.GetGOByEntity(data.startLink);
 
-					auto &startTransform = startGO.GetComponent<SliceEngine::Transform>();
+					auto& startTransform = startGO.GetComponent<SliceEngine::Transform>();
 					startTransform = startTrans;
 				}
 				else
@@ -151,9 +151,9 @@ namespace SliceEditor
 
 				if (reg.valid(linkComp.endLink) && reg.all_of<SliceEngine::Transform>(linkComp.endLink))
 				{
-					auto &endTrans = reg.get<SliceEngine::Transform>(linkComp.endLink);
+					auto& endTrans = reg.get<SliceEngine::Transform>(linkComp.endLink);
 					auto endGO = SliceEngine::FactoryInstance.GetGOByEntity(data.endLink);
-					auto &endTransform = endGO.GetComponent<SliceEngine::Transform>();
+					auto& endTransform = endGO.GetComponent<SliceEngine::Transform>();
 					endTransform = endTrans;
 				}
 				else
@@ -164,7 +164,7 @@ namespace SliceEditor
 					//std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
 					links.push_back(data);
 				}
-
+			}
 			mCompiler.BuildFromModel(models, transformMtxs, links);
 		}
 
