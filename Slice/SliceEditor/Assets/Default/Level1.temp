@@ -2662,8 +2662,9 @@
                 },
                 "componentEnabled": true,
                 "current_time": 0.0,
+                "eventFrames": [],
                 "stateMachine Handle": {
-                    "GUID": "9889631494548659078"
+                    "GUID": "10957655571049264411"
                 }
             },
             "struct SliceEngine::SceneGraph": {
@@ -2858,6 +2859,7 @@
                 },
                 "componentEnabled": true,
                 "current_time": 0.0,
+                "eventFrames": [],
                 "stateMachine Handle": {
                     "GUID": "9889631494548659078"
                 }
@@ -3102,17 +3104,17 @@
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.HUD_Manager",
                 "scriptableFieldMap": {
-                    "defeatName": {
-                        "Type": "std::string",
-                        "Value": ""
+                    "defeatObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
                     },
-                    "healthSliderName": {
-                        "Type": "std::string",
-                        "Value": ""
+                    "healthSliderObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
                     },
-                    "victoryName": {
-                        "Type": "std::string",
-                        "Value": ""
+                    "victoryObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
                     }
                 }
             },
@@ -3276,7 +3278,7 @@
                     },
                     "attack1Damage": {
                         "Type": "int",
-                        "Value": 0
+                        "Value": 20
                     },
                     "attack1Duration": {
                         "Type": "float",
@@ -3296,7 +3298,7 @@
                     },
                     "attack2Damage": {
                         "Type": "int",
-                        "Value": 0
+                        "Value": 30
                     },
                     "attack2Duration": {
                         "Type": "float",
@@ -3316,7 +3318,7 @@
                     },
                     "attack3Damage": {
                         "Type": "int",
-                        "Value": 0
+                        "Value": 50
                     },
                     "attack3Duration": {
                         "Type": "float",
@@ -3364,11 +3366,11 @@
                     },
                     "dashCooldown": {
                         "Type": "float",
-                        "Value": 0.6000000238418579
+                        "Value": 0.10000000149011612
                     },
                     "dashDistance": {
                         "Type": "float",
-                        "Value": 20.0
+                        "Value": 12.0
                     },
                     "dashDuration": {
                         "Type": "float",
@@ -3380,11 +3382,15 @@
                     },
                     "dashStartDuration": {
                         "Type": "float",
-                        "Value": 0.25
+                        "Value": 0.15000000596046448
                     },
                     "dashUsesMoveDirection": {
                         "Type": "bool",
                         "Value": true
+                    },
+                    "debugMode": {
+                        "Type": "bool",
+                        "Value": false
                     },
                     "doubleJumpHeight": {
                         "Type": "float",
@@ -3432,7 +3438,7 @@
                     },
                     "maxHealth": {
                         "Type": "int",
-                        "Value": 100
+                        "Value": 300
                     },
                     "maxJumps": {
                         "Type": "int",
@@ -3448,7 +3454,7 @@
                     },
                     "movementSpeed": {
                         "Type": "float",
-                        "Value": 10.0
+                        "Value": 8.0
                     },
                     "playerModel": {
                         "Type": "SliceEngine::GameObject",
@@ -3456,7 +3462,7 @@
                     },
                     "rotationSpeed": {
                         "Type": "float",
-                        "Value": 12.0
+                        "Value": 35.0
                     },
                     "terminalVelocity": {
                         "Type": "float",
