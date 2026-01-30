@@ -60,6 +60,7 @@ namespace SliceEngine
 		
 		/// When creating an object while inspecting a prefab, this function will add it to the prefab "base entity"
 		void AddToPrefab(Entity entity, Entity rootNode);
+		void AddToPrefabChild(Entity entity,Entity rootNode);
 
 		bool IsNewGO(Entity entity, unsigned int prefabID);
 

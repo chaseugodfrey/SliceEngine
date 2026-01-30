@@ -129,7 +129,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Model(skeleGUID, animGUID, guid);
@@ -140,6 +140,10 @@ namespace SliceEditor
 			if (history)
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
 			}
 
 			return go;
