@@ -1450,7 +1450,6 @@ namespace SliceEngine
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Hello Hafiz");
 			didRayHit = false;
 		}
 

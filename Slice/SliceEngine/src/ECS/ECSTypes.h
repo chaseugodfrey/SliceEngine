@@ -474,7 +474,10 @@ namespace SliceEngine
 		bool destroyOnExpire{ false };
 		uint64_t maxParticles{ 200 };            // pool size. default 200
 
+		// Physics
 		float gForce{0.0f};
+		bool hasCollision{ false };
+		bool hasBounce{ false };
 
 		// Emission
 		float emissionRate{ 0.0f };              // particles/sec
@@ -560,8 +563,6 @@ namespace SliceEngine
 		bool colourOverLifetime{ false };
 		std::map<float, glm::vec4> colourLifeTimeMap;
 		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
-
-		bool hasCollision{ false };
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }

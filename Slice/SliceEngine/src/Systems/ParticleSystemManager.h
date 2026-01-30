@@ -54,7 +54,7 @@ namespace SliceEngine
 
 		void ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
-		void ApplyCollision(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyPhysics(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt);
 
 		void ApplyBurst(ParticleSystem& ps, float dt);

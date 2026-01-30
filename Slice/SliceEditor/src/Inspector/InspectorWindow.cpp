@@ -1266,7 +1266,6 @@ namespace SliceEditor
 				ImGui::SameLine();
 				ButtonValueTypePopup(ps.posValueType, "position");
 
-
 				// Start Rotation			
 				switch (ps.initialRotationType)
 				{
@@ -1317,6 +1316,13 @@ namespace SliceEditor
 
 				// Gravity
 				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
+
+				// Collision
+				BoolInputHeader(mRegistry, "Has Collision", "##hasCollision", ps.hasCollision);
+				if (ps.hasCollision)
+				{
+					BoolInputHeader(mRegistry, "Has Bounce", "##hasBounce", ps.hasBounce);
+				}
 
 				// Max Particles
 				DragUInt64InputHeader(mRegistry, "Max Particles", "##maxParticles", ps.maxParticles, "%llu", 0, 5000);

@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
+#include "../src/Physics/PhysicsSystem.h"
 #include <Core/Core.h>
 
 namespace SliceEngine
@@ -154,7 +155,7 @@ namespace SliceEngine
 
 			if (ps.hasCollision)
 			{
-				ApplyCollision(p, ps, dt);
+				ApplyPhysics(p, ps, dt);
 			}
 
 			if (ps.colourOverLifetime)
@@ -479,9 +480,37 @@ namespace SliceEngine
 	{
 		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
-	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyPhysics(Particle& p, ParticleSystem& ps, float dt)
 	{
-		//Idk
+		if (!ps.hasCollision || !p.active)
+			return;
+
+		// Predict movement
+		glm::vec3 end = p.position + p.velocity * dt;
+		glm::vec3 direction = end - p.position;
+		glm::vec3 hitPos;
+		uint32_t hitID;
+
+		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
+
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos))
+		{
+			p.position = glm::vec3(hitPos.x, hitPos.y, hitPos.z);
+
+			// Simple bounce
+			if (ps.hasBounce)
+			{
+				p.velocity = glm::reflect(p.velocity, glm::vec3(-1))a;
+			}
+
+			// Optional damping
+			p.velocity.x = 0.0f;
+			p.velocity.z = 0.0f;
+		}
+		else
+		{
+			p.position = end;
+		}
 	}
 	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{
