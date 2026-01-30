@@ -24,6 +24,7 @@ namespace SliceEngine
             foreach(GameObject trigger in levelTriggers)
             {
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
+                trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
             }
         }
 
@@ -76,7 +77,7 @@ namespace SliceEngine
             // the trigger box will toggle the next level
             if (levelDone)
                 return;
-
+            //SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().OnUpdate(dt);
         }
 
@@ -91,12 +92,16 @@ namespace SliceEngine
             // do simple dist check 
             foreach(GameObject enemy in enemies)
             {
+                SliceLog.Log("Died in here 0");
+
                 float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
+                SliceLog.Log("Died in here 1");
                 if (Dist < SafetyDistance)
                 {
                     return false;
                 }
             }
+            SliceLog.Log("Died in here 2");
 
             return true;
         }
@@ -108,9 +113,11 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
+            SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
+            SliceLog.Log("Triggering Next Level Part 2");
 
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
@@ -122,9 +129,12 @@ namespace SliceEngine
 
                 currLevel++;
                 levelDone = false;
+
+                SliceLog.Log("Triggering Next Level Part 3");
+
             }
 
-         
+
 
             // only allow moving forward
             // no moving backwards/same level triggering

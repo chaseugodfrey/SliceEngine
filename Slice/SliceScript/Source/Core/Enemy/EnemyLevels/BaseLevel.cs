@@ -23,13 +23,15 @@ namespace SliceEngine
         // keep track of which point we're spawning at now
         public int currPoint = 0;
 
+        //public int levelIndex = 0; // for debugging so I know which level is triggering
+
         public float timer = 0.0f;
 
         public virtual bool CheckObjective() { return false; }
 
         public override void OnUpdate(float dt)
         {
-            //SliceLog.Log("In Base level Update");
+           // SliceLog.Log("In Base level " + levelIndex + "Update");
 
             if (CheckObjective())
             {
@@ -59,7 +61,7 @@ namespace SliceEngine
             {
                 return;
             }
-           //SliceLog.Log("CREATING ENEMY");
+           //SliceLog.Log("Curr time : " + timer);
 
             if (timer > spawnInterval)
             {
@@ -67,6 +69,7 @@ namespace SliceEngine
                 Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
                 if (!levelDirector.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
                 {
+                    SliceLog.Log("Died in here 3");
                     // if the curr point can't then just go next point instead
                     timer = 0.0f;
                     currPoint++;
