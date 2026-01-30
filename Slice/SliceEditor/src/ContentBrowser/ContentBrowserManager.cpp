@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include "../../SliceEngine/src/Systems/PrefabSystem.h"
 #include "../History/HistoryManager.h"
 
@@ -225,7 +226,7 @@ namespace SliceEditor
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
-			EditorUtilities::Scene_Load(entry.fullPath, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_Load(entry.fullPath, *registry.GetManager<SelectionManager>("Selection"), *registry.GetManager<SessionManager>("Session"));
 			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
