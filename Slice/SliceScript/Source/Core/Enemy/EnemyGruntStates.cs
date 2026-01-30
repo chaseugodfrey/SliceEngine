@@ -37,9 +37,11 @@ namespace SliceEngine
         {
             base.DoEnemyAction(dt);
 
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
             enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
+
+            enemyOwner.enemyT.Rotation = direction_diff;
 
             if (direction_diff.Magnitude() <= enemyOwner.strafeDistance)
             {
@@ -59,7 +61,8 @@ namespace SliceEngine
         {
             base.DoEnemyAction(dt);
 
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
+            enemyOwner.enemyT.Rotation = direction_diff;
 
             //float distFromPlayer = direction_diff.Magnitude(); 
 
@@ -77,8 +80,10 @@ namespace SliceEngine
             {
                 enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
             }
-        }
 
+
+
+        }
     }
 
 
@@ -90,7 +95,7 @@ namespace SliceEngine
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
 
             if (!enemyOwner.As<EnemyGrunt>().attacking)
