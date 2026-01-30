@@ -125,46 +125,34 @@ namespace SliceEditor
 		if (ImGui::Button("Bake"))
 		{
 			std::vector<SliceEngine::NavMeshLink> links;
-
 			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-
 			auto view = reg.view<SliceEngine::NavMeshLink>();
 
 			for (auto entity : view)
 			{
-				auto& linkComp = view.get<SliceEngine::NavMeshLink>(entity);
+				auto &linkComp = view.get<SliceEngine::NavMeshLink>(entity);
+
+				if ((uint32_t)linkComp.startLink == 0 || (uint32_t)linkComp.endLink == 0)
+					continue;
+
+				if (linkComp.startLink == linkComp.endLink)
+					continue;
+
+				if (!reg.valid(linkComp.startLink) || !reg.all_of<SliceEngine::Transform>(linkComp.startLink))
+					continue;
+
+				if (!reg.valid(linkComp.endLink) || !reg.all_of<SliceEngine::Transform>(linkComp.endLink))
+					continue;
 
 				SliceEngine::NavMeshLink data;
+				data.startLink = linkComp.startLink; // Store ID
+				data.endLink = linkComp.endLink;     // Store ID
+				data.bidirectional = true;           // Or linkComp.bidirectional
+				data.radius = 5.0f;                  // Or linkComp.radius
 
-				if (reg.valid(linkComp.startLink) && reg.all_of<SliceEngine::Transform>(linkComp.startLink))
-				{
-					auto& startTrans = reg.get<SliceEngine::Transform>(linkComp.startLink);
-					auto startGO = SliceEngine::FactoryInstance.GetGOByEntity(data.startLink);
-
-					auto& startTransform = startGO.GetComponent<SliceEngine::Transform>();
-					startTransform = startTrans;
-				}
-				else
-				{
-					continue;
-				}
-
-				if (reg.valid(linkComp.endLink) && reg.all_of<SliceEngine::Transform>(linkComp.endLink))
-				{
-					auto& endTrans = reg.get<SliceEngine::Transform>(linkComp.endLink);
-					auto endGO = SliceEngine::FactoryInstance.GetGOByEntity(data.endLink);
-					auto& endTransform = endGO.GetComponent<SliceEngine::Transform>();
-					endTransform = endTrans;
-				}
-				else
-				{
-
-					data.bidirectional = true;
-					data.radius = 5.0f;
-					//std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
-					links.push_back(data);
-				}
+				links.push_back(data);
 			}
+
 			mCompiler.BuildFromModel(models, transformMtxs, links);
 		}
 
