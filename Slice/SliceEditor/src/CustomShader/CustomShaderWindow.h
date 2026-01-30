@@ -13,6 +13,9 @@ namespace SliceEditor
 
 	class CustomShaderWindow : public EditorWindow
 	{
+		SelectionManager* mSelectionManager = nullptr;
+		SessionManager* mSessionManager = nullptr;
+
 
 	public:
 

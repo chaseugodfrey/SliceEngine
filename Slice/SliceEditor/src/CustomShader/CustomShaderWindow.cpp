@@ -2,12 +2,14 @@
 #include "CustomShader/CustomShaderWindow.h"
 #include "Core/Registry.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 
 namespace SliceEditor
 {
 	void CustomShaderWindow::Init()
 	{
-
+		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 	}
 
 	void CustomShaderWindow::Draw()
