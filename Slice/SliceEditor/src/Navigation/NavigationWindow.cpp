@@ -132,17 +132,18 @@ namespace SliceEditor
 			reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
 				{
 					SliceEngine::NavMeshLink data;
-
+					
 					// Assuming startLink/endLink in the component are World Space positions 
 					// derived from the editor handles/transforms.
-					data.startLink = linkComp.startLink;
-					data.endLink = linkComp.endLink;
-
+					data.startLink = entity;
+					data.endLink = entity;
+					
 					data.bidirectional = true;
 					data.radius = 5.0f;
-					std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
+					//std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
 					links.push_back(data);
 				});
+
 			mCompiler.BuildFromModel(models, transformMtxs, links);
 		}
 

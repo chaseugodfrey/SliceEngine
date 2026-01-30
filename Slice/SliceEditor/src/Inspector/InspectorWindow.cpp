@@ -663,20 +663,20 @@ namespace SliceEditor
 	{
 		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 
-		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+		//if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+		//{
+		//	DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
 
-			DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
+		//	DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
 
-			DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
+		//	DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
 
-			BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
+		//	BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
 
-			DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
+		//	DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
 
-			ImGui::TreePop();
-		}
+		//	ImGui::TreePop();
+		//}
 
 	}
 
