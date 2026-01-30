@@ -188,6 +188,15 @@ namespace SliceEngine
 		mHandle = mono_gchandle_new(mMonoInstance, true);
 	}
 
+	ScriptObject::~ScriptObject()
+	{
+		if (mHandle)
+		{
+			mono_gchandle_free(mHandle);
+			mHandle = 0;
+		}
+	}
+
 	MonoObject* ScriptObject::GetInstance()
 	{
 		return mMonoInstance;

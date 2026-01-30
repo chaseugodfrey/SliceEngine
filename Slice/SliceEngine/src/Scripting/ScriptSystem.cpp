@@ -123,6 +123,9 @@ namespace SliceEngine
 
     void ScriptSystem::CleanUp()
     {
+        mono_gchandle_free(mCoroutineInstance->mHandle);
+        mono_gchandle_free(mTimeInstance->mHandle);
+
         if (mAppDomain)
         {
             // Switch back to root domain to allow unloading
@@ -305,6 +308,7 @@ namespace SliceEngine
         for (auto& it : mEntityInstances)
         {
             mono_gchandle_free(it.second->mHandle);
+            it.second->mHandle = 0;
         }
 
         mono_gchandle_free(mCoroutineInstance->mHandle);
@@ -544,7 +548,11 @@ namespace SliceEngine
     {
         for (auto& it : mEntityInstances)
         {
-            mono_gchandle_free(it.second->mHandle);
+            if (it.second->mHandle)
+            {
+                mono_gchandle_free(it.second->mHandle);
+                it.second->mHandle = 0;
+            }
         }
 
         mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
@@ -909,6 +917,7 @@ namespace SliceEngine
             if (it.first == entity)
             {
                 mono_gchandle_free(it.second->mHandle);
+				it.second->mHandle = 0;
 
                 mEntityInstances.erase(it.first);
                 break;
@@ -1107,6 +1116,7 @@ namespace SliceEngine
         if (mEntityInstances.count(entity) > 0)
         {
             mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances[entity]->mHandle = 0;
             mEntityInstances.erase(entity);
         }
 

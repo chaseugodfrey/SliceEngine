@@ -176,6 +176,8 @@ namespace SliceEngine
 		/// <param name="className">name of the class</param>
 		ScriptObject(std::shared_ptr<ScriptClass> scClass, Entity entity);
 
+		~ScriptObject();
+
 		/// <summary>
 		/// Get the mMonoInstance reference to get script instance for C# side
 		/// </summary>

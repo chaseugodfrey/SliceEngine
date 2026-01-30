@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
+#include "../src/Physics/PhysicsSystem.h"
 #include <Core/Core.h>
 
 namespace SliceEngine
@@ -143,9 +144,7 @@ namespace SliceEngine
 			{
 				DeactivateParticle(p,ps);
 				continue;
-			}
-
-			ApplyVeloctiy(p, ps, dt);
+			}			
 
 			if (ps.gForce != 0.0f)
 			{
@@ -154,13 +153,15 @@ namespace SliceEngine
 
 			if (ps.hasCollision)
 			{
-				ApplyCollision(p, ps, dt);
+				ApplyPhysics(p, ps, dt);
 			}
 
 			if (ps.colourOverLifetime)
 			{
 				ApplyColourOverLifetime(p, ps, dt);
 			}
+
+			ApplyVeloctiy(p, ps, dt);
 		}
 		if (!haveActiveParticle && ps.systemEnding)
 		{
@@ -479,9 +480,65 @@ namespace SliceEngine
 	{
 		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
 	}
-	void ParticleSystemManager::ApplyCollision(Particle& p, ParticleSystem& ps, float dt)
+	void ParticleSystemManager::ApplyPhysics(Particle& p, ParticleSystem& ps, float dt)
 	{
-		//Idk
+		if (glm::length(p.velocity) < 0.01f) return;
+
+		// Predict movement
+		glm::vec3 end = p.position + p.velocity * dt;
+		glm::vec3 direction = end - p.position;
+		glm::vec3 hitPos, normal;
+		uint32_t hitID;
+
+		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
+
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal))
+		{			
+			glm::vec3 n = glm::normalize(normal);
+			float vn = glm::dot(p.velocity, n);          // velocity along normal
+			float upDot = glm::dot(n, glm::vec3(0, 1, 0)); // normal vs world up
+
+			// Determine if collision actually happened
+			bool collisionHappened = vn < 0.0f || glm::length(hitPos - p.position) < 0.001f;
+
+			if (collisionHappened)
+			{
+				// Penetration prevention
+				float penetrationDepth = glm::dot(hitPos - p.position, n);
+				if (penetrationDepth > 0.0f)
+					p.position = hitPos + n * 0.001f; // small offset to avoid sticking
+
+				// Normal and tangent velocity
+				glm::vec3 vNormal = vn * n;
+				glm::vec3 vTangent = p.velocity - vNormal;
+
+				// Bounciness
+				if (ps.bounciness > 0.0f && vn < 0.0f)
+				{
+					float bounceImpact = -vn * ps.bounciness;
+					if (bounceImpact > 0.01f)
+						vNormal = glm::reflect(vNormal, n) * ps.bounceDampening;
+					else
+						vNormal = glm::vec3(0.0f); // small impact, cancel normal
+				}
+				else
+				{
+					// prevent penetration if no bounce
+					vNormal = glm::vec3(0.0f);
+				}
+
+				// Friction (only for mostly upward surfaces)
+				if (upDot > 0.7f && ps.friction > 0.0f)
+					vTangent *= (1.0f - ps.friction / 2.0f);
+
+				// Stickiness
+				if (ps.stickiness > 0.0f)
+					vTangent *= (1.0f - ps.stickiness);
+
+				// Final velocity
+				p.velocity = vNormal + vTangent;
+			}
+		}
 	}
 	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{
