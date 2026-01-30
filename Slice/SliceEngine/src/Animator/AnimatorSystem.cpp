@@ -90,13 +90,14 @@ namespace SliceEngine
 					animator.current_time += dt;
 
 					// publish animation key frame event
-					unsigned int currentFrame = static_cast<unsigned int>(animator.current_time) * anim.fps;
+					unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
 					for (auto eventFrame : animator.eventFrames)
 					{
+						//SLICE_LOG_VALUES("Event Frame:", eventFrame.frameNumber, "Current Frame:", currentFrame, "Anim Idx:", eventFrame.animIdx, "Curr Anim Idx:", animator.stateMachine.EFSM.currState->curr_anim_idx);
 						if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
 						{
 							// publish event
-							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName };
+							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity};
 							EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
 						}
 					}

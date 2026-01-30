@@ -37,7 +37,7 @@ namespace SliceEngine
 #pragma region Prefab Serialization
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
-		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
+		Entity DeserializePrefab(std::unordered_map<uint32_t, uint32_t>& sceneGraph, std::filesystem::path const& filePath, bool Editor = false);
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath);
 
 #pragma endregion
@@ -71,6 +71,18 @@ namespace SliceEngine
 			}
 
 
+		}
+
+		template<>
+		inline void Serialize <std::vector<SliceEngineTypes::AnimationKeyFrame>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::vector<SliceEngineTypes::AnimationKeyFrame>& value, const Entity& entity)
+		{
+			json& jArr = output[name][typeName][propName];
+			jArr = json::array();
+			for (const auto& frame : value)
+			{
+				jArr.push_back(frame); 
+			}
 		}
 
 		// For generic vectors
@@ -336,7 +348,7 @@ namespace SliceEngine
 
 				if constexpr (std::is_same_v<T, std::vector<typename T::value_type>>)
 				{
-					// Nested vector � recurse
+					// Nested vector recurse
 					std::vector<typename T::value_type> innerResult;
 					Deserialize(componentInstance, prop, elem, propName, componentName, entity);
 					result.push_back(elem);
@@ -386,6 +398,15 @@ namespace SliceEngine
 				}
 			}
 			prop.set_value(componentInstance, arr);
+		}
+
+		template <>
+		inline void Deserialize<std::vector<SliceEngineTypes::AnimationKeyFrame>>(
+			rttr::variant& componentInstance, rttr::property& prop,
+			const std::vector<SliceEngineTypes::AnimationKeyFrame>& vec, const std::string& propName,
+			const std::string& componentName, const Entity& entity)
+		{
+			prop.set_value(componentInstance, vec);
 		}
 
 		// Handle
@@ -615,8 +636,11 @@ namespace nlohmann
 	}
 }
 
+
+
 namespace SliceEngine
 {
+
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{

@@ -432,7 +432,13 @@ namespace SliceEngine
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
+
 		GLuint64 textureID{};
+
+		bool isMeshParticle{false};
+
+		GUID modelGUID;
+		GUID materialGUID;
 	};
 	struct ParticleSystem
 	{
@@ -566,12 +572,13 @@ namespace SliceEngine
 			MESH
 		} renderMode{ BILLBOARD };
 
+		bool alwaysFaceCamera{ true };
+
 		GUID textureGUID;
-		GUID materialGUID;
-		GUID meshGUID;
+
 		Handle<SliceEngineTypes::Texture> textureHandle;
+		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
-		Handle<SliceEngineTypes::Mesh> meshHandle;
 
 		// Internal
 		std::vector<Particle> particles{};		// Main Storage of all particles
@@ -609,6 +616,7 @@ namespace SliceEngine
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
 		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
+		std::unordered_map<unsigned int, glm::vec2> node_position_map{};
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
@@ -863,6 +871,14 @@ namespace SliceEngine
 		float speed = 2.0f;
 		bool hasNewTarget = false;
 		int crowdAgentID = -1;
+	};
+
+	struct NavMeshLink
+	{
+		glm::vec3 startLink;
+		glm::vec3 endLink;
+		bool bidirectional;
+		float radius;
 	};
 }
 

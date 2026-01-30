@@ -26,6 +26,8 @@ namespace SliceEditor
 
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
+		mOpenEventPopup = false;
+		mSequencerFlags |= ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDeletion;
 	}
 
 	bool AnimationWindow::CheckForAnimator()
@@ -203,34 +205,10 @@ namespace SliceEditor
 	{
 		auto core = SliceEngine::Core::GetInstance();
 
-		auto const& bone = core->GetRegistry().try_get<SliceEngine::Bone>(ent);
-		if(bone)
+		auto const& cAnimator = core->GetRegistry().try_get<SliceEngine::Animator>(ent);
+
+		if (cAnimator)
 		{
-			Entity root_entity = bone->skeleton_root;
-			if (root_entity != ent)
-			{
-				//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
-				auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
-
-				//if (!mTimeline.isPlaying)
-					///continue;
-
-				//some pseudo code
-				glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone->frame_idx];
-				glm::vec3 translation, scale, skew;
-				glm::vec4 perspective;
-				glm::quat rotation;
-				glm::decompose(frame, scale, rotation, translation, skew, perspective);
-				transform.position = translation;
-				transform.rotation = rotation;
-				transform.scale = scale;
-
-				//if is a renderer, tell skeleton to calculate inverse for this index
-				if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
-					mCurrentAnimator->inverse_flags.set(bone->frame_idx);
-				}
-			}
-
 			if (auto scene_graph = core->GetRegistry().try_get<SliceEngine::SceneGraph>(ent)) {
 				entt::entity child = scene_graph->neighbours[SliceEngine::SceneGraph::DOWN];
 				while (child != entt::null)
@@ -240,10 +218,46 @@ namespace SliceEditor
 				}
 			}
 		}
+		else
+		{
+			auto const& bone = core->GetRegistry().try_get<SliceEngine::Bone>(ent);
+			if (bone)
+			{
+				Entity root_entity = bone->skeleton_root;
+				if (root_entity != ent)
+				{
+					//auto& animator = core->GetRegistry().get<SliceEngine::Animator>(root_entity);
+					auto& transform = core->GetRegistry().get<SliceEngine::Transform>(ent);
 
+					//if (!mTimeline.isPlaying)
+						///continue;
 
+					//some pseudo code
+					glm::mat4 const& frame = mCurrentAnimator->GetFinalTform()[bone->frame_idx];
+					glm::vec3 translation, scale, skew;
+					glm::vec4 perspective;
+					glm::quat rotation;
+					glm::decompose(frame, scale, rotation, translation, skew, perspective);
+					transform.position = translation;
+					transform.rotation = rotation;
+					transform.scale = scale;
 
-		
+					//if is a renderer, tell skeleton to calculate inverse for this index
+					if (core->GetRegistry().any_of<SliceEngine::Renderer>(ent)) {
+						mCurrentAnimator->inverse_flags.set(bone->frame_idx);
+					}
+				}
+
+				if (auto scene_graph = core->GetRegistry().try_get<SliceEngine::SceneGraph>(ent)) {
+					entt::entity child = scene_graph->neighbours[SliceEngine::SceneGraph::DOWN];
+					while (child != entt::null)
+					{
+						UpdateBoneScene(child);
+						child = core->GetRegistry().get<SliceEngine::SceneGraph>(child).neighbours[SliceEngine::SceneGraph::RIGHT];
+					}
+				}
+			}
+		}
 	}
 
 	void AnimationWindow::UpdateBones()
@@ -322,8 +336,24 @@ namespace SliceEditor
 			std::string scriptName{};
 			std::string scriptFunc{};
 
-			mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
-			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+			//Add the event to the eventFrames vector
+			
+			//TODO if currentFrame already has an event. Dont add another one
+			bool frameHasEvent = false;
+			for (auto& event : mCurrentAnimator->eventFrames)
+			{
+				if (event.frameNumber == currentFrame)
+				{
+					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
+					frameHasEvent = true;
+				}
+			}
+			if(!frameHasEvent)
+			{
+				mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
+
+				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+			}
 		}
 
 
@@ -385,7 +415,7 @@ namespace SliceEditor
 
 		ImGui::EndGroup();
 
-		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame))
+		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame, { 0,0 }, mSequencerFlags))
 		{			
 			for (auto& group : mPropertyGroups)
 			{
@@ -393,30 +423,30 @@ namespace SliceEditor
 				{
 					for (auto& property : group.properties)
 					{
-						if (ImGui::BeginNeoTimeline(property.name.c_str(), property.keys))
+						if (ImGui::BeginNeoTimelineEx(property.name.c_str(), &group.isOpen))
 						{
-							for (size_t i = 0; i < property.keys.size(); i++)
+							for (auto& key : property.keys)
 							{
-								bool isSelected = (property.selectedKeyIndex == i);
+								ImGui::NeoKeyframe(&key);
 
-
-								// yea this doesnt work
-								if(ImGui::IsItemClicked())
+								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeRightClicked())
 								{
-									property.selectedKeyIndex = i;
+									ImGui::OpenPopup("Keyframe Context");
+									//Set the mCurrentEventIndex for the pop-up
+									auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+										{
+											return x.frameNumber == key;
+										});
 
-									std::cout << "Clicked diamond: " << i << " at frame: " << property.keys[i] << std::endl;
-									//mCurrentAnimator->eventFrames[i].scriptFunc = function;
-									//mCurrentAnimator->eventFrames[i].scriptName = name;
-
+									if (it != mCurrentAnimator->eventFrames.end())
+									{
+										mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
+									}
 								}
 
-								// click off
-								if (isSelected && property.selectedKeyIndex != i) 
-								{
-									property.selectedKeyIndex = i;
-								}
+								
 							}
+
 							ImGui::EndNeoTimeLine();
 						}
 					}
@@ -426,6 +456,23 @@ namespace SliceEditor
 			}
 
 			ImGui::EndNeoSequencer();
+		}
+
+		//Keyframe Context?
+		if (ImGui::BeginPopupContextItem("Keyframe Context"))
+		{
+
+			if (ImGui::Selectable("Edit Event"))
+			{
+				mOpenEventPopup = true;
+			}
+
+			if (ImGui::Selectable("Delete Event"))
+			{
+				SLICE_LOG_WARNING("Non-function yet TODO");
+			}
+
+			ImGui::EndPopup();
 		}
 
 		auto core = SliceEngine::Core::GetInstance();
@@ -450,47 +497,44 @@ namespace SliceEditor
 				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
 			}
 
-			//for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+			//Bone animation
+			if (mCurrentAnimator->is_bone)
 			{
-
-				//Bone animation
-				if (mCurrentAnimator->is_bone)
+				auto& anim = animationClips[mCurrentClipIndex];
+				if (anim->duration <= 0.0f)
 				{
-					auto& anim = animationClips[mCurrentClipIndex];
-					if (anim->duration <= 0.0f)
+					mCurrentTime = 0.0f;
+				}
+				else
+				{
+					if (mCurrentTime > anim->duration)
 					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						if (mCurrentTime > anim->duration)
+
+						if (!mTimeline.isLoop)
 						{
+							mTimeline.isPlaying = false;
+							currentFrame = startFrame;
+							mCurrentTime = 0.0f;
+							ret = true;
+						}
+						else
+						{
+							mTimeline.isPlaying = true;
+							mCurrentTime = std::fmod(mCurrentTime, anim->duration);
 
-							if (!mTimeline.isLoop)
-							{
-								mTimeline.isPlaying = false;
-								currentFrame = startFrame;
-								mCurrentTime = 0.0f;
-								ret = true;
-							}
-							else
-							{
-								mTimeline.isPlaying = true;
-								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-							}
 						}
 					}
-					if (!ret)
-					{
-						float safe_time = std::min(mCurrentTime, anim->duration);
-						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-						UpdateTransform(anim, safe_time);
-						//UpdateBoneScene(tmpEnt);
-						//UpdateBones();
-					}
+				}
+				if (!ret)
+				{
+					float safe_time = std::min(mCurrentTime, anim->duration);
+					//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+					UpdateTransform(anim, safe_time);
+					//UpdateBoneScene(tmpEnt);
+					//UpdateBones();
 				}
 			}
+
 		}
 
 #pragma endregion
@@ -498,6 +542,34 @@ namespace SliceEditor
 		if (!hasAnimator)
 			ImGui::EndDisabled();
 
+		if (mOpenEventPopup)
+		{
+			ImGui::OpenPopup("AnimationEventPopup");
+			AnimatorEventPopup(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
+		}
+
 		ImGui::End();
+	}
+
+	void AnimationWindow::AnimatorEventPopup(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
+	{
+		if (ImGui::BeginPopupModal("AnimationEventPopup",nullptr))
+		{
+			if (StringInputHeader(mRegistry, "Function Name: ", "##animEventFuncName", keyFrame.scriptFunc))
+			{ }
+
+			if (StringInputHeader(mRegistry, "Param String: ", "##animEventParams", keyFrame.scriptName))
+			{ }
+
+			if (ImGui::Button("Save Changes"))
+			{
+				//ImGui::NeoClearSelection();
+				mOpenEventPopup = false;
+				LoadDataFromAnimationClip(animClip, animClipIndex);
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 }

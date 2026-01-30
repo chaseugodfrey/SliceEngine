@@ -235,8 +235,7 @@ namespace SliceEngine
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
-					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
-						continue;
+
 					const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 					// The Blue Floor
