@@ -64,10 +64,18 @@ namespace SliceEngine
             if (timer > spawnInterval)
             {
                 SliceLog.Log("CREATING ENEMY");
-                GameObject enemy =  levelDirector.As<LevelDirector>().CreateEnemy(enemyPrefab);
                 Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
-                SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
-                enemy.GetComponent<Transform>().Position = enemyPoints[currPoint].GetComponent<Transform>().WorldPosition;
+                if (!levelDirector.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
+                {
+                    // if the curr point can't then just go next point instead
+                    timer = 0.0f;
+                    currPoint++;
+                    return;
+                }
+
+                GameObject enemy =  levelDirector.As<LevelDirector>().CreateEnemy(enemyPrefab);
+                //SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
+                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
 
                 timer = 0.0f;
                 currPoint++;

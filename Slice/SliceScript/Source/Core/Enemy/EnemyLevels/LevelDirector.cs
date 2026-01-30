@@ -11,6 +11,8 @@ namespace SliceEngine
         public List<GameObject> levels = new List<GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
+        // To prevent spawning on the same point
+        public float SafetyDistance = 4.0f;
         public int currLevel = 0;
         public bool levelDone = false;
 
@@ -76,6 +78,27 @@ namespace SliceEngine
                 return;
 
             levels[currLevel].As<BaseLevel>().OnUpdate(dt);
+        }
+
+        /// <summary>
+        /// Check if the current enemy spawn point has room to create a nwe enemy
+        /// to prevent creating an enemy ontop an enemy
+        /// </summary>
+        /// <param name="Pos">Pos of waypoint</param>
+        /// <returns>if cannot then must can</returns>
+        public bool CanCreateEnemy(Vector3 Pos)
+        {
+            // do simple dist check 
+            foreach(GameObject enemy in enemies)
+            {
+                float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
+                if (Dist < SafetyDistance)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
