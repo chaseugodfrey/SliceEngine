@@ -128,21 +128,42 @@ namespace SliceEditor
 
 			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
-			// 2. Iterate using .each() to avoid iterator errors
-			reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
+			auto view = reg.view<SliceEngine::NavMeshLink>();
+
+			for (auto entity : view)
+			{
+				auto &linkComp = view.get<SliceEngine::NavMeshLink>(entity);
+
+				SliceEngine::NavMeshLink data;
+
+				if (reg.valid(linkComp.startLink) && reg.all_of<SliceEngine::Transform>(linkComp.startLink))
 				{
-					SliceEngine::NavMeshLink data;
-					
-					// Assuming startLink/endLink in the component are World Space positions 
-					// derived from the editor handles/transforms.
-					data.startLink = entity;
-					data.endLink = entity;
-					
+					auto &startTrans = reg.get<SliceEngine::Transform>(linkComp.startLink);
+					auto startGO = SliceEngine::FactoryInstance.GetGOByEntity(data.startLink);
+
+					auto &startTransform = startGO.GetComponent<SliceEngine::Transform>();
+					startTransform = startTrans;
+				}
+				else
+				{
+					continue;
+				}
+
+				if (reg.valid(linkComp.endLink) && reg.all_of<SliceEngine::Transform>(linkComp.endLink))
+				{
+					auto &endTrans = reg.get<SliceEngine::Transform>(linkComp.endLink);
+					auto endGO = SliceEngine::FactoryInstance.GetGOByEntity(data.endLink);
+					auto &endTransform = endGO.GetComponent<SliceEngine::Transform>();
+					endTransform = endTrans;
+				}
+				else
+				{
+
 					data.bidirectional = true;
 					data.radius = 5.0f;
 					//std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
 					links.push_back(data);
-				});
+				}
 
 			mCompiler.BuildFromModel(models, transformMtxs, links);
 		}
