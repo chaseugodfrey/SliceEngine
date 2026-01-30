@@ -306,12 +306,15 @@ namespace SliceEditor
 
 		}
 
-		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager)
+		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager, SessionManager& sessionManager)
 		{
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(path);
-			PrefabInspectedEvent event;
-			event.prefabBeingInspected = false;
-			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			if(sessionManager.IsPrefabInspected())
+			{
+				PrefabInspectedEvent event;
+				event.prefabBeingInspected = false;
+				EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			}
 			selectionManager.ClearSelection(true);
 		}
 
