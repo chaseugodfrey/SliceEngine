@@ -61,7 +61,7 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
+		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
 		
 		for (auto entity : view)
 		{
@@ -72,13 +72,12 @@ namespace SliceEngine
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
-			if (Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity))
+			if (core->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity))
 			{
 				rcmds = &prefabRenderCmds;
 				rtcmds = &prefabTranslucentCmds;
 			}
 
-			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
 			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
@@ -117,13 +116,13 @@ namespace SliceEngine
 			}
 		}
 	
-		// Gather Particles --TODO-- Gather shader for particles too
+		// Gather Particles
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
 			auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-			// --TODO-- Currently hard set particles shader
+			// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
 			uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
 			RCK_Size key =
 				(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
@@ -290,6 +289,7 @@ namespace SliceEngine
 				GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
+					// Single Draws based on entity id for animations stuffs, so dun need worry abt ext data
 					for (size_t i{}; i < batch.base.size(); ++i)
 					{
 						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
@@ -301,9 +301,10 @@ namespace SliceEngine
 				else
 				{
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
+					size_t maxExtCount = static_cast<size_t>(mMaxInstance * mEVBOSafetyMult * 4 / (batch.numVar == 0 ? 1 : batch.numVar));
 					for (size_t drawCounter{}; drawCounter < batch.base.size(); )
 					{
-						size_t drawNum{ std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
+						size_t drawNum{ std::min(std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)), maxExtCount) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.base.data() + drawCounter);
 						glNamedBufferSubData(mEVBO, 0, sizeof(float) * drawNum * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * drawCounter);
 						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
@@ -362,7 +363,7 @@ namespace SliceEngine
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &dat);
-					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &i.ext);
+					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * i.ext.size(), &i.ext);
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
@@ -371,6 +372,7 @@ namespace SliceEngine
 		}
 	}
 
+	// Currently only used for the Outline draw :p, so Opaque not used
 	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType)
 	{
 		auto core = Core::GetInstance();
@@ -406,7 +408,7 @@ namespace SliceEngine
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
-			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &ext);
+			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * ext.size(), &ext);
 			break;
 		}
 		}
@@ -524,7 +526,6 @@ namespace SliceEngine
 		int subID = num * numVar % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
-		size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{

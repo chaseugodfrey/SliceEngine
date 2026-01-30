@@ -117,7 +117,7 @@ namespace SliceEngine
 	// 	auto model = rc.modelHandle;		
 	// 	if (!model.IsValid()) return;
 	//
-	// 	// --TODO-- Cursed model Error Checking loading
+	// 	// --MAYDO(Depreciated)-- Cursed model Error Checking loading
 	// 	auto& mesh = model.get()->meshes[std::min(rc.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1))];
 	//
 	// 	/*model.meshes[rc.meshOffset];*/
@@ -147,7 +147,7 @@ namespace SliceEngine
 	//
 	// 		//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 	//
-	// 		// --TODO-- Cursed Texture exist check, Fix Resource Manager
+	// 		// --MAYDO(Depreciated)-- Cursed Texture exist check, Fix Resource Manager
 	// 		if (reinterpret_cast<void*>(albedoTex.get()) != (void*)0xdddddddddddddddd)
 	// 			glBindTextureUnit(0, albedoTex.get()->texture_id);
 	// 		else

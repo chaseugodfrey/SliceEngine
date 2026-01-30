@@ -196,132 +196,112 @@ namespace SliceEngine
 		}
 #pragma endregion
 #pragma region CustomShader
-		namespace
+		// What I Should See Inside .cshader File
+		// ---------- e.g. 1 ---------- Default
+		// # COLOR CODE
+		// Mul_Vec4: TexCol, Col / Var_0
+		// END: Var_0
+		// 
+		// # ROUGHNESS CODE
+		// Vec2_f_f: roughness, metallic / VarR_0
+		// END: VarR_0
+		// ---------- e.g. 2 ---------- PillarShader
+		// # COLOR CODE
+		// fRand_Vec2: vTex / Var_0
+		// Mul_f: Var_0, noiseScale / Var_1
+		// 
+		// GetY_Vec2: vTex / Var_2
+		// SmoothStep_f: 0.f, Var_2, Var_1 / Var_3
+		// 
+		// GetA_Vec4: texCol / Var_4
+		// GetA_Vec4: color / Var_5
+		// Mul_f: Var_3, Var_4 / Var_6
+		// Mul_f: Var_6, Var_5 / Var_7
+		// 
+		// Mul_Vec4: texCol, color / Var_8
+		// SetA_Vec4: Var_8, 0.f
+		// 
+		// GetX_Vec2: vTex / Var_9
+		// Vec4_f_f_f_f: Var_9, Var_9, Var_9, Var_9 / Var_10
+		// Mul_Vec4: Var_8, Var_10 / Var_11
+		// 
+		// SetA_Vec4: Var_11, Var_7
+		// END: Var_11
+		// 
+		// # ROUGHNESS CODE
+		// END: vec2(0.f)
+		// 
+		//-------------------------------------------------------------------------
+		// Okay, so, how do I tell what is the order of these functions w/ ids
+		//-------------------------------------------------------------------------
+		//
+		// Step 1: Gather the lines & store the IDs
+		// Step 2: Map ids -> What ID I Free + (cShaderFuncsTemplates + dataIDS), ++ Check my Dependencies
+		// 
+		// Step 3: Extract funcs with 0 Dependencies, and loop through all functions w/ it Dependencies?
+		// 
+		// e.g.
+		//  -- CShaderFunc + sprintf --		  -- Ids --			-- Counter --
+		// 1 : texCol, color				Frees[2,4]		Dependencies Remaining(0)
+		// 2 : 1, 4							Frees[3,5]		Dependencies Remaining(2)
+		// 3 : 2, 4							Frees[5]		Dependencies Remaining(2)
+		// 4 : 1, color						Frees[1]		Dependencies Remaining(1)
+		// 5 : 2, 3							Frees[]			Dependencies Remaining(2)
+		// 
+		static std::map<std::string, std::string> cShaderPredefines
 		{
-			std::map<std::string, std::string> cShaderPredefines
-			{
-				{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"}
-			};
-			enum class CSHAD_T : unsigned char
-			{
-				NIL,
-				BOOL,
-				INT,
-				UINT,
-				FLOAT,
-				VEC2,
-				VEC3,
-				VEC4
-			};
-			struct cShaderFunc
-			{
-				std::string code;
-				std::string opPredefine;
-				CSHAD_T outType;
-				std::vector<CSHAD_T> inIDs;
-			};
-			std::map<std::string, cShaderFunc> cShaderFuncsTemplates{
-				{"END", {"return %s;\n", "", CSHAD_T::NIL, {}}},
+			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
+			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
+			{"sat_Vec3", "vec3 sat_Vec3(vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}"}
+		};
 
-				{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-				{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-				
-				{"GetX_Vec2", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-				{"GetY_Vec2", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},			
-				{"GetX_Vec4", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-				{"GetY_Vec4", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-				{"GetZ_Vec4", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-				{"GetA_Vec4", {"float %s = %s.a;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+		static std::map<std::string, cShaderFunc> cShaderFuncsTemplates{
+			{"END", {"return %s;\n", "", CSHAD_T::NIL, {CSHAD_T::ANY}}},
 
-				{"SetA_Vec4", {"%s.a = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			
+			{"GetX_Vec2", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"GetY_Vec2", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},			
+			{"GetX_Vec3", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetY_Vec3", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetZ_Vec3", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetX_Vec4", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetY_Vec4", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetZ_Vec4", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetA_Vec4", {"float %s = %s.a;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
 
+			{"SetR_Vec4", {"%s.r = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetG_Vec4", {"%s.g = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetB_Vec4", {"%s.b = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetA_Vec4", {"%s.a = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
-				{"Mul_f", {"float %s = %s * %s;\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-				{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
-				
-				{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
-				
-				{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
-			};
-			// What I Should See Inside .cshader File
-			// ---------- e.g. 1 ---------- Default
-			// # COLOR CODE
-			// Mul_Vec4: TexCol, Col / Var_0
-			// END: Var_0
-			// 
-			// # ROUGHNESS CODE
-			// Vec2_f_f: roughness, metallic / VarR_0
-			// END: VarR_0
-			// ---------- e.g. 2 ---------- PillarShader
-			// # COLOR CODE
-			// fRand_Vec2: vTex / Var_0
-			// Mul_f: Var_0, noiseScale / Var_1
-			// 
-			// GetY_Vec2: vTex / Var_2
-			// SmoothStep_f: 0.f, Var_2, Var_1 / Var_3
-			// 
-			// GetA_Vec4: texCol / Var_4
-			// GetA_Vec4: color / Var_5
-			// Mul_f: Var_3, Var_4 / Var_6
-			// Mul_f: Var_6, Var_5 / Var_7
-			// 
-			// Mul_Vec4: texCol, color / Var_8
-			// SetA_Vec4: Var_8, 0.f
-			// 
-			// GetX_Vec2: vTex / Var_9
-			// Vec4_f_f_f_f: Var_9, Var_9, Var_9, Var_9 / Var_10
-			// Mul_Vec4: Var_8, Var_10 / Var_11
-			// 
-			// SetA_Vec4: Var_11, Var_7
-			// END: Var_11
-			// 
-			// # ROUGHNESS CODE
-			// END: vec2(0.f)
-			// 
-			//-------------------------------------------------------------------------
-			// Okay, so, how do I tell what is the order of these functions w/ ids
-			//-------------------------------------------------------------------------
-			//
-			// Step 1: Gather the lines & store the IDs
-			// Step 2: Map ids -> What ID I Free + (cShaderFuncsTemplates + dataIDS), ++ Check my Dependencies
-			// 
-			// Step 3: Extract funcs with 0 Dependencies, and loop through all functions w/ it Dependencies?
-			// 
-			// e.g.
-			//  -- CShaderFunc + sprintf --		  -- Ids --			-- Counter --
-			// 1 : texCol, color				Frees[2,4]		Dependencies Remaining(0)
-			// 2 : 1, 4							Frees[3,5]		Dependencies Remaining(2)
-			// 3 : 2, 4							Frees[5]		Dependencies Remaining(2)
-			// 4 : 1, color						Frees[1]		Dependencies Remaining(1)
-			// 5 : 2, 3							Frees[]			Dependencies Remaining(2)
-			// 
-			// ----- Inside LoadCShader Func =====
-			std::map<std::string, CSHAD_T> dataIDS
-			{
-				{"vPos", CSHAD_T::VEC3},
-				{"vNom", CSHAD_T::VEC3},
-				{"vTex", CSHAD_T::VEC2},
-				{"texCol", CSHAD_T::VEC4},
-				{"color", CSHAD_T::VEC4},
-				// -- Defines? --
-				{"0.f", CSHAD_T::FLOAT}, // Do I need this?? Or even this map??
-				{"vec2(0.f)", CSHAD_T::VEC2}
-				// -- Found from ins --
-				//,{"roughness", CSHAD_T::FLOAT},
-				//{"metallic", CSHAD_T::FLOAT},
-				//{"noiseScale", CSHAD_T::FLOAT},
-				//// -- Found from the code --
-				//{"Var_Size", CSHAD_T::VEC4}
-			};
+			{"sat_f", {"float %s = sat_f(%s);\n", "sat_f",CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);\n", "sat_Vec3",CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
 
-			struct CShadDependencies
-			{
-				std::vector<std::string> freesList;
-				std::string funcStr{};
-				uint8_t dependenciesRemaining{};
-			};
-		}
-
+			{"Mul_f", {"float %s = %s * %s;\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Mul_Vec2", {"vec2 %s = %s * %s;\n", "", CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
+			{"Mul_Vec3", {"vec3 %s = %s * %s;\n", "", CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
+			{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			
+			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
+			
+			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
+		};
+		// ----- Inside LoadCShader Func =====
+		static std::map<std::string, CSHAD_T> dataIDS
+		{
+			{"vPos", CSHAD_T::VEC3},
+			{"vNom", CSHAD_T::VEC3},
+			{"vTex", CSHAD_T::VEC2},
+			{"texCol", CSHAD_T::VEC4},
+			{"color", CSHAD_T::VEC4},
+			// -- Defines? --
+			{"0.f", CSHAD_T::FLOAT},
+			{"vec2(0.f)", CSHAD_T::VEC2}
+		};
+		// -----------------------------------------------------------------
 		CustomShader CustomShader::LoadCShader(std::string const& filepath)
 		{
 			std::ifstream fragShaderFile(filepath, std::ios::binary);
@@ -346,6 +326,8 @@ namespace SliceEngine
 			
 			// 1. Extract Params
 			nlohmann::json paramsJson = cshaderJson["Params"];
+			std::map<std::string, CSHAD_T> dataI = dataIDS; // copies :p
+
 			if (paramsJson.contains("Floats"))
 				for (auto& [name, components] : paramsJson["Floats"].items())
 				{
@@ -353,6 +335,7 @@ namespace SliceEngine
 					inParam.dataType = SP_TYPE::FLOAT;
 					inParam.name = name;
 					inParam.baseData = components.get<float>();
+					dataI[name] = CSHAD_T::FLOAT;
 					dataIn.push_back(inParam);
 				}
 			if (paramsJson.contains("Ints"))
@@ -362,6 +345,7 @@ namespace SliceEngine
 					inParam.dataType = SP_TYPE::INT;
 					inParam.name = name;
 					inParam.baseData = components.get<int32_t>();
+					dataI[name] = CSHAD_T::INT;
 					dataIn.push_back(inParam);
 				}
 			if (paramsJson.contains("Uints"))
@@ -371,6 +355,7 @@ namespace SliceEngine
 					inParam.dataType = SP_TYPE::UINT;
 					inParam.name = name;
 					inParam.baseData = components.get<uint32_t>();
+					dataI[name] = CSHAD_T::UINT;
 					dataIn.push_back(inParam);
 				}
 			if (paramsJson.contains("Bools"))
@@ -380,6 +365,7 @@ namespace SliceEngine
 					inParam.dataType = SP_TYPE::BOOL;
 					inParam.name = name;
 					inParam.baseData = components.get<bool>();
+					dataI[name] = CSHAD_T::BOOL;
 					dataIn.push_back(inParam);
 				}
 
@@ -389,12 +375,12 @@ namespace SliceEngine
 R"(vec4 TexColorC(vec4 texCol, vec4 color)
 {
 )"};
-			LoadCShaderFunctions(fragMainShaderSource, fragInclFunctions, dataIn, cshaderJson["ColorMain"]);
+			LoadCShaderFunctions(fragMainShaderSource, fragInclFunctions, dataI, cshaderJson["ColorMain"]);
 			std::string fragSubShaderSource{
 R"(vec2 RoughMet()
 {
 )" };
-			LoadCShaderFunctions(fragSubShaderSource, fragInclFunctions, dataIn, cshaderJson["RoughMetMain"]);
+			LoadCShaderFunctions(fragSubShaderSource, fragInclFunctions, dataI, cshaderJson["RoughMetMain"]);
 
 
 			std::string fragStart{
@@ -562,7 +548,18 @@ void main(void){
 			glDeleteShader(fragShader);
 			return { shader, dataIn };
 		}
-		void CustomShader::LoadCShaderFunctions(std::string& ret, std::map<std::string, std::string>& funcsPre, std::vector<ShaderParams>& defaulParmas, nlohmann::json& in)
+
+		namespace
+		{
+			struct CShadDependencies
+			{
+				std::vector<std::string> freesList;
+				std::string funcStr{};
+				uint8_t dependenciesRemaining{};
+			};
+		}
+
+		void CustomShader::LoadCShaderFunctions(std::string& ret, std::map<std::string, std::string>& funcsPre, const std::map<std::string, CSHAD_T>& defaulParmas, nlohmann::json& in)
 		{
 			std::map<std::string, CShadDependencies> dependenciesLockedLines;
 			std::queue<std::string> toClearLines;
@@ -577,6 +574,7 @@ void main(void){
 				// Loop through
 				for (auto& [id, dependicies] : components.items())
 				{
+					// id - the return id of that line
 					std::vector<std::string> dep;
 					dependicies.get_to(dep);
 
@@ -597,26 +595,17 @@ void main(void){
 					}
 					for (auto i : dep)
 					{
-						if (dataIDS.find(i) == dataIDS.end())
+						if (defaulParmas.find(i) == defaulParmas.end())
 						{
-							bool found{false};
-							for (auto tryFind : defaulParmas)
+							if (dependenciesLockedLines.find(i) != dependenciesLockedLines.end())
+								dependenciesLockedLines[i].freesList.push_back(id);
+							else
 							{
-								if (tryFind.name == i)
-									found = true;
+								CShadDependencies othID{};
+								othID.freesList.push_back(id);
+								dependenciesLockedLines[i] = othID;
 							}
-							if (!found)
-							{
-								if (dependenciesLockedLines.find(i) != dependenciesLockedLines.end())
-									dependenciesLockedLines[i].freesList.push_back(id);
-								else
-								{
-									CShadDependencies othID{};
-									othID.freesList.push_back(id);
-									dependenciesLockedLines[i] = othID;
-								}
-								++newID.dependenciesRemaining;
-							}
+							++newID.dependenciesRemaining;
 						}
 						
 						auto p = newID.funcStr.find("%s");
@@ -650,7 +639,7 @@ void main(void){
 				ret += dependenciesLockedLines[i].funcStr;
 			}
 			ret += "}\n";
-			std::cout << "\nHELPPP: [" << ret << "\n ]";
+			//SLICE_LOG("\nCShaderCode: [" + ret + "]\n");
 		}
 		void CustomShader::DestroyCShader()
 		{

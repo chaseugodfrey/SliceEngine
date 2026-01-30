@@ -55,6 +55,31 @@ namespace SliceEngine
 			static FragShader LoadFragShader(std::string const&);
 			void DestroyFragShader();
 		};
+
+		// Custom Shader predefines statics
+		enum class CSHAD_T : unsigned char
+		{
+			NIL,
+			ANY,
+			BOOL,
+			INT,
+			UINT,
+			FLOAT,
+			VEC2,
+			VEC3,
+			VEC4
+		};
+		struct cShaderFunc
+		{
+			std::string code;
+			std::string opPredefine;
+			CSHAD_T outType;
+			std::vector<CSHAD_T> inIDs;
+		};
+		extern std::map<std::string, std::string> cShaderPredefines;
+		extern std::map<std::string, cShaderFunc> cShaderFuncsTemplates;
+		extern std::map<std::string, CSHAD_T> dataIDS;
+
 		class CustomShader {
 		public:
 			unsigned int s;
@@ -77,7 +102,7 @@ namespace SliceEngine
 			std::vector<ShaderParams> dataIn;
 
 			static CustomShader LoadCShader(std::string const&);
-			static void LoadCShaderFunctions(std::string&, std::map<std::string, std::string>&, std::vector<ShaderParams>&, nlohmann::json&);
+			static void LoadCShaderFunctions(std::string&, std::map<std::string, std::string>&, const std::map<std::string, CSHAD_T>&, nlohmann::json&);
 			void DestroyCShader();
 		};
 	}
