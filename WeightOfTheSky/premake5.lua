@@ -5,11 +5,12 @@ workspace "WeightOfTheSky"
     flags { "MultiProcessorCompile" }
     warnings "Extra"
 
-dev_wks_path = "%{wks.location}../Slice"
+dev_wks_path = "%{wks.location}/../Slice"
 engine_lib_path = "%{dev_wks_path}/SliceEngine/SliceEngine.lib"
 script_dev_path = "%{dev_wks_path}/SliceScript/SliceScript.dll"
 resource_asset_path = "%{dev_wks_path}/SliceEditor/Resources"
 proj_settings_path = "%{dev_wks_path}/SliceEditor/ProjectSettings"
+thirdparty_path = "%{dev_wks_path}/SliceEngine/thirdparty"
 
 
 
@@ -18,7 +19,7 @@ IncludeDir["EnginePublic"]   = "%{dev_wks_path}/SliceEngine/src"
 IncludeDir["EnTT"]           = "%{dev_wks_path}/SliceEngine/thirdparty/entt"
 
 ThirdParty = {}
-ThirdParty.GLEW_INC = "%{dev_wks_path}/SliceEngine/thirdparty/glew/GL"
+ThirdParty.GLEW_INC = "%{dev_wks_path}/SliceEngine/thirdparty/glew"
 ThirdParty.GLEW_LIB = "%{dev_wks_path}/SliceEngine/thirdparty/glew"
 ThirdParty.GLEW_DLL =  "%{dev_wks_path}/SliceEngine/thirdparty/glew/glew32.dll"
 

@@ -1,23 +1,29 @@
 project "WeightOfTheSky"
-    kind "WindowedApp"           
+    kind "ConsoleApp"           
     language "C++"
     cppdialect "C++20"            
 
-    targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/build")
+    targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}")
+    debugdir ("%{wks.location}/build/bin/%{cfg.buildcfg}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}")
 
+
     files {
-        "src/**.h",
-        "src/**.cpp",
-        "src/pch.h",
-        "src/Engine.h"
+        "**.h",
+        "**.cpp",
+        "pch.h",
+        "Engine.h",
+        "../../../Slice/SliceEngine/thirdparty/recast/Recast/Source/*.cpp",
+        "../../../Slice/SliceEngine/thirdparty/recast/Detour/Detour/Source/*.cpp",
+        "../../../Slice/SliceEngine/thirdparty/recast/Detour/DetourCrowd/Source/*.cpp",
+        "../../../Slice/SliceEngine/thirdparty/recast/Detour/DetourTileCache/Source/*.cpp",
     }
 
     pchheader "pch.h"
-    pchsource "src/pch.cpp"
+    pchsource "pch.cpp"
 
     includedirs {
-        "src",                         
+        ".",                         
         IncludeDir.EnginePublic,    
         IncludeDir.EnTT,
         ThirdParty.GLEW_INC,
@@ -31,7 +37,7 @@ project "WeightOfTheSky"
         ThirdParty.RECAST_INC,
         ThirdParty.DETOUR_INC,
         ThirdParty.DETOUR_CROWD_INC,
-        "thirdparty/filewatch/FileWatch"
+        ThirdParty.DETOUR_TILE_INC,
     }
 
     links {
@@ -45,7 +51,8 @@ project "WeightOfTheSky"
     }
 
     libdirs {
-        dev_wks_path .. "/build", -- Where SliceEngine.lib lives
+        dev_wks_path .. "/SliceEngine",
+        ThirdParty.RTTR_LIB,
         ThirdParty.GLFW_LIB,
         ThirdParty.GLEW_LIB,
         ThirdParty.FMOD_LIB,
@@ -54,29 +61,56 @@ project "WeightOfTheSky"
         ThirdParty.JOLT_LIB_R,
     }
 
-    filter "configurations:RELEASE"
+    filter { "files:../../../Slice/SliceEngine/thirdparty/**" }
+        flags { "NoPCH" }
+
+    filter {}
+
+    defines
+    {
+        "RTTR_DLL",
+        "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
+        "JPH_ENABLE_ASSERTS"
+    }
+
+    filter "configurations:Release"
         --defines { "DEBUG", "SLICE_DEBUG" }
-        runtime "Release"
-        symbols "On"
-        
+        -- runtime "Release"
+        -- symbols "On"
+         optimize "On"
         -- Link Debug versions of libraries if they exist
-        libdirs { ThirdParty.JOLT_LIB_D }
+        libdirs { ThirdParty.JOLT_LIB_R }
         links { 
-            "Jolt",
+            "Jolt_r.lib",
             "rttr_core" 
-        } 
+        }
+        
+        postbuildcommands {
+                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"',
+                '{COPYFILE} "' .. ThirdParty.FMOD_DLL .. '" "%{cfg.targetdir}"',
+                '{COPYFILE} "' .. ThirdParty.MONO_LIB .. '" "%{cfg.targetdir}"',
+                '{COPYFILE} "' .. ThirdParty.RTTR_DLL .. '" "%{cfg.targetdir}"',
+        }
 
 
     filter {} -- Reset filter
 
     
     prebuildcommands {
-        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}/Data/"',
-        '{COPYFILE}  "%{script_dev_path}" "%{cfg.targetdir}/Data/"',
+        "{MKDIR} \"%{cfg.targetdir}/Data\"",
+        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}/Data"',
     }
 
     postbuildcommands {
-        '{COPYDIR} "%{resource_asset_path}" "%{cfg.targetdir}/Resources"',
-        '{COPYDIR} "%{proj_settings_path}" "%{cfg.targetdir}/ProjectSettings"',
+        
+        '{COPY} "%{script_dev_path}" "%{cfg.targetdir}/Data/"',
+        
+        -- Copy Resources & Settings (Required)
+        '{COPY} "%{resource_asset_path}" "%{cfg.targetdir}/Resources"',
+        '{COPYDIR} "%{dev_wks_path}/SliceEngine/thirdparty/Mono/lib" "%{cfg.targetdir}/lib"',
+        '{COPY} "%{proj_settings_path}" "%{cfg.targetdir}/ProjectSettings"',
+        
+        -- Copy ThirdParty content (Required)
+        '{COPY} "%{thirdparty_path}" "%{cfg.targetdir}/Data/thirdparty"',
 
     }
