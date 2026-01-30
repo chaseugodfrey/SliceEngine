@@ -482,44 +482,35 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::ApplyPhysics(Particle& p, ParticleSystem& ps, float dt)
 	{
-		//if (!ps.hasCollision || !p.active)
-		//	return;
+		if (!ps.hasCollision || !p.active)
+			return;
 
-		//// Predict movement
-		//glm::vec3 start = p.position;
-		//glm::vec3 end = p.position + p.velocity * dt;
+		// Predict movement
+		glm::vec3 end = p.position + p.velocity * dt;
+		glm::vec3 direction = end - p.position;
+		glm::vec3 hitPos;
+		uint32_t hitID;
 
-		//JPH::Vec3 jStart(start.x, start.y, start.z);
-		//JPH::Vec3 jEnd(end.x, end.y, end.z);
+		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		//JPH::RayCast ray(jStart, jEnd);
-		//JPH::RayCastResult hit;
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos))
+		{
+			p.position = glm::vec3(hitPos.x, hitPos.y, hitPos.z);
 
-		//auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
+			// Simple bounce
+			if (ps.hasBounce)
+			{
+				p.velocity = glm::reflect(p.velocity, glm::vec3(-1))a;
+			}
 
-		//if (physicsSystem.CastRay(ray, hit))
-		//{
-		//	// Hit position
-		//	JPH::Vec3 hitPos = jStart + (jEnd - jStart) * hit.mFraction;
-		//	p.position = glm::vec3(hitPos.GetX(), hitPos.GetY(), hitPos.GetZ());
-
-		//	// Hit normal
-		//	JPH::Vec3 n = physicsSystem.GetWorldSpaceSurfaceNormal(hit.mBodyID, hit.mSubShapeID2, hitPos);
-		//	glm::vec3 normal(n.GetX(), n.GetY(), n.GetZ());
-
-		//	// Simple bounce
-		//	p.velocity = glm::reflect(p.velocity, normal);
-
-		//	// Optional damping
-		//	p.velocity *= 0.5f;
-
-
-		//	PhysicsSystem::ApplyImpulseToBody(hit.mBodyID, p.velocity);
-		//}
-		//else
-		//{
-		//	p.position = end;
-		//}
+			// Optional damping
+			p.velocity.x = 0.0f;
+			p.velocity.z = 0.0f;
+		}
+		else
+		{
+			p.position = end;
+		}
 	}
 	void ParticleSystemManager::ApplyBurst(ParticleSystem& ps, float dt)
 	{

@@ -1438,11 +1438,10 @@ namespace SliceEngine
 		if (!ioHit.mBodyID.IsInvalid())
 		{
 			bodyHitID = ioHit.mBodyID.GetIndex();
-			hitPos = origin + direction * ioHit.mFraction;
+			hitPos = origin + direction * ioHit.mFraction;		
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Hello Hafiz");
 			didRayHit = false;
 		}
 

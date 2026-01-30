@@ -227,6 +227,18 @@ namespace SliceEngine
         internal extern static void ParticleSystem_SetGForce(uint entityID, ref float gForce);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetCollision(uint entityID, out bool collision);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetCollision(uint entityID, ref bool collision);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetBounce(uint entityID, out bool bounce);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetBounce(uint entityID, ref bool bounce);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetEmissionRate(uint entityID, out float emissionRate);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -445,13 +457,7 @@ namespace SliceEngine
         internal extern static void ParticleSystem_GetColourOverLifetime(uint entityID, out bool colourOverLifetime);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetCollision(uint entityID, out bool collision);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetCollision(uint entityID, ref bool collision);
+        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);        
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetTextureID(uint entityID, out uint textureID);
