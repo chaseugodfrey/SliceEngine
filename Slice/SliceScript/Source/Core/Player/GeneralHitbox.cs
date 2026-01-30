@@ -17,11 +17,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            //if (_enabled)
-            //{
-            //    Console.Write(" __ On update is turning enabled off __ ");
-            //    _enabled = false;
-            //}
+
         }
         public override void OnCreate()
         {
@@ -74,16 +70,5 @@ namespace SliceEngine
             }
         }
 
-
-        //public override void OnTriggerStay(uint other)
-        //{
-        //    //Console.WriteLine("!! STAY detected!!");
-        //    base.OnTriggerStay(other);
-        //    if (_enabled)
-        //    {
-        //        //Console.Write("!! STAY IS THROWING THINGS !!");
-        //        HitBoxListeners(gameObject.FindGameObjectWithID(other));
-        //    }
-        //}
     }
 }

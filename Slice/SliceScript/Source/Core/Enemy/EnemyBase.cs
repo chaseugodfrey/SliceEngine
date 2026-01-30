@@ -8,7 +8,7 @@ namespace SliceEngine
     public class EnemyBase : Entity
     {
         #region Enemy Fields
-        public Transform enemyT { get; protected set; }
+        public Transform enemyT { get { return this.GetComponent<Transform>(); } protected set{; } }
         protected RigidBody rb;
         protected NavAgent navAgent;
 
@@ -21,6 +21,8 @@ namespace SliceEngine
         private bool isDead = false;
 
         private EnemyState state;
+
+        private bool chasingTarget = true;
 
         public void ChangeState(EnemyState newState)
         {
@@ -54,7 +56,7 @@ namespace SliceEngine
                 }
 
 
-                if (navAgent != null)
+                if (navAgent != null && chasingTarget)
                 {
                     pathUpdateTimer += dt;
 
@@ -104,7 +106,8 @@ namespace SliceEngine
         public void StartNav()
         {
             SliceLog.Log("Navmesh is starting");
-            navAgent.enabled = true;
+            navAgent.ComponentState(true);
+            //navAgent.enabled = true;
             if (navAgent == null)
             {
                 SliceLog.Log("NavAgentEmpty");
@@ -113,7 +116,8 @@ namespace SliceEngine
 
         public void StopNav()
         {
-            navAgent.enabled = false;
+            navAgent.ComponentState(false);
+            //navAgent.enabled = false;
         }
 
         public void UpdateNavAgentTarget()
@@ -121,6 +125,27 @@ namespace SliceEngine
             GameObject activeTarget = targetObjRef != null ? targetObjRef : Bootstrap.Player.gameObject;
 
             navAgent.SetDestination(activeTarget.GetComponent<Transform>().Position);
+        }
+
+        public void ChangeActiveTarget(GameObject newTarget)
+        {
+            targetObjRef = newTarget;
+        }
+
+        public void SetDestinationToVector(Vector3 input)
+        {
+            chasingTarget = false;
+            navAgent.SetDestination(input);
+        }
+
+        public void ResetDestinationToActiveTarget()
+        {
+            chasingTarget = true;
+        }
+
+        public void UpdateNavAgentSpeed(float input)
+        {
+            navAgent.Speed = input;
         }
         #endregion  
 

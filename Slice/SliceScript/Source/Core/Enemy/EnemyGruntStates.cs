@@ -30,7 +30,9 @@ namespace SliceEngine
     {
         public EnemyGruntChaseState(EnemyGrunt owner) : base(owner)
         {
-            
+            owner.UpdateNavAgentSpeed(owner.movementSpeed);
+            owner.ResetDestinationToActiveTarget();
+            owner.StartNav();
         }
 
         public override void DoEnemyAction(float dt)
@@ -39,9 +41,9 @@ namespace SliceEngine
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
-            enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
+            //enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
-            enemyOwner.enemyT.Rotation = direction_diff;
+            //enemyOwner.enemyT.Rotation = direction_diff;
 
             if (direction_diff.Magnitude() <= enemyOwner.strafeDistance)
             {
@@ -54,7 +56,10 @@ namespace SliceEngine
     //--- Strafe State ---
     public class EnemyGruntStrafeState : EnemyGruntState
     {
-        public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) { }
+        public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) 
+        {
+            owner.UpdateNavAgentSpeed(owner.strafeSpeed);
+        }
 
 
         public override void DoEnemyAction(float dt)
@@ -62,24 +67,28 @@ namespace SliceEngine
             base.DoEnemyAction(dt);
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
-            enemyOwner.enemyT.Rotation = direction_diff;
+            //enemyOwner.enemyT.Rotation = direction_diff;
 
-            //float distFromPlayer = direction_diff.Magnitude(); 
-
-            //if (direction_diff.Magnitude() <= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance) && direction_diff.Magnitude() >= (enemyOwner.strafeDistance - enemyOwner.strafeTolerance))
             SliceLog.Log("" + direction_diff.Magnitude());
-            if (direction_diff.Magnitude() > (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
+            if (direction_diff.Magnitude() >= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
             {
                 enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
             }
-            else if (direction_diff.Magnitude() < enemyOwner.strafeDistance)
+            else
+            {
+
+                Vector3 displacementVector = direction_diff.Normalize() * enemyOwner.strafeDistance; 
+
+                enemyOwner.SetDestinationToVector(enemyOwner.playerT.GetComponent<Transform>().Position - displacementVector);
+            }
+            /*else if (direction_diff.Magnitude() < enemyOwner.strafeDistance)
             {
                 enemyOwner.enemyT.Position -= direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
             }
             else
             {
                 enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
-            }
+            }*/
 
 
 
@@ -90,36 +99,28 @@ namespace SliceEngine
     //--- Attack State ---
     public class EnemyGruntAttackState : EnemyGruntState
     {
-        public EnemyGruntAttackState(EnemyGrunt owner) : base(owner) {}
-
-        public override void DoEnemyAction(float dt)
+        public EnemyGruntAttackState(EnemyGrunt owner) : base(owner) 
         {
-            base.DoEnemyAction(dt);
-            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
-
-
-            if (!enemyOwner.As<EnemyGrunt>().attacking)
-            {
-                if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
-                {
-
-                    enemyOwner.As<EnemyGrunt>().StartAttackCoroutine();
-                }
-                else
-                {
-                    enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
-                }
-            }
-            
+            owner.StartAttackCoroutine();
         }
     }
 
-
-    //--- Stunned State ---
-    public class EnemyGruntStunState : EnemyGruntState
+    //--- WindUp State ---
+    public class EnemyGruntWindUpState: EnemyGruntState
     {
-        public EnemyGruntStunState(EnemyGrunt owner) : base(owner) { }
-
+        public EnemyGruntWindUpState(EnemyGrunt owner) : base(owner)
+        {
+            owner.StopNav();
+            owner.StartWindUp();
+        }
     }
 
+    //--- Stunned State ---
+    public class EnemyGruntStunnedState: EnemyGruntState
+    {
+        public EnemyGruntStunnedState(EnemyGrunt owner) : base(owner)
+        {
+
+        }
+    }
 }
