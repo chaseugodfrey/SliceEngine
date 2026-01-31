@@ -190,7 +190,7 @@ namespace SliceEditor
 
             int nameCount = 0;
             
-            if (am.mFilenameToGUID.contains(assetName))
+            if (am.mFilenameToGUID.contains(assetName) && (originalExt != ".navmesh" || originalExt != ".bin"))
             {
 
                 while (am.mFilenameToGUID.contains(assetName))
@@ -232,8 +232,8 @@ namespace SliceEditor
                     auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" +addEvent.filePath.filename().string());
 
                     if (navMeshPath.has_value()) {
-                        metaJson["navMeshFile"] = navMeshPath.value();
-                        metaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+                        metaJson["navMeshBinFile"] = navMeshPath.value();
+                        metaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
                         std::ofstream outFile(sceneMetaFilePath);
                         outFile << metaJson.dump(4);
                         outFile.close();
@@ -246,8 +246,8 @@ namespace SliceEditor
                     auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
                     if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                        tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
+                        tempMetaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
                         std::ofstream tempOutFile(tempSceneMetaFilePath);
                         tempOutFile << tempMetaJson.dump(4);
                         tempOutFile.close();
@@ -272,8 +272,8 @@ namespace SliceEditor
                     auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
                     if (navMeshPath.has_value()) {
-                        metaJson["navMeshBinFile"] = navMeshPath.value();
-                        metaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+                        metaJson["navMeshFile"] = navMeshPath.value();
+                        metaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
                         std::ofstream outFile(sceneMetaFilePath);
                         outFile << metaJson.dump(4);
                         outFile.close();
@@ -286,8 +286,8 @@ namespace SliceEditor
                     auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
                     if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshBinFile"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
+                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
                         std::ofstream tempOutFile(tempSceneMetaFilePath);
                         tempOutFile << tempMetaJson.dump(4);
                         tempOutFile.close();

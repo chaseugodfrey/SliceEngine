@@ -84,7 +84,7 @@ namespace SliceEngine
 	{
 		if (e.isSceneLoaded)
 		{
-			LoadNavMeshFromFile(e.navMeshPath);
+			LoadNavMeshFromFile(e.navMeshBinPath);
 		}
 	}
 
