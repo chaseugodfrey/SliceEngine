@@ -19,9 +19,9 @@ namespace SliceEngine
         public float buildUpTiming = 1f;
         public float flickerTiming = 1f;
         public bool exploding { get; private set; } = false;
-        private float _explodingCounter = 0f;
+        //private float _explodingCounter = 0f;
 
-        public GameObject explodeParentObject;
+        //public GameObject explodeParentObject;
         public GameObject explodeMeshObject;
         public GameObject explosionHitBoxObject;
         private GeneralHitbox explosionHitBox;
