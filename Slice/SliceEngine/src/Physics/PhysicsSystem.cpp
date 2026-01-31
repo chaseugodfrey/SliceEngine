@@ -1051,6 +1051,11 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
+
 			UpdateShapeFromTransform(e);
 			SyncECSToPhysics(t, c);
 		}
@@ -1089,6 +1094,12 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
+
+
+		if (!colliderShape.componentEnabled)
+		{
+			return;
+		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{
@@ -1176,7 +1187,7 @@ namespace SliceEngine
 
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
-		if (!body)
+		if (!body || !mRegistry->valid(entity))
 		{
 			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
 			return;
@@ -1213,6 +1224,10 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
 			SyncPhysicsToECS(t, c);
 		}
 
