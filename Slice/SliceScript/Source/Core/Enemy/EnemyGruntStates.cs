@@ -41,6 +41,8 @@ namespace SliceEngine
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
+
             //enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
             //enemyOwner.enemyT.Rotation = direction_diff;
@@ -67,6 +69,8 @@ namespace SliceEngine
             base.DoEnemyAction(dt);
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
+
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
             //enemyOwner.enemyT.Rotation = direction_diff;
 
             SliceLog.Log("" + direction_diff.Magnitude());
@@ -112,6 +116,13 @@ namespace SliceEngine
         {
             owner.StopNav();
             owner.StartWindUp();
+        }
+
+        public override void DoEnemyAction(float dt)
+        {
+            base.DoEnemyAction(dt);
+
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
         }
     }
 

@@ -11,11 +11,6 @@
             "path": "Resources/9886919587323407782.wav"
         },
         {
-            "guid": 14134728040193570933,
-            "name": "Material/TempGroundMat.mat",
-            "path": "Resources/14134728040193570933.mat"
-        },
-        {
             "guid": 9975954260658880089,
             "name": "Shaders/shadow_Vert.vert",
             "path": "Resources/9975954260658880089.vert"
@@ -46,11 +41,6 @@
             "path": "Resources/12356409060795031376.wav"
         },
         {
-            "guid": 13614208979118524504,
-            "name": "Material/Spawn_Locations_m.mat",
-            "path": "Resources/13614208979118524504.mat"
-        },
-        {
             "guid": 17313277275196544424,
             "name": "Prefabs/Prefab_Parent.prefab",
             "path": "Resources/17313277275196544424.prefab"
@@ -64,6 +54,11 @@
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
+        },
+        {
+            "guid": 18076457642680907475,
+            "name": "Default/Aloy test.scene",
+            "path": "Resources/18076457642680907475.scene"
         },
         {
             "guid": 11766461363590934609,
@@ -186,11 +181,6 @@
             "path": "Resources/15444100828152761678.wav"
         },
         {
-            "guid": 16895767658385788011,
-            "name": "Material/Player_Sword_m.mat",
-            "path": "Resources/16895767658385788011.mat"
-        },
-        {
             "guid": 9563528329987127914,
             "name": "Audio/MultiHit_Slime.wav",
             "path": "Resources/9563528329987127914.wav"
@@ -256,6 +246,51 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
+            "guid": 15033367174215302921,
+            "name": "Shaders/skyboxIrr_Frag.frag",
+            "path": "Resources/15033367174215302921.frag"
+        },
+        {
+            "guid": 16669648661244377925,
+            "name": "Default/Gid_Working_Scene.scene",
+            "path": "Resources/16669648661244377925.scene"
+        },
+        {
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
+        },
+        {
+            "guid": 14626165934413682905,
+            "name": "Default/Aloy test.temp",
+            "path": "Resources/14626165934413682905.scene"
+        },
+        {
+            "guid": 16589850600042331924,
+            "name": "Shaders/fog_Frag.frag",
+            "path": "Resources/16589850600042331924.frag"
+        },
+        {
+            "guid": 13770839701972514919,
+            "name": "Default/AloyTest.scene",
+            "path": "Resources/13770839701972514919.scene"
+        },
+        {
+            "guid": 9336273396156370476,
+            "name": "Material/default.mat",
+            "path": "Resources/9336273396156370476.mat"
+        },
+        {
+            "guid": 12771765856255971804,
+            "name": "Default/Eze_Working_Scene.temp",
+            "path": "Resources/12771765856255971804.scene"
+        },
+        {
+            "guid": 9385357469988052754,
+            "name": "Default/AloyTest.temp",
+            "path": "Resources/9385357469988052754.scene"
+        },
+        {
             "guid": 14986291756004428140,
             "name": "Prefabs/Test_Spawn.prefab",
             "path": "Resources/14986291756004428140.prefab"
@@ -279,16 +314,6 @@
             "guid": 17780188480855605116,
             "name": "Default/Eze_Working_Scene.scene",
             "path": "Resources/17780188480855605116.scene"
-        },
-        {
-            "guid": 9336273396156370476,
-            "name": "Material/default.mat",
-            "path": "Resources/9336273396156370476.mat"
-        },
-        {
-            "guid": 12771765856255971804,
-            "name": "Default/Eze_Working_Scene.temp",
-            "path": "Resources/12771765856255971804.scene"
         },
         {
             "guid": 10119110391915830736,
@@ -426,6 +451,21 @@
             "path": "Resources/11863813900028625629.mat"
         },
         {
+            "guid": 16895767658385788011,
+            "name": "Material/Player_Sword_m.mat",
+            "path": "Resources/16895767658385788011.mat"
+        },
+        {
+            "guid": 13614208979118524504,
+            "name": "Material/Spawn_Locations_m.mat",
+            "path": "Resources/13614208979118524504.mat"
+        },
+        {
+            "guid": 14134728040193570933,
+            "name": "Material/TempGroundMat.mat",
+            "path": "Resources/14134728040193570933.mat"
+        },
+        {
             "guid": 16483552102943977758,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/16483552102943977758.mat"
@@ -439,11 +479,6 @@
             "guid": 15884595881201833390,
             "name": "Models/Crystal_Combined.fbx",
             "path": "Resources/15884595881201833390.mdl"
-        },
-        {
-            "guid": 17926379886479867228,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17926379886479867228.skl"
         },
         {
             "guid": 10365400057864474275,
@@ -776,11 +811,6 @@
             "path": "Resources/18374032226299404245.shader"
         },
         {
-            "guid": 16589850600042331924,
-            "name": "Shaders/fog_Frag.frag",
-            "path": "Resources/16589850600042331924.frag"
-        },
-        {
             "guid": 14127415488162852360,
             "name": "Shaders/instanced.shader",
             "path": "Resources/14127415488162852360.shader"
@@ -859,11 +889,6 @@
             "guid": 11123960638445412492,
             "name": "Shaders/skyboxIrr.shader",
             "path": "Resources/11123960638445412492.shader"
-        },
-        {
-            "guid": 15033367174215302921,
-            "name": "Shaders/skyboxIrr_Frag.frag",
-            "path": "Resources/15033367174215302921.frag"
         },
         {
             "guid": 10464052820645603593,

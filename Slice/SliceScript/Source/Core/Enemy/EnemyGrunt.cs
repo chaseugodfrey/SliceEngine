@@ -29,7 +29,8 @@ namespace SliceEngine
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
-
+        public float attackOdds = 0.1f;
+        public float attackOddsCheckFrequency = 1f;
 
         public GameObject basicHitBox;
         private GeneralHitbox _basicHitBox;
