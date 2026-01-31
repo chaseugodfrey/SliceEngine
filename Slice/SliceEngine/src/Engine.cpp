@@ -412,6 +412,12 @@ namespace SliceEngine
 		.property("maxParticles", &ParticleSystem::maxParticles)
 
 		.property("gForce", &ParticleSystem::gForce)
+		.property("hasCollision", &ParticleSystem::hasCollision)
+		.property("friction", &ParticleSystem::friction)
+		.property("bounciness", &ParticleSystem::bounciness)
+		.property("bounceDampening", &ParticleSystem::bounceDampening)
+		.property("stickiness", &ParticleSystem::stickiness)
+
 		.property("emissionRate", &ParticleSystem::emissionRate)
 
 		.property("numBursts", &ParticleSystem::numBursts)
@@ -458,9 +464,7 @@ namespace SliceEngine
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
 		.property("colour", &ParticleSystem::colourLifeTimeMap)
 		
-		// temp
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
-		.property("hasCollision", &ParticleSystem::hasCollision)
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 

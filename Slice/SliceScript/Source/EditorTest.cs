@@ -11,7 +11,7 @@ namespace SliceEngine
         public bool boolTest = false;
         public GameObject GOtest;
         private float t = 0.0f;
-        public Prefab prefabObj = new Prefab("Asset/Test.prefab");
+        public Prefab prefabObj = new Prefab();
 
         //public List<int> intList = new List<int>();
         //public List<GameObject> goListTest = new List<GameObject>();
