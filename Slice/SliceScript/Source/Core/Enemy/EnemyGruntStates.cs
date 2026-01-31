@@ -71,9 +71,7 @@ namespace SliceEngine
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
             enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
-            //enemyOwner.enemyT.Rotation = direction_diff;
 
-            SliceLog.Log("" + direction_diff.Magnitude());
             if (direction_diff.Magnitude() >= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
             {
                 enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
