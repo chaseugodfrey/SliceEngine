@@ -1021,7 +1021,7 @@ namespace SliceEngine
 	{
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity))
+		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
 			return;
 
 		// Remove body form physics world
