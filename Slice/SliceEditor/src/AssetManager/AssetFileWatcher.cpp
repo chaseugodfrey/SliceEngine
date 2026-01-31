@@ -286,8 +286,8 @@ namespace SliceEditor
                     auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
                     if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                        tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
+                        tempMetaJson["navMeshBinFile"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
                         std::ofstream tempOutFile(tempSceneMetaFilePath);
                         tempOutFile << tempMetaJson.dump(4);
                         tempOutFile.close();
