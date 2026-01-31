@@ -1021,6 +1021,9 @@ namespace SliceEngine
 	{
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
+		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity))
+			return;
+
 		// Remove body form physics world
 		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
@@ -1421,33 +1424,39 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(Entity entity)
-	{
-		auto& sliceEntity = mRegistry->get<SliceEntity>(entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		
-		JPH::Vec3 origin{};
-		JPH::Vec3 direction{};
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, uint32_t mask)
+	{	
+		JPH::Vec3 ori = helpers::glmtoJPH(origin);
+		JPH::Vec3 dir = helpers::glmtoJPH(direction);
 
-		JPH::RRayCast inRay(origin, direction);
-		JPH::RayCastResult ioHit;
+		JPH::RRayCast inRay(ori, dir);
+		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
-		ObjectLayerFilterImpl test(sliceEntity.mLayer);
+		ObjectLayerFilterImpl filterLayer(mask);
 		JPH::BodyFilter inBodyFilter = {};
 
+		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
+		if (!ioHit.mBodyID.IsInvalid())
+		{
+			bodyHitID = ioHit.mBodyID.GetIndex();
+			hitPos = origin + direction * ioHit.mFraction;
 
-		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter,test, inBodyFilter);
-		//CastRay
-		// (const RRayCast &inRay, 
-		// RayCastResult &ioHit, 
-		// const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, 
-		// const ObjectLayerFilter &inObjectLayerFilter = { }, 
-		// const BodyFilter &inBodyFilter = { }) const;
-		return true;
+			// do this later aloysius
+			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), ioHit.mBodyID);
+
+			if (lock1.Succeeded())
+			{
+				const JPH::Body& body1 = lock1.GetBody();
+				normal = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+			}
+		}
+		else
+		{
+			didRayHit = false;
+		}
+
+		return didRayHit;
 	}
-
-
-
 
 }
