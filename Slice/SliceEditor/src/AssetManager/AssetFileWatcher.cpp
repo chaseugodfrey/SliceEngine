@@ -254,7 +254,47 @@ namespace SliceEditor
                     }
                 }
             }
-            else if (addEvent.filePath.extension() == ".temp")
+            else if (addEvent.filePath.extension() == ".navmesh")
+            {
+                auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
+                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
+                std::filesystem::path sceneMetaFilePath = am.GetMetaDataFromFilename(sceneName);
+                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
+
+                std::ifstream inFile(sceneMetaFilePath);
+                std::ifstream tempInFile(tempSceneMetaFilePath);
+                nlohmann::json metaJson;
+                nlohmann::json tempMetaJson;
+                auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+                if (inFile >> metaJson) {
+                    inFile.close();
+                    auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+
+                    if (navMeshPath.has_value()) {
+                        metaJson["navMeshBinFile"] = navMeshPath.value();
+                        metaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+                        std::ofstream outFile(sceneMetaFilePath);
+                        outFile << metaJson.dump(4);
+                        outFile.close();
+                    }
+                }
+
+                if (tempInFile >> tempMetaJson) {
+                    tempInFile.close();
+
+                    auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+
+                    if (tempNavMeshPath.has_value()) {
+                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
+                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                        std::ofstream tempOutFile(tempSceneMetaFilePath);
+                        tempOutFile << tempMetaJson.dump(4);
+                        tempOutFile.close();
+                    }
+                }
+            }
+            /*else if (addEvent.filePath.extension() == ".temp")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
                 std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
@@ -277,7 +317,7 @@ namespace SliceEditor
                         tempOutFile.close();
                     }
                 }
-            }
+            }*/
         }
         am.CreateAssetMaps();
         AssetFileChangedEvent processEvent = { true };

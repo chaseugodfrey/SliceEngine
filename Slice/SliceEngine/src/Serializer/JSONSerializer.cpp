@@ -730,6 +730,9 @@ namespace SliceEngine
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
+
+
+
 			for (auto& [name, components] : input.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;

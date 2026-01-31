@@ -2,6 +2,9 @@
 #define APP_H
 
 #include <Engine.h>
+#include <Input/InputSystem.h>
+
+#include <Systems/SceneSystem.h>
 
 struct OnGameStopEvent;
 

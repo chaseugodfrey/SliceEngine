@@ -3,6 +3,8 @@
 
 #include <Engine.h>
 #include <Input/InputSystem.h>
+#include <filesystem>
+#include <iostream>
 
 namespace SliceBuild
 {
@@ -21,20 +23,22 @@ namespace SliceBuild
 		//SLICE_LOG("Initializing Application.");
 		EnableMemoryLeakChecking(-1);
 
+		std::cout << std::filesystem::current_path().string() << std::endl;
+
 		engine.Init();
 
 		auto window = SliceEngine::Core::GetInstance()->GetWindow();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/17780188480855605116.scene");
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/13375713717409677428.scene");
 
 		engine.InitScene();
 
 
 		inputSys->SetMode(SliceEngine::InputMode::Game);
 
-		//EventManager::GetInstance()->Publish<OnPlayEvent>();
+		EventManager::GetInstance()->Publish<OnPlayEvent>();
 
 		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &Application::QuitGameEvent>(this);
 	}
