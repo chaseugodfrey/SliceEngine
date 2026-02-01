@@ -2,16 +2,25 @@
     {
         "EnemyGrunt": {
             "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        1.0,
-                        0.5
-                    ]
+                "capsuleData": {
+                    "height": 0.5,
+                    "radius": 0.5
                 },
                 "componentEnabled": true,
                 "isTrigger": false,
                 "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::NavAgent": {
+                "componentEnabled": true,
+                "currentPath": "",
+                "currentPathIndex": 0,
+                "hasNewTarget": false,
+                "speed": 2.0,
+                "target": [
                     0.0,
                     0.0,
                     0.0
@@ -45,12 +54,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097173,
+                "entity_id": 21,
                 "neighbours": [
                     0,
-                    1048580,
-                    1048582,
-                    4294967295
+                    22,
+                    14,
+                    23
                 ]
             },
             "struct SliceEngine::Script": {
@@ -74,7 +83,7 @@
                     },
                     "basicHitBox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048579
+                        "Value": 12
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -82,7 +91,7 @@
                     },
                     "damage": {
                         "Type": "int",
-                        "Value": 100
+                        "Value": 5
                     },
                     "flickerTiming": {
                         "Type": "float",
@@ -99,6 +108,18 @@
                     "movementSpeed": {
                         "Type": "float",
                         "Value": 5.0
+                    },
+                    "strafeDistance": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "strafeSpeed": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "strafeTolerance": {
+                        "Type": "float",
+                        "Value": 1.0
                     },
                     "stunned": {
                         "Type": "bool",
@@ -123,9 +144,9 @@
                     0.0
                 ],
                 "position": [
-                    -2.9174182415008545,
-                    2.572030544281006,
-                    3.011274814605713
+                    4.1394829750061035,
+                    5.63118839263916,
+                    28.54198455810547
                 ],
                 "rotation": [
                     1.0,
@@ -142,7 +163,7 @@
         }
     },
     {
-        "Mesh": {
+        "MeshRenderer": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -153,7 +174,7 @@
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "10819322238111217941"
+                    "GUID": "18032923168457502346"
                 },
                 "meshOffset": "0",
                 "model": {
@@ -163,18 +184,18 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 22,
                 "neighbours": [
-                    2097173,
+                    21,
                     4294967295,
                     4294967295,
-                    1048579
+                    12
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Mesh",
+                "mName": "MeshRenderer",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -203,7 +224,7 @@
         }
     },
     {
-        "Attack Box": {
+        "HitBox": {
             "struct SliceEngine::ColliderShape": {
                 "boxData": {
                     "scale": [
@@ -239,39 +260,22 @@
                 "renderTag": "0",
                 "skinned": false
             },
-            "struct SliceEngine::RigidBody": {
-                "CollisionDetection": "",
-                "angularDamping": 0.05000000074505806,
-                "freezePosition": [
-                    false,
-                    false,
-                    false
-                ],
-                "freezeRotation": [
-                    false,
-                    false,
-                    false
-                ],
-                "friction": 0.5,
-                "gravityFactor": 1.0,
-                "isKinematic": false,
-                "linearDamping": 0.05000000074505806,
-                "mass": 1.0,
-                "restituition": 0.0
-            },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
+                "entity_id": 12,
                 "neighbours": [
-                    2097173,
+                    21,
                     4294967295,
-                    1048580,
+                    22,
                     4294967295
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.GeneralHitbox"
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Attack Box",
+                "mName": "HitBox",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -281,9 +285,9 @@
                     0.0
                 ],
                 "position": [
+                    -1.1242647171020508,
                     0.0,
-                    0.0,
-                    1.0932793617248535
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -292,9 +296,9 @@
                     0.0
                 ],
                 "scale": [
-                    2.2385597229003906,
-                    2.597252368927002,
-                    2.968329906463623
+                    2.200000047683716,
+                    2.0999999046325684,
+                    1.0
                 ]
             }
         }

@@ -44,6 +44,8 @@ namespace SliceEngine
 
             if (direction_diff.Magnitude() <= enemyOwner.attackTriggerRange)
             {
+
+               
                 enemyOwner.ChangeState(new EnemySlimeExplodeState(enemyOwner));
                 //attack state
             }
@@ -54,7 +56,7 @@ namespace SliceEngine
     //--- Explode State ---
     public class EnemySlimeExplodeState : EnemySlimeState
     {
-        public EnemySlimeExplodeState(EnemySlime owner) : base(owner) {}
+        public EnemySlimeExplodeState(EnemySlime owner) : base(owner) { owner.StopNav(); }
 
         public override void DoEnemyAction(float dt)
         {

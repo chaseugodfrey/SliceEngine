@@ -30,7 +30,9 @@ namespace SliceEngine
     {
         public EnemyGruntChaseState(EnemyGrunt owner) : base(owner)
         {
-            
+            owner.UpdateNavAgentSpeed(owner.movementSpeed);
+            owner.ResetDestinationToActiveTarget();
+            owner.StartNav();
         }
 
         public override void DoEnemyAction(float dt)
@@ -39,9 +41,11 @@ namespace SliceEngine
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
-            enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
 
-            enemyOwner.enemyT.Rotation = direction_diff;
+            //enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
+
+            //enemyOwner.enemyT.Rotation = direction_diff;
 
             if (direction_diff.Magnitude() <= enemyOwner.strafeDistance)
             {
@@ -54,32 +58,62 @@ namespace SliceEngine
     //--- Strafe State ---
     public class EnemyGruntStrafeState : EnemyGruntState
     {
-        public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) { }
+
+        private float atkCheckCounter = 0f;
+
+        public EnemyGruntStrafeState(EnemyGrunt owner) : base(owner) 
+        {
+            owner.UpdateNavAgentSpeed(owner.strafeSpeed);
+        }
 
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
 
+            //rotation
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
+
+            
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
-            enemyOwner.enemyT.Rotation = direction_diff;
-
-            //float distFromPlayer = direction_diff.Magnitude(); 
-
-            //if (direction_diff.Magnitude() <= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance) && direction_diff.Magnitude() >= (enemyOwner.strafeDistance - enemyOwner.strafeTolerance))
-            SliceLog.Log("" + direction_diff.Magnitude());
-            if (direction_diff.Magnitude() > (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
+            if (direction_diff.Magnitude() >= (enemyOwner.strafeDistance + enemyOwner.strafeTolerance))
             {
                 enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
             }
-            else if (direction_diff.Magnitude() < enemyOwner.strafeDistance)
+            else
+            {
+
+                Vector3 displacementVector = direction_diff.Normalize() * enemyOwner.strafeDistance; 
+
+                enemyOwner.SetDestinationToVector(enemyOwner.playerT.GetComponent<Transform>().Position - displacementVector);
+            }
+
+            //old code beefore navmesh
+            /*else if (direction_diff.Magnitude() < enemyOwner.strafeDistance)
             {
                 enemyOwner.enemyT.Position -= direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
             }
             else
             {
                 enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.strafeSpeed * dt;
+            }*/
+
+
+            //Attack checking
+            this.atkCheckCounter += dt;
+
+            if (this.atkCheckCounter >= enemyOwner.attackOddsCheckFrequency)
+            {
+                
+                this.atkCheckCounter = 0f;
+
+                if (SliceRandom.ValueFloat() <= enemyOwner.attackOdds)
+                {
+                    enemyOwner.ChangeState(new EnemyGruntWindUpState(enemyOwner));
+                }
             }
+
+
 
 
 
@@ -90,36 +124,51 @@ namespace SliceEngine
     //--- Attack State ---
     public class EnemyGruntAttackState : EnemyGruntState
     {
-        public EnemyGruntAttackState(EnemyGrunt owner) : base(owner) {}
+        private Vector3 positionToLook;
+
+        public EnemyGruntAttackState(EnemyGrunt owner, Vector3 positionInput) : base(owner) 
+        {
+            owner.StartAttackCoroutine();
+            positionToLook = positionInput;
+        }
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
-            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
-
-            if (!enemyOwner.As<EnemyGrunt>().attacking)
-            {
-                if (direction_diff.Magnitude() < enemyOwner.attackTriggerRange)
-                {
-
-                    enemyOwner.As<EnemyGrunt>().StartAttackCoroutine();
-                }
-                else
-                {
-                    enemyOwner.ChangeState(new EnemyGruntChaseState(enemyOwner));
-                }
-            }
-            
+            enemyOwner.transform.LookAt(positionToLook, new Vector3(0, 1, 0));
         }
     }
 
-
-    //--- Stunned State ---
-    public class EnemyGruntStunState : EnemyGruntState
+    //--- WindUp State ---
+    public class EnemyGruntWindUpState: EnemyGruntState
     {
-        public EnemyGruntStunState(EnemyGrunt owner) : base(owner) { }
+        public EnemyGruntWindUpState(EnemyGrunt owner) : base(owner)
+        {
+            owner.StopNav();
+            owner.StartWindUp();
+        }
 
+        public override void DoEnemyAction(float dt)
+        {
+            base.DoEnemyAction(dt);
+
+            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
+
+            if (enemyOwner.triggerAttack)
+            {
+                
+                enemyOwner.ChangeState(new EnemyGruntAttackState(enemyOwner,enemyOwner.playerT.GetComponent<Transform>().Position));
+            }
+        }
     }
 
+    //--- Stunned State ---
+    public class EnemyGruntStunnedState: EnemyGruntState
+    {
+        public EnemyGruntStunnedState(EnemyGrunt owner) : base(owner)
+        {
+
+        }
+    }
 }
