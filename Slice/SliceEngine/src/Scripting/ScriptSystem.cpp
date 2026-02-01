@@ -467,6 +467,26 @@ namespace SliceEngine
 
 
             scriptRef->InvokeOnConstruct((unsigned int)id);
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
+            scriptRef->InvokeOnAwake();
+        }
+
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
         }
