@@ -439,8 +439,9 @@ namespace SliceEditor
 		static SliceEngine::GameObject oldVal{};
 
 		bool changed = false;
+		std::string propertyLabelID = property_label;
 
-		ImGui::Text(property_label);
+		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
 
 		ImGui::BeginDisabled();
@@ -451,8 +452,8 @@ namespace SliceEditor
 		}
 		else
 		{
-			
-			std::string goName = val.GetName();
+			//wtf is this bs
+			std::string goName = std::to_string(static_cast<unsigned int>(val.GetEntity())) + " " + val.GetName();
 			ImGui::InputText(id, &goName);
 		}
 		ImGui::EndDisabled();
@@ -830,8 +831,7 @@ namespace SliceEditor
 				}
 				else
 				{
-
-					std::string goName = entry.GetName();
+					std::string goName = static_cast<unsigned int>(entry.GetEntity()) + ' ' + entry.GetName().c_str();
 					ImGui::InputText(newID.c_str(), &goName);
 				}
 				ImGui::EndDisabled();
