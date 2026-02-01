@@ -513,10 +513,12 @@ namespace SliceEngine
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{};
-		float coneRadius{};
+		float coneArc{90.0f};
+		float coneRadius{0.1f};
+		glm::vec3 coneRotationHint{};
 
 		// Sphere
+		float sphereArc{360.0f};
 		float sphereRadius{0.1f};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal

@@ -1345,12 +1345,15 @@ namespace SliceEditor
 
 				switch (ps.shapeType)
 				{
-				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Cone Arc Angle", "##coneArcAngle", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					DragVec3InputHeader(mRegistry, "Cone Rotation", "##coneRot", ps.coneRotationHint);
 					break;
+				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
+					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 360.0f);
+					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;				
 				default:
 					break;
 				}
