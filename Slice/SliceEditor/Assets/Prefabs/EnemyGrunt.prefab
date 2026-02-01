@@ -2,15 +2,18 @@
     {
         "EnemyGrunt": {
             "struct SliceEngine::ColliderShape": {
-                "capsuleData": {
-                    "height": 0.5,
-                    "radius": 0.5
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        1.0,
+                        0.5
+                    ]
                 },
                 "componentEnabled": true,
                 "isTrigger": false,
                 "offSet": [
                     0.0,
-                    0.0,
+                    1.0,
                     0.0
                 ]
             },
@@ -43,7 +46,7 @@
                 ],
                 "freezeRotation": [
                     true,
-                    false,
+                    true,
                     true
                 ],
                 "friction": 0.5,
@@ -54,12 +57,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 21,
+                "entity_id": 4194371,
                 "neighbours": [
                     0,
-                    22,
-                    14,
-                    23
+                    4194370,
+                    4194378,
+                    4194369
                 ]
             },
             "struct SliceEngine::Script": {
@@ -73,17 +76,29 @@
                         "Type": "float",
                         "Value": 1.0
                     },
+                    "attackHitBoxObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4194380
+                    },
+                    "attackHitBoxRenderObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4194308
+                    },
+                    "attackOdds": {
+                        "Type": "float",
+                        "Value": 0.10000000149011612
+                    },
+                    "attackOddsCheckFrequency": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
                     "attackTriggerRange": {
                         "Type": "float",
                         "Value": 1.0
                     },
                     "attackWindUpTiming": {
                         "Type": "float",
-                        "Value": 1.0
-                    },
-                    "basicHitBox": {
-                        "Type": "SliceEngine::GameObject",
-                        "Value": 12
+                        "Value": 3.0
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -95,7 +110,7 @@
                     },
                     "flickerTiming": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 3.0
                     },
                     "horKnockback": {
                         "Type": "float",
@@ -128,6 +143,10 @@
                     "vertKnockback": {
                         "Type": "float",
                         "Value": 1.0
+                    },
+                    "windupSignalObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4194307
                     }
                 }
             },
@@ -184,18 +203,135 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 22,
+                "entity_id": 4194370,
                 "neighbours": [
-                    21,
+                    4194371,
                     4294967295,
                     4294967295,
-                    12
+                    4194390
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
                 "mName": "MeshRenderer",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "AttackContainer": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194390,
+                "neighbours": [
+                    4194371,
+                    4194380,
+                    4194370,
+                    4194307
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "AttackContainer",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    1.0,
+                    1.2070000171661377
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.281000018119812,
+                    3.700000047683716,
+                    3.0339999198913574
+                ]
+            }
+        }
+    },
+    {
+        "HitBox": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194380,
+                "neighbours": [
+                    4194390,
+                    4294967295,
+                    4294967295,
+                    4194308
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.GeneralHitbox"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "HitBox",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -224,29 +360,13 @@
         }
     },
     {
-        "HitBox": {
-            "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                },
-                "componentEnabled": true,
-                "isTrigger": true,
-                "offSet": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
+        "Attack Render": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 2
+                "prefabID": 4
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -261,21 +381,18 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 12,
+                "entity_id": 4194308,
                 "neighbours": [
-                    21,
+                    4194390,
                     4294967295,
-                    22,
+                    4194380,
                     4294967295
                 ]
-            },
-            "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.GeneralHitbox"
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "HitBox",
+                "mName": "Attack Render",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -285,7 +402,7 @@
                     0.0
                 ],
                 "position": [
-                    -1.1242647171020508,
+                    0.0,
                     0.0,
                     0.0
                 ],
@@ -296,8 +413,69 @@
                     0.0
                 ],
                 "scale": [
-                    2.200000047683716,
-                    2.0999999046325684,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "WindUp Signal": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "17754302010795007985"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194307,
+                "neighbours": [
+                    4194371,
+                    4294967295,
+                    4194390,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "WindUp Signal",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    2.799999952316284,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
                     1.0
                 ]
             }
