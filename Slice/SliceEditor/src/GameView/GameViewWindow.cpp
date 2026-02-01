@@ -214,9 +214,13 @@ namespace SliceEditor
 		auto percentage_x = relative_mouse_pos.x / mGameScreen.size.x;
 		auto percentage_y = relative_mouse_pos.y / mGameScreen.size.y;
 
-		mGameMousePosition = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
+		ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
+		
+		mGameMouseDelta = new_mouse_pos - mGameMousePosition;
+		mGameMousePosition = new_mouse_pos;
 
 		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMousePosition(mGameMousePosition.x, mGameMousePosition.y);
+		SliceEngine::Core::GetInstance()->GetInputSystem()->SetMouseDelta(mGameMouseDelta.x, mGameMouseDelta.y);
 
 		mIsHoveringGameScreen = false;
 
@@ -270,6 +274,9 @@ namespace SliceEditor
 
 		ImGui::Text("Mouse Position");
 		ImGui::Text("%.1f, %.1f", mGameMousePosition.x, mGameMousePosition.y);
+
+		ImGui::Text("Mouse Delta");
+		ImGui::Text("%.1f, %.1f", mGameMouseDelta.x, mGameMouseDelta.y);
 
 		ImGui::Text("Hovering Game Screen");
 		ImGui::Text("%s", mIsHoveringGameScreen ? "yes" : "no");
