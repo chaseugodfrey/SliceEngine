@@ -496,8 +496,27 @@ namespace SliceEngine
             else
             {
                 scriptRef->InvokeOnUpdate(dt);
-                UpdateScriptComponent(id);
+                
             }
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+                continue;
+            }
+
+            UpdateScriptComponent(id);
         }
     }
 
@@ -608,22 +627,22 @@ namespace SliceEngine
                     }
                     else if (it.second.mType == ScriptFieldType::GameObject)
                     {
-                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
-                        if (variantVal.is_type<GameObject>())
-                        {
-                            GameObject go = variantVal.get_value<GameObject>();
-                            scriptRef->SetFieldValue(it.second.mName.c_str(), go);
-                        }
+                        //rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        //if (variantVal.is_type<GameObject>())
+                        //{
+                        //    GameObject go = variantVal.get_value<GameObject>();
+                        //    scriptRef->SetFieldValue(it.second.mName.c_str(), go);
+                        //}
 
                     }
                     else if (it.second.mType == ScriptFieldType::Prefab)
                     {
-                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
-                        if (variantVal.is_type<PrefabVar>())
-                        {
-                            PrefabVar var = variantVal.get_value<PrefabVar>();
-                            scriptRef->SetFieldValue(it.second.mName.c_str(), var);
-                        }
+                        //rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        //if (variantVal.is_type<PrefabVar>())
+                        //{
+                        //    PrefabVar var = variantVal.get_value<PrefabVar>();
+                        //    scriptRef->SetFieldValue(it.second.mName.c_str(), var);
+                        //}
                     }
                     else
                     {
@@ -696,10 +715,10 @@ namespace SliceEngine
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
                             case ScriptFieldType::GameObject:
-                                scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
+                                //scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
                                 break;
                             case ScriptFieldType::Prefab:
-                                scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
+                                //scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
                                 break;
                             }
                         }
@@ -760,14 +779,14 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        else if (it.second.mType == ScriptFieldType::GameObject)
-                        {
-                            //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
-                            //scriptComponent.scriptableFieldMap[it.first] = var;
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{
+                        //    //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    //scriptComponent.scriptableFieldMap[it.first] = var;
 
-                            // test
+                        //    // test
 
-                        }
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -796,16 +815,16 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        else if (it.second.mType == ScriptFieldType::GameObject)
-                        {
-                            std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
-                            scriptComponent.scriptableFieldMap[it.first] = var;
-                        }
-                        else if (it.second.mType == ScriptFieldType::Prefab)
-                        {
-                            std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
-                            scriptComponent.scriptableFieldMap[it.first] = var;
-                        }
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{
+                        //    std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
+                        //else if (it.second.mType == ScriptFieldType::Prefab)
+                        //{
+                        //    std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)
@@ -833,23 +852,23 @@ namespace SliceEngine
                     glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
-                else if (it.second.mType == ScriptFieldType::GameObject)
-                {
-                    GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
-                    scriptComponent.scriptableFieldMap[it.first] = var;
+                //else if (it.second.mType == ScriptFieldType::GameObject)
+                //{
+                //    GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
+                //    scriptComponent.scriptableFieldMap[it.first] = var;
 
-                    // test
-                   
-                }
-                else if (it.second.mType == ScriptFieldType::Prefab)
-                {
-                    // this shit broken
-                    //rttr::variant prefabVar = scriptRef->GetFieldValue(it.second.mName);
-                    //scriptComponent.scriptableFieldMap[it.first] = prefabVar;
+                //    // test
+                //   
+                //}
+                //else if (it.second.mType == ScriptFieldType::Prefab)
+                //{
+                //    // this shit broken
+                //    //rttr::variant prefabVar = scriptRef->GetFieldValue(it.second.mName);
+                //    //scriptComponent.scriptableFieldMap[it.first] = prefabVar;
 
-                    PrefabVar var = scriptRef->GetFieldValue<PrefabVar>(it.second.mName);
-                    scriptComponent.scriptableFieldMap[it.first] = var;
-                }
+                //    PrefabVar var = scriptRef->GetFieldValue<PrefabVar>(it.second.mName);
+                //    scriptComponent.scriptableFieldMap[it.first] = var;
+                //}
             }
         }
     }
@@ -1051,7 +1070,10 @@ namespace SliceEngine
                             MonoClass* elementClass = nullptr;
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
-
+                            if (fieldType == ScriptFieldType::GameObject)
+                                continue;
+                            if (fieldType == ScriptFieldType::Prefab)
+                                continue;
                             /*
                             MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);*/
                            /* if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)

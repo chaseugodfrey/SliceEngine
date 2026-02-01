@@ -194,6 +194,23 @@ namespace SliceEngine
 		return GameObject();
 	}
 
+	Entity GOFactory::GetEntityWithTag(std::string const& tag)
+	{
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				return entity;
+			}
+		}
+
+		return entt::null;
+	}
+
 	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)
 	{
 		std::vector<Entity> result;
