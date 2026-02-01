@@ -425,9 +425,16 @@ namespace SliceEngine
 							{
 								auto& colliderShape = instanceGO.GetComponent<ColliderShape>();
 								auto& transform = instanceGO.GetComponent<Transform>();
-
-								colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
 								colliderShape.bodyID = dummyBodyID;
+
+								if (colliderShape.componentEnabled)
+								{
+									colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
+								}
+								else if (!colliderShape.componentEnabled)
+								{
+									Core::GetInstance()->GetSystem<PhysicsSystem>().DeleteJoltBody(instanceGO.GetEntity());
+								}
 							}
 					});
 				}
