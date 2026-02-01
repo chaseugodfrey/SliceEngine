@@ -31,7 +31,7 @@ namespace SliceEngine
         public GameObject CreateEnemy(Prefab prefab)
         {
             // instantiate the enemy
-            GameObject newEnemy = prefab.Instantiate();
+            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
             enemies.Add(newEnemy);
 
             return newEnemy;
