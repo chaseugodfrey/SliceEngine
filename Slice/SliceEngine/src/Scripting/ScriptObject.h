@@ -199,6 +199,8 @@ namespace SliceEngine
 		/// <param name="id"></param>
 		void InvokeOnConstruct(unsigned int id);
 
+		void InvokeOnAwake();
+
 		/// <summary>
 		/// Calls the OnCreate function. This is only called for all entity scripts, when the game is ran in engine
 		/// </summary>
