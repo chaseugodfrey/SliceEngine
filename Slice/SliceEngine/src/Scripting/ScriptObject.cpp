@@ -222,6 +222,10 @@ namespace SliceEngine
 
 		}
 
+	}
+
+	void ScriptObject::InvokeOnAwake()
+	{
 		if (mOnAwake)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnAwake);
