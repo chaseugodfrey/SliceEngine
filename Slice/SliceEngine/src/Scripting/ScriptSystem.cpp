@@ -719,7 +719,7 @@ namespace SliceEngine
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
                             case ScriptFieldType::GameObject:
-                                //scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
+                                scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
                                 break;
                             case ScriptFieldType::Prefab:
                                 //scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
@@ -819,11 +819,11 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        //else if (it.second.mType == ScriptFieldType::GameObject)
-                        //{
-                        //    std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
-                        //    scriptComponent.scriptableFieldMap[it.first] = var;
-                        //}
+                        else if (it.second.mType == ScriptFieldType::GameObject)
+                        {
+                            std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
                         //else if (it.second.mType == ScriptFieldType::Prefab)
                         //{
                         //    std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
@@ -1094,8 +1094,8 @@ namespace SliceEngine
                             MonoClass* elementClass = nullptr;
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
-                            if (fieldType == ScriptFieldType::GameObject && containerType != ScriptFieldType::None)
-                                continue;
+                            //if (fieldType == ScriptFieldType::GameObject && containerType != ScriptFieldType::None)
+                            //    continue;
                             if (fieldType == ScriptFieldType::Prefab )
                                 continue;
                             /*
