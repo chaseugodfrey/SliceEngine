@@ -178,6 +178,8 @@ namespace SliceEngine
 
 		~ScriptObject();
 
+		void Destroy();
+
 		/// <summary>
 		/// Get the mMonoInstance reference to get script instance for C# side
 		/// </summary>
@@ -917,17 +919,19 @@ namespace SliceEngine
 			if (listObject == nullptr || field.mListAdd == nullptr)
 				return;
 
-			MonoImage* coreImage = mono_assembly_get_image(gScriptSystem->mCoreAssembly);
-			MonoClass* gameObjectClass = mono_class_from_name(coreImage, "SliceEngine", "GameObject");
+			//MonoImage* coreImage = mono_assembly_get_image(gScriptSystem->mCoreAssembly);
+			//MonoClass* gameObjectClass = mono_class_from_name(coreImage, "SliceEngine", "GameObject");
 
-			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+			//MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			uint32_t entityID = (uint32_t)value.GetEntity();
-			void* ctorArgs[1];
-			ctorArgs[0] = &entityID;
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//uint32_t entityID = (uint32_t)value.GetEntity();
+			//void* ctorArgs[1];
+			//ctorArgs[0] = &entityID;
 
-			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+			//mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			MonoObject* managedGameObject = gScriptSystem->GetOrCreateManagedObject(value.GetEntity());
 
 			void* addArgs[1];
 			addArgs[0] = managedGameObject;
@@ -1047,16 +1051,18 @@ namespace SliceEngine
 			// if it failed to get a list object or listAdd wasn't initialized
 			if (listObject == nullptr || field.mListAdd == nullptr)
 				return;
-			MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
-			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+			//MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+			//MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			//Initialising  the C# GameObject
-			uint32_t entityID = (uint32_t)value.GetEntity();
-			void* ctorArgs[1];
-			ctorArgs[0] = &entityID;
+			////Initialising  the C# GameObject
+			//uint32_t entityID = (uint32_t)value.GetEntity();
+			//void* ctorArgs[1];
+			//ctorArgs[0] = &entityID;
 
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			MonoObject* managedGameObject = gScriptSystem->GetOrCreateManagedObject(value.GetEntity());
 
 			//Setting the item in the list to its index
 			void* params[2];
@@ -1337,18 +1343,20 @@ namespace SliceEngine
 
 			if (!gameObjectClass) return;
 
-			// 2. Create a new managed instance of the C# GameObject
-			MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
+			//// 2. Create a new managed instance of the C# GameObject
+			//MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			// 3. Initialize the object (Calls the constructor)
-			// We can call the constructor that takes a uint ID
-			void* args[1];
-			uint32_t entityID = (uint32_t)val.GetEntity();
-			args[0] = &entityID;
+			//// 3. Initialize the object (Calls the constructor)
+			//// We can call the constructor that takes a uint ID
+			//void* args[1];
+			//uint32_t entityID = (uint32_t)val.GetEntity();
+			//args[0] = &entityID;
 
-			// Find the constructor: GameObject(uint id)
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+			//// Find the constructor: GameObject(uint id)
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+			MonoObject* managedInstance = gScriptSystem->GetOrCreateManagedObject(val.GetEntity());
 
 			// 4. Set the field in your ScriptObject to this new C# object reference
 			// Since it's a reference type, we pass the pointer to the MonoObject itself
