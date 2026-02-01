@@ -23,6 +23,7 @@ namespace SliceEngine
         {
             foreach(GameObject trigger in levelTriggers)
             {
+                Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
             }
@@ -32,6 +33,7 @@ namespace SliceEngine
         {
             // instantiate the enemy
             GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
+            newEnemy.As<EnemySlime>().SetUp();
             enemies.Add(newEnemy);
 
             return newEnemy;
@@ -113,11 +115,11 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            SliceLog.Log("Triggering Next Level Part 1");
+            //SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
-            SliceLog.Log("Triggering Next Level Part 2");
+            //SliceLog.Log("Triggering Next Level Part 2");
 
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
