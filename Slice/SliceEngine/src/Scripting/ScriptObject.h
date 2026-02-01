@@ -697,6 +697,10 @@ namespace SliceEngine
 			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
 
 			// TODO: add in exception handling like in my other invoke stuff
+			if (exception || !countObj) {
+				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				return result;
+			}
 
 			int count = *(int*)mono_object_unbox(countObj);
 			result.reserve(count);
@@ -755,7 +759,10 @@ namespace SliceEngine
 			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
 
 			// TODO: add in exception handling like in my other invoke stuff
-
+			if (exception || !countObj) {
+				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				return result;
+			}
 			int count = *(int*)mono_object_unbox(countObj);
 			result.reserve(count);
 

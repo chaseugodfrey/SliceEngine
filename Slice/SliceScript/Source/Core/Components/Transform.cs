@@ -25,7 +25,12 @@ namespace SliceEngine
         }
         public Vector3 Position
         {
-            get => _position;
+            get
+            {
+                FunctionCalls.Transform_GetPosition(gameObject.mID, out Vector3 _position);
+
+                return _position;
+            }
             set
             {
                 _position = value;
@@ -35,7 +40,11 @@ namespace SliceEngine
 
         public Vector3 Scale
         {
-            get => _scale;
+            get
+            {
+                FunctionCalls.Transform_GetScale(gameObject.mID, out Vector3 _scale);
+                return _scale;
+            }
             set
             {
                 _scale = value;
@@ -45,7 +54,12 @@ namespace SliceEngine
 
         public Vector3 Rotation
         {
-            get => _rotationQuat.ToEuler();
+            get
+            {
+                FunctionCalls.Transform_GetRotationQuat(gameObject.mID, out Quaternion _rotQuat);
+
+                return _rotQuat.ToEuler();
+            }
             set
             {
                 _rotationQuat = Quaternion.FromEuler(value).Normalize();
@@ -55,7 +69,12 @@ namespace SliceEngine
 
         public Quaternion RotationQuat
         {
-            get => _rotationQuat;
+            get
+            {
+                FunctionCalls.Transform_GetRotationQuat(gameObject.mID, out Quaternion _rotQuat);
+
+                return _rotQuat;
+            }
             set
             {
                 _rotationQuat = value.Normalize();
