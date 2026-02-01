@@ -496,8 +496,27 @@ namespace SliceEngine
             else
             {
                 scriptRef->InvokeOnUpdate(dt);
-                UpdateScriptComponent(id);
+                
             }
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+                continue;
+            }
+
+            UpdateScriptComponent(id);
         }
     }
 
