@@ -2106,7 +2106,7 @@ namespace SliceEngine
 	}
 #pragma endregion
 
-#pragma region SpriteRenderer FUNCTIONS
+#pragma region UI FUNCTIONS
 	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2118,10 +2118,7 @@ namespace SliceEngine
 		}
 	}
 
-#pragma endregion
-
-#pragma region FontRenderer FUNCTIONS
-	static void FonteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
@@ -2132,9 +2129,86 @@ namespace SliceEngine
 		}
 	}
 
-#pragma endregion
+	static void FontRenderer_SetText(uint32_t entityID, MonoString* text) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
-#pragma region UI FUNCTIONS
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.text = MonoToString(text);
+			fontRenderer.token_updated = false;
+		}
+	}
+	static MonoString* FontRenderer_GetText(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+
+			return mono_string_new(mono_domain_get(), font.text.c_str());
+		}
+		return nullptr;
+	}
+
+	static void FontRenderer_SetFontsize(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.font_size = size;
+			fontRenderer.token_updated = false;
+		}
+	}
+	static float FontRenderer_GetFontsize(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.font_size;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetLinespacing(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.line_spacing = size;
+		}
+	}
+	static float FontRenderer_GetLinespacing(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.line_spacing;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.rgba = *color;
+		}
+	}
+	static void FontRenderer_GetColor(uint32_t entityID, glm::vec4* color_out) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			*color_out =  font.rgba;
+		}
+	}
 
 	static float Slider_GetValue(uint32_t entityID)
 	{
@@ -2151,7 +2225,6 @@ namespace SliceEngine
 		auto const& slider = registry.get<Slider>(e);
 		return slider.GetValue();
 	}
-
 	static void Slider_SetValue(uint32_t entityID, float value)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -2239,6 +2312,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
+		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
 
@@ -2457,6 +2531,19 @@ namespace SliceEngine
 		//UI
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetColor);
+		ADD_INTERNAL_CALL(FontRenderer_GetColor);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetFontsize);
+		ADD_INTERNAL_CALL(FontRenderer_GetFontsize);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetLinespacing);
+		ADD_INTERNAL_CALL(FontRenderer_GetLinespacing);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetText);
+		ADD_INTERNAL_CALL(FontRenderer_GetText);
+
 	}
 
 #pragma endregion

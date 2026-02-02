@@ -56,9 +56,11 @@
     <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\RayCastHit.cs" />
+    <Compile Include="Source\Core\Components\RectTransform.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
+    <Compile Include="Source\Core\Components\Text.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
@@ -100,6 +102,7 @@
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
+    <Compile Include="Source\Examples\TestFont.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
     <Compile Include="Source\Examples\TestMisc.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />

@@ -593,7 +593,8 @@ namespace SliceEngine {
 		if (sprite && sprite->componentEnabled) {
 			render.push_back({ node, sprite_shader });	//eid and shader resource handle
 		}
-		if (auto font = mRegistry->try_get<FontRenderer>(node)) {
+		auto font = mRegistry->try_get<FontRenderer>(node);
+		if (font && font->componentEnabled) {
 			//GUID font_guid = rm->mFileNameToGUID["Shaders/uiFont.shader"];
 
 			//tokenize the font string to fit into text box
