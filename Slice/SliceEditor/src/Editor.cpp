@@ -121,6 +121,8 @@ namespace SliceEditor
 		// who commented it out say now
 		// it broke play stop
 		engine.InitScene();
+
+		//EventManager::GetInstance()->Publish<OnPlayEvent>();
 	}
 
 	void Editor::Run()

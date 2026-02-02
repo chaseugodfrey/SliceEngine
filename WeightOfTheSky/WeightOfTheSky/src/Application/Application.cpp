@@ -37,10 +37,11 @@ namespace SliceBuild
 
 		engine.InitScene();
 
+		//engine.Update();
 
 		//inputSys->SetMode(SliceEngine::InputMode::Game);
 
-		EventManager::GetInstance()->Publish<OnPlayEvent>();
+		//EventManager::GetInstance()->Publish<OnPlayEvent>();
 
 		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &Application::QuitGameEvent>(this);
 	}
