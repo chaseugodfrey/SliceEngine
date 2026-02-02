@@ -1,8 +1,9 @@
-﻿using SliceEngine;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using SliceEngine;
+using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 
 namespace SliceEngine
@@ -10,119 +11,70 @@ namespace SliceEngine
 
     public class PlayerController : Entity, IInitializable
     {
-        //public float rotationSpeed = 50.0f;
-        //public string[] test3 = { "Test", "Test2" };
-        //public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
-        //public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
-        //public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
-        //static bool testingShit = false;
+        public CameraController camRig;
+        public Animator animator;
+        private bool dead = false;
 
-        // =========== Debug Mode =========
-        public bool debugMode = false;
+        public int attack1_Damage = 20;
+        public int attack2_Damage = 30;
+        public int attack3_Damage = 50;
+        public int plunge_Damage = 60;
 
-        // =========== Debug Mod ==========
+        public float healthRegenRate = 0.5f;
+        public float healthRegenCooldown = 5f;
 
-
-        public GameObject playerModel;
-
-        // =============== Movement variables =============== 
-        public float moveSpeed = 2.5f;
+        public float walkSpeed = 3.5f;
         public float rotationSpeed = 12f;
-        public float dashMultiplier = 5f;
-        public float dashDuration = 0.2f;
-        private bool isDashing = false;
-        public float jumpForce = 5f;
-        public float fallForce = 5f;
-        public float fallVelocityThreshold = 20f;
-        public int maxJumps = 2;
-        public float groundCheckDelay = 0.05f;
-        private float groundCheckTimer = 0f;
-        private bool grounded, groundCheckLocked;
-        private int jumpCounter = 0;
-        private Vector3 input;
-        private float verticalVelocity = 0f;
-        public float terminalVelocity = -50f;
 
-        private Vector3 velocity;
-        private bool wasGrounded;
-        private float lastGroundedTime;
-        private float lastJumpPressedTime;
-        private bool jumpRequested;
-        private bool jumpImpulseApplied;
-        private float jumpApplyAtTime;
-        private bool doubleJumpAvailable;
-
-        // Jump and Gravity
         public float jumpHeight = 1.4f;
         public float gravity = -9.81f;
         public float groundedGravity = -2f;
         public float coyoteTime = 0.08f;
         public float jumpBuffer = 0.10f;
         private float jumpDelay = 0.00f;
-        private float lastAirTime = float.NegativeInfinity;
-        private float lastLandTime = float.NegativeInfinity;
-        public float minAirTimeForLanding = 0.06f;
-        public float landCooldown = 0.08f;           // prevents immediate retriggering
+        private int jumpCounter = 0;
 
         private bool enableDoubleJump = true;
         public float doubleJumpHeight = 1.2f;
         private bool resetYOnDoubleJump = true;
 
-        // Dash Variables
-        private bool isGroundDashing = false;
-        private bool isAirDashing = false;
-        private float dashTimer = 0f;
-        private float groundDashCooldownUntil = 0f;
-        private float airDashCooldownUntil = 0f;
-        private Vector3 dashDir = Vector3.Zero;
+        // --- Ground / landing debounce ----
+        private float minAirTimeForLanding = 0.06f;   // tune 0.04 - 0.12 to taste
+
+        private float landCooldown = 0.08f;           // prevents immediate retriggering
+        private bool grounded, groundCheckLocked;
+        public float groundCheckDelay = 0.05f;
+        private float groundCheckTimer = 0f;
+        private float lastAirTime = float.NegativeInfinity;
+        private float lastLandTime = float.NegativeInfinity;
+
+        // ------------------ DASH ------------------------------------------------------------------------------------------
+        private bool useBackdashAnimation = true;
+        public float backDashDotThreshold = 0f;
+        public string backDashTrigger = "BackDashStart";
+        public string fwdDashTrigger = "DashStart";
+        public string airDashTrigger = "AirDashStart";
+        private bool dashDefaultBackwards = true;
+        private bool rotateToDashDirection = false;
 
         public float dashDistance = 6f;
         public float dashStartDuration = 0.25f;
         public float dashCooldown = 0.6f;
         public bool dashUsesMoveDirection = true;
         public float groundDashUpAngleDeg = 0f;
-
-        private bool useBackdashAnimation = true;
-        public float backDashDotThreshold = 0f;
-        private bool dashDefaultBackwards = true;
-        private bool rotateToDashDirection = false;
+        private GroundCheck groundCheck;
 
         public float airDashDistance = 5f;
         public float airDashDuration = 0.25f;
         public float airDashCooldown = 0.8f;
         public float airDashUpAngleDeg = 15f;
 
-        // =============== Attack variables =============== 
-        public float attackResetTime = 1f;
-        private float attackResetTimer = 0f;
-        private int attackCounter = 0;
-        private bool isAttacking = false;
-
-        public string attack1HBName;
-        public int attack1Damage;
-        public Vector3 attack1Window;
-        public float attack1Duration;
-        private Hitbox attack1HB;
-
-        public string attack2HBName;
-        public int attack2Damage;
-        public Vector3 attack2Window;
-        public float attack2Duration;
-        private Hitbox attack2HB;
-
-        public string attack3HBName;
-        public int attack3Damage;
-        public Vector3 attack3Window;
-        public float attack3Duration;
-        private Hitbox attack3HB;
-
-        private int attackIndex = 0;
-        private float attackTimer = 0f;
-        private bool queuedNext = false;
-
-        // Chain-window facing override
-        private bool queuedFacingOverride = false;
-        private Vector3 queuedFacing = Vector3.Zero;
+        // ------------------ ATTACK COMBO ------------------------------------------------------------------------------------------
+        public string atk1Trigger = "Attack1";
+        public string atk2Trigger = "Attack2";
+        public string atk3Trigger = "Attack3";
+        public string atkToIdle1Trigger = "AttackToIdle1";
+        public string atkToIdle2Trigger = "AttackToIdle2";
 
         public float atk1Duration = 1.0f;
         public float atk1ChainLead = 0.30f;
@@ -146,6 +98,62 @@ namespace SliceEngine
         public float atk3UpwardSpeed = 8.0f;
         public float atk3ForwardDuration = 0.45f;
         public float atk3UpwardDuration = 0.30f;
+
+        // ------------------ PLUNGE ATTACK ------------------------------------------------------------------------------------------
+        public float plungeDelay = 0.15f;
+        public float plungeForwardSpeed = 8f;
+        public float plungeDownwardSpeed = 15f;
+        public float plungeDuration = 0.5f;
+        public string plungeTrigger = "Plunge";
+        public float heightModifierPerOneExtra = .05f;
+        public float heightThreshold = 3.5f;
+        private float _plungemodifierCount = 0f;
+        private Vector3 _plungeStartPoint = new Vector3(0, 0, 0);
+
+        // ------------------ HIT BOXES ------------------------------------------------------------------------------------------
+        public Hitbox basicHB_1;
+        public Hitbox basicHB_2;
+        public Hitbox basicHB_3;
+        public Hitbox plungeHB;
+
+    // ------------------ TAUNT DEVICE ------------------------------------------------------------------------------------------
+        public float teleportCooldown = 10f;
+        bool _teleportCoolingDown = false;
+
+        // ----------------- AUDIO ------------------------------------------------------------------------------------------
+        private AudioSource walkAudioSource;
+        public AudioSource slimeHitAudioSource;
+        public bool canPlaySlimeHitSFX = true;
+
+        // ------------------ INTERNALS ------------------------------------------------------------------------------------------
+        private Vector3 velocity;
+        private bool wasGrounded;
+        private float lastGroundedTime;
+        private float lastJumpPressedTime;
+        private bool jumpRequested;
+        private bool jumpImpulseApplied;
+        private float jumpApplyAtTime;
+        private bool doubleJumpAvailable;
+        public bool canInput = true;
+
+        // Dash runtime
+        private bool isGroundDashing = false;
+        private bool isAirDashing = false;
+        private float dashTimer = 0f;
+        private float groundDashCooldownUntil = 0f;
+        private float airDashCooldownUntil = 0f;
+        private Vector3 dashDir = Vector3.Zero;
+
+        // Attack runtime
+        private bool isAttacking = false;
+        private int attackIndex = 0;
+        private float attackTimer = 0f;
+        private bool queuedNext = false;
+
+        // Chain-window facing override
+        private bool queuedFacingOverride = false;
+        private Vector3 queuedFacing = Vector3.Zero;
+
         // Lunge runtime (Atk1 / Atk2)
         private bool isLunging = false;
         private float lungeTimer = 0f;
@@ -168,120 +176,185 @@ namespace SliceEngine
         private float plungeTimer = 0f;
         private Vector3 plungeDir = Vector3.Zero;
         private bool plungeImpulseStarted = false;
-        public float plungeDelay = 0.15f;
-        public float plungeForwardSpeed = 8f;
-        public float plungeDownwardSpeed = 15f;
-        public float plungeDuration = 0.5f;
-        public float heightModifierPerOneExtra = .05f;
-        public float heightThreshold = 3.5f;
-        private float _plungemodifierCount = 0f;
-        private Vector3 _plungeStartPoint = new Vector3(0, 0, 0);
 
-        // =============== Internal variables =============== 
-        public bool canInput = false;
-        public bool canMove = false;
-        private RigidBody rb;
-        private GroundCheck groundCheck;
-        private Animator animator;
-        private CameraController camera;
-        private AudioSource audio;
+        // Health runtime
+        private bool regeneratingHealth = false;
+
+        // instance
+        public static PlayerController instance;
+
+        // Skip Frame
+        private bool ignoreMovementThisFrame = false;
 
         public void Initialize()
         {
-            camera = Bootstrap.CameraController;
-            if (camera == null)
+            camRig = Bootstrap.CameraController;
+            if (camRig == null)
             {
                 Console.WriteLine("Camera Var in player is EMPTY");
             }
         }
         public override void OnCreate()
         {
-            if (debugMode)
-            {
-                return;
-            }
+            lastJumpPressedTime = float.NegativeInfinity;
+            lastGroundedTime = float.NegativeInfinity;
 
-            Console.WriteLine("Test");
-            playerModel = gameObject.FindGameObjectWithName("RootNode");
-            animator = playerModel?.GetComponent<Animator>();
-            if (animator == null) Console.WriteLine("No animator found");
-            else Console.WriteLine("Animator found");
-            audio = gameObject.GetComponent<AudioSource>();
-            rb = GetComponent<RigidBody>();
-            if (rb == null) Console.WriteLine("No rb found");
-            else Console.WriteLine("RB found");
+            //mainAudioSource = this.GetComponent<AudioSource>();
+            bool groundedNow = grounded;
+            wasGrounded = groundedNow;
+            if (groundedNow) lastGroundedTime = Time.time;
             groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
             if (groundCheck == null) Console.WriteLine("No ground check found");
 
-            InitializeAttackHitboxes();
+            doubleJumpAvailable = enableDoubleJump && !groundedNow;
+
+            InitializeHitboxes();
+
+            //StartCoroutine(UltiCooldown());
         }
 
-        public override void OnUpdate(float dt)
+        void Update()
         {
-
-            if (debugMode)
+            if (ignoreMovementThisFrame)
             {
+                ignoreMovementThisFrame = false; // eat 1 frame
                 return;
             }
-
-            
             GroundCheck();
             if (canInput)
             {
-                HandleInput();
-                HandleDashInput();
-                HandleAttackInput();
+                HandleDashInput();   // RMB cancels attacks
+                HandleAttackInput(); // LMB starts/queues
+                //HandleDeviceInput(); // Device inputs
             }
-            UpdateDash();
-            if (canMove) HandleMovement();
-            HandleJump();
-            UpdateLunge();
-            AttackResetTimer();
+            UpdateDash();        // Timers
+            UpdateAttack();      // Timers
+            HandleMovement();    // Movement depends on dash/attack
+            HandleJump();        // Blocked during attacks
+            UpdatePlunge();      // Timers
+            UpdateHealth();
         }
-        private void HandleInput()
+
+        // -------------------- Health NOT USED ------------------------------------
+
+
+        private float healthRegenCounter = 0f;
+        //[SerializeField] private float regenBuffer = 5f;
+
+        public void UpdateHealth()
         {
-            input = Vector3.Zero;
-            // Forward/backward movement
-            if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
-            else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
-
-            // Sideways movement 
-            if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
-            else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
-
-            if (input.SquareMagnitude() > 1f) input = input.Normalize();
-
-            if (input != Vector3.Zero)
+            if (currentHealth <= maxHealth)
             {
-                if (animator.SafeToChange("Walk"))
-                    animator.SetBool("Walk", true);
+                if (!regeneratingHealth)
+                {
+                    if (healthRegenCounter < healthRegenCooldown)
+                    {
+                        healthRegenCounter += Time.deltaTime;
+                    }
+                    else
+                    {
+                        healthRegenCounter = 0f;
+                        StartCoroutine(RegenHealth());
+                    }
+                }
+
             }
             else
             {
-                if (animator.SafeToChange("Idle"))
-                    animator.SetBool("Idle", true);
+                StopRegen();
             }
-
-            //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
-            //if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
-        #region New Movement
-        private void HandleMovement()
+
+        public void StopRegen()
         {
-            Vector3 camForward = new Vector3();
-            if (camera != null)
+            regeneratingHealth = false;
+            healthRegenCounter = 0f;
+        }
+
+        IEnumerator RegenHealth()
+        {
+            //Debug.Log("Regenerating Health");
+            regeneratingHealth = true;
+            float count = 0f;
+            //float buffercount = 0f;
+
+            while (regeneratingHealth)
             {
-                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+                count += Time.deltaTime;
+                if (count > 1f / healthRegenRate)
+                {
+                    Heal(1);
+                    count = 0f;
+                }
+                yield return new WaitForSeconds(Time.deltaTime);
             }
 
-            Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
-            Vector3 moveDirInput = camForward * input.z + camRight * input.x;
+            regeneratingHealth = false;
 
-            float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
-            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
-            //SliceLog.Log("GroundDashing: " + isGroundDashing.ToString() + " AirDashing: " + isAirDashing.ToString() + " isAttacking: " + isAttacking.ToString() + " isPlunging: " + isPlunging.ToString());
+            yield break;
+        }
+        //------------- Force Warp -------------
+        #region Force Warp
+
+        public void ForceWarp(Vector3 worldPosition)
+        {
+            // block movement logic this frame
+            ignoreMovementThisFrame = true;
+            velocity = Vector3.Zero;
+            isGroundDashing = false;
+            isAirDashing = false;
+            isPlunging = false;
+            isAttacking = false;
+            jumpRequested = false;
+        }
+
+        #endregion
+        private void GroundCheck()
+        {
+            if (groundCheckLocked)
+            {
+                groundCheckTimer += Time.deltaTime;
+                if (groundCheckTimer >= groundCheckDelay)
+                {
+                    groundCheckLocked = false;
+                    groundCheckTimer = 0f;
+                }
+            }
+
+            // Can only be grounded if initial delay is over
+            if (!groundCheckLocked)
+            {
+                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
+                if (grounded)
+                {
+                    jumpCounter = 0;
+                }
+            }
+        }
+        // -------------------- Movement ------------------------------------------------------------------------------------------
+        #region Movement
+        private Vector2 GetAxis()
+        {
+            Vector2 result = new Vector2(0f ,0f);
+            if (Input.IsKeyDown(Keys.KEY_A)) result.x = 1f;
+            else if (Input.IsKeyDown(Keys.KEY_D)) result.x = -1f;
+
+            if (Input.IsKeyDown(Keys.KEY_W)) result.y = 1f; 
+            else if (Input.IsKeyDown(Keys.KEY_S)) result.y = -1f;
+
+            return result;
+        }
+        void HandleMovement()
+        {
+            Vector2 input = GetAxis();
+            if (input.SquareMagnitude() > 1f) input.Normalize();
+
+            Vector3 camFwd = camRig != null ? camRig.GetFlatAimDirection(transform) : Vector3.Forward;
+            Vector3 camRight = Vector3.Cross(Vector3.Up, camFwd).Normalize();
+            Vector3 moveDirInput = camFwd * input.y + camRight * input.x;
+
+            float rawPlanarSpeed = moveDirInput.Magnitude() * walkSpeed;
+
             if (isGroundDashing || isAirDashing)
             {
                 float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
@@ -290,8 +363,8 @@ namespace SliceEngine
                 Vector3 finalMove = isGroundDashing
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
-
                 transform.Position += finalMove * Time.deltaTime;
+
 
                 if (rotateToDashDirection)
                 {
@@ -299,55 +372,18 @@ namespace SliceEngine
                     if (face.SquareMagnitude() > 0.0001f)
                         transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, Quaternion.LookRotation(face.Normalize(), Vector3.Up), 20f * Time.deltaTime);
                 }
-
-                if (animator != null)
-                {
-                    if (isGroundDashing)
-                    {
-                        //animator.SetBool("DashStart", true);
-                    }
-                    else if (isAirDashing)
-                    {
-
-                    }
-                    //
-                }
             }
             else if (isAttacking || isPlunging)
             {
                 if (isPlunging && !plungeImpulseStarted)
                 {
-                    // apply impulse
-                    plungeImpulseStarted = true;
-                    // ill jus copy the jump but apply it downwards
-                    float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * gravity);
-                    velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
-                }
-                // if it grounds when plunging
-                if (isPlunging && grounded)
-                {
-                    isPlunging = false;
-                    plungeImpulseStarted = false;
-                    // transition to plunge land
-                    if (animator != null)
-                    {
-                        animator.SetBool("PlungeLand", true);
-
-                        // check if there is input
-                        if (input != Vector3.Zero)
-                            animator.SetBool("PlungeToWalk", true);
-                        else
-                            animator.SetBool("PlungeToIdle", true);
-
-
-                        // if there is then transition to plunge walk
-                        // else transition to plunge idle?
-                    }
+                    // no movement at all
+                    // (skip calling Move with any Y to avoid CC grounded quirks)
                 }
                 else
                 {
-                // existing behavior for attacks / active plunge impulse
-                Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
+                    // existing behavior for attacks / active plunge impulse
+                    Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
                 }
             }
@@ -361,33 +397,31 @@ namespace SliceEngine
                     transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
                 }
 
-                Vector3 horizontal = moveDirInput * movementSpeed;
+                Vector3 horizontal = moveDirInput * walkSpeed;
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
             }
 
-            //if (animator)
-            //{
-            //    animator.SetFloat("Speed", (isAttacking ? 0f : rawPlanarSpeed));
-            //    //animator.SetFloat("YVel", velocity.y);
-            //    //animator.SetBool("IsDashing", isGroundDashing || isAirDashing);
-            //    animator.SetBool("IsAttacking", isAttacking);
-            //}
+            animator.SetFloat("Speed", (isAttacking ? 0f : rawPlanarSpeed));
+            //animator.SetFloat("YVel", velocity.y);
+            //animator.SetBool("IsDashing", isGroundDashing || isAirDashing);
+            animator.SetBool("IsAttacking", isAttacking);
 
+            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
 
-            //if (walkAudioSource != null)
-            //{
-            //    if (walkingNow)
-            //    {
-            //        if (!walkAudioSource.isPlaying)
-            //            walkAudioSource.Play();
-            //    }
-            //    else
-            //    {
-            //        if (walkAudioSource.isPlaying)
-            //            walkAudioSource.Stop();
-            //    }
-            //}
+            if (walkAudioSource != null)
+            {
+                if (walkingNow)
+                {
+                    if (!walkAudioSource.IsPlaying)
+                        walkAudioSource.Play();
+                }
+                else
+                {
+                    if (walkAudioSource.IsPlaying)
+                        walkAudioSource.Stop();
+                }
+            }
         }
 
         // -------------------- Jump ------------------------------------------------------------------------------------------
@@ -398,11 +432,7 @@ namespace SliceEngine
             if (wasGrounded && !grounded)
             {
                 lastAirTime = Time.time; // mark when airborne
-                if (animator != null)
-                {
-                    if (animator.SafeToChange("JumpLoop"))
-                        animator.SetBool("JumpLoop", true);
-                }
+                animator.SetBool("Grounded", false);
             }
 
             if (!wasGrounded && grounded)
@@ -416,7 +446,6 @@ namespace SliceEngine
                     //AudioManager.instance.PlaySFX("Land");
                     lastLandTime = Time.time;
 
-
                     //if (animator)
                     //{
                     //    animator.ResetTrigger("Land");
@@ -427,14 +456,7 @@ namespace SliceEngine
                 else
                 {
                     // still update animator grounded bool so we don't get stuck in 'air' state
-                    //if (animator) animator.SetBool("Grounded", true);
-                }
-
-
-                if (animator != null)
-                {
-                    if (animator.SafeToChange("Land"))
-                        animator.SetBool("Land", true);
+                    //animator.SetBool("Grounded", true);
                 }
 
                 doubleJumpAvailable = enableDoubleJump;
@@ -443,7 +465,7 @@ namespace SliceEngine
             }
 
             // Jump input disabled during attacks
-            if (!isAttacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            if (!isAttacking && Input.IsKeyDown(Keys.KEY_SPACEBAR))
                 lastJumpPressedTime = Time.time;
 
             bool canCoyote = (Time.time - lastGroundedTime) <= coyoteTime;
@@ -451,7 +473,7 @@ namespace SliceEngine
 
             if (!grounded && !canCoyote)
             {
-                if (!isAttacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                if (!isAttacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyDown(Keys.KEY_SPACEBAR))
                 {
                     DoDoubleJump();
                 }
@@ -466,11 +488,6 @@ namespace SliceEngine
 
                     lastJumpPressedTime = -999f;
                     lastGroundedTime = -999f;
-
-                    if (animator != null)
-                    {
-                        //animator.SetBool("JumpLoop", true);
-                    }
 
                     //if (animator)
                     //{
@@ -495,19 +512,18 @@ namespace SliceEngine
             {
                 velocity.y = 0f;
             }
-            else if (isPlunging && !plungeImpulseStarted)
-            {
-                velocity.y = 0f;
-            }
-            else if (grounded && velocity.y <= 0)
-            {
-                // Hard lock to ground
-                velocity.y = 0f;
-            }
             else
             {
-                // Airborne → apply gravity
-                velocity.y += gravity * Time.deltaTime;
+                if (isPlunging && !plungeImpulseStarted)
+                {
+                    velocity.y = 0f;            // keep perfectly suspended
+                                                // IMPORTANT: do NOT add gravity this frame
+                }
+                else
+                {
+                    if (grounded && velocity.y < 0f) velocity.y = groundedGravity;
+                    velocity.y += gravity * Time.deltaTime;
+                }
             }
 
             wasGrounded = grounded;
@@ -526,11 +542,6 @@ namespace SliceEngine
 
             //AudioManager.instance.PlaySFX("DoubleJump");
 
-            if (animator != null)
-            {
-                animator.SetBool("AirDashStart", true);
-            }
-
             //if (animator)
             //{
             //    animator.ResetTrigger("Jump");
@@ -545,15 +556,17 @@ namespace SliceEngine
         #region Dash
         void HandleDashInput()
         {
-            if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
+            if (!Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
+
+            bool groundedNow = grounded;
 
             // Dashes cancel the attack
             if (isAttacking)
             {
-                EndAttackState();
+                CancelAttackState();
             }
 
-            if (grounded)
+            if (groundedNow)
             {
                 if (!isGroundDashing && Time.time >= groundDashCooldownUntil) BeginGroundDash();
             }
@@ -565,69 +578,33 @@ namespace SliceEngine
 
         Vector3 ComputeFlatDashDir(bool useMoveDir)
         {
-            //bool hasInput = input.SquareMagnitude() > 0.0001f;
-            //if (hasInput) input = input.Normalize();
-
-            //if (!useMoveDir || !hasInput)
-            //{
-            //    Vector3 dir = (dashDefaultBackwards ? -transform.Forward : transform.Forward);
-            //    dir.y = 0f;
-            //    return dir.Normalize();
-            //}
-
-            //if (camera != null)
-            //{
-            //    Vector3 camForward = new Vector3();
-            //    camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-            //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-            //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-
-            //    return input.SquareMagnitude() > 0.0001f ? camForward
-            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
-            //}
-            //else
-            //{
-            //    Vector3 moveDirInput = transform.Forward * input.z + transform.Right * input.x;
-            //    moveDirInput.y = 0f;
-            //    return moveDirInput.SquareMagnitude() > 0.0001f ? moveDirInput.Normalize()
-            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
-            //}
+            Vector2 input = GetAxis();
             bool hasInput = input.SquareMagnitude() > 0.0001f;
-            if (hasInput)
-                input = input.Normalize();
+            if (hasInput) input.Normalize();
 
-            // --- NO INPUT OR FORCED FORWARD ---
             if (!useMoveDir || !hasInput)
             {
-                Vector3 forward = transform.Forward;
-                forward.y = 0f;
-                return (dashDefaultBackwards ? -forward : forward).Normalize();
+                Vector3 dir = (dashDefaultBackwards ? -transform.Forward: transform.Forward);
+                dir.y = 0f;
+                return dir.Normalize();
             }
 
-            // --- CAMERA-RELATIVE DASH ---
-            if (camera != null)
+            if (camRig != null)
             {
-                Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
-                camForward.y = 0f;
-                camForward = camForward.Normalize();
-
-                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward);
-
-                Vector3 dashDir =
-                    camForward * input.z +
-                    camRight * input.x;
-
-                dashDir.y = 0f;
-                return dashDir.Normalize();
+                Vector3 camFwd = camRig.GetFlatAimDirection(transform);
+                Vector3 camRight = Vector3.Cross(Vector3.Up, camFwd).Normalize();
+                Vector3 moveDirInput = camFwd * input.y + camRight * input.x;
+                moveDirInput.y = 0f;
+                return moveDirInput.SquareMagnitude() > 0.0001f ? moveDirInput.Normalize()
+                                                           : ((dashDefaultBackwards ? -transform.Forward: transform.Forward));
             }
-
-            // --- TRANSFORM-RELATIVE FALLBACK ---
-            Vector3 moveDir =
-                transform.Forward * input.z +
-                transform.Right * input.x;
-
-            moveDir.y = 0f;
-            return moveDir.Normalize();
+            else
+            {
+                Vector3 moveDirInput = transform.Forward * input.y + transform.Right* input.x;
+                moveDirInput.y = 0f;
+                return moveDirInput.SquareMagnitude() > 0.0001f ? moveDirInput.Normalize()
+                                                           : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
+            }
         }
 
         Vector3 AddUpwardAngle(Vector3 flatDir, float angleDeg)
@@ -649,34 +626,21 @@ namespace SliceEngine
             dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
             dashTimer = Math.Max(0.0001f, dashStartDuration);
 
-            //if (animator)
-            {
-                Vector3 flatFacing = transform.Forward;
-                flatFacing.y = 0f;
-                flatFacing.Normalize();
-                Vector3 flatDash = transform.Forward;
-                flatDash.y = 0f;
-                flatDash.Normalize();
-                float dot = Vector3.Dot(flatDash, flatFacing);
-                bool isBackDash = dot < backDashDotThreshold;
+            //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+            //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+            //float dot = Vector3.Dot(flatDash, flatFacing);
+            //bool isBackDash = dot < backDashDotThreshold;
 
-                //if (useBackdashAnimation && isBackDash)
-                //{
-                //    animator.ResetTrigger(backDashTrigger);
-                //    animator.SetTrigger(backDashTrigger);
-                //}
-                //else
-                //{
-                //    animator.ResetTrigger(fwdDashTrigger);
-                //    animator.SetTrigger(fwdDashTrigger);
-                //}
-            }
-
-            if (animator != null)
-            {
-                SliceLog.Log("Dash???");
-                animator.SetBool("DashStart", true);
-            }
+            //if (useBackdashAnimation && isBackDash)
+            //{
+            //    animator.ResetTrigger(backDashTrigger);
+            //    animator.SetTrigger(backDashTrigger);
+            //}
+            //else
+            //{
+            //    animator.ResetTrigger(fwdDashTrigger);
+            //    animator.SetTrigger(fwdDashTrigger);
+            //}
 
             //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
             //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
@@ -702,31 +666,23 @@ namespace SliceEngine
             dashTimer = Math.Max(0.0001f, airDashDuration);
             velocity.y = 0f;
 
-            //if (animator)
-            {
-                //animator.SetBool("Grounded", false);
+            animator.SetBool("Grounded", false);
 
-                Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
-                Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
-                float dot = Vector3.Dot(flatDash, flatFacing);
-                bool isBackDash = dot < backDashDotThreshold;
+            Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+            Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+            float dot = Vector3.Dot(flatDash, flatFacing);
+            bool isBackDash = dot < backDashDotThreshold;
 
-                //if (useBackdashAnimation && isBackDash)
-                //{
-                //    animator.ResetTrigger(backDashTrigger);
-                //    animator.SetTrigger(backDashTrigger);
-                //}
-                //else
-                //{
-                //    animator.ResetTrigger(airDashTrigger);
-                //    animator.SetTrigger(airDashTrigger);
-                //}
-            }
-
-            if (animator != null)
-            {
-                animator.SetBool("AirDashStart", true);
-            }
+            //if (useBackdashAnimation && isBackDash)
+            //{
+            //    animator.ResetTrigger(backDashTrigger);
+            //    animator.SetTrigger(backDashTrigger);
+            //}
+            //else
+            //{
+            //    animator.ResetTrigger(airDashTrigger);
+            //    animator.SetTrigger(airDashTrigger);
+            //}
 
             //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
             //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
@@ -758,7 +714,6 @@ namespace SliceEngine
         {
             isGroundDashing = false;
             groundDashCooldownUntil = Time.time + dashCooldown;
-
         }
 
         void EndAirDash()
@@ -784,314 +739,58 @@ namespace SliceEngine
         //        yield return null;
         //    }
         //}
-        void EndAttackState()
-        {
-            isAttacking = false;
-            attackIndex = 0;
-            attackTimer = 0f;
-            queuedNext = false;
-            queuedFacingOverride = false;
 
-            // Clear movement bursts
-            isLunging = false;
-            lungeStarted = false;
-
-            atk3ArcActive = false;
-            atk3ImpulseFired = false;
-            atk3HorizVel = Vector3.Zero;
-
-            //if (animator) animator.SetBool("IsAttacking", false);
-        }
         #endregion
-        #region Movement
-        //private void OldHandleMovement()
-        //{
-        //    Transform camTransform;
 
-        //    if (camera == null)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        camTransform = camera.transform;
-        //    }
+        // -------------------- Attack Input & Update ------------------------------------------------------------------------------------------
+        #region Attack Inputs
 
-        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-
-        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-
-        //    if (isDashing) return;
-
-        //    if (grounded)
-        //    {
-        //        // Reset vertical velocity when grounded
-        //        if (verticalVelocity < 0f)
-        //            verticalVelocity = 0f;
-        //    }
-        //    else
-        //    {
-        //        // Apply gravity
-        //        verticalVelocity += gravity * Time.deltaTime;
-
-        //        // Optional terminal velocity clamp
-        //        if (verticalVelocity < terminalVelocity)
-        //            verticalVelocity = terminalVelocity;
-        //    }
-
-        //    // Handle regular movement
-        //    Vector3 horizontalMovement = moveDir * moveSpeed;
-
-        //    if (moveDir.LengthSquared() > 0.01f)
-        //    {
-        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-        //    }
-
-        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-        //    {
-        //        if (!isDashing) StartCoroutine(Dash(moveDir));
-        //    }
-
-        //    transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
-
-        //    //Console.WriteLine(animator.GetCurrAnimName());
-        //}
-        //private void HandlePhysicsMovement()
-        //{
-        //    Transform camTransform;
-
-        //    if (camera == null)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        camTransform = camera.transform;
-        //    }
-
-        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-
-        //    if (isDashing) return;
-
-        //    // Handle regular movement
-        //    Vector3 movement = moveDir * moveSpeed;
-        //    bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
-        //    if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
-
-        //    rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
-
-        //    if (moveDir.LengthSquared() > 0.01f)
-        //    {
-        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-        //    }
-
-        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-        //    {
-        //        if (!isDashing) StartCoroutine(Dash(moveDir));
-        //    }
-
-
-        //    //Console.WriteLine(animator.GetCurrAnimName());
-        //}
-        //private void TryJump()
-        //{
-        //    if (CanJump())
-        //    {
-
-        //        rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
-        //        jumpCounter++;
-
-        //        if (jumpCounter == 1)
-        //        {
-        //            if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-        //                animator.SetBool("JumpLoop", true);
-        //            AudioSettings.PlaySFX("Jump");
-        //        }
-        //        else if (jumpCounter == 2)
-        //        {
-        //            if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-        //                        String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-        //            {
-        //                animator.SetBool("AirDashStart", true);
-        //            }
-        //            AudioSettings.PlaySFX("DoubleJump");
-        //        }
-
-        //        rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
-        //        groundCheckLocked = true;
-        //        grounded = false;
-
-        //        Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
-        //    }
-        //}
-        //private bool CanJump()
-        //{
-        //    return grounded || jumpCounter < maxJumps;
-        //}
-        private void GroundCheck()
+        private void InitializeHitboxes()
         {
-            if (groundCheckLocked)
-            {
-                groundCheckTimer += Time.deltaTime;
-                if (groundCheckTimer >= groundCheckDelay)
-                {
-                    groundCheckLocked = false;
-                    groundCheckTimer = 0f;
-                }
-            }
-
-            // Can only be grounded if initial delay is over
-            if (!groundCheckLocked)
-            {
-                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
-                if (grounded)
-                {
-                    jumpCounter = 0;
-                    //if (!isAttacking)
-                    //    &&
-                    //    (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 && input == Vector3.Zero) ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-                    //    String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-                    //    String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
-                    //animator.SetBool("Idle", true);
-                }
-            }
-            //Console.WriteLine("Grounded: " + grounded);
+            //basicHB_1.HitBoxListeners += Attack_1_Damage;
+            //basicHB_2.HitBoxListeners += Attack_2_Damage;
+            //basicHB_3.HitBoxListeners += Attack_3_Damage;
+            //plungeHB.HitBoxListeners += Plunge_Damage;
         }
-        //private IEnumerator Dash(Vector3 dashDir)
+
+        //public void Attack_1_Damage(GameObject entityToDamage)
         //{
-        //    isDashing = true;
-
-        //    AudioSettings.PlaySFX("Dash");
-
-        //    Vector3 dash = Vector3.Zero;
-
-        //    animator.SetBool("AirDashStart", true);
-
-        //    if (input == Vector3.Zero) dash = playerModel.GetComponent<Transform>().RotationQuat * transform.Backward * dashMultiplier;
-        //    else dash = dashDir * dashMultiplier;
-
-        //    rb.Velocity = new Vector3(dash.x, 0f, dash.z);
-
-        //    yield return new WaitForSeconds(dashDuration);
-
-        //    isDashing = false;
-        //}
-        //private void ExampleMovement()
-        //{
-        //Vector3 right = Vector3.Cross(up, direction).Normalize();
-        //float rotationSpeedFrame = rotationSpeed * Time.deltaTime;
-
-        //if (testingShit == false)
-        //{
-        //    CloneGO("GameObject_2");
-        //    testingShit = true;
-        //}
-        //// Forwards
-        //if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
-        //{
-        //    //t.Position += direction * moveSpeed * dt;
-
-        //    transform.Position += direction * moveSpeed * Time.deltaTime;
-
-        //    // animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
+        //    if (entityToDamage.TryGetComponent<EnemyBehaviour>(out EnemyBehaviour objectToDamage))
+        //    {
+        //        objectToDamage.TakeDamage(attack1_Damage, gameObject);
+        //    }
         //}
 
-        //// Left
-        //if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
+        //public void Attack_2_Damage(GameObject entityToDamage)
         //{
-        //    //t.Position -= right * moveSpeed * dt;
-        //    Vector3 rotationAxis = new Vector3(0, 1, 0); // Y-axis
-        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
-        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
-
-        //    this.direction = rotation * this.direction;
-        //    this.up = rotation * this.up;
-
-
-        //    //  animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
+        //    if (entityToDamage.TryGetComponent<EnemyBehaviour>(out EnemyBehaviour objectToDamage))
+        //    {
+        //        objectToDamage.TakeDamage(attack2_Damage, gameObject);
+        //    }
         //}
-
-        //// Backward
-        //if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
+        //public void Attack_3_Damage(GameObject entityToDamage)
         //{
-        //    //t.Position -= direction * moveSpeed * dt;
-
-        //    transform.Position -= direction * moveSpeed * Time.deltaTime;
-        //    //    animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
+        //    if (entityToDamage.TryGetComponent<EnemyBehaviour>(out EnemyBehaviour objectToDamage))
+        //    {
+        //        objectToDamage.TakeDamage(attack3_Damage, gameObject);
+        //    }
         //}
-
-        //// Right
-        //if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
+        //public void Plunge_Damage(GameObject entityToDamage)
         //{
-        //    //t.Position += right * moveSpeed * dt;
-        //    //   animator.ChangeAnim(21);
-        //    Vector3 rotationAxis = new Vector3(0, -1, 0); // Y-axis
-        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
-        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
-
-        //    this.direction = rotation * this.direction;
-        //    this.up = rotation * this.up;
-
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Attack", false);
-        //    animator.SetBool("Idle", false);
-        //}
-
-        //transform.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
-
-        //if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
-        //{
-        //    //  animator.ChangeAnim(13);
-        //    animator.SetBool("Idle", true);
-        //    animator.SetBool("Attack", false);
-        //    animator.SetBool("Run", false);
-        //}
-
-        //// Up (Spacebar)
-        //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
-        //{
-        //    transform.Position += new Vector3(0, 1, 0) * moveSpeed * Time.deltaTime;
+        //    if (entityToDamage.TryGetComponent<EnemyBehaviour>(out EnemyBehaviour objectToDamage))
+        //    {
+        //        objectToDamage.TakeDamage((int)((float)plunge_Damage * (1f + _plungemodifierCount)), gameObject);
+        //    }
         //}
 
 
-        //// Scale Down
-        //if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
-        //{
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Run", false);
-        //    animator.SetBool("Attack", true);
-        //}
-        //}
-        #endregion
-        #region New Attacks
+
         void HandleAttackInput()
         {
             if (!grounded && !isAttacking && !isPlunging) // Plunge: only if airborne and not already attacking
 
             {
-                if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
+                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT))
                 {
                     BeginPlunge();
                     return; // don't go into normal combo logic
@@ -1100,7 +799,7 @@ namespace SliceEngine
 
             if (isGroundDashing || isAirDashing) return;
 
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
+            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT))
             {
                 if (!isAttacking)
                 {
@@ -1112,34 +811,24 @@ namespace SliceEngine
                     {
                         queuedNext = true;
 
-                        Vector3 camForward = new Vector3();
-                        if (camera != null)
-                        {
-                            camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-                            camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-                            camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-                        }
-
-                        Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
-                        Vector3 moveDirInput = camForward * input.z + camRight * input.x;
-
-                        bool hasMoveInput = input == Vector3.Zero;
+                        Vector3 desiredFacing;
+                        bool hasMoveInput = TryGetCameraRelativeMove(out desiredFacing);
 
                         if (hasMoveInput)
                         {
-                            moveDirInput.y = 0f;
-                            if (moveDirInput.SquareMagnitude() > 0.0001f)
+                            desiredFacing.y = 0f;
+                            if (desiredFacing.SquareMagnitude() > 0.0001f)
                             {
-                                transform.RotationQuat = Quaternion.LookRotation(moveDirInput, Vector3.Up);
+                                transform.RotationQuat = Quaternion.LookRotation(desiredFacing, Vector3.Up);
                                 queuedFacingOverride = true;
-                                queuedFacing = moveDirInput.Normalize();
+                                queuedFacing = desiredFacing.Normalize();
                             }
                         }
                         else
                         {
                             queuedFacingOverride = true;
                             Vector3 f = transform.Forward; f.y = 0f;
-                            queuedFacing = (f.SquareMagnitude() > 0.0001f) ? f.Normalize() : Vector3.Forward;
+                            queuedFacing = (f.SquareMagnitude() > 0.0001f) ? f.Normalize(): Vector3.Forward;
                         }
                     }
                 }
@@ -1148,6 +837,7 @@ namespace SliceEngine
 
         void BeginAttack(int index)
         {
+            canPlaySlimeHitSFX = true;
             isAttacking = true;
             attackIndex = index;
             attackTimer = 0f;
@@ -1184,30 +874,28 @@ namespace SliceEngine
             }
 
 
-            //if (animator)
+            //if (index == 1)
             //{
-            //    if (index == 1)
-            //    {
-            //        animator.ResetTrigger(atk1Trigger);
-            //        animator.SetTrigger(atk1Trigger);
-            //        StartCoroutine(SpawnVFX(slashVFX[0]));
-            //        AudioManager.instance.PlaySFX("A1");
-            //    }
-            //    else if (index == 2)
-            //    {
-            //        animator.ResetTrigger(atk2Trigger);
-            //        animator.SetTrigger(atk2Trigger);
-            //        StartCoroutine(SpawnVFX(slashVFX[1]));
-            //        AudioManager.instance.PlaySFX("A2");
-            //    }
-            //    else
-            //    {
-            //        animator.ResetTrigger(atk3Trigger);
-            //        animator.SetTrigger(atk3Trigger);
-            //        StartCoroutine(SpawnVFX(slashVFX[2]));
-            //        AudioManager.instance.PlaySFX("A3");
-            //    }
-            animator.SetBool("IsAttacking", true);
+            //    animator.ResetTrigger(atk1Trigger);
+            //    animator.SetTrigger(atk1Trigger);
+            //    StartCoroutine(SpawnVFX(slashVFX[0]));
+            //    AudioManager.instance.PlaySFX("A1");
+            //}
+            //else if (index == 2)
+            //{
+            //    animator.ResetTrigger(atk2Trigger);
+            //    animator.SetTrigger(atk2Trigger);
+            //    StartCoroutine(SpawnVFX(slashVFX[1]));
+            //    AudioManager.instance.PlaySFX("A2");
+            //}
+            //else
+            //{
+            //    animator.ResetTrigger(atk3Trigger);
+            //    animator.SetTrigger(atk3Trigger);
+            //    StartCoroutine(SpawnVFX(slashVFX[2]));
+            //    AudioManager.instance.PlaySFX("A3");
+            //}
+            //animator.SetBool("IsAttacking", true);
         }
 
         void UpdateAttack()
@@ -1255,6 +943,122 @@ namespace SliceEngine
                 }
             }
         }
+
+        void EndAttackToIdle()
+        {
+            EndAttackState();
+        }
+
+        void EndAttackState()
+        {
+            isAttacking = false;
+            attackIndex = 0;
+            attackTimer = 0f;
+            queuedNext = false;
+            queuedFacingOverride = false;
+
+            // Clear movement bursts
+            isLunging = false;
+            lungeStarted = false;
+
+            atk3ArcActive = false;
+            atk3ImpulseFired = false;
+            atk3HorizVel = Vector3.Zero;
+
+            //animator.SetBool("IsAttacking", false);
+        }
+
+        void CancelAttackState()
+        {
+            EndAttackState();
+        }
+
+        bool IsInChainWindow()
+        {
+            float dur = GetCurrentAttackDuration();
+            float lead = GetCurrentChainLead();
+            return isAttacking && attackTimer >= (dur - lead) && attackTimer <= dur;
+        }
+
+        float GetCurrentAttackDuration() //Used to determine snappiness of next input
+        {
+            switch (attackIndex)
+            {
+                case 1: return atk1Duration;
+                case 2: return atk2Duration;
+                case 3: return atk3Duration;
+                default: return 0f;
+            }
+        }
+
+        float GetCurrentChainLead()
+        {
+            switch (attackIndex)
+            {
+                case 1: return atk1ChainLead;
+                case 2: return atk2ChainLead;
+                case 3: return atk3ChainLead;
+                default: return 0f;
+            }
+        }
+
+        #endregion
+
+        // -------------------- Lunge ------------------------------------------------------------------------------------------
+        #region Lunge
+
+        void PrepareLunge(float distance, float duration, float delay, Vector3 facingOverride)
+        {
+            isLunging = true;
+            lungeStarted = false;
+            lungeTimer = 0f;
+            lungeDuration = Math.Max(0.0001f, duration);
+            lungeDelay = Math.Max(0f, delay);
+
+            Vector3 f = facingOverride; f.y = 0f;
+            if (f.SquareMagnitude() < 0.0001f)
+            {
+                f = transform.Forward; f.y = 0f;
+            }
+            lungeDir = f.Normalize();
+            lungeSpeed = distance / lungeDuration;
+        }
+
+        void UpdateLunge()
+        {
+            if (!isLunging) return;
+
+            lungeTimer += Time.deltaTime;
+
+            if (!lungeStarted)
+            {
+                if (lungeTimer >= lungeDelay)
+                {
+                    lungeStarted = true;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            if (lungeStarted && lungeTimer <= (lungeDelay + lungeDuration))
+            {
+                Vector3 lungeVel = lungeDir * lungeSpeed;
+                Vector3 finalMove = new Vector3(lungeVel.x, 0f, lungeVel.z) * Time.deltaTime;
+                transform.Position += finalMove;
+            }
+            else
+            {
+                isLunging = false;
+            }
+        }
+
+        #endregion
+
+        // -------------------- Attack 3 Jump ------------------------------------------------------------------------------------------
+        #region Attack 3
+
         void PrepareAtk3Arc(Vector3 facingOverride)
         {
             atk3ArcActive = true;
@@ -1310,6 +1114,12 @@ namespace SliceEngine
                 atk3HorizVel = Vector3.Zero;
             }
         }
+
+        #endregion
+
+        // -------------------- Plunge Attack ------------------------------------------------------------------------------------------
+        #region Plunge
+
         void BeginPlunge()
         {
             //AudioManager.instance.PlaySFX("Plunge");
@@ -1330,13 +1140,11 @@ namespace SliceEngine
             if (plungeDir.SquareMagnitude() < 0.001f) plungeDir = Vector3.Forward;
             plungeDir.Normalize();
 
-            //if (animator)
-            //{
-            //    animator.ResetTrigger(plungeTrigger);
-            //    animator.SetTrigger(plungeTrigger);
-            //    animator.SetBool("IsAttacking", true);
-            //}
+            //animator.ResetTrigger(plungeTrigger);
+            //animator.SetTrigger(plungeTrigger);
+            //animator.SetBool("IsAttacking", true);
         }
+
         void UpdatePlunge()
         {
             if (!isPlunging) return;
@@ -1377,345 +1185,259 @@ namespace SliceEngine
             plungeImpulseStarted = false;
             //StartCoroutine(SpawnVFX(slashVFX[3]));
 
-            //if (animator)
-            //{
-            //    animator.SetBool("IsAttacking", false);
-            //}
-
-            //camRig.Shake(40.0f, 0.5f);
+            animator.SetBool("IsAttacking", false);
         }
-        void PrepareLunge(float distance, float duration, float delay, Vector3 facingOverride)
+
+        #endregion
+
+        // -------------------- Devices ------------------------------------------------------------------------------------------
+        #region Devices
+
+        //private void HandleDeviceInput()
+        //{
+        //    if (Input.IsKeyDown(Keys.KEY_R))
+        //    {
+        //        TeleportBack();
+        //    }
+
+        //}
+        //void TeleportBack()
+        //{
+        //    if (!_teleportCoolingDown)
+        //    {
+        //        ignoreMovementThisFrame = true;
+
+        //        this.ForceWarp(PayloadBehaviour.instance.TeleportPoint.position);
+        //        //this.transform.position = PayloadBehaviour.instance.TeleportPoint.position;
+        //        //this.transform.rotation = Quaternion.Euler(new Vector3(0, PayloadBehaviour.instance.TeleportPoint.rotation.eulerAngles.y , 0));
+
+        //        StartCoroutine(TeleportCooldown());
+        //    }
+        //    else
+        //    {
+
+        //    }
+        //}
+
+        //IEnumerator TeleportCooldown()
+        //{
+        //    float count = 0f;
+        //    _teleportCoolingDown = true;
+
+        //    HUDController.Instance.ToggleTeleport(false);
+
+        //    while (_teleportCoolingDown)
+        //    {
+        //        count += Time.fixedDeltaTime;
+        //        if (count >= teleportCooldown)
+        //        {
+        //            _teleportCoolingDown = false;
+        //        }
+        //        else
+        //        {
+        //            //HUDController.Instance.SetTauntSlider(count / tauntCooldown);
+        //        }
+        //        yield return new WaitForSeconds(Time.fixedDeltaTime);
+        //    }
+
+        //    //HUDController.Instance.SetTauntSlider(1f);
+        //    HUDController.Instance.ToggleTeleport(true);
+        //}
+
+        #endregion
+
+        // -------------------- Ultimate ------
+
+        #region Ultimate
+
+
+        bool _ultiOnCooldown = true;
+
+
+        //public void TryToUlt()
+        //{
+        //    if (!_ultiOnCooldown)
+        //    {
+        //        ultimate.SetActive(true);
+
+        //        StartCoroutine(UltiCooldown());
+        //    }
+        //}
+
+        //IEnumerator UltiCooldown()
+        //{
+        //    float count = 0f;
+        //    _ultiOnCooldown = true;
+
+        //    //HUDController.Instance.ToggleTaunt(false);
+
+        //    HUDController.Instance.UltimateUsed();
+
+        //    while (_ultiOnCooldown)
+        //    {
+        //        count += Time.fixedDeltaTime;
+        //        if (count >= ultiCooldown)
+        //        {
+        //            _ultiOnCooldown = false;
+        //        }
+        //        else
+        //        {
+        //            //HUDController.Instance.SetTauntSlider(count / tauntCooldown);
+        //            HUDController.Instance.SetUltimateSlider(count / ultiCooldown);
+        //        }
+        //        yield return new WaitForSeconds(Time.fixedDeltaTime);
+        //    }
+
+        //    //HUDController.Instance.SetTauntSlider(1f);
+        //    //HUDController.Instance.ToggleTaunt(true);
+        //    HUDController.Instance.UltimateReady();
+
+        //    yield break;
+
+        //}
+
+        #endregion
+        // -------------------- Helpers ------------------------------------------------------------------------------------------
+        bool TryGetCameraRelativeMove(out Vector3 dir)
         {
-            isLunging = true;
-            lungeStarted = false;
-            lungeTimer = 0f;
-            lungeDuration = Math.Max(0.0001f, duration);
-            lungeDelay = Math.Max(0f, delay);
+            Vector2 input = GetAxis();
 
-            Vector3 f = facingOverride; f.y = 0f;
-            if (f.SquareMagnitude() < 0.0001f)
+            if (input.SquareMagnitude() > 0.0001f)
             {
-                f = transform.Forward; f.y = 0f;
-            }
-            lungeDir = f.Normalize();
-            lungeSpeed = distance / lungeDuration;
-        }
-        void UpdateLunge()
-        {
-            if (!isLunging) return;
-
-            lungeTimer += Time.deltaTime;
-
-            if (!lungeStarted)
-            {
-                if (lungeTimer >= lungeDelay)
+                input.Normalize();
+                if (camRig != null)
                 {
-                    lungeStarted = true;
+                    Vector3 camFwd = camRig.GetFlatAimDirection(transform);
+                    Vector3 camRight = Vector3.Cross(Vector3.Up, camFwd).Normalize();
+                    Vector3 moveDirInput = camFwd * input.y + camRight * input.x;
+                    moveDirInput.y = 0f;
+                    if (moveDirInput.SquareMagnitude() > 0.0001f)
+                    {
+                        dir = moveDirInput.Normalize();
+                        return true;
+                    }
                 }
                 else
                 {
-                    return;
+                    Vector3 moveDirInput = transform.Forward * input.y + transform.Right* input.x;
+                    moveDirInput.y = 0f;
+                    if (moveDirInput.SquareMagnitude()> 0.0001f)
+                    {
+                        dir = moveDirInput.Normalize();
+                        return true;
+                    }
                 }
             }
+            dir = Vector3.Zero;
+            return false;
+        }
 
-            if (lungeStarted && lungeTimer <= (lungeDelay + lungeDuration))
+        //private IEnumerator SpawnVFX(VFX vfxToSpawn, bool parent = false)
+        //{
+        //    yield return new WaitForSeconds(vfxToSpawn.delay);
+        //    var go = Instantiate(vfxToSpawn.vfxPrefab, VFXZeroPoint.position, VFXZeroPoint.rotation, parent ? transform : null);
+        //    Destroy(go, 5f);
+        //}
+
+        // -------------------- Ember ------------------------------------------------------------------------------------------
+        #region Ember
+        /* //=== EZE'S GAS REMOVE EDIT ===
+        public bool AddGas(int amount)
+        {
+            if (currentGas >= maxGas)
             {
-                Vector3 lungeVel = lungeDir * lungeSpeed;
-                Vector3 finalMove = new Vector3(lungeVel.x, 0f, lungeVel.z) * Time.deltaTime;
-                transform.Position += finalMove;
+                currentGas = maxGas;
+                return false;
             }
             else
             {
-                isLunging = false;
+                currentGas += amount;
+                HUDController.Instance.SetPlayerEmber((float)currentGas / (float)maxGas);
+                return true;
             }
+            //Add the rest of effects that relies on this
         }
 
-        void EndAttackToIdle()
+        public bool RemoveGas(int amount)
         {
-            EndAttackState();
-        }
-
-
-        void CancelAttackState()
-        {
-            EndAttackState();
-        }
-
-        bool IsInChainWindow()
-        {
-            float dur = GetCurrentAttackDuration();
-            float lead = GetCurrentChainLead();
-            return isAttacking && attackTimer >= (dur - lead) && attackTimer <= dur;
-        }
-
-        float GetCurrentAttackDuration() //Used to determine snappiness of next input
-        {
-            switch (attackIndex)
+            if (currentGas <= 0)
             {
-                case 1: return atk1Duration;
-                case 2: return atk2Duration;
-                case 3: return atk3Duration;
-                default: return 0f;
+                currentGas = 0;
+                return false;
+            }
+            else
+            {
+                currentGas -= amount;
+                HUDController.Instance.SetPlayerEmber((float)currentGas / (float)maxGas);
+                return true;
             }
         }
 
-        float GetCurrentChainLead()
-        {
-            switch (attackIndex)
-            {
-                case 1: return atk1ChainLead;
-                case 2: return atk2ChainLead;
-                case 3: return atk3ChainLead;
-                default: return 0f;
-            }
-        }
+        */ //=== EZE'S GAS REMOVE EDIT ===
         #endregion
-        #region Old Attacks
-        private void InitializeAttackHitboxes()
-        {
-            attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<Hitbox>();
-            attack1HB.OnAttack += Attack1;
-            if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
-            else Console.WriteLine("Attack 1 hitbox found");
 
-            attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<Hitbox>();
-            attack2HB.OnAttack += Attack2;
-            if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
-            else Console.WriteLine("Attack 2 hitbox found");
+        // -------------------- Item ------------------------------------------------------------------------------------------
+        #region Item
 
-            attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<Hitbox>();
-            attack3HB.OnAttack += Attack3;
-            if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
-            else Console.WriteLine("Attack 3 hitbox found");
-        }
-        private void TryAttack()
-        {
-            // transition to plunge if in air
-            if (!grounded && isPlunging == false)
-            {
-                // do plunge?
-                isPlunging = true;
-                if (animator != null)
-                {
-                    animator.SetBool("Plunge", true);
-                }
-                return;
-            }
+        private int itemsCollected = 0;
+        public int ItemsCollected
+        { get { return itemsCollected; } }
 
-            if (!isAttacking && !isPlunging)
-            {
-                attackCounter++;
-                if (attackCounter > 3) attackCounter = 1;
-                switch (attackCounter)
-                {
-                    case 1:
-                        attack1HB.OnAttack.Invoke();
-                        break;
-                    case 2:
-                        attack2HB.OnAttack.Invoke();
-                        break;
-                    case 3:
-                        attack3HB.OnAttack.Invoke();
-                        break;
-                    default:
-                        break;
-                }
-                attackResetTimer = 0f;
-                Console.WriteLine("Attack Counter: " + attackCounter);
-            }
-        }
-        private void AttackResetTimer()
+        public void OnCollect()
         {
-            if (!isAttacking) attackResetTimer += Time.deltaTime;
-            if (attackResetTimer >= attackResetTime)
-            {
-                attackCounter = 0;
-                attackResetTimer = 0f;
-
-                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-                {
-                    if (animator.SafeToChange("AttackToIdle1"))
-                        animator.SetBool("AttackToIdle1", true);
-                }
-                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                {
-                    if (animator.SafeToChange("AttackToIdle2"))
-                        animator.SetBool("AttackToIdle2", true);
-                }
-                if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
-                {
-                    if (animator.SafeToChange("Attack3ToLoco"))
-                        animator.SetBool("Attack3ToLoco", true);
-                }
-            }
+            itemsCollected++;
+            // Add any additional logic for collecting items, such as updating UI or playing sound effects
         }
-        private void Attack1()
+        public int DropOffItems()
         {
-            StartCoroutine(InAttackCoroutine(attack1Duration, null));
-            animator.SetBool("Attack1", true);
-            AudioSettings.PlaySFX("A1");
-            //if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
-            //{
-            //    animator.SetBool("Attack1", true);
-            //}
-            //StartCoroutine(InAttackCoroutine(attack1Duration, () =>
-            //{
-            //    animator.SetBool("AttackToIdle1", true);
-            //    Console.WriteLine("Attack 1 finished");
-            //    Console.WriteLine(animator.GetCurrAnimName());
-            //    StartCoroutine(AnimationCoroutine(1.316f, () =>
-            //    {
-            //        Console.WriteLine(animator.GetCurrAnimName());
-            //        animator.SetBool("Idle", true);
-            //        Console.WriteLine("Returned to idle");
-            //    }));
-            //}));
-            List<EnemySlime> enemiesHit = attack1HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack1Damage);
-            }
-            Console.WriteLine("Attack 1 executed");
-        }
-        private void Attack2()
-        {
-            if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-            {
-                animator.SetBool("Attack2", true);
-            }
-            StartCoroutine(InAttackCoroutine(attack2Duration, null));
-            AudioSettings.PlaySFX("A2");
-            //animator.SetBool("Attack2", true);
-            //StartCoroutine(InAttackCoroutine(attack2Duration, () =>
-            //{
-            //    animator.SetBool("AttackToIdle2", true);
-            //    Console.WriteLine("Attack 2 finished");
-            //    StartCoroutine(AnimationCoroutine(0.816f, () =>
-            //    {
-            //        animator.SetBool("Idle", true);
-            //        Console.WriteLine("Returned to idle");
-            //    }));
-            //}));
-            List<EnemySlime> enemiesHit = attack2HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack2Damage);
-            }
-            Console.WriteLine("Attack 2 executed");
-        }
-        private void Attack3()
-        {
-            if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-            {
-                animator.SetBool("Attack3", true);
-            }
-            StartCoroutine(InAttackCoroutine(attack3Duration, null));
-            AudioSettings.PlaySFX("A3");
-            //animator.SetBool("Attack3", true);
-            //StartCoroutine(InAttackCoroutine(attack3Duration, null));
-            List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack3Damage);
-            }
-            Console.WriteLine("Attack 3 executed");
-        }
-        private IEnumerator InAttackCoroutine(float duration, Action endAction)
-        {
-            canMove = false;
-            isAttacking = true;
-            Console.WriteLine("Is attacking");
-            yield return new WaitForSeconds(duration);
-            Console.WriteLine("Can attack");
-            endAction?.Invoke();
-            canMove = true;
-            isAttacking = false;
-        }
-        private bool AttackAnimationState()
-        {
-            if (!isAttacking)
-            {
-                if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-                    String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
-                    return true;
-            }
-            return false;
-        }
-        private void AnimationStateHandling()
-        {
-            if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-            {
-                animator.SetBool("AttackToIdle1", true);
-            }
-            if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-            {
-                animator.SetBool("AttackToIdle2", true);
-            }
-            if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
-            {
-                animator.SetBool("Attack3ToLoco", true);
-            }
-
-            if (isAttacking)
-            {
-                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-                {
-                    animator.SetBool("Attack2", false);
-                }
-                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                {
-                    animator.SetBool("Attack3", false);
-                }
-            }
-            if (!isAttacking)
-            {
-                if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-                String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-                String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0)
-                    animator.SetBool("Idle", true);
-            }
-        }
-        private IEnumerator AnimationCoroutine(float duration, Action endAction)
-        {
-            yield return new WaitForSeconds(duration);
-            endAction?.Invoke();
-        }
-        #endregion
-        public override void OnCollideEnter(uint other)
-        {
-            // SliceLog.Log("OADMOSMODASM");
-            // gameObject.Destroy();
-        }
-        public void OnGrounded()
-        {
-
+            int amount = itemsCollected; // Returns the amount of items dropped off
+            itemsCollected -= itemsCollected;
+            return amount;
+            // Add any additional logic for dropping off items, such as updating UI or playing sound effects
         }
 
-        #region On Overrides
-        protected override void OnHeal() { }
+        protected override void OnHeal()
+        {
+        }
+
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine("Player Taking Damage. Current Health: ");
-            Console.WriteLine(currentHealth);
-            Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
         }
-
-        private bool isDead = false;
 
         public override void OnDeath()
         {
-            if (!isDead)
-            {
-                isDead = true;
-
-                Bootstrap.LevelDirector.Lose();
-                //this.gameObject.Destroy();
-            }
         }
+
+        #endregion
+
+        // -------------------- Entity Overrides ------------------------------------------------------------------------------------------
+        #region Entity Overrides
+        //public override void TakeDamage(int amount, GameObject source = null)
+        //{
+        //    if (UltimateAnimationEventForwarder.IsUlting) return;
+        //    base.TakeDamage(amount, source);
+        //}
+        //protected override void OnHeal()
+        //{
+        //    //throw new System.NotImplementedException();
+        //    HUDController.Instance.SetHealth((float)Health / (float)MaxHealth);
+        //}
+
+        //protected override void OnDamaged(GameObject source)
+        //{
+        //    HUDController.Instance.SetHealth((float)Health / (float)MaxHealth);
+        //    StopRegen();
+        //}
+
+        //public override void OnDeath()
+        //{
+        //    if (dead != true)
+        //    {
+        //        LevelDirector.Instance.LoseGame();
+        //        dead = true;
+        //    }
+        //}
+
         #endregion
     }
 }
