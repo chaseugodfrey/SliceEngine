@@ -294,6 +294,8 @@ namespace SliceEngine
             return;
         }
 
+        ClearManagedHandles();
+
         // clear the collision queue events 
         {
             std::lock_guard<std::mutex> lock(mQueueLock);
@@ -465,6 +467,26 @@ namespace SliceEngine
 
 
             scriptRef->InvokeOnConstruct((unsigned int)id);
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
+            scriptRef->InvokeOnAwake();
+        }
+
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
         }
@@ -496,8 +518,27 @@ namespace SliceEngine
             else
             {
                 scriptRef->InvokeOnUpdate(dt);
-                UpdateScriptComponent(id);
+                
             }
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+                continue;
+            }
+
+            UpdateScriptComponent(id);
         }
     }
 
@@ -546,6 +587,8 @@ namespace SliceEngine
 
     void ScriptSystem::OnEnd()
     {
+        ClearManagedHandles();
+
         for (auto& it : mEntityInstances)
         {
             if (it.second->mHandle)
@@ -699,7 +742,7 @@ namespace SliceEngine
                                 scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
                                 break;
                             case ScriptFieldType::Prefab:
-                                scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
+                                //scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
                                 break;
                             }
                         }
@@ -760,14 +803,14 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        else if (it.second.mType == ScriptFieldType::GameObject)
-                        {
-                            //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
-                            //scriptComponent.scriptableFieldMap[it.first] = var;
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{
+                        //    //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    //scriptComponent.scriptableFieldMap[it.first] = var;
 
-                            // test
+                        //    // test
 
-                        }
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -801,11 +844,11 @@ namespace SliceEngine
                             std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
-                        else if (it.second.mType == ScriptFieldType::Prefab)
-                        {
-                            std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
-                            scriptComponent.scriptableFieldMap[it.first] = var;
-                        }
+                        //else if (it.second.mType == ScriptFieldType::Prefab)
+                        //{
+                        //    std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)
@@ -912,16 +955,36 @@ namespace SliceEngine
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
 
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            mCollisionQueue.erase(
+                std::remove_if(mCollisionQueue.begin(), mCollisionQueue.end(),
+                    [entity](const QueuedCollisionEvent& ev) {
+                        // Remove if the script-owning entity OR the 'other' entity is gone
+                        return ev.entity == entity || ev.other == entity;
+                    }),
+                mCollisionQueue.end()
+            );
+        }
+
         for (auto& it : mEntityInstances)
         {
             if (it.first == entity)
             {
-                mono_gchandle_free(it.second->mHandle);
-				it.second->mHandle = 0;
+    //            mono_gchandle_free(it.second->mHandle);
+				//it.second->mHandle = 0;
+                it.second->Destroy();
 
                 mEntityInstances.erase(it.first);
                 break;
             }
+        }
+
+        auto it = mManagedGameObjectHandles.find(entity);
+        if (it != mManagedGameObjectHandles.end())
+        {
+            mono_gchandle_free(it->second);
+            mManagedGameObjectHandles.erase(it);
         }
 
         for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
@@ -1051,7 +1114,10 @@ namespace SliceEngine
                             MonoClass* elementClass = nullptr;
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
-
+                            //if (fieldType == ScriptFieldType::GameObject && containerType != ScriptFieldType::None)
+                            //    continue;
+                            if (fieldType == ScriptFieldType::Prefab )
+                                continue;
                             /*
                             MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);*/
                            /* if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
@@ -1391,7 +1457,7 @@ namespace SliceEngine
 
             auto scriptInstance = mEntityInstances[event.entity];
 
-            if (!scriptInstance) continue;
+            if (!scriptInstance || scriptInstance->mHandle == 0) continue; // Check for freed handle
 
             switch (event.type)
             {
@@ -1626,5 +1692,46 @@ namespace SliceEngine
         {
             scriptInstance->InvokeOnSliderValue(event.value);
         }
+    }
+    MonoObject* ScriptSystem::GetOrCreateManagedObject(Entity entity)
+    {
+        if (entity == entt::null) return nullptr;
+     
+        if (mono_domain_get() != mAppDomain)
+        {
+            mono_thread_attach(mRootDomain);
+            mono_domain_set(mAppDomain, false);
+        }
+
+        if (mManagedGameObjectHandles.find(entity) != mManagedGameObjectHandles.end())
+        {
+            MonoObject* obj = mono_gchandle_get_target(mManagedGameObjectHandles[entity]);
+            if (obj) return obj;
+
+            mono_gchandle_free(mManagedGameObjectHandles[entity]);
+            mManagedGameObjectHandles.erase(entity);
+        }
+
+        MonoClass* gameObjectClass = mono_class_from_name(mCoreAssemblyImage, "SliceEngine", "GameObject");
+        MonoObject* managedInstance = mono_object_new(mAppDomain, gameObjectClass);
+
+        MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+        uint32_t entityID = (uint32_t)entity;
+        void* args[1] = { &entityID };
+        mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+        uint32_t handle = mono_gchandle_new(managedInstance, false);
+        mManagedGameObjectHandles[entity] = handle;
+
+        return managedInstance;
+    }
+    void ScriptSystem::ClearManagedHandles()
+    {
+        for (auto& [entity, handle] : mManagedGameObjectHandles)
+        {
+            mono_gchandle_free(handle);
+        }
+
+        mManagedGameObjectHandles.clear();
     }
 }

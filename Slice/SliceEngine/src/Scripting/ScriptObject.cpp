@@ -76,6 +76,19 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Instance something something");
 			return nullptr;
 		}
+
+		if (mono_domain_get() != gScriptSystem->mAppDomain)
+		{
+			// Attach the current C++ thread to the Mono JIT runtime
+			// This function is idempotent (safe to call if already attached),
+			// but we must use the root domain.
+			mono_thread_attach(gScriptSystem->mRootDomain);
+
+			// Set the current AppDomain for this thread
+			mono_domain_set(gScriptSystem->mAppDomain, false);
+		}
+
+
 		/*if (instance->synchronisation == nullptr || instance->vtable == nullptr)
 		{
 			SLICE_LOG_ERROR("Instance something something");
@@ -102,16 +115,7 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		if (mono_domain_get() != gScriptSystem->mAppDomain)
-		{
-			// Attach the current C++ thread to the Mono JIT runtime
-			// This function is idempotent (safe to call if already attached),
-			// but we must use the root domain.
-			mono_thread_attach(gScriptSystem->mRootDomain);
 
-			// Set the current AppDomain for this thread
-			mono_domain_set(gScriptSystem->mAppDomain, false);
-		}
 
 
 		// Exception so that we can check if any invoke fails
@@ -188,13 +192,19 @@ namespace SliceEngine
 		mHandle = mono_gchandle_new(mMonoInstance, true);
 	}
 
-	ScriptObject::~ScriptObject()
+	void ScriptObject::Destroy()
 	{
 		if (mHandle)
 		{
 			mono_gchandle_free(mHandle);
 			mHandle = 0;
+			mMonoInstance = nullptr;
 		}
+	}
+
+	ScriptObject::~ScriptObject()
+	{
+		Destroy();
 	}
 
 	MonoObject* ScriptObject::GetInstance()
@@ -212,6 +222,10 @@ namespace SliceEngine
 
 		}
 
+	}
+
+	void ScriptObject::InvokeOnAwake()
+	{
 		if (mOnAwake)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnAwake);

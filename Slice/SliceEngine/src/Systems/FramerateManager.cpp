@@ -137,7 +137,7 @@ namespace SliceEngine
 		systemStartEndTimes[name].second = endTime;
 
 		float duration = std::chrono::duration<float, std::milli>(endTime - systemStartEndTimes[name].first).count();
-		systemDurations[name] = duration;
+		systemDurations[name] += duration;
 	}
 
 	float FramerateManager::GetCurrFPS()

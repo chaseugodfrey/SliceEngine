@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using static SliceEngine.ParticleSystem;
 
 namespace SliceEngine
-{ 
+{
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -15,7 +15,7 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void QuitGame();
 
@@ -50,7 +50,7 @@ namespace SliceEngine
         internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
 
         //Physics
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -457,7 +457,7 @@ namespace SliceEngine
         internal extern static void ParticleSystem_GetColourOverLifetime(uint entityID, out bool colourOverLifetime);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);        
+        internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetTextureID(uint entityID, out uint textureID);
@@ -492,6 +492,8 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_FindEntityWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithName(string name);

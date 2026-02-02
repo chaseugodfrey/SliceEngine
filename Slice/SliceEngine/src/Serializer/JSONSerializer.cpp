@@ -46,7 +46,47 @@ namespace SliceEngine
 
 		void SerializeScene(std::filesystem::path const& filePath)
 		{
-			json output;
+			json finalOutput;
+			finalOutput["SceneData"] = json::array();
+			finalOutput["NavMeshData"] = nullptr;
+
+			std::filesystem::path sceneMeta = filePath;
+			sceneMeta += ".meta";
+
+			if (!std::filesystem::exists(sceneMeta))
+			{
+				SLICE_LOG_ERROR("SCene meta file does not exist!");
+				return;
+			}
+
+			std::ifstream file(sceneMeta);
+			if (!file.is_open())
+			{
+				SLICE_LOG_ERROR("Meta file cannot be opened");
+				//assert("Meta file cannot be open");
+				return;
+			}
+
+			json metaData;
+			try {
+				file >> metaData;
+			}
+			catch (json::parse_error& e)
+			{
+				SLICE_LOG_ERROR("Meta cannot be parsed as json");
+				return;
+			}
+
+			// safety checks
+			if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+			{
+				finalOutput["NavMeshData"]["navMeshGUID"] = metaData.value("navMeshGUID", 0ULL);
+			}
+
+			if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+			{
+				finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+			}
 
 			auto& registry = Core::GetInstance()->GetRegistry();
 			auto* rc = Core::GetInstance()->GetResourceManager();
@@ -54,10 +94,10 @@ namespace SliceEngine
 			auto entityView = registry.view<SliceEntity>();
 			for (auto entity : entityView)
 			{
-				output += SerializeGameObject(entity, registry);
+				finalOutput["SceneData"] += SerializeGameObject(entity, registry);
 			}
 
-			SerializeFile(output, filePath);
+			SerializeFile(finalOutput, filePath);
 
 			json GUIDFile = SerializeSceneResources();
 
@@ -66,6 +106,7 @@ namespace SliceEngine
 
 			SerializeFile(GUIDFile, resourcePath);
 		}
+
 
 		json SerializeSceneResources()
 		{
@@ -730,7 +771,33 @@ namespace SliceEngine
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
-			for (auto& [name, components] : input.items())
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format");
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("SceneData"))
+				{
+					sceneData = input["SceneData"];
+				}
+
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			for (auto& [name, components] : sceneData.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
@@ -869,6 +936,87 @@ namespace SliceEngine
 
 			return sceneGraphMap;
 		}
+
+		/*
+		
+			if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+			{
+				finalOutput["NavMeshData"] += {"navMeshGUID", metaData.value("navMeshGUID", 0ULL)};
+			}
+
+			if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+			{
+				finalOutput["NavMeshData"] += { "navMeshBinGUID", metaData.value("navMeshBinGUID", 0ULL) };
+			}
+
+	*/
+
+		GUID DeserializeNavMeshBinGUID(std::filesystem::path const& filePath)
+		{
+			json input = DeserializeFile(filePath);
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format, does not contain navmesh data yet");
+				return GUID();
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			if (navMeshData.contains("navMeshBinGUID"))
+			{
+				return GUID(navMeshData.value("navMeshBinGUID", 0ULL));
+			}
+
+			return GUID();
+		}
+
+		GUID DeserializeNavMeshGUID(std::filesystem::path const& filePath)
+		{
+			json input = DeserializeFile(filePath);
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format, does not contain navmesh data yet");
+				return GUID();
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			if (navMeshData.contains("navMeshGUID"))
+			{
+				return GUID(navMeshData.value("navMeshGUID", 0ULL));
+			}
+
+			return GUID();
+		}
+
 
 		/// <summary>
 		/// Used to convert variant elements into json format
