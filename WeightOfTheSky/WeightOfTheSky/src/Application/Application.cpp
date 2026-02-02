@@ -27,6 +27,8 @@ namespace SliceBuild
 
 		engine.Init();
 
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTempFileSaving(false);
+
 		auto window = SliceEngine::Core::GetInstance()->GetWindow();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
@@ -36,7 +38,7 @@ namespace SliceBuild
 		engine.InitScene();
 
 
-		inputSys->SetMode(SliceEngine::InputMode::Game);
+		//inputSys->SetMode(SliceEngine::InputMode::Game);
 
 		EventManager::GetInstance()->Publish<OnPlayEvent>();
 

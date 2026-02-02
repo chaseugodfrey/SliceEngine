@@ -134,6 +134,11 @@ namespace SliceEngine
 
 	void SceneSystem::WriteTempFile()
 	{
+		if (!mCanWriteTempFiles)
+		{
+			return;
+		}
+
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
 		std::filesystem::path CurrentSceneTemp = CurrentScene;

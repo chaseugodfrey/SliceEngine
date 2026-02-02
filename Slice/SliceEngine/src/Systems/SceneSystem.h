@@ -47,6 +47,7 @@ namespace SliceEngine
 		bool LoadSceneFromQueue();
 		std::string LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
 		void LoadNextScene();
+		void SetTempFileSaving(bool enabled) { mCanWriteTempFiles = enabled; }
 		void WriteTempFile();
 		
 		void OnSceneSave(std::filesystem::path const filePath);
@@ -66,6 +67,7 @@ namespace SliceEngine
 		std::filesystem::path GetCurrentScenePath();
 		std::string GetCurrentSceneName();
 		bool isSceneUnloaded{};
+		bool mCanWriteTempFiles = true;
 
 	private:
 		//can change to other identifier

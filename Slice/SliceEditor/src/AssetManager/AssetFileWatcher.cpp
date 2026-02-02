@@ -462,7 +462,7 @@ namespace SliceEditor
         std::filesystem::path modifiedFilePath(event.filePath);
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-        if (modifiedFilePath.extension() == ".temp")
+        /*if (modifiedFilePath.extension() == ".temp")
         {
             auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
             std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
@@ -486,7 +486,7 @@ namespace SliceEditor
 
 
             return;
-        }
+        }*/
 
         if (modifiedFilePath.extension() == ".resource")
         {
