@@ -1130,7 +1130,7 @@ namespace SliceEditor
 		manifestJSON["assets"].push_back(assetEntry);
 	}
 
-	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist)
+	void AssetManager::CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist, Entity parent, bool isPrefabInspected)
 	{
 		// get file name from the GUID
 		std::optional<std::string>  fileName = GetFilenameFromGUID(guid);
@@ -1140,7 +1140,7 @@ namespace SliceEditor
 			ModelData modelData;
 			modelData.Deserialize(metapath);
 
-			EditorUtilities::GameObject_CreateModel(modelData.guid, modelData.skeletonGUID, modelData.animationGUID, entt::null, &hist);
+			EditorUtilities::GameObject_CreateModel(modelData.guid, modelData.skeletonGUID, modelData.animationGUID, parent, &hist, isPrefabInspected);
 		}
 	}
 

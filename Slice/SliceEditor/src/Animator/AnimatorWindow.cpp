@@ -384,7 +384,7 @@ namespace SliceEditor
 
 		if (ImNodes::IsNodeSelected(node->id))
 		{
-			mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(node);
+			SelectNode(node->id);
 		}
 
 		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
@@ -426,7 +426,24 @@ namespace SliceEditor
 		mAnimatorData = nullptr;
 	}
 
-	bool AnimatorWindow::RemoveTransitionFromState(int id)
+	void AnimatorWindow::CreateNode()
+	{
+		mAnimatorData->create_state();
+
+	}
+
+	void AnimatorWindow::DeleteNode(uint16_t id)
+	{
+
+	}
+
+	void AnimatorWindow::SelectNode(uint16_t id)
+	{
+		auto& node = mAnimatorData->mStateNodes.at(id);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+	}
+
+	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
 	{
 		auto transition_it = mAnimatorData->mTransitionNodes.find(id);
 

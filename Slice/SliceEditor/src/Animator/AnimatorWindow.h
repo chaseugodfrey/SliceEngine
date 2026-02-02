@@ -27,13 +27,15 @@ namespace SliceEditor
 		void DrawNodeEditor();
 		void DrawPostEditorElements();
 
-		void SaveAnimatorData();
-		void AddState();
-
 		void CheckForAnimator();
+		void SaveAnimatorData();
 		void ClearData();
 
-		bool RemoveTransitionFromState(int id);
+		void CreateNode();
+		void DeleteNode(uint16_t id);
+		void SelectNode(uint16_t id);
+
+		bool RemoveTransitionFromState(uint16_t id);
 
 		bool CheckStateInput(StateNode* node);
 		bool CheckLinkInput(TransitionLinkNode* node);

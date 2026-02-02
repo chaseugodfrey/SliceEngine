@@ -30,7 +30,7 @@ namespace SliceEngine
     {
         public EnemySlimeChaseState(EnemySlime owner) : base(owner)
         {
-            //owner.StartNav();
+            owner.StartNav();
         }
 
         public override void DoEnemyAction(float dt)
@@ -38,12 +38,14 @@ namespace SliceEngine
             base.DoEnemyAction(dt);
 
             
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
-            enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
+            //enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
             if (direction_diff.Magnitude() <= enemyOwner.attackTriggerRange)
             {
+
+               
                 enemyOwner.ChangeState(new EnemySlimeExplodeState(enemyOwner));
                 //attack state
             }
@@ -54,12 +56,12 @@ namespace SliceEngine
     //--- Explode State ---
     public class EnemySlimeExplodeState : EnemySlimeState
     {
-        public EnemySlimeExplodeState(EnemySlime owner) : base(owner) {}
+        public EnemySlimeExplodeState(EnemySlime owner) : base(owner) { owner.StopNav(); }
 
         public override void DoEnemyAction(float dt)
         {
             base.DoEnemyAction(dt);
-            Vector3 direction_diff = enemyOwner.playerT.Position - enemyOwner.enemyT.Position;
+            Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
 
             if (!enemyOwner.As<EnemySlime>().exploding)

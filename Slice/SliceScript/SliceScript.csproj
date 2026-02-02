@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -64,12 +66,17 @@
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHitbox.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelKills.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTarget.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
-    <Compile Include="Source\Core\Enemy\LevelDirector.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -84,7 +91,9 @@
     <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
+    <Compile Include="Source\Core\Player\PlayerAnimatorEvents.cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
+    <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />

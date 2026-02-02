@@ -102,6 +102,7 @@ namespace SliceEngine
 
 	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
+		
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
 		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
@@ -372,6 +373,119 @@ namespace SliceEngine
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
 			*out = go.GetComponent<ParticleSystem>().gForce;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetCollision(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().hasCollision;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetCollision(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().hasCollision = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void ParticleSystem_GetFriction(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().friction;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetFriction(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().friction =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetBounciness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounciness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounciness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounciness =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetBounceDampening(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounceDampening;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounceDampening(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounceDampening =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetStickiness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().stickiness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetStickiness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().stickiness =
+				glm::clamp(*value, 0.0f, 1.0f);
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -1105,28 +1219,6 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
-	static void ParticleSystem_GetCollision(unsigned int entity, bool* out)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
-		if (go.IsValid() && go.HasComponent<ParticleSystem>())
-		{
-			*out = go.GetComponent<ParticleSystem>().hasCollision;
-			return;
-		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
-	}
-
-	static void ParticleSystem_SetCollision(unsigned int entity, bool* value)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
-		if (go.IsValid() && go.HasComponent<ParticleSystem>())
-		{
-			go.GetComponent<ParticleSystem>().hasCollision = *value;
-			return;
-		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
-	}
-
 	static void ParticleSystem_GetTextureID(unsigned int entity, unsigned int* out)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
@@ -1337,14 +1429,15 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region LAYERMASK FUNCTIONS
-	static int LayerMask_GetMask(MonoString* string)
+
+	static uint32_t LayerMask_GetMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return static_cast<int>(Core::GetInstance()->GetLayerManager()->GetMask(name));
+		return Core::GetInstance()->GetLayerManager()->GetMask(name);
 	}
 
-	static MonoString* LayerMask_LayerToName(int layer)
+	static MonoString* LayerMask_LayerToName(uint32_t layer)
 	{
 		if(layer >= MAX_LAYERS)
 		{
@@ -1357,10 +1450,10 @@ namespace SliceEngine
 		return mono_string_new(mono_domain_get(), layerName.c_str());
 	}
 
-	static int LayerMask_NameToLayer(MonoString* string)
+	static uint32_t LayerMask_NameToLayer(MonoString* string)
 	{
 		std::string name = MonoToString(string);
-		int layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
+		uint32_t layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
 
 		if(layer >= INVALID_LAYER)
 		{
@@ -1372,6 +1465,16 @@ namespace SliceEngine
 	}
 
 	
+
+#pragma endregion
+
+#pragma region RAYCASTING FUCNTIONS
+
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID, uint32_t* mask)
+	{
+		//return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *mask);
+		return false;
+	}
 
 #pragma endregion
 
@@ -1640,6 +1743,8 @@ namespace SliceEngine
 
 	}
 
+
+
 	static MonoArray *Entity_FindEntitiesWithTag(MonoString *tag)
 	{
 		std::string cStrName = MonoToString(tag);
@@ -1656,6 +1761,18 @@ namespace SliceEngine
 		}
 
 		return monoArray;
+	}
+
+	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
+	{
+		std::string cStrName = MonoToString(tag);
+		Entity entity = FactoryInstance.GetEntityWithTag(cStrName);
+		if (entity == entt::null)
+		{
+			return 0;
+		}
+
+		return (unsigned int)entity;
 	}
 
 	static unsigned int CreateNewGameObject(MonoString *prefabName)
@@ -1678,7 +1795,7 @@ namespace SliceEngine
 		//mono_free(cStrName);
 		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
-		return entt::null;
+		return 0;
 	}
 
 	static unsigned int CloneGO(MonoString *GoName)
@@ -1796,7 +1913,10 @@ namespace SliceEngine
 		{
 			std::string cStrName = MonoToString(string);
 
-			GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			if(GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName))
+			{
+				GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			}
 		}
 
 	}
@@ -2108,6 +2228,7 @@ namespace SliceEngine
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
@@ -2165,6 +2286,21 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetGForce);
 		ADD_INTERNAL_CALL(ParticleSystem_SetGForce);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetCollision);
+		ADD_INTERNAL_CALL(ParticleSystem_SetCollision);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetFriction);
+		ADD_INTERNAL_CALL(ParticleSystem_SetFriction);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounciness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounciness);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounceDampening);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounceDampening);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetStickiness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetStickiness);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetEmissionRate);
 		ADD_INTERNAL_CALL(ParticleSystem_SetEmissionRate);
@@ -2244,9 +2380,6 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
 
-		ADD_INTERNAL_CALL(ParticleSystem_GetCollision);
-		ADD_INTERNAL_CALL(ParticleSystem_SetCollision);
-
 		ADD_INTERNAL_CALL(ParticleSystem_GetTextureID);
 		ADD_INTERNAL_CALL(ParticleSystem_SetTextureID);
 
@@ -2270,6 +2403,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
+		ADD_INTERNAL_CALL(Physics_Raycast);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);

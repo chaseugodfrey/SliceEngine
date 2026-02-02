@@ -58,6 +58,7 @@ struct GONetworkEvent {
 struct AnimationEvent {
 	std::string funcName;
 	std::string scriptName;
+	Entity entity;
 };
 
 //struct SliceEntityModifiedEvent
@@ -183,6 +184,11 @@ struct AssetExistEvent
 struct OnPlayEvent
 {
 
+};
+
+struct OnStopEvent
+{
+	
 };
 
 struct OnGameStopEvent

@@ -41,11 +41,6 @@
             "path": "Resources/12356409060795031376.wav"
         },
         {
-            "guid": 13614208979118524504,
-            "name": "Material/Spawn_Locations_m.mat",
-            "path": "Resources/13614208979118524504.mat"
-        },
-        {
             "guid": 17313277275196544424,
             "name": "Prefabs/Prefab_Parent.prefab",
             "path": "Resources/17313277275196544424.prefab"
@@ -59,6 +54,11 @@
             "guid": 16866709739411514970,
             "name": "Audio/Countdown_3.wav",
             "path": "Resources/16866709739411514970.wav"
+        },
+        {
+            "guid": 18076457642680907475,
+            "name": "Default/Aloy test.scene",
+            "path": "Resources/18076457642680907475.scene"
         },
         {
             "guid": 11766461363590934609,
@@ -181,11 +181,6 @@
             "path": "Resources/15444100828152761678.wav"
         },
         {
-            "guid": 16895767658385788011,
-            "name": "Material/Player_Sword_m.mat",
-            "path": "Resources/16895767658385788011.mat"
-        },
-        {
             "guid": 9563528329987127914,
             "name": "Audio/MultiHit_Slime.wav",
             "path": "Resources/9563528329987127914.wav"
@@ -251,6 +246,51 @@
             "path": "Resources/14583993837501124312.cshader"
         },
         {
+            "guid": 15033367174215302921,
+            "name": "Shaders/skyboxIrr_Frag.frag",
+            "path": "Resources/15033367174215302921.frag"
+        },
+        {
+            "guid": 16669648661244377925,
+            "name": "Default/Gid_Working_Scene.scene",
+            "path": "Resources/16669648661244377925.scene"
+        },
+        {
+            "guid": 17926379886479867228,
+            "name": "Models/Crystal_Combined.skl",
+            "path": "Resources/17926379886479867228.skl"
+        },
+        {
+            "guid": 14626165934413682905,
+            "name": "Default/Aloy test.temp",
+            "path": "Resources/14626165934413682905.scene"
+        },
+        {
+            "guid": 16589850600042331924,
+            "name": "Shaders/fog_Frag.frag",
+            "path": "Resources/16589850600042331924.frag"
+        },
+        {
+            "guid": 13770839701972514919,
+            "name": "Default/AloyTest.scene",
+            "path": "Resources/13770839701972514919.scene"
+        },
+        {
+            "guid": 9336273396156370476,
+            "name": "Material/default.mat",
+            "path": "Resources/9336273396156370476.mat"
+        },
+        {
+            "guid": 12771765856255971804,
+            "name": "Default/Eze_Working_Scene.temp",
+            "path": "Resources/12771765856255971804.scene"
+        },
+        {
+            "guid": 9385357469988052754,
+            "name": "Default/AloyTest.temp",
+            "path": "Resources/9385357469988052754.scene"
+        },
+        {
             "guid": 14986291756004428140,
             "name": "Prefabs/Test_Spawn.prefab",
             "path": "Resources/14986291756004428140.prefab"
@@ -274,16 +314,6 @@
             "guid": 17780188480855605116,
             "name": "Default/Eze_Working_Scene.scene",
             "path": "Resources/17780188480855605116.scene"
-        },
-        {
-            "guid": 9336273396156370476,
-            "name": "Material/default.mat",
-            "path": "Resources/9336273396156370476.mat"
-        },
-        {
-            "guid": 12771765856255971804,
-            "name": "Default/Eze_Working_Scene.temp",
-            "path": "Resources/12771765856255971804.scene"
         },
         {
             "guid": 10119110391915830736,
@@ -391,11 +421,6 @@
             "path": "Resources/17252748523279415740.fnt"
         },
         {
-            "guid": 18108076544179655602,
-            "name": "Material/undo.mat",
-            "path": "Resources/18108076544179655602.mat"
-        },
-        {
             "guid": 10125292758465881867,
             "name": "Frieren.jpg",
             "path": "Resources/10125292758465881867.dds"
@@ -426,19 +451,44 @@
             "path": "Resources/11863813900028625629.mat"
         },
         {
+            "guid": 16895767658385788011,
+            "name": "Material/Player_Sword_m.mat",
+            "path": "Resources/16895767658385788011.mat"
+        },
+        {
+            "guid": 13614208979118524504,
+            "name": "Material/Spawn_Locations_m.mat",
+            "path": "Resources/13614208979118524504.mat"
+        },
+        {
+            "guid": 14134728040193570933,
+            "name": "Material/TempGroundMat.mat",
+            "path": "Resources/14134728040193570933.mat"
+        },
+        {
             "guid": 16483552102943977758,
             "name": "Material/TestEnvironment_M.mat",
             "path": "Resources/16483552102943977758.mat"
         },
         {
+            "guid": 18108076544179655602,
+            "name": "Material/undo.mat",
+            "path": "Resources/18108076544179655602.mat"
+        },
+        {
+            "guid": 17321930780113260035,
+            "name": "Shaders/bloomJoin.shader",
+            "path": "Resources/17321930780113260035.shader"
+        },
+        {
+            "guid": 17754302010795007985,
+            "name": "Material/WindUpSignal.mat",
+            "path": "Resources/17754302010795007985.mat"
+        },
+        {
             "guid": 15884595881201833390,
             "name": "Models/Crystal_Combined.fbx",
             "path": "Resources/15884595881201833390.mdl"
-        },
-        {
-            "guid": 17926379886479867228,
-            "name": "Models/Crystal_Combined.skl",
-            "path": "Resources/17926379886479867228.skl"
         },
         {
             "guid": 10365400057864474275,
@@ -521,9 +571,14 @@
             "path": "Resources/18329491173128811221.animpkg"
         },
         {
-            "guid": 11903593122543744119,
+            "guid": 10228583554529425228,
+            "name": "NavMesh/Eze_Working_Scene.bin",
+            "path": "Resources/10228583554529425228"
+        },
+        {
+            "guid": 15281544999074126968,
             "name": "NavMesh/Eze_Working_Scene.navmesh",
-            "path": "Resources/11903593122543744119.navmesh"
+            "path": "Resources/15281544999074126968.navmesh"
         },
         {
             "guid": 10343062698504463641,
@@ -571,24 +626,24 @@
             "path": "Resources/11014136264905911215.prefab"
         },
         {
-            "guid": 16589850600042331924,
-            "name": "Shaders/fog_Frag.frag",
-            "path": "Resources/16589850600042331924.frag"
+            "guid": 16661368870602356351,
+            "name": "[04]Environment/Environment_Background_Towers.skl",
+            "path": "Resources/16661368870602356351.skl"
         },
         {
-            "guid": 10057714384501940044,
+            "guid": 16719948259139700223,
+            "name": "Prefabs/Level Director.prefab",
+            "path": "Resources/16719948259139700223.prefab"
+        },
+        {
+            "guid": 18374041469757162483,
             "name": "Prefabs/EnemyGrunt.prefab",
-            "path": "Resources/10057714384501940044.prefab"
+            "path": "Resources/18374041469757162483.prefab"
         },
         {
-            "guid": 10880878978351863579,
-            "name": "[05]New_Environment/Environment-Barriers.fbx",
-            "path": "Resources/10880878978351863579.mdl"
-        },
-        {
-            "guid": 14793278505603733972,
+            "guid": 14717288819024856429,
             "name": "Prefabs/EnemySlime.prefab",
-            "path": "Resources/14793278505603733972.prefab"
+            "path": "Resources/14717288819024856429.prefab"
         },
         {
             "guid": 13182828767649584504,
@@ -606,6 +661,11 @@
             "path": "Resources/17372928666018152619.prefab"
         },
         {
+            "guid": 14741714957763085651,
+            "name": "Prefabs/GameObject.prefab",
+            "path": "Resources/14741714957763085651.prefab"
+        },
+        {
             "guid": 11923730312665857025,
             "name": "Prefabs/Golem.prefab",
             "path": "Resources/11923730312665857025.prefab"
@@ -614,16 +674,6 @@
             "guid": 14373066313505133559,
             "name": "Prefabs/HUD Canvas.prefab",
             "path": "Resources/14373066313505133559.prefab"
-        },
-        {
-            "guid": 16661368870602356351,
-            "name": "[04]Environment/Environment_Background_Towers.skl",
-            "path": "Resources/16661368870602356351.skl"
-        },
-        {
-            "guid": 16719948259139700223,
-            "name": "Prefabs/Level Director.prefab",
-            "path": "Resources/16719948259139700223.prefab"
         },
         {
             "guid": 15099326127256956853,
@@ -674,11 +724,6 @@
             "guid": 14545510956482838483,
             "name": "Shaders/basic_Vert.vert",
             "path": "Resources/14545510956482838483.vert"
-        },
-        {
-            "guid": 17321930780113260035,
-            "name": "Shaders/bloomJoin.shader",
-            "path": "Resources/17321930780113260035.shader"
         },
         {
             "guid": 11169565943220659534,
@@ -849,11 +894,6 @@
             "guid": 11123960638445412492,
             "name": "Shaders/skyboxIrr.shader",
             "path": "Resources/11123960638445412492.shader"
-        },
-        {
-            "guid": 15033367174215302921,
-            "name": "Shaders/skyboxIrr_Frag.frag",
-            "path": "Resources/15033367174215302921.frag"
         },
         {
             "guid": 10464052820645603593,
@@ -1099,6 +1139,11 @@
             "guid": 13855574832480941767,
             "name": "[05]New_Environment/Environment-BackgroundTowers.animpkg",
             "path": "Resources/13855574832480941767.animpkg"
+        },
+        {
+            "guid": 10880878978351863579,
+            "name": "[05]New_Environment/Environment-Barriers.fbx",
+            "path": "Resources/10880878978351863579.mdl"
         },
         {
             "guid": 17545168047952745399,

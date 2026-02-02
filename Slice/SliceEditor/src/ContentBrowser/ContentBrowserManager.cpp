@@ -19,6 +19,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Core/Registry.h"
 #include "../../SliceEngine/src/Systems/SceneSystem.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include "../../SliceEngine/src/Systems/PrefabSystem.h"
 #include "../History/HistoryManager.h"
 
@@ -220,12 +221,13 @@ namespace SliceEditor
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
 		auto& assetMan = registry.GetAssetManager();
+		auto sessionMan = registry.GetManager<SessionManager>("Session");
 		//Loading a Scene
 		if (entry.fullPath.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
 			//SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(entry.path);
 			SliceEngine::gScriptSystem->OnEnd();
-			EditorUtilities::Scene_Load(entry.fullPath, *registry.GetManager<SelectionManager>("Selection"));
+			EditorUtilities::Scene_Load(entry.fullPath, *registry.GetManager<SelectionManager>("Selection"), *registry.GetManager<SessionManager>("Session"));
 			EditorUtilities::Scene_CleanTempFiles(registry);
 			//registry.GetManager<SelectionManager>("Selection Manager")->ClearSelection();
 			//registry.GetManager<HierarchyManager>("Hierarchy")->Reset();
@@ -255,7 +257,14 @@ namespace SliceEditor
 			if (assetMan.mFilenameToGUID.find(stem) != assetMan.mFilenameToGUID.end())
 			{
 				SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
-				assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"));
+				if (sessionMan->IsPrefabInspected())
+				{
+					assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"), sessionMan->GetPrefabEntityInspected(), true);
+				}
+				else
+				{
+					assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"));
+				}
 				
 				//EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
 			}

@@ -129,7 +129,7 @@ namespace SliceEditor
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Model(skeleGUID, animGUID, guid);
@@ -141,11 +141,15 @@ namespace SliceEditor
 			{
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
 			}
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
 
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Canvas();
@@ -156,9 +160,14 @@ namespace SliceEditor
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
 			}
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
 			return go;
 		}
-		SliceEngine::GameObject GameObject_CreateImage(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateImage(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Image();
@@ -171,24 +180,36 @@ namespace SliceEditor
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
 			}
 
-			return go;
-		}
-
-		SliceEngine::GameObject GameObject_CreateText(entt::entity parent, HistoryManager* history)
-		{
-			auto& factory = SliceEngine::FactoryInstance;
-			auto go = factory.CreateGO_Text();
-
-			//no parent for now because only overlay
-			if (history)
+			if (isPrefabInspected)
 			{
-				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
 			}
 
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateButton(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateText(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Text();
+
+			//no parent for now because only overlay
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+			return go;
+		}
+
+		SliceEngine::GameObject GameObject_CreateButton(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Button();
@@ -201,10 +222,14 @@ namespace SliceEditor
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
 			}
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
 			return go;
 		}
 
-		SliceEngine::GameObject GameObject_CreateSlider(entt::entity parent, HistoryManager* history)
+		SliceEngine::GameObject GameObject_CreateSlider(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
 			auto go = factory.CreateGO_Slider();
@@ -217,6 +242,10 @@ namespace SliceEditor
 				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
 			}
 
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
 			return go;
 		}
 
@@ -306,9 +335,15 @@ namespace SliceEditor
 
 		}
 
-		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager)
+		void Scene_Load(const std::filesystem::path& path, SelectionManager& selectionManager, SessionManager& sessionManager)
 		{
 			SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue(path);
+			if(sessionManager.IsPrefabInspected())
+			{
+				PrefabInspectedEvent event;
+				event.prefabBeingInspected = false;
+				EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
+			}
 			selectionManager.ClearSelection(true);
 		}
 
@@ -437,7 +472,7 @@ namespace SliceEditor
 			{
 				if (ImGui::MenuItem("Canvas"))
 				{
-					EditorUtilities::GameObject_CreateCanvas(entt::null, history);
+					EditorUtilities::GameObject_CreateCanvas(parent, history, isPrefabInspected);
 				}
 
 				//Hidden Till it Works
@@ -448,22 +483,22 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Image"))
 				{
-					EditorUtilities::GameObject_CreateImage(entt::null, history);
+					EditorUtilities::GameObject_CreateImage(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Button"))
 				{
-					EditorUtilities::GameObject_CreateButton(entt::null, history);
+					EditorUtilities::GameObject_CreateButton(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Slider"))
 				{
-					EditorUtilities::GameObject_CreateSlider(entt::null, history);
+					EditorUtilities::GameObject_CreateSlider(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Text"))
 				{
-					EditorUtilities::GameObject_CreateText(entt::null, history);
+					EditorUtilities::GameObject_CreateText(parent, history, isPrefabInspected);
 				}
 
 				ImGui::EndMenu();

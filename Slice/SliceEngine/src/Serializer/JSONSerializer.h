@@ -30,6 +30,9 @@ namespace SliceEngine
 		void SerializeFile(json const& input, std::filesystem::path const& filePath);
 		json SerializeGameObject(GameObject& node);
 		void SerializeScene(std::filesystem::path const& filePath);
+		GUID DeserializeNavMeshBinGUID(std::filesystem::path const& filePath);
+		GUID DeserializeNavMeshGUID(std::filesystem::path const& filePath);
+
 		json DeserializeFile(std::filesystem::path const& filePath);
 		std::unordered_map<uint32_t, uint32_t> DeserializeScene(std::filesystem::path const& filePath);
 		json SerializeGameObject(entt::entity entity, entt::registry& registry);
@@ -37,7 +40,7 @@ namespace SliceEngine
 #pragma region Prefab Serialization
 		std::string SerializePrefab(entt::entity entity);
 		void SerializePrefabChild(json& output, entt::entity entity, entt::registry& registry);
-		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor = false);
+		Entity DeserializePrefab(std::unordered_map<uint32_t, uint32_t>& sceneGraph, std::filesystem::path const& filePath, bool Editor = false);
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath);
 
 #pragma endregion

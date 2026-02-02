@@ -19,9 +19,9 @@ namespace SliceEngine
         public float buildUpTiming = 1f;
         public float flickerTiming = 1f;
         public bool exploding { get; private set; } = false;
-        private float _explodingCounter = 0f;
+        //private float _explodingCounter = 0f;
 
-        public GameObject explodeParentObject;
+        //public GameObject explodeParentObject;
         public GameObject explodeMeshObject;
         public GameObject explosionHitBoxObject;
         private GeneralHitbox explosionHitBox;
@@ -86,6 +86,7 @@ namespace SliceEngine
                 //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
                 Bootstrap.Player.TakeDamage(damage, this.gameObject);
+                this.TakeDamage(1000, this.gameObject );
             }
             else
             {
@@ -203,10 +204,10 @@ namespace SliceEngine
         }
 
         
-        //public override void OnDeath()
-        //{
-            
-        //}
+        public override void OnDeath()
+        {
+            this.gameObject.Destroy();   
+        }
 
     }
 }

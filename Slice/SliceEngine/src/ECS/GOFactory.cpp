@@ -194,6 +194,23 @@ namespace SliceEngine
 		return GameObject();
 	}
 
+	Entity GOFactory::GetEntityWithTag(std::string const& tag)
+	{
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				return entity;
+			}
+		}
+
+		return entt::null;
+	}
+
 	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)
 	{
 		std::vector<Entity> result;
@@ -1066,10 +1083,16 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
+
+			
+			// not the best way to check for prefab editing entity
+			// but this the fastest way i can think of rn
+			if (!mEntityToGO[Entity].HasComponent<PrefabEditingEntity>())
+				mNameToEntity.erase(mEntityToGO[Entity].GetName());
+
 			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
-			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps
