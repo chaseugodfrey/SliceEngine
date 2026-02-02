@@ -33,7 +33,7 @@ namespace SliceBuild
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/13375713717409677428.scene");
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/16669648661244377925.scene");
 
 		engine.InitScene();
 
@@ -43,17 +43,28 @@ namespace SliceBuild
 
 		//EventManager::GetInstance()->Publish<OnPlayEvent>();
 
+		//SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+
 		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &Application::QuitGameEvent>(this);
 	}
 
 	void Application::Run()
 	{
+
+		
+
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
 			engine.Update();
 			engine.Draw();
 			engine.EndFrame();
+
+			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::DEFAULT)
+			{
+				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+			}
 		}
+
 	}
 
 	void Application::Exit()

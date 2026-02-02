@@ -24,84 +24,118 @@ namespace SliceEngine
 
 		bool Audio::LoadAudioResource(std::string const& file)
 		{
-			auto mAudioManager = Core::GetInstance()->GetAudioManager();
-			auto resourceMgr = Core::GetInstance()->GetResourceManager();
-			FMOD::System* mSoundSystem = mAudioManager->GetSoundSystem();
+            auto mAudioManager = Core::GetInstance()->GetAudioManager();
+            // ResourceManager is only needed if we are looking for meta files
+            auto resourceMgr = Core::GetInstance()->GetResourceManager();
+            FMOD::System* mSoundSystem = mAudioManager->GetSoundSystem();
 
-			std::filesystem::path filePath(file);
+            std::filesystem::path filePath(file);
 
-			std::string guidStr = filePath.stem().string();
-			SliceEngine::GUID audioGUID = GUID::FromString(guidStr);
+            // --- STEP 1: Default to "Heuristic" Mode (Assume Runtime) ---
+            bool shouldStream = false;
+            bool metaFoundAndLoaded = false;
 
-			std::filesystem::path metaPath;
-			bool found = false;
+            // --- STEP 2: Attempt to find Meta File (Editor Logic) ---
+            std::string guidStr = filePath.stem().string();
+            SliceEngine::GUID audioGUID = GUID::FromString(guidStr);
 
-			for (auto [key, value] : resourceMgr->mFileNameToGUID)
-			{
-				if (value == audioGUID)
-				{
-					std::filesystem::path assetBase = "../SliceEditor/Assets";
-					metaPath = assetBase / (key + ".meta");
-					found = true;
-					break;
-				}
-			}
+            std::filesystem::path metaPath;
 
-			if (!found || !std::filesystem::exists(metaPath))
-			{
-				SLICE_LOG_ERROR("Audio meta file not found at: " + metaPath.string());
-				return false;
-			}
+            // Only try to look up GUIDs if the ResourceManager map is populated
+            if (!resourceMgr->mFileNameToGUID.empty())
+            {
+                for (auto [key, value] : resourceMgr->mFileNameToGUID)
+                {
+                    if (value == audioGUID)
+                    {
+                        // NOTE: This path implies the Editor assets are relative to the working dir
+                        // You might need to adjust this depending on where the App.exe runs
+                        std::filesystem::path assetBase = "../SliceEditor/Assets";
+                        metaPath = assetBase / (key + ".meta");
 
-			std::ifstream metaFile(metaPath);
+                        if (std::filesystem::exists(metaPath))
+                        {
+                            std::ifstream metaFile(metaPath);
+                            nlohmann::json metaData;
+                            try
+                            {
+                                metaFile >> metaData;
+                                auto streamType = metaData["stream"].get<SliceEditor::AudioStream>();
 
-			nlohmann::json metaData;
+                                // Explicitly set stream based on Meta
+                                if (streamType == SliceEditor::AudioStream::CREATE_SAMPLE)
+                                    shouldStream = false;
+                                else
+                                    shouldStream = true;
 
-			try
-			{
-				// Parsing will now succeed because metaPath is valid
-				metaFile >> metaData;
-			}
-			catch (const nlohmann::json::parse_error& e)
-			{
-				SLICE_LOG_ERROR("JSON Error in " + metaPath.string() + ": " + e.what());
-				return false;
-			}
+                                metaFoundAndLoaded = true;
+                            }
+                            catch (...)
+                            {
+                                // If json parsing fails, we will fall back to heuristic
+                                SLICE_LOG_WARNING("JSON Error in meta file, falling back to heuristic: " + metaPath.string());
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
 
-			metaFile.close();
+            // --- STEP 3: Fallback Heuristic (Runtime Logic) ---
+            // If we didn't find a meta file (which is expected in the Application Build),
+            // we decide based on file size.
+            if (!metaFoundAndLoaded)
+            {
+                if (!std::filesystem::exists(filePath))
+                {
+                    SLICE_LOG_ERROR("Audio file not found: " + file);
+                    return false;
+                }
 
-			SliceEditor::AudioData audioData;
+                try
+                {
+                    // 512 KB Threshold: Bigger = Stream (Music), Smaller = Sample (SFX)
+                    const uintmax_t STREAM_THRESHOLD = 512 * 1024;
+                    if (std::filesystem::file_size(filePath) > STREAM_THRESHOLD)
+                    {
+                        shouldStream = true;
+                    }
+                    else
+                    {
+                        shouldStream = false;
+                    }
+                }
+                catch (std::filesystem::filesystem_error& e)
+                {
+                    SLICE_LOG_ERROR("Filesystem error checking size: " + std::string(e.what()));
+                    return false;
+                }
+            }
 
-			audioData.stream = metaData["stream"].get<SliceEditor::AudioStream>();
-			
+            // --- STEP 4: Initialize FMOD ---
+            FMOD_MODE mode = FMOD_DEFAULT;
 
-			
-			FMOD_MODE mode = FMOD_DEFAULT;
+            if (shouldStream)
+            {
+                mode |= FMOD_CREATESTREAM;
+            }
+            else
+            {
+                mode |= FMOD_CREATESAMPLE;
+            }
 
-			if (audioData.stream == SliceEditor::AudioStream::CREATE_SAMPLE)
-			{
-				mode |= FMOD_CREATESAMPLE;
-			}
-			else
-			{
-				mode |= FMOD_CREATESTREAM;
-			}
+            mode |= FMOD_3D;
 
-			mode |= FMOD_3D;
-			
-			FMOD_RESULT result = mSoundSystem->createSound(file.c_str(), mode, nullptr, &sound);
-			if (result != FMOD_OK)
-			{
-				SLICE_LOG_ERROR("FMOD failed to audio resource from '" + file + "'. Error: " + std::to_string(result));
+            FMOD_RESULT result = mSoundSystem->createSound(file.c_str(), mode, nullptr, &sound);
+            if (result != FMOD_OK)
+            {
+                SLICE_LOG_ERROR("FMOD failed to load audio resource from '" + file + "'. Error: " + std::to_string(result));
+                sound = nullptr;
+                return false;
+            }
 
-				sound = nullptr;
-
-				return false;
-			}
-
-
-			SLICE_LOG("Successfully loaded audio resource " + file);
-			return true;
+            SLICE_LOG("Successfully loaded audio resource: " + file + (shouldStream ? " [Stream]" : " [Sample]"));
+            return true;
 			
 		}
 
