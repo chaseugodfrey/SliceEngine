@@ -440,9 +440,9 @@ namespace SliceEditor
 											mCurrentKeyIndex = key;
 											//ImGui::OpenPopup("Keyframe Context");
 											//Set the mCurrentEventIndex for the pop-up
-											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
 												{
-													return x.frameNumber == key;
+													return (x.frameNumber == key && x.animIdx == mCurrentClipIndex);
 												});
 
 											if (it != mCurrentAnimator->eventFrames.end())
