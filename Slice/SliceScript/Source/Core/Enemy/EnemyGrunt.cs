@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,20 +19,26 @@ namespace SliceEngine
         public float strafeTolerance = 2f;
         public float strafeSpeed = .4f;
 
-        
+
         public float attackTriggerRange = 1f;
         public float attackDamageRange = 1f;
-        public float attackWindUpTiming = 1f;
         public float flickerTiming = 1f;
+
+        public bool isWinding { get; private set; } = false;
+        public float attackWindUpTiming = 1f;
+
+        public bool triggerAttack { get; private set; } = false;
         public bool attacking { get; private set; } = false;
         private float _attackCounter = 0f;
 
+        public float attackOdds = 0.1f;
+        public float attackOddsCheckFrequency = 1f;
 
+        public GameObject attackHitBoxRenderObject;
+        public GameObject attackHitBoxObject;
+        private GeneralHitbox attackHitBox;
 
-        public GameObject basicHitBox;
-        private GeneralHitbox _basicHitBox;
-
-
+        public GameObject windupSignalObject;
 
         //Function called when you want the enemy to be active
         public override void SetUp()
@@ -45,25 +52,29 @@ namespace SliceEngine
 
             this.ChangeState(new EnemyGruntChaseState(this));
 
-            if(basicHitBox.Has<GeneralHitbox>())
+            if(attackHitBoxObject.Has<GeneralHitbox>())
             {
-                _basicHitBox = basicHitBox.As<GeneralHitbox>();
-                _basicHitBox.HitBoxListeners += BasicAttack;
+                attackHitBox = attackHitBoxObject.As<GeneralHitbox>();
+                attackHitBox.HitBoxListeners += BasicAttack;
                 //_basicHitBox.SetActive(false);
                 //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
 
-                _basicHitBox.TurnOff();
+                attackHitBox.TurnOff();
+                attackHitBoxRenderObject.SetActive(false);
+                windupSignalObject.SetActive(false);
 
-                if(basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+                #region Hitbox off Debug
+                if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
                 {
-                    Console.WriteLine("Hit Box successfully turned off");
+                    //Console.WriteLine("Hit Box successfully turned off");
                     SliceLog.Log("Hit Box successfully turned off");
                 }
                 else
                 {
-                    Console.WriteLine("Hit Box still on");
+                    //Console.WriteLine("Hit Box still on");
                     SliceLog.Log("Hit Box still on");
                 }
+                #endregion
             }
             else
             {
@@ -83,6 +94,8 @@ namespace SliceEngine
             base.OnUpdate(dt);
         }
 
+
+        #region Attacks
         public void BasicAttack(GameObject hit)
         {
             if( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
@@ -97,8 +110,47 @@ namespace SliceEngine
             }
         }
 
+        public void StartWindUp()
+        {
+            isWinding = true;
+            StartCoroutine(WindUpCoroutine());
+            windupSignalObject.SetActive(true);
+        }
+
+        public void StopWindUp()
+        {
+            isWinding = false;
+            windupSignalObject.SetActive(false);
+        }
+
+        IEnumerator WindUpCoroutine()
+        {
+            float count = 0f;
+
+
+            while(isWinding && count < attackWindUpTiming)
+            {
+
+                count += Time.deltaTime;
+                //Windup smt
+                //Normally it should be an animation
+
+                yield return new WaitForSeconds(Time.deltaTime);
+            }
+
+
+            //attack
+            StopWindUp();
+
+            triggerAttack = true;
+
+            yield break;
+        }
+
+        
         public void StartAttackCoroutine()
         {
+            triggerAttack = false;
             StartCoroutine(AttackCoroutine());
         }
 
@@ -107,18 +159,12 @@ namespace SliceEngine
             Console.Write("Attacking is On -> ");
             attacking = true;
 
-            Console.Write("Windup waiting -> ");
-            yield return new WaitForSeconds(attackWindUpTiming);
-            Console.Write("Windup returned -> ");
-
-            // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
-            //_basicHitBox.SetActive(true);
-            //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = true;
-            _basicHitBox.TurnOn();
+            attackHitBox.TurnOn();
+            attackHitBoxRenderObject.SetActive(true);
             Console.Write("Box On | ");
 
-
-            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == true)
+            #region Collider Check Debug
+            if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
                 Console.Write("Hit Box successfully turned on -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
@@ -128,20 +174,19 @@ namespace SliceEngine
                 Console.WriteLine("Hit Box still off -> ");
                 //SliceLog.Log("Hit Box still on");
             }
-
+            #endregion
 
             Console.Write("Flicker waiting -> ");
             yield return new WaitForSeconds(flickerTiming);
             Console.Write("Flicker returned -> ");
 
 
-            //_basicHitBox.As<GeneralHitbox>().SetActive(false);
-            //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
-            _basicHitBox.TurnOff();
+            attackHitBox.TurnOff();
+            attackHitBoxRenderObject.SetActive(false);
             Console.Write("Box Off | ");
 
-
-            if (basicHitBox.GetComponent<ColliderShape>().ComponentEnabled == false)
+            #region Collider Check debug
+            if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
             {
                 Console.WriteLine("Hit Box successfully turned off -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
@@ -151,27 +196,16 @@ namespace SliceEngine
                 Console.WriteLine("Hit Box still on -> ");
                 //SliceLog.Log("Hit Box still on");
             }
+            #endregion
 
             attacking = false;
             Console.WriteLine("Attacking is Off");
 
-            //Need to add a way to kill itself.
-
-            //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
-
             yield break;
         }
+        
 
-
-        public override void OnCollideEnter(uint other)
-        {
-
-        }
-
-        public override void OnCollideStay(uint other)
-        {
-
-        }
+        #endregion
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
@@ -182,19 +216,20 @@ namespace SliceEngine
         }
 
 
-
+        #region On Override Methods
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
+            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
+            ChangeState(new EnemyGruntStunnedState(this));
             SliceLog.Console("ENEMY IS BEING HIT");
         }
 
-        
+
         //public override void OnDeath()
         //{
-            
-        //}
 
+        //}
+        #endregion
     }
 }
