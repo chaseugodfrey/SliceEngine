@@ -437,6 +437,7 @@ namespace SliceEditor
 										if(std::strcmp(property.name.c_str(),"Animation Event") == 0)
 										{
 											mOpenEventOption = true;
+											mCurrentKeyIndex = key;
 											//ImGui::OpenPopup("Keyframe Context");
 											//Set the mCurrentEventIndex for the pop-up
 											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
@@ -484,7 +485,8 @@ namespace SliceEditor
 				if (ImGui::Selectable("Delete Event"))
 				{
 					mCurrentAnimator->eventFrames.erase(mCurrentAnimator->eventFrames.begin() + mCurrentEventIndex);
-					mPropertyGroups[0].properties[0].keys.erase(mPropertyGroups[0].properties[0].keys.begin() + mCurrentEventIndex);
+					std::erase(mPropertyGroups[0].properties[0].keys, mCurrentKeyIndex);
+					//mPropertyGroups[0].properties[0].keys.erase(mPropertyGroups[0].properties[0].keys.begin() + mCurrentKeyIndex);
 					mOpenEventOption = false;
 				}
 

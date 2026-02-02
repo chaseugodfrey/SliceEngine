@@ -44,6 +44,7 @@ namespace SliceEditor
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
 		size_t mCurrentClipIndex{ 0 };
 		size_t mCurrentEventIndex{ 0 };
+		size_t mCurrentKeyIndex{ 0 };
 		bool mOpenEventPopup;
 		bool mOpenEventOption{ false };
 
