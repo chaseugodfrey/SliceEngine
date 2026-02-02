@@ -155,6 +155,7 @@ namespace SliceEngine
         private Animator animator;
         private CameraController camera;
         private AudioSource audio;
+        private bool canIncrement = true;
 
         public void Initialize()
         {
@@ -1087,7 +1088,12 @@ namespace SliceEngine
 
             if (!isAttacking && !isPlunging)
             {
-                attackCounter++;
+                if (canIncrement)
+                {
+                    attackCounter++;
+                    canIncrement = false;
+                }
+
                 if (attackCounter > 3) attackCounter = 1;
                 switch (attackCounter)
                 {
@@ -1130,6 +1136,8 @@ namespace SliceEngine
                     if (animator.SafeToChange("Attack3ToLoco"))
                         animator.SetBool("Attack3ToLoco", true);
                 }
+
+                canIncrement = true;
             }
         }
         private void Attack1()
@@ -1267,6 +1275,11 @@ namespace SliceEngine
             yield return new WaitForSeconds(duration);
             endAction?.Invoke();
         }
+        public void CanAttackFlag(bool flag)
+        {
+            canIncrement = flag;
+        }
+        
         #endregion
         public override void OnCollideEnter(uint other)
         {
