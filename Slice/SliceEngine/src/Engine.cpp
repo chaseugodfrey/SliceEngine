@@ -428,7 +428,9 @@ namespace SliceEngine
 		.property("coneArc", &ParticleSystem::coneArc)
 		.property("coneRadius", &ParticleSystem::coneRadius)
 
+		.property("sphereArc", &ParticleSystem::sphereArc)
 		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
 		.property("axis", &ParticleSystem::axis)
 
 		.property("scaleType", &ParticleSystem::scaleType)

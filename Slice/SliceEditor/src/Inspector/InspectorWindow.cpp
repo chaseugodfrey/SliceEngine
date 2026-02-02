@@ -1198,6 +1198,9 @@ namespace SliceEditor
 				// Looping
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
+				// Follow Parent Transform
+				BoolInputHeader(mRegistry, "Follow Parent Rotation", "##followParentRotation", ps.followTransformRotation);
+
 				// Start Speed
 				switch (ps.speedValueType)
 				{
@@ -1348,12 +1351,11 @@ namespace SliceEditor
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
 					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
 					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					DragVec3InputHeader(mRegistry, "Cone Rotation", "##coneRot", ps.coneRotationHint);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 360.0f);
+					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
 					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;				
+					break;
 				default:
 					break;
 				}
