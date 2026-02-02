@@ -45,6 +45,7 @@ namespace SliceEditor
 		size_t mCurrentClipIndex{ 0 };
 		size_t mCurrentEventIndex{ 0 };
 		bool mOpenEventPopup;
+		bool mOpenEventOption{ false };
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);

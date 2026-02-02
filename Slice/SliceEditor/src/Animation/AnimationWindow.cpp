@@ -342,7 +342,7 @@ namespace SliceEditor
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
-				if (event.frameNumber == currentFrame)
+				if (event.animIdx == mCurrentClipIndex && event.frameNumber == currentFrame)
 				{
 					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
 					frameHasEvent = true;
@@ -429,24 +429,29 @@ namespace SliceEditor
 							{
 								ImGui::NeoKeyframe(&key);
 
-								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeRightClicked())
+								if (ImGui::IsNeoKeyframeHovered())
 								{
-									ImGui::OpenPopup("Keyframe Context");
-									//Set the mCurrentEventIndex for the pop-up
-									auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
-										{
-											return x.frameNumber == key;
-										});
-
-									if (it != mCurrentAnimator->eventFrames.end())
+									if(ImGui::IsNeoKeyframeRightClicked())
 									{
-										mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
-									}
+										// only for animation events nibba
+										if(std::strcmp(property.name.c_str(),"Animation Event") == 0)
+										{
+											mOpenEventOption = true;
+											//ImGui::OpenPopup("Keyframe Context");
+											//Set the mCurrentEventIndex for the pop-up
+											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+												{
+													return x.frameNumber == key;
+												});
+
+											if (it != mCurrentAnimator->eventFrames.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
+											}
+										}
 								}
-
-								
+								}								
 							}
-
 							ImGui::EndNeoTimeLine();
 						}
 					}
@@ -465,20 +470,26 @@ namespace SliceEditor
 		}
 
 		//Keyframe Context?
-		if (ImGui::BeginPopupContextItem("Keyframe Context"))
+		if(mOpenEventOption)
 		{
-
-			if (ImGui::Selectable("Edit Event"))
+			if (ImGui::BeginPopupContextItem("Keyframe Context"))
 			{
-				mOpenEventPopup = true;
-			}
 
-			if (ImGui::Selectable("Delete Event"))
-			{
-				SLICE_LOG_WARNING("Non-function yet TODO");
-			}
+				if (ImGui::Selectable("Edit Event"))
+				{
+					mOpenEventPopup = true;
+					mOpenEventOption = false;
+				}
 
-			ImGui::EndPopup();
+				if (ImGui::Selectable("Delete Event"))
+				{
+					mCurrentAnimator->eventFrames.erase(mCurrentAnimator->eventFrames.begin() + mCurrentEventIndex);
+					mPropertyGroups[0].properties[0].keys.erase(mPropertyGroups[0].properties[0].keys.begin() + mCurrentEventIndex);
+					mOpenEventOption = false;
+				}
+
+				ImGui::EndPopup();
+			}
 		}
 
 		// only update when on window
