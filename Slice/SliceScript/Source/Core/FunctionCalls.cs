@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using static SliceEngine.ParticleSystem;
 
 namespace SliceEngine
-{ 
+{
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -15,7 +15,7 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void QuitGame();
 
@@ -50,7 +50,7 @@ namespace SliceEngine
         internal extern static void Transform_SetRotationQuat(uint entityID, ref Quaternion rotation);
 
         //Physics
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]                                                                   
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RigidBody_GetVelocity(uint entityID, out Vector3 rotation);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -82,14 +82,18 @@ namespace SliceEngine
         //Layer
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_GetMask(string layerName);
+        internal extern static uint LayerMask_GetMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string LayerMask_LayerToName(int layer);
+        internal extern static string LayerMask_LayerToName(uint layer);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static int LayerMask_NameToLayer(string layerName);
+        internal extern static uint LayerMask_NameToLayer(string layerName);
         //End Layer
+
+        //Raycasting
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, uint mask);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
@@ -221,6 +225,18 @@ namespace SliceEngine
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetGForce(uint entityID, ref float gForce);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetCollision(uint entityID, out bool collision);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetCollision(uint entityID, ref bool collision);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetBounce(uint entityID, out bool bounce);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetBounce(uint entityID, ref bool bounce);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetEmissionRate(uint entityID, out float emissionRate);
@@ -444,12 +460,6 @@ namespace SliceEngine
         internal extern static void ParticleSystem_SetColourOverLifetime(uint entityID, ref bool colourOverLifetime);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_GetCollision(uint entityID, out bool collision);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal extern static void ParticleSystem_SetCollision(uint entityID, ref bool collision);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_GetTextureID(uint entityID, out uint textureID);
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -482,6 +492,8 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_FindEntityWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithName(string name);

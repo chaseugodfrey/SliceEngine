@@ -134,6 +134,17 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
 	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+		if (!colliderShape.componentEnabled || mRegistry->any_of<InactiveEntity>(event.entity) || colliderShape.bodyID.IsInvalid())
+			return;
+
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+
 		physicsSystem->OptimizeBroadPhase();
 	}
 
@@ -815,10 +826,8 @@ namespace SliceEngine
 		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
 		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
 
-		jph_rot.Normalized();
-
 		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
-		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot.Normalized(), JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -1019,15 +1028,18 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-		auto& colliderShape = reg.get<ColliderShape>(entity);
+		//auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		// Remove body form physics world
-		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		//if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
+		//	return;
 
-		// Destroy the body from the physics world
-		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+		//// Remove body form physics world
+		//physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
-		physicsSystem->OptimizeBroadPhase();
+		//// Destroy the body from the physics world
+		//physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+
+		//physicsSystem->OptimizeBroadPhase();
 	}
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -1048,6 +1060,11 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
+
 			UpdateShapeFromTransform(e);
 			SyncECSToPhysics(t, c);
 		}
@@ -1086,6 +1103,12 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
+
+
+		if (!colliderShape.componentEnabled)
+		{
+			return;
+		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{
@@ -1173,7 +1196,7 @@ namespace SliceEngine
 
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
-		if (!body)
+		if (!body || !mRegistry->valid(entity))
 		{
 			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
 			return;
@@ -1210,6 +1233,10 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
 			SyncPhysicsToECS(t, c);
 		}
 
@@ -1421,33 +1448,39 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(Entity entity)
-	{
-		auto& sliceEntity = mRegistry->get<SliceEntity>(entity);
-		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
-		
-		JPH::Vec3 origin{};
-		JPH::Vec3 direction{};
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, uint32_t mask)
+	{	
+		JPH::Vec3 ori = helpers::glmtoJPH(origin);
+		JPH::Vec3 dir = helpers::glmtoJPH(direction);
 
-		JPH::RRayCast inRay(origin, direction);
-		JPH::RayCastResult ioHit;
+		JPH::RRayCast inRay(ori, dir);
+		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
-		ObjectLayerFilterImpl test(sliceEntity.mLayer);
+		ObjectLayerFilterImpl filterLayer(mask);
 		JPH::BodyFilter inBodyFilter = {};
 
+		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
 
+		if (!ioHit.mBodyID.IsInvalid())
+		{
+			bodyHitID = ioHit.mBodyID.GetIndex();
+			hitPos = origin + direction * ioHit.mFraction;
 
-		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter,test, inBodyFilter);
-		//CastRay
-		// (const RRayCast &inRay, 
-		// RayCastResult &ioHit, 
-		// const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, 
-		// const ObjectLayerFilter &inObjectLayerFilter = { }, 
-		// const BodyFilter &inBodyFilter = { }) const;
-		return true;
+			// do this later aloysius
+			JPH::BodyLockRead lock1(physicsSystem->GetBodyLockInterface(), ioHit.mBodyID);
+
+			if (lock1.Succeeded())
+			{
+				const JPH::Body& body1 = lock1.GetBody();
+				normal = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+			}
+		}
+		else
+		{
+			didRayHit = false;
+		}
+
+		return didRayHit;
 	}
-
-
-
 
 }

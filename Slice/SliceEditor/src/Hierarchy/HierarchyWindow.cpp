@@ -97,6 +97,12 @@ namespace SliceEditor
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		}
+
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::InactiveEntity>(node->entity))
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5);
+		}
+
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
 		bool itemHovered = ImGui::IsItemHovered();
@@ -117,6 +123,11 @@ namespace SliceEditor
 		if (node->isPrefab)
 		{
 			ImGui::PopStyleColor();
+		}
+
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::InactiveEntity>(node->entity))
+		{
+			ImGui::PopStyleVar();
 		}
 		// check inputs
 
