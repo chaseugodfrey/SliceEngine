@@ -189,19 +189,22 @@ namespace SliceEditor
             std::string assetName = parentDirectory + "/" + originalFileName + originalExt;
 
             int nameCount = 0;
-            
-            if (am.mFilenameToGUID.contains(assetName) && (originalExt != ".navmesh" || originalExt != ".bin"))
+            if (originalExt != ".bin" && originalExt != ".navmesh")
             {
-
-                while (am.mFilenameToGUID.contains(assetName))
+                if (am.mFilenameToGUID.contains(assetName))
                 {
-                    nameCount++;
-                    assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+
+                    while (am.mFilenameToGUID.contains(assetName))
+                    {
+                        nameCount++;
+                        assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+                    }
+
+                    std::filesystem::path newAssetFileName(assetName);
+
+                    addEvent.filePath.replace_filename(newAssetFileName);
+
                 }
-
-                std::filesystem::path newAssetFileName(assetName);
-
-                addEvent.filePath.replace_filename(newAssetFileName);
 
             }
 
@@ -349,6 +352,7 @@ namespace SliceEditor
 
                 resourceMgr->ReleaseResource(fileGUID);
                 am.mGUIDtoFilename.erase(fileGUID);
+                resourceMgr->mFileNameToGUID.erase(removedFilePath.stem().string());
                 am.mFilenameToGUID.erase(removedFilePath.stem().string());
 
                 std::filesystem::remove(metaFilePath);

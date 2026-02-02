@@ -657,7 +657,8 @@ namespace SliceEditor
 		}
 
 		// testing if can save into file, this is for detour to read
-		std::ofstream outFile("Assets/NavMesh/" + currentSceneName + ".bin", std::ios::binary);
+		std::string binFile = "Assets/NavMesh/" + currentSceneName + ".bin";
+		std::ofstream outFile(binFile, std::ios::binary);
 		std::cout << "Detour file NavMesh exported to Assets/NavMesh/" << currentSceneName << ".bin\n";
 
 		if (polyMesh)
