@@ -87,6 +87,11 @@ namespace SliceEditor
 		SliceEngine::GUID prefabGUID;
 		bool prefabBeingInspected;
 	};
+
+	struct ShaderGraphInspectedEvent
+	{
+		SliceEngine::GUID prefabGUID;
+	};
 }
 
 #endif

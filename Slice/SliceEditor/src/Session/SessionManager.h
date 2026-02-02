@@ -58,6 +58,9 @@ namespace SliceEditor
 		Entity GetPrefabEntityInspected();
 		SliceEngine::GUID GetPrefabGUIDInspected();
 
+		//Custom Shader Inspector Functions
+		void ShaderGraphInspected(const ShaderGraphInspectedEvent& event);
+
 		//Debug Settings
 		void ToggleHierarchyEntityIDs();
 		bool GetHierarchyEntityIDs();

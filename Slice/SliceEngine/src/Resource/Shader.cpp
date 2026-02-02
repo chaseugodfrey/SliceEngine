@@ -248,14 +248,14 @@ namespace SliceEngine
 		// 4 : 1, color						Frees[1]		Dependencies Remaining(1)
 		// 5 : 2, 3							Frees[]			Dependencies Remaining(2)
 		// 
-		static std::map<std::string, std::string> cShaderPredefines
+		std::unordered_map<std::string, std::string> cShaderPredefines
 		{
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
 			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
 			{"sat_Vec3", "vec3 sat_Vec3(vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}"}
 		};
 
-		static std::map<std::string, cShaderFunc> cShaderFuncsTemplates{
+		std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates{
 			{"END", {"return %s;\n", "", CSHAD_T::NIL, {CSHAD_T::ANY}}},
 
 			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
@@ -290,7 +290,7 @@ namespace SliceEngine
 			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
 		};
 		// ----- Inside LoadCShader Func =====
-		static std::map<std::string, CSHAD_T> dataIDS
+		std::unordered_map<std::string, CSHAD_T> dataIDS
 		{
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
@@ -326,7 +326,7 @@ namespace SliceEngine
 			
 			// 1. Extract Params
 			nlohmann::json paramsJson = cshaderJson["Params"];
-			std::map<std::string, CSHAD_T> dataI = dataIDS; // copies :p
+			std::unordered_map<std::string, CSHAD_T> dataI = dataIDS; // copies :p
 
 			if (paramsJson.contains("Floats"))
 				for (auto& [name, components] : paramsJson["Floats"].items())
@@ -370,7 +370,7 @@ namespace SliceEngine
 				}
 
 			// Extract Functions
-			std::map<std::string, std::string> fragInclFunctions{};
+			std::unordered_map<std::string, std::string> fragInclFunctions{};
 			std::string fragMainShaderSource{
 R"(vec4 TexColorC(vec4 texCol, vec4 color)
 {
@@ -559,7 +559,7 @@ void main(void){
 			};
 		}
 
-		void CustomShader::LoadCShaderFunctions(std::string& ret, std::map<std::string, std::string>& funcsPre, const std::map<std::string, CSHAD_T>& defaulParmas, nlohmann::json& in)
+		void CustomShader::LoadCShaderFunctions(std::string& ret, std::unordered_map<std::string, std::string>& funcsPre, const std::unordered_map<std::string, CSHAD_T>& defaulParmas, nlohmann::json& in)
 		{
 			std::map<std::string, CShadDependencies> dependenciesLockedLines;
 			std::queue<std::string> toClearLines;

@@ -26,6 +26,7 @@ namespace SliceEditor
 		eventManager->Subscribe<OnSceneSaveEvent, &SessionManager::OnSceneSave>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
+		eventManager->Subscribe<ShaderGraphInspectedEvent, &SessionManager::ShaderGraphInspected>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
 		//CreateEntityNodes();
@@ -343,6 +344,14 @@ namespace SliceEditor
 	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
 	{
 		return mInspectedPrefabGUID;
+	}
+
+	void SessionManager::ShaderGraphInspected(const ShaderGraphInspectedEvent& event)
+	{
+		//event.prefabGUID;
+
+		//--TODO-- Do I even need this event?
+		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 	}
 
 	void SessionManager::ToggleHierarchyEntityIDs()

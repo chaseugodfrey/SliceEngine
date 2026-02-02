@@ -76,9 +76,9 @@ namespace SliceEngine
 			CSHAD_T outType;
 			std::vector<CSHAD_T> inIDs;
 		};
-		extern std::map<std::string, std::string> cShaderPredefines;
-		extern std::map<std::string, cShaderFunc> cShaderFuncsTemplates;
-		extern std::map<std::string, CSHAD_T> dataIDS;
+		extern std::unordered_map<std::string, std::string> cShaderPredefines;
+		extern std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates;
+		extern std::unordered_map<std::string, CSHAD_T> dataIDS;
 
 		class CustomShader {
 		public:
@@ -102,7 +102,7 @@ namespace SliceEngine
 			std::vector<ShaderParams> dataIn;
 
 			static CustomShader LoadCShader(std::string const&);
-			static void LoadCShaderFunctions(std::string&, std::map<std::string, std::string>&, const std::map<std::string, CSHAD_T>&, nlohmann::json&);
+			static void LoadCShaderFunctions(std::string&, std::unordered_map<std::string, std::string>&, const std::unordered_map<std::string, CSHAD_T>&, nlohmann::json&);
 			void DestroyCShader();
 		};
 	}
