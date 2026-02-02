@@ -15,6 +15,8 @@ namespace SliceEngine
 
         SpriteRenderer defeat;
         public GameObject defeatObject;
+
+        public GameObject textBoxObject;
         public override void OnCreate()
         {
 
@@ -49,6 +51,18 @@ namespace SliceEngine
         public override void OnButtonRelease()
         {
             SliceLog.Log("Button Release");
+        }
+
+        public void SetTextBox(string input)
+        {
+            textBoxObject.SetActive(true);
+
+            //Set Text
+        }
+
+        public void CloseTextBox()
+        {
+            textBoxObject.SetActive(false);
         }
 
         public void Initialize()
