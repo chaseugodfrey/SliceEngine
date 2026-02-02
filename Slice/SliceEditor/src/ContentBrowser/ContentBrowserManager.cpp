@@ -221,6 +221,7 @@ namespace SliceEditor
 	void ContentBrowserManager::OpenFile(DirectoryNode& entry)
 	{
 		auto& assetMan = registry.GetAssetManager();
+		auto sessionMan = registry.GetManager<SessionManager>("Session");
 		//Loading a Scene
 		if (entry.fullPath.extension() == ".scene")
 		{	//This is where you tell the editor which is the next scene to change to - yy
@@ -256,7 +257,14 @@ namespace SliceEditor
 			if (assetMan.mFilenameToGUID.find(stem) != assetMan.mFilenameToGUID.end())
 			{
 				SliceEngine::GUID guid = registry.GetAssetManager().mFilenameToGUID[stem];
-				assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"));
+				if (sessionMan->IsPrefabInspected())
+				{
+					assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"), sessionMan->GetPrefabEntityInspected(), true);
+				}
+				else
+				{
+					assetMan.CreateModelGO(guid, *registry.GetManager<HistoryManager>("History"));
+				}
 				
 				//EditorUtilities::GameObject_CreateModel(guid, entt::null, registry.GetManager<HistoryManager>("History"));
 			}

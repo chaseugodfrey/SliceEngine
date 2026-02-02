@@ -144,7 +144,7 @@ namespace SliceEngine
 
 		if (!navMeshInstance)
 		{
-			SLICE_LOG("No Nav Mesh Data detected.");
+			//SLICE_LOG("No Nav Mesh Data detected.");
 			return;
 		}
 

@@ -110,6 +110,8 @@ namespace SliceEditor
 
 	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr);
 
+	bool EntityInputHeader(Registry& reg, const char* property_label, const char* id, Entity& val);
+
 	// if need to pass in lambda
 	// example code:
 	//
