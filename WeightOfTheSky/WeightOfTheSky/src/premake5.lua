@@ -90,6 +90,7 @@ project "WeightOfTheSky"
                 '{COPYFILE} "' .. ThirdParty.FMOD_DLL .. '" "%{cfg.targetdir}"',
                 '{COPYFILE} "' .. ThirdParty.MONO_LIB .. '" "%{cfg.targetdir}"',
                 '{COPYFILE} "' .. ThirdParty.RTTR_DLL .. '" "%{cfg.targetdir}"',
+                '{COPYFILE} "' .. ThirdParty.GLEW_DLL .. '" "%{cfg.targetdir}"',
         }
 
 

@@ -964,10 +964,13 @@ namespace SliceEngine
 		LinkFrameBufferSettings(FB_TOTAL, 0);
 		LoadSettings(GPS_DEFAULT);
 		ClearBuffer(BufferClearSetting::ALL);
-		if (GetGameCamera().has_value())
+		//if (GetGameCamera().has_value())
+		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
+		for (auto cam : cams)
 		{
 			SetShader(ShaderPaths[S_COPY]);
-			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+			//glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
@@ -984,6 +987,7 @@ namespace SliceEngine
 		auto& worldTr = camTrans.transform;
 
 		glm::vec3 camPosition{ worldTr[3] }, target{1.f, 0.f, 0.f}, up{0.f, 1.f, 0.f};
+		camPosition = { -9.5, 1.9, -2.3 };
 		glm::mat3 rot = glm::mat3(worldTr);
 
 		//glm::mat3 rot = glm::eulerAngleXYZ(glm::radians(camTrans.rotation.x), glm::radians(camTrans.rotation.y), glm::radians(camTrans.rotation.z));
