@@ -360,9 +360,13 @@ namespace SliceEngine
 		switch (ps.shapeType)
 		{
 		case ParticleSystem::ShapeType::SPHERE:
-			p.position += RandomPointInSphere(ps.sphereRadius);
+			p.position += RandomPointInSphere(ps.sphereRadius,ps.sphereArc, ps);
+			break;
+		case ParticleSystem::ShapeType::CONE:
+			p.position += RandomPointInCircle(ps.coneRadius, ps);
 			break;
 		default:
+			p.position += RandomPointInSphere(ps.sphereRadius, ps.sphereArc, ps);
 			break;
 		}
 	}
@@ -444,6 +448,9 @@ namespace SliceEngine
 		{
 		case ParticleSystem::ShapeType::SPHERE:
 			direction = ComputeSphereInitialVelocity(ps.parentTransform->position, p.position, ps.sphereRadius);
+			break;
+		case ParticleSystem::ShapeType::CONE:
+			direction = RandomDirectionInCone(ps.coneArc, ps);
 			break;
 		default:
 			direction = glm::vec3(0.0f, 1.0f, 0.0f); // fallback
@@ -618,12 +625,7 @@ namespace SliceEngine
 		p.colour = glm::mix(c0, c1, localT);
 	}
 
-	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(
-		const glm::vec3& center,
-		const glm::vec3& position,
-		float radius,
-		float radialBias
-		)
+	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias)
 	{
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
@@ -654,17 +656,53 @@ namespace SliceEngine
 		return dir;
 	}
 
-	glm::vec3 ParticleSystemManager::RandomPointInSphere(float radius)
+	glm::vec3 ParticleSystemManager::RandomDirectionInCone(float arcDegrees, ParticleSystem& ps)
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		float maxAngle = glm::radians(arcDegrees) * 0.5f;
+		float cosMax = cos(maxAngle);
+
+		float u = dist01(gen);
+		float v = dist01(gen);
+
+		float cosTheta = glm::mix(cosMax, 1.0f, u);
+		float sinTheta = sqrt(1.0f - cosTheta * cosTheta);
+		float phi = 2.0f * glm::two_pi<float>() * v;
+
+		glm::vec3 localDir(
+			cos(phi) * sinTheta,
+			sin(phi) * sinTheta,
+			cosTheta
+		);
+
+		glm::vec3 axis(0.0f, 0.0f, 1.0f);
+		if (ps.parentTransform && ps.followTransformRotation)
+		{
+			axis = ps.parentTransform->rotation * glm::vec3(0.0f, 0.0f, 1.0f);
+		}
+
+		glm::quat q = Utilities::FromToRotation(glm::vec3(0.0f, 0.0f, 1.0f), axis);                   // desired world axis
+		return q * localDir;
+	}
+
+	glm::vec3 ParticleSystemManager::RandomPointInSphere(float radius, float arcDegrees, ParticleSystem& ps)
 	{
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-		float u = dist(gen);
-		float v = dist(gen);
-		float w = dist(gen);
+		float u = dist(gen); // for theta
+		float w = dist(gen); // for radius
 
-		// Random direction
+		// Convert arc from degrees to radians
+		float arcRad = glm::radians(arcDegrees);
+
+		// Clamp phi to the desired arc
+		// If arcDegrees = 90, then phi ranges from 0 to 90 degrees (0 to pi/2)
+		std::uniform_real_distribution<float> phiDist(0.0f, arcRad);
+		float phi = phiDist(gen);
+
+		// Theta can remain full circle
 		float theta = 2.0f * glm::pi<float>() * u;
-		float phi = acos(2.0f * v - 1.0f);
 
 		float sinPhi = sin(phi);
 
@@ -674,10 +712,45 @@ namespace SliceEngine
 			cos(phi)
 		);
 
-		// Correct radial distribution
+		// Radial distance
 		float r = radius * cbrt(w);
-
-		return dir * r;
+		if (!ps.followTransformRotation)
+		{
+			return dir * r;
+		}
+		else if (ps.parentTransform)
+		{
+			return ps.parentTransform->rotation * (dir * r);
+		}
 	}
-#pragma endregion
+
+	glm::vec3 ParticleSystemManager::RandomPointInCircle(float radius, ParticleSystem& ps) // optional parent rotation
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		// Random radius with correct distribution
+		float r = radius * sqrt(dist01(gen)); // sqrt ensures uniform density
+
+		// Random angle
+		float theta = 2.0f * glm::pi<float>() * dist01(gen);
+
+		// Point in local XY circle (Z = 0)
+		glm::vec3 localPoint(
+			r * cos(theta),
+			r * sin(theta),
+			0.0f
+		);
+
+		// Apply parent rotation
+		if (!ps.followTransformRotation)
+		{
+			return localPoint;
+		}
+		else if (ps.parentTransform)
+		{
+			return ps.parentTransform->rotation * localPoint;
+		}
+	}
+
 }
+#pragma endregion
