@@ -18,6 +18,11 @@ namespace SliceEditor
 		{CST::CSHAD_T::VEC3, "vec3"},
 		{CST::CSHAD_T::VEC4, "vec4"}
 	};
+	CustomShaderWindow::~CustomShaderWindow()
+	{
+		ImNodes::EditorContextFree(*editor_context_this.get());
+		ImNodes::EditorContextFree(*editor_context_other.get());
+	}
 	void CustomShaderWindow::CheckFileData()
 	{
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
@@ -72,7 +77,8 @@ namespace SliceEditor
 				std::unordered_map<std::string, tempLinkIDContainer> tempIDLinkGet;
 
 				// Defaults
-				for (const auto& dat : CST::dataIDS)
+				auto copy = CST::dataIDS;
+				for (const auto& dat : copy)
 				{
 					StateNode n;
 					n.id = ++nodeIDCounter;
@@ -80,7 +86,6 @@ namespace SliceEditor
 					n.out_id = ++nodeTransitionCounter;
 					mDefaultIns.insert(std::make_pair(n.id, n));
 					tempIDLinkGet[dat.first].out = n.out_id;
-					InitNodePos(n.id);
 				}
 
 				// Editables
@@ -95,7 +100,6 @@ namespace SliceEditor
 						n.out_id = ++nodeTransitionCounter;
 						mEditableIns.insert(std::make_pair(n.id, n));
 						tempIDLinkGet[name].out = n.out_id;
-						InitNodePos(n.id);
 					}
 				if (paramsJson.contains("Ints"))
 					for (auto& [name, components] : paramsJson["Ints"].items())
@@ -107,7 +111,6 @@ namespace SliceEditor
 						n.out_id = ++nodeTransitionCounter;
 						mEditableIns.insert(std::make_pair(n.id, n));
 						tempIDLinkGet[name].out = n.out_id;
-						InitNodePos(n.id);
 					}
 				if (paramsJson.contains("Uints"))
 					for (auto& [name, components] : paramsJson["Uints"].items())
@@ -119,7 +122,6 @@ namespace SliceEditor
 						n.out_id = ++nodeTransitionCounter;
 						mEditableIns.insert(std::make_pair(n.id, n));
 						tempIDLinkGet[name].out = n.out_id;
-						InitNodePos(n.id);
 					}
 				if (paramsJson.contains("Bools"))
 					for (auto& [name, components] : paramsJson["Bools"].items())
@@ -131,7 +133,6 @@ namespace SliceEditor
 						n.out_id = ++nodeTransitionCounter;
 						mEditableIns.insert(std::make_pair(n.id, n));
 						tempIDLinkGet[name].out = n.out_id;
-						InitNodePos(n.id);
 					}
 
 				nlohmann::json mainColorJson = cshaderJson["ColorMain"];
@@ -148,11 +149,10 @@ namespace SliceEditor
 							dependencies.get_to(dep);
 							StateNode n;
 							n.id = ++nodeIDCounter;
-							n.name = funcName;
+							n.name = funcName + "_COLOR";
 							n.in_id = ++nodeTransitionCounter;
 							mDefaultOuts.insert(std::make_pair(n.id, n));
 							tempIDLinkGet[dep[0]].in.push(n.in_id);
-							InitNodePos(n.id);
 						}
 						continue;
 					}
@@ -177,7 +177,6 @@ namespace SliceEditor
 							tempIDLinkGet[id].out = tID;
 						}
 						mStateNodes.insert(std::make_pair(n.id, n));
-						InitNodePos(n.id);
 					}
 				}
 
@@ -197,7 +196,7 @@ namespace SliceEditor
 				/*
 				nlohmann::json RoughnessMetJson = cshaderJson["RoughMetMain"];
 				*/
-
+				tempLoadPos = true;
 			}
 		}
 	}
@@ -205,6 +204,8 @@ namespace SliceEditor
 	{
 		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
+		editor_context_this = std::make_unique<ImNodesEditorContext*>(ImNodes::EditorContextCreate());
+		editor_context_other = std::make_unique<ImNodesEditorContext*>(ImNodes::EditorContextCreate());
 	}
 
 	void CustomShaderWindow::create_default()
@@ -216,14 +217,15 @@ namespace SliceEditor
 	{
 		CheckFileData();
 
-		ImGui::Begin("CustomShader");
+		ImGui::Begin("Shader Graph");
 		if(ImGui::Button("Save"))
 		{
-			SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture> handle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Texture>("Textures/Gideon.png");
-			auto texture = handle.get();
-			ImGui::Image(static_cast<ImU64>(texture->texture_id), ImGui::GetWindowSize());
+			//SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture> handle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Texture>("Textures/Gideon.png");
+			//auto texture = handle.get();
+			//ImGui::Image(static_cast<ImU64>(texture->texture_id), ImGui::GetWindowSize());
 		}
 
+		ImNodes::EditorContextSet(*editor_context_this.get());
 		ImNodes::BeginNodeEditor();
 
 		for(auto& i : mStateNodes)
@@ -237,13 +239,16 @@ namespace SliceEditor
 		for (auto& i : mTransitionNodes)
 			DrawTransitionNodes(i.second);
 
+		if (tempLoadPos)
+			TempLoadPosAll();
 
 		// must be called right before EndNodeEditor
-		ImNodes::MiniMap();
+		ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_TopLeft);
 		DrawPostEditorElements();
 		ImNodes::EndNodeEditor();
+		PostEditorChecks();
 
-
+		ImNodes::EditorContextSet(*editor_context_other.get());
 		ImGui::End();
 	}
 
@@ -267,7 +272,10 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImNodes::BeginInputAttribute(node.in_id);
-		ImGui::Text(cShaderTypeName[CST::dataIDS[node.name]].c_str());
+		if(node.name == "END_COLOR")
+			ImGui::Text(cShaderTypeName[CST::CSHAD_T::VEC4].c_str());
+		else if(node.name == "END_MET_ROUGH")
+			ImGui::Text(cShaderTypeName[CST::CSHAD_T::VEC2].c_str());
 		ImNodes::EndInputAttribute();
 
 		ImNodes::EndNode();
@@ -386,10 +394,38 @@ namespace SliceEditor
 			}
 		}
 	}
+	void CustomShaderWindow::TempLoadPosAll()
+	{
+		for (auto& i : mStateNodes)
+			InitNodePos(i.first);
+		for (auto& i : mDefaultIns)
+			InitNodePos(i.first);
+		for (auto& i : mDefaultOuts)
+			InitNodePos(i.first);
+		for (auto& i : mEditableIns)
+			InitNodePos(i.first);
+		tempLoadPos = false;
+	}
 	void CustomShaderWindow::InitNodePos(int id)
 	{
 		ImVec2 pos{ 0.f + 200.f * (id / 6), 0.f + 50.f * (id % 6)}; // -ve is go up
 		ImNodes::SetNodeEditorSpacePos(id, pos);
 		ImNodes::SnapNodeToGrid(id);
+	}
+	void CustomShaderWindow::PostEditorChecks()
+	{
+		int id_attr, start_attr, end_attr;
+		if (ImNodes::IsLinkCreated(&start_attr, &end_attr))
+		{
+			TransitionLinkNode n;
+			n.source_id = start_attr;
+			n.target_id = end_attr;
+			n.id = ++nodeTransitionCounter;
+			mTransitionNodes.insert(std::make_pair(n.id, n));
+		}
+		if (ImNodes::IsLinkDestroyed(&id_attr))
+		{
+			mTransitionNodes.erase(id_attr);
+		}
 	}
 }

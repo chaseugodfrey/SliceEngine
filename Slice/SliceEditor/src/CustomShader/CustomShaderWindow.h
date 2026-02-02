@@ -13,6 +13,9 @@ namespace SliceEditor
 
 	class CustomShaderWindow : public EditorWindow
 	{
+		std::unique_ptr<ImNodesEditorContext*> editor_context_this;
+		std::unique_ptr<ImNodesEditorContext*> editor_context_other;
+
 		SelectionManager* mSelectionManager = nullptr;
 		SessionManager* mSessionManager = nullptr;
 		std::string mCurrCSPath = "";
@@ -20,6 +23,7 @@ namespace SliceEditor
 		int32_t nodeTransitionCounter = 0;
 		int32_t nodeIDCounter = 0;
 		int32_t linkIDCounter = 0;
+		bool tempLoadPos = false;
 
 		struct EditableNode : SelectionNode
 		{
@@ -64,11 +68,13 @@ namespace SliceEditor
 		void DrawEditableInNode(EditableNode&);
 		void DrawTransitionNodes(TransitionLinkNode&);
 		void DrawPostEditorElements();
+		void TempLoadPosAll();
 		void InitNodePos(int);
+		void PostEditorChecks();
 	public:
 
 		CustomShaderWindow(Registry& reg) : EditorWindow(reg) {};
-		~CustomShaderWindow() = default;
+		~CustomShaderWindow();
 
 		void CheckFileData();
 		void Init() override;
