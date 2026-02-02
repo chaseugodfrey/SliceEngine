@@ -831,7 +831,8 @@ namespace SliceEditor
 				}
 				else
 				{
-					std::string goName = static_cast<unsigned int>(entry.GetEntity()) + ' ' + entry.GetName().c_str();
+					std::string goName = "broken";//static_cast<unsigned int>(entry.GetEntity()) + ' ' + entry.GetName().c_str();
+					if (goName == "") goName = "its broken";
 					ImGui::InputText(newID.c_str(), &goName);
 				}
 				ImGui::EndDisabled();

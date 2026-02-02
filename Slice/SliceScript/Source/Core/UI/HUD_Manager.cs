@@ -53,6 +53,11 @@ namespace SliceEngine
             SliceLog.Log("Button Release");
         }
 
+        public void LoadDialogues()
+        {
+            //Load dialogues from a CSV
+        }
+
         public void SetTextBox(string input)
         {
             textBoxObject.SetActive(true);
