@@ -102,6 +102,7 @@ namespace SliceEngine
 
 	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
+		
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
 		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
@@ -1742,6 +1743,8 @@ namespace SliceEngine
 
 	}
 
+
+
 	static MonoArray *Entity_FindEntitiesWithTag(MonoString *tag)
 	{
 		std::string cStrName = MonoToString(tag);
@@ -1758,6 +1761,18 @@ namespace SliceEngine
 		}
 
 		return monoArray;
+	}
+
+	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
+	{
+		std::string cStrName = MonoToString(tag);
+		Entity entity = FactoryInstance.GetEntityWithTag(cStrName);
+		if (entity == entt::null)
+		{
+			return 0;
+		}
+
+		return (unsigned int)entity;
 	}
 
 	static unsigned int CreateNewGameObject(MonoString *prefabName)
@@ -1780,7 +1795,7 @@ namespace SliceEngine
 		//mono_free(cStrName);
 		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
-		return entt::null;
+		return 0;
 	}
 
 	static unsigned int CloneGO(MonoString *GoName)
@@ -2213,6 +2228,7 @@ namespace SliceEngine
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);

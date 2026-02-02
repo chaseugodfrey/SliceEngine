@@ -175,6 +175,10 @@ namespace SliceEngine
 		//Slider events
 		void OnSliderValue(const OnSliderValueEvent& event);
 
+		// Get or create
+		MonoObject* GetOrCreateManagedObject(Entity entity);
+		void ClearManagedHandles();
+
 		// Variables
 		MonoDomain* mRootDomain;
 		MonoDomain* mAppDomain;
@@ -195,6 +199,8 @@ namespace SliceEngine
 		std::unordered_map<std::string, std::shared_ptr<ScriptClass>> mEntityClasses;
 		// keep track of entity to script object
 		std::unordered_map<Entity, std::shared_ptr<ScriptObject>> mEntityInstances;
+		// keep track of handles
+		std::unordered_map<Entity, uint32_t> mManagedGameObjectHandles;
 
 		// cause I dont want to constantly loop through mEntitiesSet to pick up new entities
 		// ill store new entities thats added in a vector

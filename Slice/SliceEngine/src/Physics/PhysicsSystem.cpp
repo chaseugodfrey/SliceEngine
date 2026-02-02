@@ -134,6 +134,17 @@ namespace SliceEngine
 
 	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
 	{
+		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+
+		if (!colliderShape.componentEnabled || mRegistry->any_of<InactiveEntity>(event.entity) || colliderShape.bodyID.IsInvalid())
+			return;
+
+		// Remove body form physics world
+		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+
+		// Destroy the body from the physics world
+		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+
 		physicsSystem->OptimizeBroadPhase();
 	}
 
@@ -815,10 +826,8 @@ namespace SliceEngine
 		JPH::Vec3 jph_pos{ pos.x, pos.y, pos.z };
 		JPH::Quat jph_rot{ rot.x, rot.y, rot.z, rot.w };
 
-		jph_rot.Normalized();
-
 		physicsSystem->GetBodyInterface().SetPosition(colliderShape.bodyID, jph_pos, JPH::EActivation::DontActivate);
-		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot, JPH::EActivation::DontActivate);
+		physicsSystem->GetBodyInterface().SetRotation(colliderShape.bodyID, jph_rot.Normalized(), JPH::EActivation::DontActivate);
 	}
 
 	void PhysicsSystem::SyncPhysicsToECS(Transform& transform, ColliderShape& colliderShape) const
@@ -1019,18 +1028,18 @@ namespace SliceEngine
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
-		auto& colliderShape = reg.get<ColliderShape>(entity);
+		//auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity))
-			return;
+		//if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
+		//	return;
 
-		// Remove body form physics world
-		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		//// Remove body form physics world
+		//physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
-		// Destroy the body from the physics world
-		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+		//// Destroy the body from the physics world
+		//physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 
-		physicsSystem->OptimizeBroadPhase();
+		//physicsSystem->OptimizeBroadPhase();
 	}
 
 	void PhysicsSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -1051,6 +1060,11 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
+
 			UpdateShapeFromTransform(e);
 			SyncECSToPhysics(t, c);
 		}
@@ -1089,6 +1103,12 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
+
+
+		if (!colliderShape.componentEnabled)
+		{
+			return;
+		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{
@@ -1176,7 +1196,7 @@ namespace SliceEngine
 
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
-		if (!body)
+		if (!body || !mRegistry->valid(entity))
 		{
 			SLICE_LOG_ERROR("Failed to create Jolt body for entity");
 			return;
@@ -1213,6 +1233,10 @@ namespace SliceEngine
 		// Safe, iterator-free iteration
 		for (auto [e, t, c] : view.each())
 		{
+			if (!c.componentEnabled)
+			{
+				continue;
+			}
 			SyncPhysicsToECS(t, c);
 		}
 
