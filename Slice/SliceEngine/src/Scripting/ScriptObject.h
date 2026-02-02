@@ -176,6 +176,10 @@ namespace SliceEngine
 		/// <param name="className">name of the class</param>
 		ScriptObject(std::shared_ptr<ScriptClass> scClass, Entity entity);
 
+		~ScriptObject();
+
+		void Destroy();
+
 		/// <summary>
 		/// Get the mMonoInstance reference to get script instance for C# side
 		/// </summary>
@@ -194,6 +198,8 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="id"></param>
 		void InvokeOnConstruct(unsigned int id);
+
+		void InvokeOnAwake();
 
 		/// <summary>
 		/// Calls the OnCreate function. This is only called for all entity scripts, when the game is ran in engine
@@ -695,6 +701,10 @@ namespace SliceEngine
 			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
 
 			// TODO: add in exception handling like in my other invoke stuff
+			if (exception || !countObj) {
+				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				return result;
+			}
 
 			int count = *(int*)mono_object_unbox(countObj);
 			result.reserve(count);
@@ -753,7 +763,10 @@ namespace SliceEngine
 			MonoObject* countObj = mono_runtime_invoke(field.mListGetCount, listObject, nullptr, &exception);
 
 			// TODO: add in exception handling like in my other invoke stuff
-
+			if (exception || !countObj) {
+				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				return result;
+			}
 			int count = *(int*)mono_object_unbox(countObj);
 			result.reserve(count);
 
@@ -908,17 +921,19 @@ namespace SliceEngine
 			if (listObject == nullptr || field.mListAdd == nullptr)
 				return;
 
-			MonoImage* coreImage = mono_assembly_get_image(gScriptSystem->mCoreAssembly);
-			MonoClass* gameObjectClass = mono_class_from_name(coreImage, "SliceEngine", "GameObject");
+			//MonoImage* coreImage = mono_assembly_get_image(gScriptSystem->mCoreAssembly);
+			//MonoClass* gameObjectClass = mono_class_from_name(coreImage, "SliceEngine", "GameObject");
 
-			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+			//MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			uint32_t entityID = (uint32_t)value.GetEntity();
-			void* ctorArgs[1];
-			ctorArgs[0] = &entityID;
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//uint32_t entityID = (uint32_t)value.GetEntity();
+			//void* ctorArgs[1];
+			//ctorArgs[0] = &entityID;
 
-			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+			//mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			MonoObject* managedGameObject = gScriptSystem->GetOrCreateManagedObject(value.GetEntity());
 
 			void* addArgs[1];
 			addArgs[0] = managedGameObject;
@@ -1038,16 +1053,18 @@ namespace SliceEngine
 			// if it failed to get a list object or listAdd wasn't initialized
 			if (listObject == nullptr || field.mListAdd == nullptr)
 				return;
-			MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
-			MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
+			//MonoClass* gameObjectClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "GameObject");
+			//MonoObject* managedGameObject = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			//Initialising  the C# GameObject
-			uint32_t entityID = (uint32_t)value.GetEntity();
-			void* ctorArgs[1];
-			ctorArgs[0] = &entityID;
+			////Initialising  the C# GameObject
+			//uint32_t entityID = (uint32_t)value.GetEntity();
+			//void* ctorArgs[1];
+			//ctorArgs[0] = &entityID;
 
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//mono_runtime_invoke(ctor, managedGameObject, ctorArgs, nullptr);
+
+			MonoObject* managedGameObject = gScriptSystem->GetOrCreateManagedObject(value.GetEntity());
 
 			//Setting the item in the list to its index
 			void* params[2];
@@ -1328,18 +1345,20 @@ namespace SliceEngine
 
 			if (!gameObjectClass) return;
 
-			// 2. Create a new managed instance of the C# GameObject
-			MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
+			//// 2. Create a new managed instance of the C# GameObject
+			//MonoObject* managedInstance = mono_object_new(mono_domain_get(), gameObjectClass);
 
-			// 3. Initialize the object (Calls the constructor)
-			// We can call the constructor that takes a uint ID
-			void* args[1];
-			uint32_t entityID = (uint32_t)val.GetEntity();
-			args[0] = &entityID;
+			//// 3. Initialize the object (Calls the constructor)
+			//// We can call the constructor that takes a uint ID
+			//void* args[1];
+			//uint32_t entityID = (uint32_t)val.GetEntity();
+			//args[0] = &entityID;
 
-			// Find the constructor: GameObject(uint id)
-			MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
-			mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+			//// Find the constructor: GameObject(uint id)
+			//MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+			//mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+			MonoObject* managedInstance = gScriptSystem->GetOrCreateManagedObject(val.GetEntity());
 
 			// 4. Set the field in your ScriptObject to this new C# object reference
 			// Since it's a reference type, we pass the pointer to the MonoObject itself

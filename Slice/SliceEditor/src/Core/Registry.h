@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "IBaseManager.h"
 #include "../AssetManager/AssetManager.h"
+#include "Systems/FramerateManager.h"
 
 namespace SliceEditor
 {
@@ -24,6 +25,7 @@ namespace SliceEditor
 	{
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 		AssetManager& mAssetManager;
+		SliceEngine::FramerateManager& mEditorFRM;
 
 		template <typename ManagerType>
 		void CreateManager(std::string name)
@@ -35,12 +37,17 @@ namespace SliceEditor
 
 	public:
 
-		Registry(AssetManager& ass) : mAssetManager(ass)
+		Registry(AssetManager& ass, SliceEngine::FramerateManager& frm) : mAssetManager(ass), mEditorFRM(frm)
 		{ }
 
 		inline AssetManager& GetAssetManager()
 		{
 			return mAssetManager;
+		}
+
+		inline SliceEngine::FramerateManager& GetEditorFRM()
+		{
+			return mEditorFRM;
 		}
 
 		void Init();

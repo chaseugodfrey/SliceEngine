@@ -80,7 +80,7 @@ namespace SliceEditor
 		void CreateAssetManifest();
 		void AddDefaultsToManifest(nlohmann::json& manifestJSON);
 
-		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist);
+		void CreateModelGO(SliceEngine::GUID guid, HistoryManager& hist,Entity parent = entt::null, bool isPrefabInspected = false);
 		std::filesystem::path GetMetaDataFromFilename(std::string filename);
 		
 

@@ -342,7 +342,7 @@ namespace SliceEditor
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
-				if (event.frameNumber == currentFrame)
+				if (event.animIdx == mCurrentClipIndex && event.frameNumber == currentFrame)
 				{
 					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
 					frameHasEvent = true;
@@ -429,24 +429,30 @@ namespace SliceEditor
 							{
 								ImGui::NeoKeyframe(&key);
 
-								if (ImGui::IsNeoKeyframeHovered() && ImGui::IsNeoKeyframeRightClicked())
+								if (ImGui::IsNeoKeyframeHovered())
 								{
-									ImGui::OpenPopup("Keyframe Context");
-									//Set the mCurrentEventIndex for the pop-up
-									auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
-										{
-											return x.frameNumber == key;
-										});
-
-									if (it != mCurrentAnimator->eventFrames.end())
+									if(ImGui::IsNeoKeyframeRightClicked())
 									{
-										mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
-									}
+										// only for animation events nibba
+										if(std::strcmp(property.name.c_str(),"Animation Event") == 0)
+										{
+											mOpenEventOption = true;
+											mCurrentKeyIndex = key;
+											//ImGui::OpenPopup("Keyframe Context");
+											//Set the mCurrentEventIndex for the pop-up
+											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+												{
+													return x.frameNumber == key;
+												});
+
+											if (it != mCurrentAnimator->eventFrames.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
+											}
+										}
 								}
-
-								
+								}								
 							}
-
 							ImGui::EndNeoTimeLine();
 						}
 					}
@@ -458,83 +464,102 @@ namespace SliceEditor
 			ImGui::EndNeoSequencer();
 		}
 
-		//Keyframe Context?
-		if (ImGui::BeginPopupContextItem("Keyframe Context"))
+		// click on neosequencer
+		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) 
 		{
-
-			if (ImGui::Selectable("Edit Event"))
-			{
-				mOpenEventPopup = true;
-			}
-
-			if (ImGui::Selectable("Delete Event"))
-			{
-				SLICE_LOG_WARNING("Non-function yet TODO");
-			}
-
-			ImGui::EndPopup();
+			ImGui::SetWindowFocus();
 		}
 
-		auto core = SliceEngine::Core::GetInstance();
-		if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+		//Keyframe Context?
+		if(mOpenEventOption)
 		{
-			if (mTimeline.isPlaying)
+			if (ImGui::BeginPopupContextItem("Keyframe Context"))
 			{
-				currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
-				if (currentFrame > endFrame)
-				{
-					currentFrame = startFrame;
-				}
-				for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
-				{
-					float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-					mCurrentTime += dt;
-				}
-			}
 
-			else
-			{
-				mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
-			}
-
-			//Bone animation
-			if (mCurrentAnimator->is_bone)
-			{
-				auto& anim = animationClips[mCurrentClipIndex];
-				if (anim->duration <= 0.0f)
+				if (ImGui::Selectable("Edit Event"))
 				{
-					mCurrentTime = 0.0f;
+					mOpenEventPopup = true;
+					mOpenEventOption = false;
 				}
-				else
+
+				if (ImGui::Selectable("Delete Event"))
 				{
-					if (mCurrentTime > anim->duration)
+					mCurrentAnimator->eventFrames.erase(mCurrentAnimator->eventFrames.begin() + mCurrentEventIndex);
+					std::erase(mPropertyGroups[0].properties[0].keys, mCurrentKeyIndex);
+					//mPropertyGroups[0].properties[0].keys.erase(mPropertyGroups[0].properties[0].keys.begin() + mCurrentKeyIndex);
+					mOpenEventOption = false;
+				}
+
+				ImGui::EndPopup();
+			}
+		}
+
+		// only update when on window
+		if(ImGui::IsWindowFocused())
+		{
+			auto core = SliceEngine::Core::GetInstance();
+			if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+			{
+				
+				if (mTimeline.isPlaying)
+				{
+					currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
+					if (currentFrame > endFrame)
 					{
-
-						if (!mTimeline.isLoop)
-						{
-							mTimeline.isPlaying = false;
-							currentFrame = startFrame;
-							mCurrentTime = 0.0f;
-							ret = true;
-						}
-						else
-						{
-							mTimeline.isPlaying = true;
-							mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-						}
+						currentFrame = startFrame;
+					}
+					for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+					{
+						float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+						mCurrentTime += dt;
 					}
 				}
-				if (!ret)
+
+				else
 				{
-					float safe_time = std::min(mCurrentTime, anim->duration);
-					//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-					UpdateTransform(anim, safe_time);
-					//UpdateBoneScene(tmpEnt);
-					//UpdateBones();
+					mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+				}
+				
+
+				//Bone animation
+				if (mCurrentAnimator->is_bone)
+				{
+					auto& anim = animationClips[mCurrentClipIndex];
+					if (anim->duration <= 0.0f)
+					{
+						mCurrentTime = 0.0f;
+					}
+					else
+					{
+						if (mCurrentTime > anim->duration)
+						{
+
+							if (!mTimeline.isLoop)
+							{
+								mTimeline.isPlaying = false;
+								currentFrame = startFrame;
+								mCurrentTime = 0.0f;
+								ret = true;
+							}
+							else
+							{
+								mTimeline.isPlaying = true;
+								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+							}
+						}
+					}
+
+					if (!ret)
+					{
+						float safe_time = std::min(mCurrentTime, anim->duration);
+						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+						UpdateTransform(anim, safe_time);
+						//UpdateBoneScene(tmpEnt);
+						//UpdateBones();
+					}
 				}
 			}
-
 		}
 
 #pragma endregion

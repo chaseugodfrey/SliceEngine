@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
 #include <Configuration/PreferenceManager.h>
+#include <Systems/FramerateManager.h>
 
 namespace SliceEditor
 {
@@ -96,6 +97,7 @@ namespace SliceEditor
 		// before engine's resource manager scans it to prevent broken meta files/resource files
 
 		assetManager.Init();
+		editorFRM.Init();
 
 		// Engine Core
 		engine.Init();
@@ -124,15 +126,26 @@ namespace SliceEditor
 	void Editor::Run()
 	{
 		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		auto& editorFRM = registry.GetEditorFRM();
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			editorFRM.StartFrame();
+			editorFRM.StartSystem("Editor Registry");
 			registry.Update();
+			editorFRM.EndSystem("Editor Registry");
+			editorFRM.StartSystem("Editor Inputs");
 			inputs->Update();
+			editorFRM.EndSystem("Editor Inputs");
+
+			editorFRM.StartSystem("Filewatcher");
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
+			editorFRM.EndSystem("Filewatcher");
+			editorFRM.EndFrame();
+			editorFRM.CalculateSystemPercentages();
 			engine.Update();
 			Render();
 			engine.EndFrame();
