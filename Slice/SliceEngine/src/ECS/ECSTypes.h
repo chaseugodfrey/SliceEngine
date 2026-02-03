@@ -411,16 +411,11 @@ namespace SliceEngine
 		bool active{ false };
 
 		float maxAge{};
-		float age{};             // how long this particle has been alive
+		float age{};
 		float rotation{};
-		float speed{};		
 
-		inline float normalizedLifetime() const
-		{
-			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
-		}
-		
-		glm::vec3 finalPosition{};	// including parent transform position if localspace
+		inline float normalizedLifetime() const { return age * maxAge; }
+
 		glm::vec3 position{};
 		glm::vec3 scale{};
 		glm::vec3 velocity{};	  // derived from speed + direction

@@ -377,18 +377,7 @@ namespace SliceEngine
 			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
 			);
 
-	rttr::registration::class_<Particle>(typeid(Particle).name())
-		.constructor<>()
-		.property("active", &Particle::active)
-
-		.property("age", &Particle::age)
-		.property("rotation", &Particle::rotation)
-		.property("speed", &Particle::speed)
-
-		.property("position", &Particle::position)
-		.property("scale", &Particle::scale)
-		.property("velocity", &Particle::velocity)
-		.property("colour", &Particle::colour);
+	rttr::registration::class_<Particle>(typeid(Particle).name());
 
 	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
 		(

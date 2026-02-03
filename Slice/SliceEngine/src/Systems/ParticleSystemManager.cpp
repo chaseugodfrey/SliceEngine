@@ -429,17 +429,18 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
+		float speed{};
 		if (ps.speedValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> dist(
 				ps.minRandomSpeed,
 				ps.maxRandomSpeed);
 
-			p.speed = dist(gen);
+			speed = dist(gen);
 		}
 		else
 		{
-			p.speed = ps.speed;
+			speed = ps.speed;
 		}
 
 		glm::vec3 direction(0.0f);
@@ -457,7 +458,7 @@ namespace SliceEngine
 			break;
 		}
 
-		p.velocity = glm::normalize(direction) * p.speed;
+		p.velocity = glm::normalize(direction) * speed;
 	}
 	void ParticleSystemManager::InitializeColour(Particle& p, ParticleSystem& ps)
 	{
