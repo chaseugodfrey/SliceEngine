@@ -33,9 +33,9 @@ namespace SliceBuild
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneIntoQueue("Resources/16669648661244377925.scene");
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(0);
 
-		engine.InitScene();
+		//engine.InitScene();
 
 		//engine.Update();
 
