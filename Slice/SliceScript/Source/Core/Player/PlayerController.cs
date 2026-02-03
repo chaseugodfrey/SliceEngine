@@ -98,6 +98,8 @@ namespace SliceEngine
         private int attackCounter = 0;
         public bool isAttacking = false;
         public float attackRecoveryDuration = 0.5f;
+        private bool attackQueued = false;
+        private bool attackRecover = false;
 
         public string attack1HBName;
         public int attack1Damage;
@@ -191,7 +193,6 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            Console.WriteLine(animator.GetCurrAnimName());
             if (debugMode)
             {
                 return;
@@ -203,6 +204,12 @@ namespace SliceEngine
             {
                 HandleInput();
                 HandleDashInput();
+            }
+            if (attackQueued && !isAttacking)
+            {
+                ExecuteAttack();
+                attackQueued = false;
+                Console.WriteLine("AttackQueued set to false");
             }
             UpdateDash();
             if (canMove && !isAttacking) HandleMovement();
@@ -682,9 +689,14 @@ namespace SliceEngine
                 StartCoroutine(Plunge(plungeDuration));
                 return;
             }
-
+            attackQueued = true;
+            Console.WriteLine("AttackQueued set to true");
+        }
+        private void ExecuteAttack()
+        {
             if (!isAttacking && !isPlunging)
             {
+                attackRecover = false;
                 attackCounter++;
                 isAttacking = true;
 
@@ -725,16 +737,15 @@ namespace SliceEngine
         }
         private IEnumerator AttackRecovery()
         {
-            yield return new WaitForSeconds(attackRecoveryDuration);
             isAttacking = false;
+            yield return new WaitForSeconds(attackRecoveryDuration);
+            attackRecover = true;
         }
         private void AttackResetTimer()
         {
-            if (!isAttacking) attackResetTimer += Time.deltaTime;
-            if (attackResetTimer >= attackRecoveryDuration)
+            if (attackRecover)
             {
                 attackCounter = 0;
-                attackResetTimer = 0f;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
