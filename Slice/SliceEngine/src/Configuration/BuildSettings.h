@@ -5,6 +5,8 @@ namespace SliceEngine
 {
 	struct BuildSettings : public ProjectSettings
 	{
+		std::vector<Handle<SliceEngineTypes::Scene>> mSceneList{};
+
 		BuildSettings(std::string name) : ProjectSettings(name) {};
 		~BuildSettings() = default;
 
