@@ -108,7 +108,8 @@ project "WeightOfTheSky"
         
         -- Copy Resources & Settings (Required)
         '{COPY} "%{resource_asset_path}" "%{cfg.targetdir}/Resources"',
-        '{COPYDIR} "%{dev_wks_path}/SliceEngine/thirdparty/Mono/lib" "%{cfg.targetdir}/lib"',
+        '{COPYDIR} "%{dev_wks_path}/SliceEngine/thirdparty/Mono/lib" "%{cfg.targetdir}/Data/thirdparty/Mono/lib"',
+        '{COPYDIR} "%{dev_wks_path}/SliceEngine/thirdparty/Mono/bin" "%{cfg.targetdir}/Data/thirdparty/Mono/bin"',
         '{COPY} "%{proj_settings_path}" "%{cfg.targetdir}/ProjectSettings"',
         
         -- Copy ThirdParty content (Required)
