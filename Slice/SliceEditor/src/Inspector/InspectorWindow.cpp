@@ -586,6 +586,8 @@ namespace SliceEditor
 					colliderName = "Sphere Collider";
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::MeshData>)
+					colliderName = "Mesh Collider";
 			}, colliderData.shapeData);
 
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
@@ -635,6 +637,10 @@ namespace SliceEditor
 						{
 							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius, height));
 						}
+					}
+					else if (std::holds_alternative < SliceEngine::ColliderShape::MeshData>(col.shapeData))
+					{
+						// nothing for now UwU
 					}
 				});
 			}
@@ -1530,6 +1536,12 @@ namespace SliceEditor
 				{
 					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
 					col.shapeData = SliceEngine::ColliderShape::CapsuleData{};
+				}
+
+				if (ImGui::Selectable("Add Mesh Collider"))
+				{
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
+					col.shapeData = SliceEngine::ColliderShape::MeshData{};
 				}
 			}
 			
