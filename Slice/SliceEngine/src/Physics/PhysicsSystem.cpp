@@ -1037,9 +1037,57 @@ namespace SliceEngine
 		return result.Get();
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateMeshShape(const Renderer& model) const
+	JPH::ShapeRefC PhysicsSystem::CreateMeshShape(const Renderer& renderComponent) const
 	{
-		return JPH::ShapeRefC();
+		Handle<SliceEngineTypes::Model> model = renderComponent.modelHandle;
+
+		JPH::VertexList vertices;
+		JPH::IndexedTriangleList triangles;
+
+		uint32_t vertexOffset = 0;
+
+		//loops through the diff meshes in the model
+		for (const auto& mesh : model->meshes)
+		{
+			//each mesh has its own vertices and indices
+			for (const auto& vertex : mesh.vertices)
+			{
+				vertices.push_back(JPH::Float3(
+					vertex.position.x,
+					vertex.position.y,
+					vertex.position.z
+				));
+			}
+
+			for (size_t i = 0; i < model->meshes.size(); i += 3)
+			{
+				triangles.push_back(JPH::IndexedTriangle(
+					vertexOffset + mesh.indices[i],
+					vertexOffset + mesh.indices[i + 1],
+					vertexOffset + mesh.indices[i + 2]
+				));
+			}
+			// continues the indices from last mesh
+			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
+		}
+
+		
+		JPH::MeshShapeSettings* shapeSetting = new JPH::MeshShapeSettings(vertices, triangles);
+		JPH::Vec3 offSet{ 0.f,0.f,0.f }; // using this as no offset for mesh collider for now
+
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get MeshShape Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
 	}
 
 	// componeent enable check
