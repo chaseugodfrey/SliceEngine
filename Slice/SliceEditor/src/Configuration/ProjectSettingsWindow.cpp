@@ -431,7 +431,8 @@ namespace SliceEditor
 			if (!filename.has_value())
 				return false;
 
-			buildSettings.mSceneList.push_back({ filename.value(), handle });
+			std::filesystem::path filepath = filename.value();
+			buildSettings.mSceneList.push_back({ filepath.stem().string(), handle});
 			mSettings.isDirty = true;
 			return true;
 		}
