@@ -453,7 +453,7 @@ namespace SliceEditor
 		else
 		{
 			//wtf is this bs
-			std::string goName = std::to_string(static_cast<unsigned int>(val.GetEntity())) + " " + val.GetName();
+			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
 			ImGui::InputText(id, &goName);
 		}
 		ImGui::EndDisabled();
@@ -831,8 +831,7 @@ namespace SliceEditor
 				}
 				else
 				{
-					std::string goName = "broken";//static_cast<unsigned int>(entry.GetEntity()) + ' ' + entry.GetName().c_str();
-					if (goName == "") goName = "its broken";
+					std::string goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
 					ImGui::InputText(newID.c_str(), &goName);
 				}
 				ImGui::EndDisabled();

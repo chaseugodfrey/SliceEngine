@@ -99,6 +99,8 @@ namespace SliceEngine
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
 
+			mRegistry->on_destroy<ColliderShape>().connect<&PhysicsSystem::OnColliderRemove>(this);
+
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
 			return true;
@@ -132,11 +134,11 @@ namespace SliceEngine
 		physicsSystem->OptimizeBroadPhase();
 	}
 
-	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
+	void PhysicsSystem::OnColliderRemove(entt::registry& reg, entt::entity entity)
 	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		if (!colliderShape.componentEnabled || mRegistry->any_of<InactiveEntity>(event.entity) || colliderShape.bodyID.IsInvalid())
+		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
 			return;
 
 		// Remove body form physics world
@@ -145,7 +147,7 @@ namespace SliceEngine
 		// Destroy the body from the physics world
 		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 
-		physicsSystem->OptimizeBroadPhase();
+		isBroadPhaseDirty = true;
 	}
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
@@ -1224,6 +1226,12 @@ namespace SliceEngine
 
 
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+
+		if (isBroadPhaseDirty)
+		{
+			physicsSystem->OptimizeBroadPhase();
+			isBroadPhaseDirty = false;
+		}
 	}
 
 	void PhysicsSystem::PostStepSync()
@@ -1278,7 +1286,7 @@ namespace SliceEngine
 		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
 
 		// Subscribe to the ColliderShapeRemovedEvent
-		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
+		//eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
 
 		// Subscribe to the RigidBodyAddedEvent
 		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
