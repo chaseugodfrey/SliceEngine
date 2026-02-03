@@ -688,8 +688,6 @@ namespace SliceEditor
 			ImGui::TreePop();
 		}
 
-
-			ImGui::TreePop();
 		}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
