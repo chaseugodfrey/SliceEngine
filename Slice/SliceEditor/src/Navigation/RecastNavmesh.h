@@ -40,9 +40,9 @@ namespace SliceEditor
         void Clear();
 
         rcConfig& GetConfig();
-        float *GetAgentHeight();
-        float *GetAgentRadius();
-        float *GetMaxClimb();
+        float &GetAgentHeight();
+        float &GetAgentRadius();
+        float &GetMaxClimb();
 
     private:
         rcConfig config{};

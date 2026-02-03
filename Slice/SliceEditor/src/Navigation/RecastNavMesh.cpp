@@ -102,6 +102,9 @@ namespace SliceEditor
 	// SINGULAR MODEL
 	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
 	{
+		config.walkableHeight = (int)ceilf(m_agentHeight / config.ch);
+		config.walkableClimb = (int)floorf(m_agentMaxClimb / config.ch);
+		config.walkableRadius = (int)ceilf(m_agentRadius / config.cs);
 		Clear();
 
 		std::vector<SliceEngine::SliceEngineTypes::Vertex> vertices;
@@ -333,6 +336,9 @@ namespace SliceEditor
 	bool RecastNavMesh::BuildFromModel(const std::vector<SliceEngine::SliceEngineTypes::Model*> models, const std::vector<glm::mat4> &transform,
 		const std::vector<SliceEngine::NavMeshLink> &links)
 	{
+		config.walkableHeight = (int)ceilf(m_agentHeight / config.ch);
+		config.walkableClimb = (int)floorf(m_agentMaxClimb / config.ch);
+		config.walkableRadius = (int)ceilf(m_agentRadius / config.cs);
 		if (models.size() != transform.size())
 		{
 			std::cerr << "ERROR: Model and transform count mismatch in RecastNavMesh::BuildFromModel\n";
@@ -415,49 +421,65 @@ namespace SliceEditor
 			// For secondary models (Walls/Ramps)
 			if (i > 0)
 			{
+				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 				size_t startTriIndex = currentIndexStart / 3;
 				size_t endTriIndex = currentIndexEnd / 3;
+				bool isWall = (models[i]->name == "wall");
 
-				for (size_t t = startTriIndex; t < endTriIndex; ++t)
+				if (isWall)
 				{
-					// Calculate Triangle Normal
-					int v0_idx = recastIndices[t * 3 + 0];
-					int v1_idx = recastIndices[t * 3 + 1];
-					int v2_idx = recastIndices[t * 3 + 2];
-
-					const float *v0 = &verts[v0_idx * 3];
-					const float *v1 = &verts[v1_idx * 3];
-					const float *v2 = &verts[v2_idx * 3];
-
-					float e0[3], e1[3], normal[3];
-					rcVsub(e0, v1, v0);
-					rcVsub(e1, v2, v0);
-					rcVcross(normal, e0, e1);
-					rcVnormalize(normal);
-
-					// Calculate Slope Angle (Angle between Normal and Up-Vector Y)
-					// Dot product of Normal and (0, 1, 0) is just normal[1]
-					float slopeCos = normal[1];
-
-					// Threshold for "Wall"
-					// If slopeCos is close to 0, it's a vertical wall (Normal is horizontal).
-					// If slopeCos is close to 1, it's flat ground.
-					// cos(45) ~= 0.707. 
-					// So if normal.y < 0.707, it is steeper than 45 degrees.
-
-					float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
-
-					// If it is steeper than our limit, mark as NULL (Obstacle)
-					// OTHERWISE, leave it as WALKABLE (so ramps work!)
-					if (slopeCos < walkableThr)
+					// Force all triangles of this model to be unwalkable
+					for (size_t t = startTriIndex; t < endTriIndex; ++t)
 					{
-						if (t < areas.size()) areas[t] = RC_NULL_AREA;
+						if (t < areas.size())
+							areas[t] = RC_NULL_AREA;
 					}
-					else
+				}
+				// --- 2. EXISTING SMART SLOPE LOGIC ---
+				// Only run this if it's NOT a wall (and usually if i > 0 per your original logic)
+				else if (i > 0)
+				{
+					for (size_t t = startTriIndex; t < endTriIndex; ++t)
 					{
-						// It's a walkable slope!
-						// Ensure we don't accidentally overwrite it if it was already marked walkable
-						if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
+						// Calculate Triangle Normal
+						int v0_idx = recastIndices[t * 3 + 0];
+						int v1_idx = recastIndices[t * 3 + 1];
+						int v2_idx = recastIndices[t * 3 + 2];
+
+						const float *v0 = &verts[v0_idx * 3];
+						const float *v1 = &verts[v1_idx * 3];
+						const float *v2 = &verts[v2_idx * 3];
+
+						float e0[3], e1[3], normal[3];
+						rcVsub(e0, v1, v0);
+						rcVsub(e1, v2, v0);
+						rcVcross(normal, e0, e1);
+						rcVnormalize(normal);
+
+						// Calculate Slope Angle (Angle between Normal and Up-Vector Y)
+						// Dot product of Normal and (0, 1, 0) is just normal[1]
+						float slopeCos = normal[1];
+
+						// Threshold for "Wall"
+						// If slopeCos is close to 0, it's a vertical wall (Normal is horizontal).
+						// If slopeCos is close to 1, it's flat ground.
+						// cos(45) ~= 0.707. 
+						// So if normal.y < 0.707, it is steeper than 45 degrees.
+
+						float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
+
+						// If it is steeper than our limit, mark as NULL (Obstacle)
+						// OTHERWISE, leave it as WALKABLE (so ramps work!)
+						if (slopeCos < walkableThr)
+						{
+							if (t < areas.size()) areas[t] = RC_NULL_AREA;
+						}
+						else
+						{
+							// It's a walkable slope!
+							// Ensure we don't accidentally overwrite it if it was already marked walkable
+							if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
+						}
 					}
 				}
 			}

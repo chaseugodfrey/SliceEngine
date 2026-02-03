@@ -47,9 +47,9 @@ namespace SliceEditor
 
 		ImGui::BeginGroup();
 		auto &config = mCompiler.GetConfig();
-		auto height = mCompiler.GetAgentHeight();
-		auto radius = mCompiler.GetAgentRadius();
-		auto maxClimb = mCompiler.GetMaxClimb();
+		auto &height = mCompiler.GetAgentHeight();
+		auto &radius = mCompiler.GetAgentRadius();
+		auto &maxClimb = mCompiler.GetMaxClimb();
 		ImGui::SeparatorText("Rasterization");
 
 		ImGui::Text("Cell Size");
@@ -67,17 +67,17 @@ namespace SliceEditor
 		ImGui::Text("Radius");
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(150.0f);
-		ImGui::DragFloat("##nav_radius", radius, 1, 0, FLT_MAX);
+		ImGui::DragFloat("##nav_radius", &radius, 1, 0, FLT_MAX);
 
 		ImGui::Text("Height");
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(150.0f);
-		ImGui::DragFloat("##nav_height", height, 1, 0, FLT_MAX);
+		ImGui::DragFloat("##nav_height", &height, 1, 0, FLT_MAX);
 
 		ImGui::Text("Max Climb");
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(150.0f);
-		ImGui::DragFloat("##nav_max_climb", maxClimb, 1, 0, FLT_MAX);
+		ImGui::DragFloat("##nav_max_climb", &maxClimb, 1, 0, FLT_MAX);
 
 		ImGui::Text("Max Slope");
 		ImGui::SameLine(150.0f);
