@@ -39,7 +39,7 @@ namespace SliceEditor
 	struct BuildSettingsDisplay : BaseSettingsDisplay
 	{
 	private:
-		bool AddSceneToList(std::vector<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Scene>>& list, SliceEngine::GUID guid);
+		bool AddSceneToList(SliceEngine::GUID guid);
 	public:
 		BuildSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
 		void DisplaySettings(ImVec2 size) override;

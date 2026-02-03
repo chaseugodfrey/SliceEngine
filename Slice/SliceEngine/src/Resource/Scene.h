@@ -29,6 +29,7 @@ namespace SliceEngine
 			inline std::filesystem::path GetFilePath() const { return filePath; }
 			GUID GetNavMeshGUID();
 		private:
+			std::string sceneName;
 			std::filesystem::path filePath;
 		};
 	}

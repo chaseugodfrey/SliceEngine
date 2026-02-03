@@ -418,14 +418,20 @@ namespace SliceEditor
 		}
 	}
 
-	bool BuildSettingsDisplay::AddSceneToList(std::vector<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Scene>>& list, SliceEngine::GUID guid)
+	bool BuildSettingsDisplay::AddSceneToList(SliceEngine::GUID guid)
 	{
+		auto& buildSettings = static_cast<SliceEngine::BuildSettings&>(mSettings);
 		auto resourceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
 
 		auto handle = resourceManager->get<SliceEngine::SliceEngineTypes::Scene>(guid);
+
 		if (handle.IsValid())
 		{
-			list.push_back(handle);
+			auto filename = mRegistry.GetAssetManager().GetFilenameFromGUID(guid);
+			if (!filename.has_value())
+				return false;
+
+			buildSettings.mSceneList.push_back({ filename.value(), handle });
 			mSettings.isDirty = true;
 			return true;
 		}
@@ -456,13 +462,13 @@ namespace SliceEditor
 
 			for (int i = 0; i < scene_list.size(); ++i)
 			{
-				auto& handle = scene_list[i];
+				auto& entry = scene_list[i];
 
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
 				ImGui::Text("%d", i);
 
-				auto file_name = assetManager.GetFilenameFromGUID(handle.mGUID);
+				auto file_name = assetManager.GetFilenameFromGUID(entry.handle.getGUID());
 				std::string buffer{"Invalid Scene"};
 
 				if (file_name.has_value())
@@ -508,7 +514,7 @@ namespace SliceEditor
 			if (auto payload = ImGui::AcceptDragDropPayload("Scene"))
 			{
 				SliceEngine::GUID guid = *(static_cast<SliceEngine::GUID*>(payload->Data));
-				AddSceneToList(scene_list, guid);
+				bool added = AddSceneToList(guid);
 				ImGui::EndDragDropTarget();
 			}
 		}
@@ -536,7 +542,7 @@ namespace SliceEditor
 				auto it = assetManager.mFilenameToGUID.find(current_scene_path.generic_string());
 				if (it != assetManager.mFilenameToGUID.end())
 				{
-					AddSceneToList(scene_list, it->second);
+					bool added = AddSceneToList(it->second);
 				}
 			}
 		}
