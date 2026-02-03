@@ -22,7 +22,16 @@ namespace SliceEngine
 			SceneEntry entry;
 			auto guid = static_cast<SliceEngine::GUID>(scenes[i].first);
 			entry.handle = resourceManager->get<SliceEngineTypes::Scene>(guid);
-			entry.filename = scenes[i].second;
+
+			// check if filename has extension/is filepath
+			std::string filename = scenes[i].second;
+			std::filesystem::path path = filename;
+
+			if (path.has_extension())
+				filename = path.stem().string();
+
+			entry.filename = filename;
+
 			mSceneList.push_back(entry);
 		}
 	}
