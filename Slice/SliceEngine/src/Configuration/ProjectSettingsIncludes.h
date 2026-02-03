@@ -4,5 +4,6 @@
 #include "ProjectSettings.h"
 #include "AudioSettings.h"
 #include "PhysicsSettings.h"
+#include "BuildSettings.h"
 
 #endif
