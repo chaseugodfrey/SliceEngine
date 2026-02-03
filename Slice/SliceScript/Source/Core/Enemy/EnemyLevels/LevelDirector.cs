@@ -9,7 +9,7 @@ namespace SliceEngine
 {
     public class LevelDirector : SliceBehaviour, IInitializable
     {
-        public List<GameObject> levelsList = new List<GameObject>();
+        //public List<GameObject> levelsList = new List<GameObject>();
         public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
@@ -42,7 +42,7 @@ namespace SliceEngine
                 }
             }
 
-
+            levelTriggers = gameObject.FindGameObjectsWithTag("Trigger").ToList();
 
             foreach(GameObject trigger in levelTriggers)
             {
@@ -166,20 +166,9 @@ namespace SliceEngine
 
                 SliceLog.Log("Triggering Next Level Part 3");
 
-                if (levels.ContainsKey(currLevel))
+                if (!levels.ContainsKey(currLevel))
                 {
-                    foreach(GameObject Obj in levels[currLevel].As<BaseLevel>().turnOnAtTrigger)
-                    {
-                        Obj.SetActive(true);
-                    }
-
-                    foreach (GameObject Obj in levels[currLevel].As<BaseLevel>().turnOffAtTrigger)
-                    {
-                        Obj.SetActive(false);
-                    }
-                }
-                else
-                {
+                    
                     SliceLog.Log("Level does not exist");
                     TriggerNextLevel(input);
                 }

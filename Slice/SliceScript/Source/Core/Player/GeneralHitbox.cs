@@ -19,6 +19,7 @@ namespace SliceEngine
         {
 
         }
+
         public override void OnCreate()
         {
             Console.WriteLine("General Hitbox On Create " + gameObject.mID);

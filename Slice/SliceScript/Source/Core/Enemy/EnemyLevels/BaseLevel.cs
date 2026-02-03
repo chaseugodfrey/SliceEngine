@@ -13,8 +13,8 @@ namespace SliceEngine
         public List<GameObject> enemyPoints = new List<GameObject>();
         public GameObject levelDirectorObject;
 
-        public List<GameObject> turnOnAtTrigger = new List<GameObject>();
-        public List<GameObject> turnOffAtTrigger = new List<GameObject>();
+        public delegate void levelCompleteObserver();
+        public event levelCompleteObserver LevelCompleteEvent;
 
         public int levelIndex = 0;
 
@@ -45,6 +45,7 @@ namespace SliceEngine
 
             if (CheckObjective())
             {
+                LevelCompleteEvent();
                 toggleLevel = true;
             }
 
