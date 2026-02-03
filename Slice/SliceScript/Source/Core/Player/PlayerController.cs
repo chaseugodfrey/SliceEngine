@@ -644,7 +644,6 @@ namespace SliceEngine
             attackQueued = false;
             isAttacking = false;
             attackResetTimer = 0f;
-            isPlunging = false;
 
 
             queuedNext = false;
@@ -800,7 +799,6 @@ namespace SliceEngine
                 timer += Time.deltaTime;
                 yield return null;
             }
-            isPlunging = false;
         }
         private void Attack1()
         {
