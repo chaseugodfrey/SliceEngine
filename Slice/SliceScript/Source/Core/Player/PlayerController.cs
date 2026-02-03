@@ -69,8 +69,8 @@ namespace SliceEngine
         private bool resetYOnDoubleJump = true;
 
         // Dash Variables
-        private bool isGroundDashing = false;
-        private bool isAirDashing = false;
+        private bool isGroundDashing = false, groundDashReady = true;
+        private bool isAirDashing = false, airDashReady = true;
         private float dashTimer = 0f;
         private float groundDashCooldownUntil = 0f;
         private float airDashCooldownUntil = 0f;
@@ -99,7 +99,7 @@ namespace SliceEngine
         public bool isAttacking = false;
         public float attackRecoveryDuration = 0.5f;
         private bool attackQueued = false;
-        private bool attackRecover = false;
+        private bool attackAutoRecover = false;
 
         public string attack1HBName;
         public int attack1Damage;
@@ -122,6 +122,8 @@ namespace SliceEngine
         private int attackIndex = 0;
         private float attackTimer = 0f;
         private bool queuedNext = false;
+
+        private Coroutine attackCoroutine = null;
 
         // Chain-window facing override
         private bool queuedFacingOverride = false;
@@ -212,7 +214,7 @@ namespace SliceEngine
                 Console.WriteLine("AttackQueued set to false");
             }
             UpdateDash();
-            if (canMove && !isAttacking) HandleMovement();
+            if (canMove && !isAttacking && !attackAutoRecover) HandleMovement();
             HandleJump();
             AttackResetTimer();
         }
@@ -288,7 +290,6 @@ namespace SliceEngine
                     {
                         animator.SetBool("AirDashStart", true);
                     }
-                    //
                 }
             }
             else if (isAttacking || isPlunging)
@@ -490,14 +491,25 @@ namespace SliceEngine
 
             if (grounded)
             {
-                if (!isGroundDashing && Time.time >= groundDashCooldownUntil) BeginGroundDash();
+                if (groundDashReady) BeginGroundDash();
             }
             else
             {
-                if (!isAirDashing && Time.time >= airDashCooldownUntil) BeginAirDash();
+                if (airDashReady) BeginAirDash();
             }
         }
-
+        private IEnumerator DashCooldown()
+        {
+            groundDashReady = false;
+            yield return new WaitForSeconds(dashCooldown);
+            groundDashReady = true;
+        }
+        private IEnumerator AirDashCooldown()
+        {
+            airDashReady = false;
+            yield return new WaitForSeconds(airDashCooldown);
+            airDashReady = true;
+        }
         Vector3 ComputeFlatDashDir(bool useMoveDir)
         {
             bool hasInput = input.SquareMagnitude() > 0.0001f;
@@ -550,6 +562,7 @@ namespace SliceEngine
 
         void BeginGroundDash()
         {
+            StartCoroutine(DashCooldown());
             isGroundDashing = true;
             isAirDashing = false;
 
@@ -578,6 +591,7 @@ namespace SliceEngine
 
         void BeginAirDash()
         {
+            StartCoroutine(AirDashCooldown());
             isAirDashing = true;
             isGroundDashing = false;
 
@@ -627,6 +641,12 @@ namespace SliceEngine
         {
             attackIndex = 0;
             attackTimer = 0f;
+            attackQueued = false;
+            isAttacking = false;
+            attackResetTimer = 0f;
+            isPlunging = false;
+
+
             queuedNext = false;
             queuedFacingOverride = false;
 
@@ -696,7 +716,7 @@ namespace SliceEngine
         {
             if (!isAttacking && !isPlunging)
             {
-                attackRecover = false;
+                attackAutoRecover = false;
                 attackCounter++;
                 isAttacking = true;
 
@@ -717,7 +737,6 @@ namespace SliceEngine
                     default:
                         break;
                 }
-                attackResetTimer = 0f;
                 Console.WriteLine("Attack Counter: " + attackCounter);
             }
         }
@@ -733,20 +752,22 @@ namespace SliceEngine
         }
         public void StartAttackRecovery()
         {
-            StartCoroutine(AttackRecovery());
-        }
-        private IEnumerator AttackRecovery()
-        {
+            attackResetTimer = 0f;
             isAttacking = false;
-            yield return new WaitForSeconds(attackRecoveryDuration);
-            attackRecover = true;
+            attackAutoRecover = true;
         }
         private void AttackResetTimer()
         {
-            if (attackRecover)
+            if (!isAttacking)
             {
+                attackResetTimer += Time.deltaTime;
+            }
+            if (attackResetTimer >= attackRecoveryDuration)
+            {
+                attackAutoRecover = false;
+                attackResetTimer = 0f;
                 attackCounter = 0;
-
+                
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
                     if (animator.SafeToChange("AttackToIdle1"))
@@ -779,6 +800,7 @@ namespace SliceEngine
                 timer += Time.deltaTime;
                 yield return null;
             }
+            isPlunging = false;
         }
         private void Attack1()
         {
