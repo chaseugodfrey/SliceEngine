@@ -80,7 +80,7 @@ struct OnSceneLoadedEvent
 {
 	std::filesystem::path scenePath;
 	bool isSceneLoaded;
-	std::string navMeshPath;
+	std::string navMeshBinPath;
 };
 
 struct OnSceneStopEvent
@@ -209,9 +209,9 @@ RTTR_REGISTRATION
 	.constructor<>()
 	.property("entity", &ColliderShapeAddedEvent::entity);
 
-	rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
-	.constructor<>()
-	.property("entity", &ColliderShapeRemovedEvent::entity);
+	//rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
+	//.constructor<>()
+	//.property("entity", &ColliderShapeRemovedEvent::entity);
 
 	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
 	.constructor<>()

@@ -66,7 +66,10 @@ namespace SliceEngine
 		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
 
 		auto map = JSONSerializer::DeserializeScene(next_scene_filepath);
-		 
+
+		//Call DeserializeSceneNavMesh function, will return a guid
+		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
+
 		mCurrentScene = next_scene_filepath;
 		mCurrentSceneName = next_scene_filepath.stem().string();
 
@@ -75,16 +78,19 @@ namespace SliceEngine
 		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 		Core::GetInstance()->mFactory.DebugPrint();
 
-		std::filesystem::path metaPath = next_scene_filepath;
+		/*std::filesystem::path metaPath = next_scene_filepath;
 
 		std::string navMesh = "";
 		metaPath += ".meta";
-		
-		navMesh = LoadNavMeshFromMeta(metaPath);
+
+		navMesh = LoadNavMeshFromMeta(metaPath);*/
+
+		std::string navMeshBinString = "Resources/";
+		navMeshBinString += navMeshBinGUID.toString();
 
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;
-		event.navMeshPath = navMesh;
+		event.navMeshBinPath = navMeshBinString;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 
 		if (next_scene_filepath.extension() == ".temp")
