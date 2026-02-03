@@ -75,6 +75,7 @@ namespace SliceEngine
 		std::queue<std::filesystem::path> mSceneQueue;
 		std::filesystem::path mCurrentScene{};
 		std::filesystem::path mNextScene{};
+		GUID mCurrentSceneGUID;
 		
 		std::string mCurrentSceneName{};
 	};
