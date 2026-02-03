@@ -1405,13 +1405,69 @@ namespace SliceEditor
 				}
 			}
 
+			if (ImGui::CollapsingHeader("Size Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Size Over Lifetime", "##sizeOverLifetime", ps.sizeOverLifetime);
+				if (ps.sizeOverLifetime)
+				{
+					BoolInputHeader(mRegistry, "Separate Axis", "##sizeSeparateAxis", ps.sizeSeparateAxis);
+					if (ps.sizeSeparateAxis)
+					{
+						DragVec3InputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier3D", ps.startScaleMultiplier);
+						DragVec3InputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier3D", ps.endScaleMultiplier);
+					}
+					else
+					{
+						DragFloatInputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier", ps.startScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier", ps.endScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
+					}
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Rotate Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Rotate Over Lifetime", "##rotateOverLifetime", ps.rotateOverLifetime);
+				if (ps.rotateOverLifetime)
+				{
+					BoolInputHeader(mRegistry, "Separate Axis", "##rotateSeparateAxis", ps.rotateSeparateAxis);
+					if (ps.rotateSeparateAxis)
+					{
+						DragVec3InputHeader(mRegistry, "Rotate Velocity", "##rotateVelocity3D", ps.rotateVelocity);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Rotate Velocity", "##rotateVelocity", ps.rotateVelocity.z, "%.1f", 0.0f, FLT_MAX);
+					}
+				}
+			}
+
 			if (ImGui::CollapsingHeader("Color Over Lifetime"))
 			{
-				// Colour Over Lifetime
 				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
 				if (ps.colourOverLifetime)
 				{
 					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Velocity Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Velocity Over Lifetime", "##velocityOverLifetime", ps.velocityOverLifetime);
+				if (ps.velocityOverLifetime)
+				{
+					DragVec3InputHeader(mRegistry, "Start Multiplier", "##startVelocityMultiplier", ps.startVelocityMultiplier);
+					DragVec3InputHeader(mRegistry, "End Multiplier", "##endVelocityMultiplier", ps.endVelocityMultiplier);
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Orbit Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Orbit Over Lifetime", "##orbitOverLifetime", ps.orbitOverLifetime);
+				if (ps.orbitOverLifetime)
+				{
+					DragVec3InputHeader(mRegistry, "Orbit Axis", "##orbitAxis", ps.orbitAxis);
+					DragVec3InputHeader(mRegistry, "Start Velocity", "##startOrbitVelocity", ps.startOrbitVelocity);
+					DragVec3InputHeader(mRegistry, "End Velocity", "##endOrbitVelocity", ps.endOrbitVelocity);
 				}
 			}
 

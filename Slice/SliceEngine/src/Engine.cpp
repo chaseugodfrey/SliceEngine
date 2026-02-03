@@ -396,6 +396,7 @@ namespace SliceEngine
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
+		.property("followTransformRotation", &ParticleSystem::followTransformRotation)
 
 		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
 		.property("maxParticles", &ParticleSystem::maxParticles)
@@ -452,10 +453,27 @@ namespace SliceEngine
 		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
 		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
 
+		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
+		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
+		.property("startScaleMultiplier", &ParticleSystem::startScaleMultiplier)
+		.property("endScaleMultiplier", &ParticleSystem::endScaleMultiplier)
+
+		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
+		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
+		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
+
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colour", &ParticleSystem::colourLifeTimeMap)
-		
+		.property("colourMap", &ParticleSystem::colourLifeTimeMap)		
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+
+		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
+		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)
+		.property("endVelocityMultiplier", &ParticleSystem::endVelocityMultiplier)
+
+		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
+		.property("orbitAxis", &ParticleSystem::orbitAxis)
+		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
+		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
