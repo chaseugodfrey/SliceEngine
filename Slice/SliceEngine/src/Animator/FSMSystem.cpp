@@ -245,10 +245,20 @@ namespace SliceEngine
 		if (!EFSM.currState)
 			return false;
 
+		if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
+			bool ys = true;
+
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
+			
 			if (std::strcmp(transition.targetState.c_str(), name.c_str()) == 0)
 				return true;
+
+			for (const SliceEngineTypes::Transition& transition2 : EFSM.stateMap[transition.targetState].transitions)
+			{
+				if (std::strcmp(transition2.targetState.c_str(), name.c_str()) == 0)
+					 return true;
+			}
 		}
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.anyState->transitions)
@@ -287,12 +297,14 @@ namespace SliceEngine
 		if (!EFSM.currState)
 			return;
 
-		if (std::strcmp(name.c_str(), "DashStart") == 0)
-			bool ys = true;
+		//if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
+			//bool ys = true;
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
 		if (EFSM.currState->stateName == name)
 			return;
+
+		SLICE_LOG(name);
 
 		EFSM.parameters[name] = value;
 
