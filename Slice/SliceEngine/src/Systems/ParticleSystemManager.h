@@ -56,7 +56,13 @@ namespace SliceEngine
 		void ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyPhysics(Particle& p, ParticleSystem& ps, float dt);
+
 		void ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyOrbitOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+
+		glm::vec3 SizeOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		glm::quat RotateOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		glm::vec3 VelocityOverLifetime(Particle& p, ParticleSystem& ps, float dt);
 
 		void ApplyBurst(ParticleSystem& ps, float dt);
 
