@@ -315,8 +315,14 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
+		struct MeshData
+		{
+			//emtpy because the verticies are in the renderer component
+			//more for me to tell what shape it is
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };

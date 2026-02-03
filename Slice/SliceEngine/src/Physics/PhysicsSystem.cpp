@@ -478,6 +478,10 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			return;
+		}
 
 	}
 
@@ -786,11 +790,17 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			return;
+		}
 
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(Entity entity) const
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
 		sliceEngineVariantShape shapeData = collider.shapeData;
 
 		JPH::ShapeRefC shapeReference = nullptr;
@@ -806,6 +816,11 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
 			shapeReference = CreateCapsuleShape(collider);
+		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			auto& renderer = mRegistry->get<Renderer>(entity);
+			shapeReference = CreateMeshShape(renderer);
 		}
 		else
 		{ 
@@ -1022,6 +1037,11 @@ namespace SliceEngine
 		return result.Get();
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateMeshShape(const Renderer& model) const
+	{
+		return JPH::ShapeRefC();
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
@@ -1118,7 +1138,7 @@ namespace SliceEngine
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape, transform);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(entity);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
