@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -69,10 +67,10 @@
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHitbox.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelKills.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTarget.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
