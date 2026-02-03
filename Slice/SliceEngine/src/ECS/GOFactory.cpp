@@ -27,7 +27,7 @@ namespace SliceEngine
 	GOFactory::GOFactory()
 	{
 		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
-		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		//mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
 		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
@@ -192,6 +192,23 @@ namespace SliceEngine
 			return it->second;
 		}
 		return GameObject();
+	}
+
+	Entity GOFactory::GetEntityWithTag(std::string const& tag)
+	{
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				return entity;
+			}
+		}
+
+		return entt::null;
 	}
 
 	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)

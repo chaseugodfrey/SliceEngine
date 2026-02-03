@@ -665,20 +665,18 @@ namespace SliceEditor
 
 		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
 		{
+			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-
-			DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
-
-			DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
-
-			BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
-
-			DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
-
+			
+			
+			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
 			ImGui::TreePop();
 		}
 
-	}
+
+			//ImGui::TreePop();
+		}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -1198,6 +1196,9 @@ namespace SliceEditor
 				// Looping
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
+				// Follow Parent Transform
+				BoolInputHeader(mRegistry, "Follow Parent Rotation", "##followParentRotation", ps.followTransformRotation);
+
 				// Start Speed
 				switch (ps.speedValueType)
 				{
@@ -1345,11 +1346,13 @@ namespace SliceEditor
 
 				switch (ps.shapeType)
 				{
-				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Cone Arc Angle", "##coneArcAngle", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
+					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
 					break;
 				default:
 					break;

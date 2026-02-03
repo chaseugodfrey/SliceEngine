@@ -439,8 +439,9 @@ namespace SliceEditor
 		static SliceEngine::GameObject oldVal{};
 
 		bool changed = false;
+		std::string propertyLabelID = property_label;
 
-		ImGui::Text(property_label);
+		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
 
 		ImGui::BeginDisabled();
@@ -451,8 +452,8 @@ namespace SliceEditor
 		}
 		else
 		{
-			
-			std::string goName = val.GetName();
+			//wtf is this bs
+			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
 			ImGui::InputText(id, &goName);
 		}
 		ImGui::EndDisabled();
@@ -830,8 +831,7 @@ namespace SliceEditor
 				}
 				else
 				{
-
-					std::string goName = entry.GetName();
+					std::string goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
 					ImGui::InputText(newID.c_str(), &goName);
 				}
 				ImGui::EndDisabled();
@@ -1351,6 +1351,37 @@ namespace SliceEditor
 		}
 
 		return changed;
+	}
+
+	bool EntityInputHeader(Registry& reg, const char* property_label, const char* id, Entity& val)
+	{
+		auto& factory = SliceEngine::FactoryInstance;
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		SliceEngine::GameObject go = factory.GetGOByEntity(val);
+		if (!go.IsValid())
+		{
+			ImGui::Text("Entity not set.");
+		}
+		else
+		{
+			ImGui::Text(go.GetName().c_str());
+		}
+		
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+				val = entityDropped;
+
+				changed = true;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+		return true;
 	}
 
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)

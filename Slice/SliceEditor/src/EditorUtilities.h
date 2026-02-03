@@ -23,14 +23,14 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 
 		//2D Objects
-		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateImage(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateButton(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateSlider(entt::entity = entt::null, HistoryManager* history = nullptr);
-		SliceEngine::GameObject GameObject_CreateText(entt::entity = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateImage(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateButton(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateSlider(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateText(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 
 
-		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID = SliceEngine::GUID::null(), SliceEngine::GUID animGUID = SliceEngine::GUID::null(), entt::entity parent = entt::null, HistoryManager* history = nullptr);
+		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID = SliceEngine::GUID::null(), SliceEngine::GUID animGUID = SliceEngine::GUID::null(), entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreatePrefab(SliceEngine::GUID guid, entt::entity parent = entt::null, HistoryManager* history = nullptr);
 
 		void GameObject_Unprefab(entt::entity entity);

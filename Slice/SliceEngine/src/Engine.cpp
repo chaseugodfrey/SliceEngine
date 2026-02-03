@@ -428,7 +428,9 @@ namespace SliceEngine
 		.property("coneArc", &ParticleSystem::coneArc)
 		.property("coneRadius", &ParticleSystem::coneRadius)
 
+		.property("sphereArc", &ParticleSystem::sphereArc)
 		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
 		.property("axis", &ParticleSystem::axis)
 
 		.property("scaleType", &ParticleSystem::scaleType)
@@ -864,25 +866,30 @@ namespace SliceEngine
 				frm->EndSystem("Physics");
 
 			}
+			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+			frm->EndSystem("Transform");
 
 		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Animation");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
 			}
-
+			frm->EndSystem("Animation");
 			//somehow convert to pixel coord
+			frm->StartSystem("Canvas");
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
 			//for now im just gona directly convert to game screen coord
 			unsigned int mouse_x = (unsigned int)mouse_coord.x;
 			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
+			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
 			frm->StartSystem("UI Interaction");
 			sButton.HandleMouse(*sInputs, raycast_target);
