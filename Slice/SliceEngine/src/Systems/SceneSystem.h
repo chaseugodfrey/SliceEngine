@@ -46,8 +46,12 @@ namespace SliceEngine
 		void LoadSceneIntoQueue(std::filesystem::path const filePath);
 		bool LoadSceneFromQueue();
 		std::string LoadNavMeshFromMeta(std::filesystem::path navMeshFile);
-		void LoadNextScene();
+		
 		void SetTempFileSaving(bool enabled) { mCanWriteTempFiles = enabled; }
+		
+		void LoadSceneByIndex(size_t index);
+		void LoadSceneByName(std::string const& name);
+
 		void WriteTempFile();
 		
 		void OnSceneSave(std::filesystem::path const filePath);
