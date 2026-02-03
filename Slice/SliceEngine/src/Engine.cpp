@@ -688,6 +688,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -719,13 +720,6 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		//auto mNetwork = Core::GetInstance()->GetNetwork();
 		//mNetwork->Init();
-
-
-	}
-
-	void Engine::InitScene()
-	{
-		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
 	void Engine::Update()
