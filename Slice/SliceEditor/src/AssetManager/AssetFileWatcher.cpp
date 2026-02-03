@@ -346,13 +346,14 @@ namespace SliceEditor
 
         if (path.has_value()) 
         {
-            try 
+            try
             {
                 std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(assetPath);
                 SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
                 resourceMgr->ReleaseResource(fileGUID);
                 am.mGUIDtoFilename.erase(fileGUID);
+                resourceMgr->mFileNameToGUID.erase(removedFilePath.stem().string());
                 am.mFilenameToGUID.erase(removedFilePath.stem().string());
 
                 std::filesystem::remove(metaFilePath);
@@ -361,7 +362,7 @@ namespace SliceEditor
                 AssetFileChangedEvent processEvent = { true };
                 EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
             }
-            catch (const std::exception& e) 
+            catch (const std::exception& e)
             {
                 SLICE_LOG_ERROR("Failed to remove resource: " + std::string(e.what()));
             }
