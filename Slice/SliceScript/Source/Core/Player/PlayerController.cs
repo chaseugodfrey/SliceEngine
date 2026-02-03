@@ -96,7 +96,8 @@ namespace SliceEngine
         public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
         private int attackCounter = 0;
-        private bool isAttacking = false;
+        public bool isAttacking = false;
+        public float attackRecoveryDuration = 0.5f;
 
         public string attack1HBName;
         public int attack1Damage;
@@ -127,11 +128,11 @@ namespace SliceEngine
         // Lunge runtime (Atk1 / Atk2)
         private bool isLunging = false;
         private float lungeTimer = 0f;
-        private float lungeDuration = 0f;
+        public float lungeDuration = 0f;
         private float lungeDelay = 0f;
         private bool lungeStarted = false;
         private Vector3 lungeDir = Vector3.Zero;
-        private float lungeSpeed = 0f;
+        public float lungeSpeed = 0f;
 
         // Attack 3 Arc runtime
         private bool atk3ArcActive = false;
@@ -146,6 +147,7 @@ namespace SliceEngine
         private float plungeTimer = 0f;
         private Vector3 plungeDir = Vector3.Zero;
         private bool plungeImpulseStarted = false;
+        public float plungeDuration = 0.5f;
 
         // =============== Internal variables =============== 
         public bool canInput = false;
@@ -189,7 +191,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-
+            Console.WriteLine(animator.GetCurrAnimName());
             if (debugMode)
             {
                 return;
@@ -203,7 +205,7 @@ namespace SliceEngine
                 HandleDashInput();
             }
             UpdateDash();
-            if (canMove) HandleMovement();
+            if (canMove && !isAttacking) HandleMovement();
             HandleJump();
             AttackResetTimer();
         }
@@ -273,11 +275,11 @@ namespace SliceEngine
                 {
                     if (isGroundDashing)
                     {
-                        //animator.SetBool("DashStart", true);
-                    }
+                        animator.SetBool("DashStart", true);
+                    } 
                     else if (isAirDashing)
                     {
-
+                        animator.SetBool("AirDashStart", true);
                     }
                     //
                 }
@@ -334,29 +336,6 @@ namespace SliceEngine
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
             }
-
-            //if (animator)
-            //{
-            //    animator.SetFloat("Speed", (isAttacking ? 0f : rawPlanarSpeed));
-            //    //animator.SetFloat("YVel", velocity.y);
-            //    //animator.SetBool("IsDashing", isGroundDashing || isAirDashing);
-            //    animator.SetBool("IsAttacking", isAttacking);
-            //}
-
-
-            //if (walkAudioSource != null)
-            //{
-            //    if (walkingNow)
-            //    {
-            //        if (!walkAudioSource.isPlaying)
-            //            walkAudioSource.Play();
-            //    }
-            //    else
-            //    {
-            //        if (walkAudioSource.isPlaying)
-            //            walkAudioSource.Stop();
-            //    }
-            //}
         }
 
         // -------------------- Jump ------------------------------------------------------------------------------------------
@@ -435,18 +414,6 @@ namespace SliceEngine
 
                     lastJumpPressedTime = -999f;
                     lastGroundedTime = -999f;
-
-                    if (animator != null)
-                    {
-                        //animator.SetBool("JumpLoop", true);
-                    }
-
-                    //if (animator)
-                    //{
-                    //    animator.ResetTrigger("Land");
-                    //    animator.SetTrigger("Jump");
-                    //    animator.SetBool("Grounded", false);
-                    //}
                 }
             }
 
@@ -479,6 +446,7 @@ namespace SliceEngine
                 velocity.y += gravity * Time.deltaTime;
             }
 
+
             wasGrounded = grounded;
         }
 
@@ -493,19 +461,10 @@ namespace SliceEngine
             float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * -2f * gravity);
             velocity.y = jumpSpeed;
 
-            //AudioManager.instance.PlaySFX("DoubleJump");
-
             if (animator != null)
             {
                 animator.SetBool("AirDashStart", true);
             }
-
-            //if (animator)
-            //{
-            //    animator.ResetTrigger("Jump");
-            //    animator.SetTrigger("DoubleJump");
-            //    animator.SetBool("Grounded", false);
-            //}
         }
 
         #endregion
@@ -534,33 +493,6 @@ namespace SliceEngine
 
         Vector3 ComputeFlatDashDir(bool useMoveDir)
         {
-            //bool hasInput = input.SquareMagnitude() > 0.0001f;
-            //if (hasInput) input = input.Normalize();
-
-            //if (!useMoveDir || !hasInput)
-            //{
-            //    Vector3 dir = (dashDefaultBackwards ? -transform.Forward : transform.Forward);
-            //    dir.y = 0f;
-            //    return dir.Normalize();
-            //}
-
-            //if (camera != null)
-            //{
-            //    Vector3 camForward = new Vector3();
-            //    camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-            //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-            //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-
-            //    return input.SquareMagnitude() > 0.0001f ? camForward
-            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
-            //}
-            //else
-            //{
-            //    Vector3 moveDirInput = transform.Forward * input.z + transform.Right * input.x;
-            //    moveDirInput.y = 0f;
-            //    return moveDirInput.SquareMagnitude() > 0.0001f ? moveDirInput.Normalize()
-            //                                               : ((dashDefaultBackwards ? -transform.Forward : transform.Forward));
-            //}
             bool hasInput = input.SquareMagnitude() > 0.0001f;
             if (hasInput)
                 input = input.Normalize();
@@ -628,17 +560,6 @@ namespace SliceEngine
                 flatDash.Normalize();
                 float dot = Vector3.Dot(flatDash, flatFacing);
                 bool isBackDash = dot < backDashDotThreshold;
-
-                //if (useBackdashAnimation && isBackDash)
-                //{
-                //    animator.ResetTrigger(backDashTrigger);
-                //    animator.SetTrigger(backDashTrigger);
-                //}
-                //else
-                //{
-                //    animator.ResetTrigger(fwdDashTrigger);
-                //    animator.SetTrigger(fwdDashTrigger);
-                //}
             }
 
             if (animator != null)
@@ -646,18 +567,6 @@ namespace SliceEngine
                 SliceLog.Log("Dash???");
                 animator.SetBool("DashStart", true);
             }
-
-            //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
-            //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
-            //if (dashEffectsCoroutine != null)
-            //{
-            //    StopCoroutine(dashEffectsCoroutine);
-            //    dashEffectsCoroutine = null;
-            //}
-            //dashEffectsCoroutine = StartCoroutine(DashEffects());
-            //// Someone forgot to start their coroutines :(
-            //camRig.DashFOVKick(8f, 0.08f, 0.04f, 0.10f);    //Camera FOV
-            //camRig.Shake(10f, 0.12f);                       //Camera Shake
         }
 
         void BeginAirDash()
@@ -671,43 +580,15 @@ namespace SliceEngine
             dashTimer = Math.Max(0.0001f, airDashDuration);
             velocity.y = 0f;
 
-            //if (animator)
-            {
-                //animator.SetBool("Grounded", false);
-
-                Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
-                Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
-                float dot = Vector3.Dot(flatDash, flatFacing);
-                bool isBackDash = dot < backDashDotThreshold;
-
-                //if (useBackdashAnimation && isBackDash)
-                //{
-                //    animator.ResetTrigger(backDashTrigger);
-                //    animator.SetTrigger(backDashTrigger);
-                //}
-                //else
-                //{
-                //    animator.ResetTrigger(airDashTrigger);
-                //    animator.SetTrigger(airDashTrigger);
-                //}
-            }
+            Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+            Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+            float dot = Vector3.Dot(flatDash, flatFacing);
+            bool isBackDash = dot < backDashDotThreshold;
 
             if (animator != null)
             {
                 animator.SetBool("AirDashStart", true);
             }
-
-            //AudioManager.instance.PlaySFX("Dash");          //Play Dash SFX
-            //StartCoroutine(SpawnVFX(dashVFX[0]));           //Dash VFX
-            //if (dashEffectsCoroutine != null)
-            //{
-            //    StopCoroutine(dashEffectsCoroutine);
-            //    dashEffectsCoroutine = null;
-            //}
-            //dashEffectsCoroutine = StartCoroutine(DashEffects());
-
-            //camRig.DashFOVKick(8f, 0.08f, 0.04f, 0.10f);    //Camera FOV
-            //camRig.Shake(10f, 0.12f);                       //Camera Shake
         }
 
         void UpdateDash()
@@ -735,27 +616,8 @@ namespace SliceEngine
             isAirDashing = false;
             airDashCooldownUntil = Time.time + airDashCooldown;
         }
-
-        //private IEnumerator DashEffects()
-        //{
-        //    lensDistortion.intensity.value = -0.8f;
-        //    float timer = 0f;
-        //    while (timer <= Mathf.Max(lensDistortionDuration, playerGlowDuration))
-        //    {
-        //        timer += Time.deltaTime;
-        //        lensDistortion.intensity.value = Mathf.Lerp(-0.5f, 0f, timer / lensDistortionDuration);
-
-        //        foreach (MeshRenderer mr in playerMat)
-        //        {
-        //            mr.material.SetFloat("_GlowAmount", Mathf.Lerp(1, 0, timer / playerGlowDuration));
-        //        }
-
-        //        yield return null;
-        //    }
-        //}
         void EndAttackState()
         {
-            isAttacking = false;
             attackIndex = 0;
             attackTimer = 0f;
             queuedNext = false;
@@ -768,145 +630,9 @@ namespace SliceEngine
             atk3ArcActive = false;
             atk3ImpulseFired = false;
             atk3HorizVel = Vector3.Zero;
-
-            //if (animator) animator.SetBool("IsAttacking", false);
         }
         #endregion
-        #region Movement
-        //private void OldHandleMovement()
-        //{
-        //    Transform camTransform;
-
-        //    if (camera == null)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        camTransform = camera.transform;
-        //    }
-
-        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-
-        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-
-        //    if (isDashing) return;
-
-        //    if (grounded)
-        //    {
-        //        // Reset vertical velocity when grounded
-        //        if (verticalVelocity < 0f)
-        //            verticalVelocity = 0f;
-        //    }
-        //    else
-        //    {
-        //        // Apply gravity
-        //        verticalVelocity += gravity * Time.deltaTime;
-
-        //        // Optional terminal velocity clamp
-        //        if (verticalVelocity < terminalVelocity)
-        //            verticalVelocity = terminalVelocity;
-        //    }
-
-        //    // Handle regular movement
-        //    Vector3 horizontalMovement = moveDir * moveSpeed;
-
-        //    if (moveDir.LengthSquared() > 0.01f)
-        //    {
-        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-        //    }
-
-        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-        //    {
-        //        if (!isDashing) StartCoroutine(Dash(moveDir));
-        //    }
-
-        //    transform.Position += (horizontalMovement + new Vector3(0f, verticalVelocity, 0f)) * Time.deltaTime;
-
-        //    //Console.WriteLine(animator.GetCurrAnimName());
-        //}
-        //private void HandlePhysicsMovement()
-        //{
-        //    Transform camTransform;
-
-        //    if (camera == null)
-        //    {
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        camTransform = camera.transform;
-        //    }
-
-        //    Vector3 camForward = camTransform.RotationQuat * Vector3.Forward; // Get camera forward direction
-        //    camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-        //    camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-        //    Vector3 moveDir = camForward * input.z + Vector3.Cross(Vector3.Up, camForward).Normalize() * input.x;
-
-        //    if (isDashing) return;
-
-        //    // Handle regular movement
-        //    Vector3 movement = moveDir * moveSpeed;
-        //    bool falling = rb.Velocity.y < fallVelocityThreshold && !grounded;
-        //    if (falling) rb.AddForce(Vector3.Down * fallForce, ForceMode.Impulse);
-
-        //    rb.Velocity = new Vector3(movement.x, rb.Velocity.y, movement.z);
-
-        //    if (moveDir.LengthSquared() > 0.01f)
-        //    {
-        //        playerModel.GetComponent<Transform>().RotationQuat = Quaternion.LookRotation(moveDir, Vector3.Up);
-        //    }
-
-        //    if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
-        //    {
-        //        if (!isDashing) StartCoroutine(Dash(moveDir));
-        //    }
-
-
-        //    //Console.WriteLine(animator.GetCurrAnimName());
-        //}
-        //private void TryJump()
-        //{
-        //    if (CanJump())
-        //    {
-
-        //        rb.Velocity = new Vector3(rb.Velocity.x, 0f, rb.Velocity.z); // Reset vertical velocity before applying jump force
-        //        jumpCounter++;
-
-        //        if (jumpCounter == 1)
-        //        {
-        //            if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Walk") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-        //                    String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-        //                animator.SetBool("JumpLoop", true);
-        //            AudioSettings.PlaySFX("Jump");
-        //        }
-        //        else if (jumpCounter == 2)
-        //        {
-        //            if (String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-        //                        String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-        //            {
-        //                animator.SetBool("AirDashStart", true);
-        //            }
-        //            AudioSettings.PlaySFX("DoubleJump");
-        //        }
-
-        //        rb.AddForce(jumpForce * Vector3.Up, ForceMode.Impulse);
-        //        groundCheckLocked = true;
-        //        grounded = false;
-
-        //        Console.WriteLine("Jumps left " + (maxJumps - jumpCounter));
-        //    }
-        //}
-        //private bool CanJump()
-        //{
-        //    return grounded || jumpCounter < maxJumps;
-        //}
+       
         private void GroundCheck()
         {
             if (groundCheckLocked)
@@ -926,134 +652,10 @@ namespace SliceEngine
                 if (grounded)
                 {
                     jumpCounter = 0;
-                    //if (!isAttacking)
-                    //    &&
-                    //    (String.Compare(animator.GetCurrAnimName(), "Walk") == 0 && input == Vector3.Zero) ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack2") == 0 ||
-                    //String.Compare(animator.GetCurrAnimName(), "Attack3ToLoco") == 0 ||
-                    //    String.Compare(animator.GetCurrAnimName(), "JumpLoop") == 0 ||
-                    //    String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") == 0)
-                    //animator.SetBool("Idle", true);
                 }
             }
-            //Console.WriteLine("Grounded: " + grounded);
         }
-        //private IEnumerator Dash(Vector3 dashDir)
-        //{
-        //    isDashing = true;
-
-        //    AudioSettings.PlaySFX("Dash");
-
-        //    Vector3 dash = Vector3.Zero;
-
-        //    animator.SetBool("AirDashStart", true);
-
-        //    if (input == Vector3.Zero) dash = playerModel.GetComponent<Transform>().RotationQuat * transform.Backward * dashMultiplier;
-        //    else dash = dashDir * dashMultiplier;
-
-        //    rb.Velocity = new Vector3(dash.x, 0f, dash.z);
-
-        //    yield return new WaitForSeconds(dashDuration);
-
-        //    isDashing = false;
-        //}
-        //private void ExampleMovement()
-        //{
-        //Vector3 right = Vector3.Cross(up, direction).Normalize();
-        //float rotationSpeedFrame = rotationSpeed * Time.deltaTime;
-
-        //if (testingShit == false)
-        //{
-        //    CloneGO("GameObject_2");
-        //    testingShit = true;
-        //}
-        //// Forwards
-        //if (Input.IsKeyPressed(Keys.KEY_W) || Input.IsKeyDown(Keys.KEY_W))
-        //{
-        //    //t.Position += direction * moveSpeed * dt;
-
-        //    transform.Position += direction * moveSpeed * Time.deltaTime;
-
-        //    // animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
-        //}
-
-        //// Left
-        //if (Input.IsKeyPressed(Keys.KEY_A) || Input.IsKeyDown(Keys.KEY_A))
-        //{
-        //    //t.Position -= right * moveSpeed * dt;
-        //    Vector3 rotationAxis = new Vector3(0, 1, 0); // Y-axis
-        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
-        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
-
-        //    this.direction = rotation * this.direction;
-        //    this.up = rotation * this.up;
-
-
-        //    //  animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
-        //}
-
-        //// Backward
-        //if (Input.IsKeyPressed(Keys.KEY_S) || Input.IsKeyDown(Keys.KEY_S))
-        //{
-        //    //t.Position -= direction * moveSpeed * dt;
-
-        //    transform.Position -= direction * moveSpeed * Time.deltaTime;
-        //    //    animator.ChangeAnim(21);
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Attack", false);
-        //}
-
-        //// Right
-        //if (Input.IsKeyPressed(Keys.KEY_D) || Input.IsKeyDown(Keys.KEY_D))
-        //{
-        //    //t.Position += right * moveSpeed * dt;
-        //    //   animator.ChangeAnim(21);
-        //    Vector3 rotationAxis = new Vector3(0, -1, 0); // Y-axis
-        //    //t.Rotate(rotationSpeedFrame, rotationAxis);
-        //    Quaternion rotation = Quaternion.FromAxisAngle(rotationAxis.Normalize(), rotationSpeedFrame);
-
-        //    this.direction = rotation * this.direction;
-        //    this.up = rotation * this.up;
-
-        //    animator.SetBool("Run", true);
-        //    animator.SetBool("Attack", false);
-        //    animator.SetBool("Idle", false);
-        //}
-
-        //transform.RotationQuat = Quaternion.LookRotation(this.direction, this.up);
-
-        //if (!Input.IsKeyDown(Keys.KEY_W) && !Input.IsKeyDown(Keys.KEY_A) && !Input.IsKeyDown(Keys.KEY_S) && !Input.IsKeyDown(Keys.KEY_D))
-        //{
-        //    //  animator.ChangeAnim(13);
-        //    animator.SetBool("Idle", true);
-        //    animator.SetBool("Attack", false);
-        //    animator.SetBool("Run", false);
-        //}
-
-        //// Up (Spacebar)
-        //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR) || Input.IsKeyDown(Keys.KEY_SPACEBAR))
-        //{
-        //    transform.Position += new Vector3(0, 1, 0) * moveSpeed * Time.deltaTime;
-        //}
-
-
-        //// Scale Down
-        //if (Input.IsKeyDown(Keys.KEY_R) || Input.IsKeyDown(Keys.KEY_R))
-        //{
-        //    animator.SetBool("Idle", false);
-        //    animator.SetBool("Run", false);
-        //    animator.SetBool("Attack", true);
-        //}
-        //}
-        #endregion
+       
         #region Attacks
         private void InitializeAttackHitboxes()
         {
@@ -1077,34 +679,28 @@ namespace SliceEngine
             // transition to plunge if in air
             if (!grounded && isPlunging == false)
             {
-                // do plunge?
-                isPlunging = true;
-                if (animator != null)
-                {
-                    animator.SetBool("Plunge", true);
-                }
+                StartCoroutine(Plunge(plungeDuration));
                 return;
             }
 
             if (!isAttacking && !isPlunging)
             {
-                if (canIncrement)
-                {
-                    attackCounter++;
-                    canIncrement = false;
-                }
+                attackCounter++;
+                isAttacking = true;
 
                 if (attackCounter > 3) attackCounter = 1;
                 switch (attackCounter)
                 {
                     case 1:
-                        attack1HB.OnAttack.Invoke();
+                        attack1HB.OnAttack?.Invoke();
+                        StartCoroutine(Lunge());
                         break;
                     case 2:
-                        attack2HB.OnAttack.Invoke();
+                        attack2HB.OnAttack?.Invoke();
+                        StartCoroutine(Lunge());
                         break;
                     case 3:
-                        attack3HB.OnAttack.Invoke();
+                        attack3HB.OnAttack?.Invoke();
                         break;
                     default:
                         break;
@@ -1113,10 +709,29 @@ namespace SliceEngine
                 Console.WriteLine("Attack Counter: " + attackCounter);
             }
         }
+        private IEnumerator Lunge()
+        {
+            float timer = 0f;
+            while (timer < lungeDuration)
+            {
+                transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+        public void StartAttackRecovery()
+        {
+            StartCoroutine(AttackRecovery());
+        }
+        private IEnumerator AttackRecovery()
+        {
+            yield return new WaitForSeconds(attackRecoveryDuration);
+            isAttacking = false;
+        }
         private void AttackResetTimer()
         {
             if (!isAttacking) attackResetTimer += Time.deltaTime;
-            if (attackResetTimer >= attackResetTime)
+            if (attackResetTimer >= attackRecoveryDuration)
             {
                 attackCounter = 0;
                 attackResetTimer = 0f;
@@ -1136,31 +751,28 @@ namespace SliceEngine
                     if (animator.SafeToChange("Attack3ToLoco"))
                         animator.SetBool("Attack3ToLoco", true);
                 }
-
-                canIncrement = true;
+            }
+        }
+        private IEnumerator Plunge(float duration)
+        {
+            Console.WriteLine("Plunging");
+            isPlunging = true;
+            if (animator != null)
+            {
+                animator.SetBool("Plunge", true);
+            }
+            float timer = 0f;
+            while (timer < duration)
+            {
+                velocity.y = 0f;
+                timer += Time.deltaTime;
+                yield return null;
             }
         }
         private void Attack1()
         {
-            StartCoroutine(InAttackCoroutine(attack1Duration, null));
             animator.SetBool("Attack1", true);
             AudioSettings.PlaySFX("A1");
-            //if (String.Compare(animator.GetCurrAnimName(), "Idle") == 0 || String.Compare(animator.GetCurrAnimName(), "Walk") == 0)
-            //{
-            //    animator.SetBool("Attack1", true);
-            //}
-            //StartCoroutine(InAttackCoroutine(attack1Duration, () =>
-            //{
-            //    animator.SetBool("AttackToIdle1", true);
-            //    Console.WriteLine("Attack 1 finished");
-            //    Console.WriteLine(animator.GetCurrAnimName());
-            //    StartCoroutine(AnimationCoroutine(1.316f, () =>
-            //    {
-            //        Console.WriteLine(animator.GetCurrAnimName());
-            //        animator.SetBool("Idle", true);
-            //        Console.WriteLine("Returned to idle");
-            //    }));
-            //}));
             List<EnemySlime> enemiesHit = attack1HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
@@ -1174,19 +786,7 @@ namespace SliceEngine
             {
                 animator.SetBool("Attack2", true);
             }
-            StartCoroutine(InAttackCoroutine(attack2Duration, null));
             AudioSettings.PlaySFX("A2");
-            //animator.SetBool("Attack2", true);
-            //StartCoroutine(InAttackCoroutine(attack2Duration, () =>
-            //{
-            //    animator.SetBool("AttackToIdle2", true);
-            //    Console.WriteLine("Attack 2 finished");
-            //    StartCoroutine(AnimationCoroutine(0.816f, () =>
-            //    {
-            //        animator.SetBool("Idle", true);
-            //        Console.WriteLine("Returned to idle");
-            //    }));
-            //}));
             List<EnemySlime> enemiesHit = attack2HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
@@ -1200,27 +800,13 @@ namespace SliceEngine
             {
                 animator.SetBool("Attack3", true);
             }
-            StartCoroutine(InAttackCoroutine(attack3Duration, null));
             AudioSettings.PlaySFX("A3");
-            //animator.SetBool("Attack3", true);
-            //StartCoroutine(InAttackCoroutine(attack3Duration, null));
             List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
             foreach (EnemySlime enemy in enemiesHit)
             {
                 enemy.TakeDamage(attack3Damage);
             }
             Console.WriteLine("Attack 3 executed");
-        }
-        private IEnumerator InAttackCoroutine(float duration, Action endAction)
-        {
-            canMove = false;
-            isAttacking = true;
-            Console.WriteLine("Is attacking");
-            yield return new WaitForSeconds(duration);
-            Console.WriteLine("Can attack");
-            endAction?.Invoke();
-            canMove = true;
-            isAttacking = false;
         }
         private bool AttackAnimationState()
         {

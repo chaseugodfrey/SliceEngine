@@ -8,7 +8,7 @@ using System.IO;
 namespace SliceEngine
 {
 
-    public class PlayerController : Entity, IInitializable
+    public class PlayerControllerBackup : Entity, IInitializable
     {
         //public float rotationSpeed = 50.0f;
         //public string[] test3 = { "Test", "Test2" };
@@ -1712,7 +1712,7 @@ namespace SliceEngine
             {
                 isDead = true;
 
-                Bootstrap.LevelDirector.Lose();
+                //Bootstrap.LevelDirector.Lose();
                 //this.gameObject.Destroy();
             }
         }
