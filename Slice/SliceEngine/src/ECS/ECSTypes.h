@@ -449,11 +449,13 @@ namespace SliceEngine
 		};
 
 		Transform* parentTransform{ nullptr };
+		Transform* referenceTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
+		bool followTransformRotation{ true };
 
 		inline float WrapAngle(float deg)
 		{
@@ -513,10 +515,11 @@ namespace SliceEngine
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{};
-		float coneRadius{};
+		float coneArc{90.0f};
+		float coneRadius{0.1f};
 
 		// Sphere
+		float sphereArc{360.0f};
 		float sphereRadius{0.1f};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
