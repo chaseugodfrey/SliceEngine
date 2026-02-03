@@ -105,7 +105,7 @@ namespace SliceEngine
 		{
 			//path_to_load = "Resources/output_navmesh.bin";
 			ClearNavMesh();
-			SLICE_LOG("NavSystem: No specific navmesh found in meta" );
+			SLICE_LOG("NavSystem: No specific navmesh found in meta");
 
 			return;
 		}
@@ -114,7 +114,7 @@ namespace SliceEngine
 			SLICE_LOG("NavSystem: Loading specific navmesh from meta: " + path_to_load);
 		}
 
-		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
+		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();

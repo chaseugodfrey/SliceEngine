@@ -31,25 +31,23 @@ namespace SliceEngine
 
             std::filesystem::path filePath(file);
 
-            // --- STEP 1: Default to "Heuristic" Mode (Assume Runtime) ---
+           
             bool shouldStream = false;
             bool metaFoundAndLoaded = false;
 
-            // --- STEP 2: Attempt to find Meta File (Editor Logic) ---
+            
             std::string guidStr = filePath.stem().string();
             SliceEngine::GUID audioGUID = GUID::FromString(guidStr);
 
             std::filesystem::path metaPath;
 
-            // Only try to look up GUIDs if the ResourceManager map is populated
             if (!resourceMgr->mFileNameToGUID.empty())
             {
                 for (auto [key, value] : resourceMgr->mFileNameToGUID)
                 {
                     if (value == audioGUID)
                     {
-                        // NOTE: This path implies the Editor assets are relative to the working dir
-                        // You might need to adjust this depending on where the App.exe runs
+                        
                         std::filesystem::path assetBase = "../SliceEditor/Assets";
                         metaPath = assetBase / (key + ".meta");
 
@@ -62,7 +60,6 @@ namespace SliceEngine
                                 metaFile >> metaData;
                                 auto streamType = metaData["stream"].get<SliceEditor::AudioStream>();
 
-                                // Explicitly set stream based on Meta
                                 if (streamType == SliceEditor::AudioStream::CREATE_SAMPLE)
                                     shouldStream = false;
                                 else
@@ -72,7 +69,7 @@ namespace SliceEngine
                             }
                             catch (...)
                             {
-                                // If json parsing fails, we will fall back to heuristic
+                                
                                 SLICE_LOG_WARNING("JSON Error in meta file, falling back to heuristic: " + metaPath.string());
                             }
                         }
@@ -81,9 +78,7 @@ namespace SliceEngine
                 }
             }
 
-            // --- STEP 3: Fallback Heuristic (Runtime Logic) ---
-            // If we didn't find a meta file (which is expected in the Application Build),
-            // we decide based on file size.
+           
             if (!metaFoundAndLoaded)
             {
                 if (!std::filesystem::exists(filePath))
@@ -94,7 +89,7 @@ namespace SliceEngine
 
                 try
                 {
-                    // 512 KB Threshold: Bigger = Stream (Music), Smaller = Sample (SFX)
+                   
                     const uintmax_t STREAM_THRESHOLD = 512 * 1024;
                     if (std::filesystem::file_size(filePath) > STREAM_THRESHOLD)
                     {
@@ -112,7 +107,7 @@ namespace SliceEngine
                 }
             }
 
-            // --- STEP 4: Initialize FMOD ---
+           
             FMOD_MODE mode = FMOD_DEFAULT;
 
             if (shouldStream)

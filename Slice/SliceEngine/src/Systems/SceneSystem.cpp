@@ -70,6 +70,7 @@ namespace SliceEngine
 		//Call DeserializeSceneNavMesh function, will return a guid
 		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
 		 
+
 		mCurrentScene = next_scene_filepath;
 		mCurrentSceneName = next_scene_filepath.stem().string();
 
@@ -83,6 +84,7 @@ namespace SliceEngine
 		std::string navMesh = "";
 		metaPath += ".meta";
 		
+
 		navMesh = LoadNavMeshFromMeta(metaPath);*/
 
 		std::string navMeshBinString = "Resources/";
