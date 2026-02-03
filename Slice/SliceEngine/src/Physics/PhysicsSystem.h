@@ -51,8 +51,9 @@ namespace SliceEngine
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
 		std::unique_ptr <JPH::TempAllocatorImpl> tempAllocator;
 		std::unique_ptr<MyContactListener> contactListener;
-		bool isInitialized = false; 
 		int collisionSteps{2};
+		bool isInitialized = false;
+		bool isBroadPhaseDirty = false;
 
 	private:
 
@@ -60,7 +61,7 @@ namespace SliceEngine
 
 		void OnColliderAdd(const ColliderShapeAddedEvent& event);
 
-		void OnColliderRemove(const ColliderShapeRemovedEvent& event);
+		void OnColliderRemove(entt::registry& reg, entt::entity entity);
 
 		void OnRigidBodyAdd(const RigidBodyAddedEvent& event);
 

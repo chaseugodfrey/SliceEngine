@@ -27,7 +27,7 @@ namespace SliceEngine
 	GOFactory::GOFactory()
 	{
 		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
-		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		//mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
 		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
