@@ -28,13 +28,13 @@ namespace SliceEngine
         EventManager::GetInstance()->Publish<ColliderShapeAddedEvent>(event);
     }
 
-    void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity)
-    {
-        ColliderShapeRemovedEvent event;
-        event.entity = entity;
+    //void OnColliderShapeRemoved(entt::registry& reg, entt::entity entity)
+    //{
+    //    ColliderShapeRemovedEvent event;
+    //    event.entity = entity;
 
-        EventManager::GetInstance()->Publish<ColliderShapeRemovedEvent>(event);
-    }
+    //    EventManager::GetInstance()->Publish<ColliderShapeRemovedEvent>(event);
+    //}
 
     void OnRigidBodyAdded(entt::registry& reg, entt::entity entity)
     {
