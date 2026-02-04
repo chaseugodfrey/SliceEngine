@@ -361,16 +361,21 @@ namespace SliceEditor
 		for (auto& i : mTransitionNodes)
 			DrawTransitionNodes(i.second);
 
+		DrawPostEditorElements();
 		// must be called right before EndNodeEditor
 		ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_TopLeft);
-
 		ImNodes::EndNodeEditor();
 
-		DrawPostEditorElements();
 		PostEditorChecks();
 
 		if (tempLoadPos)
 			TempLoadPosAll();
+		if (newNodeID != 0)
+		{
+			ImNodes::SetNodeEditorSpacePos(newNodeID, mouseSelectPos);
+			ImNodes::SnapNodeToGrid(newNodeID);
+			newNodeID = 0;
+		}
 
 		ImNodes::EditorContextSet(*editor_context_other.get());
 		ImGui::End();
@@ -535,6 +540,7 @@ namespace SliceEditor
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
 					ImGui::OpenPopup("NodeEditor_Popup");
+					mouseSelectPos = ImGui::GetMousePos();
 				}
 			}
 
@@ -560,11 +566,14 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopup("NodeEditor_Popup"))
 			{
-				if (ImGui::Selectable("Create Node"))
+				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
 				{
-
+					std::string createName{ "Create" + funcName };
+					if (ImGui::Selectable(createName.c_str()))
+					{
+						newNodeID = CreateNode(funcName);
+					}
 				}
-
 				ImGui::EndPopup();
 			}
 		}
@@ -645,5 +654,31 @@ namespace SliceEditor
 	{
 		if (attrIDToLinkID.find(attr) != attrIDToLinkID.end())
 			DeleteLink(attrIDToLinkID.at(attr));
+	}
+	int CustomShaderWindow::CreateNode(std::string funcName)
+	{
+		// Special Case (No Out) --TODO-- Prevent Deletion or making ;w; of END_COLOR
+		auto function = CST::cShaderFuncsTemplates.find(funcName);
+		if (function != CST::cShaderFuncsTemplates.end())
+		{
+			ShaderStateNode n;
+			n.id = ++uniqueIDCnt;
+			n.name = funcName;
+			// Ins
+			for (int i{}; i < function->second.inIDs.size(); ++i)
+			{
+				int in_attr = ++uniqueIDCnt;
+				n.in_ids.push_back(in_attr);
+
+				attrIDToNodeID[in_attr] = n.id;
+			}
+			int out_attr = ++uniqueIDCnt;
+			n.out_id = out_attr;
+
+			attrIDToNodeID[out_attr] = n.id;
+			mStateNodes[n.id] = n;
+			return n.id;
+		}
+		return 0;
 	}
 }

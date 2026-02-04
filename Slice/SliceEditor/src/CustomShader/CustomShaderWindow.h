@@ -20,7 +20,10 @@ namespace SliceEditor
 		SessionManager* mSessionManager = nullptr;
 		SliceEngine::GUID mCurrShaderGraphGUID{};
 
+		ImVec2 mouseSelectPos{};
+
 		int uniqueIDCnt{ 0 };
+		int newNodeID{ 0 };
 
 		bool tempLoadPos = false;
 
@@ -86,6 +89,7 @@ namespace SliceEditor
 		void SelectNode(SelectionNode*);
 		void DeleteLink(int);
 		void DeleteLinkFromAttr(int);
+		int CreateNode(std::string);
 	public:
 
 		CustomShaderWindow(Registry& reg) : EditorWindow(reg) {};
