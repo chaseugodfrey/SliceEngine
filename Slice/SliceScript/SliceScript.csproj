@@ -50,6 +50,7 @@
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
+    <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
     <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
@@ -60,7 +61,6 @@
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
-    <Compile Include="Source\Core\Components\Text.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
