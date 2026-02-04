@@ -727,11 +727,29 @@ namespace SliceEngine
 		//mNetwork->Init();
 	}
 
-	void Engine::FullScreenApp()
+	void Engine::WindowSizeSwitch()
 	{
-		Core::GetInstance()->GetWindowManager()->FullScreenWindow();
-		
+		auto sInputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
+
+		if (sInputs->IsKeyDown(GLFW_KEY_RIGHT_ALT))
+		{
+			if (sInputs->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				if (windowManager->isFullScreen)
+				{
+					windowManager->NonFullScreenWindow();
+				}
+				else
+				{
+					windowManager->FullScreenWindow();
+				}
+			}
+
+		}
 	}
+
+	
 
 	void Engine::Update()
 	{
@@ -741,6 +759,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
+		
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -750,6 +769,8 @@ namespace SliceEngine
 		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
+
+		
 
 		static bool isPlaying = false;
 

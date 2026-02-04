@@ -59,13 +59,43 @@ namespace SliceEngine
 
 	void GLFWWindowManager::FullScreenWindow()
 	{
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
-		auto vidMode = glfwGetVideoMode(monitor);
+			auto vidMode = glfwGetVideoMode(monitor);
 
-		glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
+			glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
 
-		glfwMakeContextCurrent(window);
+			glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+
+			glfwMakeContextCurrent(window);
+
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+
+			isFullScreen = true;
+
+
+	}
+
+	void GLFWWindowManager::NonFullScreenWindow()
+	{
+		
+
+			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+			auto vidMode = glfwGetVideoMode(monitor);
+
+			glfwSetWindowMonitor(window, nullptr, 0, 25, vidMode->width, vidMode->height, vidMode->refreshRate);
+
+			glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+
+			glfwSetWindowTitle(window, "Weight Of The Sky");
+
+			glfwMakeContextCurrent(window);
+
+			isFullScreen = false;
+		
 	}
 
 	void GLFWWindowManager::CloseWindow()

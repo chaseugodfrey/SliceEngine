@@ -20,9 +20,11 @@ namespace SliceEngine
 		GLFWwindow* window;
 
 	public:
+		bool isFullScreen;
 		GLFWwindow* CreateGLFWWindow();
 		void ResizeWindow(int width, int height);
 		void FullScreenWindow();
+		void NonFullScreenWindow();
 		void CloseWindow();
 		GLFWwindow* GetWindow();
 	};

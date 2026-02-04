@@ -30,10 +30,11 @@ namespace SliceBuild
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTempFileSaving(false);
 
 		auto window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
-		engine.FullScreenApp();
+		windowManager->FullScreenWindow();
 
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(1);
 
@@ -60,6 +61,8 @@ namespace SliceBuild
 			engine.Update();
 			engine.Draw();
 			engine.EndFrame();
+
+			engine.WindowSizeSwitch();
 
 			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::DEFAULT)
 			{

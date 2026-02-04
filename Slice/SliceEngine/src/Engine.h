@@ -46,7 +46,7 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
-		void FullScreenApp();
+		void WindowSizeSwitch();
 
 		void Update();
 		void Draw();
