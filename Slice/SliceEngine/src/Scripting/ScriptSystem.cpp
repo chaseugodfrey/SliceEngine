@@ -956,6 +956,7 @@ namespace SliceEngine
             if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
             {
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
 
             }
