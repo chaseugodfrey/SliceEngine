@@ -9,6 +9,8 @@ namespace SliceEngine
 {
     public class ToggleBoundingBox : SliceBehaviour
     {
+        public GameObject actualBoundingObject;
+
         public GameObject levelToTurnOn;
 
         public GameObject levelToTurnOff;
@@ -24,18 +26,18 @@ namespace SliceEngine
             else            { TurnOff(); }
 
             if (levelToTurnOn != null && levelToTurnOn.Has<BaseLevel>()) 
-            { levelToTurnOn.As<BaseLevel>().LevelCompleteEvent += TurnOn; }
+            { levelToTurnOn.As<BaseLevel>().LevelCompleteEvent += TurnOn; SliceLog.Log("Bounding Box Added Turn On Behaviour"); }
 
             if (levelToTurnOff != null && levelToTurnOff.Has<BaseLevel>())
-            { levelToTurnOff.As<BaseLevel>().LevelCompleteEvent += TurnOff; }
+            { levelToTurnOff.As<BaseLevel>().LevelCompleteEvent += TurnOff; SliceLog.Log("Bounding Box Added Turn Off Behaviour"); }
 
         }
 
 
         public void TurnOn()
-        {this.gameObject.SetActive(true);}
+        { actualBoundingObject.SetActive(true);}
 
         public void TurnOff() 
-        {this.gameObject.SetActive(false);}
+        { actualBoundingObject.SetActive(false);}
     }
 }

@@ -39,6 +39,17 @@ namespace SliceEngine
 
         public virtual bool CheckObjective() { return false; }
 
+        public void LevelCompleteDebug()
+        {
+            SliceLog.Log("Level complete has been called");
+        }
+
+        public override void OnAwake()
+        {
+            base.OnAwake();
+            LevelCompleteEvent += LevelCompleteDebug;
+        }
+
         public override void OnUpdate(float dt)
         {
            // SliceLog.Log("In Base level " + levelIndex + "Update");

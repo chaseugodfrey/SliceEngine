@@ -12,6 +12,9 @@ namespace SliceEngine
         private GameObject[] groundObject;
         private bool grounded;
         public bool Grounded { get { return grounded; } }
+
+        private int TriggerBoxCount = 0;
+
         public override void OnCreate()
         {
             base.OnCreate();
@@ -27,6 +30,8 @@ namespace SliceEngine
                 Console.WriteLine("Player grounded");
                 Bootstrap.Player.OnGrounded();
                 grounded = true;
+
+                TriggerBoxCount += 1;
                 Console.WriteLine("Grounded set to true");
             }
         }
@@ -34,8 +39,13 @@ namespace SliceEngine
         {
             if (IsGround(other))
             {
+                TriggerBoxCount -= 1;
+                TriggerBoxCount = Utilities.Clamp<int>(TriggerBoxCount, 0, 999);
                 Console.WriteLine("Player off ground");
-                grounded = false;
+                if (TriggerBoxCount <= 0)
+                {
+                    grounded = false;
+                }
                 Console.WriteLine("Grounded set to false");
             }
         }
