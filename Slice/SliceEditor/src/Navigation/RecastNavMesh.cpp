@@ -368,7 +368,7 @@ namespace SliceEditor
 		for (auto entity : entities)
 		{
 			auto go = SliceEngine::FactoryInstance.GetGOByEntity(*entity);
-			
+
 			SliceEngine::Renderer &renderer = go.GetComponent<SliceEngine::Renderer>();
 
 			const auto &transform = go.GetComponent<SliceEngine::Transform>();
@@ -386,10 +386,8 @@ namespace SliceEditor
 					model->name = "NavObstacle"; // when building walkable areas later, check if model name is NavObstacle, if it is then build as unwalkable
 				}
 			}
-			else
-			{
-				models.push_back(renderer.modelHandle.get());
-			}
+			models.push_back(renderer.modelHandle.get());
+
 		}
 
 
@@ -489,7 +487,7 @@ namespace SliceEditor
 					for (size_t t = startTriIndex; t < endTriIndex; ++t)
 					{
 						if (t < areas.size())
-							areas[t] = RC_NULL_AREA;
+							areas[t] = 60;
 					}
 				}
 				// --- 2. EXISTING SMART SLOPE LOGIC ---
@@ -564,6 +562,15 @@ namespace SliceEditor
 
 		if (!rcBuildCompactHeightfield(&ctx, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
 			return false;
+
+		// remove the unwalkable part here
+		for (int i = 0; i < compactHeightfield->spanCount; ++i)
+		{
+			if (compactHeightfield->areas[i] == 60)
+			{
+				compactHeightfield->areas[i] = RC_NULL_AREA;
+			}
+		}
 
 		if (!rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield))
 		{
