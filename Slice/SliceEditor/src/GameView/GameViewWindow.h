@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #define GAME_VIEW_WINDOW_H
 
 #include "../WindowManager/EditorWindow.h"
+#include "Input/InputTypes.h"
 
 namespace SliceEditor
 {
@@ -23,9 +24,38 @@ namespace SliceEditor
 
 	class GameViewWindow : public EditorWindow
 	{
-		bool mRequestToFocus;
+		struct Screen
+		{
+			ImVec2 topLeft;
+			ImVec2 btmRight;
+			ImVec2 size;
+			ImVec2 center;
+
+			void CalculatePositions(ImVec2 start, ImVec2 size);
+		};
+
+		Screen mWindowScreen;
+		Screen mGameScreen;
+
+		ImVec2 mGameMousePosition;
+		ImVec2 mGameMouseDelta;
+
+		SliceEngine::CursorState mLastCursorState{};
+
+		bool mIsPlayMode{};
+		bool mIsDebuggingEnabled{};
+		bool mIsHoveringGameScreen{};
+		bool mRequestToFocus{};
+
 		void OnPlay(OnPlayEvent e);
-		
+		void OnStop(OnStopEvent e);
+		void DrawHeaderBar();
+		void DrawCameraView();
+		void DrawDebugInfo();
+		void UpdateGameMousePosition();
+
+		void CaptureInputs();
+
 	public:
 
 		GameViewWindow(Registry& reg) : EditorWindow(reg) {};

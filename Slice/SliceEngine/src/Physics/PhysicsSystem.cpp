@@ -99,6 +99,8 @@ namespace SliceEngine
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
 
+			mRegistry->on_destroy<ColliderShape>().connect<&PhysicsSystem::OnColliderRemove>(this);
+
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
 			return true;
@@ -132,11 +134,11 @@ namespace SliceEngine
 		physicsSystem->OptimizeBroadPhase();
 	}
 
-	void PhysicsSystem::OnColliderRemove(const ColliderShapeRemovedEvent& event)
+	void PhysicsSystem::OnColliderRemove(entt::registry& reg, entt::entity entity)
 	{
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
+		auto& colliderShape = reg.get<ColliderShape>(entity);
 
-		if (!colliderShape.componentEnabled || mRegistry->any_of<InactiveEntity>(event.entity) || colliderShape.bodyID.IsInvalid())
+		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
 			return;
 
 		// Remove body form physics world
@@ -145,7 +147,7 @@ namespace SliceEngine
 		// Destroy the body from the physics world
 		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 
-		physicsSystem->OptimizeBroadPhase();
+		isBroadPhaseDirty = true;
 	}
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
@@ -476,6 +478,10 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			return;
+		}
 
 	}
 
@@ -784,11 +790,23 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			// Create new scaled shape
+			JPH::Vec3 newScale = helpers::glmtoJPH(transform.GetWorldScale());
+			JPH::ScaledShapeSettings scaledSettings(colliderShape.shape, newScale);
+			JPH::ShapeRefC finalShape = scaledSettings.Create().Get();
+
+			// Actually set it on the body
+			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, false, JPH::EActivation::Activate);
+		}
 
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(Entity entity) const
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
 		sliceEngineVariantShape shapeData = collider.shapeData;
 
 		JPH::ShapeRefC shapeReference = nullptr;
@@ -804,6 +822,11 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
 			shapeReference = CreateCapsuleShape(collider);
+		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			auto& renderer = mRegistry->get<Renderer>(entity);
+			shapeReference = CreateMeshShape(renderer);
 		}
 		else
 		{ 
@@ -1020,6 +1043,60 @@ namespace SliceEngine
 		return result.Get();
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateMeshShape(const Renderer& renderComponent) const
+	{
+		Handle<SliceEngineTypes::Model> model = renderComponent.modelHandle;
+
+		JPH::VertexList vertices;
+		JPH::IndexedTriangleList triangles;
+
+		uint32_t vertexOffset = 0;
+
+		//loops through the diff meshes in the model
+		for (const auto& mesh : model->meshes)
+		{
+			// Add vertices
+			for (const auto& vertex : mesh.vertices)
+			{
+				vertices.push_back(JPH::Float3(
+					vertex.position.x,
+					vertex.position.y,
+					vertex.position.z
+				));
+			}
+
+			// Add triangles - iterate over INDICES, not meshes!
+			for (size_t i = 0; i < mesh.indices.size(); i += 3)
+			{
+				triangles.push_back(JPH::IndexedTriangle(
+					vertexOffset + mesh.indices[i],
+					vertexOffset + mesh.indices[i + 1],
+					vertexOffset + mesh.indices[i + 2]
+				));
+			}
+
+			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
+		}
+
+		
+		JPH::MeshShapeSettings* shapeSetting = new JPH::MeshShapeSettings(vertices, triangles);
+		JPH::Vec3 offSet{ 0.f,0.f,0.f }; // using this as no offset for mesh collider for now
+
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get MeshShape Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
@@ -1116,7 +1193,7 @@ namespace SliceEngine
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape, transform);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(entity);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
@@ -1194,6 +1271,11 @@ namespace SliceEngine
 		//Store entity ID in user data for collision callbacks
 		bodySettings.mUserData = static_cast<uint64_t>(entity);
 
+		//this portion is cause mesh collider  does not have mass caluclated by jolt
+		bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+		bodySettings.mMassPropertiesOverride.mMass = 1.0f;
+		bodySettings.mMassPropertiesOverride.mInertia = JPH::Mat44::sScale(1.0f); // Simplified inertia
+
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
 		if (!body || !mRegistry->valid(entity))
@@ -1224,6 +1306,12 @@ namespace SliceEngine
 
 
 		physicsSystem->Update(dt, collisionSteps, tempAllocator.get(), jobSystem.get());
+
+		if (isBroadPhaseDirty)
+		{
+			physicsSystem->OptimizeBroadPhase();
+			isBroadPhaseDirty = false;
+		}
 	}
 
 	void PhysicsSystem::PostStepSync()
@@ -1278,7 +1366,7 @@ namespace SliceEngine
 		eventManager->Subscribe<ColliderShapeAddedEvent, &PhysicsSystem::OnColliderAdd>(this);
 
 		// Subscribe to the ColliderShapeRemovedEvent
-		eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
+		//eventManager->Subscribe<ColliderShapeRemovedEvent, &PhysicsSystem::OnColliderRemove>(this);
 
 		// Subscribe to the RigidBodyAddedEvent
 		eventManager->Subscribe<RigidBodyAddedEvent, &PhysicsSystem::OnRigidBodyAdd>(this);
@@ -1448,7 +1536,7 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, uint32_t mask)
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, bool triggerInteraction, uint32_t mask)
 	{	
 		JPH::Vec3 ori = helpers::glmtoJPH(origin);
 		JPH::Vec3 dir = helpers::glmtoJPH(direction);
@@ -1457,13 +1545,26 @@ namespace SliceEngine
 		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
 		ObjectLayerFilterImpl filterLayer(mask);
-		JPH::BodyFilter inBodyFilter = {};
 
-		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
+
+
+		JPH::BodyFilter inBodyFilter = {};
+		BodyFilterIgnore ignoreFilter;
+		bool didRayHit = false;
+
+		if (triggerInteraction)
+		{
+			didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
+		}
+		else
+		{
+			didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, ignoreFilter);
+		}
+
+		
 
 		if (!ioHit.mBodyID.IsInvalid())
 		{
-			bodyHitID = ioHit.mBodyID.GetIndex();
 			hitPos = origin + direction * ioHit.mFraction;
 
 			// do this later aloysius
@@ -1471,8 +1572,9 @@ namespace SliceEngine
 
 			if (lock1.Succeeded())
 			{
-				const JPH::Body& body1 = lock1.GetBody();
-				normal = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+				const JPH::Body& body = lock1.GetBody();
+				bodyHitID = static_cast<JPH::uint32>(body.GetUserData());
+				normal = helpers::JPHtoglm(body.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
 			}
 		}
 		else

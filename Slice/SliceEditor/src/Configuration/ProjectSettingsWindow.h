@@ -19,13 +19,13 @@ namespace SliceEditor
 
 		BaseSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& settings, std::string nm) : mRegistry(reg), mSettings(settings), name(nm) {};
 		void DisplayHeader();
-		virtual void DisplaySettings() = 0;
+		virtual void DisplaySettings(ImVec2 size) = 0;
 	};
 
 	struct AudioSettingsDisplay : BaseSettingsDisplay
 	{
 		AudioSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
-		void DisplaySettings() override;
+		void DisplaySettings(ImVec2 size) override;
 	};
 
 	struct PhysicsSettingsDisplay : BaseSettingsDisplay
@@ -33,13 +33,16 @@ namespace SliceEditor
 		ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
 
 		PhysicsSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
-		void DisplaySettings() override;
+		void DisplaySettings(ImVec2 size) override;
 	};
 
-	struct ProjectSettingsDisplay : BaseSettingsDisplay
+	struct BuildSettingsDisplay : BaseSettingsDisplay
 	{
-		ProjectSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
-		void DisplaySettings() override;
+	private:
+		bool AddSceneToList(SliceEngine::GUID guid);
+	public:
+		BuildSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
+		void DisplaySettings(ImVec2 size) override;
 	};
 
 	class ProjectSettingsWindow : public EditorWindow
@@ -48,7 +51,7 @@ namespace SliceEditor
 		{
 			AUDIO,
 			PHYSICS,
-			PROJECT
+			BUILD
 		} mCurrentSettingsIndex{};
 
 		std::vector<std::unique_ptr<BaseSettingsDisplay>> mSettingsList{};

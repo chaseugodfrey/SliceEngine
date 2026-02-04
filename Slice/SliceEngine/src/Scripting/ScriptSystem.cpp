@@ -549,7 +549,28 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             scriptRef->InvokeOnFixedUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             UpdateScriptComponent(id);
         }
     }

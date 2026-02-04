@@ -506,29 +506,42 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
-			for (int i{}; i < 3; ++i)
-			{
-				GUID modelID;
-				switch (i)
-				{
-				case 0:
-					modelID = (GUID)DefaultResourceIDs::CUBE_DEFAULT;
-					break;
-				case 1:
-					modelID = (GUID)DefaultResourceIDs::SPHERE_DEFAULT;
-					break;
-				case 2:
-					modelID = (GUID)DefaultResourceIDs::CAPSULE_DEFAULT;
-					break;
-				}
 
+			std::unordered_map<GUID, std::vector<Entity>> debugShapes{};
+
+			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
+			for (auto entity : view)
+			{
+				auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
+				
+				if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::CUBE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::SPHERE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::CAPSULE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::MeshData>(shape.shapeData) && Core::GetInstance()->mFactory.mRegistry.any_of<Renderer>(entity))
+				{
+					GUID guid = Core::GetInstance()->mFactory.mRegistry.get<Renderer>(entity).modelHandle.getGUID();
+					debugShapes[guid].push_back(entity);
+				}
+			}
+
+
+			for (auto& [modelID, entities] : debugShapes)
+			{
 				auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(modelID).get();
 				auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 				glBindVertexArray(mdl.vao);
 
 				int num{};
-				for (auto entity : view)
+				for (auto entity : entities)
 				{
 					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 					auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
@@ -540,24 +553,22 @@ namespace SliceEngine
 
 					if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
 					{
-						if (i != 0)
-							continue;
 						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(),shape.offSet.GetY(),shape.offSet.GetZ())), glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
 					{
-						if (i != 1)
-							continue;
 						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(sphereData.radius * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
 					{
-						if (i != 2)
-							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
+					}
+					if (std::holds_alternative<ColliderShape::MeshData>(shape.shapeData)) // already passed the has Renderer Check
+					{
+						renderQueue.mBasicIMtx[num].mdlMtx = transform.transform;
 					}
 
 					num++;
