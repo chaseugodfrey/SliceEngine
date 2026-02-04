@@ -57,65 +57,6 @@ namespace SliceEditor
 		CaptureInputs();
 		DrawDebugInfo();
 
-#pragma region Mouse Click
-			// mouse position should always be relative to top left, so that it is consistent with the glfwgetcursorpos
-			// also removing the worldspace offset thingy for now
-			//ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x + worldSpaceOffsetX, worldSpaceDim.y - ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
-			
-//			static ImVec2 lastWorldSpaceMouse;
-//			ImVec2 worldSpaceMouse{ (mouse_relative_x - winOffset.x) / winScreenDim.x * worldSpaceDim.x, ((mouse_relative_y - winOffset.y) / winScreenDim.y * worldSpaceDim.y) };
-//
-//			auto* input = SliceEngine::Core::GetInstance()->GetInputSystem();
-//
-//			static SliceEngine::CursorState game_cursor_state;
-//			static bool onFocus{ false };
-//			static bool isFocused{ false };
-//
-//			if (ImGui::IsWindowFocused())
-//			{
-//				if (!isFocused)
-//					onFocus = true;
-//
-//				isFocused = true;
-//
-//				if (core->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::PLAY_SCENE)
-//				{
-//					if (onFocus)
-//					{
-//						input->SetCursorState(game_cursor_state);
-//					}
-//
-//					else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-//					{
-//						game_cursor_state = input->GetCursorState();
-//						input->SetCursorState(SliceEngine::CursorState::DEFAULT);
-//						ImGui::SetWindowFocus(NULL);
-//						isFocused = false;
-//					}
-//
-//					input->SetMousePosition(worldSpaceMouse.x, worldSpaceMouse.y);
-//					if (fabs(worldSpaceMouse.x - lastWorldSpaceMouse.x) < 100.f && fabs(worldSpaceMouse.y - lastWorldSpaceMouse.y) < 100.f)
-//						input->SetMouseDelta(lastWorldSpaceMouse.x - worldSpaceMouse.x,lastWorldSpaceMouse.y - worldSpaceMouse.y);
-//					else
-//						input->SetMouseDelta(0.0, 0.0);
-//					lastWorldSpaceMouse = worldSpaceMouse;
-//				}
-//
-//				onFocus = false;
-//			}
-//
-//
-//		}
-//
-//		else
-//		{
-//			std::string msg = "No Cameras detected.";
-//			auto middle_pos = ImGui::GetWindowPos() + ImGui::GetWindowSize() / 2 - ImGui::CalcTextSize(msg.c_str()) / 2;
-//			ImGui::SetCursorScreenPos(middle_pos);
-//			ImGui::Text(msg.c_str());
-//		}
-#pragma endregion
-
 		position = ImGui::GetWindowPos();
 		size = ImGui::GetWindowSize();
 		center = { position.x + size.x / 2.0f, position.y + size.y / 2.0f };

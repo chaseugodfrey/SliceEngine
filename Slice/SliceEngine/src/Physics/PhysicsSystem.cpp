@@ -478,6 +478,10 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			return;
+		}
 
 	}
 
@@ -786,11 +790,23 @@ namespace SliceEngine
 			}
 
 		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			// Create new scaled shape
+			JPH::Vec3 newScale = helpers::glmtoJPH(transform.GetWorldScale());
+			JPH::ScaledShapeSettings scaledSettings(colliderShape.shape, newScale);
+			JPH::ShapeRefC finalShape = scaledSettings.Create().Get();
+
+			// Actually set it on the body
+			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, false, JPH::EActivation::Activate);
+		}
 
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const
+	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(Entity entity) const
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
 		sliceEngineVariantShape shapeData = collider.shapeData;
 
 		JPH::ShapeRefC shapeReference = nullptr;
@@ -806,6 +822,11 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
 			shapeReference = CreateCapsuleShape(collider);
+		}
+		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
+		{
+			auto& renderer = mRegistry->get<Renderer>(entity);
+			shapeReference = CreateMeshShape(renderer);
 		}
 		else
 		{ 
@@ -1022,6 +1043,59 @@ namespace SliceEngine
 		return result.Get();
 	}
 
+	JPH::ShapeRefC PhysicsSystem::CreateMeshShape(const Renderer& renderComponent) const
+	{
+		Handle<SliceEngineTypes::Model> model = renderComponent.modelHandle;
+
+		JPH::VertexList vertices;
+		JPH::IndexedTriangleList triangles;
+
+		uint32_t vertexOffset = 0;
+
+		//loops through the diff meshes in the model
+		for (const auto& mesh : model->meshes)
+		{
+			//each mesh has its own vertices and indices
+			for (const auto& vertex : mesh.vertices)
+			{
+				vertices.push_back(JPH::Float3(
+					vertex.position.x,
+					vertex.position.y,
+					vertex.position.z
+				));
+			}
+
+			for (size_t i = 0; i < model->meshes.size(); i += 3)
+			{
+				triangles.push_back(JPH::IndexedTriangle(
+					vertexOffset + mesh.indices[i],
+					vertexOffset + mesh.indices[i + 1],
+					vertexOffset + mesh.indices[i + 2]
+				));
+			}
+			// continues the indices from last mesh
+			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
+		}
+
+		
+		JPH::MeshShapeSettings* shapeSetting = new JPH::MeshShapeSettings(vertices, triangles);
+		JPH::Vec3 offSet{ 0.f,0.f,0.f }; // using this as no offset for mesh collider for now
+
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get MeshShape Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
@@ -1118,7 +1192,7 @@ namespace SliceEngine
 		}
 
 		//Create shape based on collider
-		JPH::ShapeRefC shape = CreateShapeFromCollider(colliderShape, transform);
+		JPH::ShapeRefC shape = CreateShapeFromCollider(entity);
 		if (!shape)
 		{
 			SLICE_LOG_ERROR("Failed to create Shape for entity");
@@ -1195,6 +1269,11 @@ namespace SliceEngine
 
 		//Store entity ID in user data for collision callbacks
 		bodySettings.mUserData = static_cast<uint64_t>(entity);
+
+		//this portion is cause mesh collider  does not have mass caluclated by jolt
+		bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+		bodySettings.mMassPropertiesOverride.mMass = 1.0f;
+		bodySettings.mMassPropertiesOverride.mInertia = JPH::Mat44::sScale(1.0f); // Simplified inertia
 
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);
