@@ -13,10 +13,10 @@
         
         }
     },
-    "ColorMain":{
+    "Main":{
         "Mul_Vec4":{
             "Var_8":["texCol", "color"],
-            "Var_11":["Var_8", "Var_10"]
+            "Var_11":["NIL1234", "Var_10"]
         },
         "Mul_f":{
             "Var_1":["Var_0", "noiseScale"],
@@ -46,12 +46,10 @@
         "fRand_Vec2":{
             "Var_0":["vTex"]
         },
-        "END":{
-            "FIN":["Var_11"]
-        }
-    },
-    "RoughMetMain":{
-        "END":{
+        "END_COLOR":{
+            "FIN":["NIL2543"]
+        },
+        "END_MET_ROUGH":{
             "NIL":["vec2(0.f)"]
         }
     }

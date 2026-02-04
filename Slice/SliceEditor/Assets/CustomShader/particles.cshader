@@ -13,16 +13,14 @@
         
         }
     },
-    "ColorMain":{
+    "Main":{
         "Mul_Vec4":{
             "IDD":["texCol", "color"]
         },
-        "END":{
+        "END_COLOR":{
             "Lol":["IDD"]
-        }
-    },
-    "RoughMetMain":{
-        "END":{
+        },
+        "END_MET_ROUGH":{
             "NIL":["vec2(0.f)"]
         }
     }

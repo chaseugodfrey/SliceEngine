@@ -346,12 +346,14 @@ namespace SliceEditor
 		return mInspectedPrefabGUID;
 	}
 
+	SliceEngine::GUID SessionManager::GetShaderGraphInspected()
+	{
+		return mInspectedShaderGraphGUID;
+	}
+
 	void SessionManager::ShaderGraphInspected(const ShaderGraphInspectedEvent& event)
 	{
-		//event.prefabGUID;
-
-		//--TODO-- Do I even need this event?
-		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		mInspectedShaderGraphGUID = event.shaderGraphGUID;
 	}
 
 	void SessionManager::ToggleHierarchyEntityIDs()

@@ -18,58 +18,69 @@ namespace SliceEditor
 
 		SelectionManager* mSelectionManager = nullptr;
 		SessionManager* mSessionManager = nullptr;
-		std::string mCurrCSPath = "";
+		SliceEngine::GUID mCurrShaderGraphGUID{};
 
-		int32_t nodeTransitionCounter = 0;
-		int32_t nodeIDCounter = 0;
-		int32_t linkIDCounter = 0;
+		int uniqueIDCnt{ 0 };
+
 		bool tempLoadPos = false;
 
-		struct EditableNode : SelectionNode
+		struct ShaderEditableNode : SelectionNode
 		{
 			int id{};
 			int out_id{};
 
 			std::string name;
 			std::variant<bool, uint32_t, int32_t, float> baseData;
-			EditableNode()
+			ShaderEditableNode()
 			{
-				type = SelectionType::STATE;
+				type = SelectionType::SHADER_STATE;
 			}
 		};
-
-		struct CStateNode : SelectionNode
+		struct ShaderStateNode : SelectionNode
 		{
 			int id{};
-			int out_id{};
 
-			std::vector<int> inIDs;
-			std::vector<int> transitionIds;
+			int out_id{};
+			std::vector<int> in_ids;
 
 			std::string name{};
-			CStateNode()
+			ShaderStateNode()
 			{
 				type = SelectionType::SHADER_FUNCTION_STATE;
 			}
 		};
-		CStateNode colorExitNode;
-		CStateNode roughMetExitNode;
+		struct ShaderLinkNode : SelectionNode
+		{
+			int id{};
 
-		std::unordered_map<int, StateNode> mDefaultIns;
-		std::unordered_map<int, EditableNode> mEditableIns;
-		std::unordered_map<int, StateNode> mDefaultOuts;
-		std::unordered_map<int, CStateNode> mStateNodes;
-		std::unordered_map<int, TransitionLinkNode> mTransitionNodes;
+			int sourceAttr{};
+			int destAttr{};
+
+			ShaderLinkNode()
+			{
+				type = SelectionType::SHADER_LINK_STATE;
+			}
+		};
+
+		int colorExitNodeID{};
+		int roughMetExitNodeID{};
+
+		std::unordered_map<int, ShaderStateNode> mDefaultIns;
+		std::unordered_map<int, ShaderEditableNode> mEditableIns;
+		std::unordered_map<int, ShaderStateNode> mStateNodes;
+		std::unordered_map<int, ShaderLinkNode> mTransitionNodes;
+
+		std::unordered_map<int, int> attrIDToNodeID;
+		std::unordered_map<int, int> attrIDToLinkID; // DON'T SET start_attr w/ this, only end_attr & in_id
 
 		void create_default();
-		void DrawStateNode(CStateNode&);
-		void DrawDefaultInNode(StateNode&);
-		void DrawDefaultOutNode(StateNode&);
-		void DrawEditableInNode(EditableNode&);
-		void DrawTransitionNodes(TransitionLinkNode&);
+		void DrawStateNode(ShaderStateNode&);
+		void DrawDefaultInNode(ShaderStateNode&);
+		void DrawEditableInNode(ShaderEditableNode&);
+		void DrawTransitionNodes(ShaderLinkNode&);
 		void DrawPostEditorElements();
 		void TempLoadPosAll();
-		void InitNodePos(int);
+		void InitNodePos(int id, float xPos, float yPos);
 		void PostEditorChecks();
 	public:
 
@@ -77,6 +88,7 @@ namespace SliceEditor
 		~CustomShaderWindow();
 
 		void CheckFileData();
+		void SaveFileData();
 		void Init() override;
 		void Draw() override final;
 	};

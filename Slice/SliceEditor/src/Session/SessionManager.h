@@ -16,6 +16,7 @@ namespace SliceEditor
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
 		SliceEngine::GUID mInspectedPrefabGUID;
+		SliceEngine::GUID mInspectedShaderGraphGUID{};
 
 		bool mPrefabInspected;
 		bool mShowHierarchyEntityIDs;
@@ -57,6 +58,8 @@ namespace SliceEditor
 		bool IsPrefabInspected();
 		Entity GetPrefabEntityInspected();
 		SliceEngine::GUID GetPrefabGUIDInspected();
+
+		SliceEngine::GUID GetShaderGraphInspected();
 
 		//Custom Shader Inspector Functions
 		void ShaderGraphInspected(const ShaderGraphInspectedEvent& event);

@@ -1,33 +1,35 @@
 {
-    "Params":{
-        "Floats":{
-            "roughness": 0,
-            "metallic": 0
+    "Main": {
+        "END_COLOR": {
+            "Node19": [
+                "Node23"
+            ]
         },
-        "Ints":{
-        
+        "END_MET_ROUGH": {
+            "Node21": [
+                "Node27"
+            ]
         },
-        "Uints":{
-        
+        "Mul_Vec4": {
+            "Node23": [
+                "texCol",
+                "color"
+            ]
         },
-        "Bools":{
-        
+        "Vec2_f_f": {
+            "Node27": [
+                "roughness",
+                "metallic"
+            ]
         }
     },
-    "ColorMain":{
-        "Mul_Vec4":{
-            "IDD":["texCol", "color"]
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "metallic": 0.0,
+            "roughness": 0.0
         },
-        "END":{
-            "Lol":["IDD"]
-        }
-    },
-    "RoughMetMain":{
-        "END":{
-            "NIL":["FINAL_VAL"]
-        },
-        "Vec2_f_f":{
-            "FINAL_VAL":["roughness", "metallic"]
-        }
+        "Ints": {},
+        "Uints": {}
     }
 }

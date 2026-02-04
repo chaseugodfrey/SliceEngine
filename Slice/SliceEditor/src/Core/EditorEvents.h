@@ -90,7 +90,7 @@ namespace SliceEditor
 
 	struct ShaderGraphInspectedEvent
 	{
-		SliceEngine::GUID prefabGUID;
+		SliceEngine::GUID shaderGraphGUID;
 	};
 }
 

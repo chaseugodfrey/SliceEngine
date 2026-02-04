@@ -23,183 +23,301 @@ namespace SliceEditor
 		ImNodes::EditorContextFree(*editor_context_this.get());
 		ImNodes::EditorContextFree(*editor_context_other.get());
 	}
+
 	void CustomShaderWindow::CheckFileData()
 	{
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		//if ( != SelectionType::SHADERGRAPH)
+		//	return;
+		//auto& nodes = mSelectionManager->GetSelectedNodes();
+		//DirectoryNode* entityNode = static_cast<DirectoryNode*>(*nodes.begin());
+		auto shaderGraphGUID = mSessionManager->GetShaderGraphInspected();
 
-		if (selectionManager->mSelectionType != SelectionType::SHADERGRAPH)
+		if (!shaderGraphGUID.IsValid())
 			return;
 
-		auto& nodes = selectionManager->GetSelectedNodes();
-
 		// if entities present
-		if (nodes.size() > 0)
+		if (shaderGraphGUID != mCurrShaderGraphGUID)
 		{
-			DirectoryNode* entityNode = static_cast<DirectoryNode*>(*nodes.begin());
-			if (entityNode->fileName != mCurrCSPath)
+			mCurrShaderGraphGUID = shaderGraphGUID;
+			auto filenameOpt = mRegistry.GetAssetManager().GetFilenameFromGUID(shaderGraphGUID);
+
+			if (!filenameOpt.has_value())
+				return;
+
+			std::filesystem::path filePath = mRegistry.GetAssetManager().mAssetDirectory;
+			filePath /= filenameOpt.value();
+
+			// Actual Reading Starts Here
+			std::ifstream fs(filePath.string());
+			if (!fs)
 			{
-				// Actual Reading Starts Here
-
-				mCurrCSPath = entityNode->fileName;
-				std::ifstream fs(entityNode->fullPath);
-
-				if (!fs)
-				{
-					SLICE_LOG_WARNING("Unable to open Custom Shader File - IMGUI");
-					return;
-				}
-				nlohmann::json cshaderJson;
-				try
-				{
-					cshaderJson = nlohmann::json::parse(fs);
-				}
-				catch (nlohmann::json::parse_error& e)
-				{
-					fs.close();
-					SLICE_LOG_ERROR("Invalid cshader (IMGUI) JSON file" + std::string(e.what()));
-					return;
-				}
-				fs.close();
-				// -------------------------------------------------------------------
-				mDefaultIns.clear();
-				mEditableIns.clear();
-				mDefaultOuts.clear();
-				mStateNodes.clear();
-				mTransitionNodes.clear();
-				nodeTransitionCounter = 0;
-				nodeIDCounter = 0;
-
-				struct tempLinkIDContainer
-				{
-					int out;			// 1 out goes into
-					std::queue<int> in; // many ins
-				};
-				std::unordered_map<std::string, tempLinkIDContainer> tempIDLinkGet;
-
-				// Defaults
-				auto copy = CST::dataIDS;
-				for (const auto& dat : copy)
-				{
-					StateNode n;
-					n.id = ++nodeIDCounter;
-					n.name = dat.first;
-					n.out_id = ++nodeTransitionCounter;
-					mDefaultIns.insert(std::make_pair(n.id, n));
-					tempIDLinkGet[dat.first].out = n.out_id;
-				}
-
-				// Editables
-				nlohmann::json paramsJson = cshaderJson["Params"];
-				if (paramsJson.contains("Floats"))
-					for (auto& [name, components] : paramsJson["Floats"].items())
-					{
-						EditableNode n;
-						n.id = ++nodeIDCounter;
-						n.name = name;
-						n.baseData = components.get<float>();
-						n.out_id = ++nodeTransitionCounter;
-						mEditableIns.insert(std::make_pair(n.id, n));
-						tempIDLinkGet[name].out = n.out_id;
-					}
-				if (paramsJson.contains("Ints"))
-					for (auto& [name, components] : paramsJson["Ints"].items())
-					{
-						EditableNode n;
-						n.id = ++nodeIDCounter;
-						n.name = name;
-						n.baseData = components.get<int32_t>();
-						n.out_id = ++nodeTransitionCounter;
-						mEditableIns.insert(std::make_pair(n.id, n));
-						tempIDLinkGet[name].out = n.out_id;
-					}
-				if (paramsJson.contains("Uints"))
-					for (auto& [name, components] : paramsJson["Uints"].items())
-					{
-						EditableNode n;
-						n.id = ++nodeIDCounter;
-						n.name = name;
-						n.baseData = components.get<uint32_t>();
-						n.out_id = ++nodeTransitionCounter;
-						mEditableIns.insert(std::make_pair(n.id, n));
-						tempIDLinkGet[name].out = n.out_id;
-					}
-				if (paramsJson.contains("Bools"))
-					for (auto& [name, components] : paramsJson["Bools"].items())
-					{
-						EditableNode n;
-						n.id = ++nodeIDCounter;
-						n.name = name;
-						n.baseData = components.get<bool>();
-						n.out_id = ++nodeTransitionCounter;
-						mEditableIns.insert(std::make_pair(n.id, n));
-						tempIDLinkGet[name].out = n.out_id;
-					}
-
-				nlohmann::json mainColorJson = cshaderJson["ColorMain"];
-				for (auto& [funcName, components] : mainColorJson.items())
-				{
-					auto funcDetails = CST::cShaderFuncsTemplates.find(funcName)->second;
-					
-					// Special Case
-					if (funcName == "END")
-					{
-						for (auto& [id, dependencies] : components.items())
-						{
-							std::vector<std::string> dep;
-							dependencies.get_to(dep);
-							StateNode n;
-							n.id = ++nodeIDCounter;
-							n.name = funcName + "_COLOR";
-							n.in_id = ++nodeTransitionCounter;
-							mDefaultOuts.insert(std::make_pair(n.id, n));
-							tempIDLinkGet[dep[0]].in.push(n.in_id);
-						}
-						continue;
-					}
-
-					for (auto& [id, dependencies] : components.items())
-					{
-						std::vector<std::string> dep;
-						dependencies.get_to(dep);
-						CStateNode n;
-						n.id = ++nodeIDCounter;
-						n.name = funcName;
-						const auto& funcDets = CST::cShaderFuncsTemplates.find(n.name)->second;
-						for (int i{}; i < funcDets.inIDs.size(); ++i)
-						{
-							int32_t tID = ++nodeTransitionCounter;
-							tempIDLinkGet[dep[i]].in.push(tID);
-							n.inIDs.push_back(tID);
-						}
-						{
-							int32_t tID = ++nodeTransitionCounter;
-							n.out_id = tID;
-							tempIDLinkGet[id].out = tID;
-						}
-						mStateNodes.insert(std::make_pair(n.id, n));
-					}
-				}
-
-				for (auto& [oldFuncID, linkNodes] : tempIDLinkGet)
-				{
-					while (!linkNodes.in.empty())
-					{
-						TransitionLinkNode n;
-						n.id = ++linkIDCounter;
-						n.source_id = linkNodes.out;
-						n.target_id = linkNodes.in.front();
-						linkNodes.in.pop();
-						mTransitionNodes.insert(std::make_pair(n.id, n));
-					}
-				}
-				/*
-				/*
-				nlohmann::json RoughnessMetJson = cshaderJson["RoughMetMain"];
-				*/
-				tempLoadPos = true;
+				SLICE_LOG_WARNING("Unable to open Custom Shader File - IMGUI");
+				return;
 			}
+			nlohmann::json cshaderJson;
+			try
+			{
+				cshaderJson = nlohmann::json::parse(fs);
+			}
+			catch (nlohmann::json::parse_error& e)
+			{
+				fs.close();
+				SLICE_LOG_ERROR("Invalid cshader (IMGUI) JSON file" + std::string(e.what()));
+				return;
+			}
+			fs.close();
+			// -------------------------------------------------------------------
+			//uniqueIDCnt = 0;
+
+			colorExitNodeID = 0;
+			roughMetExitNodeID = 0;
+
+			mDefaultIns.clear();
+			mEditableIns.clear();
+			mStateNodes.clear();
+			mTransitionNodes.clear();
+
+			attrIDToNodeID.clear();
+			attrIDToLinkID.clear();
+
+			struct tempLinkIDContainer
+			{
+				int source_attr;			// 1 out goes into
+				std::queue<int> dest_attr; // many ins
+			};
+			std::unordered_map<std::string, tempLinkIDContainer> tempIDLinkGet;// Func Name
+
+			// Defaults
+			auto copy = CST::dataIDS;
+			for (const auto& dat : copy)
+			{
+				ShaderStateNode n;
+				n.id = ++uniqueIDCnt;
+				n.name = dat.first;
+				n.out_id = ++uniqueIDCnt;
+
+				mDefaultIns[n.id] = n;
+				attrIDToNodeID[n.out_id] = n.id;
+				tempIDLinkGet[dat.first].source_attr = n.out_id;
+			}
+
+			// Editables
+			nlohmann::json paramsJson = cshaderJson["Params"];
+			if (paramsJson.contains("Floats"))
+				for (auto& [name, components] : paramsJson["Floats"].items())
+				{
+					ShaderEditableNode n;
+					n.id = ++uniqueIDCnt;
+					n.out_id = ++uniqueIDCnt;
+					n.name = name;
+					n.baseData = components.get<float>();
+
+					mEditableIns[n.id] = n;
+					attrIDToNodeID[n.out_id] = n.id;
+					tempIDLinkGet[name].source_attr = n.out_id;
+				}
+			if (paramsJson.contains("Ints"))
+				for (auto& [name, components] : paramsJson["Ints"].items())
+				{
+					ShaderEditableNode n;
+					n.id = ++uniqueIDCnt;
+					n.out_id = ++uniqueIDCnt;
+					n.name = name;
+					n.baseData = components.get<int32_t>();
+
+					mEditableIns[n.id] = n;
+					attrIDToNodeID[n.out_id] = n.id;
+					tempIDLinkGet[name].source_attr = n.out_id;
+				}
+			if (paramsJson.contains("Uints"))
+				for (auto& [name, components] : paramsJson["Uints"].items())
+				{
+					ShaderEditableNode n;
+					n.id = ++uniqueIDCnt;
+					n.out_id = ++uniqueIDCnt;
+					n.name = name;
+					n.baseData = components.get<uint32_t>();
+
+					mEditableIns[n.id] = n;
+					attrIDToNodeID[n.out_id] = n.id;
+					tempIDLinkGet[name].source_attr = n.out_id;
+				}
+			if (paramsJson.contains("Bools"))
+				for (auto& [name, components] : paramsJson["Bools"].items())
+				{
+					ShaderEditableNode n;
+					n.id = ++uniqueIDCnt;
+					n.out_id = ++uniqueIDCnt;
+					n.name = name;
+					n.baseData = components.get<bool>();
+
+					mEditableIns[n.id] = n;
+					attrIDToNodeID[n.out_id] = n.id;
+					tempIDLinkGet[name].source_attr = n.out_id;
+				}
+
+			nlohmann::json mainColorJson = cshaderJson["Main"];
+			for (auto& [funcName, components] : mainColorJson.items())
+			{
+				const auto& funcDets = CST::cShaderFuncsTemplates.find(funcName)->second;
+				for (auto& [id, dependencies] : components.items())
+				{
+					std::vector<std::string> dep;
+					dependencies.get_to(dep);
+					ShaderStateNode n;
+					n.id = ++uniqueIDCnt;
+					n.name = funcName;
+					// Ins
+					for (int i{}; i < funcDets.inIDs.size(); ++i)
+					{
+						int tID = ++uniqueIDCnt;
+						n.in_ids.push_back(tID);
+
+						attrIDToNodeID[tID] = n.id;
+						tempIDLinkGet[dep[i]].dest_attr.push(tID);
+					}
+					// Special Case (No Out)
+					if (funcName == "END_COLOR" || funcName == "END_MET_ROUGH")
+					{
+						if (funcName == "END_COLOR")
+							colorExitNodeID = n.id;
+						else
+							roughMetExitNodeID = n.id;
+					}
+					// Out
+					else
+					{
+						int tID = ++uniqueIDCnt;
+						n.out_id = tID;
+
+						attrIDToNodeID[tID] = n.id;
+						tempIDLinkGet[id].source_attr = tID;
+					}
+					mStateNodes[n.id] = n;
+				}
+			}
+			// After all functions have been loaded
+			for (auto& [oldFuncID, linkNodes] : tempIDLinkGet)
+			{
+				while (!linkNodes.dest_attr.empty())
+				{
+					ShaderLinkNode n;
+					n.id = ++uniqueIDCnt;
+					n.sourceAttr = linkNodes.source_attr;
+					n.destAttr = linkNodes.dest_attr.front();
+					linkNodes.dest_attr.pop();
+
+					//attrIDToNodeID[]; // Don't need link the other way, since linked when making funcs
+					attrIDToLinkID[n.destAttr] = n.id;
+					mTransitionNodes[n.id] = n;
+				}
+			}
+			tempLoadPos = true;
 		}
 	}
+
+	void CustomShaderWindow::SaveFileData()
+	{
+		if (mCurrShaderGraphGUID.IsValid())
+		{
+			nlohmann::json shaderGraphJson;
+			nlohmann::json paramsJson;
+
+			paramsJson["Floats"] = nlohmann::json::object();
+			paramsJson["Ints"] = nlohmann::json::object();
+			paramsJson["Uints"] = nlohmann::json::object();
+			paramsJson["Bools"] = nlohmann::json::object();
+
+			for (auto& [id, node] : mEditableIns)
+			{
+				if (std::holds_alternative<float>(node.baseData))
+					paramsJson["Floats"][node.name] = std::get<float>(node.baseData);
+
+				else if (std::holds_alternative<int32_t>(node.baseData))
+					paramsJson["Ints"][node.name] = std::get<int32_t>(node.baseData);
+
+				else if (std::holds_alternative<uint32_t>(node.baseData))
+					paramsJson["Uints"][node.name] = std::get<uint32_t>(node.baseData);
+
+				else if (std::holds_alternative<bool>(node.baseData))
+					paramsJson["Bools"][node.name] = std::get<bool>(node.baseData);
+			}
+			shaderGraphJson["Params"] = paramsJson;
+
+			// Color Main
+			std::queue<ShaderStateNode> nodesLeftToCheck;
+
+			nlohmann::json colorMainJson;
+			if(colorExitNodeID != 0)
+				nodesLeftToCheck.push(mStateNodes.at(colorExitNodeID));
+			if(roughMetExitNodeID != 0)
+				nodesLeftToCheck.push(mStateNodes.at(roughMetExitNodeID));
+			while (!nodesLeftToCheck.empty())
+			{
+				ShaderStateNode node = nodesLeftToCheck.front();
+				nodesLeftToCheck.pop();
+				std::vector<std::string> dependenciesName;
+				for (auto& i : node.in_ids)
+				{
+					auto linkID = attrIDToLinkID.find(i);
+					if (linkID != attrIDToLinkID.end())
+					{
+						auto linkNode = mTransitionNodes.find(linkID->second);
+						if (linkNode != mTransitionNodes.end())
+						{
+							auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+							if (sourceNodeID != attrIDToNodeID.end())
+							{
+								auto sourceNode = mStateNodes.find(sourceNodeID->second);
+								if (sourceNode != mStateNodes.end())
+								{
+									dependenciesName.push_back("Node" + std::to_string(sourceNode->second.id));
+									nodesLeftToCheck.push(sourceNode->second);
+								}
+								else
+								{
+									auto editableNode = mEditableIns.find(sourceNodeID->second);
+									if (editableNode != mEditableIns.end())
+									{
+										dependenciesName.push_back(editableNode->second.name);
+									}
+									else
+									{
+										auto defaultNode = mDefaultIns.find(sourceNodeID->second);
+										if (defaultNode != mDefaultIns.end())
+										{
+											dependenciesName.push_back(defaultNode->second.name);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				colorMainJson[node.name]["Node" + std::to_string(node.id)] = dependenciesName;
+			}
+			shaderGraphJson["Main"] = colorMainJson;
+
+			auto filenameOpt = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrShaderGraphGUID);
+
+			if (!filenameOpt.has_value())
+				return;
+
+			std::filesystem::path filePath = mRegistry.GetAssetManager().mAssetDirectory;
+			filePath /= filenameOpt.value();
+
+			// Write
+			std::ofstream ofs(filePath.string());
+			if (!ofs.is_open())
+			{
+				SLICE_LOG_WARNING("Unable to save Custom Shader File - IMGUI");
+				return;
+			}
+			ofs << shaderGraphJson.dump(4);
+			ofs.close();
+		}
+	}
+
 	void CustomShaderWindow::Init()
 	{
 		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
@@ -212,7 +330,8 @@ namespace SliceEditor
 	{
 		//SliceEngine::SliceEngineTypes::cShaderPredefines.find("");
 	}
-
+	
+#pragma region Drawing
 	void CustomShaderWindow::Draw()
 	{
 		CheckFileData();
@@ -220,6 +339,8 @@ namespace SliceEditor
 		ImGui::Begin("Shader Graph");
 		if(ImGui::Button("Save"))
 		{
+			SaveFileData();
+			mSelectionManager->ClearSelection();
 			//SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture> handle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Texture>("Textures/Gideon.png");
 			//auto texture = handle.get();
 			//ImGui::Image(static_cast<ImU64>(texture->texture_id), ImGui::GetWindowSize());
@@ -228,31 +349,34 @@ namespace SliceEditor
 		ImNodes::EditorContextSet(*editor_context_this.get());
 		ImNodes::BeginNodeEditor();
 
-		for(auto& i : mStateNodes)
-			DrawStateNode(i.second);
+		// Ins
 		for(auto& i : mDefaultIns)
 			DrawDefaultInNode(i.second);
-		for(auto& i : mDefaultOuts)
-			DrawDefaultOutNode(i.second);
 		for(auto& i : mEditableIns)
 			DrawEditableInNode(i.second);
+		// Mids
+		for(auto& i : mStateNodes)
+			DrawStateNode(i.second);
+		// Transitions
 		for (auto& i : mTransitionNodes)
 			DrawTransitionNodes(i.second);
 
-		if (tempLoadPos)
-			TempLoadPosAll();
-
 		// must be called right before EndNodeEditor
 		ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_TopLeft);
-		DrawPostEditorElements();
+
 		ImNodes::EndNodeEditor();
+
+		DrawPostEditorElements();
 		PostEditorChecks();
+
+		if (tempLoadPos)
+			TempLoadPosAll();
 
 		ImNodes::EditorContextSet(*editor_context_other.get());
 		ImGui::End();
 	}
 
-	void CustomShaderWindow::DrawDefaultInNode(StateNode& node)
+	void CustomShaderWindow::DrawDefaultInNode(ShaderStateNode& node)
 	{
 		ImNodes::BeginNode(node.id);
 		ImGui::TextUnformatted(node.name.c_str());
@@ -263,26 +387,9 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 
 		ImNodes::EndNode();
-
-	}
-	void CustomShaderWindow::DrawDefaultOutNode(StateNode& node)
-	{
-		ImNodes::BeginNode(node.id);
-		ImGui::TextUnformatted(node.name.c_str());
-
-		ImGui::SameLine();
-		ImNodes::BeginInputAttribute(node.in_id);
-		if(node.name == "END_COLOR")
-			ImGui::Text(cShaderTypeName[CST::CSHAD_T::VEC4].c_str());
-		else if(node.name == "END_MET_ROUGH")
-			ImGui::Text(cShaderTypeName[CST::CSHAD_T::VEC2].c_str());
-		ImNodes::EndInputAttribute();
-
-		ImNodes::EndNode();
-
 	}
 
-	void CustomShaderWindow::DrawEditableInNode(EditableNode& node)
+	void CustomShaderWindow::DrawEditableInNode(ShaderEditableNode& node)
 	{
 		ImNodes::BeginNode(node.id);
 		ImGui::TextUnformatted(node.name.c_str());
@@ -319,41 +426,95 @@ namespace SliceEditor
 		ImNodes::EndNode();
 	}
 
-	void CustomShaderWindow::DrawStateNode(CStateNode& node)
+	void CustomShaderWindow::DrawStateNode(ShaderStateNode& node)
 	{
 		ImNodes::BeginNode(node.id);
 
-		ImNodes::BeginNodeTitleBar();
-		ImGui::TextUnformatted(node.name.c_str());
-		ImNodes::EndNodeTitleBar();
+		if ((node.id == colorExitNodeID) ||
+			(node.id == roughMetExitNodeID))
+			ImGui::TextUnformatted(node.name.c_str());
+		else
+		{
+			ImNodes::BeginNodeTitleBar();
+			ImGui::TextUnformatted(node.name.c_str());
+			ImNodes::EndNodeTitleBar();
+		}
 
 		const auto& funcDets = CST::cShaderFuncsTemplates.find(node.name)->second;
 		for (size_t i{}; i < funcDets.inIDs.size(); ++i)
 		{
-			ImNodes::BeginInputAttribute(node.inIDs[i]);
+			ImNodes::BeginInputAttribute(node.in_ids[i]);
 			ImGui::Text(cShaderTypeName[funcDets.inIDs[i]].c_str());
 			ImNodes::EndInputAttribute();
 		}
-		//ImGui::SameLine();
 
-		ImGui::SameLine();
-		ImNodes::BeginOutputAttribute(node.out_id);
-		ImGui::Text(cShaderTypeName[funcDets.outType].c_str());
-		ImNodes::EndOutputAttribute();
+		if (node.out_id != 0)
+		{
+			ImGui::SameLine();
+			ImNodes::BeginOutputAttribute(node.out_id);
+			ImGui::Text(cShaderTypeName[funcDets.outType].c_str());
+			ImNodes::EndOutputAttribute();
+		}
 
 		ImNodes::EndNode();
 	}
 
-	void CustomShaderWindow::DrawTransitionNodes(TransitionLinkNode& n)
+	void CustomShaderWindow::DrawTransitionNodes(ShaderLinkNode& n)
 	{
-		if (n.source_id == 0 || n.target_id == 0)
+		if (n.sourceAttr == 0 || n.destAttr == 0)
 			return;
-		ImNodes::Link(n.id, n.source_id, n.target_id);
+		ImNodes::Link(n.id, n.sourceAttr, n.destAttr);
 	}
+#pragma endregion
 
+	void CustomShaderWindow::TempLoadPosAll()
+	{
+		float yPos{}, xPos{};
+		const float xProgress{ 150.f }, yProgress{ 50.f }, yBigProgress{ 200.f };
+		for (auto& i : mDefaultIns)
+		{
+			InitNodePos(i.first, xPos, yPos);
+			yPos += yProgress;
+		}
+		for (auto& i : mEditableIns)
+		{
+			InitNodePos(i.first, xPos, yPos);
+			yPos += yProgress;
+		}
+		xPos += xProgress;
+		yPos = 0.f;
+		for (auto& i : mStateNodes)
+		{
+			if (i.first == colorExitNodeID || i.first == roughMetExitNodeID)
+				continue;
+			InitNodePos(i.first, xPos, yPos);
+			yPos += yBigProgress;
+			if (yPos > 3 * yBigProgress)
+			{
+				yPos = 0.f;
+				xPos += xProgress;
+			}
+		}
+		xPos += xProgress;
+		if (colorExitNodeID != 0)
+		{
+			InitNodePos(colorExitNodeID, xPos, yPos);
+			yPos += yProgress;
+		}
+		if (roughMetExitNodeID != 0)
+			InitNodePos(roughMetExitNodeID, xPos, yPos);
+		tempLoadPos = false;
+	}
+	// -ve is go up
+	void CustomShaderWindow::InitNodePos(int id, float xPos, float yPos)
+	{
+		ImNodes::SetNodeEditorSpacePos(id, ImVec2{ xPos, yPos });
+		ImNodes::SnapNodeToGrid(id);
+	}
+	
 	void CustomShaderWindow::DrawPostEditorElements()
 	{
-		if (mCurrCSPath != "")
+		if (true) // --TODO--
 		{
 			if (ImNodes::IsEditorHovered())
 			{
@@ -394,38 +555,34 @@ namespace SliceEditor
 			}
 		}
 	}
-	void CustomShaderWindow::TempLoadPosAll()
-	{
-		for (auto& i : mStateNodes)
-			InitNodePos(i.first);
-		for (auto& i : mDefaultIns)
-			InitNodePos(i.first);
-		for (auto& i : mDefaultOuts)
-			InitNodePos(i.first);
-		for (auto& i : mEditableIns)
-			InitNodePos(i.first);
-		tempLoadPos = false;
-	}
-	void CustomShaderWindow::InitNodePos(int id)
-	{
-		ImVec2 pos{ 0.f + 200.f * (id / 6), 0.f + 50.f * (id % 6)}; // -ve is go up
-		ImNodes::SetNodeEditorSpacePos(id, pos);
-		ImNodes::SnapNodeToGrid(id);
-	}
 	void CustomShaderWindow::PostEditorChecks()
 	{
 		int id_attr, start_attr, end_attr;
-		if (ImNodes::IsLinkCreated(&start_attr, &end_attr))
+		if (ImNodes::IsLinkCreated(&start_attr, &end_attr)) // In Node & Out Node ID
 		{
-			TransitionLinkNode n;
-			n.source_id = start_attr;
-			n.target_id = end_attr;
-			n.id = ++nodeTransitionCounter;
+			ShaderLinkNode n;
+			n.sourceAttr = start_attr;
+			n.destAttr = end_attr;
+			n.id = ++uniqueIDCnt;
 			mTransitionNodes.insert(std::make_pair(n.id, n));
+			attrIDToLinkID[end_attr] = n.id;
 		}
-		if (ImNodes::IsLinkDestroyed(&id_attr))
+		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
 		{
-			mTransitionNodes.erase(id_attr);
+			if (mSelectionManager)
+			{
+				auto selectedNodes = mSelectionManager->GetSelectedNodes();
+
+				if (mTransitionNodes.find(id_attr) != mTransitionNodes.end())
+				{
+					 mTransitionNodes.erase(id_attr);
+				}
+
+				mSelectionManager->ClearSelection();
+			}
+
+			//attrIDToLinkID[linkNode.destAttr] = 0;
+
 		}
 	}
 }
