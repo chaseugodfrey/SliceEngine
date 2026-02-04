@@ -23,7 +23,7 @@ namespace SliceEngine
 		std::vector<JPH::SubShapeIDPair> bodiesInContact;
 		std::set<std::pair<GameObject, GameObject>> collisionPairs;
 		float timer = 0.0f;
-		const float timeBetweenEvents = 0.5f;
+		const float timeBetweenEvents = 1.0f;
 
 	public:
 

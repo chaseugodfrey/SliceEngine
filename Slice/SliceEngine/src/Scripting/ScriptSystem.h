@@ -213,6 +213,9 @@ namespace SliceEngine
 		std::map<Entity, std::set<Entity>> mEntityCollisionMap;
 
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
+
+		std::map<Entity, std::set<Entity>> mTestMap;
+		std::map<Entity, std::set<Entity>> mTestMapAnotherOne;
 		std::mutex mQueueLock;
 
 	};

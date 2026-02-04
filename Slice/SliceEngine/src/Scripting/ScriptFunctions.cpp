@@ -2129,6 +2129,29 @@ namespace SliceEngine
 		}
 	}
 
+	static void FontRenderer_GetAlignment(unsigned int entity, FontRenderer::Alignment* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			*out = go.GetComponent<FontRenderer>().alignment;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Font component.", entity);
+	}
+
+	static void FontRenderer_SetAlignment(unsigned int entity, FontRenderer::Alignment* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			go.GetComponent<FontRenderer>().alignment = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
 	static void FontRenderer_SetText(uint32_t entityID, MonoString* text) {
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
@@ -2543,6 +2566,9 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(FontRenderer_SetText);
 		ADD_INTERNAL_CALL(FontRenderer_GetText);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
+		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
 
 	}
 
