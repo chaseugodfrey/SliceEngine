@@ -116,11 +116,7 @@ namespace SliceEditor
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 		inputs->isActive = true;
-
-		//// Init starting scene
-		// who commented it out say now
-		// it broke play stop
-		engine.InitScene();
+		
 	}
 
 	void Editor::Run()

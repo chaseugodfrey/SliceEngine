@@ -411,20 +411,15 @@ namespace SliceEngine
 		bool active{ false };
 
 		float maxAge{};
-		float age{};             // how long this particle has been alive
+		float age{};
 		float rotation{};
-		float speed{};		
 
-		inline float normalizedLifetime() const
-		{
-			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
-		}
-		
-		glm::vec3 finalPosition{};	// including parent transform position if localspace
+		inline float normalizedAge() const { return age / maxAge; }
+
 		glm::vec3 position{};
 		glm::vec3 scale{};
-		glm::vec3 velocity{};	  // derived from speed + direction
-		glm::vec4 colour{};       // if you want per-particle tint
+		glm::vec3 velocity{};
+		glm::vec4 colour{};
 		glm::quat rotation3D{};
 	};
 
@@ -562,14 +557,36 @@ namespace SliceEngine
 
 		// Start Speed
 		ValueType speedValueType{ CONSTANT };
-		float speed{};
-		float minRandomSpeed{};
-		float maxRandomSpeed{};
+		float speed{1.0f};
+		float minRandomSpeed{ 1.0f };
+		float maxRandomSpeed{ 1.0f };
+
+		// Size over lifetime
+		bool sizeOverLifetime{ false };
+		bool sizeSeparateAxis{ false };
+		glm::vec3 startScaleMultiplier{0.0f};
+		glm::vec3 endScaleMultiplier{1.0f};
+			
+		// Rotate over lifetime
+		bool rotateOverLifetime{ false };
+		bool rotateSeparateAxis{ false };
+		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
 		std::map<float, glm::vec4> colourLifeTimeMap;
 		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
+
+		// Velocity over lifetime
+		bool velocityOverLifetime{ false };
+		glm::vec3 startVelocityMultiplier{ 1.0f };
+		glm::vec3 endVelocityMultiplier{ 0.0f };
+
+		// Orbit over lifetime
+		bool orbitOverLifetime{ false };
+		glm::vec3 orbitAxis{ glm::vec3(0,0,1) };
+		glm::vec3 startOrbitVelocity{1.0f};
+		glm::vec3 endOrbitVelocity{0.f};
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }

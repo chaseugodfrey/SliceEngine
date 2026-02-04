@@ -186,6 +186,11 @@ struct OnPlayEvent
 
 };
 
+struct OnStopEvent
+{
+	
+};
+
 struct OnGameStopEvent
 {
 
