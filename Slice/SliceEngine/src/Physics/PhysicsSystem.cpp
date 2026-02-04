@@ -1536,7 +1536,7 @@ namespace SliceEngine
 		physicsSystem->GetBodyInterface().SetLinearVelocity(colliderShape.bodyID, vel);
 	}
 
-	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, uint32_t mask)
+	bool PhysicsSystem::PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction,uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, bool triggerInteraction, uint32_t mask)
 	{	
 		JPH::Vec3 ori = helpers::glmtoJPH(origin);
 		JPH::Vec3 dir = helpers::glmtoJPH(direction);
@@ -1545,13 +1545,26 @@ namespace SliceEngine
 		JPH::RayCastResult ioHit; // only reference rest is const
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
 		ObjectLayerFilterImpl filterLayer(mask);
-		JPH::BodyFilter inBodyFilter = {};
 
-		bool didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
+
+
+		JPH::BodyFilter inBodyFilter = {};
+		BodyFilterIgnore ignoreFilter;
+		bool didRayHit = false;
+
+		if (triggerInteraction)
+		{
+			didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
+		}
+		else
+		{
+			didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, ignoreFilter);
+		}
+
+		
 
 		if (!ioHit.mBodyID.IsInvalid())
 		{
-			bodyHitID = ioHit.mBodyID.GetIndex();
 			hitPos = origin + direction * ioHit.mFraction;
 
 			// do this later aloysius
@@ -1559,8 +1572,9 @@ namespace SliceEngine
 
 			if (lock1.Succeeded())
 			{
-				const JPH::Body& body1 = lock1.GetBody();
-				normal = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+				const JPH::Body& body = lock1.GetBody();
+				bodyHitID = static_cast<JPH::uint32>(body.GetUserData());
+				normal = helpers::JPHtoglm(body.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
 			}
 		}
 		else

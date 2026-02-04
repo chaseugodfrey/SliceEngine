@@ -22,7 +22,7 @@ namespace SliceEngine
             uint bodyHitID = 0;
 
 
-            FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
+            //FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
 
 
             return true;
@@ -31,7 +31,34 @@ namespace SliceEngine
         public static bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, uint layerMask, QueryTriggerInteraction queryTriggerInteraction)
         {
             hitInfo = new RayCastHit();
-            return true;
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }  
+            bool test = FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
+            hitInfo.distance = (hitInfo.point - origin).Magnitude();
+            GameObject obj = new GameObject(bodyHitID);
+            hitInfo.transform =  obj.GetComponent<Transform>();
+
+            return test;
         }
 
         public static bool Raycast(Ray ray, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)

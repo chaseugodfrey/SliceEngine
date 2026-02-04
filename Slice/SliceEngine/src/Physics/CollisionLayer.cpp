@@ -195,5 +195,10 @@ namespace SliceEngine
 		return layerMask & (1u << inLayer);
 	}
 
+	bool BodyFilterIgnore::ShouldCollideLocked(const JPH::Body& inBody) const
+	{
+		return !inBody.IsSensor();
+	}
+
 }
 
