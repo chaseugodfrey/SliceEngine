@@ -1052,6 +1052,8 @@ namespace SliceEngine
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
 
+
+
         {
             std::lock_guard<std::mutex> lock(mQueueLock);
             mCollisionQueue.erase(
@@ -1095,6 +1097,9 @@ namespace SliceEngine
 
         mEntitiesDisabled.erase(entity);
         mEntityCollisionMap.erase(entity); 
+
+        mTestMap.erase(entity);
+        mTestMapAnotherOne.erase(entity);
 
         for (auto& [otherEntity, collisionSet] : mEntityCollisionMap)
         {
