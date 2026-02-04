@@ -1578,26 +1578,33 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Box Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::BoxData{};
+					SliceEngine::ColliderShape boxData{};
+					boxData.shapeData = SliceEngine::ColliderShape::BoxData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
+
 				}
 
 				if (ImGui::Selectable("Add Sphere Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::SphereData{};
+					SliceEngine::ColliderShape sphereData{};
+					sphereData.shapeData = SliceEngine::ColliderShape::SphereData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
 				}
 
 				if (ImGui::Selectable("Add Capsule Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::CapsuleData{};
+					SliceEngine::ColliderShape capsuleData{};
+					capsuleData.shapeData = SliceEngine::ColliderShape::CapsuleData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
+					
 				}
 
 				if (ImGui::Selectable("Add Mesh Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::MeshData{};
+					SliceEngine::ColliderShape meshData{};
+					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+
 				}
 			}
 			
