@@ -37,7 +37,7 @@ namespace SliceEditor
 	{
 		memset(&config, 0, sizeof(config));
 		m_agentHeight = 2.0f;
-		m_agentRadius = 0.f;
+		m_agentRadius = 0.1f;
 		m_agentMaxClimb = 0.5f;
 		config.cs = 0.1f;
 		config.ch = 0.01f;
@@ -363,6 +363,8 @@ namespace SliceEditor
 
 		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
 		std::vector<glm::mat4> transformMtxs{};
+		std::vector<bool> isModelObstacle{};
+
 		auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 		for (auto entity : entities)
@@ -377,16 +379,17 @@ namespace SliceEditor
 				* glm::scale(glm::mat4(1.0f), transform.scale);
 
 			transformMtxs.push_back(transformMatrix);
+			models.push_back(renderer.modelHandle.get());
 
-			if (go.HasComponent<SliceEngine::NavObstacle>()) // check for component
+			bool isObstacle = false;
+			if (go.HasComponent<SliceEngine::NavObstacle>())
 			{
-				if (go.GetComponent<SliceEngine::NavObstacle>().isObstacle) // if its obstacle set model name to be an obstacle
+				if (go.GetComponent<SliceEngine::NavObstacle>().isObstacle)
 				{
-					auto model = renderer.modelHandle.get();
-					model->name = "NavObstacle"; // when building walkable areas later, check if model name is NavObstacle, if it is then build as unwalkable
+					isObstacle = true;
 				}
 			}
-			models.push_back(renderer.modelHandle.get());
+			isModelObstacle.push_back(isObstacle);
 
 		}
 
@@ -415,10 +418,6 @@ namespace SliceEditor
 
 			// Optional: Lift obstacles slightly (e.g., 0.1f) if you still see merging issues
 			// if (i > 0) baseTransform = glm::translate(baseTransform, glm::vec3(0.0f, 0.1f, 0.0f));
-			if (i > 0)
-			{
-				baseTransform = glm::translate(baseTransform, glm::vec3(0.0f, 0.2f, 0.0f));
-			}
 			CollectMeshDataFromNode(mdl, mdl.rootNode, baseTransform, vertices, indices, vertexOffset);
 
 			// --- RESTORED: Save index count ---
@@ -472,69 +471,61 @@ namespace SliceEditor
 		for (size_t i = 0; i < models.size(); ++i)
 		{
 			size_t currentIndexEnd = modelIndexEndPoints[i];
+			size_t startTriIndex = currentIndexStart / 3;
+			size_t endTriIndex = currentIndexEnd / 3;
 
-			// For secondary models (Walls/Ramps)
-			if (i > 0)
+			if (isModelObstacle[i])
 			{
-				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				size_t startTriIndex = currentIndexStart / 3;
-				size_t endTriIndex = currentIndexEnd / 3;
-				bool isWall = (models[i]->name == "NavObstacle");
-
-				if (isWall)
+				for (size_t t = startTriIndex; t < endTriIndex; ++t)
 				{
-					// Force all triangles of this model to be unwalkable
-					for (size_t t = startTriIndex; t < endTriIndex; ++t)
-					{
-						if (t < areas.size())
-							areas[t] = 60;
-					}
+					if (t < areas.size())
+						areas[t] = 60;
 				}
-				// --- 2. EXISTING SMART SLOPE LOGIC ---
-				// Only run this if it's NOT a wall (and usually if i > 0 per your original logic)
-				else if (i > 0)
+			
+			}
+			else
+			{
+				for (size_t t = startTriIndex; t < endTriIndex; ++t)
 				{
-					for (size_t t = startTriIndex; t < endTriIndex; ++t)
+					// Calculate Triangle Normal
+					int v0_idx = recastIndices[t * 3 + 0];
+					int v1_idx = recastIndices[t * 3 + 1];
+					int v2_idx = recastIndices[t * 3 + 2];
+
+					const float *v0 = &verts[v0_idx * 3];
+					const float *v1 = &verts[v1_idx * 3];
+					const float *v2 = &verts[v2_idx * 3];
+
+					float e0[3], e1[3], normal[3];
+					rcVsub(e0, v1, v0);
+					rcVsub(e1, v2, v0);
+					rcVcross(normal, e0, e1);
+					rcVnormalize(normal);
+
+					// Calculate Slope Angle (Angle between Normal and Up-Vector Y)
+					// Dot product of Normal and (0, 1, 0) is just normal[1]
+					float slopeCos = normal[1];
+
+					// Threshold for "Wall"
+					// If slopeCos is close to 0, it's a vertical wall (Normal is horizontal).
+					// If slopeCos is close to 1, it's flat ground.
+					// cos(45) ~= 0.707. 
+					// So if normal.y < 0.707, it is steeper than 45 degrees.
+
+					float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
+
+					// If it is steeper than our limit, mark as NULL (Obstacle)
+					// OTHERWISE, leave it as WALKABLE (so ramps work!)
+					if (slopeCos < walkableThr)
 					{
-						// Calculate Triangle Normal
-						int v0_idx = recastIndices[t * 3 + 0];
-						int v1_idx = recastIndices[t * 3 + 1];
-						int v2_idx = recastIndices[t * 3 + 2];
+						if (t < areas.size()) areas[t] = RC_NULL_AREA;
+					}
+					else
+					{
+						// It's a walkable slope!
+						// Ensure we don't accidentally overwrite it if it was already marked walkable
+						if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
 
-						const float *v0 = &verts[v0_idx * 3];
-						const float *v1 = &verts[v1_idx * 3];
-						const float *v2 = &verts[v2_idx * 3];
-
-						float e0[3], e1[3], normal[3];
-						rcVsub(e0, v1, v0);
-						rcVsub(e1, v2, v0);
-						rcVcross(normal, e0, e1);
-						rcVnormalize(normal);
-
-						// Calculate Slope Angle (Angle between Normal and Up-Vector Y)
-						// Dot product of Normal and (0, 1, 0) is just normal[1]
-						float slopeCos = normal[1];
-
-						// Threshold for "Wall"
-						// If slopeCos is close to 0, it's a vertical wall (Normal is horizontal).
-						// If slopeCos is close to 1, it's flat ground.
-						// cos(45) ~= 0.707. 
-						// So if normal.y < 0.707, it is steeper than 45 degrees.
-
-						float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
-
-						// If it is steeper than our limit, mark as NULL (Obstacle)
-						// OTHERWISE, leave it as WALKABLE (so ramps work!)
-						if (slopeCos < walkableThr)
-						{
-							if (t < areas.size()) areas[t] = RC_NULL_AREA;
-						}
-						else
-						{
-							// It's a walkable slope!
-							// Ensure we don't accidentally overwrite it if it was already marked walkable
-							if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
-						}
 					}
 				}
 			}
