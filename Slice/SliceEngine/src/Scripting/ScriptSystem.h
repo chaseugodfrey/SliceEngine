@@ -212,10 +212,12 @@ namespace SliceEngine
 		std::set<Entity> mEntitiesDisabled;
 		std::map<Entity, std::set<Entity>> mEntityCollisionMap;
 
+		// for collision events
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
 
-		std::map<Entity, std::set<Entity>> mTestMap;
-		std::map<Entity, std::set<Entity>> mTestMapAnotherOne;
+		// These maps are for keeping track of collision and trigger stay
+		std::map<Entity, std::set<Entity>> mCollideMap;
+		std::map<Entity, std::set<Entity>> mTriggerMap;
 		std::mutex mQueueLock;
 
 	};

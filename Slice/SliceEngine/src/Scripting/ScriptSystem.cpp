@@ -541,7 +541,7 @@ namespace SliceEngine
             UpdateScriptComponent(id);
         }
     
-        for (const auto& [id, entitySet] : mTestMap)
+        for (const auto& [id, entitySet] : mCollideMap)
         {
             auto scriptInstance = mEntityInstances[id];
 
@@ -575,7 +575,7 @@ namespace SliceEngine
             }
         }
 
-        for (const auto& [id, entitySet] : mTestMapAnotherOne)
+        for (const auto& [id, entitySet] : mTriggerMap)
         {
             auto scriptInstance = mEntityInstances[id];
 
@@ -696,8 +696,8 @@ namespace SliceEngine
         mCollisionQueue.clear();
         mEntityCollisionMap.clear();
         mEntitiesDisabled.clear();
-        mTestMap.clear();
-        mTestMapAnotherOne.clear();
+        mCollideMap.clear();
+        mTriggerMap.clear();
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -1098,8 +1098,8 @@ namespace SliceEngine
         mEntitiesDisabled.erase(entity);
         mEntityCollisionMap.erase(entity); 
 
-        mTestMap.erase(entity);
-        mTestMapAnotherOne.erase(entity);
+        mCollideMap.erase(entity);
+        mTriggerMap.erase(entity);
 
         for (auto& [otherEntity, collisionSet] : mEntityCollisionMap)
         {
@@ -1566,7 +1566,7 @@ namespace SliceEngine
             case ScriptCollisionType::CollideEnter:
             {
                 mEntityCollisionMap[event.entity].insert(event.other);
-                mTestMap[event.entity].insert(event.other);
+                mCollideMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
             }
                 break;
@@ -1601,14 +1601,14 @@ namespace SliceEngine
             case ScriptCollisionType::CollideExit:
             {
                 mEntityCollisionMap[event.entity].erase(event.other);
-                mTestMap.erase(event.other);
+                mCollideMap.erase(event.other);
                 scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
             }
                 break;
             case ScriptCollisionType::TriggerEnter:
             {
                 mEntityCollisionMap[event.entity].insert(event.other);
-                mTestMapAnotherOne[event.entity].insert(event.other);
+                mTriggerMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
             }
                 break;
@@ -1643,7 +1643,7 @@ namespace SliceEngine
             case ScriptCollisionType::TriggerExit:
             {
                 mEntityCollisionMap[event.entity].erase(event.other);
-                mTestMapAnotherOne[event.entity].erase(event.other);
+                mTriggerMap[event.entity].erase(event.other);
                 scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
             }
                 break;
