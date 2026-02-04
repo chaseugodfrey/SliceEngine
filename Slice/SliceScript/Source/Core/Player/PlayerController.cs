@@ -491,11 +491,19 @@ namespace SliceEngine
 
             if (grounded)
             {
-                if (groundDashReady) BeginGroundDash();
+                if (groundDashReady) 
+                { 
+                    BeginGroundDash();
+                    StartCoroutine(DashCooldown());
+                }
             }
             else
             {
-                if (airDashReady) BeginAirDash();
+                if (airDashReady)
+                {
+                    BeginAirDash();
+                    StartCoroutine(AirDashCooldown());
+                }
             }
         }
         private IEnumerator DashCooldown()
@@ -562,25 +570,29 @@ namespace SliceEngine
 
         void BeginGroundDash()
         {
-            StartCoroutine(DashCooldown());
             isGroundDashing = true;
             isAirDashing = false;
 
             Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
-            dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
+            //dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
+
+            Ray ray = new Ray(transform.Position, transform.Down);
+            if (Physics.Raycast(ray, out RayCastHit hitInfo))
+            {
+                dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
+            }
+
             dashTimer = Math.Max(0.0001f, dashStartDuration);
 
-            //if (animator)
-            {
-                Vector3 flatFacing = transform.Forward;
-                flatFacing.y = 0f;
-                flatFacing.Normalize();
-                Vector3 flatDash = transform.Forward;
-                flatDash.y = 0f;
-                flatDash.Normalize();
-                float dot = Vector3.Dot(flatDash, flatFacing);
-                bool isBackDash = dot < backDashDotThreshold;
-            }
+            //Vector3 flatFacing = transform.Forward;
+            //flatFacing.y = 0f;
+            //flatFacing.Normalize();
+            //Vector3 flatDash = transform.Forward;
+            //flatDash.y = 0f;
+            //flatDash.Normalize();
+            //float dot = Vector3.Dot(flatDash, flatFacing);
+            //bool isBackDash = dot < backDashDotThreshold;
+
 
             if (animator != null)
             {
@@ -591,7 +603,6 @@ namespace SliceEngine
 
         void BeginAirDash()
         {
-            StartCoroutine(AirDashCooldown());
             isAirDashing = true;
             isGroundDashing = false;
 
@@ -611,7 +622,6 @@ namespace SliceEngine
                 animator.SetBool("AirDashStart", true);
             }
         }
-
         void UpdateDash()
         {
             if (isGroundDashing || isAirDashing)
