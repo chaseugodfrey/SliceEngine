@@ -6,9 +6,23 @@ namespace SliceEngine
     {
         public uint mID;
 
+
         public GameObject(uint id)
         {
             mID = id;
+        }
+
+        public string tag
+        {
+            get
+            {
+                return FunctionCalls.Entity_GetTag(mID);
+            }
+
+            set
+            {
+                FunctionCalls.Entity_SetTag(mID, value);
+            }
         }
 
         public bool HasComponent<T>() where T : Component, new()
