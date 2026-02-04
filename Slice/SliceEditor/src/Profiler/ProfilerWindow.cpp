@@ -214,10 +214,10 @@ namespace SliceEditor
 		ImGui::Text("System Statistics");
 		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
 		{
-			ImGui::Text("Total Frame Time: %.4f", frm->GetFrameTime());
+			ImGui::Text("Total Frame Time: %.4f", mManager.mTotalFrameTime);
 			ImGui::Text("%.2f %% of Frame Time Untracked", mManager.mUntrackedFrameTimePercentage);
-			ImGui::Text("Delta Time: %.4f", frm->getDeltaTime());
-			ImGui::Text("Fixed Delta Time: %.4f", frm->getFixedDeltaTime());
+			ImGui::Text("Delta Time: %.4f", mManager.mDeltaTime);
+			//ImGui::Text("Fixed Delta Time: %.4f", frm->getFixedDeltaTime());
 			for (const auto& pair : systemPercentages) {
 				// Create a bordered box for each system
 				ImGui::BeginChild(pair.first.c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);

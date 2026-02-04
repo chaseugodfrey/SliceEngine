@@ -104,6 +104,8 @@ namespace SliceEditor
 				trackedTime += averageTime;
 			}
 			mCurrFPS = engineFRM->GetCurrFPS();
+			mDeltaTime = engineFRM->getDeltaTime();
+			mTotalFrameTime = engineFRM->GetFrameTime();
 			mUntrackedFrameTime = totalFrameTime - trackedTime;
 			mUntrackedFrameTimePercentage = (mUntrackedFrameTime / totalFrameTime) * 100.0f;
 		}

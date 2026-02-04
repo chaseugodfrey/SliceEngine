@@ -55,6 +55,8 @@ namespace SliceEditor
 		std::unordered_map<std::string, DebugStats> mDebugStats;
 
 		float mCurrFPS;
+		float mDeltaTime;
+		float mTotalFrameTime;
 		float mUntrackedFrameTime;
 		float mUntrackedFrameTimePercentage;
 
