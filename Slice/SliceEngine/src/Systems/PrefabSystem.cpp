@@ -429,7 +429,7 @@ namespace SliceEngine
 
 								if (colliderShape.componentEnabled)
 								{
-									colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(colliderShape, transform);
+									colliderShape.shape = Core::GetInstance()->GetSystem<PhysicsSystem>().CreateShapeFromCollider(instanceGO.GetEntity());
 								}
 								else if (!colliderShape.componentEnabled)
 								{

@@ -16,7 +16,9 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision//Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Raycast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 
@@ -38,7 +40,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
 
-	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData>;
+	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData, ColliderShape::MeshData>;
 
 	class PhysicsSystem final: public BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
@@ -90,6 +92,8 @@ namespace SliceEngine
 		JPH::ShapeRefC CreateSphereShape(const ColliderShape& collider) const;
 
 		JPH::ShapeRefC CreateCapsuleShape(const ColliderShape& collider) const;
+
+		JPH::ShapeRefC CreateMeshShape(const Renderer& renderComponent) const;
 
 		//System required functions
 	public:
@@ -158,7 +162,7 @@ namespace SliceEngine
 
 		void SetCollisionSteps(int steps);
 
-		JPH::ShapeRefC CreateShapeFromCollider(const ColliderShape& collider, const Transform& transform) const;
+		JPH::ShapeRefC CreateShapeFromCollider(Entity entity) const;
 
 		float GetGravityFactor(Entity entity) const;
 
