@@ -1,4 +1,3 @@
-
 namespace SliceEngine
 {
     public class FontRenderer : Component
@@ -7,6 +6,26 @@ namespace SliceEngine
         public FontRenderer(GameObject entity)
         {
             gameObject = entity;
+        }
+
+        public enum FontAlignment
+        {
+            LEFT,
+            CENTER,
+            RIGHT
+        }
+
+        public FontAlignment Alignment
+        {
+            get
+            {
+                FunctionCalls.FontRenderer_GetAlignment(gameObject.mID, out FontAlignment value);
+                return value;
+            }
+            set
+            {
+                FunctionCalls.FontRenderer_SetAlignment(gameObject.mID, ref value);
+            }
         }
 
         //Font size in pixels relative to canvas
