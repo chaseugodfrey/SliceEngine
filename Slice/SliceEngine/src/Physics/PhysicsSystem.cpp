@@ -1055,7 +1055,7 @@ namespace SliceEngine
 		//loops through the diff meshes in the model
 		for (const auto& mesh : model->meshes)
 		{
-			//each mesh has its own vertices and indices
+			// Add vertices
 			for (const auto& vertex : mesh.vertices)
 			{
 				vertices.push_back(JPH::Float3(
@@ -1065,7 +1065,8 @@ namespace SliceEngine
 				));
 			}
 
-			for (size_t i = 0; i < model->meshes.size(); i += 3)
+			// Add triangles - iterate over INDICES, not meshes!
+			for (size_t i = 0; i < mesh.indices.size(); i += 3)
 			{
 				triangles.push_back(JPH::IndexedTriangle(
 					vertexOffset + mesh.indices[i],
@@ -1073,7 +1074,7 @@ namespace SliceEngine
 					vertexOffset + mesh.indices[i + 2]
 				));
 			}
-			// continues the indices from last mesh
+
 			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
 		}
 
