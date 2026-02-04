@@ -71,7 +71,7 @@ namespace SliceEditor
 		std::unordered_map<int, ShaderLinkNode> mTransitionNodes;
 
 		std::unordered_map<int, int> attrIDToNodeID;
-		std::unordered_map<int, int> attrIDToLinkID; // DON'T SET start_attr w/ this, only end_attr & in_id
+		std::unordered_map<int, int> attrIDToLinkID; // Both Ways
 
 		void create_default();
 		void DrawStateNode(ShaderStateNode&);
@@ -82,6 +82,10 @@ namespace SliceEditor
 		void TempLoadPosAll();
 		void InitNodePos(int id, float xPos, float yPos);
 		void PostEditorChecks();
+
+		void SelectNode(SelectionNode*);
+		void DeleteLink(int);
+		void DeleteLinkFromAttr(int);
 	public:
 
 		CustomShaderWindow(Registry& reg) : EditorWindow(reg) {};

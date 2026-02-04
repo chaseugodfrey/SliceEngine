@@ -207,7 +207,7 @@ namespace SliceEditor
 					n.destAttr = linkNodes.dest_attr.front();
 					linkNodes.dest_attr.pop();
 
-					//attrIDToNodeID[]; // Don't need link the other way, since linked when making funcs
+					attrIDToLinkID[n.sourceAttr] = n.id;
 					attrIDToLinkID[n.destAttr] = n.id;
 					mTransitionNodes[n.id] = n;
 				}
@@ -386,6 +386,9 @@ namespace SliceEditor
 		ImGui::Text(cShaderTypeName[CST::dataIDS[node.name]].c_str());
 		ImNodes::EndOutputAttribute();
 
+		if (ImNodes::IsNodeSelected(node.id))
+			SelectNode(&node);
+
 		ImNodes::EndNode();
 	}
 
@@ -423,6 +426,9 @@ namespace SliceEditor
 		}
 		ImNodes::EndOutputAttribute();
 
+		if (ImNodes::IsNodeSelected(node.id))
+			SelectNode(&node);
+
 		ImNodes::EndNode();
 	}
 
@@ -455,6 +461,8 @@ namespace SliceEditor
 			ImGui::Text(cShaderTypeName[funcDets.outType].c_str());
 			ImNodes::EndOutputAttribute();
 		}
+		if (ImNodes::IsNodeSelected(node.id))
+			SelectNode(&node);
 
 		ImNodes::EndNode();
 	}
@@ -464,6 +472,8 @@ namespace SliceEditor
 		if (n.sourceAttr == 0 || n.destAttr == 0)
 			return;
 		ImNodes::Link(n.id, n.sourceAttr, n.destAttr);
+		if (ImNodes::IsLinkSelected(n.id))
+			SelectNode(&n);
 	}
 #pragma endregion
 
@@ -511,10 +521,14 @@ namespace SliceEditor
 		ImNodes::SetNodeEditorSpacePos(id, ImVec2{ xPos, yPos });
 		ImNodes::SnapNodeToGrid(id);
 	}
+	void CustomShaderWindow::SelectNode(SelectionNode* node)
+	{
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(node);
+	}
 	
 	void CustomShaderWindow::DrawPostEditorElements()
 	{
-		if (true) // --TODO--
+		if (mCurrShaderGraphGUID.IsValid())
 		{
 			if (ImNodes::IsEditorHovered())
 			{
@@ -557,14 +571,16 @@ namespace SliceEditor
 	}
 	void CustomShaderWindow::PostEditorChecks()
 	{
-		int id_attr, start_attr, end_attr;
+		int start_attr{}, end_attr{};
 		if (ImNodes::IsLinkCreated(&start_attr, &end_attr)) // In Node & Out Node ID
 		{
 			ShaderLinkNode n;
 			n.sourceAttr = start_attr;
 			n.destAttr = end_attr;
 			n.id = ++uniqueIDCnt;
+			DeleteLinkFromAttr(end_attr);
 			mTransitionNodes.insert(std::make_pair(n.id, n));
+			attrIDToLinkID[start_attr] = n.id;
 			attrIDToLinkID[end_attr] = n.id;
 		}
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
@@ -573,16 +589,61 @@ namespace SliceEditor
 			{
 				auto selectedNodes = mSelectionManager->GetSelectedNodes();
 
-				if (mTransitionNodes.find(id_attr) != mTransitionNodes.end())
+				for (auto node : selectedNodes)
 				{
-					 mTransitionNodes.erase(id_attr);
-				}
+					switch (node->type)
+					{
+					case SelectionType::SHADER_LINK_STATE:
+					{
+						auto linkNode = static_cast<ShaderLinkNode*>(node);
+						DeleteLink(linkNode->id);
+						break;
+					}
+					case SelectionType::SHADER_FUNCTION_STATE:
+					{
+						auto stateNode = static_cast<ShaderStateNode*>(node);
+						if (mStateNodes.find(stateNode->id) != mStateNodes.end())
+						{
+							// Delete Attr To Node
+							if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
+							{
+								// Delete Links from in & outs
+								for (auto ins : stateNode->in_ids)
+									DeleteLinkFromAttr(ins);
+								DeleteLinkFromAttr(stateNode->out_id);
 
+								attrIDToNodeID.erase(stateNode->out_id);
+							}
+							// Delete Node
+							mStateNodes.erase(stateNode->id);
+						}
+						break;
+					}
+					}
+				}
 				mSelectionManager->ClearSelection();
 			}
 
-			//attrIDToLinkID[linkNode.destAttr] = 0;
-
 		}
+	}
+
+	void CustomShaderWindow::DeleteLink(int id)
+	{
+		auto node = mTransitionNodes.find(id);
+		if (mTransitionNodes.find(id) != mTransitionNodes.end())
+		{
+			// Delete Attr to Link
+			if (attrIDToLinkID.find(node->second.destAttr) != attrIDToLinkID.end())
+				attrIDToLinkID.erase(node->second.destAttr);
+			if (attrIDToLinkID.find(node->second.sourceAttr) != attrIDToLinkID.end())
+				attrIDToLinkID.erase(node->second.sourceAttr);
+			// Delete Link
+			mTransitionNodes.erase(id);
+		}
+	}
+	void CustomShaderWindow::DeleteLinkFromAttr(int attr)
+	{
+		if (attrIDToLinkID.find(attr) != attrIDToLinkID.end())
+			DeleteLink(attrIDToLinkID.at(attr));
 	}
 }
