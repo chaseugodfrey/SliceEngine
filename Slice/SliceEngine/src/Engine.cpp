@@ -850,6 +850,8 @@ namespace SliceEngine
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+
 				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
