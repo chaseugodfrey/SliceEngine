@@ -365,18 +365,6 @@ namespace SliceEditor
 		std::vector<glm::mat4> transformMtxs{};
 		auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
-		//for (auto entity : core->GetRegistry().view<SliceEngine::Renderer>())
-		//{
-		//	SliceEngine::Renderer &renderer = core->GetRegistry().get<SliceEngine::Renderer>(entity);
-
-		//	const auto &transform = reg.get<SliceEngine::Transform>(entity);
-		//	glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-		//		* glm::mat4_cast(transform.rotation)
-		//		* glm::scale(glm::mat4(1.0f), transform.scale);
-
-		//	transformMtxs.push_back(transformMatrix);
-		//	models.push_back(renderer.modelHandle.get());
-		//}
 		for (auto entity : entities)
 		{
 			auto go = SliceEngine::FactoryInstance.GetGOByEntity(*entity);
@@ -389,7 +377,19 @@ namespace SliceEditor
 				* glm::scale(glm::mat4(1.0f), transform.scale);
 
 			transformMtxs.push_back(transformMatrix);
-			models.push_back(renderer.modelHandle.get());
+
+			if (go.HasComponent<SliceEngine::NavObstacle>()) // check for component
+			{
+				if (go.GetComponent<SliceEngine::NavObstacle>().isObstacle) // if its obstacle set model name to be an obstacle
+				{
+					auto model = renderer.modelHandle.get();
+					model->name = "NavObstacle"; // when building walkable areas later, check if model name is NavObstacle, if it is then build as unwalkable
+				}
+			}
+			else
+			{
+				models.push_back(renderer.modelHandle.get());
+			}
 		}
 
 
@@ -481,7 +481,7 @@ namespace SliceEditor
 				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 				size_t startTriIndex = currentIndexStart / 3;
 				size_t endTriIndex = currentIndexEnd / 3;
-				bool isWall = (models[i]->name == "wall");
+				bool isWall = (models[i]->name == "NavObstacle");
 
 				if (isWall)
 				{
