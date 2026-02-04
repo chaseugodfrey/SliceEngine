@@ -748,7 +748,7 @@ namespace SliceEngine
 			BOTTOM,
 			STRETCH_V
 		};
-
+	
 		//Settings only for imgui's display and component function calls
 		//old pivot serves as a flag to know how to update intermediate values during the update call
 		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
@@ -795,7 +795,7 @@ namespace SliceEngine
 		glm::vec4 rgba{ 1.f };
 
 		enum Alignment {
-			LEFT,
+			LEFT = 0,
 			CENTER,
 			RIGHT
 		} alignment{ LEFT };
