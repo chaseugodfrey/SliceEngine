@@ -585,6 +585,10 @@ rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 .property("bidirectional", &NavMeshLink::bidirectional)
 .property("currentPath", &NavMeshLink::radius);
 
+rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
+.constructor<>()
+.property("navobstacle", &NavObstacle::isObstacle);
+
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
 .property("prefabID", &Prefab::prefabID)

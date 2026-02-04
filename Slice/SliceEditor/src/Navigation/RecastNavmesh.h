@@ -21,8 +21,7 @@ namespace SliceEditor
         bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform);
 
         bool BuildFromModel(
-            const std::vector<SliceEngine::SliceEngineTypes::Model *> models,
-            const std::vector<glm::mat4> &transform,
+            const std::vector<Entity *> entities,
             const std::vector<SliceEngine::NavMeshLink> &links 
         );
         // helper to look for child nodes
@@ -40,9 +39,9 @@ namespace SliceEditor
         void Clear();
 
         rcConfig& GetConfig();
-        float &GetAgentHeight();
-        float &GetAgentRadius();
-        float &GetMaxClimb();
+        float *GetAgentHeight();
+        float *GetAgentRadius();
+        float *GetMaxClimb();
 
     private:
         rcConfig config{};
