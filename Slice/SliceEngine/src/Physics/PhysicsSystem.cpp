@@ -798,7 +798,7 @@ namespace SliceEngine
 			JPH::ShapeRefC finalShape = scaledSettings.Create().Get();
 
 			// Actually set it on the body
-			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, true, JPH::EActivation::Activate);
+			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, false, JPH::EActivation::Activate);
 		}
 
 	}
@@ -1269,6 +1269,10 @@ namespace SliceEngine
 
 		//Store entity ID in user data for collision callbacks
 		bodySettings.mUserData = static_cast<uint64_t>(entity);
+
+		bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+		bodySettings.mMassPropertiesOverride.mMass = 1.0f;
+		bodySettings.mMassPropertiesOverride.mInertia = JPH::Mat44::sScale(1.0f); // Simplified inertia
 
 		//Create and add the body
 		JPH::Body* body = physicsSystem->GetBodyInterface().CreateBody(bodySettings);

@@ -320,6 +320,14 @@ namespace SliceEngine
 								sceneGraphMap[oldID] = entt::to_integral(newObj.GetEntity());
 							}
 						}
+						//if its a collider shape, dont add it now
+						if (componentName == typeid(ColliderShape).name())
+						{
+							delayedComponentInstance.push_back(componentInstance);
+							delayedComponentName.push_back(componentName);
+							delayedGO.push_back(newObj);
+							continue;
+						}
 
 						// if its a script component, dont add it now
 						if (componentName == typeid(Script).name())
@@ -329,6 +337,7 @@ namespace SliceEngine
 							delayedGO.push_back(newObj);
 							continue;
 						}
+
 
 						AddComponentFromVariant(newObj, componentInstance, componentName);
 					}
@@ -571,6 +580,10 @@ namespace SliceEngine
 				{
 					continue;
 				}
+				if (componentType == rttr::type::get<ColliderShape>())
+				{
+					continue;
+				}
 
 				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
 				if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
@@ -588,18 +601,18 @@ namespace SliceEngine
 					// this should be the component's property data
 					std::string propName = property.get_name().to_string();
 
-					if (componentType == rttr::type::get<ColliderShape>())
-					{
-						size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+					//if (componentType == rttr::type::get<ColliderShape>())
+					//{
+					//	size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
 
-						if ((propName == "boxData" && activeIndex != 0) ||
-							(propName == "sphereData" && activeIndex != 1) ||
-							(propName == "capsuleData" && activeIndex != 2)||
-							(propName == "meshData" && activeIndex != 3))
-						{
-							continue;
-						}
-					}
+					//	if ((propName == "boxData" && activeIndex != 0) ||
+					//		(propName == "sphereData" && activeIndex != 1) ||
+					//		(propName == "capsuleData" && activeIndex != 2)||
+					//		(propName == "meshData" && activeIndex != 3))
+					//	{
+					//		continue;
+					//	}
+					//}
 
 					rttr::variant propVal = property.get_value(componentData);
 
@@ -665,9 +678,85 @@ namespace SliceEngine
 				}
 			}
 
+			if (registry.any_of<ColliderShape>(entity))
+			{
+				entt::id_type type_id = entt::type_id<ColliderShape>().hash();
+				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+
+				if (it != Core::GetInstance()->mFactory.mComponentGetters.end())
+				{
+					rttr::variant componentData = it->second(registry, entity);
+					rttr::type componentType = rttr::type::get<ColliderShape>();
+					for (const auto& property : componentType.get_properties())
+					{
+						// this should be the component's property data
+						std::string propName = property.get_name().to_string();
+
+						if (componentType == rttr::type::get<ColliderShape>())
+						{
+							size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+
+							if ((propName == "boxData" && activeIndex != 0) ||
+								(propName == "sphereData" && activeIndex != 1) ||
+								(propName == "capsuleData" && activeIndex != 2)||
+								(propName == "meshData" && activeIndex != 3))
+							{
+								continue;
+							}
+						}
+
+						rttr::variant propVal = property.get_value(componentData);
+
+						std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
+						// check if this property should be skipped
+						auto meta = property.get_metadata("Serialize");
+						if (meta.is_valid() && meta.to_bool() == false)
+						{
+							continue;
+						}
+
+						if (!propVal.is_valid())
+						{
+							continue;
+						}
+
+						SerializeProp
+							<
+							int,
+							unsigned int,
+							unsigned char,
+							float,
+							double,
+							bool,
+							Entity,
+							uint32_t,
+							uint64_t,
+							std::array<uint64_t, 4>,
+							std::array<Entity, 4>,
+							std::vector<uint64_t>,
+							glm::vec2,
+							glm::vec3,
+							glm::vec4,
+							glm::quat,
+							std::string,
+							std::unordered_map<std::string, rttr::variant>,
+							JPH::Vec3,
+							ColliderShape::BoxData,
+							ColliderShape::SphereData,
+							ColliderShape::CapsuleData,
+							ColliderShape::MeshData,
+							RigidBody::FreezeOptions,
+							GameObject
+							>
+							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
+					}
+				}
+			}
+
 			// for now jus scripts
 			// idk if i have to do this for more stuff
-			if (registry.any_of<Script>(entity))
+			 if (registry.any_of<Script>(entity))
 			{
 				entt::id_type type_id = entt::type_id<Script>().hash();
 				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
@@ -776,6 +865,9 @@ namespace SliceEngine
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
+			std::vector<rttr::variant> delayedComponentInstance;
+			std::vector<std::string> delayedComponentName;
+			std::vector<GameObject> delayedGO;
 
 			json sceneData;
 			json navMeshData = nullptr;
@@ -896,7 +988,13 @@ namespace SliceEngine
 							}
 						}
 
-
+						if (componentName == typeid(ColliderShape).name())
+						{
+							delayedComponentInstance.push_back(componentInstance);
+							delayedComponentName.push_back(componentName);
+							delayedGO.push_back(node);
+							continue;
+						}
 
 						AddComponentFromVariant(node, componentInstance, componentName);
 					}
@@ -915,6 +1013,12 @@ namespace SliceEngine
 
 				auto& boneComponent = registry.get<Bone>(entity);
 				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
+			}
+
+			// only once all the fixing of entity IDs and stuff is done, then we add the component
+			for (size_t i = 0; i < delayedComponentInstance.size(); ++i)
+			{
+				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
 			}
 
 			for (auto entity : entityID)
