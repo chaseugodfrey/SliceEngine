@@ -863,11 +863,11 @@ namespace SliceEngine
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Physics");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
-				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
 				core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -878,9 +878,9 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 
-				frm->EndSystem("Physics");
 
 			}
+			frm->EndSystem("Physics");
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
@@ -889,7 +889,7 @@ namespace SliceEngine
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			frm->StartSystem("Animation");
+			frm->StartSystem("Animation"); 
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
