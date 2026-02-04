@@ -792,7 +792,13 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
 		{
-			return;
+			// Create new scaled shape
+			JPH::Vec3 newScale = helpers::glmtoJPH(transform.GetWorldScale());
+			JPH::ScaledShapeSettings scaledSettings(colliderShape.shape, newScale);
+			JPH::ShapeRefC finalShape = scaledSettings.Create().Get();
+
+			// Actually set it on the body
+			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, true, JPH::EActivation::Activate);
 		}
 
 	}

@@ -219,11 +219,16 @@ namespace SliceEngine
 		.property("radius", &ColliderShape::CapsuleData::radius)
 		.property("height", &ColliderShape::CapsuleData::height);
 
+	rttr::registration::class_<ColliderShape::MeshData>("MeshData")
+		.constructor<>()
+		.property("UwU", &ColliderShape::MeshData::temp);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
+		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);

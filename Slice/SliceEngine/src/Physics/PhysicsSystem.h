@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision//Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Raycast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
 

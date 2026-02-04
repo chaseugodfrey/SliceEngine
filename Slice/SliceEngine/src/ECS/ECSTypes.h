@@ -319,6 +319,7 @@ namespace SliceEngine
 		{
 			//emtpy because the verticies are in the renderer component
 			//more for me to tell what shape it is
+			bool temp;
 		};
 
 		JPH::BodyID bodyID;													  // Jolt body reference
@@ -333,11 +334,13 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+		ColliderShape(MeshData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
-		inline static const CapsuleData defaultCapsuleData{};		
+		inline static const CapsuleData defaultCapsuleData{};	
+		inline static const MeshData defaultMeshData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -354,11 +357,16 @@ namespace SliceEngine
 			return std::holds_alternative<CapsuleData>(shapeData) ?
 				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
 		}
+		const MeshData& GetMeshData() const {
+			return std::holds_alternative<MeshData>(shapeData) ?
+				std::get<MeshData>(shapeData) : defaultMeshData;
+		}
 
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+		void SetMeshData(const MeshData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};

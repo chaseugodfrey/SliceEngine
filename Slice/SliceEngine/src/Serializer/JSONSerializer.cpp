@@ -303,6 +303,7 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
+								ColliderShape::MeshData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
@@ -504,6 +505,7 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
+								ColliderShape::MeshData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
@@ -592,7 +594,8 @@ namespace SliceEngine
 
 						if ((propName == "boxData" && activeIndex != 0) ||
 							(propName == "sphereData" && activeIndex != 1) ||
-							(propName == "capsuleData" && activeIndex != 2))
+							(propName == "capsuleData" && activeIndex != 2)||
+							(propName == "meshData" && activeIndex != 3))
 						{
 							continue;
 						}
@@ -650,6 +653,7 @@ namespace SliceEngine
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
+						ColliderShape::MeshData,
 						RigidBody::FreezeOptions,
 						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
@@ -725,6 +729,7 @@ namespace SliceEngine
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
+							ColliderShape::MeshData,
 							RigidBody::FreezeOptions,
 							ParticleSystem::ValueType,
 							std::vector<ParticleSystem::Burst>,							
@@ -868,6 +873,7 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
+								ColliderShape::MeshData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
