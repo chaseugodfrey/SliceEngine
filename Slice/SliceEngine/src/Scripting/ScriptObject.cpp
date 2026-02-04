@@ -161,7 +161,7 @@ namespace SliceEngine
 		mOnAwake = scClass->GetMethod("OnAwake", 0);
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
-		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
