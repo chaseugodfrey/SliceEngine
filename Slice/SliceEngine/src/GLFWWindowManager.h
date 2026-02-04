@@ -22,6 +22,7 @@ namespace SliceEngine
 	public:
 		GLFWwindow* CreateGLFWWindow();
 		void ResizeWindow(int width, int height);
+		void FullScreenWindow(int width, int height);
 		void CloseWindow();
 		GLFWwindow* GetWindow();
 	};

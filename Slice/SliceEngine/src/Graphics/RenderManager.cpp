@@ -962,6 +962,9 @@ namespace SliceEngine
 	void RenderManager::Draw()
 	{
 		LinkFrameBufferSettings(FB_TOTAL, 0);
+		auto pm = glfwGetPrimaryMonitor();
+		auto win = glfwGetVideoMode(pm);
+		glViewport(0, 0, win->width, win->height);
 		LoadSettings(GPS_DEFAULT);
 		ClearBuffer(BufferClearSetting::ALL);
 		//if (GetGameCamera().has_value())
