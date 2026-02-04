@@ -18,17 +18,27 @@ namespace SliceEngine
 
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
+        public GameObject nameTextObject;
 
         //Letters per second
         public float typeSpeed = 5f;
+
+        private bool enterPressed = false;
+        private bool inputOpen = false;
 
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
 
-            if (Input.IsKeyDown(Keys.KEY_M))
+            if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
             {
+                enterPressed = true;
                 PlayDialogueForLevel(0);
+            }
+
+            if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
+            {
+                enterPressed = false;
             }
 
         }
@@ -84,19 +94,36 @@ namespace SliceEngine
 
         private bool typing = false;
         
-        private List<string> levelDialogues = new List<string>();
+        //string[] for listed things 0 = name, 1 = text
+        private List<string[]> levelDialogues = new List<string[]>();
 
         private int dialogueIndex = 0;
 
         public void PlayDialogueForLevel(int level)
         {
 
+
+            // Skip to display full line when type writer effect is playing.
             if (typing == true)
             {
                 typing = false;
                 return;
             }
 
+            //Close dialogue box if it is the last line of the set
+            if (levelDialogues.Count == dialogueIndex + 1)
+            {
+                // end of dialogue stack
+                // clear stack
+
+                dialogueIndex = 0;
+                levelDialogues.Clear();
+                SetTextBox("");
+                CloseTextBox();
+                return;
+            }
+
+            // Will tick dialogue up if it is already loaded, else will load fresh set and play
             if (levelDialogues.Count > 0)
             {
                 // dialogues is not empty
@@ -120,28 +147,22 @@ namespace SliceEngine
                         break;
                     }
 
-                    levelDialogues.Add(loader.GetValue(i, "Text"));
+                    levelDialogues.Add( new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
                 }
             }
 
 
             OpenTextBox();
             typing = true;
-            StartCoroutine(TypeText(levelDialogues[dialogueIndex]));
+            StartCoroutine(TypeText(levelDialogues[dialogueIndex][1]));
+            SetName(levelDialogues[dialogueIndex][0]);
 
-            if (levelDialogues.Count == dialogueIndex + 1)
-            {
-                // end of dialogue stack
-                // clear stack
 
-                dialogueIndex = 0;
-                levelDialogues.Clear();
-            }
         }
 
         IEnumerator TypeText(string toType)
         {
-            float timecounter = 0f;
+            //float timecounter = 0f;
             float speed = 1f / typeSpeed;
             string displaying = "";
 
@@ -186,6 +207,21 @@ namespace SliceEngine
                 SliceLog.Log("No Font component");
             }
             //Set Text
+        }
+
+        public void SetName(string input)
+        {
+            SliceLog.Log("Setting Namebox");
+
+            if (nameTextObject.HasComponent<FontRenderer>())
+            {
+                SliceLog.Log("Has Font");
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+            }
+            else
+            {
+                SliceLog.Log("No Font component");
+            }
         }
 
         public void  OpenTextBox()
