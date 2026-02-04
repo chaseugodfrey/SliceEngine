@@ -223,8 +223,6 @@ namespace SliceEngine {
 			return l_canvas.sort_order < r_canvas.sort_order;
 			});
 
-
-
 		std::vector<std::pair<Entity, uint64_t>> entities_to_draw{};
 		//entities_to_draw.reserve(100);
 		for (auto entity : overlay_canvas) {
@@ -235,7 +233,6 @@ namespace SliceEngine {
 			}
 		}
 
-		//glDrawBuffers(1, render_color);
 		glDrawBuffers(2, render_targets);
 		CheckGLError();
 		for (auto entity : overlay_canvas) {
@@ -254,8 +251,11 @@ namespace SliceEngine {
 
 		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
 
-
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void CanvasSystem::ConstructWorldCanvas() {
+		
 	}
 
 	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
@@ -269,9 +269,13 @@ namespace SliceEngine {
 		auto const& rm = core->GetResourceManager();
 
 		auto& cam = core->GetRegistry().get<SliceEngine::Camera>(camera);
-		auto const& canv = core->GetRegistry().get<Canvas>(canvas);
+		auto& canv_rect = core->GetRegistry().get<SliceEngine::RectTransform>(canvas);
+		float cam_canv_width = (float)cam.width / canv_rect.final_width;
+		float cam_canv_height = (float)cam.height / canv_rect.final_height;
 
-		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / cam.width, 2.f / cam.height, 1.f });
+		//map canvas width/height to camera width/height
+		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>()
+			, glm::vec3{ 2.f * cam_canv_width / cam.width, 2.f * cam_canv_height / cam.height, 1.f });
 
 		uint64_t shader_guid = elements[0].second;
 		GLuint shader = rm->get<SliceEngineTypes::Shader>((GUID)shader_guid).get()->s;
@@ -387,7 +391,7 @@ namespace SliceEngine {
 				float left_ref = rect.final_x - (float)rect.final_width / 2;
 				float top_ref = rect.final_y + (float)rect.final_height / 2;
 				float x_pen = left_ref;
-				float y_pen = top_ref;
+				float y_pen = top_ref - font_render.font_size;
 
 				size_t tokens_cnt = 0;
 				for (Line const& line : lines) {
@@ -405,7 +409,6 @@ namespace SliceEngine {
 					}
 											break;
 					}
-					y_pen -= font_render.line_spacing * font_render.font_size;
 
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
 						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
@@ -452,6 +455,7 @@ namespace SliceEngine {
 						}
 					}
 
+					y_pen -= font_render.line_spacing * font_render.font_size;
 				}
 				/*
 				for (char ch : font_render.text) {
@@ -511,7 +515,7 @@ namespace SliceEngine {
 		if (elements.empty()) {
 			return;
 		}
-		return;
+		//return;
 		auto core = SliceEngine::Core::GetInstance();
 		auto const& rm = core->GetResourceManager();
 
@@ -520,14 +524,10 @@ namespace SliceEngine {
 
 		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / cam.width, 2.f / cam.height, 1.f });
 
-		uint64_t shader_guid = elements[0].second;
-		GLuint shader = rm->get<SliceEngineTypes::Shader>((GUID)eid_shader_map.at(shader_guid)).get()->s;
-		glUseProgram(shader);
+		uint64_t shader_guid = 0; elements[0].second;
+		GLuint shader = 0;
 		CheckGLError();
-		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
-		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-		uniform_loc = glGetUniformLocation(shader, "raycast");
-		glUniform1ui(uniform_loc, canv.graphic_raycastable);
+		int uniform_loc = 0;
 		glBindTextureUnit(1, raycast_tex);
 		CheckGLError();
 
@@ -537,6 +537,10 @@ namespace SliceEngine {
 		glBindVertexArray(quad_mesh.vao);
 
 		for (auto const& element : elements) {
+			if (element.second == font_shader) {
+				continue;
+			}
+
 			if (element.second != shader_guid) {
 				shader_guid = element.second;
 				shader = rm->get<SliceEngineTypes::Shader>((GUID)eid_shader_map.at(shader_guid)).get()->s;
@@ -570,9 +574,9 @@ namespace SliceEngine {
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
-			else if (shader == font_shader) {	//font
+			//else if (shader == font_shader) {	//font
 
-			}
+			//}
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -589,7 +593,8 @@ namespace SliceEngine {
 		if (sprite && sprite->componentEnabled) {
 			render.push_back({ node, sprite_shader });	//eid and shader resource handle
 		}
-		if (auto font = mRegistry->try_get<FontRenderer>(node)) {
+		auto font = mRegistry->try_get<FontRenderer>(node);
+		if (font && font->componentEnabled) {
 			//GUID font_guid = rm->mFileNameToGUID["Shaders/uiFont.shader"];
 
 			//tokenize the font string to fit into text box
@@ -713,9 +718,8 @@ namespace SliceEngine {
 }
 
 
-void _CheckGLError(const char* file, int line)
-{
-	return;
+	void _CheckGLError(const char* file, int line)
+	{
 #ifndef _DEBUG 
 	return;
 #endif // only do this on debug

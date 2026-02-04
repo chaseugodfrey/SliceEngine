@@ -177,7 +177,7 @@ namespace SliceEngine
 		void SetLinearVelocity(Entity entity, JPH::Vec3 vel);
 
 		// deafult param ~0 so it can hit all layers
-		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, uint32_t mask = ~0);
+		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal,bool triggerInteraction ,uint32_t mask = ~0);
 	};
 }
 

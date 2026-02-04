@@ -879,12 +879,21 @@ namespace SliceEngine
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
+
+		sCanvas.UpdateHierachy();		//updates the rect transforms
 		frm->EndSystem("Transform");
+		
+		//cant start pause and continue frm for time check
+		frm->StartSystem("Canvas 1");
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas 1");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+
 				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
@@ -938,10 +947,9 @@ namespace SliceEngine
 		sRender->Render();
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
+		frm->StartSystem("Canvas overlay");
 		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas");
+		frm->EndSystem("Canvas overlay");
 
 		frm->StartSystem("Particle System");
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
