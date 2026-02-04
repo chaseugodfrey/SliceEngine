@@ -75,6 +75,7 @@ namespace SliceEngine
         private float groundDashCooldownUntil = 0f;
         private float airDashCooldownUntil = 0f;
         private Vector3 dashDir = Vector3.Zero;
+        private float allowedDashDistance;
 
         public float dashDistance = 6f;
         public float dashStartDuration = 0.25f;
@@ -266,7 +267,19 @@ namespace SliceEngine
             {
                 float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
                                                   : airDashDistance / Math.Max(0.0001f, airDashDuration);
-                Vector3 dashVel = dashDir * dashSpeed;
+
+                if (allowedDashDistance >= 0f)
+                {
+                    allowedDashDistance -= dashSpeed * Time.deltaTime;
+                }
+                else
+                {
+                    dashSpeed = allowedDashDistance;
+                    if (isGroundDashing) EndGroundDash();
+                    else if (isAirDashing) EndAirDash();
+                }
+
+                    Vector3 dashVel = dashDir * dashSpeed;
                 Vector3 finalMove = isGroundDashing
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
@@ -590,6 +603,12 @@ namespace SliceEngine
             if (Physics.Raycast(ray, out RayCastHit hitInfo))
             {
                 dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
+            }
+
+            Ray dashRay = new Ray(transform.Position, dashDir);
+            if (Physics.Raycast(dashRay, out RayCastHit dashHitInfo, LayerMask.NameTolayer("Environment")))
+            {
+                allowedDashDistance = dashHitInfo.distance - 0.5f; 
             }
 
             dashTimer = Math.Max(0.0001f, dashStartDuration);
