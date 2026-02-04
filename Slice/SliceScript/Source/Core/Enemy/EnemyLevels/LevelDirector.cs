@@ -25,8 +25,9 @@ namespace SliceEngine
         /// </summary>
         public void Initialize()
         {
-
+            Console.WriteLine("Initialize Level Director");
             isActive = true;
+
             //gameObject.FindGameObjectsWithTag("Level").Length;
             foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
             {
@@ -42,14 +43,16 @@ namespace SliceEngine
                 }
             }
 
-            levelTriggers = gameObject.FindGameObjectsWithTag("Trigger").ToList();
-
-            foreach(GameObject trigger in levelTriggers)
+            foreach(GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             {
+                levelTriggers.Add(trigger);
                 Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
             }
+
+            //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
+            //Console.WriteLine("Num of levels: " + levels.Count);
         }
 
         public GameObject CreateEnemy(Prefab prefab)
@@ -147,7 +150,7 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            //SliceLog.Log("Triggering Next Level Part 1");
+            SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
@@ -159,7 +162,7 @@ namespace SliceEngine
                 // we go to the next level
 
                 // if we need to trigger a level box at the start then this might need a diff logic
-                levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
+                //levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
 
                 currLevel++;
                 levelDone = false;
