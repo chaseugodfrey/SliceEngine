@@ -271,7 +271,10 @@ namespace SliceEngine
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
 
-                transform.Position += finalMove * Time.deltaTime;
+                if (!(finalMove == Vector3.Zero))
+                {
+                    transform.Position += finalMove * Time.deltaTime;
+                }
 
                 if (rotateToDashDirection)
                 {
@@ -327,7 +330,10 @@ namespace SliceEngine
                 {
                 // existing behavior for attacks / active plunge impulse
                 Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
-                    transform.Position += finalMove * Time.deltaTime;
+                    if (!(finalMove == Vector3.Zero))
+                    {
+                        transform.Position += finalMove * Time.deltaTime;
+                    }
                 }
             }
             else
@@ -342,7 +348,11 @@ namespace SliceEngine
 
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
-                transform.Position += finalMove * Time.deltaTime;
+                if(!(finalMove == Vector3.Zero))
+                {
+                    transform.Position += finalMove * Time.deltaTime;
+                }
+                
             }
         }
 
