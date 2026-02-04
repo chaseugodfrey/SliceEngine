@@ -73,9 +73,11 @@ namespace SliceEngine
                                 
                                 SLICE_LOG_WARNING("JSON Error in meta file, falling back to heuristic: " + metaPath.string());
                             }
+
+                            metaFile.close();
                         }
 
-                        metaFile.close();
+
                         break;
                     }
                 }
