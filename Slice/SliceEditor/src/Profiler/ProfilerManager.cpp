@@ -62,7 +62,6 @@ namespace SliceEditor
 	void ProfilerManager::UpdateDebugStatistics()
 	{
 		auto engineFRM = SliceEngine::Core::GetInstance()->GetFramerateManager();
-		auto& editorFRM = registry.GetEditorFRM();
 
 		//mCurrFPS = 1000 / (engineFRM->GetFrameTime() + editorFRM.GetFrameTime());
 		mCurrFPS = engineFRM->GetCurrFPS();

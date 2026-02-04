@@ -145,10 +145,10 @@ namespace SliceEngine
 		return currFPS;
 	}
 
-	const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
-	{
-		return systemStartEndTimes;
-	}
+	//const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
+	//{
+	//	return systemStartEndTimes;
+	//}
 
 	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
 	{
@@ -165,7 +165,7 @@ namespace SliceEngine
 		return mSystemPercentages;
 	}
 
-	void FramerateManager::CapFPS(int targetFPS)
+	/*void FramerateManager::CapFPS(int targetFPS)
 	{
 		using namespace std::chrono;
 
@@ -179,17 +179,23 @@ namespace SliceEngine
 			currentTime = Clock::now();
 			elapsedTime = duration<double>(currentTime - frameStartTime);
 		}
-	}
+	}*/
 
 	void FramerateManager::CalculateSystemPercentages()
 	{
 		mSystemPercentages.clear();
+		float trackedTime = 0.0f;
 
 		for (const auto [system, time] : systemDurations)
 		{
 			auto systemPercentage = (time / mTotalFrameTime) * 100.0f;
 
 			mSystemPercentages[system] = systemPercentage;
+			trackedTime += time;
+		}
+		float untrackedTime = mTotalFrameTime - trackedTime;
+		if (untrackedTime > 0) {
+			mSystemPercentages["Engine Overhead"] = (untrackedTime / mTotalFrameTime) * 100.0f;
 		}
 	}
 }
