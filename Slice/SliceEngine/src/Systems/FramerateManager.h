@@ -84,6 +84,7 @@ namespace SliceEngine
 		TimePoint frameEndTime;
 		float currFPS;
 		float mTotalFrameTime;
+		float mUntrackedTime;
 		bool firstFrameDone = false;
 
 	};

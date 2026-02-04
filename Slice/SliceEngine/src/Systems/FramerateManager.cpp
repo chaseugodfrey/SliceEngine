@@ -18,7 +18,7 @@ written consent of DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
 	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(static_cast<float>(glfwGetTime())),
-		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) 
+		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) , mUntrackedTime(0.0f)
 	{
 		fixedDeltaTime = 1.0f / targetfps;
 	}
@@ -106,24 +106,9 @@ namespace SliceEngine
 		frameEndTime = Clock::now();
 
 		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
-		mTotalFrameTime =frameTime;
+		mTotalFrameTime = frameTime;
 
 		currFPS = (frameTime > 0.0f) ? (1000.0f / frameTime) : 0.0f;
-
-
-
-		//std::cout << "1 frame time: " << frameTime << std::endl;
-
-		if (!firstFrameDone)
-		{
-			// can be removed if don't want it to be printed for every startup
-			std::cout << "First frame time: " << frameTime * 1000.0f << " ms\n";
-			for (auto &[name, duration] : systemDurations)
-				std::cout << name << ": " << duration << " ms\n";
-
-			firstFrameDone = true;
-		}
-
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -193,9 +178,6 @@ namespace SliceEngine
 			mSystemPercentages[system] = systemPercentage;
 			trackedTime += time;
 		}
-		float untrackedTime = mTotalFrameTime - trackedTime;
-		if (untrackedTime > 0) {
-			mSystemPercentages["Engine Overhead"] = (untrackedTime / mTotalFrameTime) * 100.0f;
-		}
+		mUntrackedTime = mTotalFrameTime - trackedTime;
 	}
 }

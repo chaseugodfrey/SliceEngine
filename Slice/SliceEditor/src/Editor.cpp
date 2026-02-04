@@ -121,19 +121,40 @@ namespace SliceEditor
 	void Editor::Run()
 	{
 		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		auto engineFRM = SliceEngine::Core().GetInstance()->GetFramerateManager();
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+
+			engineFRM->StartFrame();
+
+			engineFRM->StartSystem("Editor Registry");
 			registry.Update();
+			engineFRM->EndSystem("Editor Registry");
+
+			engineFRM->StartSystem("Editor Inputs");
 			inputs->Update();
+			engineFRM->EndSystem("Editor Inputs");
+
+			engineFRM->StartSystem("Filewatcher");
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
+			engineFRM->EndSystem("Filewatcher");
 
+			//engineFRM->StartSystem("Engine");
 			engine.Update();
+			//engineFRM->EndSystem("Engine");
+			engineFRM->StartSystem("Editor Render");
 			Render();
+			engineFRM->EndSystem("Editor Render");
+
 			engine.EndFrame();
+
+			engineFRM->EndFrame();
+			engineFRM->CalculateSystemPercentages();
+
 		}
 	}
 
