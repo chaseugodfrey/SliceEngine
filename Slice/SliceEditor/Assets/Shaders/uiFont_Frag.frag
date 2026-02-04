@@ -29,4 +29,8 @@ void main(void){
 
 	fFragColor = rgba;
 	fFragColor.a *= clamp(value, 0, 1);
+
+	if(fFragColor.a <= 0.0) {
+		discard;
+	}
 }

@@ -41,9 +41,8 @@ namespace SliceEngine
         }
         private bool IsGround(uint id)
         {
-            foreach (GameObject ground in groundObject)
-            {
-                if (id == ground.mID)
+            if (gameObject.FindGameObjectWithID(id).tag == groundName)
+            { 
                     return true;
             }
             return false;

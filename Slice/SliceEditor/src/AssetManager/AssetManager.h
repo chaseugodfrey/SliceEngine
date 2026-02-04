@@ -152,6 +152,7 @@ namespace SliceEditor
 			{AssetType::Animation, ".animpkg"},
 			{AssetType::Controller, ".controller" },
 			{AssetType::NavMesh, ".navmesh" },
+			{AssetType::NavMeshBin, ".bin" },
 			{AssetType::Font, ".fnt" }
 		};
 

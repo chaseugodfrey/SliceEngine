@@ -315,8 +315,15 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
+		struct MeshData
+		{
+			//emtpy because the verticies are in the renderer component
+			//more for me to tell what shape it is
+			bool temp;
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
@@ -327,11 +334,13 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+		ColliderShape(MeshData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
-		inline static const CapsuleData defaultCapsuleData{};		
+		inline static const CapsuleData defaultCapsuleData{};	
+		inline static const MeshData defaultMeshData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -348,11 +357,16 @@ namespace SliceEngine
 			return std::holds_alternative<CapsuleData>(shapeData) ?
 				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
 		}
+		const MeshData& GetMeshData() const {
+			return std::holds_alternative<MeshData>(shapeData) ?
+				std::get<MeshData>(shapeData) : defaultMeshData;
+		}
 
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+		void SetMeshData(const MeshData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};
@@ -411,20 +425,15 @@ namespace SliceEngine
 		bool active{ false };
 
 		float maxAge{};
-		float age{};             // how long this particle has been alive
+		float age{};
 		float rotation{};
-		float speed{};		
 
-		inline float normalizedLifetime() const
-		{
-			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
-		}
-		
-		glm::vec3 finalPosition{};	// including parent transform position if localspace
+		inline float normalizedAge() const { return age / maxAge; }
+
 		glm::vec3 position{};
 		glm::vec3 scale{};
-		glm::vec3 velocity{};	  // derived from speed + direction
-		glm::vec4 colour{};       // if you want per-particle tint
+		glm::vec3 velocity{};
+		glm::vec4 colour{};
 		glm::quat rotation3D{};
 	};
 
@@ -449,11 +458,13 @@ namespace SliceEngine
 		};
 
 		Transform* parentTransform{ nullptr };
+		Transform* referenceTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
+		bool followTransformRotation{ true };
 
 		inline float WrapAngle(float deg)
 		{
@@ -513,10 +524,11 @@ namespace SliceEngine
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{};
-		float coneRadius{};
+		float coneArc{90.0f};
+		float coneRadius{0.1f};
 
 		// Sphere
+		float sphereArc{360.0f};
 		float sphereRadius{0.1f};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
@@ -559,14 +571,36 @@ namespace SliceEngine
 
 		// Start Speed
 		ValueType speedValueType{ CONSTANT };
-		float speed{};
-		float minRandomSpeed{};
-		float maxRandomSpeed{};
+		float speed{1.0f};
+		float minRandomSpeed{ 1.0f };
+		float maxRandomSpeed{ 1.0f };
+
+		// Size over lifetime
+		bool sizeOverLifetime{ false };
+		bool sizeSeparateAxis{ false };
+		glm::vec3 startScaleMultiplier{0.0f};
+		glm::vec3 endScaleMultiplier{1.0f};
+			
+		// Rotate over lifetime
+		bool rotateOverLifetime{ false };
+		bool rotateSeparateAxis{ false };
+		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
 		std::map<float, glm::vec4> colourLifeTimeMap;
 		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
+
+		// Velocity over lifetime
+		bool velocityOverLifetime{ false };
+		glm::vec3 startVelocityMultiplier{ 1.0f };
+		glm::vec3 endVelocityMultiplier{ 0.0f };
+
+		// Orbit over lifetime
+		bool orbitOverLifetime{ false };
+		glm::vec3 orbitAxis{ glm::vec3(0,0,1) };
+		glm::vec3 startOrbitVelocity{1.0f};
+		glm::vec3 endOrbitVelocity{0.f};
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }

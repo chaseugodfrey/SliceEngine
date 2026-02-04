@@ -130,5 +130,9 @@ namespace SliceEngine
 
             return value;
         }
+        public float SquareMagnitude()
+        {
+            return (float)(x * x + y * y);
+        }
     }
 }

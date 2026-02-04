@@ -27,7 +27,7 @@ namespace SliceEngine
 	GOFactory::GOFactory()
 	{
 		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
-		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		//mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
 		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
@@ -761,8 +761,7 @@ namespace SliceEngine
 		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
 		ui_ele.AddComponent<SpriteRenderer>();
 		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
-		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
-		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
 		ui_sprite.textureHandle = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 
 		return ui_ele;
@@ -825,7 +824,6 @@ namespace SliceEngine
 		ui_font.rgba = { 0.f,0.f,0.f,1.f };
 		ui_font.font_size = 50;
 		ui_font.line_spacing = 1.25f;
-		auto rm = Core::GetInstance()->GetResourceManager();
 		ui_font.fontHandle = (GUID)DefaultResourceIDs::FONT_BLANK_DEFAULT;
 
 		return ui_ele;

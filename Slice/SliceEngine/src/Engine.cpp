@@ -219,11 +219,16 @@ namespace SliceEngine
 		.property("radius", &ColliderShape::CapsuleData::radius)
 		.property("height", &ColliderShape::CapsuleData::height);
 
+	rttr::registration::class_<ColliderShape::MeshData>("MeshData")
+		.constructor<>()
+		.property("UwU", &ColliderShape::MeshData::temp);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
+		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);
@@ -377,18 +382,7 @@ namespace SliceEngine
 			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
 			);
 
-	rttr::registration::class_<Particle>(typeid(Particle).name())
-		.constructor<>()
-		.property("active", &Particle::active)
-
-		.property("age", &Particle::age)
-		.property("rotation", &Particle::rotation)
-		.property("speed", &Particle::speed)
-
-		.property("position", &Particle::position)
-		.property("scale", &Particle::scale)
-		.property("velocity", &Particle::velocity)
-		.property("colour", &Particle::colour);
+	rttr::registration::class_<Particle>(typeid(Particle).name());
 
 	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
 		(
@@ -407,6 +401,7 @@ namespace SliceEngine
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
+		.property("followTransformRotation", &ParticleSystem::followTransformRotation)
 
 		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
 		.property("maxParticles", &ParticleSystem::maxParticles)
@@ -428,7 +423,9 @@ namespace SliceEngine
 		.property("coneArc", &ParticleSystem::coneArc)
 		.property("coneRadius", &ParticleSystem::coneRadius)
 
+		.property("sphereArc", &ParticleSystem::sphereArc)
 		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
 		.property("axis", &ParticleSystem::axis)
 
 		.property("scaleType", &ParticleSystem::scaleType)
@@ -461,10 +458,27 @@ namespace SliceEngine
 		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
 		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
 
+		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
+		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
+		.property("startScaleMultiplier", &ParticleSystem::startScaleMultiplier)
+		.property("endScaleMultiplier", &ParticleSystem::endScaleMultiplier)
+
+		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
+		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
+		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
+
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colour", &ParticleSystem::colourLifeTimeMap)
-		
+		.property("colourMap", &ParticleSystem::colourLifeTimeMap)		
 		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+
+		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
+		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)
+		.property("endVelocityMultiplier", &ParticleSystem::endVelocityMultiplier)
+
+		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
+		.property("orbitAxis", &ParticleSystem::orbitAxis)
+		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
+		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
@@ -679,6 +693,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -710,13 +725,6 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		//auto mNetwork = Core::GetInstance()->GetNetwork();
 		//mNetwork->Init();
-
-
-	}
-
-	void Engine::InitScene()
-	{
-		Core::GetInstance()->GetSceneSystem()->Init();
 	}
 
 	void Engine::Update()
@@ -844,7 +852,14 @@ namespace SliceEngine
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
+
+		sCanvas.UpdateHierachy();		//updates the rect transforms
 		frm->EndSystem("Transform");
+		
+		//cant start pause and continue frm for time check
+		frm->StartSystem("Canvas 1");
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas 1");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -903,10 +918,9 @@ namespace SliceEngine
 		sRender->Render();
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
+		frm->StartSystem("Canvas overlay");
 		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas");
+		frm->EndSystem("Canvas overlay");
 
 		frm->StartSystem("Particle System");
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)

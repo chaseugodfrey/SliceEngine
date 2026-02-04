@@ -586,6 +586,8 @@ namespace SliceEditor
 					colliderName = "Sphere Collider";
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CapsuleData>)
 					colliderName = "Capsule Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::MeshData>)
+					colliderName = "Mesh Collider";
 			}, colliderData.shapeData);
 
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
@@ -636,6 +638,10 @@ namespace SliceEditor
 							col.SetCapsuleData(SliceEngine::ColliderShape::CapsuleData(radius, height));
 						}
 					}
+					else if (std::holds_alternative < SliceEngine::ColliderShape::MeshData>(col.shapeData))
+					{
+						// nothing for now UwU
+					}
 				});
 			}
 			ImGui::TreePop();
@@ -675,7 +681,7 @@ namespace SliceEditor
 		}
 
 
-			ImGui::TreePop();
+			//ImGui::TreePop();
 		}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
@@ -1196,6 +1202,9 @@ namespace SliceEditor
 				// Looping
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
+				// Follow Parent Transform
+				BoolInputHeader(mRegistry, "Follow Parent Rotation", "##followParentRotation", ps.followTransformRotation);
+
 				// Start Speed
 				switch (ps.speedValueType)
 				{
@@ -1343,11 +1352,13 @@ namespace SliceEditor
 
 				switch (ps.shapeType)
 				{
-				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Cone Arc Angle", "##coneArcAngle", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
+					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
 					break;
 				default:
 					break;
@@ -1400,13 +1411,69 @@ namespace SliceEditor
 				}
 			}
 
+			if (ImGui::CollapsingHeader("Size Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Size Over Lifetime", "##sizeOverLifetime", ps.sizeOverLifetime);
+				if (ps.sizeOverLifetime)
+				{
+					BoolInputHeader(mRegistry, "Separate Axis", "##sizeSeparateAxis", ps.sizeSeparateAxis);
+					if (ps.sizeSeparateAxis)
+					{
+						DragVec3InputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier3D", ps.startScaleMultiplier);
+						DragVec3InputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier3D", ps.endScaleMultiplier);
+					}
+					else
+					{
+						DragFloatInputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier", ps.startScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier", ps.endScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
+					}
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Rotate Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Rotate Over Lifetime", "##rotateOverLifetime", ps.rotateOverLifetime);
+				if (ps.rotateOverLifetime)
+				{
+					BoolInputHeader(mRegistry, "Separate Axis", "##rotateSeparateAxis", ps.rotateSeparateAxis);
+					if (ps.rotateSeparateAxis)
+					{
+						DragVec3InputHeader(mRegistry, "Rotate Velocity", "##rotateVelocity3D", ps.rotateVelocity);
+					}
+					else 
+					{
+						DragFloatInputHeader(mRegistry, "Rotate Velocity", "##rotateVelocity", ps.rotateVelocity.z, "%.1f", 0.0f, FLT_MAX);
+					}
+				}
+			}
+
 			if (ImGui::CollapsingHeader("Color Over Lifetime"))
 			{
-				// Colour Over Lifetime
 				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
 				if (ps.colourOverLifetime)
 				{
 					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Velocity Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Velocity Over Lifetime", "##velocityOverLifetime", ps.velocityOverLifetime);
+				if (ps.velocityOverLifetime)
+				{
+					DragVec3InputHeader(mRegistry, "Start Multiplier", "##startVelocityMultiplier", ps.startVelocityMultiplier);
+					DragVec3InputHeader(mRegistry, "End Multiplier", "##endVelocityMultiplier", ps.endVelocityMultiplier);
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Orbit Over Lifetime"))
+			{
+				BoolInputHeader(mRegistry, "Orbit Over Lifetime", "##orbitOverLifetime", ps.orbitOverLifetime);
+				if (ps.orbitOverLifetime)
+				{
+					DragVec3InputHeader(mRegistry, "Orbit Axis", "##orbitAxis", ps.orbitAxis);
+					DragVec3InputHeader(mRegistry, "Start Velocity", "##startOrbitVelocity", ps.startOrbitVelocity);
+					DragVec3InputHeader(mRegistry, "End Velocity", "##endOrbitVelocity", ps.endOrbitVelocity);
 				}
 			}
 
@@ -1511,20 +1578,33 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Box Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::BoxData{};
+					SliceEngine::ColliderShape boxData{};
+					boxData.shapeData = SliceEngine::ColliderShape::BoxData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
+
 				}
 
 				if (ImGui::Selectable("Add Sphere Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::SphereData{};
+					SliceEngine::ColliderShape sphereData{};
+					sphereData.shapeData = SliceEngine::ColliderShape::SphereData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
 				}
 
 				if (ImGui::Selectable("Add Capsule Collider"))
 				{
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity);
-					col.shapeData = SliceEngine::ColliderShape::CapsuleData{};
+					SliceEngine::ColliderShape capsuleData{};
+					capsuleData.shapeData = SliceEngine::ColliderShape::CapsuleData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
+					
+				}
+
+				if (ImGui::Selectable("Add Mesh Collider"))
+				{
+					SliceEngine::ColliderShape meshData{};
+					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+
 				}
 			}
 			
@@ -1573,6 +1653,31 @@ namespace SliceEditor
 				if (ImGui::Selectable("Add Animator"))
 				{
 					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Animator>(entity);
+				}
+			}
+
+			if (!selectedGO.HasComponent<SliceEngine::SpriteRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Sprite"))
+				{
+					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					reg.emplace<SliceEngine::SpriteRenderer>(entity);
+					auto& ui_sprite = reg.get<SliceEngine::SpriteRenderer>(entity);
+					ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
+					ui_sprite.textureHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+				}
+			}
+			if (!selectedGO.HasComponent<SliceEngine::FontRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Font"))
+				{
+					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					reg.emplace<SliceEngine::FontRenderer>(entity);
+					auto& ui_font = reg.get<SliceEngine::FontRenderer>(entity);
+					ui_font.rgba = { 0.f,0.f,0.f,1.f };
+					ui_font.font_size = 50;
+					ui_font.line_spacing = 1.25f;
+					ui_font.fontHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
 				}
 			}
 

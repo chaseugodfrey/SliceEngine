@@ -161,6 +161,10 @@ namespace SliceEngine
 				ApplyColourOverLifetime(p, ps, dt);
 			}
 
+			if (ps.orbitOverLifetime)
+			{
+				ApplyOrbitOverLifetime(p, ps, dt);
+			}
 			ApplyVeloctiy(p, ps, dt);
 		}
 		if (!haveActiveParticle && ps.systemEnding)
@@ -200,12 +204,27 @@ namespace SliceEngine
 			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
 
 			// combine rotations if face camera
-			glm::quat finalRot = ps.alwaysFaceCamera ? (billboardRot * particleRot) : particleRot;
+			
+			glm::quat baseRot = particleRot;
+			
+			// Rotation over time
+			if (ps.rotateOverLifetime)
+			{
+				glm::quat deltaQ = RotateOverLifetime(p, ps, dt);
+				baseRot = glm::normalize(deltaQ * particleRot);
 
-			// apply final rotation
+				if (ps.isRotation3D)
+					p.rotation3D = baseRot;
+				else
+					p.rotation = glm::eulerAngles(baseRot).z;
+			}
+
+			glm::quat finalRot = ps.alwaysFaceCamera && !ps.rotateOverLifetime? (billboardRot * baseRot) : baseRot;
+
 			transformMatrix *= glm::mat4_cast(finalRot);
-
-			transformMatrix = glm::scale(transformMatrix, p.scale);
+			
+			glm::vec3 finalScale = ps.sizeOverLifetime ? p.scale * SizeOverLifetime(p,ps,dt) : p.scale;
+			transformMatrix = glm::scale(transformMatrix, finalScale);
 
 			prp.transform = transformMatrix;
 			prp.colour = p.colour;
@@ -292,7 +311,7 @@ namespace SliceEngine
 	}
 #pragma endregion
 
-#pragma region Particle Stuff
+
 	void ParticleSystemManager::ActivateParticle(ParticleSystem& ps)
 	{	
 		if (ps.particles.empty())
@@ -322,7 +341,7 @@ namespace SliceEngine
 	{
 		p.active = false;
 	}
-
+#pragma region Init Stuff
 	void ParticleSystemManager::InitializeLifetime(Particle& p, ParticleSystem& ps)
 	{
 		p.age = 0.0f;
@@ -360,9 +379,13 @@ namespace SliceEngine
 		switch (ps.shapeType)
 		{
 		case ParticleSystem::ShapeType::SPHERE:
-			p.position += RandomPointInSphere(ps.sphereRadius);
+			p.position += RandomPointInSphere(ps.sphereRadius,ps.sphereArc, ps);
+			break;
+		case ParticleSystem::ShapeType::CONE:
+			p.position += RandomPointInCircle(ps.coneRadius, ps);
 			break;
 		default:
+			p.position += RandomPointInSphere(ps.sphereRadius, ps.sphereArc, ps);
 			break;
 		}
 	}
@@ -418,24 +441,21 @@ namespace SliceEngine
 		{
 			p.scale = ps.scale;
 		}
-		
-		// Should particles inherit the scale of its parent? no right?
-		// if (ps.parentTransform)
-		// p.scale += ps.parentTransform->scale;
 	}
 	void ParticleSystemManager::InitializeVelocity(Particle& p, ParticleSystem& ps)
 	{
+		float speed{};
 		if (ps.speedValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> dist(
 				ps.minRandomSpeed,
 				ps.maxRandomSpeed);
 
-			p.speed = dist(gen);
+			speed = dist(gen);
 		}
 		else
 		{
-			p.speed = ps.speed;
+			speed = ps.speed;
 		}
 
 		glm::vec3 direction(0.0f);
@@ -445,12 +465,15 @@ namespace SliceEngine
 		case ParticleSystem::ShapeType::SPHERE:
 			direction = ComputeSphereInitialVelocity(ps.parentTransform->position, p.position, ps.sphereRadius);
 			break;
+		case ParticleSystem::ShapeType::CONE:
+			direction = RandomDirectionInCone(ps.coneArc, ps);
+			break;
 		default:
 			direction = glm::vec3(0.0f, 1.0f, 0.0f); // fallback
 			break;
 		}
 
-		p.velocity = glm::normalize(direction) * p.speed;
+		p.velocity = glm::normalize(direction) * speed;
 	}
 	void ParticleSystemManager::InitializeColour(Particle& p, ParticleSystem& ps)
 	{
@@ -470,12 +493,21 @@ namespace SliceEngine
 		// May need to remove in future
 		ps.colourLifeTimeMap[0.0f] = ps.colour;
 	}
+#pragma endregion
 
+#pragma region Applying Stuff
 	void ParticleSystemManager::ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt)
 	{
-		p.position += p.velocity * dt;
+		if (ps.velocityOverLifetime)
+		{
+			glm::vec3 velocityMul = VelocityOverLifetime(p, ps, dt);
+			p.position += p.velocity * velocityMul * dt;
+		}
+		else 
+		{
+			p.position += p.velocity * dt;
+		}
 	}
-
 	void ParticleSystemManager::ApplyGravity(Particle& p, ParticleSystem& ps, float dt)
 	{
 		p.velocity += glm::vec3(0.0f, -(ps.gForce * dt), 0.0f);
@@ -492,7 +524,7 @@ namespace SliceEngine
 
 		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal))
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false))
 		{			
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal
@@ -571,6 +603,47 @@ namespace SliceEngine
 		}
 	}
 
+	glm::vec3 ParticleSystemManager::SizeOverLifetime(Particle& p, ParticleSystem& ps, float dt)
+	{
+		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
+		glm::vec3 scaleMul{ 1.0f }; // default 1
+
+		if (ps.sizeSeparateAxis)
+		{
+			// per-axis lerp
+			scaleMul = glm::mix(ps.startScaleMultiplier, ps.endScaleMultiplier, t);
+		}
+		else
+		{
+			// uniform scale using Z component
+			float uniformScale = glm::mix(ps.startScaleMultiplier.z, ps.endScaleMultiplier.z, t);
+			scaleMul = glm::vec3(uniformScale); // same for x,y,z
+		}
+
+		return scaleMul;
+	}
+
+	glm::quat ParticleSystemManager::RotateOverLifetime(Particle& p, ParticleSystem& ps, float dt)
+	{	
+		glm::quat deltaQ;
+		if (ps.rotateSeparateAxis)
+		{
+			// Angular velocity per axis (radians/sec)
+			glm::vec3 deltaAngle = ps.rotateVelocity * dt;
+
+			deltaQ = glm::quat(deltaAngle);
+		}
+		else
+		{
+			// Uniform rotation using Z as scalar
+			float angle = ps.rotateVelocity.z * dt;
+
+			deltaQ = glm::angleAxis(angle, glm::vec3(0, 0, 1));
+		}
+
+		return deltaQ;
+	}
+
 	void ParticleSystemManager::ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
 		auto& map = ps.colourLifeTimeMap;
@@ -578,7 +651,7 @@ namespace SliceEngine
 		if (map.empty())
 			return;		
 
-		float t = glm::clamp(p.normalizedLifetime(), 0.0f, 1.0f);
+		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
 
 		// If only one color, just use it
 		if (map.size() == 1)
@@ -618,12 +691,47 @@ namespace SliceEngine
 		p.colour = glm::mix(c0, c1, localT);
 	}
 
-	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(
-		const glm::vec3& center,
-		const glm::vec3& position,
-		float radius,
-		float radialBias
-		)
+	glm::vec3 ParticleSystemManager::VelocityOverLifetime(Particle& p, ParticleSystem& ps, float dt)
+	{
+		float t = p.normalizedAge();
+
+		glm::vec3 velocityMul = glm::mix(
+			ps.startVelocityMultiplier,
+			ps.endVelocityMultiplier,
+			t
+		);
+
+		return velocityMul;
+	}
+
+	void ParticleSystemManager::ApplyOrbitOverLifetime(Particle& p, ParticleSystem& ps, float dt)
+	{
+		if (!ps.parentTransform)
+		{
+			SLICE_LOG_ERROR("Particle System Unable to apply orbit over lifetime as parent transform not found!");
+			return;
+		}
+
+		if (ps.startOrbitVelocity == glm::vec3(0.0f) && ps.endOrbitVelocity == glm::vec3(0.0f))
+			return;
+
+		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
+		glm::vec3 omega = glm::mix(ps.startOrbitVelocity, ps.endOrbitVelocity, t);
+
+		glm::quat rotX = glm::angleAxis(omega.x * dt, glm::vec3(1, 0, 0));
+		glm::quat rotY = glm::angleAxis(omega.y * dt, glm::vec3(0, 1, 0));
+		glm::quat rotZ = glm::angleAxis(omega.z * dt, glm::vec3(0, 0, 1));
+
+		glm::quat deltaQ = rotZ * rotY * rotX;
+
+		glm::vec3 offset = p.position - ps.parentTransform->position;
+		offset = deltaQ * offset;
+		p.position = ps.parentTransform->position + offset;
+	}
+#pragma endregion
+
+#pragma region helpers
+	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias)
 	{
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
@@ -654,17 +762,53 @@ namespace SliceEngine
 		return dir;
 	}
 
-	glm::vec3 ParticleSystemManager::RandomPointInSphere(float radius)
+	glm::vec3 ParticleSystemManager::RandomDirectionInCone(float arcDegrees, ParticleSystem& ps)
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		float maxAngle = glm::radians(arcDegrees) * 0.5f;
+		float cosMax = cos(maxAngle);
+
+		float u = dist01(gen);
+		float v = dist01(gen);
+
+		float cosTheta = glm::mix(cosMax, 1.0f, u);
+		float sinTheta = sqrt(1.0f - cosTheta * cosTheta);
+		float phi = 2.0f * glm::two_pi<float>() * v;
+
+		glm::vec3 localDir(
+			cos(phi) * sinTheta,
+			sin(phi) * sinTheta,
+			cosTheta
+		);
+
+		glm::vec3 axis(0.0f, 0.0f, 1.0f);
+		if (ps.parentTransform && ps.followTransformRotation)
+		{
+			axis = ps.parentTransform->rotation * glm::vec3(0.0f, 0.0f, 1.0f);
+		}
+
+		glm::quat q = Utilities::FromToRotation(glm::vec3(0.0f, 0.0f, 1.0f), axis);                   // desired world axis
+		return q * localDir;
+	}
+
+	glm::vec3 ParticleSystemManager::RandomPointInSphere(float radius, float arcDegrees, ParticleSystem& ps)
 	{
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-		float u = dist(gen);
-		float v = dist(gen);
-		float w = dist(gen);
+		float u = dist(gen); // for theta
+		float w = dist(gen); // for radius
 
-		// Random direction
+		// Convert arc from degrees to radians
+		float arcRad = glm::radians(arcDegrees);
+
+		// Clamp phi to the desired arc
+		// If arcDegrees = 90, then phi ranges from 0 to 90 degrees (0 to pi/2)
+		std::uniform_real_distribution<float> phiDist(0.0f, arcRad);
+		float phi = phiDist(gen);
+
+		// Theta can remain full circle
 		float theta = 2.0f * glm::pi<float>() * u;
-		float phi = acos(2.0f * v - 1.0f);
 
 		float sinPhi = sin(phi);
 
@@ -674,10 +818,45 @@ namespace SliceEngine
 			cos(phi)
 		);
 
-		// Correct radial distribution
+		// Radial distance
 		float r = radius * cbrt(w);
-
-		return dir * r;
+		if (!ps.followTransformRotation)
+		{
+			return dir * r;
+		}
+		else if (ps.parentTransform)
+		{
+			return ps.parentTransform->rotation * (dir * r);
+		}
 	}
-#pragma endregion
+
+	glm::vec3 ParticleSystemManager::RandomPointInCircle(float radius, ParticleSystem& ps) // optional parent rotation
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		// Random radius with correct distribution
+		float r = radius * sqrt(dist01(gen)); // sqrt ensures uniform density
+
+		// Random angle
+		float theta = 2.0f * glm::pi<float>() * dist01(gen);
+
+		// Point in local XY circle (Z = 0)
+		glm::vec3 localPoint(
+			r * cos(theta),
+			r * sin(theta),
+			0.0f
+		);
+
+		// Apply parent rotation
+		if (!ps.followTransformRotation)
+		{
+			return localPoint;
+		}
+		else if (ps.parentTransform)
+		{
+			return ps.parentTransform->rotation * localPoint;
+		}
+	}
+
 }
+#pragma endregion

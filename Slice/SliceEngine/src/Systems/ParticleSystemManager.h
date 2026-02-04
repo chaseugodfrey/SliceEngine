@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
+#include "Helpers/Utilities.h"	
 
 namespace SliceEngine 
 {
@@ -55,22 +56,21 @@ namespace SliceEngine
 		void ApplyVeloctiy(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyGravity(Particle& p, ParticleSystem& ps, float dt);
 		void ApplyPhysics(Particle& p, ParticleSystem& ps, float dt);
+
 		void ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		void ApplyOrbitOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+
+		glm::vec3 SizeOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		glm::quat RotateOverLifetime(Particle& p, ParticleSystem& ps, float dt);
+		glm::vec3 VelocityOverLifetime(Particle& p, ParticleSystem& ps, float dt);
 
 		void ApplyBurst(ParticleSystem& ps, float dt);
 
 		glm::vec3 ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias = 1.0f);
-		glm::vec3 RandomPointInSphere(float radius);
+		glm::vec3 RandomDirectionInCone(float arcDegrees, ParticleSystem& ps);
+		glm::vec3 RandomPointInSphere(float radius, float arcDegrees, ParticleSystem& ps);
+		glm::vec3 RandomPointInCircle(float radius, ParticleSystem& ps);
 	};
-
-	namespace Utilities 
-	{
-		inline void FixMinMax(float& min, float& max)
-		{
-			if (min > max)
-				std::swap(min, max);
-		}
-	}
 }
 
 

@@ -93,7 +93,7 @@ namespace SliceEngine
 
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, uint mask);
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
@@ -574,14 +574,40 @@ namespace SliceEngine
         internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
 
 
+        //UI
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Slider_SetValue(uint entityID, float value);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetText(uint entityID, string value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string FontRenderer_GetText(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetFontsize(uint entityID, float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float FontRenderer_GetFontsize(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetLinespacing(uint entityID, float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float FontRenderer_GetLinespacing(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetColor(uint entityID, ref Vector4 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_GetColor(uint entityID, out Vector4 color);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
 
+
+        //Entity active
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_SetActive(uint entityID, bool active);
 

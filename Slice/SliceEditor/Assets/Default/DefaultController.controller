@@ -257,7 +257,7 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
+                    "exitTime": 1,
                     "hasExitTime": true,
                     "sourceState": "AttackToIdle1",
                     "targetState": "Idle"
@@ -271,8 +271,8 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
                     "sourceState": "AttackToIdle1",
                     "targetState": "Walk"
                 }
@@ -297,7 +297,7 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
+                    "exitTime": 1,
                     "hasExitTime": true,
                     "sourceState": "AttackToIdle2",
                     "targetState": "Idle"
@@ -311,8 +311,8 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
+                    "exitTime": 0,
+                    "hasExitTime": false,
                     "sourceState": "AttackToIdle2",
                     "targetState": "Walk"
                 }

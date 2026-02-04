@@ -19,6 +19,7 @@ namespace SliceEngine
         {
 
         }
+
         public override void OnCreate()
         {
             Console.WriteLine("General Hitbox On Create " + gameObject.mID);
@@ -82,6 +83,7 @@ namespace SliceEngine
                 _enabled = false;
                 _collider.ComponentEnabled = false;
             }
+            Console.WriteLine("Turning off General Hit box");
         }
 
 

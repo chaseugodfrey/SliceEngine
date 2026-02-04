@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,7 +9,8 @@ namespace SliceEngine
 {
     public class LevelDirector : SliceBehaviour, IInitializable
     {
-        public List<GameObject> levels = new List<GameObject>();
+        //public List<GameObject> levelsList = new List<GameObject>();
+        public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
         // To prevent spawning on the same point
@@ -16,11 +18,32 @@ namespace SliceEngine
         public int currLevel = 0;
         public bool levelDone = false;
 
+        private bool isActive = false;
+
         /// <summary>
         /// Initialize the levels and stuff
         /// </summary>
         public void Initialize()
         {
+
+            isActive = true;
+            //gameObject.FindGameObjectsWithTag("Level").Length;
+            foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
+            {
+                int index = levelObject.As<BaseLevel>().levelIndex;
+
+                if (!levels.ContainsKey(index))
+                {
+                    levels.Add(index, levelObject);
+                }
+                else
+                {
+                    SliceLog.Log("Duplicate Level Detected, Not ");
+                }
+            }
+
+            levelTriggers = gameObject.FindGameObjectsWithTag("Trigger").ToList();
+
             foreach(GameObject trigger in levelTriggers)
             {
                 Console.WriteLine("id of triggerbox: " + trigger.mID);
@@ -36,8 +59,12 @@ namespace SliceEngine
             newEnemy.As<EnemySlime>().SetUp();
             enemies.Add(newEnemy);
 
+
+
             return newEnemy;
         }
+
+        public int EnemyCount() { return enemies.Count; }
 
         public void EnemyDeath(GameObject enemy)
         {
@@ -49,6 +76,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (!isActive)
+                return;
+
             if (currLevel > levels.Count)
             {
                 SliceLog.Error("Current level is more than the number of levels");
@@ -108,6 +138,8 @@ namespace SliceEngine
             return true;
         }
 
+
+
         /// <summary>
         /// Trigger the next level to update the level obj
         /// Takes in next level to prevent double triggering or triggering the wrong level
@@ -133,6 +165,13 @@ namespace SliceEngine
                 levelDone = false;
 
                 SliceLog.Log("Triggering Next Level Part 3");
+
+                if (!levels.ContainsKey(currLevel))
+                {
+                    
+                    SliceLog.Log("Level does not exist");
+                    TriggerNextLevel(input);
+                }
 
             }
 
