@@ -31,6 +31,9 @@ namespace SliceEngine
         public static bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, uint layerMask, QueryTriggerInteraction queryTriggerInteraction)
         {
             hitInfo = new RayCastHit();
+
+            FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
+
             return true;
         }
 
