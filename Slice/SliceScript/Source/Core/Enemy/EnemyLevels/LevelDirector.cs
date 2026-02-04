@@ -13,6 +13,7 @@ namespace SliceEngine
         public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
+        public Dictionary<int, GameObject> finishedTriggers = new Dictionary<int, GameObject>();
         // To prevent spawning on the same point
         public float SafetyDistance = 4.0f;
         public int currLevel = 0;
@@ -43,9 +44,11 @@ namespace SliceEngine
                 }
             }
 
-            foreach(GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
+            //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
+            //       levelTriggers.Add(trigger);
+
+            foreach (GameObject trigger in levelTriggers)
             {
-                levelTriggers.Add(trigger);
                 Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
@@ -81,6 +84,13 @@ namespace SliceEngine
         {
             if (!isActive)
                 return;
+
+
+            if (Input.IsKeyPressed(Keys.KEY_L))
+            {
+                SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
+                TriggerNextLevel(Bootstrap.Player.gameObject);
+            }
 
             if (currLevel > levels.Count)
             {
@@ -156,18 +166,24 @@ namespace SliceEngine
                 return;
             //SliceLog.Log("Triggering Next Level Part 2");
 
+            //if (finishedTriggers.ContainsKey((int)input.mID))
+            //    return;
+
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
                 // note: this is assuming we start at lvl 0, then on the first trigger box
                 // we go to the next level
 
                 // if we need to trigger a level box at the start then this might need a diff logic
-                //levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
+                levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
 
                 currLevel++;
                 levelDone = false;
+                //finishedTriggers.Add((int)input.mID, input);
 
-                SliceLog.Log("Triggering Next Level Part 3");
+                SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
+
+                //SliceLog.Log("Triggering Next Level Part 3");
 
                 if (!levels.ContainsKey(currLevel))
                 {
