@@ -722,6 +722,12 @@ namespace SliceEngine
 		//mNetwork->Init();
 	}
 
+	void Engine::FullScreenApp()
+	{
+		Core::GetInstance()->GetWindowManager()->FullScreenWindow();
+		
+	}
+
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();

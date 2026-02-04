@@ -33,7 +33,9 @@ namespace SliceBuild
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->BindCallbacksToWindow(window);
 
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(0);
+		engine.FullScreenApp();
+
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(1);
 
 		//engine.InitScene();
 
@@ -50,7 +52,7 @@ namespace SliceBuild
 
 	void Application::Run()
 	{
-
+		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
@@ -62,6 +64,19 @@ namespace SliceBuild
 			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::DEFAULT)
 			{
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+			}
+
+			if (inputSys->IsKeyPressed(GLFW_KEY_SPACE))
+			{
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::PLAY_SCENE)
+				{
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::STOP_SCENE;
+				}
+				else
+				{
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+				}
+
 			}
 		}
 

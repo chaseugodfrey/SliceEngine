@@ -46,6 +46,7 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
+		void FullScreenApp();
 
 		void Update();
 		void Draw();
