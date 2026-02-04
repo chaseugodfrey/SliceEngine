@@ -1270,6 +1270,7 @@ namespace SliceEngine
 		//Store entity ID in user data for collision callbacks
 		bodySettings.mUserData = static_cast<uint64_t>(entity);
 
+		//this portion is cause mesh collider  does not have mass caluclated by jolt
 		bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
 		bodySettings.mMassPropertiesOverride.mMass = 1.0f;
 		bodySettings.mMassPropertiesOverride.mInertia = JPH::Mat44::sScale(1.0f); // Simplified inertia
