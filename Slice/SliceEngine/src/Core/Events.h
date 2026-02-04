@@ -80,7 +80,7 @@ struct OnSceneLoadedEvent
 {
 	std::filesystem::path scenePath;
 	bool isSceneLoaded;
-	std::string navMeshPath;
+	std::string navMeshBinPath;
 };
 
 struct OnSceneStopEvent
@@ -184,6 +184,11 @@ struct AssetExistEvent
 struct OnPlayEvent
 {
 
+};
+
+struct OnStopEvent
+{
+	
 };
 
 struct OnGameStopEvent
