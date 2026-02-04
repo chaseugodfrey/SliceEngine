@@ -1565,7 +1565,6 @@ namespace SliceEngine
 
 		if (!ioHit.mBodyID.IsInvalid())
 		{
-			bodyHitID = ioHit.mBodyID.GetIndex();
 			hitPos = origin + direction * ioHit.mFraction;
 
 			// do this later aloysius
@@ -1573,8 +1572,9 @@ namespace SliceEngine
 
 			if (lock1.Succeeded())
 			{
-				const JPH::Body& body1 = lock1.GetBody();
-				normal = helpers::JPHtoglm(body1.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+				const JPH::Body& body = lock1.GetBody();
+				bodyHitID = static_cast<JPH::uint32>(body.GetUserData());
+				normal = helpers::JPHtoglm(body.GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
 			}
 		}
 		else

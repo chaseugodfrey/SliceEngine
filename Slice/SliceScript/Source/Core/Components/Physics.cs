@@ -54,7 +54,7 @@ namespace SliceEngine
                 triggerInteraction = true;
             }  
             bool test = FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
-            hitInfo.distance = (hitInfo.point - origin).Magnitude();\
+            hitInfo.distance = (hitInfo.point - origin).Magnitude();
             GameObject obj = new GameObject(bodyHitID);
             hitInfo.transform =  obj.GetComponent<Transform>();
 
