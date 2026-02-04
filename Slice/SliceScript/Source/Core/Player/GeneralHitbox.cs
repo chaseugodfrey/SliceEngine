@@ -83,6 +83,7 @@ namespace SliceEngine
                 _enabled = false;
                 _collider.ComponentEnabled = false;
             }
+            Console.WriteLine("Turning off General Hit box");
         }
 
 
