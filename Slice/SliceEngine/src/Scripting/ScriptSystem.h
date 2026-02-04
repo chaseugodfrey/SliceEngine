@@ -209,13 +209,16 @@ namespace SliceEngine
 
 		// Keep track of the entities that were disabled
 		// so that when its re-enabled, it wont call onStay 
-		std::set<Entity> mEntitiesDisabled;
-		std::map<Entity, std::set<Entity>> mEntityCollisionMap;
+		// this is handled in JOLT now so I dont need this
+		//std::set<Entity> mEntitiesDisabled;
+		//std::map<Entity, std::set<Entity>> mEntityCollisionMap;
 
+		// for collision events
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
 
-		std::map<Entity, std::set<Entity>> mTestMap;
-		std::map<Entity, std::set<Entity>> mTestMapAnotherOne;
+		// These maps are for keeping track of collision and trigger stay
+		std::map<Entity, std::set<Entity>> mCollideMap;
+		std::map<Entity, std::set<Entity>> mTriggerMap;
 		std::mutex mQueueLock;
 
 	};
