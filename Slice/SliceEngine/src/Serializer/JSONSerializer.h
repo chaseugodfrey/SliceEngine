@@ -197,6 +197,14 @@ namespace SliceEngine
 			output[name][typeName][propName]["height"] = data.height;
 		}
 
+		// For ColliderShape::CapsuleData
+		template<>
+		inline void Serialize<ColliderShape::MeshData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::MeshData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["UwU"] = data.temp;
+		}
+
 		// For Freeze Options
 		template<>
 		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
@@ -505,6 +513,22 @@ namespace SliceEngine
 				}
 				if (value.contains("height")) {
 					data.height = value["height"];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
+		// Similar for MeshData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::MeshData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::MeshData>()) {
+				ColliderShape::MeshData data;
+				if (value.contains("UwU")) {
+					data.temp = value["UwU"];
 				}
 				prop.set_value(componentInstance, data);
 				return true;
