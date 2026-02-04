@@ -105,19 +105,19 @@ namespace SliceEngine
         public int attack1Damage;
         public Vector3 attack1Window;
         public float attack1Duration;
-        private Hitbox attack1HB;
+        private GeneralHitbox attack1HB;
 
         public string attack2HBName;
         public int attack2Damage;
         public Vector3 attack2Window;
         public float attack2Duration;
-        private Hitbox attack2HB;
+        private GeneralHitbox attack2HB;
 
         public string attack3HBName;
         public int attack3Damage;
         public Vector3 attack3Window;
         public float attack3Duration;
-        private Hitbox attack3HB;
+        private GeneralHitbox attack3HB;
 
         private int attackIndex = 0;
         private float attackTimer = 0f;
@@ -685,20 +685,26 @@ namespace SliceEngine
         #region Attacks
         private void InitializeAttackHitboxes()
         {
-            attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<Hitbox>();
-            attack1HB.OnAttack += Attack1;
+            attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<GeneralHitbox>();
+            attack1HB.HitBoxListeners += Attack1;
             if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
             else Console.WriteLine("Attack 1 hitbox found");
 
-            attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<Hitbox>();
-            attack2HB.OnAttack += Attack2;
+            attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<GeneralHitbox>();
+            attack2HB.HitBoxListeners += Attack2;
             if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
             else Console.WriteLine("Attack 2 hitbox found");
 
-            attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<Hitbox>();
-            attack3HB.OnAttack += Attack3;
+            attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<GeneralHitbox>();
+            attack3HB.HitBoxListeners += Attack3;
             if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
             else Console.WriteLine("Attack 3 hitbox found");
+
+            if (attack1HB != null && attack2HB != null && attack3HB != null)
+            {
+                Console.WriteLine("All attack hitboxes found, turning them off");
+                TurnOffHitboxes();
+            }
         }
         private void TryAttack()
         {
@@ -723,15 +729,32 @@ namespace SliceEngine
                 switch (attackCounter)
                 {
                     case 1:
-                        attack1HB.OnAttack?.Invoke();
+                        attack1HB.TurnOn();
+
+                        animator.SetBool("Attack1", true);
+                        AudioSettings.PlaySFX("A1");
+
                         StartCoroutine(Lunge());
                         break;
                     case 2:
-                        attack2HB.OnAttack?.Invoke();
+                        attack2HB.TurnOn();
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                        {
+                            animator.SetBool("Attack2", true);
+                            AudioSettings.PlaySFX("A2");
+                        }
+
                         StartCoroutine(Lunge());
                         break;
                     case 3:
-                        attack3HB.OnAttack?.Invoke();
+                        attack3HB.TurnOn();
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                        {
+                            animator.SetBool("Attack3", true);
+                            AudioSettings.PlaySFX("A3");
+                        }
                         break;
                     default:
                         break;
@@ -749,11 +772,19 @@ namespace SliceEngine
                 yield return null;
             }
         }
+        private void TurnOffHitboxes()
+        {
+            attack1HB.TurnOff();
+            attack2HB.TurnOff();
+            attack3HB.TurnOff();
+        }
         public void StartAttackRecovery()
         {
             attackResetTimer = 0f;
             isAttacking = false;
             attackAutoRecover = true;
+
+            TurnOffHitboxes();
         }
         private void AttackResetTimer()
         {
@@ -800,43 +831,22 @@ namespace SliceEngine
                 yield return null;
             }
         }
-        private void Attack1()
+        private void Attack1(GameObject target)
         {
-            animator.SetBool("Attack1", true);
-            AudioSettings.PlaySFX("A1");
-            List<EnemySlime> enemiesHit = attack1HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack1Damage);
-            }
+            EnemySlime enemy = target.As<EnemySlime>();
+            if (enemy != null) enemy.TakeDamage(attack1Damage);
             Console.WriteLine("Attack 1 executed");
         }
-        private void Attack2()
+        private void Attack2(GameObject target)
         {
-            if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-            {
-                animator.SetBool("Attack2", true);
-            }
-            AudioSettings.PlaySFX("A2");
-            List<EnemySlime> enemiesHit = attack2HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack2Damage);
-            }
+            EnemySlime enemy = target.As<EnemySlime>();
+            if (enemy != null) enemy.TakeDamage(attack2Damage);
             Console.WriteLine("Attack 2 executed");
         }
-        private void Attack3()
+        private void Attack3(GameObject target)
         {
-            if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-            {
-                animator.SetBool("Attack3", true);
-            }
-            AudioSettings.PlaySFX("A3");
-            List<EnemySlime> enemiesHit = attack3HB.EnemiesInRange;
-            foreach (EnemySlime enemy in enemiesHit)
-            {
-                enemy.TakeDamage(attack3Damage);
-            }
+            EnemySlime enemy = target.As<EnemySlime>();
+            if (enemy != null) enemy.TakeDamage(attack3Damage);
             Console.WriteLine("Attack 3 executed");
         }
         private bool AttackAnimationState()
