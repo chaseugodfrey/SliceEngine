@@ -57,6 +57,17 @@ namespace SliceEngine
 		glfwSetWindowSize(window, width, height);
 	}
 
+	void GLFWWindowManager::FullScreenWindow()
+	{
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		auto vidMode = glfwGetVideoMode(monitor);
+
+		glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
+
+		glfwMakeContextCurrent(window);
+	}
+
 	void GLFWWindowManager::CloseWindow()
 	{
 	
