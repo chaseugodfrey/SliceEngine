@@ -583,24 +583,19 @@ namespace SliceEditor
 		std::vector<unsigned short> offMeshFlags;
 		std::vector<unsigned int> offMeshUserID;
 
-	
 		for (size_t i = 0; i < links.size(); ++i)
 		{
-			auto &link = links[i];
-			auto startGO = SliceEngine::FactoryInstance.GetGOByEntity(link.startLink);
-			auto endGO = SliceEngine::FactoryInstance.GetGOByEntity(link.endLink);
+			const auto &link = links[i];
 
-			auto &startTransform = startGO.GetComponent<SliceEngine::Transform>();
-			auto &endTransform = endGO.GetComponent<SliceEngine::Transform>();
 			// Start
-			offMeshVerts.push_back(startTransform.position.x);
-			offMeshVerts.push_back(startTransform.position.y);
-			offMeshVerts.push_back(startTransform.position.z);
+			offMeshVerts.push_back(link.startLink.x);
+			offMeshVerts.push_back(link.startLink.y);
+			offMeshVerts.push_back(link.startLink.z);
 
 			// End
-			offMeshVerts.push_back(endTransform.position.x);
-			offMeshVerts.push_back(endTransform.position.y);
-			offMeshVerts.push_back(endTransform.position.z);
+			offMeshVerts.push_back(link.endLink.x);
+			offMeshVerts.push_back(link.endLink.y);
+			offMeshVerts.push_back(link.endLink.z);
 
 			offMeshRad.push_back(link.radius);
 			offMeshDir.push_back(link.bidirectional ? 1 : 0);
@@ -608,10 +603,10 @@ namespace SliceEditor
 			offMeshFlags.push_back(1);                // Standard walkable flag
 			offMeshUserID.push_back((unsigned int)i + 1); // Simple ID
 
-			//// In RecastNavMesh.cpp loop
-			//std::cout << "[Recast] Baking Link " << i << ": Start("
-			//	<< link.startLink.x << "," << link.startLink.y << "," << link.startLink.z << ") -> End("
-			//	<< link.endLink.x << "," << link.endLink.y << "," << link.endLink.z << ")" << std::endl;
+			// In RecastNavMesh.cpp loop
+			std::cout << "[Recast] Baking Link " << i << ": Start("
+				<< link.startLink.x << "," << link.startLink.y << "," << link.startLink.z << ") -> End("
+				<< link.endLink.x << "," << link.endLink.y << "," << link.endLink.z << ")" << std::endl;
 		}
 
 		dtNavMeshCreateParams params{};

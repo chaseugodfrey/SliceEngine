@@ -70,7 +70,6 @@ namespace SliceEditor
 		AddWindow<AnimatorWindow>();
 		AddWindow<AnimationWindow>();
 		AddWindow<ConsoleWindow>();
-		AddWindow<CustomShaderWindow>();
 
 		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &WindowManager::QuitGameEvent>(this);
 	}

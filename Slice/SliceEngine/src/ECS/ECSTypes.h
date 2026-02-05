@@ -914,8 +914,8 @@ namespace SliceEngine
 
 	struct NavMeshLink
 	{
-		Entity startLink;
-		Entity endLink;
+		glm::vec3 startLink;
+		glm::vec3 endLink;
 		bool bidirectional;
 		float radius;
 	};
