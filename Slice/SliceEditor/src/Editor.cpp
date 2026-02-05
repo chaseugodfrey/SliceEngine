@@ -170,7 +170,7 @@ namespace SliceEditor
 
 	void Editor::Save()
 	{
-		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences();
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
 	}
 
 	void Editor::Exit()
