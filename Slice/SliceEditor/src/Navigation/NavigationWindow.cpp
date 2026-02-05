@@ -11,8 +11,7 @@ namespace SliceEditor
 
 	void NavigationWindow::Draw()
 	{
-		std::vector<glm::mat4> transformMtxs{};
-		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
+		std::vector<Entity *> entity{};
 
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
@@ -21,28 +20,35 @@ namespace SliceEditor
 		if (selectionManager->mSelectionType == SelectionType::ENTITY)
 		{
 			auto &nodes = selectionManager->GetSelectedNodes();
-			if (!nodes.empty())
-			{
-				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				for (auto &node : nodes)
-				{
-					EntityNode *entity_node = static_cast<EntityNode *>(node);
-					auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
-					if (renderer)
-					{
-						if (renderer->modelHandle.IsValid())
-						{
-							const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
-							glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-								* glm::mat4_cast(transform.rotation)
-								* glm::scale(glm::mat4(1.0f), transform.scale);
 
-							transformMtxs.push_back(transformMatrix);
-							models.push_back(renderer->modelHandle.get());
-						}
-					}
-				}
+			// if entities present
+			for (auto &node : nodes)
+			{
+				EntityNode *entityNode = static_cast<EntityNode *>(node);
+				entity.push_back(&entityNode->entity);
 			}
+			//if (!nodes.empty())
+			//{
+			//	auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			//	for (auto &node : nodes)
+			//	{
+			//		EntityNode *entity_node = static_cast<EntityNode *>(node);
+			//		auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
+			//		if (renderer)
+			//		{
+			//			if (renderer->modelHandle.IsValid())
+			//			{
+			//				const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
+			//				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+			//					* glm::mat4_cast(transform.rotation)
+			//					* glm::scale(glm::mat4(1.0f), transform.scale);
+
+			//				transformMtxs.push_back(transformMatrix);
+			//				models.push_back(renderer->modelHandle.get());
+			//			}
+			//		}
+			//	}
+			//}
 		}
 
 		ImGui::BeginGroup();
@@ -116,44 +122,34 @@ namespace SliceEditor
 
 		ImGui::EndGroup();
 
-		std::string obj_handle = std::to_string(models.size()) + " objects selected.";
+		std::string obj_handle = std::to_string(entity.size()) + " objects selected.";
 		ImGui::Text(obj_handle.c_str());
 
-		if (models.empty())
+		if (entity.empty())
 			ImGui::BeginDisabled();
 
 		if (ImGui::Button("Bake"))
 		{
 			std::vector<SliceEngine::NavMeshLink> links;
+
 			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-			auto view = reg.view<SliceEngine::NavMeshLink>();
 
-			for (auto entity : view)
-			{
-				auto &linkComp = view.get<SliceEngine::NavMeshLink>(entity);
+			// 2. Iterate using .each() to avoid iterator errors
+			reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
+				{
+					SliceEngine::NavMeshLink data;
 
-				if ((uint32_t)linkComp.startLink == 0 || (uint32_t)linkComp.endLink == 0)
-					continue;
+					// Assuming startLink/endLink in the component are World Space positions 
+					// derived from the editor handles/transforms.
+					data.startLink = linkComp.startLink;
+					data.endLink = linkComp.endLink;
 
-				if (linkComp.startLink == linkComp.endLink)
-					continue;
-
-				if (!reg.valid(linkComp.startLink) || !reg.all_of<SliceEngine::Transform>(linkComp.startLink))
-					continue;
-
-				if (!reg.valid(linkComp.endLink) || !reg.all_of<SliceEngine::Transform>(linkComp.endLink))
-					continue;
-
-				SliceEngine::NavMeshLink data;
-				data.startLink = linkComp.startLink; // Store ID
-				data.endLink = linkComp.endLink;     // Store ID
-				data.bidirectional = true;           // Or linkComp.bidirectional
-				data.radius = 5.0f;                  // Or linkComp.radius
-
-				links.push_back(data);
-			}
-
-			mCompiler.BuildFromModel(models, transformMtxs, links);
+					data.bidirectional = true;
+					data.radius = 5.0f;
+					std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
+					links.push_back(data);
+				});
+			mCompiler.BuildFromModel(entity, links);
 		}
 
 		ImGui::SameLine();
@@ -162,7 +158,7 @@ namespace SliceEditor
 			mCompiler.Clear();
 		}
 
-		if (models.empty())
+		if (entity.empty())
 			ImGui::EndDisabled();
 
 		ImGui::End();
