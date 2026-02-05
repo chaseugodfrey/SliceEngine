@@ -92,8 +92,10 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
 
-	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	//register_std_array<glm::vec4, Button::Total_States>("ArrayBtnStates");
+	//register_std_array<float, Button::Total_States>("ArrayTest");
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
@@ -545,6 +547,9 @@ namespace SliceEngine
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
 		.property("transition", &Button::transition)
+		.property("color_tints", &Button::color_transitions)
+		//.property("test_float", &Button::test)
+		//.property("test_float2", &Button::test2)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -870,6 +875,7 @@ namespace SliceEngine
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
 		}
 		frm->EndSystem("Script");
 
@@ -944,6 +950,18 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		}
+
+		frm->StartSystem("Particle System");
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
+		frm->EndSystem("Particle System");
+
 		frm->StartSystem("Graphics");
 		sRender->Render();
 
@@ -952,12 +970,6 @@ namespace SliceEngine
 		//frm->EndSystem("Canvas");
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
-		frm->EndSystem("Particle System");
 
 		//frm->EndFrame();
 		//frm->CalculateSystemPercentages();
@@ -971,6 +983,7 @@ namespace SliceEngine
 		auto projSettingsManager = core->GetProjectSettingsManager();
 
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 
