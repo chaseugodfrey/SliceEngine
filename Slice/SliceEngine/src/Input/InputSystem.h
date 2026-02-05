@@ -54,6 +54,8 @@ namespace SliceEngine
         glm::vec2 prevMousePos{ 0.0, 0.0 };
         glm::vec2 mouseDelta{ 0.0, 0.0 };
         glm::vec2 currMouseNDC{ 0.0, 0.0 };
+
+
         float scrollDelta = 0.0f; // reset scroll delta
 
         // runtime control
@@ -76,6 +78,9 @@ namespace SliceEngine
         bool callbacksBound = false; // to prevent double-binding
 
     public:
+        // Temporary here, cuz i lazy to make functions for these (--TODO--)
+        bool mToCenterMousePosFromWindowDim{ true };
+        glm::ivec2 windowDim{ 1920, 1080 };
 
         // func to convert keycode to string
         static const char* KeyNameFallback(int key);
@@ -141,6 +146,7 @@ namespace SliceEngine
         void SetMousePosition(double x, double y);
         void SetMouseDelta(double x, double y);
         void SetScrollOffset(double offset);
+        void SetWindowDim(int width, int height);
         void SetMouseNDC(double x, double y);
     };
 }

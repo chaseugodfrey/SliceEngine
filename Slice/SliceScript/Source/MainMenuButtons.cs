@@ -14,8 +14,8 @@ namespace SliceEngine
 
             if(isPlay > 0.5f)
             {
-                //SceneManager.UnloadScene();
-                SceneManager.LoadScene("AloyTest");
+                
+                SceneManager.LoadScene("Gid_Working_Scene");
                 Console.WriteLine("LOad");
             }
         }

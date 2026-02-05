@@ -36,7 +36,7 @@ namespace SliceBuild
 
 		windowManager->FullScreenWindow();
 
-		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(1);
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->LoadSceneByIndex(0);
 
 		//engine.InitScene();
 
