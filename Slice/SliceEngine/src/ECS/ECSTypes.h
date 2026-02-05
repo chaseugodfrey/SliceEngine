@@ -190,6 +190,7 @@ namespace SliceEngine
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
 		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_DRAW_RAY_TAG = 0x20,
 		DEBUG_ALL_DEBUG		= 0xFF,
 
 		RENDER_NONE			= 0x00,
@@ -760,8 +761,8 @@ namespace SliceEngine
 		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
-		int final_x{}, final_y{};				//position with center of quad as position
-		int final_width{ 100 }, final_height{ 100 };
+		float final_x{}, final_y{};				//position with center of quad as position
+		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);
@@ -918,6 +919,11 @@ namespace SliceEngine
 		glm::vec3 endLink;
 		bool bidirectional;
 		float radius;
+	};
+
+	struct NavObstacle
+	{
+		bool isObstacle = false;
 	};
 }
 

@@ -691,6 +691,20 @@ namespace SliceEngine
                 }
             }
         }
+
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto entity : entityToInit)
+            {
+                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                mEntityInstances[entity]->InvokeOnAwake();
+                mEntityInstances[entity]->InvokeOnCreate();
+            }
+
+            entityToInit.clear();
+        }
+
+
     }
 
     void ScriptSystem::OnEnd()
@@ -1046,9 +1060,10 @@ namespace SliceEngine
             // for now we just invoke the moment it has been added
             if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
             {
-                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                entityToInit.insert(entity);
+               /* mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
                 mEntityInstances[entity]->InvokeOnAwake();
-                mEntityInstances[entity]->InvokeOnCreate();
+                mEntityInstances[entity]->InvokeOnCreate();*/
 
             }
         }

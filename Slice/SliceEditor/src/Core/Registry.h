@@ -25,7 +25,6 @@ namespace SliceEditor
 	{
 		std::unordered_map<std::string, std::unique_ptr<IBaseManager>> mManagers;
 		AssetManager& mAssetManager;
-		SliceEngine::FramerateManager& mEditorFRM;
 
 		template <typename ManagerType>
 		void CreateManager(std::string name)
@@ -37,17 +36,12 @@ namespace SliceEditor
 
 	public:
 
-		Registry(AssetManager& ass, SliceEngine::FramerateManager& frm) : mAssetManager(ass), mEditorFRM(frm)
+		Registry(AssetManager& ass) : mAssetManager(ass)
 		{ }
 
 		inline AssetManager& GetAssetManager()
 		{
 			return mAssetManager;
-		}
-
-		inline SliceEngine::FramerateManager& GetEditorFRM()
-		{
-			return mEditorFRM;
 		}
 
 		void Init();

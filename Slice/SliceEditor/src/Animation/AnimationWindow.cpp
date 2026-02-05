@@ -408,6 +408,11 @@ namespace SliceEditor
 			animationClipNames.push_back("No Animations");
 		}
 
+		if (animationClipNames.size() == 1 && std::strcmp(animationClipNames[0].c_str(), "No Animations") == 0)
+		{
+			mCurrentClipIndex = 0;
+		}
+
 		if (ComboHeader(mRegistry, animationName.c_str(), "##animSelected", mCurrentClipIndex, animationClipNames, true))
 		{
 			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex],mCurrentClipIndex);

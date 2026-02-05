@@ -58,6 +58,16 @@ namespace SliceEngine
 			return false;
 		}
 
+
+		if (mCurrentState == SceneState::PLAY_SCENE)
+		{
+			// publish event to scene change
+			OnSceneChangeEvent event;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(event);
+		}
+
+
+
 		UnloadCurrentScene();
 
 		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
@@ -89,6 +99,8 @@ namespace SliceEngine
 		event.isSceneLoaded = true;
 		event.navMeshBinPath = navMeshBinString;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+
 
 		if (next_scene_filepath.extension() == ".temp")
 		{

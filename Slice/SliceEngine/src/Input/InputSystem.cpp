@@ -243,6 +243,11 @@ namespace SliceEngine
         return mouseDelta;
     }
 
+    glm::vec2 InputSystem::GetMouseNDC() const
+    {
+        return currMouseNDC;
+    }
+
     double InputSystem::GetMouseX() const
     {
         return currMousePos.x;
@@ -316,6 +321,11 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
+    }
+
+    void InputSystem::SetMouseNDC(double x, double y)
+    {
+        currMouseNDC = { x ,y };
     }
 
 #pragma endregion

@@ -53,6 +53,7 @@ namespace SliceEngine
         glm::vec2 currMousePos{ 0.0, 0.0 }; // reset mouse positions
         glm::vec2 prevMousePos{ 0.0, 0.0 };
         glm::vec2 mouseDelta{ 0.0, 0.0 };
+        glm::vec2 currMouseNDC{ 0.0, 0.0 };
         float scrollDelta = 0.0f; // reset scroll delta
 
         // runtime control
@@ -116,8 +117,10 @@ namespace SliceEngine
         // mouse position
         glm::vec2 GetMousePosition() const;
         glm::vec2 GetMouseDelta() const;
+        glm::vec2 GetMouseNDC() const;
         double GetMouseX() const;
         double GetMouseY() const;
+        
 
         // cursor states
         void SetCursorState(CursorState state);
@@ -138,6 +141,7 @@ namespace SliceEngine
         void SetMousePosition(double x, double y);
         void SetMouseDelta(double x, double y);
         void SetScrollOffset(double offset);
+        void SetMouseNDC(double x, double y);
     };
 }
 #endif

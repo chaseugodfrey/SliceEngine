@@ -132,9 +132,9 @@ namespace SliceEngine {
 
 		auto& self_node = reg.get<SceneGraph>(self);
 	
-		int handle_pos{};
+		float handle_pos{};
 		if (axis == X_Axis) {
-			handle_pos = (int)(rect.final_width * value);
+			handle_pos = (rect.final_width * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -178,7 +178,7 @@ namespace SliceEngine {
 			}
 		}
 		else {
-			handle_pos = (int)(rect.final_height * value);
+			handle_pos = (rect.final_height * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -243,11 +243,16 @@ namespace SliceEngine {
 		* ismousereleased = mouse up
 		* ismousedown = ismousepressed
 		*/
+		//std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
 		if (!input.IsMouseDown(MouseButtons::LEFT) || !mRegistry->any_of<Slider>(raycast_entity)) {
 			return;
 		}
 		//std::cout << "handling" << std::endl;
 		auto& slider = mRegistry->get<Slider>(raycast_entity);
+		if (!slider.componentEnabled) {
+			return;
+		}
+		//std::cout << "value: " << slider.GetValue() << std::endl;
 		auto const& rect = mRegistry->get<RectTransform>(raycast_entity);
 
 		glm::vec2 direction{};
@@ -265,16 +270,23 @@ namespace SliceEngine {
 		}
 
 		glm::vec2 mouse_coord = input.GetMousePosition();
-		int mouse_x = (int)mouse_coord.x;
-		int mouse_y = CanvasSystem::target_height - (int)mouse_coord.y;
+		glm::vec2 mouse_NDC = input.GetMouseNDC();
+
+
+		//for now im just gona directly convert to game screen coord
+		int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
+		int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
+
+		//int mouse_x = (int)mouse_coord.x;
+		//int mouse_y = CanvasSystem::target_height - (int)mouse_coord.y;
 
 		//First convert mouse into canvas coord - 0,0 is center
 		mouse_x -= CanvasSystem::target_width / 2;
 		mouse_y += CanvasSystem::target_height / 2;
 
 		//find the relative mouse coord
-		int rel_x = mouse_x - (rect.final_x - rect.final_width / 2);
-		float target_value = (float)rel_x / rect.final_width;
+		float rel_x = mouse_x - (rect.final_x - (float)rect.final_width / 2);
+		float target_value = rel_x / rect.final_width;
 
 		assert(target_value <= 1.f && target_value >= 0.f);
 		slider.SetValue(target_value, raycast_entity);
@@ -302,14 +314,14 @@ namespace SliceEngine {
 	void ButtonSystem::HandleMouse(InputSystem& input, Entity raycast_entity) {
 		ButtonSystem::Events mouse_event = Events::None;
 
-
-		//for now im gona use a key to simulate mouse clicks
-
 		if (current_button == entt::null) {
 			if (raycast_entity == entt::null || !mRegistry->any_of<Button>(raycast_entity)) {
 				return;
 			}
 			auto& t_button = mRegistry->get<Button>(raycast_entity);
+			if (!t_button.componentEnabled) {
+				return;
+			}
 			if (!input.IsMouseDown(MouseButtons::LEFT)) {		//hover
 				update_button(raycast_entity, Highlight);
 				current_button = raycast_entity;
@@ -321,6 +333,10 @@ namespace SliceEngine {
 		}
 		else {
 			auto& c_button = mRegistry->get<Button>(current_button);
+
+			if (!c_button.componentEnabled) {
+				return;
+			}
 
 			if (c_button.state == Button::Highlighted) {
 				if (!input.IsMouseDown(MouseButtons::LEFT)) {
@@ -363,7 +379,7 @@ namespace SliceEngine {
 	//Set the color/sprite guid of the image depending on state
 	void ButtonSystem::update_button(Entity button_entity, Events event) {
 		auto& button = mRegistry->get<Button>(button_entity);
-
+		assert(button.componentEnabled);
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;
@@ -387,7 +403,7 @@ namespace SliceEngine {
 		}
 			break;
 		case Cancel:
-			std::cout << "Cancel event" << std::endl;
+			//std::cout << "Cancel event" << std::endl;
 			button.state = Button::Normal;
 			break;
 		}

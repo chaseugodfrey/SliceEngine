@@ -19,6 +19,13 @@ DigiPen Institute of Technology is prohibited.
 	Define any events here
 */
 
+struct DebugDrawRayEvent
+{
+	glm::vec3 Origin;
+	glm::vec3 Dir;
+	float magnitude;
+};
+
 struct EntityCollide
 {
 	Entity firstEntity;
@@ -81,6 +88,11 @@ struct OnSceneLoadedEvent
 	std::filesystem::path scenePath;
 	bool isSceneLoaded;
 	std::string navMeshBinPath;
+};
+
+struct OnSceneChangeEvent
+{
+
 };
 
 struct OnSceneStopEvent
