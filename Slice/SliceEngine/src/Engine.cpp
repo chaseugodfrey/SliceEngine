@@ -931,6 +931,8 @@ namespace SliceEngine
 			//for now im just gona directly convert to game screen coord
 			unsigned int mouse_x = (unsigned int)mouse_coord.x;
 			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+
+			std::cout << mouse_coord.y << std::endl;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
