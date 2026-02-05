@@ -17,6 +17,12 @@ namespace SliceEngine
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_LoadScene(string sceneName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_UnloadCurrentScene();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void QuitGame();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
