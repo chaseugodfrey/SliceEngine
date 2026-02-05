@@ -21,7 +21,7 @@ namespace SliceEditor
 		void UpdateVersion(nlohmann::json& preferences, unsigned int);
 		void LoadPreferences();
 		void SetPreferences();
-		void SavePreferences();
+		void SavePreferences(bool onStartup);
 		void UpdateLastSceneLoaded(OnSceneLoadedEvent e);
 
 		Preferences& GetPreferences();

@@ -762,6 +762,11 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
+
+		
+
+		//static bool isPlaying = false;
+
 		//
 
 		//frm->StartFrame();
