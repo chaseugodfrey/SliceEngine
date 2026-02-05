@@ -314,14 +314,14 @@ namespace SliceEngine {
 	void ButtonSystem::HandleMouse(InputSystem& input, Entity raycast_entity) {
 		ButtonSystem::Events mouse_event = Events::None;
 
-
-		//for now im gona use a key to simulate mouse clicks
-
 		if (current_button == entt::null) {
 			if (raycast_entity == entt::null || !mRegistry->any_of<Button>(raycast_entity)) {
 				return;
 			}
 			auto& t_button = mRegistry->get<Button>(raycast_entity);
+			if (!t_button.componentEnabled) {
+				return;
+			}
 			if (!input.IsMouseDown(MouseButtons::LEFT)) {		//hover
 				update_button(raycast_entity, Highlight);
 				current_button = raycast_entity;
@@ -333,6 +333,10 @@ namespace SliceEngine {
 		}
 		else {
 			auto& c_button = mRegistry->get<Button>(current_button);
+
+			if (!c_button.componentEnabled) {
+				return;
+			}
 
 			if (c_button.state == Button::Highlighted) {
 				if (!input.IsMouseDown(MouseButtons::LEFT)) {
@@ -375,7 +379,7 @@ namespace SliceEngine {
 	//Set the color/sprite guid of the image depending on state
 	void ButtonSystem::update_button(Entity button_entity, Events event) {
 		auto& button = mRegistry->get<Button>(button_entity);
-
+		assert(button.componentEnabled);
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;
@@ -399,7 +403,7 @@ namespace SliceEngine {
 		}
 			break;
 		case Cancel:
-			std::cout << "Cancel event" << std::endl;
+			//std::cout << "Cancel event" << std::endl;
 			button.state = Button::Normal;
 			break;
 		}
